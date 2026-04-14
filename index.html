@@ -1,370 +1,719 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SD Negeri 2 Pesantren</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SD Negeri 2 Pesantren</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --blue:#1A56DB;
+  --blue-dark:#1240A8;
+  --blue-light:#EBF2FF;
+  --blue-mid:#3B82F6;
+  --accent:#F59E0B;
+  --text:#0F172A;
+  --text-2:#475569;
+  --text-3:#94A3B8;
+  --bg:#F8FAFC;
+  --white:#FFFFFF;
+  --border:#E2E8F0;
+  --radius:14px;
+  --radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg:0 8px 32px rgba(26,86,219,0.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-    .navbar {
-      background: #fff;
-      border-bottom: 1px solid #e5e5e5;
-      padding: 0 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 56px;
-      position: sticky; top: 0; z-index: 10;
-    }
-    .logo-text { font-size: 15px; font-weight: 700; color: #1a1a1a; }
-    .logo-text span { color: #185FA5; }
-    .nav-links { display: flex; gap: 1.5rem; }
-    .nav-links a { font-size: 13px; color: #555; text-decoration: none; cursor: pointer; }
-    .nav-links a:hover, .nav-links a.active { color: #185FA5; font-weight: 600; }
+/* NAVBAR */
+.navbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 2rem;
+  height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.nav-logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:#fff;font-weight:800;
+}
+.nav-logo-text{font-size:14px;font-weight:700;color:var(--text);}
+.nav-logo-text span{color:var(--blue);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{
+  padding:6px 14px;border-radius:8px;
+  font-size:13px;font-weight:500;color:var(--text-2);
+  cursor:pointer;border:none;background:none;
+  transition:all 0.15s;
+}
+.nav-link:hover{background:var(--blue-light);color:var(--blue);}
+.nav-link.active{background:var(--blue);color:#fff;}
 
-    .hero {
-      background: #185FA5;
-      color: #fff;
-      padding: 3.5rem 1.5rem;
-      text-align: center;
-    }
-    .hero-badge { display: inline-block; background: rgba(255,255,255,0.15); font-size: 12px; padding: 4px 14px; border-radius: 20px; margin-bottom: 1rem; }
-    .hero h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
-    .hero p { font-size: 14px; opacity: 0.85; max-width: 480px; margin: 0 auto; }
+/* PAGE */
+.page{display:none;animation:fadeIn 0.25s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
-    .stats { display: grid; grid-template-columns: repeat(4,1fr); background: #fff; border-bottom: 1px solid #e5e5e5; }
-    .stat { padding: 1.25rem 1rem; text-align: center; border-right: 1px solid #e5e5e5; }
-    .stat:last-child { border-right: none; }
-    .stat-num { font-size: 22px; font-weight: 700; color: #185FA5; }
-    .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+/* ===== BERANDA ===== */
+.hero{
+  background:var(--blue);
+  padding:4rem 2rem 5rem;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:320px;height:320px;border-radius:50%;
+  background:rgba(255,255,255,0.06);
+}
+.hero::after{
+  content:'';position:absolute;bottom:-80px;left:30%;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,0.04);
+}
+.hero-inner{max-width:700px;margin:0 auto;position:relative;z-index:1;}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.15);
+  color:#fff;font-size:12px;font-weight:600;
+  padding:5px 12px;border-radius:20px;margin-bottom:1.25rem;
+  letter-spacing:0.5px;
+}
+.hero h1{
+  font-family:'Fraunces',serif;
+  font-size:clamp(28px,5vw,44px);
+  color:#fff;line-height:1.2;margin-bottom:12px;
+}
+.hero h1 em{font-style:italic;color:#FCD34D;}
+.hero p{font-size:15px;color:rgba(255,255,255,0.8);max-width:480px;line-height:1.7;margin-bottom:2rem;}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-white{background:#fff;color:var(--blue);border:none;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.btn-white:hover{background:#EBF2FF;transform:translateY(-1px);}
+.btn-ghost{background:rgba(255,255,255,0.12);color:#fff;border:1.5px solid rgba(255,255,255,0.3);padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.btn-ghost:hover{background:rgba(255,255,255,0.2);}
 
-    .section { padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto; }
-    .section-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-    .divider { width: 36px; height: 3px; background: #185FA5; border-radius: 2px; margin-bottom: 1.25rem; }
+/* STATS BAR */
+.stats-bar{
+  background:#fff;border-bottom:1px solid var(--border);
+  display:grid;grid-template-columns:repeat(4,1fr);
+}
+.stat-item{padding:1.25rem;text-align:center;border-right:1px solid var(--border);}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-size:24px;font-weight:800;color:var(--blue);}
+.stat-lbl{font-size:11px;color:var(--text-3);margin-top:2px;font-weight:500;}
 
-    .profil-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
-    @media(max-width:500px){ .profil-grid,.menu-grid { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2,1fr); } }
-    .profil-item { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 1rem; }
-    .profil-label { font-size: 11px; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .profil-value { font-size: 14px; font-weight: 500; }
+/* MAIN CONTENT */
+.content{max-width:900px;margin:0 auto;padding:2.5rem 1.5rem;}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem;}
+.section-title{font-size:17px;font-weight:700;color:var(--text);}
+.section-title span{color:var(--blue);}
+.see-all{font-size:12px;color:var(--blue);font-weight:600;cursor:pointer;background:none;border:none;}
 
-    .vm-box { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.25rem; margin-bottom: 10px; }
-    .vm-box h3 { font-size: 14px; font-weight: 600; color: #185FA5; margin-bottom: 8px; }
-    .vm-box p, .vm-box li { font-size: 13px; color: #444; line-height: 1.7; }
-    .vm-box ul { padding-left: 1.2rem; }
+/* BERITA */
+.berita-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:2.5rem;}
+@media(max-width:540px){.berita-grid,.menu-grid,.galeri-grid{grid-template-columns:1fr;}.stats-bar{grid-template-columns:repeat(2,1fr);}}
+.berita-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all 0.2s;}
+.berita-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+.berita-card.featured{grid-column:span 2;}
+@media(max-width:540px){.berita-card.featured{grid-column:span 1;}}
+.berita-img{height:140px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:40px;}
+.berita-card.featured .berita-img{height:180px;}
+.berita-body{padding:1rem;}
+.berita-tag{font-size:10px;font-weight:700;color:var(--blue);background:var(--blue-light);padding:3px 8px;border-radius:5px;display:inline-block;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;}
+.berita-title{font-size:14px;font-weight:600;line-height:1.45;margin-bottom:6px;}
+.berita-card.featured .berita-title{font-size:16px;}
+.berita-date{font-size:11px;color:var(--text-3);}
 
-    .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .menu-card { background: #fff; border: 1.5px solid #e5e5e5; border-radius: 14px; padding: 1.5rem; cursor: pointer; transition: border-color 0.2s; }
-    .menu-card:hover { border-color: #185FA5; }
-    .menu-card.featured { border-color: #185FA5; background: #f0f7ff; }
-    .menu-icon { font-size: 30px; margin-bottom: 12px; }
-    .menu-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
-    .menu-card p { font-size: 12px; color: #666; line-height: 1.5; }
-    .menu-arrow { font-size: 12px; color: #185FA5; font-weight: 600; margin-top: 12px; display: block; }
+/* MENU UTAMA */
+.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:2.5rem;}
+.menu-card{
+  background:#fff;border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:1.5rem;
+  cursor:pointer;transition:all 0.2s;text-align:left;
+}
+.menu-card:hover{border-color:var(--blue);box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+.menu-card.highlight{border-color:var(--blue);background:linear-gradient(135deg,#EBF2FF 0%,#fff 100%);}
+.menu-card-icon{font-size:28px;margin-bottom:12px;}
+.menu-card h3{font-size:14px;font-weight:700;margin-bottom:5px;}
+.menu-card p{font-size:12px;color:var(--text-2);line-height:1.5;}
+.menu-card-arrow{font-size:11px;color:var(--blue);font-weight:700;margin-top:10px;display:block;}
 
-    .page { display: none; }
-    .page.active { display: block; }
+/* PROFIL STRIP */
+.profil-strip{
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.5rem;margin-bottom:2.5rem;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;
+}
+.profil-field{}
+.profil-lbl{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px;}
+.profil-val{font-size:13px;font-weight:600;color:var(--text);}
 
-    .page-hero { background: #185FA5; color: #fff; padding: 2rem 1.5rem; }
-    .page-hero h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-    .page-hero p { font-size: 13px; opacity: 0.85; }
-    .back-btn { background: none; border: none; color: #fff; font-size: 13px; cursor: pointer; margin-bottom: 12px; padding: 0; opacity: 0.85; }
+/* VM */
+.vm-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:2rem;}
+@media(max-width:540px){.vm-grid,.menu-grid{grid-template-columns:1fr;}}
+.vm-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;}
+.vm-card h3{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.vm-card p,.vm-card li{font-size:13px;color:var(--text-2);line-height:1.75;}
+.vm-card ul{padding-left:1.1rem;}
 
-    .mapel-list { padding: 1.5rem; max-width: 800px; margin: 0 auto; }
-    .mapel-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.25rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-    .mapel-card.clickable { cursor: pointer; }
-    .mapel-card.clickable:hover { border-color: #185FA5; }
-    .mapel-left { display: flex; align-items: center; gap: 12px; }
-    .mapel-icon { font-size: 26px; }
-    .mapel-name { font-size: 15px; font-weight: 600; }
-    .mapel-desc { font-size: 12px; color: #666; margin-top: 2px; }
-    .badge-soon { background: #f5f5f5; color: #999; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
-    .badge-ready { background: #EAF3DE; color: #3B6D11; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+/* ===== LATIHAN ===== */
+.page-banner{background:var(--blue);padding:2rem 1.5rem;color:#fff;}
+.page-banner .back{background:none;border:none;color:rgba(255,255,255,0.75);font-size:13px;cursor:pointer;margin-bottom:10px;display:block;font-family:'Plus Jakarta Sans',sans-serif;}
+.page-banner h2{font-size:20px;font-weight:800;}
+.page-banner p{font-size:13px;opacity:0.8;margin-top:4px;}
 
-    #quiz-section { display: none; padding: 1.5rem; max-width: 600px; margin: 0 auto; }
-    .quiz-back { font-size: 13px; color: #555; background: none; border: none; cursor: pointer; margin-bottom: 1rem; padding: 0; }
-    .quiz-box { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.25rem; }
-    .quiz-header { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 10px; }
-    .progress-bar { width: 100%; height: 5px; background: #eee; border-radius: 4px; margin-bottom: 1.25rem; }
-    .progress-fill { height: 5px; background: #185FA5; border-radius: 4px; transition: width 0.3s; }
-    .question { font-size: 15px; font-weight: 600; line-height: 1.6; margin-bottom: 1rem; }
-    .options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
-    .option { padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; text-align: left; background: #fff; cursor: pointer; }
-    .option:hover:not(:disabled) { background: #f5f5f5; }
-    .option.correct { background: #EAF3DE; border-color: #639922; color: #2d5a0e; font-weight: 500; }
-    .option.wrong { background: #FCEBEB; border-color: #E24B4A; color: #7a1f1f; }
-    .option:disabled { cursor: default; }
-    .feedback { font-size: 13px; padding: 10px 14px; border-radius: 8px; margin-bottom: 1rem; line-height: 1.5; display: none; }
-    .feedback.show { display: block; }
-    .feedback.correct { background: #EAF3DE; color: #2d5a0e; }
-    .feedback.wrong { background: #FCEBEB; color: #7a1f1f; }
-    .quiz-nav { display: flex; justify-content: flex-end; }
-    .btn-next { background: #185FA5; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; display: none; }
-    .result-box { display: none; text-align: center; padding: 2rem 1rem; }
-    .result-score { font-size: 48px; font-weight: 700; color: #185FA5; }
-    .result-label { font-size: 13px; color: #666; margin-bottom: 4px; }
-    .result-msg { font-size: 14px; color: #444; margin: 8px 0 1.5rem; }
-    .btn-restart { background: #185FA5; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; margin-right: 8px; }
-    .btn-back2 { background: transparent; color: #555; border: 1px solid #ccc; padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+.latihan-content{max-width:800px;margin:0 auto;padding:2rem 1.5rem;}
+.kategori-tabs{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.tab-btn{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid var(--border);background:#fff;cursor:pointer;color:var(--text-2);transition:all 0.15s;font-family:'Plus Jakarta Sans',sans-serif;}
+.tab-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.mapel-list{}
+.mapel-item{
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.1rem 1.25rem;margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:all 0.15s;
+}
+.mapel-item:hover{border-color:var(--blue);box-shadow:0 2px 12px rgba(26,86,219,0.1);}
+.mapel-item.disabled{cursor:default;opacity:0.6;}
+.mapel-item.disabled:hover{border-color:var(--border);box-shadow:none;}
+.mapel-left{display:flex;align-items:center;gap:14px;}
+.mapel-emoji{font-size:24px;}
+.mapel-name{font-size:14px;font-weight:700;}
+.mapel-desc{font-size:12px;color:var(--text-2);margin-top:2px;}
+.chip{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600;}
+.chip-ready{background:#D1FAE5;color:#065F46;}
+.chip-soon{background:#F1F5F9;color:#94A3B8;}
+.chip-osn{background:#FEF3C7;color:#92400E;}
 
-    .footer { background: #1a1a1a; color: #888; text-align: center; padding: 1.5rem; font-size: 12px; margin-top: 3rem; }
-    .footer span { color: #fff; font-weight: 600; }
-  </style>
+/* QUIZ */
+.quiz-wrap{max-width:600px;margin:0 auto;padding:1.5rem;}
+.quiz-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;}
+.quiz-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.quiz-num{font-size:12px;font-weight:600;color:var(--text-3);}
+.quiz-score{font-size:12px;font-weight:700;color:var(--blue);}
+.prog-bar{height:5px;background:#E2E8F0;border-radius:4px;margin-bottom:1.5rem;}
+.prog-fill{height:5px;background:var(--blue);border-radius:4px;transition:width 0.4s;}
+.quiz-q{font-size:15px;font-weight:700;line-height:1.6;margin-bottom:1.25rem;}
+.opts{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;}
+.opt{padding:11px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;text-align:left;background:#fff;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;transition:all 0.15s;}
+.opt:hover:not(:disabled){background:var(--blue-light);border-color:var(--blue);}
+.opt.correct{background:#D1FAE5;border-color:#10B981;color:#065F46;}
+.opt.wrong{background:#FEE2E2;border-color:#EF4444;color:#991B1B;}
+.opt:disabled{cursor:default;}
+.fb{font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:1rem;line-height:1.6;display:none;}
+.fb.show{display:block;}
+.fb.correct{background:#D1FAE5;color:#065F46;}
+.fb.wrong{background:#FEE2E2;color:#991B1B;}
+.quiz-footer{display:flex;justify-content:flex-end;}
+.btn-next{background:var(--blue);color:#fff;border:none;padding:10px 22px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:none;font-family:'Plus Jakarta Sans',sans-serif;}
+.result-box{display:none;text-align:center;padding:2rem;}
+.result-circle{width:100px;height:100px;border-radius:50%;background:var(--blue-light);border:4px solid var(--blue);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1rem;}
+.result-big{font-size:26px;font-weight:800;color:var(--blue);}
+.result-of{font-size:11px;color:var(--text-3);font-weight:600;}
+.result-msg{font-size:14px;color:var(--text-2);margin-bottom:1.5rem;line-height:1.6;}
+.result-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.btn-ulang{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+.btn-back-mapel{background:#fff;color:var(--text-2);border:1.5px solid var(--border);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+
+/* ===== MATERI ===== */
+.materi-content{max-width:800px;margin:0 auto;padding:2rem 1.5rem;}
+.materi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+.materi-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;cursor:pointer;transition:all 0.2s;}
+.materi-card:hover{border-color:var(--blue);box-shadow:var(--shadow-lg);}
+.materi-card.soon{opacity:0.6;cursor:default;}
+.materi-card.soon:hover{border-color:var(--border);box-shadow:none;}
+.materi-icon{font-size:28px;margin-bottom:10px;}
+.materi-name{font-size:14px;font-weight:700;margin-bottom:4px;}
+.materi-desc{font-size:12px;color:var(--text-2);line-height:1.5;}
+.materi-chip{font-size:11px;font-weight:600;margin-top:10px;display:inline-block;padding:3px 8px;border-radius:5px;}
+
+/* MATERI DETAIL */
+.materi-detail{display:none;max-width:700px;margin:0 auto;padding:1.5rem;}
+.materi-detail-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;}
+.materi-detail h3{font-size:16px;font-weight:800;margin-bottom:1rem;color:var(--blue);}
+.materi-section{margin-bottom:1.25rem;}
+.materi-section h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--blue-light);}
+.materi-section p,.materi-section li{font-size:13px;color:var(--text-2);line-height:1.75;}
+.materi-section ul{padding-left:1.1rem;}
+
+/* ===== GALERI ===== */
+.galeri-content{max-width:900px;margin:0 auto;padding:2rem 1.5rem;}
+.galeri-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:540px){.galeri-grid{grid-template-columns:repeat(2,1fr);}}
+.galeri-item{border-radius:var(--radius);overflow:hidden;aspect-ratio:4/3;background:var(--blue-light);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);}
+.galeri-item:hover{transform:scale(1.02);box-shadow:var(--shadow-lg);}
+.galeri-item.tall{grid-row:span 2;aspect-ratio:unset;}
+.galeri-emoji{font-size:36px;margin-bottom:8px;}
+.galeri-label{font-size:12px;font-weight:600;color:var(--blue);text-align:center;padding:0 8px;}
+
+/* FOOTER */
+.footer{background:#0F172A;color:#64748B;text-align:center;padding:2rem;font-size:12px;margin-top:4rem;}
+.footer strong{color:#fff;}
+</style>
 </head>
 <body>
 
 <nav class="navbar">
-  <div class="logo-text">SDN 2 <span>Pesantren</span></div>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">SD</div>
+    <div class="nav-logo-text">SDN 2 <span>Pesantren</span></div>
+  </div>
   <div class="nav-links">
-    <a onclick="showPage('profil')" id="nav-profil" class="active">Profil</a>
-    <a onclick="showPage('latihan')" id="nav-latihan">Latihan TKA</a>
-    <a onclick="showPage('materi')" id="nav-materi">Materi TKA</a>
+    <button class="nav-link active" onclick="showPage('beranda')" id="nav-beranda">Beranda</button>
+    <button class="nav-link" onclick="showPage('latihan')" id="nav-latihan">Latihan Soal</button>
+    <button class="nav-link" onclick="showPage('materi')" id="nav-materi">Materi</button>
+    <button class="nav-link" onclick="showPage('galeri')" id="nav-galeri">Galeri</button>
   </div>
 </nav>
 
-<!-- PROFIL -->
-<div id="page-profil" class="page active">
+<!-- ======= BERANDA ======= -->
+<div id="page-beranda" class="page active">
   <div class="hero">
-    <div class="hero-badge">Sekolah Dasar Negeri</div>
-    <h1>SD Negeri 2 Pesantren</h1>
-    <p>Portal resmi informasi dan pembelajaran siswa kelas 1–6</p>
+    <div class="hero-inner">
+      <div class="hero-tag">🏫 Sekolah Dasar Negeri</div>
+      <h1>SD Negeri 2<br><em>Pesantren</em></h1>
+      <p>Portal resmi pembelajaran dan informasi sekolah untuk siswa, guru, dan orang tua.</p>
+      <div class="hero-btns">
+        <button class="btn-white" onclick="showPage('latihan')">📝 Latihan TKA</button>
+        <button class="btn-ghost" onclick="showPage('materi')">📚 Lihat Materi</button>
+      </div>
+    </div>
   </div>
 
-  <div class="stats">
-    <div class="stat"><div class="stat-num">6</div><div class="stat-label">Tingkat Kelas</div></div>
-    <div class="stat"><div class="stat-num">12</div><div class="stat-label">Guru & Staff</div></div>
-    <div class="stat"><div class="stat-num">A</div><div class="stat-label">Akreditasi</div></div>
-    <div class="stat"><div class="stat-num">2</div><div class="stat-label">Menu Belajar</div></div>
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num">6</div><div class="stat-lbl">Tingkat Kelas</div></div>
+    <div class="stat-item"><div class="stat-num">A</div><div class="stat-lbl">Akreditasi</div></div>
+    <div class="stat-item"><div class="stat-num">12+</div><div class="stat-lbl">Guru & Staff</div></div>
+    <div class="stat-item"><div class="stat-num">4</div><div class="stat-lbl">Menu Digital</div></div>
   </div>
 
-  <div class="section">
-    <div class="section-title">Profil Sekolah</div>
-    <div class="divider"></div>
-    <div class="profil-grid">
-      <div class="profil-item"><div class="profil-label">Nama Sekolah</div><div class="profil-value">SD Negeri 2 Pesantren</div></div>
-      <div class="profil-item"><div class="profil-label">Status</div><div class="profil-value">Negeri</div></div>
-      <div class="profil-item"><div class="profil-label">Jenjang</div><div class="profil-value">Sekolah Dasar (SD)</div></div>
-      <div class="profil-item"><div class="profil-label">Kurikulum</div><div class="profil-value">Kurikulum Merdeka</div></div>
-      <div class="profil-item"><div class="profil-label">Akreditasi</div><div class="profil-value">A (Unggul)</div></div>
-      <div class="profil-item"><div class="profil-label">Tahun Berdiri</div><div class="profil-value">—</div></div>
+  <div class="content">
+
+    <!-- BERITA -->
+    <div class="section-head">
+      <div class="section-title">Berita & <span>Pengumuman</span></div>
+    </div>
+    <div class="berita-grid">
+      <div class="berita-card featured">
+        <div class="berita-img">📢</div>
+        <div class="berita-body">
+          <span class="berita-tag">Pengumuman</span>
+          <div class="berita-title">Persiapan Tes Kemampuan Akademik (TKA) Kelas 6 Tahun 2026</div>
+          <div class="berita-date">14 April 2026</div>
+        </div>
+      </div>
+      <div class="berita-card">
+        <div class="berita-img" style="height:100px">🏆</div>
+        <div class="berita-body">
+          <span class="berita-tag">Prestasi</span>
+          <div class="berita-title">Siswa SDN 2 Pesantren Raih Juara OSN Tingkat Kecamatan</div>
+          <div class="berita-date">10 April 2026</div>
+        </div>
+      </div>
+      <div class="berita-card">
+        <div class="berita-img" style="height:100px">📅</div>
+        <div class="berita-body">
+          <span class="berita-tag">Agenda</span>
+          <div class="berita-title">Jadwal Ujian Akhir Semester Genap 2025/2026</div>
+          <div class="berita-date">8 April 2026</div>
+        </div>
+      </div>
     </div>
 
-    <div class="section-title">Visi & Misi</div>
-    <div class="divider"></div>
-    <div class="vm-box">
-      <h3>Visi</h3>
-      <p>Terwujudnya peserta didik yang beriman, berprestasi, berkarakter, dan berwawasan global.</p>
-    </div>
-    <div class="vm-box">
-      <h3>Misi</h3>
-      <ul>
-        <li>Menyelenggarakan pendidikan yang berkualitas dan berkarakter</li>
-        <li>Menumbuhkan semangat belajar dan berprestasi pada siswa</li>
-        <li>Menciptakan lingkungan sekolah yang kondusif dan menyenangkan</li>
-        <li>Membekali siswa dengan keterampilan abad 21</li>
-      </ul>
+    <!-- PROFIL -->
+    <div class="section-head"><div class="section-title">Profil <span>Sekolah</span></div></div>
+    <div class="profil-strip">
+      <div class="profil-field"><div class="profil-lbl">Nama Sekolah</div><div class="profil-val">SD Negeri 2 Pesantren</div></div>
+      <div class="profil-field"><div class="profil-lbl">Status</div><div class="profil-val">Negeri</div></div>
+      <div class="profil-field"><div class="profil-lbl">Kurikulum</div><div class="profil-val">Kurikulum Merdeka</div></div>
+      <div class="profil-field"><div class="profil-lbl">Akreditasi</div><div class="profil-val">A — Unggul</div></div>
+      <div class="profil-field"><div class="profil-lbl">Jenjang</div><div class="profil-val">Sekolah Dasar (SD)</div></div>
     </div>
 
-    <div class="section-title" style="margin-top:2rem">Menu Pembelajaran</div>
-    <div class="divider"></div>
+    <div class="vm-grid">
+      <div class="vm-card">
+        <h3>🎯 Visi</h3>
+        <p>Terwujudnya peserta didik yang beriman, berprestasi, berkarakter, dan berwawasan global.</p>
+      </div>
+      <div class="vm-card">
+        <h3>🚀 Misi</h3>
+        <ul>
+          <li>Menyelenggarakan pendidikan berkualitas</li>
+          <li>Menumbuhkan semangat berprestasi</li>
+          <li>Menciptakan lingkungan yang kondusif</li>
+          <li>Membekali keterampilan abad 21</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- MENU -->
+    <div class="section-head"><div class="section-title">Menu <span>Pembelajaran</span></div></div>
     <div class="menu-grid">
-      <div class="menu-card featured" onclick="showPage('latihan')">
-        <div class="menu-icon">📝</div>
+      <div class="menu-card highlight" onclick="showPage('latihan')">
+        <div class="menu-card-icon">📝</div>
         <h3>Latihan Soal TKA</h3>
-        <p>Latihan soal pilihan ganda untuk persiapan Tes Kemampuan Akademik kelas 6</p>
-        <span class="menu-arrow">Mulai latihan →</span>
+        <p>Soal pilihan ganda persiapan Tes Kemampuan Akademik kelas 6</p>
+        <span class="menu-card-arrow">Mulai latihan →</span>
+      </div>
+      <div class="menu-card" onclick="showPage('latihan');setTab('osn')">
+        <div class="menu-card-icon">🏆</div>
+        <h3>Latihan Soal OSN</h3>
+        <p>Persiapan Olimpiade Sains Nasional tingkat SD</p>
+        <span class="menu-card-arrow">Lihat soal →</span>
       </div>
       <div class="menu-card" onclick="showPage('materi')">
-        <div class="menu-icon">📚</div>
-        <h3>Materi TKA</h3>
-        <p>Ringkasan materi pelajaran untuk persiapan Tes Kemampuan Akademik kelas 6</p>
-        <span class="menu-arrow">Lihat materi →</span>
+        <div class="menu-card-icon">📚</div>
+        <h3>Materi Belajar</h3>
+        <p>Ringkasan materi pelajaran untuk TKA dan OSN</p>
+        <span class="menu-card-arrow">Buka materi →</span>
       </div>
     </div>
   </div>
-
-  <div class="footer"><span>SD Negeri 2 Pesantren</span> — Portal Pembelajaran Siswa</div>
+  <div class="footer"><strong>SD Negeri 2 Pesantren</strong> — Portal Pembelajaran Digital &copy; 2026</div>
 </div>
 
-<!-- LATIHAN TKA -->
+<!-- ======= LATIHAN SOAL ======= -->
 <div id="page-latihan" class="page">
-  <div class="page-hero">
-    <button class="back-btn" onclick="showPage('profil')">← Kembali</button>
-    <h2>Latihan Soal TKA</h2>
-    <p>Tes Kemampuan Akademik — Kelas 6 SD</p>
+  <div class="page-banner">
+    <button class="back" onclick="showPage('beranda')">← Kembali ke Beranda</button>
+    <h2>📝 Latihan Soal</h2>
+    <p>TKA & OSN — Kelas 6 SD</p>
   </div>
 
-  <div class="mapel-list" id="mapel-list">
-    <p style="font-size:13px;color:#666;margin-bottom:1rem">Pilih mata pelajaran untuk mulai latihan:</p>
-    <div class="mapel-card clickable" onclick="startQuiz()">
-      <div class="mapel-left">
-        <div class="mapel-icon">🔬</div>
-        <div><div class="mapel-name">IPA</div><div class="mapel-desc">Ilmu Pengetahuan Alam — 5 soal</div></div>
-      </div>
-      <span class="badge-ready">Tersedia</span>
+  <div class="latihan-content" id="latihan-list">
+    <div class="kategori-tabs">
+      <button class="tab-btn active" onclick="setTab('tka')" id="tab-tka">Semua</button>
+      <button class="tab-btn" onclick="setTab('tka')" id="tab-tka2">TKA</button>
+      <button class="tab-btn" onclick="setTab('osn')" id="tab-osn">OSN</button>
     </div>
-    <div class="mapel-card">
-      <div class="mapel-left">
-        <div class="mapel-icon">📐</div>
-        <div><div class="mapel-name">Matematika</div><div class="mapel-desc">Operasi hitung & geometri</div></div>
+
+    <div id="list-tka">
+      <p style="font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Tes Kemampuan Akademik</p>
+      <div class="mapel-item" onclick="startQuiz('ipa_tka')">
+        <div class="mapel-left"><div class="mapel-emoji">🔬</div><div><div class="mapel-name">IPA</div><div class="mapel-desc">Ilmu Pengetahuan Alam — 5 soal</div></div></div>
+        <span class="chip chip-ready">Tersedia</span>
       </div>
-      <span class="badge-soon">Segera hadir</span>
+      <div class="mapel-item disabled">
+        <div class="mapel-left"><div class="mapel-emoji">📐</div><div><div class="mapel-name">Matematika</div><div class="mapel-desc">Operasi hitung & geometri</div></div></div>
+        <span class="chip chip-soon">Segera hadir</span>
+      </div>
+      <div class="mapel-item disabled">
+        <div class="mapel-left"><div class="mapel-emoji">📖</div><div><div class="mapel-name">Bahasa Indonesia</div><div class="mapel-desc">Membaca & tata bahasa</div></div></div>
+        <span class="chip chip-soon">Segera hadir</span>
+      </div>
+      <div class="mapel-item disabled">
+        <div class="mapel-left"><div class="mapel-emoji">🌏</div><div><div class="mapel-name">IPS</div><div class="mapel-desc">Sejarah & geografi</div></div></div>
+        <span class="chip chip-soon">Segera hadir</span>
+      </div>
     </div>
-    <div class="mapel-card">
-      <div class="mapel-left">
-        <div class="mapel-icon">📖</div>
-        <div><div class="mapel-name">Bahasa Indonesia</div><div class="mapel-desc">Membaca & tata bahasa</div></div>
+
+    <div id="list-osn" style="display:none;margin-top:1.5rem">
+      <p style="font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Olimpiade Sains Nasional</p>
+      <div class="mapel-item" onclick="startQuiz('ipa_osn')">
+        <div class="mapel-left"><div class="mapel-emoji">🔬</div><div><div class="mapel-name">IPA — OSN</div><div class="mapel-desc">Soal olimpiade tingkat SD — 5 soal</div></div></div>
+        <span class="chip chip-osn">OSN</span>
       </div>
-      <span class="badge-soon">Segera hadir</span>
-    </div>
-    <div class="mapel-card">
-      <div class="mapel-left">
-        <div class="mapel-icon">🌏</div>
-        <div><div class="mapel-name">IPS</div><div class="mapel-desc">Sejarah & geografi</div></div>
+      <div class="mapel-item disabled">
+        <div class="mapel-left"><div class="mapel-emoji">📐</div><div><div class="mapel-name">Matematika — OSN</div><div class="mapel-desc">Soal olimpiade Matematika SD</div></div></div>
+        <span class="chip chip-soon">Segera hadir</span>
       </div>
-      <span class="badge-soon">Segera hadir</span>
     </div>
   </div>
 
-  <div id="quiz-section">
-    <button class="quiz-back" onclick="backToMapel()">← Pilih mata pelajaran lain</button>
-    <div style="font-size:15px;font-weight:700;margin-bottom:1rem">IPA — Tata Surya</div>
-    <div class="quiz-box" id="quiz-main">
-      <div class="quiz-header">
-        <span id="q-label">Soal 1 dari 5</span>
-        <span id="score-label">Nilai: 0</span>
+  <!-- QUIZ -->
+  <div class="quiz-wrap" id="quiz-area" style="display:none">
+    <button style="font-size:13px;color:var(--text-2);background:none;border:none;cursor:pointer;margin-bottom:1rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;" onclick="backToList()">← Pilih soal lain</button>
+    <div id="quiz-label" style="font-size:15px;font-weight:800;margin-bottom:1rem;"></div>
+    <div class="quiz-card" id="quiz-main">
+      <div class="quiz-top">
+        <span class="quiz-num" id="q-num">Soal 1 dari 5</span>
+        <span class="quiz-score" id="q-score">Nilai: 0</span>
       </div>
-      <div class="progress-bar"><div class="progress-fill" id="progress" style="width:20%"></div></div>
-      <div class="question" id="question-text"></div>
-      <div class="options" id="options-list"></div>
-      <div class="feedback" id="feedback"></div>
-      <div class="quiz-nav">
-        <button class="btn-next" id="next-btn" onclick="nextQuestion()">Soal berikutnya →</button>
+      <div class="prog-bar"><div class="prog-fill" id="prog" style="width:20%"></div></div>
+      <div class="quiz-q" id="q-text"></div>
+      <div class="opts" id="q-opts"></div>
+      <div class="fb" id="q-fb"></div>
+      <div class="quiz-footer">
+        <button class="btn-next" id="btn-next" onclick="nextQ()">Soal berikutnya →</button>
       </div>
     </div>
     <div class="result-box" id="result-box">
-      <div class="result-label">Skor kamu</div>
-      <div class="result-score" id="result-score"></div>
-      <p class="result-msg" id="result-msg"></p>
-      <button class="btn-restart" onclick="restartQuiz()">Ulangi latihan</button>
-      <button class="btn-back2" onclick="backToMapel()">Pilih mapel lain</button>
+      <div class="result-circle">
+        <div class="result-big" id="r-score"></div>
+        <div class="result-of" id="r-of"></div>
+      </div>
+      <div class="result-msg" id="r-msg"></div>
+      <div class="result-btns">
+        <button class="btn-ulang" onclick="restartQ()">Ulangi</button>
+        <button class="btn-back-mapel" onclick="backToList()">Pilih soal lain</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- MATERI TKA -->
+<!-- ======= MATERI ======= -->
 <div id="page-materi" class="page">
-  <div class="page-hero">
-    <button class="back-btn" onclick="showPage('profil')">← Kembali</button>
-    <h2>Materi TKA</h2>
-    <p>Tes Kemampuan Akademik — Kelas 6 SD</p>
+  <div class="page-banner">
+    <button class="back" onclick="showPage('beranda')">← Kembali ke Beranda</button>
+    <h2>📚 Materi Belajar</h2>
+    <p>Ringkasan materi TKA & OSN Kelas 6 SD</p>
   </div>
-  <div class="mapel-list">
-    <p style="font-size:13px;color:#666;margin-bottom:1rem">Materi akan segera tersedia. Pantau terus!</p>
-    <div class="mapel-card"><div class="mapel-left"><div class="mapel-icon">🔬</div><div><div class="mapel-name">IPA</div><div class="mapel-desc">Ringkasan materi IPA kelas 6</div></div></div><span class="badge-soon">Segera hadir</span></div>
-    <div class="mapel-card"><div class="mapel-left"><div class="mapel-icon">📐</div><div><div class="mapel-name">Matematika</div><div class="mapel-desc">Ringkasan materi Matematika kelas 6</div></div></div><span class="badge-soon">Segera hadir</span></div>
-    <div class="mapel-card"><div class="mapel-left"><div class="mapel-icon">📖</div><div><div class="mapel-name">Bahasa Indonesia</div><div class="mapel-desc">Ringkasan materi B. Indonesia kelas 6</div></div></div><span class="badge-soon">Segera hadir</span></div>
-    <div class="mapel-card"><div class="mapel-left"><div class="mapel-icon">🌏</div><div><div class="mapel-name">IPS</div><div class="mapel-desc">Ringkasan materi IPS kelas 6</div></div></div><span class="badge-soon">Segera hadir</span></div>
+
+  <div class="materi-content" id="materi-list">
+    <p style="font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.5px;">Pilih Mata Pelajaran</p>
+    <div class="materi-grid">
+      <div class="materi-card" onclick="showMateri('ipa')">
+        <div class="materi-icon">🔬</div>
+        <div class="materi-name">IPA</div>
+        <div class="materi-desc">Tata surya, makhluk hidup, energi dan perubahannya</div>
+        <span class="materi-chip" style="background:#D1FAE5;color:#065F46;">Tersedia</span>
+      </div>
+      <div class="materi-card soon">
+        <div class="materi-icon">📐</div>
+        <div class="materi-name">Matematika</div>
+        <div class="materi-desc">Pecahan, geometri, dan statistika dasar</div>
+        <span class="materi-chip" style="background:#F1F5F9;color:#94A3B8;">Segera hadir</span>
+      </div>
+      <div class="materi-card soon">
+        <div class="materi-icon">📖</div>
+        <div class="materi-name">Bahasa Indonesia</div>
+        <div class="materi-desc">Teks bacaan, tata bahasa, dan ejaan</div>
+        <span class="materi-chip" style="background:#F1F5F9;color:#94A3B8;">Segera hadir</span>
+      </div>
+      <div class="materi-card soon">
+        <div class="materi-icon">🌏</div>
+        <div class="materi-name">IPS</div>
+        <div class="materi-desc">Sejarah Indonesia, geografi, dan kebudayaan</div>
+        <span class="materi-chip" style="background:#F1F5F9;color:#94A3B8;">Segera hadir</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="materi-detail" id="materi-detail">
+    <button style="font-size:13px;color:var(--text-2);background:none;border:none;cursor:pointer;margin-bottom:1rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;" onclick="backToMateriList()">← Pilih materi lain</button>
+    <div class="materi-detail-card" id="materi-ipa">
+      <h3>🔬 Materi IPA — Tata Surya</h3>
+      <div class="materi-section">
+        <h4>Susunan Tata Surya</h4>
+        <p>Tata surya terdiri dari Matahari sebagai pusatnya, dikelilingi oleh 8 planet: <strong>Merkurius, Venus, Bumi, Mars, Jupiter, Saturnus, Uranus, Neptunus</strong>.</p>
+      </div>
+      <div class="materi-section">
+        <h4>Ciri-Ciri Planet</h4>
+        <ul>
+          <li><strong>Merkurius</strong> — planet terkecil, terdekat dari Matahari</li>
+          <li><strong>Venus</strong> — planet terpanas, berotasi berlawanan arah</li>
+          <li><strong>Bumi</strong> — satu-satunya planet yang ada kehidupan</li>
+          <li><strong>Mars</strong> — disebut planet merah</li>
+          <li><strong>Jupiter</strong> — planet terbesar di tata surya</li>
+          <li><strong>Saturnus</strong> — memiliki cincin yang indah</li>
+          <li><strong>Uranus</strong> — berotasi miring</li>
+          <li><strong>Neptunus</strong> — planet terjauh dari Matahari</li>
+        </ul>
+      </div>
+      <div class="materi-section">
+        <h4>Gerak Planet</h4>
+        <ul>
+          <li><strong>Rotasi</strong> — gerakan planet berputar pada porosnya sendiri</li>
+          <li><strong>Revolusi</strong> — gerakan planet mengelilingi Matahari</li>
+          <li>Bumi berotasi dalam 24 jam (1 hari) dan berevolusi dalam 365 hari (1 tahun)</li>
+        </ul>
+      </div>
+      <div class="materi-section">
+        <h4>Benda Langit Lainnya</h4>
+        <ul>
+          <li><strong>Satelit</strong> — benda langit yang mengelilingi planet (contoh: Bulan)</li>
+          <li><strong>Asteroid</strong> — benda kecil berbatu di antara Mars dan Jupiter</li>
+          <li><strong>Komet</strong> — benda berbentuk ekor yang mengorbit Matahari</li>
+          <li><strong>Meteor</strong> — batu luar angkasa yang memasuki atmosfer Bumi</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= GALERI ======= -->
+<div id="page-galeri" class="page">
+  <div class="page-banner">
+    <button class="back" onclick="showPage('beranda')">← Kembali ke Beranda</button>
+    <h2>📸 Galeri Sekolah</h2>
+    <p>Dokumentasi kegiatan SD Negeri 2 Pesantren</p>
+  </div>
+  <div class="galeri-content">
+    <div class="galeri-grid">
+      <div class="galeri-item tall" style="background:#EBF2FF;">
+        <div class="galeri-emoji">🏫</div>
+        <div class="galeri-label">Gedung Sekolah</div>
+      </div>
+      <div class="galeri-item" style="background:#FEF3C7;">
+        <div class="galeri-emoji">🏆</div>
+        <div class="galeri-label">Prestasi Siswa</div>
+      </div>
+      <div class="galeri-item" style="background:#D1FAE5;">
+        <div class="galeri-emoji">🎨</div>
+        <div class="galeri-label">Kegiatan Seni</div>
+      </div>
+      <div class="galeri-item" style="background:#FCE7F3;">
+        <div class="galeri-emoji">⚽</div>
+        <div class="galeri-label">Olahraga</div>
+      </div>
+      <div class="galeri-item" style="background:#FEE2E2;">
+        <div class="galeri-emoji">🎭</div>
+        <div class="galeri-label">Pentas Seni</div>
+      </div>
+      <div class="galeri-item" style="background:#EDE9FE;">
+        <div class="galeri-emoji">🌱</div>
+        <div class="galeri-label">Penghijauan</div>
+      </div>
+      <div class="galeri-item" style="background:#ECFDF5;">
+        <div class="galeri-emoji">📚</div>
+        <div class="galeri-label">Perpustakaan</div>
+      </div>
+      <div class="galeri-item" style="background:#FFF7ED;">
+        <div class="galeri-emoji">🎓</div>
+        <div class="galeri-label">Wisuda Kelas 6</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text-3);text-align:center;margin-top:1.5rem;">Foto asli akan ditambahkan oleh admin sekolah</p>
   </div>
 </div>
 
 <script>
+// DATA SOAL
+const soalData = {
+  ipa_tka: {
+    label: '🔬 IPA — TKA Kelas 6',
+    soal: [
+      {q:"Planet terbesar dalam tata surya adalah...",opts:["Bumi","Saturnus","Jupiter","Uranus"],ans:2,exp:"Jupiter adalah planet terbesar, volumenya lebih dari 1.300 kali Bumi."},
+      {q:"Berapa jumlah planet dalam tata surya kita?",opts:["7","8","9","10"],ans:1,exp:"Ada 8 planet: Merkurius, Venus, Bumi, Mars, Jupiter, Saturnus, Uranus, Neptunus."},
+      {q:"Planet yang paling dekat dengan Matahari adalah...",opts:["Venus","Mars","Bumi","Merkurius"],ans:3,exp:"Merkurius adalah planet terdekat dari Matahari."},
+      {q:"Benda langit yang mengelilingi planet disebut...",opts:["Bintang","Satelit","Komet","Meteor"],ans:1,exp:"Satelit mengorbit planet, contohnya Bulan mengorbit Bumi."},
+      {q:"Proses Bumi mengelilingi Matahari disebut...",opts:["Rotasi","Revolusi","Gravitasi","Orbit"],ans:1,exp:"Revolusi adalah gerakan Bumi mengelilingi Matahari, membutuhkan 365 hari."}
+    ]
+  },
+  ipa_osn: {
+    label: '🔬 IPA — OSN Tingkat SD',
+    soal: [
+      {q:"Proses fotosintesis menghasilkan...",opts:["CO2 dan air","Oksigen dan glukosa","Nitrogen dan protein","Energi dan uap air"],ans:1,exp:"Fotosintesis mengubah CO2 + air + cahaya matahari menjadi glukosa dan oksigen."},
+      {q:"Magnet memiliki dua kutub yaitu...",opts:["Positif dan negatif","Utara dan selatan","Kiri dan kanan","Atas dan bawah"],ans:1,exp:"Magnet memiliki kutub Utara dan Selatan. Kutub sejenis tolak-menolak, kutub berbeda tarik-menarik."},
+      {q:"Hewan yang mengalami metamorfosis sempurna adalah...",opts:["Belalang","Kecoa","Kupu-kupu","Capung"],ans:2,exp:"Kupu-kupu mengalami metamorfosis sempurna: telur → ulat → kepompong → kupu-kupu."},
+      {q:"Sumber energi terbesar di Bumi berasal dari...",opts:["Angin","Matahari","Air","Panas bumi"],ans:1,exp:"Matahari adalah sumber energi utama di Bumi, menghasilkan cahaya dan panas."},
+      {q:"Gaya yang bekerja pada benda yang jatuh bebas disebut...",opts:["Gaya gesek","Gaya magnet","Gaya gravitasi","Gaya pegas"],ans:2,exp:"Gravitasi adalah gaya tarik Bumi yang menyebabkan benda jatuh ke bawah."}
+    ]
+  }
+};
+
+let curQ=0, curScore=0, answered=false, curSet=null;
+
 function showPage(page){
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.nav-links a').forEach(function(a){a.classList.remove('active');});
+  document.querySelectorAll('.nav-link').forEach(a=>a.classList.remove('active'));
   document.getElementById('nav-'+page).classList.add('active');
   window.scrollTo(0,0);
 }
 
-function startQuiz(){
-  document.getElementById('mapel-list').style.display='none';
-  document.getElementById('quiz-section').style.display='block';
-  restartQuiz();
+function setTab(t){
+  document.getElementById('list-tka').style.display = t==='tka'?'block':'none';
+  document.getElementById('list-osn').style.display = t==='osn'?'block':'none';
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(t==='osn') document.getElementById('tab-osn').classList.add('active');
+  else document.getElementById('tab-tka').classList.add('active');
 }
 
-function backToMapel(){
-  document.getElementById('mapel-list').style.display='block';
-  document.getElementById('quiz-section').style.display='none';
+function startQuiz(key){
+  curSet=soalData[key];
+  document.getElementById('latihan-list').style.display='none';
+  document.getElementById('quiz-area').style.display='block';
+  document.getElementById('quiz-label').textContent=curSet.label;
+  restartQ();
 }
 
-const questions=[
-  {q:"Planet terbesar dalam tata surya adalah...",opts:["Bumi","Saturnus","Jupiter","Uranus"],ans:2,exp:"Jupiter adalah planet terbesar, volumenya lebih dari 1.300 kali Bumi."},
-  {q:"Berapa jumlah planet dalam tata surya kita?",opts:["7","8","9","10"],ans:1,exp:"Ada 8 planet: Merkurius, Venus, Bumi, Mars, Jupiter, Saturnus, Uranus, Neptunus."},
-  {q:"Planet yang paling dekat dengan Matahari adalah...",opts:["Venus","Mars","Bumi","Merkurius"],ans:3,exp:"Merkurius adalah planet terdekat dari Matahari."},
-  {q:"Benda langit yang mengelilingi planet disebut...",opts:["Bintang","Satelit","Komet","Meteor"],ans:1,exp:"Satelit adalah benda langit yang mengorbit planet, contohnya Bulan mengorbit Bumi."},
-  {q:"Proses Bumi mengelilingi Matahari disebut...",opts:["Rotasi","Revolusi","Gravitasi","Orbit"],ans:1,exp:"Revolusi adalah gerakan Bumi mengelilingi Matahari, membutuhkan sekitar 365 hari."}
-];
-
-let cur=0,score=0,answered=false;
-
-function loadQuestion(){
-  const q=questions[cur];
-  document.getElementById('q-label').textContent='Soal '+(cur+1)+' dari '+questions.length;
-  document.getElementById('score-label').textContent='Nilai: '+score;
-  document.getElementById('progress').style.width=(((cur+1)/questions.length)*100)+'%';
-  document.getElementById('question-text').textContent=q.q;
-  const ol=document.getElementById('options-list');
+function loadQ(){
+  const q=curSet.soal[curQ];
+  document.getElementById('q-num').textContent='Soal '+(curQ+1)+' dari '+curSet.soal.length;
+  document.getElementById('q-score').textContent='Nilai: '+curScore;
+  document.getElementById('prog').style.width=(((curQ+1)/curSet.soal.length)*100)+'%';
+  document.getElementById('q-text').textContent=q.q;
+  const ol=document.getElementById('q-opts');
   ol.innerHTML='';
-  q.opts.forEach(function(o,i){
-    const btn=document.createElement('button');
-    btn.className='option';btn.textContent=o;
-    btn.onclick=function(){answer(i);};
-    ol.appendChild(btn);
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';b.textContent=o;
+    b.onclick=()=>answerQ(i);
+    ol.appendChild(b);
   });
-  document.getElementById('feedback').className='feedback';
-  document.getElementById('feedback').textContent='';
-  document.getElementById('next-btn').style.display='none';
+  document.getElementById('q-fb').className='fb';
+  document.getElementById('q-fb').textContent='';
+  document.getElementById('btn-next').style.display='none';
   answered=false;
 }
 
-function answer(i){
+function answerQ(i){
   if(answered)return;
   answered=true;
-  const q=questions[cur];
-  const btns=document.querySelectorAll('.option');
-  btns.forEach(function(b){b.disabled=true;});
-  const fb=document.getElementById('feedback');
+  const q=curSet.soal[curQ];
+  const btns=document.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('q-fb');
   if(i===q.ans){
-    btns[i].classList.add('correct');score++;
-    fb.className='feedback show correct';
-    fb.textContent='✓ Benar! '+q.exp;
+    btns[i].classList.add('correct');curScore++;
+    fb.className='fb show correct';fb.textContent='✓ Benar! '+q.exp;
   } else {
     btns[i].classList.add('wrong');btns[q.ans].classList.add('correct');
-    fb.className='feedback show wrong';
-    fb.textContent='✗ Kurang tepat. '+q.exp;
+    fb.className='fb show wrong';fb.textContent='✗ Kurang tepat. '+q.exp;
   }
-  document.getElementById('score-label').textContent='Nilai: '+score;
-  const nb=document.getElementById('next-btn');
+  document.getElementById('q-score').textContent='Nilai: '+curScore;
+  const nb=document.getElementById('btn-next');
   nb.style.display='block';
-  nb.textContent=cur<questions.length-1?'Soal berikutnya →':'Lihat hasil';
+  nb.textContent=curQ<curSet.soal.length-1?'Soal berikutnya →':'Lihat hasil';
 }
 
-function nextQuestion(){
-  cur++;
-  if(cur>=questions.length){showResult();return;}
-  loadQuestion();
+function nextQ(){
+  curQ++;
+  if(curQ>=curSet.soal.length){showResult();return;}
+  loadQ();
 }
 
 function showResult(){
   document.getElementById('quiz-main').style.display='none';
   document.getElementById('result-box').style.display='block';
-  const pct=Math.round((score/questions.length)*100);
-  document.getElementById('result-score').textContent=score+'/'+questions.length+' ('+pct+'%)';
+  const pct=Math.round((curScore/curSet.soal.length)*100);
+  document.getElementById('r-score').textContent=curScore+'/'+curSet.soal.length;
+  document.getElementById('r-of').textContent=pct+'%';
   let msg='';
-  if(pct===100)msg='Sempurna! Kamu siap menghadapi TKA!';
-  else if(pct>=60)msg='Bagus! Terus berlatih untuk hasil yang lebih baik.';
-  else msg='Jangan menyerah! Pelajari lagi materinya ya.';
-  document.getElementById('result-msg').textContent=msg;
+  if(pct===100)msg='Sempurna! Kamu siap menghadapi ujian! 🎉';
+  else if(pct>=80)msg='Sangat bagus! Tinggal sedikit lagi sempurna. 👏';
+  else if(pct>=60)msg='Bagus! Terus berlatih untuk hasil lebih baik. 💪';
+  else msg='Jangan menyerah! Baca lagi materinya dan coba ulang. 📚';
+  document.getElementById('r-msg').textContent=msg;
 }
 
-function restartQuiz(){
-  cur=0;score=0;answered=false;
+function restartQ(){
+  curQ=0;curScore=0;answered=false;
   document.getElementById('quiz-main').style.display='block';
   document.getElementById('result-box').style.display='none';
-  loadQuestion();
+  loadQ();
+}
+
+function backToList(){
+  document.getElementById('latihan-list').style.display='block';
+  document.getElementById('quiz-area').style.display='none';
+}
+
+function showMateri(id){
+  document.getElementById('materi-list').style.display='none';
+  document.getElementById('materi-detail').style.display='block';
+  window.scrollTo(0,0);
+}
+
+function backToMateriList(){
+  document.getElementById('materi-list').style.display='block';
+  document.getElementById('materi-detail').style.display='none';
 }
 </script>
 </body>
