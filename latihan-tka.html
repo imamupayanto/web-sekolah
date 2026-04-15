@@ -139,14 +139,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .result-msg{font-size:15px;font-weight:600;color:var(--text);margin-bottom:20px;line-height:1.6;padding:14px;background:var(--gray);border-radius:10px;text-align:left}
 .btn-retry{width:100%;padding:13px;background:var(--text);color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px}
 .btn-retry:hover{opacity:.85}
-
-.btn-send{width:100%;padding:13px;background:#059669;color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;}
-.btn-send:hover{opacity:.85}
-.btn-send:disabled{opacity:.5;cursor:default}
-.send-status{font-size:13px;text-align:center;padding:8px;border-radius:8px;margin-bottom:8px;display:none;}
-.send-status.ok{background:#dcfce7;color:#166534;}
-.send-status.err{background:#fee2e2;color:#991b1b;}
-
+.send-status{width:100%;padding:11px;border-radius:10px;font-size:13px;font-weight:600;text-align:center;margin-bottom:8px;display:none}
+.send-status.loading{display:block;background:var(--amber-light);color:var(--amber);border:1px solid #fcd34d}
+.send-status.ok{display:block;background:var(--green-light);color:var(--green);border:1px solid #86efac}
+.send-status.err{display:block;background:var(--red-light);color:var(--red);border:1px solid #fca5a5}
+.btn-sent{width:100%;padding:13px;background:#166534;color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;margin-bottom:8px;display:none}
 .review-section{margin-top:24px;text-align:left}
 .review-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
 .review-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--white)}
@@ -251,10 +248,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
       <div class="res-stat"><div class="rs-num" id="rSoal">0/30</div><div class="rs-lbl">Soal</div></div>
     </div>
     <div class="result-msg" id="rMsg"></div>
-    
-      <div id="sendStatus" class="send-status"></div>
-      <button class="btn-send" id="btnSend" onclick="kirimHasil()">📤 Kirim Hasil ke Guru</button>
-      <button class="btn-retry" onclick="location.reload()">🔄 Coba Lagi</button>
+    <div class="send-status" id="sendStatus"></div>
+    <button class="btn-sent" id="btnSent">✓ Hasil Terkirim!</button>
+    <button class="btn-retry" onclick="location.reload()">🔄 Coba Lagi</button>
     <div class="review-section">
       <div class="review-title">Rekap Jawaban</div>
       <div id="reviewList"></div>
@@ -943,7 +939,7 @@ function showResult(){
   clearInterval(timerInt);
   const total=session.length;
   const pct=Math.round(correctCount/total*100);
-  
+
   document.getElementById('rName').textContent=nama;
   document.getElementById('rScore100').textContent=pct;
   document.getElementById('rBenar').textContent=correctCount;
@@ -977,50 +973,49 @@ function showResult(){
   }).join('');
 
   showScreen('resultScreen');
+  kirimKeSheet(nama, pct);
 }
 
-// KIRIM KE GOOGLE SHEETS
-const SHEETS_URL = "https://script.google.com/macros/s/AKfycbz02XVUcOcjEoQGQw-C90DvBgjCX5OOrYIlXlxfPTabnFR4LU7ikxVeXkbKjMSaM6UkKg/exec";
+// ══════════════════════════════════════
+//  KIRIM KE GOOGLE SHEET
+// ══════════════════════════════════════
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbw9vbXFvNVWGZCcl0fi_QI8ibi_WY-_CevmJ4uYEfxP8jdO_2AwyqlV3zcOGaSfubbpfA/exec';
 
-function kirimHasil(){
-  const btn = document.getElementById('btnSend');
+function kirimKeSheet(nama, nilai){
   const status = document.getElementById('sendStatus');
-  const total = session.length;
-  const pct = Math.round(correctCount/total*100);
-  const now = new Date().toLocaleString('id-ID');
+  const btnSent = document.getElementById('btnSent');
+  const now = new Date();
+  const waktu = now.toLocaleString('id-ID',{
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
 
-  btn.disabled = true;
-  btn.innerHTML = '⏳ Mengirim...';
-  status.style.display = 'none';
+  status.className='send-status loading';
+  status.textContent='⏳ Mengirim hasil ke guru...';
 
-  const payload = {
+  const body = JSON.stringify({
     nama: nama,
-    mapel: 'Matematika TKA',
-    nilai: pct + '%  (' + correctCount + '/' + total + ')',
-    waktu: now
-  };
+    mapel: 'Matematika',
+    nilai: nilai,
+    waktu: waktu
+  });
 
-  fetch(SHEETS_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(payload)
+  fetch(SHEET_URL, {
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: body
   })
-  .then(() => {
-    btn.innerHTML = '✓ Hasil Terkirim!';
-    status.style.display = 'block';
-    status.className = 'send-status ok';
-    status.textContent = '✓ Hasil berhasil dikirim ke guru! Klik tombol di bawah untuk coba lagi.';
+  .then(()=>{
+    status.className='send-status ok';
+    status.textContent='✓ Hasil berhasil dikirim ke guru! Klik tombol di bawah untuk coba lagi.';
+    btnSent.style.display='block';
   })
-  .catch(() => {
-    btn.disabled = false;
-    btn.innerHTML = '📤 Kirim Hasil ke Guru';
-    status.style.display = 'block';
-    status.className = 'send-status err';
-    status.textContent = '✗ Gagal mengirim. Cek koneksi internet dan coba lagi.';
+  .catch(()=>{
+    status.className='send-status err';
+    status.textContent='✗ Gagal mengirim. Periksa koneksi internet dan coba lagi.';
   });
 }
-
 </script>
 </body>
 </html>
