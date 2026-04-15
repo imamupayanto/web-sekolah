@@ -139,6 +139,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .result-msg{font-size:15px;font-weight:600;color:var(--text);margin-bottom:20px;line-height:1.6;padding:14px;background:var(--gray);border-radius:10px;text-align:left}
 .btn-retry{width:100%;padding:13px;background:var(--text);color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px}
 .btn-retry:hover{opacity:.85}
+
+.btn-send{width:100%;padding:13px;background:#059669;color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-send:hover{opacity:.85}
+.btn-send:disabled{opacity:.5;cursor:default}
+.send-status{font-size:13px;text-align:center;padding:8px;border-radius:8px;margin-bottom:8px;display:none;}
+.send-status.ok{background:#dcfce7;color:#166534;}
+.send-status.err{background:#fee2e2;color:#991b1b;}
+
 .review-section{margin-top:24px;text-align:left}
 .review-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
 .review-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--white)}
@@ -243,7 +251,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
       <div class="res-stat"><div class="rs-num" id="rSoal">0/30</div><div class="rs-lbl">Soal</div></div>
     </div>
     <div class="result-msg" id="rMsg"></div>
-    <button class="btn-retry" onclick="location.reload()">🔄 Coba Lagi</button>
+    
+      <div id="sendStatus" class="send-status"></div>
+      <button class="btn-send" id="btnSend" onclick="kirimHasil()">📤 Kirim Hasil ke Guru</button>
+      <button class="btn-retry" onclick="location.reload()">🔄 Coba Lagi</button>
     <div class="review-section">
       <div class="review-title">Rekap Jawaban</div>
       <div id="reviewList"></div>
@@ -967,6 +978,49 @@ function showResult(){
 
   showScreen('resultScreen');
 }
+
+// KIRIM KE GOOGLE SHEETS
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbz02XVUcOcjEoQGQw-C90DvBgjCX5OOrYIlXlxfPTabnFR4LU7ikxVeXkbKjMSaM6UkKg/exec";
+
+function kirimHasil(){
+  const btn = document.getElementById('btnSend');
+  const status = document.getElementById('sendStatus');
+  const total = session.length;
+  const pct = Math.round(correctCount/total*100);
+  const now = new Date().toLocaleString('id-ID');
+
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Mengirim...';
+  status.style.display = 'none';
+
+  const payload = {
+    nama: nama,
+    mapel: 'Matematika TKA',
+    nilai: pct + '%  (' + correctCount + '/' + total + ')',
+    waktu: now
+  };
+
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    btn.innerHTML = '✓ Hasil Terkirim!';
+    status.style.display = 'block';
+    status.className = 'send-status ok';
+    status.textContent = '✓ Hasil berhasil dikirim ke guru! Klik tombol di bawah untuk coba lagi.';
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = '📤 Kirim Hasil ke Guru';
+    status.style.display = 'block';
+    status.className = 'send-status err';
+    status.textContent = '✗ Gagal mengirim. Cek koneksi internet dan coba lagi.';
+  });
+}
+
 </script>
 </body>
 </html>
