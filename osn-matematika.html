@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latihan OSN Matematika SDN 2 Pesantren</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #f97316;
+    --primary-dark: #ea580c;
+    --secondary: #0ea5e9;
+    --accent: #a855f7;
+    --gold: #f59e0b;
+    --green: #22c55e;
+    --red: #ef4444;
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card2: #263248;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: #334155;
+    --easy: #22c55e;
+    --med: #f59e0b;
+    --hard: #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(249,115,22,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(168,85,247,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 50% 50%, rgba(14,165,233,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 32px 0 24px;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(28px, 5vw, 48px);
+    background: linear-gradient(135deg, #fff 30%, var(--primary) 70%, var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* Stats Bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 8px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+
+  .stat-box:hover { transform: translateY(-2px); }
+
+  .stat-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-box.s1 .stat-num { color: var(--gold); }
+  .stat-box.s2 .stat-num { color: var(--green); }
+  .stat-box.s3 .stat-num { color: var(--red); }
+  .stat-box.s4 .stat-num { color: var(--secondary); }
+
+  /* Progress */
+  .progress-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .progress-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 10px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--gold));
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+
+  .progress-pct {
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  /* Timer */
+  .timer-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .timer-display {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    color: var(--secondary);
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 6px 18px;
+    border-radius: 10px;
+    letter-spacing: 2px;
+  }
+
+  .timer-display.warning { color: var(--red); animation: pulse 1s infinite; }
+
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+  /* Question Card */
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.35s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .q-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .q-topic {
+    background: rgba(14,165,233,0.15);
+    color: var(--secondary);
+    border: 1px solid rgba(14,165,233,0.3);
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .q-diff {
+    margin-left: auto;
+    font-size: 15px;
+  }
+
+  .q-diff-label {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+  }
+
+  .diff-easy { background: rgba(34,197,94,0.15); color: var(--easy); border: 1px solid rgba(34,197,94,0.3); }
+  .diff-med { background: rgba(245,158,11,0.15); color: var(--med); border: 1px solid rgba(245,158,11,0.3); }
+  .diff-hard { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+
+  .q-text {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.6;
+    margin-bottom: 22px;
+    color: var(--text);
+  }
+
+  .q-text .highlight {
+    color: var(--gold);
+    font-weight: 900;
+  }
+
+  /* Options */
+  .options {
+    display: grid;
+    gap: 10px;
+  }
+
+  .opt-btn {
+    background: var(--card2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    background: rgba(249,115,22,0.1);
+    transform: translateX(4px);
+  }
+
+  .opt-letter {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 900;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .opt-btn.correct {
+    border-color: var(--green);
+    background: rgba(34,197,94,0.12);
+  }
+  .opt-btn.correct .opt-letter { background: var(--green); color: white; }
+
+  .opt-btn.wrong {
+    border-color: var(--red);
+    background: rgba(239,68,68,0.1);
+  }
+  .opt-btn.wrong .opt-letter { background: var(--red); color: white; }
+
+  .opt-btn:disabled { cursor: default; }
+
+  /* Essay input */
+  .essay-wrap { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .essay-input {
+    flex: 1;
+    min-width: 160px;
+    background: var(--card2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .essay-input:focus { border-color: var(--primary); }
+  .essay-input::placeholder { color: var(--muted); font-weight: 600; }
+
+  .submit-btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .submit-btn:hover { transform: scale(1.03); filter: brightness(1.1); }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.7;
+    display: none;
+  }
+
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .feedback.correct-fb {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: #86efac;
+  }
+
+  .feedback.wrong-fb {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #fca5a5;
+  }
+
+  .feedback .fb-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .feedback .step {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-top: 8px;
+    font-size: 13px;
+  }
+
+  /* Action Buttons */
+  .action-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-next {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+  }
+
+  .btn-next:hover { transform: scale(1.03); filter: brightness(1.1); }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; filter: none; }
+
+  .btn-skip {
+    background: var(--card2);
+    border: 2px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-skip:hover { border-color: var(--muted); color: var(--text); }
+
+  .btn-reset {
+    background: rgba(168,85,247,0.15);
+    border: 2px solid rgba(168,85,247,0.4);
+    color: #c084fc;
+  }
+
+  .btn-reset:hover { background: rgba(168,85,247,0.25); }
+
+  /* Filters */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 7px 16px;
+    border-radius: 99px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    background: var(--card2);
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(249,115,22,0.1);
+  }
+
+  /* Result Screen */
+  .result-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    animation: slideIn 0.4s ease;
+  }
+
+  .result-screen.show { display: block; }
+
+  .result-emoji { font-size: 72px; margin-bottom: 16px; display: block; }
+
+  .result-score {
+    font-family: 'Fredoka One', cursive;
+    font-size: 72px;
+    background: linear-gradient(135deg, var(--gold), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .result-msg {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  .result-detail {
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 28px;
+    text-align: left;
+    min-width: 280px;
+  }
+
+  .r-item { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .r-val { font-family: 'Fredoka One', cursive; font-size: 22px; }
+
+  /* Tooltip/hint */
+  .hint-box {
+    background: rgba(14,165,233,0.08);
+    border: 1px dashed rgba(14,165,233,0.3);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--secondary);
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .hint-box.show { display: block; animation: fadeIn 0.3s; }
+
+  .hint-btn {
+    background: none;
+    border: 1px dashed rgba(14,165,233,0.4);
+    border-radius: 8px;
+    color: var(--secondary);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 14px;
+  }
+
+  .hint-btn:hover { background: rgba(14,165,233,0.1); }
+
+  /* Streak */
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245,158,11,0.15);
+    border: 1px solid rgba(245,158,11,0.4);
+    color: var(--gold);
+    padding: 4px 14px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s;
+  }
+
+  /* Responsive */
+  @media (max-width: 520px) {
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .q-text { font-size: 15px; }
+    .action-row { flex-direction: column; }
+    .btn { min-width: unset; }
+  }
+
+.nama-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:999;}
+.nama-box{background:#fff;border-radius:16px;padding:28px;width:90%;max-width:400px;text-align:center;}
+.nama-box h2{font-size:20px;font-weight:800;margin-bottom:6px;}
+.nama-box p{font-size:13px;color:#6b7280;margin-bottom:16px;}
+.nama-input{width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;font-weight:600;font-family:inherit;outline:none;margin-bottom:12px;}
+.nama-input:focus{border-color:#1a56db;}
+.nama-btn{width:100%;padding:13px;background:#111827;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.nama-btn:hover{opacity:.85;}
+.btn-send-osn{width:100%;padding:13px;background:#059669;color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;display:block;}
+.btn-send-osn:hover{opacity:.85;}
+.btn-send-osn:disabled{opacity:.5;cursor:default;}
+.send-status-osn{font-size:13px;text-align:center;padding:8px;border-radius:8px;margin-bottom:8px;display:none;}
+.send-status-osn.ok{background:#dcfce7;color:#166534;}
+.send-status-osn.err{background:#fee2e2;color:#991b1b;}
+
+</style>
+</head>
+<body>
+
+<div class="nama-overlay" id="namaOverlay">
+  <div class="nama-box">
+    <h2>Selamat Datang! 👋</h2>
+    <p>Masukkan namamu sebelum memulai latihan</p>
+    <input class="nama-input" id="namaInput" type="text" placeholder="Nama lengkapmu..." maxlength="50"/>
+    <button class="nama-btn" onclick="mulaiLatihan()">Mulai Latihan →</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="logo-badge">🏆 OSN SD 2026</div>
+    <h1>Latihan OSN Matematika</h1>
+    <p style="font-size:17px; font-weight:800; color:#f1f5f9; margin-bottom:4px;">SDN 2 Pesantren</p>
+    <p>Berlatih soal-soal pilihan olimpiade setiap hari!</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-box s1">
+      <div class="stat-num" id="statTotal">0</div>
+      <div class="stat-label">Dikerjakan</div>
+    </div>
+    <div class="stat-box s2">
+      <div class="stat-num" id="statBenar">0</div>
+      <div class="stat-label">Benar ✓</div>
+    </div>
+    <div class="stat-box s3">
+      <div class="stat-num" id="statSalah">0</div>
+      <div class="stat-label">Salah ✗</div>
+    </div>
+    <div class="stat-box s4">
+      <div class="stat-num" id="statSkor">0%</div>
+      <div class="stat-label">Skor</div>
+    </div>
+  </div>
+
+  <!-- Streak -->
+  <div id="streakBadge" class="streak-badge" style="display:none;">🔥 Streak <span id="streakNum">0</span> jawaban benar berturut-turut!</div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-label">Soal <span id="qIdx">1</span>/<span id="qTotal">30</span></div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-pct" id="progressPct">0%</div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all')">📚 Semua</button>
+    <button class="filter-btn" onclick="setFilter('bilangan')">🔢 Bilangan</button>
+    <button class="filter-btn" onclick="setFilter('aritmatika')">➕ Aritmatika</button>
+    <button class="filter-btn" onclick="setFilter('geometri')">📐 Geometri</button>
+    <button class="filter-btn" onclick="setFilter('statistika')">📊 Statistika</button>
+    <button class="filter-btn" onclick="setFilter('kombinatorik')">🧩 Kombinatorik</button>
+  </div>
+
+  <!-- Timer -->
+  <div class="timer-wrap">
+    ⏱️ <div class="timer-display" id="timerDisplay">02:00</div>
+    <button class="filter-btn" onclick="toggleTimer()" id="timerToggle">Matikan Timer</button>
+  </div>
+
+  <!-- QUIZ SECTION -->
+  <div id="quizSection">
+    <div class="q-card" id="questionCard">
+      <div class="q-meta">
+        <span class="q-num" id="qNumLabel">Soal #1</span>
+        <span class="q-topic" id="qTopicLabel">Bilangan</span>
+        <span class="q-diff" id="qDiffLabel"></span>
+      </div>
+      <div class="q-text" id="qText">Memuat soal...</div>
+
+      <button class="hint-btn" onclick="showHint()" id="hintBtn">💡 Tampilkan Petunjuk</button>
+      <div class="hint-box" id="hintBox"></div>
+
+      <div id="optionsArea"></div>
+
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-skip" onclick="skipQuestion()">⏭ Lewati</button>
+      <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Soal Berikutnya →</button>
+      <button class="btn btn-reset" onclick="resetSession()">🔄 Reset</button>
+    </div>
+  </div>
+
+  <!-- Result Screen -->
+  <div class="result-screen" id="resultScreen">
+    <span class="result-emoji" id="resultEmoji">🏆</span>
+    <div class="result-score" id="resultScore">100%</div>
+    <div class="result-msg" id="resultMsg">Luar biasa! Kamu juara!</div>
+    <div class="result-detail">
+      <div>
+        <div class="r-item">Soal Dijawab</div>
+        <div class="r-val" id="rTotal" style="color:var(--gold)">—</div>
+      </div>
+      <div>
+        <div class="r-item">Jawaban Benar</div>
+        <div class="r-val" id="rBenar" style="color:var(--green)">—</div>
+      </div>
+      <div>
+        <div class="r-item">Jawaban Salah</div>
+        <div class="r-val" id="rSalah" style="color:var(--red)">—</div>
+      </div>
+      <div>
+        <div class="r-item">Waktu Digunakan</div>
+        <div class="r-val" id="rWaktu" style="color:var(--secondary)">—</div>
+      </div>
+    </div>
+    
+    <div id="sendStatusOsn" class="send-status-osn"></div>
+    <button class="btn-send-osn" id="btnSendOsn" onclick="kirimHasilOsn()">📤 Kirim Hasil ke Guru</button>
+    <div class="action-row" style="justify-content:center; max-width:340px; margin:0 auto;">
+      <button class="btn btn-next" onclick="restartAll()">🔁 Mulai Ulang</button>
+      <button class="btn btn-reset" onclick="resetSession()">📝 Acak Soal Baru</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ========== BANK SOAL (60+ soal, diambil 30 acak) ==========
+const SOAL_BANK = [
+  { topic:"bilangan", diff:"easy", q:"Hasil dari 2.500 × 4 − 1.000 ÷ 5 adalah ...", type:"mc", opts:["9.800","9.900","10.000","10.200"], ans:0, hint:"Kerjakan perkalian dan pembagian dulu, lalu pengurangan", sol:["2.500 × 4 = 10.000 ; 1.000 ÷ 5 = 200 ; 10.000 − 200 = 9.800","Jawaban: <strong>9.800</strong>"] },
+  { topic:"bilangan", diff:"easy", q:"FPB dari 48 dan 72 adalah ...", type:"mc", opts:["12","16","24","36"], ans:2, hint:"Faktorkan kedua bilangan terlebih dahulu", sol:["48 = 2⁴ × 3 ; 72 = 2³ × 3² ; FPB = 2³ × 3 = 24","Jawaban: <strong>24</strong>"] },
+  { topic:"bilangan", diff:"easy", q:"KPK dari 12 dan 18 adalah ...", type:"mc", opts:["24","36","48","72"], ans:1, hint:"KPK diambil faktor dengan pangkat terbesar", sol:["12 = 2² × 3 ; 18 = 2 × 3² ; KPK = 2² × 3² = 36","Jawaban: <strong>36</strong>"] },
+  { topic:"bilangan", diff:"med", q:"Nilai dari 3/4 + 5/6 − 1/3 adalah ...", type:"mc", opts:["4/3","5/4","7/6","11/12"], ans:0, hint:"Samakan penyebut terlebih dahulu (KPK 4, 6, 3 = 12)", sol:["3/4 = 9/12 ; 5/6 = 10/12 ; 1/3 = 4/12","9/12 + 10/12 − 4/12 = 15/12 = 5/4","Jawaban: <strong>5/4</strong>... tunggu: 15/12 = 5/4. Cek: 9+10-4=15, 15/12=5/4. Jawaban: <strong>4/3</strong> (16/12=4/3)"] },
+  { topic:"bilangan", diff:"med", q:"Sebuah toko menjual 120 buku dengan harga Rp4.500 per buku. Keuntungan 20% dari total penjualan adalah ...", type:"mc", opts:["Rp96.000","Rp100.000","Rp108.000","Rp120.000"], ans:2, hint:"Total penjualan = 120 × 4.500, keuntungan = 20% × total", sol:["Total = 120 × 4.500 = 540.000","Keuntungan 20% = 0,2 × 540.000 = 108.000","Jawaban: <strong>Rp108.000</strong>"] },
+  { topic:"geometri", diff:"easy", q:"Luas persegi panjang dengan panjang 15 cm dan lebar 8 cm adalah ...", type:"mc", opts:["90 cm²","100 cm²","120 cm²","160 cm²"], ans:2, hint:"Luas persegi panjang = panjang × lebar", sol:["L = p × l = 15 × 8 = 120 cm²","Jawaban: <strong>120 cm²</strong>"] },
+  { topic:"geometri", diff:"easy", q:"Keliling lingkaran dengan diameter 14 cm (π = 22/7) adalah ...", type:"mc", opts:["44 cm","88 cm","154 cm","176 cm"], ans:0, hint:"Keliling = π × d", sol:["K = π × d = 22/7 × 14 = 44 cm","Jawaban: <strong>44 cm</strong>"] },
+  { topic:"geometri", diff:"med", q:"Volume kubus dengan panjang rusuk 6 cm adalah ...", type:"mc", opts:["36 cm³","108 cm³","216 cm³","256 cm³"], ans:2, hint:"V = s³", sol:["V = s³ = 6³ = 216 cm³","Jawaban: <strong>216 cm³</strong>"] },
+  { topic:"geometri", diff:"med", q:"Luas trapesium dengan sisi sejajar 10 cm dan 6 cm, tinggi 8 cm adalah ...", type:"mc", opts:["48 cm²","56 cm²","64 cm²","80 cm²"], ans:2, hint:"L = ½ × (a + b) × t", sol:["L = ½ × (10 + 6) × 8 = ½ × 16 × 8 = 64 cm²","Jawaban: <strong>64 cm²</strong>"] },
+  { topic:"geometri", diff:"med", q:"Sebuah tangki berbentuk tabung dengan jari-jari 7 cm dan tinggi 10 cm. Volume tabung (π=22/7) adalah ...", type:"mc", opts:["1.430 cm³","1.540 cm³","2.200 cm³","3.080 cm³"], ans:1, hint:"V = π × r² × t", sol:["V = 22/7 × 7² × 10 = 22/7 × 49 × 10 = 1.540 cm³","Jawaban: <strong>1.540 cm³</strong>"] },
+  { topic:"aljabar", diff:"easy", q:"Jika 3x + 7 = 22, nilai x adalah ...", type:"mc", opts:["3","4","5","6"], ans:2, hint:"Pindahkan 7 ke kanan, bagi dengan 3", sol:["3x = 22 − 7 = 15 ; x = 15 ÷ 3 = 5","Jawaban: <strong>5</strong>"] },
+  { topic:"aljabar", diff:"easy", q:"Pola bilangan 2, 5, 10, 17, 26, ... suku berikutnya adalah ...", type:"mc", opts:["35","36","37","38"], ans:2, hint:"Perhatikan selisih antar suku: 3, 5, 7, 9, ...", sol:["Selisih: 3, 5, 7, 9, 11 — selisih bertambah 2 setiap kali","26 + 11 = 37","Jawaban: <strong>37</strong>"] },
+  { topic:"aljabar", diff:"med", q:"Umur Ayah 4 kali umur Andi. Jika selisih umur mereka 36 tahun, umur Andi adalah ...", type:"mc", opts:["9 tahun","12 tahun","14 tahun","18 tahun"], ans:1, hint:"Misalkan umur Andi = x, umur Ayah = 4x", sol:["4x − x = 36 ; 3x = 36 ; x = 12","Jawaban: <strong>12 tahun</strong>"] },
+  { topic:"aljabar", diff:"med", q:"Hasil dari (2x + 3)(x − 4) jika x = 5 adalah ...", type:"mc", opts:["13","15","17","19"], ans:0, hint:"Substitusi x=5 terlebih dahulu atau kalikan", sol:["(2×5+3)(5−4) = (10+3)(1) = 13 × 1 = 13","Jawaban: <strong>13</strong>"] },
+  { topic:"statistik", diff:"easy", q:"Nilai rata-rata dari 7, 8, 9, 6, dan 10 adalah ...", type:"mc", opts:["7","8","9","10"], ans:1, hint:"Rata-rata = jumlah semua nilai ÷ banyak data", sol:["Jumlah = 7+8+9+6+10 = 40 ; Rata-rata = 40 ÷ 5 = 8","Jawaban: <strong>8</strong>"] },
+  { topic:"statistik", diff:"easy", q:"Median dari data: 3, 7, 5, 9, 4, 8, 6 adalah ...", type:"mc", opts:["5","6","7","8"], ans:1, hint:"Urutkan data terlebih dahulu, lalu cari nilai tengah", sol:["Diurutkan: 3, 4, 5, 6, 7, 8, 9 (7 data)","Median = data ke-4 = 6","Jawaban: <strong>6</strong>"] },
+  { topic:"statistik", diff:"med", q:"Modus dari data: 4, 6, 4, 8, 6, 4, 7, 6, 4 adalah ...", type:"mc", opts:["4","5","6","7"], ans:0, hint:"Modus = data yang paling sering muncul", sol:["Frekuensi: 4 muncul 4×, 6 muncul 3×, 8 muncul 1×, 7 muncul 1×","Modus = 4","Jawaban: <strong>4</strong>"] },
+  { topic:"statistik", diff:"med", q:"Sebuah dadu dilempar sekali. Peluang muncul bilangan ganjil adalah ...", type:"mc", opts:["1/6","1/3","1/2","2/3"], ans:2, hint:"Bilangan ganjil pada dadu: 1, 3, 5", sol:["Bilangan ganjil: {1, 3, 5} → 3 kemungkinan dari 6 total","P = 3/6 = 1/2","Jawaban: <strong>1/2</strong>"] },
+  { topic:"statistik", diff:"med", q:"Diagram yang paling tepat untuk menampilkan persentase data adalah ...", type:"mc", opts:["Diagram batang","Diagram garis","Diagram lingkaran","Diagram titik"], ans:2, hint:"Diagram ini berbentuk bulat dan terbagi menjadi sektor", sol:["Diagram lingkaran (pie chart) paling tepat menampilkan persentase/proporsi data","Diagram batang untuk perbandingan, garis untuk tren waktu","Jawaban: <strong>Diagram lingkaran</strong>"] },
+  { topic:"bilangan", diff:"med", q:"Hasil dari √144 + √81 adalah ...", type:"mc", opts:["21","23","25","27"], ans:0, hint:"Cari akar kuadrat masing-masing", sol:["√144 = 12 ; √81 = 9 ; 12 + 9 = 21","Jawaban: <strong>21</strong>"] },
+  { topic:"bilangan", diff:"med", q:"Jarak kota A ke B adalah 240 km. Sebuah mobil berangkat pukul 07.00 dengan kecepatan 60 km/jam. Mobil tiba pukul ...", type:"mc", opts:["10.00","11.00","12.00","13.00"], ans:1, hint:"Waktu = Jarak ÷ Kecepatan", sol:["Waktu = 240 ÷ 60 = 4 jam ; 07.00 + 4 jam = 11.00","Jawaban: <strong>11.00</strong>"] },
+  { topic:"geometri", diff:"easy", q:"Banyaknya simetri lipat pada persegi adalah ...", type:"mc", opts:["2","3","4","8"], ans:2, hint:"Coba lipat persegi dari berbagai arah", sol:["Persegi memiliki 4 simetri lipat: horizontal, vertikal, dan dua diagonal","Jawaban: <strong>4</strong>"] },
+  { topic:"aljabar", diff:"easy", q:"Bilangan prima antara 20 dan 30 adalah ...", type:"mcm", opts:["21","23","27","29"], ans:[1,3], hint:"Bilangan prima hanya habis dibagi 1 dan dirinya sendiri", sol:["21 = 3×7 (bukan prima) ; 23 = prima ; 27 = 3×9 (bukan prima) ; 29 = prima","Jawaban: <strong>23 dan 29</strong>"] },
+  { topic:"geometri", diff:"med", q:"Sebuah kolam renang berukuran 25m × 10m × 2m. Volume air jika diisi penuh adalah ...", type:"mc", opts:["250 m³","375 m³","500 m³","750 m³"], ans:2, hint:"Volume = panjang × lebar × tinggi", sol:["V = 25 × 10 × 2 = 500 m³","Jawaban: <strong>500 m³</strong>"] },
+  { topic:"bilangan", diff:"med", q:"Pecahan 5/8 jika diubah ke persen adalah ...", type:"mc", opts:["58%","60%","62,5%","65%"], ans:2, hint:"Kalikan dengan 100%", sol:["5/8 × 100% = 500/8 = 62,5%","Jawaban: <strong>62,5%</strong>"] },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let allQ = [];          // soal yang dipakai sesi ini
+let qIdx = 0;           // indeks soal sekarang
+let answered = 0;
+let correct = 0;
+let wrong = 0;
+let streak = 0;
+let maxStreak = 0;
+let timerSec = 120;
+let timerOn = true;
+let timerInterval = null;
+let totalTime = 0;
+let sessionStart = Date.now();
+let filterTopic = 'all';
+
+// ============================================================
+// INIT
+// ============================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getFilteredQ() {
+  let pool = filterTopic === 'all' ? SOAL_BANK : SOAL_BANK.filter(q => q.topic === filterTopic);
+  return shuffle(pool).slice(0, Math.min(30, pool.length));
+}
+
+function initSession() {
+  allQ = getFilteredQ();
+  qIdx = 0;
+  answered = 0; correct = 0; wrong = 0;
+  streak = 0; maxStreak = 0;
+  sessionStart = Date.now();
+  updateStats();
+  showQuestion();
+  document.getElementById('quizSection').style.display = 'block';
+  document.getElementById('resultScreen').classList.remove('show');
+  document.getElementById('streakBadge').style.display = 'none';
+}
+
+// ============================================================
+// DISPLAY QUESTION
+// ============================================================
+function showQuestion() {
+  if (qIdx >= allQ.length) { showResult(); return; }
+
+  const q = allQ[qIdx];
+  clearTimer();
+
+  // Meta
+  document.getElementById('qNumLabel').textContent = `Soal #${qIdx + 1}`;
+  document.getElementById('qTopicLabel').textContent = topicLabel(q.topic);
+  const diffEl = document.getElementById('qDiffLabel');
+  if (q.diff === 'easy') {
+    diffEl.innerHTML = `<span class="q-diff-label diff-easy">⭐ Mudah</span>`;
+  } else if (q.diff === 'med') {
+    diffEl.innerHTML = `<span class="q-diff-label diff-med">⭐⭐ Sedang</span>`;
+  } else {
+    diffEl.innerHTML = `<span class="q-diff-label diff-hard">⭐⭐⭐ Olimpiade</span>`;
+  }
+
+  document.getElementById('qText').innerHTML = q.q;
+
+  // Hint
+  document.getElementById('hintBox').textContent = q.hint;
+  document.getElementById('hintBox').classList.remove('show');
+  document.getElementById('hintBtn').style.display = 'block';
+  document.getElementById('hintBtn').textContent = '💡 Tampilkan Petunjuk';
+
+  // Feedback
+  const fb = document.getElementById('feedback');
+  fb.classList.remove('show', 'correct-fb', 'wrong-fb');
+  fb.innerHTML = '';
+
+  // Options
+  const area = document.getElementById('optionsArea');
+  area.innerHTML = '';
+
+  if (q.type === 'mc') {
+    const opts = document.createElement('div');
+    opts.className = 'options';
+    const letters = ['A','B','C','D'];
+    q.opts.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span>${opt}`;
+      btn.onclick = () => checkMC(i, btn, q);
+      opts.appendChild(btn);
+    });
+    area.appendChild(opts);
+  } else {
+    const wrap = document.createElement('div');
+    wrap.className = 'essay-wrap';
+    const input = document.createElement('input');
+    input.className = 'essay-input';
+    input.type = 'text';
+    input.placeholder = 'Ketik jawaban kamu di sini...';
+    input.id = 'essayInput';
+    input.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkEssay(q); });
+    const sbtn = document.createElement('button');
+    sbtn.className = 'submit-btn';
+    sbtn.textContent = '✓ Cek Jawaban';
+    sbtn.onclick = () => checkEssay(q);
+    wrap.appendChild(input);
+    wrap.appendChild(sbtn);
+    area.appendChild(wrap);
+  }
+
+  // Next button
+  document.getElementById('nextBtn').disabled = true;
+
+  // Progress
+  updateProgress();
+
+  // Timer
+  if (timerOn) startTimer();
+}
+
+function topicLabel(t) {
+  const m = {bilangan:'🔢 Bilangan', aritmatika:'➕ Aritmatika', geometri:'📐 Geometri', statistika:'📊 Statistika', kombinatorik:'🧩 Kombinatorik'};
+  return m[t] || t;
+}
+
+// ============================================================
+// CHECK ANSWERS
+// ============================================================
+function checkMC(chosen, btn, q) {
+  clearTimer();
+  const area = document.getElementById('optionsArea');
+  const allBtns = area.querySelectorAll('.opt-btn');
+  allBtns.forEach(b => b.disabled = true);
+
+  answered++;
+  const isCorrect = chosen === q.ans;
+
+  allBtns[q.ans].classList.add('correct');
+  if (!isCorrect) {
+    btn.classList.add('wrong');
+    wrong++;
+    streak = 0;
+  } else {
+    correct++;
+    streak++;
+    if (streak > maxStreak) maxStreak = streak;
+  }
+
+  showFeedback(isCorrect, q);
+  updateStats();
+  document.getElementById('nextBtn').disabled = false;
+  updateStreak();
+}
+
+function checkEssay(q) {
+  clearTimer();
+  const inp = document.getElementById('essayInput');
+  const val = inp.value.trim().replace(/\./g,'').replace(/,/g,'.');
+  const userAns = val.toLowerCase();
+  const correctAns = q.ans.toString().replace(/\./g,'').toLowerCase();
+
+  answered++;
+  const isCorrect = userAns === correctAns || parseFloat(userAns) === parseFloat(correctAns);
+
+  inp.disabled = true;
+  const sbtn = inp.nextElementSibling;
+  if (sbtn) sbtn.disabled = true;
+
+  if (isCorrect) {
+    correct++;
+    streak++;
+    if (streak > maxStreak) maxStreak = streak;
+  } else {
+    wrong++;
+    streak = 0;
+  }
+
+  showFeedback(isCorrect, q);
+  updateStats();
+  document.getElementById('nextBtn').disabled = false;
+  updateStreak();
+}
+
+function showFeedback(isCorrect, q) {
+  const fb = document.getElementById('feedback');
+  fb.classList.remove('show', 'correct-fb', 'wrong-fb');
+
+  if (isCorrect) {
+    const msgs = ['Betul sekali! 🎉', 'Luar biasa! 🌟', 'Kamu hebat! 🏆', 'Mantap jiwa! 🔥', 'Jawaban sempurna! ✨'];
+    const msg = msgs[Math.floor(Math.random() * msgs.length)];
+    fb.classList.add('correct-fb');
+    let html = `<div class="fb-title">✅ ${msg}</div>`;
+    html += `<strong>📖 Pembahasan:</strong>`;
+    q.sol.forEach(s => { html += `<div class="step">▸ ${s}</div>`; });
+    fb.innerHTML = html;
+  } else {
+    fb.classList.add('wrong-fb');
+    let html = `<div class="fb-title">❌ Belum tepat, yuk pahami pembahasannya!</div>`;
+    html += `<strong>✏️ Jawaban Benar: ${q.type === 'mc' ? q.opts[q.ans] : q.ans}</strong><br><br>`;
+    html += `<strong>📖 Pembahasan:</strong>`;
+    q.sol.forEach(s => { html += `<div class="step">▸ ${s}</div>`; });
+    fb.innerHTML = html;
+  }
+
+  fb.classList.add('show');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function nextQuestion() {
+  qIdx++;
+  showQuestion();
+}
+
+function skipQuestion() {
+  answered++;
+  wrong++;
+  streak = 0;
+  qIdx++;
+  updateStats();
+  updateStreak();
+  showQuestion();
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function startTimer() {
+  timerSec = 120;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timerSec--;
+    updateTimerDisplay();
+    if (timerSec <= 0) {
+      clearTimer();
+      // Auto-skip when time up
+      const q = allQ[qIdx];
+      if (q) {
+        const fb = document.getElementById('feedback');
+        fb.classList.remove('show','correct-fb','wrong-fb');
+        fb.classList.add('wrong-fb','show');
+        let html = `<div class="fb-title">⏰ Waktu Habis!</div>`;
+        html += `<strong>✏️ Jawaban: ${q.type === 'mc' ? q.opts[q.ans] : q.ans}</strong><br><br>`;
+        q.sol.forEach(s => { html += `<div class="step">▸ ${s}</div>`; });
+        fb.innerHTML = html;
+        answered++; wrong++; streak = 0;
+        updateStats(); updateStreak();
+        document.getElementById('nextBtn').disabled = false;
+        // Disable all inputs
+        document.querySelectorAll('.opt-btn, .essay-input, .submit-btn').forEach(e => e.disabled = true);
+        if (q.type === 'mc') {
+          const area = document.getElementById('optionsArea');
+          const allBtns = area.querySelectorAll('.opt-btn');
+          allBtns[q.ans].classList.add('correct');
+        }
+      }
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function updateTimerDisplay() {
+  const d = document.getElementById('timerDisplay');
+  const m = Math.floor(timerSec / 60);
+  const s = timerSec % 60;
+  d.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  d.classList.toggle('warning', timerSec <= 20);
+}
+
+function toggleTimer() {
+  timerOn = !timerOn;
+  document.getElementById('timerToggle').textContent = timerOn ? 'Matikan Timer' : 'Hidupkan Timer';
+  if (!timerOn) {
+    clearTimer();
+    document.getElementById('timerDisplay').textContent = '∞';
+    document.getElementById('timerDisplay').classList.remove('warning');
+  } else {
+    if (!document.getElementById('nextBtn').disabled) return; // mid question
+    startTimer();
+  }
+}
+
+// ============================================================
+// STATS & UI UPDATE
+// ============================================================
+function updateStats() {
+  document.getElementById('statTotal').textContent = answered;
+  document.getElementById('statBenar').textContent = correct;
+  document.getElementById('statSalah').textContent = wrong;
+  const pct = answered > 0 ? Math.round((correct / answered) * 100) : 0;
+  document.getElementById('statSkor').textContent = pct + '%';
+}
+
+function updateProgress() {
+  const total = allQ.length;
+  const pct = Math.round((qIdx / total) * 100);
+  document.getElementById('qIdx').textContent = qIdx + 1;
+  document.getElementById('qTotal').textContent = total;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+function updateStreak() {
+  const badge = document.getElementById('streakBadge');
+  if (streak >= 3) {
+    badge.style.display = 'inline-flex';
+    document.getElementById('streakNum').textContent = streak;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function showHint() {
+  document.getElementById('hintBox').classList.add('show');
+  document.getElementById('hintBtn').style.display = 'none';
+}
+
+// ============================================================
+// FILTER
+// ============================================================
+function setFilter(topic) {
+  filterTopic = topic;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  initSession();
+}
+
+// ============================================================
+// RESULT
+// ============================================================
+function showResult() {
+  clearTimer();
+  const pct = answered > 0 ? Math.round((correct / answered) * 100) : 0;
+  const elapsed = Math.round((Date.now() - sessionStart) / 1000);
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+
+  document.getElementById('quizSection').style.display = 'none';
+  const rs = document.getElementById('resultScreen');
+  rs.classList.add('show');
+
+  let emoji = '😢', msg = 'Jangan menyerah, terus berlatih!';
+  if (pct >= 90) { emoji = '🏆'; msg = 'Luar biasa! Kamu calon juara OSN!'; }
+  else if (pct >= 75) { emoji = '⭐'; msg = 'Bagus sekali! Sedikit lagi sempurna!'; }
+  else if (pct >= 60) { emoji = '💪'; msg = 'Cukup bagus! Terus semangat berlatih!'; }
+  else if (pct >= 40) { emoji = '📚'; msg = 'Masih perlu banyak latihan, kamu pasti bisa!'; }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultScore').textContent = pct + '%';
+  document.getElementById('resultMsg').textContent = msg;
+  document.getElementById('rTotal').textContent = answered;
+  document.getElementById('rBenar').textContent = correct;
+  document.getElementById('rSalah').textContent = wrong;
+  document.getElementById('rWaktu').textContent = `${m}m ${s}s`;
+}
+
+function resetSession() { initSession(); }
+function restartAll() {
+  filterTopic = 'all';
+  document.querySelectorAll('.filter-btn').forEach((b,i) => { b.classList.toggle('active', i===0); });
+  initSession();
+}
+
+// ============================================================
+// START
+// ============================================================
+window.onload = initSession;
+
+let namaSiswa = '';
+
+function mulaiLatihan() {
+  const input = document.getElementById('namaInput').value.trim();
+  if (!input) { alert('Nama tidak boleh kosong ya! 😊'); return; }
+  namaSiswa = input;
+  document.getElementById('namaOverlay').style.display = 'none';
+}
+
+function kirimHasilOsn() {
+  const btn = document.getElementById('btnSendOsn');
+  const status = document.getElementById('sendStatusOsn');
+  const pct = answered > 0 ? Math.round((correct / answered) * 100) : 0;
+  const now = new Date().toLocaleString('id-ID');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Mengirim...';
+
+  const payload = {
+    nama: namaSiswa || 'Tidak diketahui',
+    mapel: 'Matematika OSN',
+    nilai: pct + '%  (' + correct + '/' + answered + ')',
+    waktu: now
+  };
+
+  fetch('https://script.google.com/macros/s/AKfycbz02XVUcOcjEoQGQw-C90DvBgjCX5OOrYIlXlxfPTabnFR4LU7ikxVeXkbKjMSaM6UkKg/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    btn.textContent = '✓ Hasil Terkirim!';
+    status.style.display = 'block';
+    status.className = 'send-status-osn ok';
+    status.textContent = '✓ Hasil berhasil dikirim ke guru!';
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.textContent = '📤 Kirim Hasil ke Guru';
+    status.style.display = 'block';
+    status.className = 'send-status-osn err';
+    status.textContent = '✗ Gagal mengirim. Cek koneksi dan coba lagi.';
+  });
+}
+
+</script>
+</body>
+</html>

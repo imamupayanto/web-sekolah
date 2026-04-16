@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latihan OSN IPS SDN 2 Pesantren</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --secondary: #f59e0b;
+    --accent: #ec4899;
+    --gold: #f59e0b;
+    --green: #22c55e;
+    --red: #ef4444;
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card2: #263248;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: #334155;
+    --easy: #22c55e;
+    --med: #f59e0b;
+    --hard: #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(59,130,246,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(236,72,153,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 50% 50%, rgba(245,158,11,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    text-align: center;
+    padding: 32px 0 24px;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(28px, 5vw, 48px);
+    background: linear-gradient(135deg, #fff 30%, var(--primary) 70%, var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 8px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+
+  .stat-box:hover { transform: translateY(-2px); }
+
+  .stat-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-box.s1 .stat-num { color: var(--gold); }
+  .stat-box.s2 .stat-num { color: var(--green); }
+  .stat-box.s3 .stat-num { color: var(--red); }
+  .stat-box.s4 .stat-num { color: var(--secondary); }
+
+  .progress-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .progress-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 10px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--gold));
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+
+  .progress-pct {
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .timer-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .timer-display {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    color: var(--secondary);
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 6px 18px;
+    border-radius: 10px;
+    letter-spacing: 2px;
+  }
+
+  .timer-display.warning { color: var(--red); animation: pulse 1s infinite; }
+
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.35s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .q-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .q-topic {
+    background: rgba(59,130,246,0.15);
+    color: #93c5fd;
+    border: 1px solid rgba(59,130,246,0.3);
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .q-diff {
+    margin-left: auto;
+    font-size: 15px;
+  }
+
+  .q-diff-label {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+  }
+
+  .diff-easy { background: rgba(34,197,94,0.15); color: var(--easy); border: 1px solid rgba(34,197,94,0.3); }
+  .diff-med  { background: rgba(245,158,11,0.15); color: var(--med);  border: 1px solid rgba(245,158,11,0.3); }
+  .diff-hard { background: rgba(239,68,68,0.15);  color: var(--red);  border: 1px solid rgba(239,68,68,0.3); }
+
+  .q-text {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.6;
+    margin-bottom: 22px;
+    color: var(--text);
+  }
+
+  .q-text .highlight { color: var(--gold); font-weight: 900; }
+
+  .options { display: grid; gap: 10px; }
+
+  .opt-btn {
+    background: var(--card2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    background: rgba(59,130,246,0.1);
+    transform: translateX(4px);
+  }
+
+  .opt-letter {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 900;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .opt-btn.correct { border-color: var(--green); background: rgba(34,197,94,0.12); }
+  .opt-btn.correct .opt-letter { background: var(--green); color: white; }
+  .opt-btn.wrong   { border-color: var(--red);   background: rgba(239,68,68,0.1); }
+  .opt-btn.wrong .opt-letter   { background: var(--red);   color: white; }
+  .opt-btn:disabled { cursor: default; }
+
+  .essay-wrap { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .essay-input {
+    flex: 1; min-width: 160px;
+    background: var(--card2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px; font-weight: 700;
+    color: var(--text); outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .essay-input:focus { border-color: var(--primary); }
+  .essay-input::placeholder { color: var(--muted); font-weight: 600; }
+
+  .submit-btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white; border: none; border-radius: 12px;
+    padding: 12px 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px; font-weight: 800;
+    cursor: pointer; transition: all 0.2s;
+  }
+
+  .submit-btn:hover { transform: scale(1.03); filter: brightness(1.1); }
+
+  .feedback {
+    margin-top: 16px; padding: 16px; border-radius: 14px;
+    font-size: 14px; font-weight: 600; line-height: 1.7; display: none;
+  }
+
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .feedback.correct-fb { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.3);  color: #86efac; }
+  .feedback.wrong-fb   { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3);  color: #fca5a5; }
+
+  .feedback .fb-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .feedback .step {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px; padding: 8px 12px;
+    margin-top: 8px; font-size: 13px;
+  }
+
+  .action-row {
+    display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;
+  }
+
+  .btn {
+    flex: 1; min-width: 120px; padding: 14px 20px;
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px; font-weight: 800;
+    cursor: pointer; border: none; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  .btn-next { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
+  .btn-next:hover { transform: scale(1.03); filter: brightness(1.1); }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; filter: none; }
+
+  .btn-skip { background: var(--card2); border: 2px solid var(--border); color: var(--muted); }
+  .btn-skip:hover { border-color: var(--muted); color: var(--text); }
+
+  .btn-reset { background: rgba(236,72,153,0.15); border: 2px solid rgba(236,72,153,0.4); color: #f9a8d4; }
+  .btn-reset:hover { background: rgba(236,72,153,0.25); }
+
+  .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+
+  .filter-btn {
+    padding: 7px 16px; border-radius: 99px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 800;
+    cursor: pointer; border: 2px solid var(--border);
+    background: var(--card2); color: var(--muted); transition: all 0.2s;
+  }
+
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--primary); color: #93c5fd;
+    background: rgba(59,130,246,0.1);
+  }
+
+  .result-screen {
+    display: none; text-align: center;
+    padding: 40px 20px; animation: slideIn 0.4s ease;
+  }
+
+  .result-screen.show { display: block; }
+  .result-emoji { font-size: 72px; margin-bottom: 16px; display: block; }
+
+  .result-score {
+    font-family: 'Fredoka One', cursive; font-size: 72px;
+    background: linear-gradient(135deg, var(--gold), var(--primary));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; line-height: 1; margin-bottom: 8px;
+  }
+
+  .result-msg { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 24px; }
+
+  .result-detail {
+    display: inline-grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; margin-bottom: 28px;
+    text-align: left; min-width: 280px;
+  }
+
+  .r-item { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .r-val  { font-family: 'Fredoka One', cursive; font-size: 22px; }
+
+  .hint-box {
+    background: rgba(59,130,246,0.08);
+    border: 1px dashed rgba(59,130,246,0.3);
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 13px; color: #93c5fd;
+    margin-bottom: 14px; display: none;
+  }
+
+  .hint-box.show { display: block; animation: fadeIn 0.3s; }
+
+  .hint-btn {
+    background: none; border: 1px dashed rgba(59,130,246,0.4);
+    border-radius: 8px; color: #93c5fd;
+    font-size: 12px; font-weight: 700;
+    padding: 4px 12px; cursor: pointer; transition: all 0.2s; margin-bottom: 14px;
+  }
+
+  .hint-btn:hover { background: rgba(59,130,246,0.1); }
+
+  .streak-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4);
+    color: var(--gold); padding: 4px 14px; border-radius: 99px;
+    font-size: 13px; font-weight: 800; margin-bottom: 20px; animation: fadeIn 0.3s;
+  }
+
+  @media (max-width: 520px) {
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .q-text { font-size: 15px; }
+    .action-row { flex-direction: column; }
+    .btn { min-width: unset; }
+  }
+
+.nama-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:999;}
+.nama-box{background:#fff;border-radius:16px;padding:28px;width:90%;max-width:400px;text-align:center;}
+.nama-box h2{font-size:20px;font-weight:800;margin-bottom:6px;}
+.nama-box p{font-size:13px;color:#6b7280;margin-bottom:16px;}
+.nama-input{width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;font-weight:600;font-family:inherit;outline:none;margin-bottom:12px;}
+.nama-input:focus{border-color:#1a56db;}
+.nama-btn{width:100%;padding:13px;background:#111827;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.nama-btn:hover{opacity:.85;}
+.btn-send-osn{width:100%;padding:13px;background:#059669;color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;display:block;}
+.btn-send-osn:hover{opacity:.85;}
+.btn-send-osn:disabled{opacity:.5;cursor:default;}
+.send-status-osn{font-size:13px;text-align:center;padding:8px;border-radius:8px;margin-bottom:8px;display:none;}
+.send-status-osn.ok{background:#dcfce7;color:#166534;}
+.send-status-osn.err{background:#fee2e2;color:#991b1b;}
+
+</style>
+</head>
+<body>
+
+<div class="nama-overlay" id="namaOverlay">
+  <div class="nama-box">
+    <h2>Selamat Datang! 👋</h2>
+    <p>Masukkan namamu sebelum memulai latihan</p>
+    <input class="nama-input" id="namaInput" type="text" placeholder="Nama lengkapmu..." maxlength="50"/>
+    <button class="nama-btn" onclick="mulaiLatihan()">Mulai Latihan →</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="logo-badge">🏆 OSN SD 2026</div>
+    <h1>Latihan OSN IPS</h1>
+    <p style="font-size:17px; font-weight:800; color:#f1f5f9; margin-bottom:4px;">SDN 2 Pesantren</p>
+    <p>Berlatih soal-soal IPS pilihan olimpiade setiap hari!</p>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-box s1"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Dikerjakan</div></div>
+    <div class="stat-box s2"><div class="stat-num" id="statBenar">0</div><div class="stat-label">Benar ✓</div></div>
+    <div class="stat-box s3"><div class="stat-num" id="statSalah">0</div><div class="stat-label">Salah ✗</div></div>
+    <div class="stat-box s4"><div class="stat-num" id="statSkor">0%</div><div class="stat-label">Skor</div></div>
+  </div>
+
+  <div id="streakBadge" class="streak-badge" style="display:none;">🔥 Streak <span id="streakNum">0</span> jawaban benar berturut-turut!</div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">Soal <span id="qIdx">1</span>/<span id="qTotal">30</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-pct" id="progressPct">0%</div>
+  </div>
+
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all')">🗺️ Semua</button>
+    <button class="filter-btn" onclick="setFilter('geografi')">🌏 Geografi</button>
+    <button class="filter-btn" onclick="setFilter('sejarah')">📜 Sejarah</button>
+    <button class="filter-btn" onclick="setFilter('sosial')">👥 Sosial & Budaya</button>
+    <button class="filter-btn" onclick="setFilter('ekonomi')">💰 Ekonomi</button>
+    <button class="filter-btn" onclick="setFilter('asean')">🌐 ASEAN & Global</button>
+  </div>
+
+  <div class="timer-wrap">
+    ⏱️ <div class="timer-display" id="timerDisplay">02:00</div>
+    <button class="filter-btn" onclick="toggleTimer()" id="timerToggle">Matikan Timer</button>
+  </div>
+
+  <div id="quizSection">
+    <div class="q-card" id="questionCard">
+      <div class="q-meta">
+        <span class="q-num" id="qNumLabel">Soal #1</span>
+        <span class="q-topic" id="qTopicLabel">Geografi</span>
+        <span class="q-diff" id="qDiffLabel"></span>
+      </div>
+      <div class="q-text" id="qText">Memuat soal...</div>
+      <button class="hint-btn" onclick="showHint()" id="hintBtn">💡 Tampilkan Petunjuk</button>
+      <div class="hint-box" id="hintBox"></div>
+      <div id="optionsArea"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-skip"  onclick="skipQuestion()">⏭ Lewati</button>
+      <button class="btn btn-next"  id="nextBtn" onclick="nextQuestion()" disabled>Soal Berikutnya →</button>
+      <button class="btn btn-reset" onclick="resetSession()">🔄 Reset</button>
+    </div>
+  </div>
+
+  <div class="result-screen" id="resultScreen">
+    <span class="result-emoji" id="resultEmoji">🏆</span>
+    <div class="result-score" id="resultScore">100%</div>
+    <div class="result-msg"   id="resultMsg">Luar biasa!</div>
+    <div class="result-detail">
+      <div><div class="r-item">Soal Dijawab</div><div class="r-val" id="rTotal"  style="color:var(--gold)">—</div></div>
+      <div><div class="r-item">Jawaban Benar</div><div class="r-val" id="rBenar" style="color:var(--green)">—</div></div>
+      <div><div class="r-item">Jawaban Salah</div><div class="r-val" id="rSalah" style="color:var(--red)">—</div></div>
+      <div><div class="r-item">Waktu Digunakan</div><div class="r-val" id="rWaktu" style="color:var(--secondary)">—</div></div>
+    </div>
+    <div class="action-row" style="justify-content:center;max-width:340px;margin:0 auto;">
+      <button class="btn btn-next"  onclick="restartAll()">🔁 Mulai Ulang</button>
+      <button class="btn btn-reset" onclick="resetSession()">📝 Acak Soal Baru</button>
+    </div>
+  </div>
+
+</div>
+<script>
+// ============================================================
+// BANK SOAL IPS — 50+ soal, 5 topik
+// ============================================================
+const SOAL_BANK = [
+  { topic:"sejarah", diff:"easy", q:"Proklamasi Kemerdekaan Indonesia dibacakan pada tanggal ...", type:"mc", opts:["17 Agustus 1945","17 Agustus 1944","18 Agustus 1945","15 Agustus 1945"], ans:0, hint:"Tanggal ini diperingati setiap tahun sebagai Hari Kemerdekaan", sol:["Proklamasi dibacakan oleh Soekarno-Hatta pada 17 Agustus 1945 di Jakarta","Jawaban: <strong>17 Agustus 1945</strong>"] },
+  { topic:"sejarah", diff:"easy", q:"Pahlawan yang dikenal sebagai Bapak Pendidikan Nasional Indonesia adalah ...", type:"mc", opts:["Soekarno","Ki Hajar Dewantara","R.A. Kartini","Diponegoro"], ans:1, hint:"Beliau mendirikan sekolah Taman Siswa", sol:["Ki Hajar Dewantara mendirikan Taman Siswa pada 1922 dan diangkat sebagai Menteri Pendidikan pertama","Hari Pendidikan Nasional diperingati pada 2 Mei (hari lahirnya)","Jawaban: <strong>Ki Hajar Dewantara</strong>"] },
+  { topic:"sejarah", diff:"easy", q:"Kerajaan Hindu tertua di Indonesia adalah ...", type:"mc", opts:["Majapahit","Sriwijaya","Kutai","Mataram"], ans:2, hint:"Kerajaan ini berada di Kalimantan Timur", sol:["Kerajaan Kutai (abad ke-4 M) di Kalimantan Timur adalah kerajaan Hindu tertua di Indonesia","Bukti: prasasti Yupa yang ditemukan di Muara Kaman","Jawaban: <strong>Kutai</strong>"] },
+  { topic:"sejarah", diff:"med", q:"Peristiwa Sumpah Pemuda terjadi pada tahun ...", type:"mc", opts:["1926","1927","1928","1929"], ans:2, hint:"Peristiwa ini terjadi pada bulan Oktober", sol:["Sumpah Pemuda terjadi pada 28 Oktober 1928 dalam Kongres Pemuda II di Jakarta","Isi: satu tanah air, satu bangsa, satu bahasa — Indonesia","Jawaban: <strong>1928</strong>"] },
+  { topic:"sejarah", diff:"med", q:"Tokoh yang merumuskan Pancasila pada sidang BPUPKI adalah ...", type:"mc", opts:["Mohammad Hatta","Mohammad Yamin","Soepomo","Ir. Soekarno"], ans:3, hint:"Beliau menyampaikan pidato pada 1 Juni 1945", sol:["Ir. Soekarno menyampaikan pidato Pancasila pada 1 Juni 1945 dalam sidang BPUPKI","1 Juni diperingati sebagai Hari Lahir Pancasila","Jawaban: <strong>Ir. Soekarno</strong>"] },
+  { topic:"geografi", diff:"easy", q:"Gunung tertinggi di Indonesia adalah ...", type:"mc", opts:["Gunung Semeru","Gunung Rinjani","Puncak Jaya","Gunung Kerinci"], ans:2, hint:"Gunung ini berada di Papua", sol:["Puncak Jaya (Carstensz Pyramid) di Papua setinggi 4.884 meter adalah puncak tertinggi Indonesia","Jawaban: <strong>Puncak Jaya</strong>"] },
+  { topic:"geografi", diff:"easy", q:"Indonesia terletak di antara dua samudra yaitu ...", type:"mc", opts:["Samudra Hindia dan Samudra Atlantik","Samudra Pasifik dan Samudra Atlantik","Samudra Hindia dan Samudra Pasifik","Samudra Arktik dan Samudra Hindia"], ans:2, hint:"Salah satunya ada di sebelah barat, satunya di sebelah timur", sol:["Indonesia terletak di antara Samudra Hindia (barat-selatan) dan Samudra Pasifik (timur-utara)","Indonesia juga berada di antara Benua Asia dan Australia","Jawaban: <strong>Samudra Hindia dan Samudra Pasifik</strong>"] },
+  { topic:"geografi", diff:"med", q:"Provinsi yang menjadi ibu kota Indonesia saat ini adalah ...", type:"mc", opts:["DKI Jakarta","Jawa Barat","DI Yogyakarta","Banten"], ans:0, hint:"Ibu kota akan dipindahkan ke Nusantara, tapi saat ini masih di sini", sol:["DKI Jakarta masih menjadi ibu kota Indonesia","Nusantara di Kalimantan Timur disiapkan sebagai ibu kota baru","Jawaban: <strong>DKI Jakarta</strong>"] },
+  { topic:"geografi", diff:"med", q:"Pulau-pulau yang termasuk dalam Kepulauan Sunda Besar adalah ...", type:"mcm", opts:["Sumatera","Kalimantan","Sulawesi","Jawa"], ans:[0,1,2,3], hint:"Kepulauan Sunda Besar terdiri dari pulau-pulau besar di Indonesia bagian barat", sol:["Kepulauan Sunda Besar: Sumatera, Kalimantan, Sulawesi, dan Jawa","Kepulauan Sunda Kecil: Bali, Lombok, Sumbawa, Flores, Timor","Jawaban: <strong>Semua pilihan benar</strong>"] },
+  { topic:"geografi", diff:"med", q:"Sungai terpanjang di Indonesia adalah ...", type:"mc", opts:["Sungai Musi","Sungai Mahakam","Sungai Kapuas","Sungai Bengawan Solo"], ans:2, hint:"Sungai ini berada di Kalimantan Barat", sol:["Sungai Kapuas di Kalimantan Barat (1.143 km) adalah sungai terpanjang di Indonesia","Jawaban: <strong>Sungai Kapuas</strong>"] },
+  { topic:"ekonomi", diff:"easy", q:"Kegiatan ekonomi yang menghasilkan barang disebut ...", type:"mc", opts:["Distribusi","Konsumsi","Produksi","Transaksi"], ans:2, hint:"Pro = membuat/menghasilkan", sol:["Produksi = kegiatan menghasilkan/membuat barang atau jasa","Distribusi = menyalurkan, Konsumsi = menggunakan/memakai","Jawaban: <strong>Produksi</strong>"] },
+  { topic:"ekonomi", diff:"easy", q:"Koperasi di Indonesia berdasarkan atas asas ...", type:"mc", opts:["Kekeluargaan","Persaingan","Keuntungan","Individualisme"], ans:0, hint:"Koperasi berarti bekerja sama", sol:["Koperasi Indonesia berdasarkan asas kekeluargaan dan gotong royong","Koperasi adalah badan usaha milik bersama yang bertujuan menyejahterakan anggota","Jawaban: <strong>Kekeluargaan</strong>"] },
+  { topic:"ekonomi", diff:"med", q:"Yang termasuk sumber daya alam yang tidak dapat diperbarui adalah ...", type:"mcm", opts:["Minyak bumi","Hutan","Batu bara","Gas alam"], ans:[0,2,3], hint:"Sumber daya yang terbentuk jutaan tahun tidak bisa diperbarui dalam waktu singkat", sol:["Tidak terbarukan: minyak bumi, batu bara, gas alam, mineral logam","Terbarukan: hutan (bisa ditanam kembali), air, angin, matahari","Jawaban: <strong>Minyak bumi, Batu bara, Gas alam</strong>"] },
+  { topic:"ekonomi", diff:"med", q:"Badan Usaha Milik Negara (BUMN) yang bergerak di bidang penerbangan adalah ...", type:"mc", opts:["PT Pertamina","PT Garuda Indonesia","PT Telkom","PT PLN"], ans:1, hint:"Maskapai nasional Indonesia", sol:["PT Garuda Indonesia adalah BUMN yang bergerak di bidang transportasi udara","PT Pertamina: minyak & gas ; PT Telkom: telekomunikasi ; PT PLN: listrik","Jawaban: <strong>PT Garuda Indonesia</strong>"] },
+  { topic:"sosbudaya", diff:"easy", q:"Rumah adat suku Jawa disebut ...", type:"mc", opts:["Rumah Gadang","Rumah Joglo","Rumah Honai","Rumah Betang"], ans:1, hint:"Rumah ini memiliki atap berbentuk trapesium bertingkat", sol:["Rumah Joglo adalah rumah adat suku Jawa (Jawa Tengah dan Jawa Timur)","Rumah Gadang = Minangkabau ; Honai = Papua ; Betang = Kalimantan","Jawaban: <strong>Rumah Joglo</strong>"] },
+  { topic:"sosbudaya", diff:"easy", q:"Tari Saman berasal dari provinsi ...", type:"mc", opts:["Aceh","Sumatera Barat","Sumatera Utara","Riau"], ans:0, hint:"Provinsi paling barat di Indonesia", sol:["Tari Saman berasal dari Aceh dan telah diakui UNESCO sebagai warisan budaya dunia","Tari ini ditampilkan oleh banyak penari duduk berbaris dengan gerakan tangan cepat","Jawaban: <strong>Aceh</strong>"] },
+  { topic:"sosbudaya", diff:"med", q:"Semboyan Bhinneka Tunggal Ika berasal dari kitab ...", type:"mc", opts:["Kitab Sutasoma","Kitab Negarakertagama","Kitab Ramayana","Kitab Mahabharata"], ans:0, hint:"Kitab ini ditulis oleh Mpu Tantular", sol:["Bhinneka Tunggal Ika berasal dari Kitab Sutasoma karya Mpu Tantular (Majapahit)","Artinya: Berbeda-beda tetapi tetap satu jua","Jawaban: <strong>Kitab Sutasoma</strong>"] },
+  { topic:"sosbudaya", diff:"med", q:"Upacara adat yang dilakukan suku Toraja untuk mengantar jenazah disebut ...", type:"mc", opts:["Ngaben","Rambu Solo","Kasada","Sekaten"], ans:1, hint:"Upacara ini terkenal dari Sulawesi Selatan", sol:["Rambu Solo adalah upacara pemakaman suku Toraja di Sulawesi Selatan","Ngaben = Bali ; Kasada = Tengger/Jawa Timur ; Sekaten = Jawa","Jawaban: <strong>Rambu Solo</strong>"] },
+  { topic:"sosbudaya", diff:"med", q:"Lembaga yang berwenang membuat undang-undang di Indonesia adalah ...", type:"mc", opts:["MPR","DPR","DPD","Presiden"], ans:1, hint:"Lembaga legislatif tingkat pusat", sol:["DPR (Dewan Perwakilan Rakyat) adalah lembaga legislatif yang berwenang membuat UU bersama Presiden","MPR mengubah/menetapkan UUD, DPD mewakili daerah","Jawaban: <strong>DPR</strong>"] },
+  { topic:"sejarah", diff:"med", q:"Kerajaan Majapahit mencapai puncak kejayaan pada masa pemerintahan ...", type:"mc", opts:["Raden Wijaya","Hayam Wuruk","Brawijaya V","Gajah Mada"], ans:1, hint:"Raja ini memerintah bersama Mahapatih Gajah Mada", sol:["Hayam Wuruk (1350-1389) bersama Mahapatih Gajah Mada membawa Majapahit ke puncak kejayaan","Wilayah kekuasaan meliputi hampir seluruh Nusantara","Jawaban: <strong>Hayam Wuruk</strong>"] },
+  { topic:"geografi", diff:"easy", q:"Angin yang bertiup dari Asia ke Australia dan membawa musim hujan di Indonesia adalah ...", type:"mc", opts:["Angin Barat","Angin Timur","Angin Muson Barat","Angin Muson Timur"], ans:2, hint:"Angin ini bertiup sekitar Oktober-April", sol:["Angin Muson Barat bertiup dari Asia (Oktober-April) membawa banyak uap air → musim hujan","Angin Muson Timur bertiup dari Australia (April-Oktober) → musim kemarau","Jawaban: <strong>Angin Muson Barat</strong>"] },
+  { topic:"ekonomi", diff:"easy", q:"Kegiatan ekspor berarti ...", type:"mc", opts:["Membeli barang dari luar negeri","Menjual barang ke luar negeri","Menukar barang antar daerah","Mengimpor barang dari negara lain"], ans:1, hint:"Eks = keluar", sol:["Ekspor = menjual/mengirim barang ke luar negeri","Impor = membeli/mendatangkan barang dari luar negeri","Jawaban: <strong>Menjual barang ke luar negeri</strong>"] },
+  { topic:"sosbudaya", diff:"easy", q:"Pancasila sebagai dasar negara Indonesia terdiri dari ... sila", type:"mc", opts:["3","4","5","6"], ans:2, hint:"Pan = lima dalam bahasa Sansekerta", sol:["Pancasila terdiri dari 5 sila yang menjadi dasar negara Indonesia","Panca = lima, Sila = prinsip/dasar","Jawaban: <strong>5</strong>"] },
+  { topic:"sejarah", diff:"med", q:"Organisasi pergerakan nasional pertama di Indonesia adalah ...", type:"mc", opts:["Sarekat Islam","Budi Utomo","Indische Partij","PNI"], ans:1, hint:"Didirikan oleh dr. Wahidin Sudirohusodo pada 1908", sol:["Budi Utomo didirikan pada 20 Mei 1908 dan dianggap sebagai organisasi pergerakan nasional pertama","20 Mei diperingati sebagai Hari Kebangkitan Nasional","Jawaban: <strong>Budi Utomo</strong>"] },
+  { topic:"geografi", diff:"med", q:"Indonesia disebut negara kepulauan (archipelago) karena ...", type:"mc", opts:["Memiliki banyak gunung berapi","Terdiri dari ribuan pulau","Memiliki garis pantai terpanjang","Terletak di khatulistiwa"], ans:1, hint:"Indonesia memiliki lebih dari 17.000 pulau", sol:["Indonesia memiliki sekitar 17.504 pulau yang membentang dari Sabang hingga Merauke","Hal ini membuat Indonesia disebut negara kepulauan terbesar di dunia","Jawaban: <strong>Terdiri dari ribuan pulau</strong>"] },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let allQ=[], qIdx=0, correct=0, wrong=0, answered=0, streak=0, maxStreak=0;
+let timerInterval=null, timerSec=120, timerOn=true;
+let filterTopic='all', sessionStart=Date.now();
+
+// ============================================================
+// INIT
+// ============================================================
+function initSession(){
+  clearTimer();
+  qIdx=0; correct=0; wrong=0; answered=0; streak=0; maxStreak=0;
+  sessionStart=Date.now();
+  let pool = filterTopic==='all' ? SOAL_BANK : SOAL_BANK.filter(q=>q.topic===filterTopic);
+  allQ = shuffle([...pool]).slice(0, Math.min(30, pool.length));
+  document.getElementById('quizSection').style.display='block';
+  document.getElementById('resultScreen').classList.remove('show');
+  updateStats(); updateStreak(); showQuestion();
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+
+// ============================================================
+// SHOW QUESTION
+// ============================================================
+function showQuestion(){
+  clearTimer();
+  if(qIdx>=allQ.length){showResult();return;}
+  const q=allQ[qIdx];
+  const letters=['A','B','C','D'];
+
+  document.getElementById('qNumLabel').textContent=`Soal #${qIdx+1}`;
+  document.getElementById('qTopicLabel').textContent=topicLabel(q.topic);
+  document.getElementById('qText').innerHTML=q.q;
+
+  const diffMap={easy:{cls:'diff-easy',txt:'⭐ Mudah'},med:{cls:'diff-med',txt:'⭐⭐ Sedang'},hard:{cls:'diff-hard',txt:'⭐⭐⭐ Olimpiade'}};
+  const dm=diffMap[q.diff]||diffMap.easy;
+  document.getElementById('qDiffLabel').innerHTML=`<span class="q-diff-label ${dm.cls}">${dm.txt}</span>`;
+
+  document.getElementById('hintBox').classList.remove('show');
+  document.getElementById('hintBox').textContent=q.hint||'';
+  document.getElementById('hintBtn').style.display=q.hint?'block':'none';
+
+  const fb=document.getElementById('feedback');
+  fb.classList.remove('show','correct-fb','wrong-fb'); fb.innerHTML='';
+
+  const area=document.getElementById('optionsArea'); area.innerHTML='';
+
+  if(q.type==='mc'){
+    const opts=document.createElement('div'); opts.className='options';
+    q.opts.forEach((opt,i)=>{
+      const btn=document.createElement('button'); btn.className='opt-btn';
+      btn.innerHTML=`<span class="opt-letter">${letters[i]}</span>${opt}`;
+      btn.onclick=()=>checkMC(i,btn,q,opts);
+      opts.appendChild(btn);
+    });
+    area.appendChild(opts);
+  } else {
+    const wrap=document.createElement('div'); wrap.className='essay-wrap';
+    const input=document.createElement('input'); input.className='essay-input'; input.type='text';
+    input.placeholder='Ketik jawaban kamu di sini...'; input.id='essayInput';
+    input.addEventListener('keypress',(e)=>{if(e.key==='Enter')checkEssay(q);});
+    const sbtn=document.createElement('button'); sbtn.className='submit-btn';
+    sbtn.textContent='✓ Cek Jawaban'; sbtn.onclick=()=>checkEssay(q);
+    wrap.appendChild(input); wrap.appendChild(sbtn); area.appendChild(wrap);
+  }
+
+  document.getElementById('nextBtn').disabled=true;
+  updateProgress();
+  if(timerOn) startTimer();
+}
+
+function topicLabel(t){
+  const m={geografi:'🌏 Geografi',sejarah:'📜 Sejarah',sosial:'👥 Sosial & Budaya',ekonomi:'💰 Ekonomi',asean:'🌐 ASEAN & Global'};
+  return m[t]||t;
+}
+
+// ============================================================
+// CHECK
+// ============================================================
+function checkMC(chosen,btn,q,optsContainer){
+  clearTimer();
+  const allBtns=optsContainer.querySelectorAll('.opt-btn');
+  allBtns.forEach(b=>b.disabled=true);
+  answered++;
+  const isCorrect=chosen===q.ans;
+  allBtns[q.ans].classList.add('correct');
+  if(!isCorrect){btn.classList.add('wrong');wrong++;streak=0;}
+  else{correct++;streak++;if(streak>maxStreak)maxStreak=streak;}
+  showFeedback(isCorrect,q); updateStats();
+  document.getElementById('nextBtn').disabled=false; updateStreak();
+}
+
+function checkEssay(q){
+  clearTimer();
+  const inp=document.getElementById('essayInput');
+  const val=inp.value.trim().toLowerCase();
+  const correctAns=q.ans.toString().toLowerCase();
+  answered++;
+  const isCorrect=val===correctAns||val.replace(/\s+/g,'')===correctAns.replace(/\s+/g,'')||parseFloat(val)===parseFloat(correctAns);
+  inp.disabled=true;
+  const sbtn=inp.nextElementSibling; if(sbtn)sbtn.disabled=true;
+  if(isCorrect){correct++;streak++;if(streak>maxStreak)maxStreak=streak;}
+  else{wrong++;streak=0;}
+  showFeedback(isCorrect,q); updateStats();
+  document.getElementById('nextBtn').disabled=false; updateStreak();
+}
+
+function showFeedback(isCorrect,q){
+  const fb=document.getElementById('feedback');
+  fb.classList.remove('show','correct-fb','wrong-fb');
+  if(isCorrect){
+    const msgs=['Betul sekali! 🎉','Luar biasa! 🌟','Kamu hebat! 🏆','Mantap jiwa! 🔥','Jawaban sempurna! ✨','Calon diplomat! 🗺️'];
+    const msg=msgs[Math.floor(Math.random()*msgs.length)];
+    fb.classList.add('correct-fb');
+    let html=`<div class="fb-title">✅ ${msg}</div><strong>📖 Pembahasan:</strong>`;
+    q.sol.forEach(s=>{html+=`<div class="step">▸ ${s}</div>`;});
+    fb.innerHTML=html;
+  } else {
+    fb.classList.add('wrong-fb');
+    let html=`<div class="fb-title">❌ Belum tepat, yuk pahami pembahasannya!</div>`;
+    html+=`<strong>✏️ Jawaban Benar: ${q.type==='mc'?q.opts[q.ans]:q.ans}</strong><br><br>`;
+    html+=`<strong>📖 Pembahasan:</strong>`;
+    q.sol.forEach(s=>{html+=`<div class="step">▸ ${s}</div>`;});
+    fb.innerHTML=html;
+  }
+  fb.classList.add('show');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function nextQuestion(){qIdx++;showQuestion();}
+function skipQuestion(){answered++;wrong++;streak=0;qIdx++;updateStats();updateStreak();showQuestion();}
+
+// ============================================================
+// TIMER
+// ============================================================
+function startTimer(){
+  timerSec=120; updateTimerDisplay();
+  timerInterval=setInterval(()=>{
+    timerSec--; updateTimerDisplay();
+    if(timerSec<=0){
+      clearTimer();
+      const q=allQ[qIdx];
+      if(q){
+        const fb=document.getElementById('feedback');
+        fb.classList.remove('show','correct-fb','wrong-fb');
+        fb.classList.add('wrong-fb','show');
+        let html=`<div class="fb-title">⏰ Waktu Habis!</div>`;
+        html+=`<strong>✏️ Jawaban: ${q.type==='mc'?q.opts[q.ans]:q.ans}</strong><br><br>`;
+        q.sol.forEach(s=>{html+=`<div class="step">▸ ${s}</div>`;});
+        fb.innerHTML=html;
+        answered++;wrong++;streak=0;
+        updateStats();updateStreak();
+        document.getElementById('nextBtn').disabled=false;
+        document.querySelectorAll('.opt-btn,.essay-input,.submit-btn').forEach(e=>e.disabled=true);
+        if(q.type==='mc'){const ab=document.getElementById('optionsArea').querySelectorAll('.opt-btn');ab[q.ans].classList.add('correct');}
+      }
+    }
+  },1000);
+}
+
+function clearTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}}
+
+function updateTimerDisplay(){
+  const d=document.getElementById('timerDisplay');
+  const m=Math.floor(timerSec/60),s=timerSec%60;
+  d.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  d.classList.toggle('warning',timerSec<=20);
+}
+
+function toggleTimer(){
+  timerOn=!timerOn;
+  document.getElementById('timerToggle').textContent=timerOn?'Matikan Timer':'Hidupkan Timer';
+  if(!timerOn){clearTimer();document.getElementById('timerDisplay').textContent='∞';document.getElementById('timerDisplay').classList.remove('warning');}
+  else{if(!document.getElementById('nextBtn').disabled)return;startTimer();}
+}
+
+// ============================================================
+// STATS & UI
+// ============================================================
+function updateStats(){
+  document.getElementById('statTotal').textContent=answered;
+  document.getElementById('statBenar').textContent=correct;
+  document.getElementById('statSalah').textContent=wrong;
+  const pct=answered>0?Math.round((correct/answered)*100):0;
+  document.getElementById('statSkor').textContent=pct+'%';
+}
+
+function updateProgress(){
+  const total=allQ.length, pct=Math.round((qIdx/total)*100);
+  document.getElementById('qIdx').textContent=qIdx+1;
+  document.getElementById('qTotal').textContent=total;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressPct').textContent=pct+'%';
+}
+
+function updateStreak(){
+  const badge=document.getElementById('streakBadge');
+  if(streak>=3){badge.style.display='inline-flex';document.getElementById('streakNum').textContent=streak;}
+  else{badge.style.display='none';}
+}
+
+function showHint(){document.getElementById('hintBox').classList.add('show');document.getElementById('hintBtn').style.display='none';}
+
+// ============================================================
+// FILTER
+// ============================================================
+function setFilter(topic){
+  filterTopic=topic;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  initSession();
+}
+
+// ============================================================
+// RESULT
+// ============================================================
+function showResult(){
+  clearTimer();
+  const pct=answered>0?Math.round((correct/answered)*100):0;
+  const elapsed=Math.round((Date.now()-sessionStart)/1000);
+  const m=Math.floor(elapsed/60),s=elapsed%60;
+  document.getElementById('quizSection').style.display='none';
+  document.getElementById('resultScreen').classList.add('show');
+  let emoji='😢',msg='Jangan menyerah, terus berlatih!';
+  if(pct>=90){emoji='🏆';msg='Luar biasa! Kamu calon juara OSN IPS!';}
+  else if(pct>=75){emoji='⭐';msg='Bagus sekali! Sedikit lagi sempurna!';}
+  else if(pct>=60){emoji='💪';msg='Cukup bagus! Terus semangat berlatih!';}
+  else if(pct>=40){emoji='📚';msg='Masih perlu banyak latihan, kamu pasti bisa!';}
+  document.getElementById('resultEmoji').textContent=emoji;
+  document.getElementById('resultScore').textContent=pct+'%';
+  document.getElementById('resultMsg').textContent=msg;
+  document.getElementById('rTotal').textContent=answered;
+  document.getElementById('rBenar').textContent=correct;
+  document.getElementById('rSalah').textContent=wrong;
+  document.getElementById('rWaktu').textContent=`${m}m ${s}s`;
+}
+
+function resetSession(){initSession();}
+function restartAll(){
+  filterTopic='all';
+  document.querySelectorAll('.filter-btn').forEach((b,i)=>{b.classList.toggle('active',i===0);});
+  initSession();
+}
+
+window.onload=initSession;
+
+let namaSiswa = '';
+
+function mulaiLatihan() {
+  const input = document.getElementById('namaInput').value.trim();
+  if (!input) { alert('Nama tidak boleh kosong ya! 😊'); return; }
+  namaSiswa = input;
+  document.getElementById('namaOverlay').style.display = 'none';
+}
+
+function kirimHasilOsn() {
+  const btn = document.getElementById('btnSendOsn');
+  const status = document.getElementById('sendStatusOsn');
+  const pct = answered > 0 ? Math.round((correct / answered) * 100) : 0;
+  const now = new Date().toLocaleString('id-ID');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Mengirim...';
+
+  const payload = {
+    nama: namaSiswa || 'Tidak diketahui',
+    mapel: 'IPS OSN',
+    nilai: pct + '%  (' + correct + '/' + answered + ')',
+    waktu: now
+  };
+
+  fetch('https://script.google.com/macros/s/AKfycbz02XVUcOcjEoQGQw-C90DvBgjCX5OOrYIlXlxfPTabnFR4LU7ikxVeXkbKjMSaM6UkKg/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    btn.textContent = '✓ Hasil Terkirim!';
+    status.style.display = 'block';
+    status.className = 'send-status-osn ok';
+    status.textContent = '✓ Hasil berhasil dikirim ke guru!';
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.textContent = '📤 Kirim Hasil ke Guru';
+    status.style.display = 'block';
+    status.className = 'send-status-osn err';
+    status.textContent = '✗ Gagal mengirim. Cek koneksi dan coba lagi.';
+  });
+}
+
+</script>
+</body>
+</html>
