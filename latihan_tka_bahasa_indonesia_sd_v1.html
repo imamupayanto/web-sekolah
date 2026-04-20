@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latihan TKA Bahasa Indonesia SD 2026 — v1</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#9333ea;--primary-light:#f3e8ff;
+  --green:#166534;--green-light:#dcfce7;
+  --red:#991b1b;--red-light:#fee2e2;
+  --amber:#92400e;--amber-light:#fef3c7;
+  --border:#e5e7eb;--text:#111827;--muted:#6b7280;
+  --bg:#faf7ff;--white:#ffffff;--gray:#f3f4f6;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px 60px}
+.wrap{width:100%;max-width:680px}
+.screen{display:none}.screen.active{display:block}
+.card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px 28px 24px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+
+/* START */
+#startScreen .logo{text-align:center;margin-bottom:24px}
+.badge{display:inline-block;background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:999px;margin-bottom:12px}
+#startScreen h1{font-size:26px;font-weight:800;line-height:1.2;margin-bottom:6px}
+#startScreen .sub{font-size:14px;color:var(--muted)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.form-group input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:15px;font-weight:600;color:var(--text);background:var(--white);outline:none;transition:border-color .15s}
+.form-group input:focus{border-color:var(--primary)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border);margin-top:4px;gap:12px}
+.setting-label{font-size:14px;font-weight:600;color:var(--text)}
+.setting-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.domain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;width:100%}
+.dom-btn{padding:8px 4px;border:1.5px solid var(--border);border-radius:10px;background:var(--white);font-family:inherit;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s}
+.dom-btn:hover{border-color:#9ca3af;color:var(--text)}
+.dom-btn.active{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+.info-chip{font-size:15px;font-weight:800;color:var(--primary)}
+.btn-start{width:100%;margin-top:20px;padding:14px;background:var(--text);color:white;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-start:hover{opacity:.85}
+
+/* QUIZ TOPBAR */
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.q-counter{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap}
+.prog-bar{flex:1;height:7px;background:var(--gray);border-radius:999px;overflow:hidden}
+.prog-fill{height:100%;background:var(--text);border-radius:999px;transition:width .4s ease}
+.score-chip{font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;background:var(--gray);color:var(--text);white-space:nowrap}
+
+/* TIMER */
+.timer-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.timer-display{font-size:20px;font-weight:800;min-width:52px;color:var(--text);font-variant-numeric:tabular-nums}
+.timer-display.warning{color:#dc2626;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+.timer-prog{flex:1;height:8px;background:var(--gray);border-radius:999px;overflow:hidden}
+.timer-fill{height:100%;border-radius:999px;transition:width .9s linear,background .5s}
+
+/* Q META */
+.q-meta{display:flex;align-items:center;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.q-num-label{font-size:13px;font-weight:800;color:var(--text)}
+.q-type-tag{font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 10px;border-radius:999px;text-transform:uppercase}
+.tag-mc{background:var(--primary-light);color:var(--primary)}
+.tag-mcm{background:var(--green-light);color:var(--green)}
+.tag-bs{background:var(--amber-light);color:var(--amber)}
+.q-dom-tag{font-size:11px;font-weight:600;color:var(--muted)}
+.q-diff{margin-left:auto;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px}
+.diff-easy{background:var(--green-light);color:var(--green)}
+.diff-med{background:var(--amber-light);color:var(--amber)}
+
+/* READING PASSAGE */
+.passage{background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%);border:1px solid #e9d5ff;border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.passage-title{font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.passage-heading{font-size:16px;font-weight:800;color:var(--text);margin-bottom:10px;line-height:1.3}
+.passage-body{font-size:14px;line-height:1.7;color:#374151;text-align:justify}
+.passage-body p{margin-bottom:8px}
+.passage-body p:last-child{margin-bottom:0}
+
+/* QUESTION TEXT */
+.q-text{font-size:16px;font-weight:600;line-height:1.7;margin-bottom:14px;color:var(--text)}
+.q-text .hl{color:var(--primary);font-weight:700}
+.q-note{font-size:12px;font-style:italic;color:var(--muted);margin-bottom:12px;padding:7px 12px;background:var(--gray);border-radius:8px}
+
+/* OPTIONS */
+.opts-list{display:flex;flex-direction:column;gap:8px}
+.opt-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:border-color .15s,background .15s}
+.opt-item:hover:not(.locked){border-color:#9ca3af;background:#fafafa}
+.opt-label{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;margin-top:0;transition:all .15s}
+.opt-text{font-size:15px;font-weight:500;color:var(--text);line-height:1.5;flex:1}
+.opt-item.selected{border-color:var(--primary);background:var(--primary-light)}
+.opt-item.selected .opt-label{background:var(--primary);border-color:var(--primary);color:white}
+.opt-item.correct{border-color:var(--green);background:var(--green-light)}
+.opt-item.correct .opt-label{background:var(--green);border-color:var(--green);color:white}
+.opt-item.wrong{border-color:var(--red);background:var(--red-light)}
+.opt-item.wrong .opt-label{background:var(--red);border-color:var(--red);color:white}
+.opt-item.locked{cursor:default}
+
+/* MCM checkbox */
+.mcm-check{width:20px;height:20px;border-radius:5px;border:2px solid #d1d5db;background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px;transition:all .15s}
+.chk-inner{display:none;width:12px;height:12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");background-size:contain;background-repeat:no-repeat}
+.mcm-check.checked{background:var(--primary);border-color:var(--primary)}
+.mcm-check.checked .chk-inner{display:block}
+.opt-item.correct .mcm-check{background:var(--green);border-color:var(--green)}
+.opt-item.correct .mcm-check .chk-inner,.opt-item.wrong .mcm-check .chk-inner{display:block}
+.opt-item.wrong .mcm-check{background:var(--red);border-color:var(--red)}
+.opt-label.mcm-letter{width:20px;height:auto;border-radius:0;border:none;background:transparent;font-size:12px;font-weight:700;color:var(--muted)}
+.opt-item.selected .opt-label.mcm-letter,.opt-item.correct .opt-label.mcm-letter,.opt-item.wrong .opt-label.mcm-letter{background:transparent;border:none}
+
+/* BENAR / SALAH */
+.bs-single{border:1.5px solid var(--border);border-radius:12px;overflow:hidden}
+.bs-stmt{padding:16px 18px;font-size:16px;font-weight:600;color:var(--text);line-height:1.65;background:var(--gray);border-bottom:1px solid var(--border)}
+.bs-choices{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.bs-btn{padding:14px;border:none;background:var(--white);font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;color:var(--muted);transition:background .15s}
+.bs-btn:first-child{border-right:1px solid var(--border)}
+.bs-btn:hover:not(:disabled){background:var(--gray)}
+.bs-btn.sel-b{background:var(--green-light);color:var(--green)}
+.bs-btn.sel-s{background:var(--red-light);color:var(--red)}
+.bs-btn.cor{background:var(--green);color:white}
+.bs-btn.wr{background:var(--red);color:white}
+.bs-btn:disabled{cursor:default}
+
+/* HINT / FEEDBACK */
+.hint-panel{margin-top:12px;padding:11px 14px;background:#faf5ff;border-left:3px solid var(--primary);border-radius:0 8px 8px 0;font-size:13px;color:#581c87;display:none;line-height:1.6}
+.hint-panel.show{display:block}
+.feedback-panel{margin-top:12px;padding:13px 16px;border-radius:10px;font-size:14px;display:none;line-height:1.7}
+.feedback-panel.show{display:block}
+.feedback-panel.ok{background:var(--green-light);border:1px solid #86efac;color:var(--green)}
+.feedback-panel.ng{background:var(--red-light);border:1px solid #fca5a5;color:var(--red)}
+.feedback-panel.timeout{background:var(--amber-light);border:1px solid #fcd34d;color:var(--amber)}
+.fb-title{font-weight:700;font-size:15px;margin-bottom:5px}
+.fb-sol{line-height:1.7}
+
+/* ACTION ROW */
+.action-row{display:flex;gap:8px;margin-top:16px}
+.btn-hint{padding:10px 16px;background:var(--white);color:var(--muted);border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;white-space:nowrap}
+.btn-hint:hover:not(:disabled){background:var(--gray)}
+.btn-hint:disabled{opacity:.4;cursor:default}
+.btn-primary{flex:1;padding:12px;background:var(--text);color:white;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-primary:hover{opacity:.85}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+
+/* RESULT */
+#resultScreen .card{text-align:center}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.res-stat{background:var(--gray);border-radius:10px;padding:14px 8px}
+.rs-num{font-size:24px;font-weight:800}
+.rs-lbl{font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.result-msg{font-size:15px;font-weight:600;color:var(--text);margin-bottom:20px;line-height:1.6;padding:14px;background:var(--gray);border-radius:10px;text-align:left}
+.btn-retry{width:100%;padding:13px;background:var(--text);color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px}
+.btn-retry:hover{opacity:.85}
+.send-status{width:100%;padding:11px;border-radius:10px;font-size:13px;font-weight:600;text-align:center;margin-bottom:8px;display:none}
+.send-status.loading{display:block;background:var(--amber-light);color:var(--amber);border:1px solid #fcd34d}
+.send-status.ok{display:block;background:var(--green-light);color:var(--green);border:1px solid #86efac}
+.send-status.err{display:block;background:var(--red-light);color:var(--red);border:1px solid #fca5a5}
+.btn-sent{width:100%;padding:13px;background:#166534;color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;margin-bottom:8px;display:none}
+.review-section{margin-top:24px;text-align:left}
+.review-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.review-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--white)}
+.rv-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.rv-ok{background:var(--green-light);color:var(--green)}
+.rv-ng{background:var(--red-light);color:var(--red)}
+.rv-to{background:var(--amber-light);color:var(--amber)}
+.rv-body{flex:1;min-width:0}
+.rv-q{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-sol{font-size:12px;color:var(--muted);line-height:1.5}
+
+@media(max-width:480px){
+  .card{padding:20px 16px}
+  .domain-grid{grid-template-columns:repeat(2,1fr)}
+  body{padding:16px 12px 60px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ══ START ══ -->
+<div id="startScreen" class="screen active">
+  <div class="card">
+    <div class="logo">
+      <div class="badge">TKA 2026 · SDN 2 Pesantren · v1</div>
+      <h1>Latihan TKA<br>Bahasa Indonesia SD</h1>
+      <p class="sub">Tingkat: Mudah &amp; Sedang · 30 soal acak · 2 menit per soal</p>
+    </div>
+
+    <div class="form-group">
+      <label>Nama Lengkap</label>
+      <input type="text" id="inputNama" placeholder="Tulis namamu di sini…" autocomplete="off">
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Jumlah soal</div><div class="setting-sub">Dipilih acak, berbeda tiap sesi</div></div>
+      <span class="info-chip">30 soal</span>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Waktu per soal</div><div class="setting-sub">Countdown otomatis</div></div>
+      <span class="info-chip">2 menit</span>
+    </div>
+    <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:10px">
+      <div class="setting-label">Jenis teks</div>
+      <div class="domain-grid">
+        <button class="dom-btn active" data-dom="all">Semua</button>
+        <button class="dom-btn" data-dom="Informasi">Informasi</button>
+        <button class="dom-btn" data-dom="Fiksi">Fiksi</button>
+      </div>
+    </div>
+
+    <button class="btn-start" onclick="startQuiz()">Mulai Latihan →</button>
+  </div>
+</div>
+
+<!-- ══ QUIZ ══ -->
+<div id="quizScreen" class="screen">
+  <div class="topbar">
+    <span class="q-counter" id="qCounter">1/30</span>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <span class="score-chip" id="scoreChip">0 ✓</span>
+  </div>
+  <div class="card">
+    <div class="timer-bar">
+      <span class="timer-display" id="timerDisplay">2:00</span>
+      <div class="timer-prog"><div class="timer-fill" id="timerFill" style="width:100%;background:#22c55e"></div></div>
+    </div>
+    <div class="q-meta">
+      <span class="q-num-label" id="qNumLabel">Soal 1</span>
+      <span class="q-type-tag" id="qTypeTag"></span>
+      <span class="q-dom-tag" id="qDomTag"></span>
+      <span class="q-diff" id="qDiffTag"></span>
+    </div>
+    <div id="passageArea"></div>
+    <div class="q-text" id="qText"></div>
+    <div class="q-note" id="qNote" style="display:none"></div>
+    <div id="qArea"></div>
+    <div class="hint-panel" id="hintPanel"></div>
+    <div class="feedback-panel" id="fbPanel"></div>
+    <div class="action-row" id="actionRow">
+      <button class="btn-hint" id="hintBtn" onclick="showHint()">💡 Petunjuk</button>
+      <button class="btn-primary" onclick="checkAnswer()">Periksa Jawaban</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESULT ══ -->
+<div id="resultScreen" class="screen">
+  <div class="card">
+    <div style="text-align:center;padding-bottom:20px;margin-bottom:20px;border-bottom:2px solid var(--border)">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Hasil Tes</div>
+      <div style="font-size:17px;font-weight:800;color:var(--text);letter-spacing:.3px;line-height:1.3">SIMULASI TKA SDN 2 PESANTREN 2026</div>
+      <div style="margin-top:14px;font-size:22px;font-weight:700;color:var(--text)" id="rName"></div>
+      <div style="margin-top:10px">
+        <span style="font-size:56px;font-weight:800;color:var(--text);line-height:1" id="rScore100">0</span>
+        <span style="font-size:18px;font-weight:600;color:var(--muted);margin-left:4px">/ 100</span>
+      </div>
+    </div>
+    <div class="result-grid">
+      <div class="res-stat"><div class="rs-num" id="rBenar" style="color:#166534">0</div><div class="rs-lbl">Benar</div></div>
+      <div class="res-stat"><div class="rs-num" id="rSalah" style="color:#991b1b">0</div><div class="rs-lbl">Salah</div></div>
+      <div class="res-stat"><div class="rs-num" id="rSoal">0/30</div><div class="rs-lbl">Soal</div></div>
+    </div>
+    <div class="result-msg" id="rMsg"></div>
+    <div class="send-status" id="sendStatus"></div>
+    <button class="btn-sent" id="btnSent">✓ Hasil Terkirim!</button>
+    <button class="btn-retry" onclick="location.reload()">🔄 Coba Lagi</button>
+    <div class="review-section">
+      <div class="review-title">Rekap Jawaban</div>
+      <div id="reviewList"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ══════════════════════════════════════════════
+//  BANK SOAL — Bahasa Indonesia TKA SD v1
+//  Disusun berdasarkan kisi-kisi Pusmendik
+//  Teks Informasi & Teks Fiksi
+//  Kompetensi: Tekstual, Inferensial, Evaluasi
+// ══════════════════════════════════════════════
+const BANK = [
+
+  // ═══════════════════════════════════════════════
+  //  TEKS INFORMASI — PG Sederhana (mc)
+  // ═══════════════════════════════════════════════
+  {domain:"Informasi",diff:"easy",type:"mc",
+   passage:{title:"Teks Informasi",heading:"Manfaat Sarapan Pagi",body:"Sarapan pagi sangat penting bagi anak sekolah. Makanan yang kita makan di pagi hari memberikan energi untuk belajar. Tanpa sarapan, tubuh akan terasa lemas dan sulit berkonsentrasi. Sarapan yang baik mengandung karbohidrat, protein, dan vitamin. Contoh sarapan sehat adalah nasi dengan telur dan sayur, atau roti dengan susu dan buah."},
+   q:"Menurut teks, mengapa sarapan pagi penting bagi anak sekolah?",
+   opts:["Agar cepat tidur","Memberikan energi untuk belajar","Supaya tidak lapar siang hari","Agar badan gemuk"],ans:1,
+   hint:"Baca kalimat kedua teks dengan teliti.",
+   sol:"Kalimat kedua teks menjelaskan: 'Makanan yang kita makan di pagi hari memberikan energi untuk belajar.' Jawaban: <strong>Memberikan energi untuk belajar</strong>."},
+
+  {domain:"Informasi",diff:"easy",type:"mc",
+   passage:{title:"Teks Informasi",heading:"Manfaat Sarapan Pagi",body:"Sarapan pagi sangat penting bagi anak sekolah. Makanan yang kita makan di pagi hari memberikan energi untuk belajar. Tanpa sarapan, tubuh akan terasa lemas dan sulit berkonsentrasi. Sarapan yang baik mengandung karbohidrat, protein, dan vitamin. Contoh sarapan sehat adalah nasi dengan telur dan sayur, atau roti dengan susu dan buah."},
+   q:"Contoh sarapan sehat menurut teks adalah …",
+   opts:["Mi instan dan kopi","Keripik dan teh manis","Nasi dengan telur dan sayur","Cokelat dan permen"],ans:2,
+   hint:"Lihat kalimat terakhir teks.",
+   sol:"Teks menyebutkan contoh sarapan sehat: nasi dengan telur dan sayur, atau roti dengan susu dan buah. Jawaban: <strong>Nasi dengan telur dan sayur</strong>."},
+
+  {domain:"Informasi",diff:"easy",type:"mc",
+   passage:{title:"Teks Informasi",heading:"Hutan sebagai Paru-Paru Dunia",body:"Hutan disebut sebagai paru-paru dunia. Pohon-pohon di hutan menghasilkan oksigen yang kita hirup setiap hari. Selain itu, hutan juga menjadi rumah bagi banyak hewan seperti harimau, monyet, dan burung. Sayangnya, banyak hutan yang ditebang tanpa aturan. Akibatnya, hewan kehilangan tempat tinggal dan udara menjadi tidak sehat."},
+   q:"Hutan disebut sebagai paru-paru dunia karena …",
+   opts:["Banyak hewan tinggal di sana","Menghasilkan oksigen","Pohonnya tinggi-tinggi","Tempat bermain yang seru"],ans:1,
+   hint:"Perhatikan kalimat kedua yang menjelaskan fungsi pohon.",
+   sol:"Pohon di hutan menghasilkan oksigen yang kita hirup. Oksigen berhubungan dengan paru-paru (alat pernapasan). Jawaban: <strong>Menghasilkan oksigen</strong>."},
+
+  {domain:"Informasi",diff:"easy",type:"mc",
+   passage:{title:"Teks Informasi",heading:"Hutan sebagai Paru-Paru Dunia",body:"Hutan disebut sebagai paru-paru dunia. Pohon-pohon di hutan menghasilkan oksigen yang kita hirup setiap hari. Selain itu, hutan juga menjadi rumah bagi banyak hewan seperti harimau, monyet, dan burung. Sayangnya, banyak hutan yang ditebang tanpa aturan. Akibatnya, hewan kehilangan tempat tinggal dan udara menjadi tidak sehat."},
+   q:"Apa akibat dari hutan yang ditebang tanpa aturan?",
+   opts:["Pohon tumbuh lebih cepat","Banyak hewan liar","Hewan kehilangan tempat tinggal","Manusia menjadi sehat"],ans:2,
+   hint:"Baca kalimat terakhir teks.",
+   sol:"Teks menjelaskan akibat penebangan liar: hewan kehilangan tempat tinggal dan udara tidak sehat. Jawaban: <strong>Hewan kehilangan tempat tinggal</strong>."},
+
+  {domain:"Informasi",diff:"easy",type:"mc",
+   passage:{title:"Teks Informasi",heading:"Cara Menjaga Kebersihan Gigi",body:"Menjaga kebersihan gigi itu mudah. Pertama, sikat gigi minimal dua kali sehari, yaitu setelah sarapan dan sebelum tidur. Kedua, gunakan pasta gigi yang mengandung fluoride. Ketiga, kurangi makanan yang manis seperti permen dan cokelat. Keempat, periksakan gigi ke dokter setiap enam bulan sekali. Dengan begitu, gigi kita akan tetap sehat dan kuat."},
+   q:"Berapa kali sehari sebaiknya kita menyikat gigi?",
+   opts:["Sekali","Dua kali","Tiga kali","Empat kali"],ans:1,
+   hint:"Cari kalimat yang menyebutkan angka tentang menyikat gigi.",
+   sol:"Teks menyebutkan: 'sikat gigi minimal dua kali sehari, yaitu setelah sarapan dan sebelum tidur.' Jawaban: <strong>Dua kali</strong>."},
+
+  {domain:"Informasi",diff:"easy",type:"mc",
+   passage:{title:"Teks Informasi",heading:"Cara Menjaga Kebersihan Gigi",body:"Menjaga kebersihan gigi itu mudah. Pertama, sikat gigi minimal dua kali sehari, yaitu setelah sarapan dan sebelum tidur. Kedua, gunakan pasta gigi yang mengandung fluoride. Ketiga, kurangi makanan yang manis seperti permen dan cokelat. Keempat, periksakan gigi ke dokter setiap enam bulan sekali. Dengan begitu, gigi kita akan tetap sehat dan kuat."},
+   q:"Makanan apa yang sebaiknya dikurangi agar gigi tetap sehat?",
+   opts:["Sayuran","Buah-buahan","Makanan manis","Daging"],ans:2,
+   hint:"Perhatikan langkah ketiga dalam teks.",
+   sol:"Teks menyebutkan: 'kurangi makanan yang manis seperti permen dan cokelat.' Jawaban: <strong>Makanan manis</strong>."},
+
+  {domain:"Informasi",diff:"med",type:"mc",
+   passage:{title:"Teks Informasi",heading:"Perpustakaan Sekolah",body:"Perpustakaan sekolah adalah tempat yang menyenangkan. Di sana tersedia ribuan buku, mulai dari buku pelajaran, cerita, hingga ensiklopedia. Siswa dapat meminjam buku selama satu minggu. Jika terlambat mengembalikan, akan dikenakan denda seribu rupiah per hari. Perpustakaan buka dari hari Senin sampai Jumat, pukul 07.00 sampai 14.00."},
+   q:"Jika Andi meminjam buku hari Senin dan mengembalikannya hari Kamis minggu berikutnya, berapa denda yang harus ia bayar?",
+   opts:["Rp1.000","Rp2.000","Rp3.000","Rp4.000"],ans:2,
+   hint:"Batas pinjam 1 minggu (Senin depan). Hitung keterlambatan dari Senin ke Kamis = berapa hari?",
+   sol:"Batas pengembalian: Senin berikutnya. Andi kembalikan Kamis = terlambat 3 hari (Selasa, Rabu, Kamis). Denda = 3 × Rp1.000 = <strong>Rp3.000</strong>."},
+
+  {domain:"Informasi",diff:"med",type:"mc",
+   passage:{title:"Teks Informasi",heading:"Perpustakaan Sekolah",body:"Perpustakaan sekolah adalah tempat yang menyenangkan. Di sana tersedia ribuan buku, mulai dari buku pelajaran, cerita, hingga ensiklopedia. Siswa dapat meminjam buku selama satu minggu. Jika terlambat mengembalikan, akan dikenakan denda seribu rupiah per hari. Perpustakaan buka dari hari Senin sampai Jumat, pukul 07.00 sampai 14.00."},
+   q:"Apa ide pokok dari teks di atas?",
+   opts:["Cara meminjam buku","Jadwal buka perpustakaan","Gambaran tentang perpustakaan sekolah","Aturan denda keterlambatan"],ans:2,
+   hint:"Ide pokok adalah pokok pikiran utama seluruh teks, bukan salah satu bagian saja.",
+   sol:"Teks secara umum menggambarkan perpustakaan sekolah (koleksi, peminjaman, jadwal). Ini adalah gambaran menyeluruh. Jawaban: <strong>Gambaran tentang perpustakaan sekolah</strong>."},
+
+  {domain:"Informasi",diff:"med",type:"mc",
+   passage:{title:"Teks Informasi",heading:"Banjir di Perkotaan",body:"Banjir sering terjadi di kota besar. Ada beberapa penyebabnya. Pertama, sampah yang dibuang ke sungai membuat aliran air tersumbat. Kedua, banyak pohon ditebang sehingga tanah tidak dapat menyerap air hujan. Ketiga, banyak lahan hijau diubah menjadi bangunan. Untuk mencegah banjir, kita harus membuang sampah pada tempatnya dan menanam lebih banyak pohon."},
+   q:"Kesimpulan yang tepat dari teks di atas adalah …",
+   opts:["Banjir hanya terjadi di desa","Pohon tidak berpengaruh terhadap banjir","Banjir disebabkan oleh ulah manusia dan dapat dicegah","Membangun rumah adalah penyebab utama banjir"],ans:2,
+   hint:"Kesimpulan harus merangkum semua poin. Perhatikan penyebab banjir dan cara mencegahnya.",
+   sol:"Penyebab banjir (sampah, penebangan, pembangunan) semuanya ulah manusia. Teks juga memberi solusi pencegahan. Jawaban: <strong>Banjir disebabkan oleh ulah manusia dan dapat dicegah</strong>."},
+
+  {domain:"Informasi",diff:"med",type:"mc",
+   passage:{title:"Teks Informasi",heading:"Banjir di Perkotaan",body:"Banjir sering terjadi di kota besar. Ada beberapa penyebabnya. Pertama, sampah yang dibuang ke sungai membuat aliran air tersumbat. Kedua, banyak pohon ditebang sehingga tanah tidak dapat menyerap air hujan. Ketiga, banyak lahan hijau diubah menjadi bangunan. Untuk mencegah banjir, kita harus membuang sampah pada tempatnya dan menanam lebih banyak pohon."},
+   q:"Arti kata <span class='hl'>menyerap</span> pada teks di atas adalah …",
+   opts:["Membuang","Menampung dan mengisap","Menumpahkan","Mengeringkan"],ans:1,
+   hint:"'Menyerap air' seperti yang dilakukan spons. Apa yang terjadi pada air?",
+   sol:"Menyerap = menampung cairan ke dalam (seperti spons yang menampung air). Jawaban: <strong>Menampung dan mengisap</strong>."},
+
+  // ═══════════════════════════════════════════════
+  //  TEKS FIKSI — PG Sederhana (mc)
+  // ═══════════════════════════════════════════════
+  {domain:"Fiksi",diff:"easy",type:"mc",
+   passage:{title:"Teks Fiksi",heading:"Si Kancil dan Buaya",body:"Suatu hari, Kancil ingin menyeberangi sungai untuk mencari makan. Namun sungai itu penuh buaya lapar. Kancil pun berpikir cerdik. Ia berkata, 'Hai buaya! Raja ingin memberi hadiah daging untuk kalian. Berbarislah agar aku bisa menghitung jumlah kalian!' Buaya-buaya pun berbaris. Dengan melompat di atas punggung mereka sambil menghitung, Kancil berhasil menyeberangi sungai dengan selamat."},
+   q:"Tokoh utama dalam cerita di atas adalah …",
+   opts:["Raja","Buaya","Kancil","Singa"],ans:2,
+   hint:"Tokoh utama adalah yang paling banyak diceritakan dari awal sampai akhir.",
+   sol:"Cerita berfokus pada Kancil — ia yang menyeberangi sungai dan menipu para buaya. Jawaban: <strong>Kancil</strong>."},
+
+  {domain:"Fiksi",diff:"easy",type:"mc",
+   passage:{title:"Teks Fiksi",heading:"Si Kancil dan Buaya",body:"Suatu hari, Kancil ingin menyeberangi sungai untuk mencari makan. Namun sungai itu penuh buaya lapar. Kancil pun berpikir cerdik. Ia berkata, 'Hai buaya! Raja ingin memberi hadiah daging untuk kalian. Berbarislah agar aku bisa menghitung jumlah kalian!' Buaya-buaya pun berbaris. Dengan melompat di atas punggung mereka sambil menghitung, Kancil berhasil menyeberangi sungai dengan selamat."},
+   q:"Latar tempat dalam cerita di atas adalah …",
+   opts:["Hutan","Sungai","Laut","Pegunungan"],ans:1,
+   hint:"Cari kata yang menunjukkan tempat di kalimat pertama dan kedua.",
+   sol:"Teks menyebutkan Kancil ingin menyeberangi sungai dan sungai itu penuh buaya. Latar tempat = <strong>sungai</strong>."},
+
+  {domain:"Fiksi",diff:"easy",type:"mc",
+   passage:{title:"Teks Fiksi",heading:"Si Kancil dan Buaya",body:"Suatu hari, Kancil ingin menyeberangi sungai untuk mencari makan. Namun sungai itu penuh buaya lapar. Kancil pun berpikir cerdik. Ia berkata, 'Hai buaya! Raja ingin memberi hadiah daging untuk kalian. Berbarislah agar aku bisa menghitung jumlah kalian!' Buaya-buaya pun berbaris. Dengan melompat di atas punggung mereka sambil menghitung, Kancil berhasil menyeberangi sungai dengan selamat."},
+   q:"Sifat utama Kancil dalam cerita di atas adalah …",
+   opts:["Pemalas","Cerdik","Pemarah","Pemalu"],ans:1,
+   hint:"Lihat bagaimana cara Kancil menyeberangi sungai. Apakah dengan kekuatan atau dengan akal?",
+   sol:"Kancil menggunakan akal/tipu daya untuk menyeberangi sungai — menunjukkan sifat <strong>cerdik</strong>."},
+
+  {domain:"Fiksi",diff:"easy",type:"mc",
+   passage:{title:"Teks Fiksi",heading:"Lebah dan Semut",body:"Pada suatu hari di musim panas, Semut sedang sibuk mengumpulkan makanan. Ia berjalan ke sana kemari mencari biji-bijian. Lebah yang melihatnya tertawa. 'Untuk apa bekerja keras begitu? Nikmati saja hari yang cerah ini!' kata Lebah. Semut hanya tersenyum dan terus bekerja. Ketika musim dingin tiba, Semut memiliki banyak persediaan makanan. Sementara Lebah kelaparan karena tidak menyiapkan apa-apa."},
+   q:"Pesan moral dari cerita di atas adalah …",
+   opts:["Jangan bekerja terlalu keras","Bersiaplah sebelum kesulitan datang","Makanan harus selalu dibagi","Musim panas lebih baik dari musim dingin"],ans:1,
+   hint:"Mengapa Semut selamat saat musim dingin, sementara Lebah kelaparan?",
+   sol:"Semut menyiapkan makanan sebelum musim dingin tiba, sedangkan Lebah tidak. Pesannya: <strong>Bersiaplah sebelum kesulitan datang</strong>."},
+
+  {domain:"Fiksi",diff:"easy",type:"mc",
+   passage:{title:"Teks Fiksi",heading:"Lebah dan Semut",body:"Pada suatu hari di musim panas, Semut sedang sibuk mengumpulkan makanan. Ia berjalan ke sana kemari mencari biji-bijian. Lebah yang melihatnya tertawa. 'Untuk apa bekerja keras begitu? Nikmati saja hari yang cerah ini!' kata Lebah. Semut hanya tersenyum dan terus bekerja. Ketika musim dingin tiba, Semut memiliki banyak persediaan makanan. Sementara Lebah kelaparan karena tidak menyiapkan apa-apa."},
+   q:"Kapan Semut mengumpulkan makanan?",
+   opts:["Musim dingin","Musim hujan","Musim panas","Musim semi"],ans:2,
+   hint:"Baca kalimat pertama teks.",
+   sol:"Kalimat pertama: 'Pada suatu hari di musim panas, Semut sedang sibuk mengumpulkan makanan.' Jawaban: <strong>Musim panas</strong>."},
+
+  {domain:"Fiksi",diff:"easy",type:"mc",
+   passage:{title:"Teks Fiksi",heading:"Rina dan Kucing Kecil",body:"Rina pulang sekolah dengan gembira. Di tengah jalan, ia mendengar suara lirih, 'Meong… meong…' Rina mencari sumber suara. Ternyata ada anak kucing basah di bawah pohon. Rina merasa iba. Ia membungkus kucing itu dengan syal dan membawanya pulang. Ibu mengizinkan Rina merawatnya. Sejak hari itu, Rina tidak lagi merasa kesepian."},
+   q:"Bagaimana perasaan Rina saat menemukan anak kucing?",
+   opts:["Marah","Takut","Iba","Kesal"],ans:2,
+   hint:"Cari kata yang menggambarkan perasaan Rina saat melihat kucing basah.",
+   sol:"Teks menyebutkan: 'Rina merasa iba.' Iba = kasihan. Jawaban: <strong>Iba</strong>."},
+
+  {domain:"Fiksi",diff:"med",type:"mc",
+   passage:{title:"Teks Fiksi",heading:"Rina dan Kucing Kecil",body:"Rina pulang sekolah dengan gembira. Di tengah jalan, ia mendengar suara lirih, 'Meong… meong…' Rina mencari sumber suara. Ternyata ada anak kucing basah di bawah pohon. Rina merasa iba. Ia membungkus kucing itu dengan syal dan membawanya pulang. Ibu mengizinkan Rina merawatnya. Sejak hari itu, Rina tidak lagi merasa kesepian."},
+   q:"Apa yang dapat kita simpulkan tentang Rina dari cerita tersebut?",
+   opts:["Rina anak yang pemalas","Rina penyayang binatang","Rina tidak suka sekolah","Rina takut kucing"],ans:1,
+   hint:"Perhatikan apa yang Rina lakukan terhadap anak kucing itu.",
+   sol:"Rina merawat kucing basah yang ia temukan — ini menunjukkan ia <strong>penyayang binatang</strong>."},
+
+  {domain:"Fiksi",diff:"med",type:"mc",
+   passage:{title:"Teks Fiksi",heading:"Pohon Mangga Kakek",body:"Di halaman rumah Kakek ada pohon mangga besar. Pohon itu ditanam ketika Ayah masih kecil. Setiap musim panen, pohon itu berbuah lebat. Kakek selalu berbagi mangga dengan tetangga. 'Buah ini nikmat karena dibagi,' kata Kakek sambil tersenyum. Ketika aku memakan mangga itu, rasanya memang lebih manis dari biasanya."},
+   q:"Mengapa mangga terasa lebih manis menurut tokoh 'aku'?",
+   opts:["Karena pohonnya sudah tua","Karena dibagi kepada tetangga","Karena ditanam Ayah","Karena musim panen"],ans:1,
+   hint:"Perhatikan ucapan Kakek dan hubungkan dengan perasaan tokoh 'aku' saat memakan mangga.",
+   sol:"Kakek berkata buah nikmat karena dibagi. Rasa manis di sini bermakna kebahagiaan berbagi. Jawaban: <strong>Karena dibagi kepada tetangga</strong>."},
+
+  {domain:"Fiksi",diff:"med",type:"mc",
+   passage:{title:"Teks Fiksi",heading:"Pohon Mangga Kakek",body:"Di halaman rumah Kakek ada pohon mangga besar. Pohon itu ditanam ketika Ayah masih kecil. Setiap musim panen, pohon itu berbuah lebat. Kakek selalu berbagi mangga dengan tetangga. 'Buah ini nikmat karena dibagi,' kata Kakek sambil tersenyum. Ketika aku memakan mangga itu, rasanya memang lebih manis dari biasanya."},
+   q:"Sudut pandang yang digunakan dalam cerita adalah …",
+   opts:["Orang pertama","Orang kedua","Orang ketiga","Orang keempat"],ans:0,
+   hint:"Perhatikan kata ganti di kalimat terakhir: 'Ketika aku memakan mangga…'",
+   sol:"Cerita menggunakan kata 'aku' (Ketika aku memakan mangga itu). Ini adalah sudut pandang <strong>orang pertama</strong>."},
+
+  // ═══════════════════════════════════════════════
+  //  TEKS INFORMASI — PG Kompleks (mcm)
+  // ═══════════════════════════════════════════════
+  {domain:"Informasi",diff:"easy",type:"mcm",
+   note:"Pilih SEMUA jawaban yang benar. Bisa lebih dari satu!",
+   passage:{title:"Teks Informasi",heading:"Olahraga dan Kesehatan",body:"Olahraga memiliki banyak manfaat. Tubuh menjadi lebih kuat dan tidak mudah sakit. Pikiran juga menjadi lebih segar setelah berolahraga. Olahraga bisa dilakukan di rumah, di sekolah, atau di lapangan. Contoh olahraga sederhana adalah lari pagi, bersepeda, dan senam. Lakukan olahraga minimal tiga kali dalam seminggu agar tubuh tetap sehat."},
+   q:"Berdasarkan teks, manfaat olahraga adalah …",
+   opts:["Tubuh menjadi lebih kuat","Tubuh tidak mudah sakit","Pikiran menjadi lebih segar","Pakaian menjadi rapi"],ans:[0,1,2],
+   hint:"Cari 3 manfaat yang disebutkan langsung dalam teks.",
+   sol:"Teks menyebutkan: tubuh lebih kuat ✓, tidak mudah sakit ✓, pikiran lebih segar ✓. 'Pakaian rapi' tidak disebut ✗. Jawaban: <strong>A, B, C</strong>."},
+
+  {domain:"Informasi",diff:"med",type:"mcm",
+   note:"Pilih SEMUA jawaban yang benar. Bisa lebih dari satu!",
+   passage:{title:"Teks Informasi",heading:"Gunung Berapi di Indonesia",body:"Indonesia memiliki banyak gunung berapi. Beberapa di antaranya masih aktif, seperti Gunung Merapi di Yogyakarta dan Gunung Semeru di Jawa Timur. Gunung berapi dapat meletus sewaktu-waktu. Letusan gunung dapat membahayakan penduduk sekitar. Namun, abu vulkanik dari letusan membuat tanah menjadi subur. Itulah sebabnya banyak petani memilih tinggal di dekat gunung berapi."},
+   q:"Pernyataan mana yang SESUAI dengan isi teks?",
+   opts:["Gunung Merapi terletak di Yogyakarta","Semua gunung di Indonesia sudah mati","Abu vulkanik membuat tanah subur","Petani suka tinggal dekat gunung berapi"],ans:[0,2,3],
+   hint:"Cek satu per satu apakah informasi ada di dalam teks.",
+   sol:"Gunung Merapi di Yogyakarta ✓ | 'Semua gunung sudah mati' — teks bilang beberapa masih aktif ✗ | Abu vulkanik menyuburkan tanah ✓ | Petani memilih tinggal dekat gunung ✓. Jawaban: <strong>A, C, D</strong>."},
+
+  {domain:"Informasi",diff:"med",type:"mcm",
+   note:"Pilih SEMUA jawaban yang benar. Bisa lebih dari satu!",
+   passage:{title:"Teks Informasi",heading:"Menanam Tanaman di Pot",body:"Menanam tanaman di pot sangat mudah. Pertama, siapkan pot dan tanah yang gembur. Kedua, masukkan bibit tanaman ke dalam pot. Ketiga, siram dengan air secukupnya. Jangan terlalu banyak karena akar bisa busuk. Keempat, letakkan pot di tempat yang terkena sinar matahari. Rawat setiap hari dengan menyiramnya di pagi hari."},
+   q:"Hal-hal yang dilakukan saat menanam tanaman di pot adalah …",
+   opts:["Menyiapkan pot dan tanah","Menyiram dengan air yang banyak","Meletakkan di tempat yang terkena matahari","Menyirami di pagi hari"],ans:[0,2,3],
+   hint:"Perhatikan bahwa teks memperingatkan JANGAN menyiram terlalu banyak.",
+   sol:"Siapkan pot & tanah ✓ | Siram air banyak — teks bilang 'jangan terlalu banyak' ✗ | Letakkan kena matahari ✓ | Siram pagi hari ✓. Jawaban: <strong>A, C, D</strong>."},
+
+  {domain:"Informasi",diff:"med",type:"mcm",
+   note:"Pilih SEMUA jawaban yang benar. Bisa lebih dari satu!",
+   passage:{title:"Teks Informasi",heading:"Hari Kemerdekaan Indonesia",body:"Indonesia merdeka pada 17 Agustus 1945. Setiap tahun, masyarakat merayakannya dengan upacara bendera. Berbagai lomba diadakan, seperti panjat pinang, balap karung, dan makan kerupuk. Anak-anak sangat senang mengikuti lomba ini. Perayaan tidak hanya di sekolah, tetapi juga di kampung-kampung. Tujuannya untuk mengenang jasa para pahlawan."},
+   q:"Hal-hal yang dilakukan untuk merayakan Hari Kemerdekaan menurut teks adalah …",
+   opts:["Upacara bendera","Lomba panjat pinang","Balap mobil","Balap karung"],ans:[0,1,3],
+   hint:"Baca lomba-lomba yang disebut dalam teks. Apakah ada 'balap mobil'?",
+   sol:"Upacara bendera ✓ | Panjat pinang ✓ | Balap mobil — tidak disebut ✗ | Balap karung ✓. Jawaban: <strong>A, B, D</strong>."},
+
+  // ═══════════════════════════════════════════════
+  //  TEKS FIKSI — PG Kompleks (mcm)
+  // ═══════════════════════════════════════════════
+  {domain:"Fiksi",diff:"easy",type:"mcm",
+   note:"Pilih SEMUA jawaban yang benar. Bisa lebih dari satu!",
+   passage:{title:"Teks Fiksi",heading:"Burung dan Sangkar",body:"Seekor burung kecil hidup di dalam sangkar emas. Majikannya memberi makanan enak setiap hari. Namun, burung itu tidak bahagia. Ia merindukan langit biru dan pepohonan. Suatu hari, pintu sangkar terbuka. Burung itu langsung terbang ke luar. Ia terbang tinggi dan bernyanyi dengan gembira. Akhirnya, ia merasakan arti kebebasan."},
+   q:"Pernyataan mana yang BENAR tentang burung dalam cerita?",
+   opts:["Hidup di dalam sangkar emas","Selalu merasa bahagia di sangkar","Merindukan langit dan pepohonan","Senang saat bisa terbang bebas"],ans:[0,2,3],
+   hint:"Perhatikan keadaan burung sebelum dan sesudah keluar dari sangkar.",
+   sol:"Hidup di sangkar emas ✓ | Bahagia di sangkar — teks bilang 'tidak bahagia' ✗ | Rindu langit dan pohon ✓ | Senang saat bebas ✓. Jawaban: <strong>A, C, D</strong>."},
+
+  {domain:"Fiksi",diff:"med",type:"mcm",
+   note:"Pilih SEMUA jawaban yang benar. Bisa lebih dari satu!",
+   passage:{title:"Teks Fiksi",heading:"Dito dan Sepedanya",body:"Dito mendapat sepeda baru dari ayahnya. Ia sangat senang. Setiap sore, Dito mengayuh sepedanya mengelilingi kampung. Suatu hari, ia melihat temannya Bima sedang menangis. Ban sepeda Bima bocor. Dito menawarkan diri mengantarkan Bima pulang dengan sepedanya. Bima tersenyum lega. Sejak saat itu, persahabatan mereka semakin erat."},
+   q:"Sifat-sifat Dito berdasarkan cerita adalah …",
+   opts:["Suka menolong","Baik hati","Pemarah","Suka bermain sepeda"],ans:[0,1,3],
+   hint:"Lihat apa yang Dito lakukan terhadap Bima dan kebiasaannya sehari-hari.",
+   sol:"Dito menolong Bima — suka menolong ✓ | Baik hati ✓ | Pemarah — tidak ada tanda kemarahan ✗ | Suka bersepeda setiap sore ✓. Jawaban: <strong>A, B, D</strong>."},
+
+  // ═══════════════════════════════════════════════
+  //  TEKS INFORMASI — Benar/Salah (bs)
+  // ═══════════════════════════════════════════════
+  {domain:"Informasi",diff:"easy",type:"bs",
+   passage:{title:"Teks Informasi",heading:"Kupu-kupu yang Cantik",body:"Kupu-kupu adalah serangga yang cantik. Ia memiliki sayap berwarna-warni. Kupu-kupu mengalami perubahan bentuk yang disebut metamorfosis. Mula-mula ia adalah telur, kemudian menjadi ulat. Ulat berubah menjadi kepompong, lalu keluar menjadi kupu-kupu dewasa. Kupu-kupu membantu bunga berkembang biak dengan menyerbuki bunga."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Menurut teks, kupu-kupu berasal dari telur yang berubah menjadi ulat.",
+   ans:true,
+   hint:"Baca kalimat yang menjelaskan tahapan metamorfosis kupu-kupu.",
+   sol:"Teks menyebutkan: 'Mula-mula ia adalah telur, kemudian menjadi ulat.' Pernyataan ini <strong>Benar</strong>."},
+
+  {domain:"Informasi",diff:"easy",type:"bs",
+   passage:{title:"Teks Informasi",heading:"Kupu-kupu yang Cantik",body:"Kupu-kupu adalah serangga yang cantik. Ia memiliki sayap berwarna-warni. Kupu-kupu mengalami perubahan bentuk yang disebut metamorfosis. Mula-mula ia adalah telur, kemudian menjadi ulat. Ulat berubah menjadi kepompong, lalu keluar menjadi kupu-kupu dewasa. Kupu-kupu membantu bunga berkembang biak dengan menyerbuki bunga."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Kupu-kupu tidak membantu bunga berkembang biak.",
+   ans:false,
+   hint:"Lihat kalimat terakhir teks.",
+   sol:"Teks menjelaskan: 'Kupu-kupu membantu bunga berkembang biak dengan menyerbuki bunga.' Jadi pernyataan 'tidak membantu' adalah <strong>Salah</strong>."},
+
+  {domain:"Informasi",diff:"easy",type:"bs",
+   passage:{title:"Teks Informasi",heading:"Air Bersih",body:"Air bersih sangat penting bagi kehidupan. Manusia membutuhkan air untuk minum, mandi, dan mencuci. Tumbuhan juga butuh air untuk tumbuh. Sayangnya, persediaan air bersih semakin berkurang. Kita harus menghemat air. Cara menghemat air antara lain mematikan keran saat tidak dipakai dan mandi secukupnya."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Salah satu cara menghemat air adalah mematikan keran saat tidak dipakai.",
+   ans:true,
+   hint:"Baca bagian akhir teks tentang cara menghemat air.",
+   sol:"Teks menyebutkan: 'mematikan keran saat tidak dipakai' sebagai salah satu cara menghemat air. Pernyataan ini <strong>Benar</strong>."},
+
+  {domain:"Informasi",diff:"med",type:"bs",
+   passage:{title:"Teks Informasi",heading:"Air Bersih",body:"Air bersih sangat penting bagi kehidupan. Manusia membutuhkan air untuk minum, mandi, dan mencuci. Tumbuhan juga butuh air untuk tumbuh. Sayangnya, persediaan air bersih semakin berkurang. Kita harus menghemat air. Cara menghemat air antara lain mematikan keran saat tidak dipakai dan mandi secukupnya."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Ide pokok teks di atas adalah pentingnya menghemat air bersih.",
+   ans:true,
+   hint:"Ide pokok adalah isi utama paragraf. Fokus teks ini tentang apa?",
+   sol:"Teks menjelaskan pentingnya air dan cara menghematnya karena persediaannya berkurang. Ide pokok tentang penghematan air benar. Pernyataan ini <strong>Benar</strong>."},
+
+  {domain:"Informasi",diff:"med",type:"bs",
+   passage:{title:"Teks Informasi",heading:"Layang-layang",body:"Layang-layang adalah mainan tradisional Indonesia. Bahan-bahan untuk membuatnya adalah bambu, kertas, benang, dan lem. Bambu dibentuk menjadi rangka. Kertas ditempel di rangka sebagai sayap. Benang diikat untuk menerbangkan. Layang-layang paling bagus diterbangkan di lapangan yang luas dan berangin.",},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Berdasarkan teks, plastik adalah bahan utama untuk membuat layang-layang.",
+   ans:false,
+   hint:"Apakah 'plastik' disebut dalam daftar bahan pada teks?",
+   sol:"Teks menyebutkan bahannya: bambu, kertas, benang, lem. Plastik tidak disebut. Pernyataan ini <strong>Salah</strong>."},
+
+  {domain:"Informasi",diff:"med",type:"bs",
+   passage:{title:"Teks Informasi",heading:"Layang-layang",body:"Layang-layang adalah mainan tradisional Indonesia. Bahan-bahan untuk membuatnya adalah bambu, kertas, benang, dan lem. Bambu dibentuk menjadi rangka. Kertas ditempel di rangka sebagai sayap. Benang diikat untuk menerbangkan. Layang-layang paling bagus diterbangkan di lapangan yang luas dan berangin."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Layang-layang dapat diterbangkan dengan baik di dalam ruangan.",
+   ans:false,
+   hint:"Lihat kalimat terakhir tentang tempat yang cocok untuk menerbangkan layang-layang.",
+   sol:"Teks menyebutkan layang-layang paling bagus diterbangkan di lapangan luas dan berangin, bukan di dalam ruangan. Pernyataan ini <strong>Salah</strong>."},
+
+  // ═══════════════════════════════════════════════
+  //  TEKS FIKSI — Benar/Salah (bs)
+  // ═══════════════════════════════════════════════
+  {domain:"Fiksi",diff:"easy",type:"bs",
+   passage:{title:"Teks Fiksi",heading:"Anak Gembala dan Serigala",body:"Seorang anak gembala suka berbohong. Ia sering berteriak, 'Serigala! Serigala!' padahal tidak ada. Warga desa selalu datang membawa tongkat, tetapi tertipu. Suatu hari, serigala benar-benar datang. Anak itu berteriak minta tolong, tetapi tidak ada yang percaya. Kambing-kambingnya pun dimakan serigala."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Anak gembala dalam cerita suka berbohong.",
+   ans:true,
+   hint:"Baca kalimat pertama teks.",
+   sol:"Kalimat pertama jelas menyebutkan: 'Seorang anak gembala suka berbohong.' Pernyataan ini <strong>Benar</strong>."},
+
+  {domain:"Fiksi",diff:"easy",type:"bs",
+   passage:{title:"Teks Fiksi",heading:"Anak Gembala dan Serigala",body:"Seorang anak gembala suka berbohong. Ia sering berteriak, 'Serigala! Serigala!' padahal tidak ada. Warga desa selalu datang membawa tongkat, tetapi tertipu. Suatu hari, serigala benar-benar datang. Anak itu berteriak minta tolong, tetapi tidak ada yang percaya. Kambing-kambingnya pun dimakan serigala."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Pesan moral cerita adalah: orang yang suka berbohong tidak akan dipercaya lagi.",
+   ans:true,
+   hint:"Pikirkan akibat yang dialami anak gembala karena sering berbohong.",
+   sol:"Anak gembala tidak dipercaya lagi saat benar-benar butuh pertolongan karena kebiasaan berbohongnya. Pesan moral ini sesuai. Pernyataan ini <strong>Benar</strong>."},
+
+  {domain:"Fiksi",diff:"easy",type:"bs",
+   passage:{title:"Teks Fiksi",heading:"Sawah Pak Tani",body:"Pak Tani memiliki sawah yang luas. Setiap pagi ia pergi ke sawah membawa cangkul. Padinya tumbuh subur dan menguning. Burung-burung sering datang memakan padi. Pak Tani memasang orang-orangan sawah untuk mengusir burung. Saat musim panen tiba, Pak Tani tersenyum bahagia melihat hasil panennya yang melimpah."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Pak Tani memasang orang-orangan sawah untuk menakuti ular.",
+   ans:false,
+   hint:"Untuk apa Pak Tani memasang orang-orangan sawah menurut cerita?",
+   sol:"Teks menyebutkan orang-orangan sawah dipasang untuk mengusir burung, bukan ular. Pernyataan ini <strong>Salah</strong>."},
+
+  {domain:"Fiksi",diff:"easy",type:"bs",
+   passage:{title:"Teks Fiksi",heading:"Sawah Pak Tani",body:"Pak Tani memiliki sawah yang luas. Setiap pagi ia pergi ke sawah membawa cangkul. Padinya tumbuh subur dan menguning. Burung-burung sering datang memakan padi. Pak Tani memasang orang-orangan sawah untuk mengusir burung. Saat musim panen tiba, Pak Tani tersenyum bahagia melihat hasil panennya yang melimpah."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Latar waktu cerita terjadi pada pagi hari.",
+   ans:true,
+   hint:"Baca kalimat kedua teks: 'Setiap pagi…'",
+   sol:"Teks menyebutkan 'Setiap pagi ia pergi ke sawah'. Latar waktu = pagi. Pernyataan ini <strong>Benar</strong>."},
+
+  {domain:"Fiksi",diff:"med",type:"bs",
+   passage:{title:"Teks Fiksi",heading:"Adik dan Balon",body:"Adik menangis di taman. Balon merahnya terlepas dan terbang tinggi ke langit. Aku mencoba menenangkannya. 'Lihat, Dik, balonmu sedang terbang mencari teman-teman balon lainnya di awan,' kataku. Adik berhenti menangis. Ia menatap langit dengan senyum. 'Semoga balonku menemukan banyak teman, ya, Kak,' katanya polos."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Tokoh 'aku' dalam cerita bersifat penyayang dan kreatif.",
+   ans:true,
+   hint:"Perhatikan bagaimana 'aku' menenangkan adiknya. Apakah dengan cara biasa atau dengan imajinasi?",
+   sol:"'Aku' menenangkan adik dengan cerita imajinatif tentang balon mencari teman. Ini menunjukkan penyayang (peduli adik) dan kreatif (pakai cerita). Pernyataan ini <strong>Benar</strong>."},
+
+  {domain:"Fiksi",diff:"med",type:"bs",
+   passage:{title:"Teks Fiksi",heading:"Adik dan Balon",body:"Adik menangis di taman. Balon merahnya terlepas dan terbang tinggi ke langit. Aku mencoba menenangkannya. 'Lihat, Dik, balonmu sedang terbang mencari teman-teman balon lainnya di awan,' kataku. Adik berhenti menangis. Ia menatap langit dengan senyum. 'Semoga balonku menemukan banyak teman, ya, Kak,' katanya polos."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Latar tempat cerita adalah di sekolah.",
+   ans:false,
+   hint:"Baca kalimat pertama teks dengan teliti.",
+   sol:"Kalimat pertama menyebutkan: 'Adik menangis di taman.' Latar tempat = taman, bukan sekolah. Pernyataan ini <strong>Salah</strong>."},
+
+  {domain:"Fiksi",diff:"med",type:"bs",
+   passage:{title:"Teks Fiksi",heading:"Bunga Mawar dan Bunga Matahari",body:"Di sebuah taman tumbuh Bunga Mawar dan Bunga Matahari. Mawar merasa paling cantik dan sering menghina Matahari. 'Kau terlalu besar dan tidak harum,' katanya. Matahari hanya tersenyum. Suatu hari, angin kencang datang. Mawar yang kecil hampir tumbang, sedangkan Matahari berdiri tegak menahan angin. Akhirnya, Mawar menyadari bahwa setiap bunga punya kelebihannya sendiri."},
+   q:"Apakah pernyataan ini <strong>Benar</strong> atau <strong>Salah</strong>?<br><br>Amanat cerita adalah jangan merasa paling hebat karena setiap makhluk punya kelebihan masing-masing.",
+   ans:true,
+   hint:"Apa yang dipelajari Mawar di akhir cerita?",
+   sol:"Di akhir cerita Mawar sadar bahwa setiap bunga punya kelebihan masing-masing. Amanatnya tepat tentang tidak sombong. Pernyataan ini <strong>Benar</strong>."},
+
+  // Tambahan soal agar jumlah cukup
+  {domain:"Informasi",diff:"easy",type:"mc",
+   passage:{title:"Teks Informasi",heading:"Manfaat Membaca",body:"Membaca memiliki banyak manfaat. Dengan membaca, kita mendapat banyak pengetahuan baru. Kosakata kita juga bertambah. Membaca juga melatih otak agar tetap cerdas. Kita bisa membaca buku, majalah, atau koran. Luangkan waktu minimal 15 menit setiap hari untuk membaca."},
+   q:"Berapa lama waktu minimal untuk membaca setiap hari menurut teks?",
+   opts:["5 menit","10 menit","15 menit","20 menit"],ans:2,
+   hint:"Lihat kalimat terakhir teks.",
+   sol:"Teks menyebutkan: 'Luangkan waktu minimal 15 menit setiap hari untuk membaca.' Jawaban: <strong>15 menit</strong>."},
+
+  {domain:"Fiksi",diff:"easy",type:"mc",
+   passage:{title:"Teks Fiksi",heading:"Kelinci yang Sombong",body:"Kelinci sangat bangga dengan kecepatan larinya. Ia menantang Kura-kura adu lari. Kura-kura menerima. Saat lomba dimulai, Kelinci berlari sangat cepat. Ia tertawa melihat Kura-kura yang lambat. 'Aku akan istirahat sebentar,' pikir Kelinci. Ia pun tertidur di bawah pohon. Kura-kura terus berjalan pelan tapi pasti. Saat Kelinci bangun, Kura-kura sudah sampai garis finis."},
+   q:"Mengapa Kelinci kalah dalam perlombaan?",
+   opts:["Larinya lambat","Sakit di tengah jalan","Tertidur karena meremehkan lawan","Tersesat di hutan"],ans:2,
+   hint:"Apa yang Kelinci lakukan di tengah perlombaan?",
+   sol:"Kelinci istirahat dan tertidur karena merasa pasti menang (meremehkan Kura-kura). Jawaban: <strong>Tertidur karena meremehkan lawan</strong>."},
+];
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let nama='';
+let session=[],qIdx=0,correctCount=0;
+let timerInt=null,timeLeft=0;
+const TIMER_DUR=120;
+const TOTAL_SOAL=30;
+let submitted=false;
+let bsSel=null,mcmSel=new Set(),mcSel=-1;
+let log=[];
+let selectedDomain='all';
+
+document.querySelectorAll('.dom-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.dom-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedDomain=btn.dataset.dom;
+  });
+});
+
+// ══════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════
+function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function alpha(i){return String.fromCharCode(65+i)}
+function typeLabel(t){return t==='mc'?'PG Sederhana':t==='mcm'?'PG Kompleks':'PG Kategori'}
+function typeCls(t){return t==='mc'?'tag-mc':t==='mcm'?'tag-mcm':'tag-bs'}
+function diffLabel(d){return d==='easy'?'Mudah':'Sedang'}
+function diffCls(d){return d==='easy'?'diff-easy':'diff-med'}
+
+// ══════════════════════════════════════
+//  START
+// ══════════════════════════════════════
+function startQuiz(){
+  nama=document.getElementById('inputNama').value.trim();
+  
+  if(!nama){alert('Tulis namamu dulu ya! 😊');return}
+
+  let pool=selectedDomain==='all'?[...BANK]:BANK.filter(q=>q.domain===selectedDomain);
+  if(pool.length<5)pool=[...BANK];
+  pool=shuffle(pool);
+  session=pool.slice(0,Math.min(TOTAL_SOAL,pool.length));
+  qIdx=0;correctCount=0;log=[];
+  showScreen('quizScreen');
+  renderQ();
+}
+
+// ══════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════
+function renderQ(){
+  clearInterval(timerInt);
+  submitted=false;bsSel=null;mcmSel=new Set();mcSel=-1;
+  const q=session[qIdx];
+  const total=session.length;
+
+  document.getElementById('qCounter').textContent=`${qIdx+1}/${total}`;
+  document.getElementById('progFill').style.width=`${(qIdx/total)*100}%`;
+  document.getElementById('scoreChip').textContent=`${correctCount} ✓`;
+
+  document.getElementById('qNumLabel').textContent=`Soal ${qIdx+1}`;
+  const tt=document.getElementById('qTypeTag');
+  tt.textContent=typeLabel(q.type);tt.className='q-type-tag '+typeCls(q.type);
+  document.getElementById('qDomTag').textContent='Teks '+q.domain;
+  const dt=document.getElementById('qDiffTag');
+  dt.textContent=diffLabel(q.diff);dt.className='q-diff '+diffCls(q.diff);
+
+  // Render passage (bacaan)
+  const passageArea=document.getElementById('passageArea');
+  if(q.passage){
+    const bodyHTML=q.passage.body.split('\n').map(p=>`<p>${p}</p>`).join('');
+    passageArea.innerHTML=`<div class="passage">
+      <div class="passage-title">📖 ${q.passage.title}</div>
+      <div class="passage-heading">${q.passage.heading}</div>
+      <div class="passage-body">${bodyHTML}</div>
+    </div>`;
+  } else {
+    passageArea.innerHTML='';
+  }
+
+  document.getElementById('qText').innerHTML=q.q;
+  const noteEl=document.getElementById('qNote');
+  if(q.note){noteEl.innerHTML=q.note;noteEl.style.display='block'}
+  else noteEl.style.display='none';
+
+  const area=document.getElementById('qArea');
+  if(q.type==='mc'){
+    area.innerHTML='<div class="opts-list">'+q.opts.map((o,i)=>
+      `<div class="opt-item" id="opt${i}" onclick="toggleOpt(${i})">
+        <div class="opt-label">${alpha(i)}</div>
+        <div class="opt-text">${o}</div>
+      </div>`).join('')+'</div>';
+  } else if(q.type==='mcm'){
+    area.innerHTML='<div class="opts-list">'+q.opts.map((o,i)=>
+      `<div class="opt-item mcm-item" id="opt${i}" onclick="toggleOpt(${i})">
+        <div class="mcm-check" id="chk${i}"><span class="chk-inner"></span></div>
+        <div class="opt-label mcm-letter">${alpha(i)}</div>
+        <div class="opt-text">${o}</div>
+      </div>`).join('')+'</div>';
+  } else {
+    const stmt=q.q.includes('<br><br>')?q.q.split('<br><br>')[1]||'':q.q.replace(/<[^>]+>/g,'').split('?')[1]||q.q;
+    area.innerHTML=`<div class="bs-single">
+      <div class="bs-stmt">${stmt}</div>
+      <div class="bs-choices">
+        <button class="bs-btn" id="bsB" onclick="toggleBS(true)">✓ Benar</button>
+        <button class="bs-btn" id="bsS" onclick="toggleBS(false)">✗ Salah</button>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('hintPanel').className='hint-panel';
+  document.getElementById('hintPanel').innerHTML='';
+  document.getElementById('fbPanel').className='feedback-panel';
+  document.getElementById('fbPanel').innerHTML='';
+
+  document.getElementById('actionRow').innerHTML=
+    `<button class="btn-hint" id="hintBtn" onclick="showHint()">💡 Petunjuk</button>`+
+    `<button class="btn-primary" onclick="checkAnswer()">Periksa Jawaban</button>`;
+
+  startTimer();
+}
+
+// ══════════════════════════════════════
+//  TIMER
+// ══════════════════════════════════════
+function startTimer(){
+  timeLeft=TIMER_DUR;
+  updateTimerUI();
+  timerInt=setInterval(()=>{
+    timeLeft--;
+    updateTimerUI();
+    if(timeLeft<=0){clearInterval(timerInt);if(!submitted)timeoutAnswer()}
+  },1000);
+}
+function updateTimerUI(){
+  const disp=document.getElementById('timerDisplay');
+  const fill=document.getElementById('timerFill');
+  const m=Math.floor(timeLeft/60);
+  const s=timeLeft%60;
+  disp.textContent=m+':'+(s<10?'0':'')+s;
+  fill.style.width=(timeLeft/TIMER_DUR*100)+'%';
+  if(timeLeft<=20){fill.style.background='#dc2626';disp.className='timer-display warning'}
+  else if(timeLeft<=45){fill.style.background='#f59e0b';disp.className='timer-display'}
+  else{fill.style.background='#22c55e';disp.className='timer-display'}
+}
+function timeoutAnswer(){
+  submitted=true;
+  const q=session[qIdx];
+  log.push({q,isCorrect:false,timeout:true});
+  const fp=document.getElementById('fbPanel');
+  fp.className='feedback-panel show timeout';
+  fp.innerHTML=`<div class="fb-title">⏰ Waktu habis!</div><div class="fb-sol">${q.sol}</div>`;
+  document.getElementById('actionRow').innerHTML=
+    `<button class="btn-primary" onclick="nextQ()">${qIdx+1<session.length?'Soal Berikutnya →':'Lihat Hasil'}</button>`;
+  lockAll();
+}
+
+// ══════════════════════════════════════
+//  INTERACTION
+// ══════════════════════════════════════
+function toggleOpt(i){
+  if(submitted)return;
+  const q=session[qIdx];
+  if(q.type==='mc'){
+    mcSel=i;
+    document.querySelectorAll('.opt-item').forEach((el,j)=>el.classList.toggle('selected',j===i));
+  } else {
+    if(mcmSel.has(i))mcmSel.delete(i);else mcmSel.add(i);
+    document.querySelectorAll('.opt-item').forEach((el,j)=>{
+      const checked=mcmSel.has(j);
+      el.classList.toggle('selected',checked);
+      const chk=document.getElementById('chk'+j);
+      if(chk)chk.classList.toggle('checked',checked);
+    });
+  }
+}
+function toggleBS(val){
+  if(submitted)return;
+  bsSel=val;
+  document.getElementById('bsB').className='bs-btn'+(val===true?' sel-b':'');
+  document.getElementById('bsS').className='bs-btn'+(val===false?' sel-s':'');
+}
+function showHint(){
+  const hp=document.getElementById('hintPanel');
+  hp.innerHTML=`<strong>💡 Petunjuk:</strong> ${session[qIdx].hint}`;
+  hp.classList.toggle('show');
+}
+
+// ══════════════════════════════════════
+//  CHECK ANSWER
+// ══════════════════════════════════════
+function checkAnswer(){
+  if(submitted)return;
+  const q=session[qIdx];
+  let isCorrect=false;
+
+  if(q.type==='mc'){
+    if(mcSel===-1){alert('Pilih salah satu jawaban dulu ya! 😊');return}
+    isCorrect=mcSel===q.ans;
+    document.querySelectorAll('.opt-item').forEach((el,i)=>{
+      el.classList.add('locked');
+      if(i===q.ans)el.classList.add('correct');
+      else if(el.classList.contains('selected'))el.classList.add('wrong');
+    });
+  } else if(q.type==='mcm'){
+    if(mcmSel.size===0){alert('Pilih minimal satu jawaban dulu ya! 😊');return}
+    isCorrect=[...mcmSel].sort().join(',')===q.ans.sort().join(',');
+    document.querySelectorAll('.opt-item').forEach((el,i)=>{
+      el.classList.add('locked');
+      if(q.ans.includes(i))el.classList.add('correct');
+      else if(el.classList.contains('selected'))el.classList.add('wrong');
+    });
+  } else {
+    if(bsSel===null){alert('Pilih Benar atau Salah dulu ya! 😊');return}
+    isCorrect=bsSel===q.ans;
+    const bBtn=document.getElementById('bsB');
+    const sBtn=document.getElementById('bsS');
+    bBtn.disabled=true;sBtn.disabled=true;
+    if(isCorrect){(q.ans?bBtn:sBtn).className='bs-btn cor'}
+    else{
+      (bsSel?bBtn:sBtn).className='bs-btn wr';
+      (q.ans?bBtn:sBtn).className='bs-btn cor';
+    }
+  }
+
+  clearInterval(timerInt);
+  submitted=true;
+  if(isCorrect)correctCount++;
+  log.push({q,isCorrect,timeout:false});
+
+  const fp=document.getElementById('fbPanel');
+  fp.className='feedback-panel show '+(isCorrect?'ok':'ng');
+  fp.innerHTML=`<div class="fb-title">${isCorrect?'✓ Benar! Hebat! 🎉':'✗ Belum tepat, yuk lihat pembahasannya 💪'}</div><div class="fb-sol">${q.sol}</div>`;
+
+  document.getElementById('actionRow').innerHTML=
+    `<button class="btn-primary" onclick="nextQ()">${qIdx+1<session.length?'Soal Berikutnya →':'Lihat Hasil'}</button>`;
+  lockAll();
+}
+
+function lockAll(){
+  document.querySelectorAll('.opt-item').forEach(el=>{el.classList.add('locked');el.setAttribute('onclick','')});
+  document.querySelectorAll('.bs-btn').forEach(el=>el.disabled=true);
+  const hb=document.getElementById('hintBtn');
+  if(hb)hb.disabled=true;
+}
+function nextQ(){
+  qIdx++;
+  if(qIdx>=session.length){showResult();return}
+  renderQ();
+}
+
+// ══════════════════════════════════════
+//  RESULT
+// ══════════════════════════════════════
+function showResult(){
+  clearInterval(timerInt);
+  const total=session.length;
+  const pct=Math.round(correctCount/total*100);
+
+  document.getElementById('rName').textContent=nama;
+  document.getElementById('rScore100').textContent=pct;
+  document.getElementById('rBenar').textContent=correctCount;
+  document.getElementById('rSalah').textContent=total-correctCount;
+  document.getElementById('rSoal').textContent=`${correctCount}/${total}`;
+
+  const msgs=[
+    '😊 Jangan menyerah! Coba baca kembali teks-teksnya pelan-pelan, lalu ulangi latihan ini.',
+    '📚 Lumayan! Kamu sudah di jalan yang benar. Pelajari soal yang salah dan coba lagi ya.',
+    '🌟 Bagus sekali! Kamu sudah paham sebagian besar materi. Terus semangat membaca!',
+    '🏆 Hebat! Kemampuan membacamu sangat baik. Sedikit lagi kamu bisa sempurna!',
+    '🎉 Luar biasa! Semua benar! Kamu sudah sangat siap menghadapi TKA!'
+  ];
+  const mi=pct<40?0:pct<60?1:pct<75?2:pct<95?3:4;
+  document.getElementById('rMsg').textContent=msgs[mi];
+
+  document.getElementById('reviewList').innerHTML=log.map((entry,i)=>{
+    const plainQ=entry.q.q.replace(/<[^>]+>/g,'');
+    const shortQ=plainQ.length>65?plainQ.slice(0,65)+'…':plainQ;
+    const dotCls=entry.timeout?'rv-to':entry.isCorrect?'rv-ok':'rv-ng';
+    const dotLbl=entry.timeout?'⏰':entry.isCorrect?'✓':'✗';
+    const solTxt=entry.timeout?'Waktu habis — '+entry.q.sol.replace(/<[^>]+>/g,'')
+      :entry.isCorrect?'Jawaban benar':'Pembahasan: '+entry.q.sol.replace(/<[^>]+>/g,'');
+    return`<div class="review-item">
+      <div class="rv-dot ${dotCls}">${dotLbl}</div>
+      <div class="rv-body">
+        <div class="rv-q">${i+1}. ${shortQ}</div>
+        <div class="rv-sol">${solTxt}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  showScreen('resultScreen');
+  kirimKeSheet(nama, pct);
+}
+
+// ══════════════════════════════════════
+//  KIRIM KE GOOGLE SHEET
+// ══════════════════════════════════════
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbw9vbXFvNVWGZCcl0fi_QI8ibi_WY-_CevmJ4uYEfxP8jdO_2AwyqlV3zcOGaSfubbpfA/exec';
+
+function kirimKeSheet(nama, nilai){
+  const status = document.getElementById('sendStatus');
+  const btnSent = document.getElementById('btnSent');
+  const now = new Date();
+  const waktu = now.toLocaleString('id-ID',{
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+
+  status.className='send-status loading';
+  status.textContent='⏳ Mengirim hasil ke guru...';
+
+  const body = JSON.stringify({
+    nama: nama,
+    mapel: 'Bahasa Indonesia',
+    nilai: nilai,
+    waktu: waktu
+  });
+
+  fetch(SHEET_URL, {
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: body
+  })
+  .then(()=>{
+    status.className='send-status ok';
+    status.textContent='✓ Hasil berhasil dikirim ke guru! Klik tombol di bawah untuk coba lagi.';
+    btnSent.style.display='block';
+  })
+  .catch(()=>{
+    status.className='send-status err';
+    status.textContent='✗ Gagal mengirim. Periksa koneksi internet dan coba lagi.';
+  });
+}
+</script>
+</body>
+</html>
