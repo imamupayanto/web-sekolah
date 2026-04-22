@@ -596,7 +596,7 @@
 .nama-input:focus{border-color:#1a56db;}
 .nama-btn{width:100%;padding:13px;background:#111827;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
 .nama-btn:hover{opacity:.85;}
-.btn-send-osn{width:100%;padding:13px;background:#059669;color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;display:block;}
+.btn-send-osn{width:100%;padding:13px;background:#059669;color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;}
 .btn-send-osn:hover{opacity:.85;}
 .btn-send-osn:disabled{opacity:.5;cursor:default;}
 .send-status-osn{font-size:13px;text-align:center;padding:8px;border-radius:8px;margin-bottom:8px;display:none;}
@@ -721,8 +721,7 @@
         <div class="r-val" id="rWaktu" style="color:var(--secondary)">—</div>
       </div>
     </div>
-    
-    <div id="sendStatusOsn" class="send-status-osn"></div>
+        <div id="sendStatusOsn" class="send-status-osn"></div>
     <button class="btn-send-osn" id="btnSendOsn" onclick="kirimHasilOsn()">📤 Kirim Hasil ke Guru</button>
     <div class="action-row" style="justify-content:center; max-width:340px; margin:0 auto;">
       <button class="btn btn-next" onclick="restartAll()">🔁 Mulai Ulang</button>
@@ -735,31 +734,41 @@
 <script>
 // ========== BANK SOAL (60+ soal, diambil 30 acak) ==========
 const SOAL_BANK = [
-  { topic:"bilangan", diff:"easy", q:"Hasil dari 2.500 × 4 − 1.000 ÷ 5 adalah ...", type:"mc", opts:["9.800","9.900","10.000","10.200"], ans:0, hint:"Kerjakan perkalian dan pembagian dulu, lalu pengurangan", sol:["2.500 × 4 = 10.000 ; 1.000 ÷ 5 = 200 ; 10.000 − 200 = 9.800","Jawaban: <strong>9.800</strong>"] },
-  { topic:"bilangan", diff:"easy", q:"FPB dari 48 dan 72 adalah ...", type:"mc", opts:["12","16","24","36"], ans:2, hint:"Faktorkan kedua bilangan terlebih dahulu", sol:["48 = 2⁴ × 3 ; 72 = 2³ × 3² ; FPB = 2³ × 3 = 24","Jawaban: <strong>24</strong>"] },
-  { topic:"bilangan", diff:"easy", q:"KPK dari 12 dan 18 adalah ...", type:"mc", opts:["24","36","48","72"], ans:1, hint:"KPK diambil faktor dengan pangkat terbesar", sol:["12 = 2² × 3 ; 18 = 2 × 3² ; KPK = 2² × 3² = 36","Jawaban: <strong>36</strong>"] },
-  { topic:"bilangan", diff:"med", q:"Nilai dari 3/4 + 5/6 − 1/3 adalah ...", type:"mc", opts:["4/3","5/4","7/6","11/12"], ans:0, hint:"Samakan penyebut terlebih dahulu (KPK 4, 6, 3 = 12)", sol:["3/4 = 9/12 ; 5/6 = 10/12 ; 1/3 = 4/12","9/12 + 10/12 − 4/12 = 15/12 = 5/4","Jawaban: <strong>5/4</strong>... tunggu: 15/12 = 5/4. Cek: 9+10-4=15, 15/12=5/4. Jawaban: <strong>4/3</strong> (16/12=4/3)"] },
-  { topic:"bilangan", diff:"med", q:"Sebuah toko menjual 120 buku dengan harga Rp4.500 per buku. Keuntungan 20% dari total penjualan adalah ...", type:"mc", opts:["Rp96.000","Rp100.000","Rp108.000","Rp120.000"], ans:2, hint:"Total penjualan = 120 × 4.500, keuntungan = 20% × total", sol:["Total = 120 × 4.500 = 540.000","Keuntungan 20% = 0,2 × 540.000 = 108.000","Jawaban: <strong>Rp108.000</strong>"] },
-  { topic:"geometri", diff:"easy", q:"Luas persegi panjang dengan panjang 15 cm dan lebar 8 cm adalah ...", type:"mc", opts:["90 cm²","100 cm²","120 cm²","160 cm²"], ans:2, hint:"Luas persegi panjang = panjang × lebar", sol:["L = p × l = 15 × 8 = 120 cm²","Jawaban: <strong>120 cm²</strong>"] },
-  { topic:"geometri", diff:"easy", q:"Keliling lingkaran dengan diameter 14 cm (π = 22/7) adalah ...", type:"mc", opts:["44 cm","88 cm","154 cm","176 cm"], ans:0, hint:"Keliling = π × d", sol:["K = π × d = 22/7 × 14 = 44 cm","Jawaban: <strong>44 cm</strong>"] },
-  { topic:"geometri", diff:"med", q:"Volume kubus dengan panjang rusuk 6 cm adalah ...", type:"mc", opts:["36 cm³","108 cm³","216 cm³","256 cm³"], ans:2, hint:"V = s³", sol:["V = s³ = 6³ = 216 cm³","Jawaban: <strong>216 cm³</strong>"] },
-  { topic:"geometri", diff:"med", q:"Luas trapesium dengan sisi sejajar 10 cm dan 6 cm, tinggi 8 cm adalah ...", type:"mc", opts:["48 cm²","56 cm²","64 cm²","80 cm²"], ans:2, hint:"L = ½ × (a + b) × t", sol:["L = ½ × (10 + 6) × 8 = ½ × 16 × 8 = 64 cm²","Jawaban: <strong>64 cm²</strong>"] },
-  { topic:"geometri", diff:"med", q:"Sebuah tangki berbentuk tabung dengan jari-jari 7 cm dan tinggi 10 cm. Volume tabung (π=22/7) adalah ...", type:"mc", opts:["1.430 cm³","1.540 cm³","2.200 cm³","3.080 cm³"], ans:1, hint:"V = π × r² × t", sol:["V = 22/7 × 7² × 10 = 22/7 × 49 × 10 = 1.540 cm³","Jawaban: <strong>1.540 cm³</strong>"] },
-  { topic:"aljabar", diff:"easy", q:"Jika 3x + 7 = 22, nilai x adalah ...", type:"mc", opts:["3","4","5","6"], ans:2, hint:"Pindahkan 7 ke kanan, bagi dengan 3", sol:["3x = 22 − 7 = 15 ; x = 15 ÷ 3 = 5","Jawaban: <strong>5</strong>"] },
-  { topic:"aljabar", diff:"easy", q:"Pola bilangan 2, 5, 10, 17, 26, ... suku berikutnya adalah ...", type:"mc", opts:["35","36","37","38"], ans:2, hint:"Perhatikan selisih antar suku: 3, 5, 7, 9, ...", sol:["Selisih: 3, 5, 7, 9, 11 — selisih bertambah 2 setiap kali","26 + 11 = 37","Jawaban: <strong>37</strong>"] },
-  { topic:"aljabar", diff:"med", q:"Umur Ayah 4 kali umur Andi. Jika selisih umur mereka 36 tahun, umur Andi adalah ...", type:"mc", opts:["9 tahun","12 tahun","14 tahun","18 tahun"], ans:1, hint:"Misalkan umur Andi = x, umur Ayah = 4x", sol:["4x − x = 36 ; 3x = 36 ; x = 12","Jawaban: <strong>12 tahun</strong>"] },
-  { topic:"aljabar", diff:"med", q:"Hasil dari (2x + 3)(x − 4) jika x = 5 adalah ...", type:"mc", opts:["13","15","17","19"], ans:0, hint:"Substitusi x=5 terlebih dahulu atau kalikan", sol:["(2×5+3)(5−4) = (10+3)(1) = 13 × 1 = 13","Jawaban: <strong>13</strong>"] },
-  { topic:"statistik", diff:"easy", q:"Nilai rata-rata dari 7, 8, 9, 6, dan 10 adalah ...", type:"mc", opts:["7","8","9","10"], ans:1, hint:"Rata-rata = jumlah semua nilai ÷ banyak data", sol:["Jumlah = 7+8+9+6+10 = 40 ; Rata-rata = 40 ÷ 5 = 8","Jawaban: <strong>8</strong>"] },
-  { topic:"statistik", diff:"easy", q:"Median dari data: 3, 7, 5, 9, 4, 8, 6 adalah ...", type:"mc", opts:["5","6","7","8"], ans:1, hint:"Urutkan data terlebih dahulu, lalu cari nilai tengah", sol:["Diurutkan: 3, 4, 5, 6, 7, 8, 9 (7 data)","Median = data ke-4 = 6","Jawaban: <strong>6</strong>"] },
-  { topic:"statistik", diff:"med", q:"Modus dari data: 4, 6, 4, 8, 6, 4, 7, 6, 4 adalah ...", type:"mc", opts:["4","5","6","7"], ans:0, hint:"Modus = data yang paling sering muncul", sol:["Frekuensi: 4 muncul 4×, 6 muncul 3×, 8 muncul 1×, 7 muncul 1×","Modus = 4","Jawaban: <strong>4</strong>"] },
-  { topic:"statistik", diff:"med", q:"Sebuah dadu dilempar sekali. Peluang muncul bilangan ganjil adalah ...", type:"mc", opts:["1/6","1/3","1/2","2/3"], ans:2, hint:"Bilangan ganjil pada dadu: 1, 3, 5", sol:["Bilangan ganjil: {1, 3, 5} → 3 kemungkinan dari 6 total","P = 3/6 = 1/2","Jawaban: <strong>1/2</strong>"] },
-  { topic:"statistik", diff:"med", q:"Diagram yang paling tepat untuk menampilkan persentase data adalah ...", type:"mc", opts:["Diagram batang","Diagram garis","Diagram lingkaran","Diagram titik"], ans:2, hint:"Diagram ini berbentuk bulat dan terbagi menjadi sektor", sol:["Diagram lingkaran (pie chart) paling tepat menampilkan persentase/proporsi data","Diagram batang untuk perbandingan, garis untuk tren waktu","Jawaban: <strong>Diagram lingkaran</strong>"] },
-  { topic:"bilangan", diff:"med", q:"Hasil dari √144 + √81 adalah ...", type:"mc", opts:["21","23","25","27"], ans:0, hint:"Cari akar kuadrat masing-masing", sol:["√144 = 12 ; √81 = 9 ; 12 + 9 = 21","Jawaban: <strong>21</strong>"] },
-  { topic:"bilangan", diff:"med", q:"Jarak kota A ke B adalah 240 km. Sebuah mobil berangkat pukul 07.00 dengan kecepatan 60 km/jam. Mobil tiba pukul ...", type:"mc", opts:["10.00","11.00","12.00","13.00"], ans:1, hint:"Waktu = Jarak ÷ Kecepatan", sol:["Waktu = 240 ÷ 60 = 4 jam ; 07.00 + 4 jam = 11.00","Jawaban: <strong>11.00</strong>"] },
-  { topic:"geometri", diff:"easy", q:"Banyaknya simetri lipat pada persegi adalah ...", type:"mc", opts:["2","3","4","8"], ans:2, hint:"Coba lipat persegi dari berbagai arah", sol:["Persegi memiliki 4 simetri lipat: horizontal, vertikal, dan dua diagonal","Jawaban: <strong>4</strong>"] },
-  { topic:"aljabar", diff:"easy", q:"Bilangan prima antara 20 dan 30 adalah ...", type:"mcm", opts:["21","23","27","29"], ans:[1,3], hint:"Bilangan prima hanya habis dibagi 1 dan dirinya sendiri", sol:["21 = 3×7 (bukan prima) ; 23 = prima ; 27 = 3×9 (bukan prima) ; 29 = prima","Jawaban: <strong>23 dan 29</strong>"] },
-  { topic:"geometri", diff:"med", q:"Sebuah kolam renang berukuran 25m × 10m × 2m. Volume air jika diisi penuh adalah ...", type:"mc", opts:["250 m³","375 m³","500 m³","750 m³"], ans:2, hint:"Volume = panjang × lebar × tinggi", sol:["V = 25 × 10 × 2 = 500 m³","Jawaban: <strong>500 m³</strong>"] },
-  { topic:"bilangan", diff:"med", q:"Pecahan 5/8 jika diubah ke persen adalah ...", type:"mc", opts:["58%","60%","62,5%","65%"], ans:2, hint:"Kalikan dengan 100%", sol:["5/8 × 100% = 500/8 = 62,5%","Jawaban: <strong>62,5%</strong>"] },
+  {topic:"bilangan",diff:"easy",q:"Hasil dari 125 + 475 - 300 adalah ...",type:"mc",opts:["200","250","300","400"],ans:2,hint:"Hitung urut",sol:["125 + 475 = 600","600 - 300 = 300","Jawaban: 300"]},
+  {topic:"bilangan",diff:"easy",q:"Hasil dari 24 × 5 adalah ...",type:"mc",opts:["100","110","120","130"],ans:2,hint:"20 × 5 = 100",sol:["24 × 5 = (20 + 4) × 5","= 100 + 20 = 120","Jawaban: 120"]},
+  {topic:"bilangan",diff:"easy",q:"FPB dari 36 dan 48 adalah ...",type:"mc",opts:["6","12","18","24"],ans:1,hint:"Faktor bersama terbesar",sol:["36 = 2² × 3²","48 = 2⁴ × 3","FPB = 2² × 3 = 12","Jawaban: 12"]},
+  {topic:"bilangan",diff:"easy",q:"KPK dari 8 dan 12 adalah ...",type:"mc",opts:["24","32","36","48"],ans:0,hint:"Kelipatan bersama terkecil",sol:["8 = 2³","12 = 2² × 3","KPK = 2³ × 3 = 24","Jawaban: 24"]},
+  {topic:"pecahan",diff:"med",q:"Hasil dari 3/4 + 2/8 adalah ...",type:"mc",opts:["5/8","6/8","7/8","1"],ans:3,hint:"Samakan penyebut",sol:["3/4 = 6/8","6/8 + 2/8 = 8/8 = 1","Jawaban: 1"]},
+  {topic:"pecahan",diff:"med",q:"Hasil dari 5/6 - 1/4 adalah ...",type:"mc",opts:["7/12","8/12","9/12","10/12"],ans:0,hint:"KPK 6 dan 4 = 12",sol:["5/6 = 10/12","1/4 = 3/12","10/12 - 3/12 = 7/12","Jawaban: 7/12"]},
+  {topic:"bilangan",diff:"med",q:"1200 × 15 = ...",type:"mc",opts:["15000","16000","18000","20000"],ans:2,hint:"1200 × 10 = 12000",sol:["1200 × 15 = 1200 × (10 + 5)","= 12000 + 6000 = 18000","Jawaban: 18000"]},
+  {topic:"bilangan",diff:"med",q:"9000 ÷ 75 = ...",type:"mc",opts:["100","110","120","130"],ans:2,hint:"75 × 100 = 7500",sol:["9000 ÷ 75 = 120","Cek: 75 × 120 = 9000","Jawaban: 120"]},
+  {topic:"desimal",diff:"easy",q:"0,5 + 0,3 = ...",type:"mc",opts:["0,7","0,8","0,9","1,0"],ans:1,hint:"Langsung tambah",sol:["0,5 + 0,3 = 0,8","Jawaban: 0,8"]},
+  {topic:"desimal",diff:"easy",q:"0,25 × 4 = ...",type:"mc",opts:["0,5","1,0","1,5","2,0"],ans:1,hint:"1/4 × 4 = 1",sol:["0,25 = 1/4","1/4 × 4 = 1","Jawaban: 1,0"]},
+  {topic:"persen",diff:"easy",q:"20% dari 100 adalah ...",type:"mc",opts:["10","20","30","40"],ans:1,hint:"20/100 × 100",sol:["20% = 20/100","20/100 × 100 = 20","Jawaban: 20"]},
+  {topic:"persen",diff:"med",q:"Harga Rp50.000 diskon 30%, harga akhir ...",type:"mc",opts:["Rp30.000","Rp35.000","Rp40.000","Rp45.000"],ans:1,hint:"Diskon = 30% × 50000",sol:["Diskon = 30% × 50000 = 15000","Harga akhir = 50000 - 15000 = 35000","Jawaban: Rp35.000"]},
+  {topic:"geometri",diff:"easy",q:"Luas persegi sisi 7 cm adalah ...",type:"mc",opts:["49 cm²","56 cm²","63 cm²","70 cm²"],ans:0,hint:"L = s²",sol:["L = 7² = 49 cm²","Jawaban: 49 cm²"]},
+  {topic:"geometri",diff:"easy",q:"Luas segitiga alas 8 cm tinggi 6 cm ...",type:"mc",opts:["12 cm²","24 cm²","48 cm²","96 cm²"],ans:1,hint:"L = 1/2 × a × t",sol:["L = 1/2 × 8 × 6","= 1/2 × 48 = 24 cm²","Jawaban: 24 cm²"]},
+  {topic:"geometri",diff:"easy",q:"Keliling persegi panjang 12 cm × 5 cm ...",type:"mc",opts:["17 cm","24 cm","34 cm","60 cm"],ans:2,hint:"K = 2(p + l)",sol:["K = 2(12 + 5)","= 2 × 17 = 34 cm","Jawaban: 34 cm"]},
+  {topic:"geometri",diff:"med",q:"Luas trapesium sisi 10 dan 6 cm, tinggi 5 cm ...",type:"mc",opts:["30 cm²","35 cm²","40 cm²","50 cm²"],ans:2,hint:"L = 1/2 × (a+b) × t",sol:["L = 1/2 × (10+6) × 5","= 1/2 × 16 × 5 = 40 cm²","Jawaban: 40 cm²"]},
+  {topic:"geometri",diff:"med",q:"Volume kubus rusuk 4 cm adalah ...",type:"mc",opts:["16 cm³","32 cm³","64 cm³","128 cm³"],ans:2,hint:"V = s³",sol:["V = 4³ = 64 cm³","Jawaban: 64 cm³"]},
+  {topic:"aljabar",diff:"easy",q:"Jika 2x = 10, maka x = ...",type:"mc",opts:["3","5","7","10"],ans:1,hint:"Bagi kedua sisi dengan 2",sol:["2x = 10","x = 10 ÷ 2 = 5","Jawaban: 5"]},
+  {topic:"aljabar",diff:"easy",q:"Jika x + 5 = 12, maka x = ...",type:"mc",opts:["5","7","9","12"],ans:1,hint:"Kurangi 5",sol:["x + 5 = 12","x = 12 - 5 = 7","Jawaban: 7"]},
+  {topic:"aljabar",diff:"med",q:"Pola 2,4,6,8,... suku ke-6 adalah ...",type:"mc",opts:["10","12","14","16"],ans:1,hint:"Selisih = 2",sol:["Pola bilangan genap","Suku ke-6 = 2 × 6 = 12","Jawaban: 12"]},
+  {topic:"aljabar",diff:"med",q:"Pola 1,4,9,16,... suku ke-5 adalah ...",type:"mc",opts:["20","25","30","36"],ans:1,hint:"Bilangan kuadrat",sol:["1², 2², 3², 4², ...","Suku ke-5 = 5² = 25","Jawaban: 25"]},
+  {topic:"aljabar",diff:"hard",q:"Umur Ayah 3× Andi. Ayah 45 tahun, Andi ...",type:"mc",opts:["12 tahun","15 tahun","18 tahun","21 tahun"],ans:1,hint:"45 ÷ 3",sol:["3 × Andi = 45","Andi = 45 ÷ 3 = 15 tahun","Jawaban: 15 tahun"]},
+  {topic:"statistik",diff:"easy",q:"Rata-rata 5,7,9,6,8 adalah ...",type:"mc",opts:["5","6","7","8"],ans:2,hint:"Jumlah ÷ banyak",sol:["Jumlah = 5+7+9+6+8 = 35","Rata-rata = 35 ÷ 5 = 7","Jawaban: 7"]},
+  {topic:"statistik",diff:"easy",q:"Median dari 3,7,5,9,2 adalah ...",type:"mc",opts:["3","5","7","9"],ans:1,hint:"Tengah saat urut",sol:["Diurutkan: 2,3,5,7,9","Median = nilai tengah = 5","Jawaban: 5"]},
+  {topic:"satuan",diff:"easy",q:"5 km = ... meter",type:"mc",opts:["50","500","5000","50000"],ans:2,hint:"1 km = 1000 m",sol:["5 × 1000 = 5000 m","Jawaban: 5000"]},
+  {topic:"satuan",diff:"easy",q:"3000 gram = ... kg",type:"mc",opts:["3","30","300","3000"],ans:0,hint:"1 kg = 1000 g",sol:["3000 ÷ 1000 = 3 kg","Jawaban: 3"]},
+  {topic:"waktu",diff:"easy",q:"3 jam = ... menit",type:"mc",opts:["120","150","180","240"],ans:2,hint:"1 jam = 60 menit",sol:["3 × 60 = 180 menit","Jawaban: 180"]},
+  {topic:"waktu",diff:"easy",q:"450 detik = ... menit",type:"mc",opts:["5","7","7,5","8"],ans:2,hint:"60 detik = 1 menit",sol:["450 ÷ 60 = 7,5 menit","Jawaban: 7,5"]},
+  {topic:"bilangan",diff:"hard",q:"Hasil dari 144 ÷ 12 × 5 ...",type:"mc",opts:["50","55","60","65"],ans:2,hint:"Kiri ke kanan",sol:["144 ÷ 12 = 12","12 × 5 = 60","Jawaban: 60"]},
+  {topic:"persen",diff:"hard",q:"75% dalam bentuk pecahan ...",type:"mc",opts:["1/4","1/2","3/4","4/5"],ans:2,hint:"75/100",sol:["75% = 75/100 = 3/4","Jawaban: 3/4"]},
+  {topic:"geometri",diff:"hard",q:"Keliling lingkaran diameter 14 cm (π=22/7) ...",type:"mc",opts:["22 cm","44 cm","88 cm","154 cm"],ans:1,hint:"K = π × d",sol:["K = 22/7 × 14","= 22 × 2 = 44 cm","Jawaban: 44 cm"]},
+  {topic:"bilangan",diff:"hard",q:"√625 = ...",type:"mc",opts:["20","23","25","27"],ans:2,hint:"25 × 25 = 625",sol:["√625 = 25","Cek: 25² = 625","Jawaban: 25"]},
+  {topic:"bilangan",diff:"hard",q:"2⁵ = ...",type:"mc",opts:["16","25","32","64"],ans:2,hint:"2×2×2×2×2",sol:["2⁵ = 2×2×2×2×2 = 32","Jawaban: 32"]},
+  {topic:"pecahan",diff:"hard",q:"1/2 + 1/3 + 1/6 = ...",type:"mc",opts:["1/2","1","3/2","2"],ans:1,hint:"Samakan penyebut 6",sol:["3/6 + 2/6 + 1/6 = 6/6 = 1","Jawaban: 1"]},
+  {topic:"desimal",diff:"hard",q:"0,75 ÷ 0,25 = ...",type:"mc",opts:["2","3","4","5"],ans:1,hint:"3/4 ÷ 1/4",sol:["0,75 ÷ 0,25 = 3/4 ÷ 1/4","= 3/4 × 4/1 = 3","Jawaban: 3"]}
 ];
 
 // ============================================================
@@ -1146,6 +1155,7 @@ function mulaiLatihan() {
   if (!input) { alert('Nama tidak boleh kosong ya! 😊'); return; }
   namaSiswa = input;
   document.getElementById('namaOverlay').style.display = 'none';
+  initSession();
 }
 
 function kirimHasilOsn() {
