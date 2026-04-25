@@ -366,6 +366,7 @@
 
 <div class="game-wrap">
   <div class="game-title">
+    <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:#fff;background:linear-gradient(135deg,#7C5CBF,#3498DB);border-radius:12px;padding:8px 20px;display:inline-block;margin-bottom:10px;letter-spacing:0.5px;box-shadow:0 4px 12px rgba(124,92,191,0.25);">🏫 GAME PEMBELAJARAN SDN 2 PESANTREN</div>
     <h1>🔤 Word Anagram!</h1>
     <p>Susun huruf jadi kata yang benar</p>
   </div>
@@ -406,6 +407,10 @@
   </div>
   <div class="feedback" id="feedback"></div>
   <div class="hint-text" id="hint-text"></div>
+</div>
+
+<div style="position:fixed;bottom:10px;left:0;width:100%;text-align:center;font-size:0.72rem;color:#B8A8D0;font-family:'Nunito',sans-serif;font-weight:600;opacity:0.5;letter-spacing:0.5px;pointer-events:none;">
+  created by imamupayanto 2026
 </div>
 
 <!-- START SCREEN -->
@@ -452,10 +457,10 @@ const WORDS = [
   {w:"yellow",e:"💛",cat:"colors"},{w:"orange",e:"🟠",cat:"colors"},{w:"purple",e:"💜",cat:"colors"},
   {w:"pink",e:"🩷",cat:"colors"},{w:"brown",e:"🟤",cat:"colors"},{w:"black",e:"⬛",cat:"colors"},
   {w:"white",e:"⬜",cat:"colors"},{w:"gray",e:"🩶",cat:"colors"},
-  {w:"book",e:"📚",cat:"school"},{w:"pencil",e:"✏️",cat:"school"},{w:"ruler",e:"📏",cat:"school"},
-  {w:"bag",e:"🎒",cat:"school"},{w:"eraser",e:"🧹",cat:"school"},{w:"pen",e:"🖊️",cat:"school"},
-  {w:"desk",e:"🪑",cat:"school"},{w:"window",e:"🪟",cat:"school"},{w:"door",e:"🚪",cat:"school"},
-  {w:"wall",e:"🧱",cat:"school"},{w:"board",e:"📋",cat:"school"},{w:"table",e:"🛖",cat:"school"}
+  {w:"book",e:"📖",cat:"school"},{w:"pencil",e:"✏️",cat:"school"},{w:"ruler",e:"📏",cat:"school"},
+  {w:"bag",e:"🎒",cat:"school"},{w:"eraser",e:"🩹",cat:"school"},{w:"pen",e:"🖊️",cat:"school"},
+  {w:"desk",e:"🗂️",cat:"school"},{w:"window",e:"🪟",cat:"school"},{w:"door",e:"🚪",cat:"school"},
+  {w:"wall",e:"🧱",cat:"school"},{w:"board",e:"🖥️",cat:"school"},{w:"table",e:"🪵",cat:"school"}
 ];
 
 const LETTER_COLORS = ["#7C5CBF","#2ECC71","#E74C3C","#3498DB","#F39C12","#E91E8C","#1ABC9C","#9B59B6","#E67E22","#16A085"];
@@ -468,6 +473,70 @@ const CAT_STYLES = {
 let current=null, answer=[], shuffled=[], timeLeft=120, interval=null;
 let score=0, wordCount=0, answered=[], hintUsed=false, gameRunning=false;
 let usedWords=[];
+
+// ---- WEB AUDIO ----
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+function getCtx(){ if(!audioCtx) audioCtx = new AudioCtx(); return audioCtx; }
+
+function playCorrect(){
+  const ctx=getCtx();
+  const notes=[523,659,784,1047]; // C5 E5 G5 C6
+  notes.forEach((freq,i)=>{
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type="sine"; o.frequency.value=freq;
+    const t=ctx.currentTime+i*0.1;
+    g.gain.setValueAtTime(0.28,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+    o.start(t); o.stop(t+0.3);
+  });
+}
+
+function playWrong(){
+  const ctx=getCtx();
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type="sawtooth"; o.frequency.setValueAtTime(220,ctx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(110,ctx.currentTime+0.25);
+  g.gain.setValueAtTime(0.2,ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
+  o.start(); o.stop(ctx.currentTime+0.3);
+}
+
+function playTick(){
+  const ctx=getCtx();
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type="sine"; o.frequency.value=880;
+  g.gain.setValueAtTime(0.08,ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.07);
+  o.start(); o.stop(ctx.currentTime+0.08);
+}
+
+function playTimeUp(){
+  const ctx=getCtx();
+  const notes=[523,494,440,392];
+  notes.forEach((freq,i)=>{
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type="sine"; o.frequency.value=freq;
+    const t=ctx.currentTime+i*0.18;
+    g.gain.setValueAtTime(0.25,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.35);
+    o.start(t); o.stop(t+0.35);
+  });
+}
+
+function playClick(){
+  const ctx=getCtx();
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type="sine"; o.frequency.value=660;
+  g.gain.setValueAtTime(0.12,ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);
+  o.start(); o.stop(ctx.currentTime+0.09);
+}
 
 function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
@@ -493,8 +562,9 @@ function tick(){
   if(timeLeft<=20){
     document.getElementById("timer-box").className="hud-box hud-timer danger";
     document.getElementById("progress-fill").className="progress-fill danger";
+    playTick();
   }
-  if(timeLeft<=0){clearInterval(interval);endGame();}
+  if(timeLeft<=0){clearInterval(interval);playTimeUp();endGame();}
 }
 
 function endGame(){
@@ -584,6 +654,7 @@ function pickLetter(idx,ch){
   if(!btn||btn.classList.contains("used"))return;
   btn.classList.add("used");
   answer.push({ch,idx});
+  playClick();
   renderAnswer();
   if(answer.length===current.w.length) setTimeout(checkAnswer,80);
 }
@@ -608,11 +679,13 @@ function checkAnswer(){
     document.getElementById("score").textContent=score;
     document.getElementById("word-count").textContent=wordCount;
     showFeedback("🎉 Benar! +"+pts+" poin","correct");
+    playCorrect();
     flashSlots();
     spawnStars();
     setTimeout(nextWord,900);
   } else {
     showFeedback("❌ Coba lagi!","wrong");
+    playWrong();
     setTimeout(()=>{clearAnswer(false);},550);
   }
 }
