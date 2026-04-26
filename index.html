@@ -1,720 +1,382 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>SD Negeri 2 Pesantren</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SDN 2 Pesantren</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">
 <style>
-:root{
-  --blue:#1A56DB;
-  --blue-dark:#1240A8;
-  --blue-light:#EBF2FF;
-  --blue-mid:#3B82F6;
-  --accent:#F59E0B;
-  --text:#0F172A;
-  --text-2:#475569;
-  --text-3:#94A3B8;
-  --bg:#F8FAFC;
-  --white:#FFFFFF;
-  --border:#E2E8F0;
-  --radius:14px;
-  --radius-sm:8px;
-  --shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.06);
-  --shadow-lg:0 8px 32px rgba(26,86,219,0.15);
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Plus Jakarta Sans", system-ui, sans-serif; color: #241910; background: #F2E9D6; }
 
-/* NAVBAR */
-.navbar{
-  position:sticky;top:0;z-index:100;
-  background:rgba(255,255,255,0.92);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);
-  padding:0 2rem;
-  height:60px;
-  display:flex;align-items:center;justify-content:space-between;
-}
-.nav-logo{display:flex;align-items:center;gap:10px;}
-.nav-logo-icon{
-  width:36px;height:36px;border-radius:10px;
-  background:var(--blue);
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;color:#fff;font-weight:800;
-}
-.nav-logo-text{font-size:14px;font-weight:700;color:var(--text);}
-.nav-logo-text span{color:var(--blue);}
-.nav-links{display:flex;gap:4px;}
-.nav-link{
-  padding:6px 14px;border-radius:8px;
-  font-size:13px;font-weight:500;color:var(--text-2);
-  cursor:pointer;border:none;background:none;
-  transition:all 0.15s;
-}
-.nav-link:hover{background:var(--blue-light);color:var(--blue);}
-.nav-link.active{background:var(--blue);color:#fff;}
+  .phone { width: 380px; height: 760px; margin: 20px auto; border-radius: 32px; overflow: hidden; border: 8px solid rgba(36,25,16,0.85); box-shadow: 0 30px 80px rgba(0,0,0,0.18); background: #fff; display: flex; flex-direction: column; }
+  .status-bar { height: 30px; background: transparent; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 12px; font-weight: 700; color: #241910; position: relative; flex-shrink: 0; }
+  .status-notch { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); width: 80px; height: 18px; border-radius: 999px; background: #241910; }
+  .screen { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-height: 0; }
+  .screen::-webkit-scrollbar { display: none; }
+  .tab-bar { background: #FAF4E8; border-top: 2px solid #241910; padding: 8px; display: flex; justify-content: space-around; gap: 4px; flex-shrink: 0; }
+  .tab-btn { flex: 1; padding: 6px 4px; border: 2px solid #241910; border-radius: 14px; background: transparent; color: #241910; font-family: inherit; font-weight: 700; font-size: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: all 0.08s; }
+  .tab-btn.active { background: #241910; color: #FAF4E8; box-shadow: 2px 2px 0 #241910; }
+  .tab-btn:active { transform: translate(2px, 2px); }
 
-/* PAGE */
-.page{display:none;animation:fadeIn 0.25s ease;}
-.page.active{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .brand-bar { background: #D96B3D; border-bottom: 2px solid #241910; padding: 14px 18px; color: #FAF4E8; flex-shrink: 0; }
+  .brand-header { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+  .brand-logo { width: 34px; height: 34px; border-radius: 50%; background: #FAF4E8; border: 2px solid #241910; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #241910; flex-shrink: 0; }
+  .brand-title-big { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 24px; line-height: 1.05; letter-spacing: -0.6px; }
 
-/* ===== BERANDA ===== */
-.hero{
-  background:var(--blue);
-  padding:4rem 2rem 5rem;
-  position:relative;overflow:hidden;
-}
-.hero::before{
-  content:'';position:absolute;top:-60px;right:-60px;
-  width:320px;height:320px;border-radius:50%;
-  background:rgba(255,255,255,0.06);
-}
-.hero::after{
-  content:'';position:absolute;bottom:-80px;left:30%;
-  width:200px;height:200px;border-radius:50%;
-  background:rgba(255,255,255,0.04);
-}
-.hero-inner{max-width:700px;margin:0 auto;position:relative;z-index:1;}
-.hero-tag{
-  display:inline-flex;align-items:center;gap:6px;
-  background:rgba(255,255,255,0.15);
-  color:#fff;font-size:12px;font-weight:600;
-  padding:5px 12px;border-radius:20px;margin-bottom:1.25rem;
-  letter-spacing:0.5px;
-}
-.hero h1{
-  font-family:'Fraunces',serif;
-  font-size:clamp(28px,5vw,44px);
-  color:#fff;line-height:1.2;margin-bottom:12px;
-}
-.hero h1 em{font-style:italic;color:#FCD34D;}
-.hero p{font-size:15px;color:rgba(255,255,255,0.8);max-width:480px;line-height:1.7;margin-bottom:2rem;}
-.hero-btns{display:flex;gap:10px;flex-wrap:wrap;}
-.btn-white{background:#fff;color:var(--blue);border:none;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;}
-.btn-white:hover{background:#EBF2FF;transform:translateY(-1px);}
-.btn-ghost{background:rgba(255,255,255,0.12);color:#fff;border:1.5px solid rgba(255,255,255,0.3);padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;}
-.btn-ghost:hover{background:rgba(255,255,255,0.2);}
+  .content { flex: 1; overflow-y: auto; padding: 14px; }
+  .content::-webkit-scrollbar { display: none; }
 
-/* STATS BAR */
-.stats-bar{
-  background:#fff;border-bottom:1px solid var(--border);
-  display:grid;grid-template-columns:repeat(4,1fr);
-}
-.stat-item{padding:1.25rem;text-align:center;border-right:1px solid var(--border);}
-.stat-item:last-child{border-right:none;}
-.stat-num{font-size:24px;font-weight:800;color:var(--blue);}
-.stat-lbl{font-size:11px;color:var(--text-3);margin-top:2px;font-weight:500;}
+  .card { background: #fff; border: 2px solid #241910; border-radius: 18px; padding: 14px; margin-bottom: 12px; box-shadow: 4px 4px 0 #241910; }
+  .card.dark    { background: #241910; color: #FAF4E8; }
+  .card.forest  { background: #3D5C3A; color: #FAF4E8; }
+  .card.mustard { background: #E8B23A; color: #241910; }
+  .card.sky     { background: #7CA8B8; color: #241910; }
+  .card.terra   { background: #D96B3D; color: #FAF4E8; }
+  .card.crimson { background: #A33A2C; color: #FAF4E8; }
 
-/* MAIN CONTENT */
-.content{max-width:900px;margin:0 auto;padding:2.5rem 1.5rem;}
-.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem;}
-.section-title{font-size:17px;font-weight:700;color:var(--text);}
-.section-title span{color:var(--blue);}
-.see-all{font-size:12px;color:var(--blue);font-weight:600;cursor:pointer;background:none;border:none;}
+  .section-title { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 10px; margin-top: 4px; letter-spacing: -0.3px; }
 
-/* BERITA */
-.berita-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:2.5rem;}
-@media(max-width:540px){.berita-grid,.menu-grid,.galeri-grid{grid-template-columns:1fr;}.stats-bar{grid-template-columns:repeat(2,1fr);}}
-.berita-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all 0.2s;}
-.berita-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
-.berita-card.featured{grid-column:span 2;}
-@media(max-width:540px){.berita-card.featured{grid-column:span 1;}}
-.berita-img{height:140px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:40px;}
-.berita-card.featured .berita-img{height:180px;}
-.berita-body{padding:1rem;}
-.berita-tag{font-size:10px;font-weight:700;color:var(--blue);background:var(--blue-light);padding:3px 8px;border-radius:5px;display:inline-block;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;}
-.berita-title{font-size:14px;font-weight:600;line-height:1.45;margin-bottom:6px;}
-.berita-card.featured .berita-title{font-size:16px;}
-.berita-date{font-size:11px;color:var(--text-3);}
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .quick-tile { padding: 12px; min-height: 88px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; }
+  .quick-tile:active { transform: translate(2px,2px); box-shadow: none !important; }
 
-/* MENU UTAMA */
-.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:2.5rem;}
-.menu-card{
-  background:#fff;border:1.5px solid var(--border);
-  border-radius:var(--radius);padding:1.5rem;
-  cursor:pointer;transition:all 0.2s;text-align:left;
-}
-.menu-card:hover{border-color:var(--blue);box-shadow:var(--shadow-lg);transform:translateY(-2px);}
-.menu-card.highlight{border-color:var(--blue);background:linear-gradient(135deg,#EBF2FF 0%,#fff 100%);}
-.menu-card-icon{font-size:28px;margin-bottom:12px;}
-.menu-card h3{font-size:14px;font-weight:700;margin-bottom:5px;}
-.menu-card p{font-size:12px;color:var(--text-2);line-height:1.5;}
-.menu-card-arrow{font-size:11px;color:var(--blue);font-weight:700;margin-top:10px;display:block;}
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; background: #FAF4E8; color: #241910; border: 1.5px solid #241910; font-weight: 700; font-size: 11px; white-space: nowrap; }
+  .pill.dark   { background: #241910; color: #FAF4E8; border-color: #241910; }
+  .pill.terra  { background: #D96B3D; color: #FAF4E8; border-color: #D96B3D; }
+  .pill.forest { background: #3D5C3A; color: #FAF4E8; border-color: #3D5C3A; }
+  .pill.sky    { background: #7CA8B8; color: #241910; border-color: #7CA8B8; }
+  .pill.mustard{ background: #E8B23A; color: #241910; border-color: #E8B23A; }
 
-/* PROFIL STRIP */
-.profil-strip{
-  background:#fff;border:1px solid var(--border);border-radius:var(--radius);
-  padding:1.5rem;margin-bottom:2.5rem;
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;
-}
-.profil-field{}
-.profil-lbl{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px;}
-.profil-val{font-size:13px;font-weight:600;color:var(--text);}
+  .news-img  { width: 80px; flex-shrink: 0; border-right: 2px solid #241910; height: 100px; }
+  .news-body { flex: 1; padding: 9px 11px; display: flex; flex-direction: column; gap: 4px; }
+  .news-title{ font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 13px; line-height: 1.3; }
+  .news-date { font-size: 11px; color: #5C4A38; font-weight: 500; }
 
-/* VM */
-.vm-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:2rem;}
-@media(max-width:540px){.vm-grid,.menu-grid{grid-template-columns:1fr;}}
-.vm-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;}
-.vm-card h3{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.vm-card p,.vm-card li{font-size:13px;color:var(--text-2);line-height:1.75;}
-.vm-card ul{padding-left:1.1rem;}
+  .back-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: 2px solid rgba(255,255,255,0.5); border-radius: 999px; background: rgba(0,0,0,0.15); color: #FAF4E8; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 11px; margin-bottom: 8px; }
+  .back-btn:hover { background: rgba(0,0,0,0.25); }
 
-/* ===== LATIHAN ===== */
-.page-banner{background:var(--blue);padding:2rem 1.5rem;color:#fff;}
-.page-banner .back{background:none;border:none;color:rgba(255,255,255,0.75);font-size:13px;cursor:pointer;margin-bottom:10px;display:block;font-family:'Plus Jakarta Sans',sans-serif;}
-.page-banner h2{font-size:20px;font-weight:800;}
-.page-banner p{font-size:13px;opacity:0.8;margin-top:4px;}
+  .tag-badge { padding: 3px 8px; border-radius: 999px; background: rgba(0,0,0,0.18); color: #FAF4E8; border: 1.5px solid rgba(255,255,255,0.35); font-weight: 700; font-size: 10px; }
 
-.latihan-content{max-width:800px;margin:0 auto;padding:2rem 1.5rem;}
-.kategori-tabs{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap;}
-.tab-btn{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid var(--border);background:#fff;cursor:pointer;color:var(--text-2);transition:all 0.15s;font-family:'Plus Jakarta Sans',sans-serif;}
-.tab-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
-.mapel-list{}
-.mapel-item{
-  background:#fff;border:1px solid var(--border);border-radius:var(--radius);
-  padding:1.1rem 1.25rem;margin-bottom:10px;
-  display:flex;align-items:center;justify-content:space-between;
-  cursor:pointer;transition:all 0.15s;
-}
-.mapel-item:hover{border-color:var(--blue);box-shadow:0 2px 12px rgba(26,86,219,0.1);}
-.mapel-item.disabled{cursor:default;opacity:0.6;}
-.mapel-item.disabled:hover{border-color:var(--border);box-shadow:none;}
-.mapel-left{display:flex;align-items:center;gap:14px;}
-.mapel-emoji{font-size:24px;}
-.mapel-name{font-size:14px;font-weight:700;}
-.mapel-desc{font-size:12px;color:var(--text-2);margin-top:2px;}
-.chip{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600;}
-.chip-ready{background:#D1FAE5;color:#065F46;}
-.chip-soon{background:#F1F5F9;color:#94A3B8;}
-.chip-osn{background:#FEF3C7;color:#92400E;}
-
-/* QUIZ */
-.quiz-wrap{max-width:600px;margin:0 auto;padding:1.5rem;}
-.quiz-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;}
-.quiz-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-.quiz-num{font-size:12px;font-weight:600;color:var(--text-3);}
-.quiz-score{font-size:12px;font-weight:700;color:var(--blue);}
-.prog-bar{height:5px;background:#E2E8F0;border-radius:4px;margin-bottom:1.5rem;}
-.prog-fill{height:5px;background:var(--blue);border-radius:4px;transition:width 0.4s;}
-.quiz-q{font-size:15px;font-weight:700;line-height:1.6;margin-bottom:1.25rem;}
-.opts{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;}
-.opt{padding:11px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;text-align:left;background:#fff;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;transition:all 0.15s;}
-.opt:hover:not(:disabled){background:var(--blue-light);border-color:var(--blue);}
-.opt.correct{background:#D1FAE5;border-color:#10B981;color:#065F46;}
-.opt.wrong{background:#FEE2E2;border-color:#EF4444;color:#991B1B;}
-.opt:disabled{cursor:default;}
-.fb{font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:1rem;line-height:1.6;display:none;}
-.fb.show{display:block;}
-.fb.correct{background:#D1FAE5;color:#065F46;}
-.fb.wrong{background:#FEE2E2;color:#991B1B;}
-.quiz-footer{display:flex;justify-content:flex-end;}
-.btn-next{background:var(--blue);color:#fff;border:none;padding:10px 22px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:none;font-family:'Plus Jakarta Sans',sans-serif;}
-.result-box{display:none;text-align:center;padding:2rem;}
-.result-circle{width:100px;height:100px;border-radius:50%;background:var(--blue-light);border:4px solid var(--blue);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1rem;}
-.result-big{font-size:26px;font-weight:800;color:var(--blue);}
-.result-of{font-size:11px;color:var(--text-3);font-weight:600;}
-.result-msg{font-size:14px;color:var(--text-2);margin-bottom:1.5rem;line-height:1.6;}
-.result-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-.btn-ulang{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
-.btn-back-mapel{background:#fff;color:var(--text-2);border:1.5px solid var(--border);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
-
-/* ===== MATERI ===== */
-.materi-content{max-width:800px;margin:0 auto;padding:2rem 1.5rem;}
-.materi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
-.materi-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;cursor:pointer;transition:all 0.2s;}
-.materi-card:hover{border-color:var(--blue);box-shadow:var(--shadow-lg);}
-.materi-card.soon{opacity:0.6;cursor:default;}
-.materi-card.soon:hover{border-color:var(--border);box-shadow:none;}
-.materi-icon{font-size:28px;margin-bottom:10px;}
-.materi-name{font-size:14px;font-weight:700;margin-bottom:4px;}
-.materi-desc{font-size:12px;color:var(--text-2);line-height:1.5;}
-.materi-chip{font-size:11px;font-weight:600;margin-top:10px;display:inline-block;padding:3px 8px;border-radius:5px;}
-
-/* MATERI DETAIL */
-.materi-detail{display:none;max-width:700px;margin:0 auto;padding:1.5rem;}
-.materi-detail-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;}
-.materi-detail h3{font-size:16px;font-weight:800;margin-bottom:1rem;color:var(--blue);}
-.materi-section{margin-bottom:1.25rem;}
-.materi-section h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid var(--blue-light);}
-.materi-section p,.materi-section li{font-size:13px;color:var(--text-2);line-height:1.75;}
-.materi-section ul{padding-left:1.1rem;}
-
-/* ===== GALERI ===== */
-.galeri-content{max-width:900px;margin:0 auto;padding:2rem 1.5rem;}
-.galeri-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-@media(max-width:540px){.galeri-grid{grid-template-columns:repeat(2,1fr);}}
-.galeri-item{border-radius:var(--radius);overflow:hidden;aspect-ratio:4/3;background:var(--blue-light);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);}
-.galeri-item:hover{transform:scale(1.02);box-shadow:var(--shadow-lg);}
-.galeri-item.tall{grid-row:span 2;aspect-ratio:unset;}
-.galeri-emoji{font-size:36px;margin-bottom:8px;}
-.galeri-label{font-size:12px;font-weight:600;color:var(--blue);text-align:center;padding:0 8px;}
-
-/* FOOTER */
-.footer{background:#0F172A;color:#64748B;text-align:center;padding:2rem;font-size:12px;margin-top:4rem;}
-.footer strong{color:#fff;}
+  .mapel-card { cursor: pointer; margin-bottom: 12px; }
+  .mapel-card:active { transform: translate(2px,2px); box-shadow: none !important; }
+  .play-btn { width: 100%; padding: 11px; background: #E8B23A; color: #241910; border: 2px solid #241910; border-radius: 12px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 3px 3px 0 #241910; margin-top: 12px; }
+  .play-btn:active { transform: translate(2px,2px); box-shadow: none; }
 </style>
 </head>
 <body>
 
-<nav class="navbar">
-  <div class="nav-logo">
-    <div class="nav-logo-icon">SD</div>
-    <div class="nav-logo-text">SDN 2 <span>Pesantren</span></div>
+<div class="phone">
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-notch"></div>
+    <span>🔋</span>
   </div>
-  <div class="nav-links">
-    <button class="nav-link active" onclick="showPage('beranda')" id="nav-beranda">Beranda</button>
-    <button class="nav-link" onclick="showPage('latihan')" id="nav-latihan">Latihan Soal</button>
-    <button class="nav-link" onclick="showPage('materi')" id="nav-materi">Materi</button>
-    <button class="nav-link" onclick="showPage('galeri')" id="nav-galeri">Galeri</button>
-  </div>
-</nav>
-
-<!-- ======= BERANDA ======= -->
-<div id="page-beranda" class="page active">
-  <div class="hero">
-    <div class="hero-inner">
-      <div class="hero-tag">🏫 Sekolah Dasar Negeri</div>
-      <h1>SD Negeri 2<br><em>Pesantren</em></h1>
-      <p>Portal resmi pembelajaran dan informasi sekolah untuk siswa, guru, dan orang tua.</p>
-      <div class="hero-btns">
-        <button class="btn-white" onclick="window.location.href='latihan-tka.html'">📝 Latihan TKA</button>
-        <button class="btn-ghost" onclick="showPage('materi')">📚 Lihat Materi</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="stats-bar">
-    <div class="stat-item"><div class="stat-num">6</div><div class="stat-lbl">Tingkat Kelas</div></div>
-    <div class="stat-item"><div class="stat-num">A</div><div class="stat-lbl">Akreditasi</div></div>
-    <div class="stat-item"><div class="stat-num">12+</div><div class="stat-lbl">Guru & Staff</div></div>
-    <div class="stat-item"><div class="stat-num">4</div><div class="stat-lbl">Menu Digital</div></div>
-  </div>
-
-  <div class="content">
-
-    <!-- BERITA -->
-    <div class="section-head">
-      <div class="section-title">Berita & <span>Pengumuman</span></div>
-    </div>
-    <div class="berita-grid">
-      <div class="berita-card featured">
-        <div class="berita-img">📢</div>
-        <div class="berita-body">
-          <span class="berita-tag">Pengumuman</span>
-          <div class="berita-title">Persiapan Tes Kemampuan Akademik (TKA) Kelas 6 Tahun 2026</div>
-          <div class="berita-date">14 April 2026</div>
-        </div>
-      </div>
-      <div class="berita-card">
-        <div class="berita-img" style="height:100px">🏆</div>
-        <div class="berita-body">
-          <span class="berita-tag">Prestasi</span>
-          <div class="berita-title">Siswa SDN 2 Pesantren Raih Juara OSN Tingkat Kecamatan</div>
-          <div class="berita-date">10 April 2026</div>
-        </div>
-      </div>
-      <div class="berita-card">
-        <div class="berita-img" style="height:100px">📅</div>
-        <div class="berita-body">
-          <span class="berita-tag">Agenda</span>
-          <div class="berita-title">Jadwal Ujian Akhir Semester Genap 2025/2026</div>
-          <div class="berita-date">8 April 2026</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PROFIL -->
-    <div class="section-head"><div class="section-title">Profil <span>Sekolah</span></div></div>
-    <div class="profil-strip">
-      <div class="profil-field"><div class="profil-lbl">Nama Sekolah</div><div class="profil-val">SD Negeri 2 Pesantren</div></div>
-      <div class="profil-field"><div class="profil-lbl">Status</div><div class="profil-val">Negeri</div></div>
-      <div class="profil-field"><div class="profil-lbl">Kurikulum</div><div class="profil-val">Kurikulum Merdeka</div></div>
-      <div class="profil-field"><div class="profil-lbl">Akreditasi</div><div class="profil-val">A — Unggul</div></div>
-      <div class="profil-field"><div class="profil-lbl">Jenjang</div><div class="profil-val">Sekolah Dasar (SD)</div></div>
-    </div>
-
-    <div class="vm-grid">
-      <div class="vm-card">
-        <h3>🎯 Visi</h3>
-        <p>Terwujudnya peserta didik yang beriman, berprestasi, berkarakter, dan berwawasan global.</p>
-      </div>
-      <div class="vm-card">
-        <h3>🚀 Misi</h3>
-        <ul>
-          <li>Menyelenggarakan pendidikan berkualitas</li>
-          <li>Menumbuhkan semangat berprestasi</li>
-          <li>Menciptakan lingkungan yang kondusif</li>
-          <li>Membekali keterampilan abad 21</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- MENU -->
-    <div class="section-head"><div class="section-title">Menu <span>Pembelajaran</span></div></div>
-    <div class="menu-grid">
-      <div class="menu-card highlight" onclick="window.location.href='latihan-tka.html'">
-        <div class="menu-card-icon">📝</div>
-        <h3>Latihan Soal TKA</h3>
-        <p>Soal pilihan ganda persiapan Tes Kemampuan Akademik kelas 6</p>
-        <span class="menu-card-arrow">Mulai latihan →</span>
-      </div>
-      <div class="menu-card" onclick="window.location.href='latihan-osn.html'">
-        <div class="menu-card-icon">🏆</div>
-        <h3>Latihan Soal OSN</h3>
-        <p>Persiapan Olimpiade Sains Nasional tingkat SD</p>
-        <span class="menu-card-arrow">Lihat soal →</span>
-      </div>
-      <div class="menu-card" onclick="showPage('materi')">
-        <div class="menu-card-icon">📚</div>
-        <h3>Materi Belajar</h3>
-        <p>Ringkasan materi pelajaran untuk TKA dan OSN</p>
-        <span class="menu-card-arrow">Buka materi →</span>
-      </div>
-    </div>
-  </div>
-  <div class="footer"><strong>SD Negeri 2 Pesantren</strong> — Portal Pembelajaran Digital &copy; 2026</div>
-</div>
-
-<!-- ======= LATIHAN SOAL ======= -->
-<div id="page-latihan" class="page">
-  <div class="page-banner">
-    <button class="back" onclick="showPage('beranda')">← Kembali ke Beranda</button>
-    <h2>📝 Latihan Soal</h2>
-    <p>TKA & OSN — Kelas 6 SD</p>
-  </div>
-
-  <div class="latihan-content" id="latihan-list">
-    <div class="kategori-tabs">
-      <button class="tab-btn active" onclick="setTab('tka')" id="tab-tka">Semua</button>
-      <button class="tab-btn" onclick="setTab('tka')" id="tab-tka2">TKA</button>
-      <button class="tab-btn" onclick="setTab('osn')" id="tab-osn">OSN</button>
-    </div>
-
-    <div id="list-tka">
-      <p style="font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Tes Kemampuan Akademik</p>
-      <div class="mapel-item" onclick="startQuiz('ipa_tka')">
-        <div class="mapel-left"><div class="mapel-emoji">🔬</div><div><div class="mapel-name">IPA</div><div class="mapel-desc">Ilmu Pengetahuan Alam — 5 soal</div></div></div>
-        <span class="chip chip-ready">Tersedia</span>
-      </div>
-      <div class="mapel-item disabled">
-        <div class="mapel-left"><div class="mapel-emoji">📐</div><div><div class="mapel-name">Matematika</div><div class="mapel-desc">Operasi hitung & geometri</div></div></div>
-        <span class="chip chip-soon">Segera hadir</span>
-      </div>
-      <div class="mapel-item disabled">
-        <div class="mapel-left"><div class="mapel-emoji">📖</div><div><div class="mapel-name">Bahasa Indonesia</div><div class="mapel-desc">Membaca & tata bahasa</div></div></div>
-        <span class="chip chip-soon">Segera hadir</span>
-      </div>
-      <div class="mapel-item disabled">
-        <div class="mapel-left"><div class="mapel-emoji">🌏</div><div><div class="mapel-name">IPS</div><div class="mapel-desc">Sejarah & geografi</div></div></div>
-        <span class="chip chip-soon">Segera hadir</span>
-      </div>
-    </div>
-
-    <div id="list-osn" style="display:none;margin-top:1.5rem">
-      <p style="font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Olimpiade Sains Nasional</p>
-      <div class="mapel-item" onclick="startQuiz('ipa_osn')">
-        <div class="mapel-left"><div class="mapel-emoji">🔬</div><div><div class="mapel-name">IPA — OSN</div><div class="mapel-desc">Soal olimpiade tingkat SD — 5 soal</div></div></div>
-        <span class="chip chip-osn">OSN</span>
-      </div>
-      <div class="mapel-item disabled">
-        <div class="mapel-left"><div class="mapel-emoji">📐</div><div><div class="mapel-name">Matematika — OSN</div><div class="mapel-desc">Soal olimpiade Matematika SD</div></div></div>
-        <span class="chip chip-soon">Segera hadir</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- QUIZ -->
-  <div class="quiz-wrap" id="quiz-area" style="display:none">
-    <button style="font-size:13px;color:var(--text-2);background:none;border:none;cursor:pointer;margin-bottom:1rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;" onclick="backToList()">← Pilih soal lain</button>
-    <div id="quiz-label" style="font-size:15px;font-weight:800;margin-bottom:1rem;"></div>
-    <div class="quiz-card" id="quiz-main">
-      <div class="quiz-top">
-        <span class="quiz-num" id="q-num">Soal 1 dari 5</span>
-        <span class="quiz-score" id="q-score">Nilai: 0</span>
-      </div>
-      <div class="prog-bar"><div class="prog-fill" id="prog" style="width:20%"></div></div>
-      <div class="quiz-q" id="q-text"></div>
-      <div class="opts" id="q-opts"></div>
-      <div class="fb" id="q-fb"></div>
-      <div class="quiz-footer">
-        <button class="btn-next" id="btn-next" onclick="nextQ()">Soal berikutnya →</button>
-      </div>
-    </div>
-    <div class="result-box" id="result-box">
-      <div class="result-circle">
-        <div class="result-big" id="r-score"></div>
-        <div class="result-of" id="r-of"></div>
-      </div>
-      <div class="result-msg" id="r-msg"></div>
-      <div class="result-btns">
-        <button class="btn-ulang" onclick="restartQ()">Ulangi</button>
-        <button class="btn-back-mapel" onclick="backToList()">Pilih soal lain</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ======= MATERI ======= -->
-<div id="page-materi" class="page">
-  <div class="page-banner">
-    <button class="back" onclick="showPage('beranda')">← Kembali ke Beranda</button>
-    <h2>📚 Materi Belajar</h2>
-    <p>Ringkasan materi TKA & OSN Kelas 6 SD</p>
-  </div>
-
-  <div class="materi-content" id="materi-list">
-    <p style="font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.5px;">Pilih Mata Pelajaran</p>
-    <div class="materi-grid">
-      <div class="materi-card" onclick="showMateri('ipa')">
-        <div class="materi-icon">🔬</div>
-        <div class="materi-name">IPA</div>
-        <div class="materi-desc">Tata surya, makhluk hidup, energi dan perubahannya</div>
-        <span class="materi-chip" style="background:#D1FAE5;color:#065F46;">Tersedia</span>
-      </div>
-      <div class="materi-card soon">
-        <div class="materi-icon">📐</div>
-        <div class="materi-name">Matematika</div>
-        <div class="materi-desc">Pecahan, geometri, dan statistika dasar</div>
-        <span class="materi-chip" style="background:#F1F5F9;color:#94A3B8;">Segera hadir</span>
-      </div>
-      <div class="materi-card soon">
-        <div class="materi-icon">📖</div>
-        <div class="materi-name">Bahasa Indonesia</div>
-        <div class="materi-desc">Teks bacaan, tata bahasa, dan ejaan</div>
-        <span class="materi-chip" style="background:#F1F5F9;color:#94A3B8;">Segera hadir</span>
-      </div>
-      <div class="materi-card soon">
-        <div class="materi-icon">🌏</div>
-        <div class="materi-name">IPS</div>
-        <div class="materi-desc">Sejarah Indonesia, geografi, dan kebudayaan</div>
-        <span class="materi-chip" style="background:#F1F5F9;color:#94A3B8;">Segera hadir</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="materi-detail" id="materi-detail">
-    <button style="font-size:13px;color:var(--text-2);background:none;border:none;cursor:pointer;margin-bottom:1rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;" onclick="backToMateriList()">← Pilih materi lain</button>
-    <div class="materi-detail-card" id="materi-ipa">
-      <h3>🔬 Materi IPA — Tata Surya</h3>
-      <div class="materi-section">
-        <h4>Susunan Tata Surya</h4>
-        <p>Tata surya terdiri dari Matahari sebagai pusatnya, dikelilingi oleh 8 planet: <strong>Merkurius, Venus, Bumi, Mars, Jupiter, Saturnus, Uranus, Neptunus</strong>.</p>
-      </div>
-      <div class="materi-section">
-        <h4>Ciri-Ciri Planet</h4>
-        <ul>
-          <li><strong>Merkurius</strong> — planet terkecil, terdekat dari Matahari</li>
-          <li><strong>Venus</strong> — planet terpanas, berotasi berlawanan arah</li>
-          <li><strong>Bumi</strong> — satu-satunya planet yang ada kehidupan</li>
-          <li><strong>Mars</strong> — disebut planet merah</li>
-          <li><strong>Jupiter</strong> — planet terbesar di tata surya</li>
-          <li><strong>Saturnus</strong> — memiliki cincin yang indah</li>
-          <li><strong>Uranus</strong> — berotasi miring</li>
-          <li><strong>Neptunus</strong> — planet terjauh dari Matahari</li>
-        </ul>
-      </div>
-      <div class="materi-section">
-        <h4>Gerak Planet</h4>
-        <ul>
-          <li><strong>Rotasi</strong> — gerakan planet berputar pada porosnya sendiri</li>
-          <li><strong>Revolusi</strong> — gerakan planet mengelilingi Matahari</li>
-          <li>Bumi berotasi dalam 24 jam (1 hari) dan berevolusi dalam 365 hari (1 tahun)</li>
-        </ul>
-      </div>
-      <div class="materi-section">
-        <h4>Benda Langit Lainnya</h4>
-        <ul>
-          <li><strong>Satelit</strong> — benda langit yang mengelilingi planet (contoh: Bulan)</li>
-          <li><strong>Asteroid</strong> — benda kecil berbatu di antara Mars dan Jupiter</li>
-          <li><strong>Komet</strong> — benda berbentuk ekor yang mengorbit Matahari</li>
-          <li><strong>Meteor</strong> — batu luar angkasa yang memasuki atmosfer Bumi</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ======= GALERI ======= -->
-<div id="page-galeri" class="page">
-  <div class="page-banner">
-    <button class="back" onclick="showPage('beranda')">← Kembali ke Beranda</button>
-    <h2>📸 Galeri Sekolah</h2>
-    <p>Dokumentasi kegiatan SD Negeri 2 Pesantren</p>
-  </div>
-  <div class="galeri-content">
-    <div class="galeri-grid">
-      <div class="galeri-item tall" style="background:#EBF2FF;">
-        <div class="galeri-emoji">🏫</div>
-        <div class="galeri-label">Gedung Sekolah</div>
-      </div>
-      <div class="galeri-item" style="background:#FEF3C7;">
-        <div class="galeri-emoji">🏆</div>
-        <div class="galeri-label">Prestasi Siswa</div>
-      </div>
-      <div class="galeri-item" style="background:#D1FAE5;">
-        <div class="galeri-emoji">🎨</div>
-        <div class="galeri-label">Kegiatan Seni</div>
-      </div>
-      <div class="galeri-item" style="background:#FCE7F3;">
-        <div class="galeri-emoji">⚽</div>
-        <div class="galeri-label">Olahraga</div>
-      </div>
-      <div class="galeri-item" style="background:#FEE2E2;">
-        <div class="galeri-emoji">🎭</div>
-        <div class="galeri-label">Pentas Seni</div>
-      </div>
-      <div class="galeri-item" style="background:#EDE9FE;">
-        <div class="galeri-emoji">🌱</div>
-        <div class="galeri-label">Penghijauan</div>
-      </div>
-      <div class="galeri-item" style="background:#ECFDF5;">
-        <div class="galeri-emoji">📚</div>
-        <div class="galeri-label">Perpustakaan</div>
-      </div>
-      <div class="galeri-item" style="background:#FFF7ED;">
-        <div class="galeri-emoji">🎓</div>
-        <div class="galeri-label">Wisuda Kelas 6</div>
-      </div>
-    </div>
-    <p style="font-size:12px;color:var(--text-3);text-align:center;margin-top:1.5rem;">Foto asli akan ditambahkan oleh admin sekolah</p>
+  <div class="screen" id="screen"></div>
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="home">🏠 Beranda</button>
+    <button class="tab-btn" data-tab="news">📰 Berita</button>
+    <button class="tab-btn" data-tab="belajar">📚 Belajar</button>
+    <button class="tab-btn" data-tab="game">🎮 Game</button>
   </div>
 </div>
 
 <script>
-// DATA SOAL
-const soalData = {
-  ipa_tka: {
-    label: '🔬 IPA — TKA Kelas 6',
-    soal: [
-      {q:"Planet terbesar dalam tata surya adalah...",opts:["Bumi","Saturnus","Jupiter","Uranus"],ans:2,exp:"Jupiter adalah planet terbesar, volumenya lebih dari 1.300 kali Bumi."},
-      {q:"Berapa jumlah planet dalam tata surya kita?",opts:["7","8","9","10"],ans:1,exp:"Ada 8 planet: Merkurius, Venus, Bumi, Mars, Jupiter, Saturnus, Uranus, Neptunus."},
-      {q:"Planet yang paling dekat dengan Matahari adalah...",opts:["Venus","Mars","Bumi","Merkurius"],ans:3,exp:"Merkurius adalah planet terdekat dari Matahari."},
-      {q:"Benda langit yang mengelilingi planet disebut...",opts:["Bintang","Satelit","Komet","Meteor"],ans:1,exp:"Satelit mengorbit planet, contohnya Bulan mengorbit Bumi."},
-      {q:"Proses Bumi mengelilingi Matahari disebut...",opts:["Rotasi","Revolusi","Gravitasi","Orbit"],ans:1,exp:"Revolusi adalah gerakan Bumi mengelilingi Matahari, membutuhkan 365 hari."}
-    ]
-  },
-  ipa_osn: {
-    label: '🔬 IPA — OSN Tingkat SD',
-    soal: [
-      {q:"Proses fotosintesis menghasilkan...",opts:["CO2 dan air","Oksigen dan glukosa","Nitrogen dan protein","Energi dan uap air"],ans:1,exp:"Fotosintesis mengubah CO2 + air + cahaya matahari menjadi glukosa dan oksigen."},
-      {q:"Magnet memiliki dua kutub yaitu...",opts:["Positif dan negatif","Utara dan selatan","Kiri dan kanan","Atas dan bawah"],ans:1,exp:"Magnet memiliki kutub Utara dan Selatan. Kutub sejenis tolak-menolak, kutub berbeda tarik-menarik."},
-      {q:"Hewan yang mengalami metamorfosis sempurna adalah...",opts:["Belalang","Kecoa","Kupu-kupu","Capung"],ans:2,exp:"Kupu-kupu mengalami metamorfosis sempurna: telur → ulat → kepompong → kupu-kupu."},
-      {q:"Sumber energi terbesar di Bumi berasal dari...",opts:["Angin","Matahari","Air","Panas bumi"],ans:1,exp:"Matahari adalah sumber energi utama di Bumi, menghasilkan cahaya dan panas."},
-      {q:"Gaya yang bekerja pada benda yang jatuh bebas disebut...",opts:["Gaya gesek","Gaya magnet","Gaya gravitasi","Gaya pegas"],ans:2,exp:"Gravitasi adalah gaya tarik Bumi yang menyebabkan benda jatuh ke bawah."}
-    ]
+const BASE = "https://sdnegeri2pesantren.vercel.app";
+let state = { tab: "home", sub: null };
+
+function go(tab, sub) {
+  state = { tab, sub: sub || null };
+  document.querySelectorAll(".tab-btn").forEach(b =>
+    b.classList.toggle("active", b.dataset.tab === tab));
+  render();
+}
+
+function openLink(url) {
+  const screen = document.getElementById("screen");
+  screen.innerHTML = `
+    <div style="display:flex;flex-direction:column;height:100%;">
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#241910;color:#FAF4E8;flex-shrink:0;border-bottom:2px solid #241910;">
+        <button onclick="go(state.tab,state.sub)" style="padding:5px 12px;border:2px solid #FAF4E8;border-radius:999px;background:transparent;color:#FAF4E8;font-family:inherit;font-weight:700;font-size:11px;cursor:pointer;white-space:nowrap;">← Kembali</button>
+        <div style="font-size:10px;opacity:0.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${url.replace(BASE+"/","")}</div>
+      </div>
+      <iframe src="${url}" style="flex:1;border:none;width:100%;" allowfullscreen></iframe>
+    </div>`;
+}
+
+function render() {
+  const screen = document.getElementById("screen");
+  if (state.tab === "home")    screen.innerHTML = renderHome();
+  else if (state.tab === "news")    screen.innerHTML = renderNews();
+  else if (state.tab === "belajar") {
+    if (!state.sub)         screen.innerHTML = renderBelajar();
+    else if (state.sub === "osn") screen.innerHTML = renderOSN();
+    else if (state.sub === "tka") screen.innerHTML = renderTKA();
   }
-};
-
-let curQ=0, curScore=0, answered=false, curSet=null;
-
-function showPage(page){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.nav-link').forEach(a=>a.classList.remove('active'));
-  document.getElementById('nav-'+page).classList.add('active');
-  window.scrollTo(0,0);
+  else if (state.tab === "game") screen.innerHTML = renderGame();
 }
 
-function setTab(t){
-  document.getElementById('list-tka').style.display = t==='tka'?'block':'none';
-  document.getElementById('list-osn').style.display = t==='osn'?'block':'none';
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  if(t==='osn') document.getElementById('tab-osn').classList.add('active');
-  else document.getElementById('tab-tka').classList.add('active');
-}
+/* ── HOME ─────────────────────────────────────────────────────────────── */
+function renderHome() { return `
+  <div class="brand-bar">
+    <div class="brand-header">
+      <div class="brand-logo">S</div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;opacity:0.85;">SDN 2 Pesantren</div>
+        <div style="font-size:9px;font-weight:500;opacity:0.7;">Wanayasa · Banjarnegara</div>
+      </div>
+    </div>
+    <div class="brand-title-big">Halo, <span style="background:#E8B23A;color:#241910;padding:0 8px;border-radius:8px;border:2px solid #241910;display:inline-block;transform:rotate(-2deg);">Sahabat!</span></div>
+    <div style="margin-top:4px;font-size:13px;font-weight:500;opacity:0.9;">Selamat datang di rumah belajar kita 🏫</div>
+  </div>
+  <div class="content">
+    <div class="card forest">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:#E8B23A;text-transform:uppercase;margin-bottom:6px;">✨ Motivasi Hari Ini</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;line-height:1.3;color:#FAF4E8;">"Belajar bukan tentang pintar — tapi tentang berani mencoba."</div>
+    </div>
 
-function startQuiz(key){
-  curSet=soalData[key];
-  document.getElementById('latihan-list').style.display='none';
-  document.getElementById('quiz-area').style.display='block';
-  document.getElementById('quiz-label').textContent=curSet.label;
-  restartQ();
-}
+    <div class="section-title">Akses Cepat</div>
+    <div class="grid-2">
+      <div class="card mustard quick-tile" onclick="go('news')">
+        <div style="font-size:22px;">📰</div>
+        <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;">Berita</div><div style="font-size:11px;font-weight:600;opacity:0.7;">Info sekolah</div></div>
+      </div>
+      <div class="card sky quick-tile" onclick="go('belajar')">
+        <div style="font-size:22px;">📚</div>
+        <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;">Belajar</div><div style="font-size:11px;font-weight:600;opacity:0.7;">OSN & TKA</div></div>
+      </div>
+      <div class="card terra quick-tile" onclick="go('game')">
+        <div style="font-size:22px;">🎮</div>
+        <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;">Game</div><div style="font-size:11px;font-weight:600;opacity:0.75;">2 game seru</div></div>
+      </div>
+      <div class="card dark quick-tile" style="opacity:0.6;cursor:default;">
+        <div style="font-size:22px;">🏆</div>
+        <div><div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;">Prestasi</div><div style="font-size:11px;font-weight:600;opacity:0.6;">Segera hadir</div></div>
+      </div>
+    </div>
 
-function loadQ(){
-  const q=curSet.soal[curQ];
-  document.getElementById('q-num').textContent='Soal '+(curQ+1)+' dari '+curSet.soal.length;
-  document.getElementById('q-score').textContent='Nilai: '+curScore;
-  document.getElementById('prog').style.width=(((curQ+1)/curSet.soal.length)*100)+'%';
-  document.getElementById('q-text').textContent=q.q;
-  const ol=document.getElementById('q-opts');
-  ol.innerHTML='';
-  q.opts.forEach((o,i)=>{
-    const b=document.createElement('button');
-    b.className='opt';b.textContent=o;
-    b.onclick=()=>answerQ(i);
-    ol.appendChild(b);
-  });
-  document.getElementById('q-fb').className='fb';
-  document.getElementById('q-fb').textContent='';
-  document.getElementById('btn-next').style.display='none';
-  answered=false;
-}
+    <div class="card mustard">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:5px;">📌 Penting · 27 Apr 2026</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">Upacara Hari Pendidikan Nasional</div>
+      <div style="font-size:12px;color:#5C4A38;line-height:1.5;">Seluruh siswa wajib hadir pukul 07.00 dengan seragam putih-merah lengkap.</div>
+    </div>
 
-function answerQ(i){
-  if(answered)return;
-  answered=true;
-  const q=curSet.soal[curQ];
-  const btns=document.querySelectorAll('.opt');
-  btns.forEach(b=>b.disabled=true);
-  const fb=document.getElementById('q-fb');
-  if(i===q.ans){
-    btns[i].classList.add('correct');curScore++;
-    fb.className='fb show correct';fb.textContent='✓ Benar! '+q.exp;
-  } else {
-    btns[i].classList.add('wrong');btns[q.ans].classList.add('correct');
-    fb.className='fb show wrong';fb.textContent='✗ Kurang tepat. '+q.exp;
-  }
-  document.getElementById('q-score').textContent='Nilai: '+curScore;
-  const nb=document.getElementById('btn-next');
-  nb.style.display='block';
-  nb.textContent=curQ<curSet.soal.length-1?'Soal berikutnya →':'Lihat hasil';
-}
+    <div class="section-title">Profil Sekolah</div>
+    <div class="card dark">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${[["6","Tingkat Kelas"],["A","Akreditasi"],["12+","Guru & Staff"],["Merdeka","Kurikulum"]].map(([v,l])=>`
+        <div style="text-align:center;padding:10px;background:rgba(255,255,255,0.07);border-radius:12px;border:1.5px solid rgba(255,255,255,0.1);">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#E8B23A;">${v}</div>
+          <div style="font-size:10px;font-weight:600;opacity:0.6;margin-top:2px;">${l}</div>
+        </div>`).join("")}
+      </div>
+    </div>
+  </div>
+`; }
 
-function nextQ(){
-  curQ++;
-  if(curQ>=curSet.soal.length){showResult();return;}
-  loadQ();
-}
+/* ── BERITA ────────────────────────────────────────────────────────────── */
+function renderNews() { return `
+  <div class="brand-bar" style="background:#3D5C3A;">
+    <div class="brand-header">
+      <div class="brand-logo" style="background:#3D5C3A;color:#FAF4E8;border-color:#FAF4E8;">N</div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;opacity:0.85;">Berita Sekolah</div>
+        <div style="font-size:9px;font-weight:500;opacity:0.7;">Yang lagi terjadi di sini</div>
+      </div>
+    </div>
+    <div class="brand-title-big">Berita Terbaru</div>
+  </div>
+  <div class="content">
+    <div class="card" style="display:flex;overflow:hidden;margin-bottom:14px;">
+      <div class="news-img" style="background:repeating-linear-gradient(45deg,#D96B3D,#D96B3D 10px,#B5532A 10px,#B5532A 20px);width:100px;height:130px;"></div>
+      <div class="news-body" style="justify-content:space-between;">
+        <div>
+          <span class="pill dark">★ Terbaru</span>
+          <div class="news-title" style="margin-top:6px;">Berita akan segera hadir</div>
+          <div style="font-size:11px;color:#5C4A38;margin-top:4px;line-height:1.4;">Konten berita sekolah sedang disiapkan oleh admin. Pantau terus!</div>
+        </div>
+        <div class="news-date">— · —</div>
+      </div>
+    </div>
 
-function showResult(){
-  document.getElementById('quiz-main').style.display='none';
-  document.getElementById('result-box').style.display='block';
-  const pct=Math.round((curScore/curSet.soal.length)*100);
-  document.getElementById('r-score').textContent=curScore+'/'+curSet.soal.length;
-  document.getElementById('r-of').textContent=pct+'%';
-  let msg='';
-  if(pct===100)msg='Sempurna! Kamu siap menghadapi ujian! 🎉';
-  else if(pct>=80)msg='Sangat bagus! Tinggal sedikit lagi sempurna. 👏';
-  else if(pct>=60)msg='Bagus! Terus berlatih untuk hasil lebih baik. 💪';
-  else msg='Jangan menyerah! Baca lagi materinya dan coba ulang. 📚';
-  document.getElementById('r-msg').textContent=msg;
-}
+    <div class="section-title">Berita Lainnya</div>
+    ${[
+      ["repeating-linear-gradient(45deg,#E8B23A,#E8B23A 10px,#D49E2A 10px,#D49E2A 20px)","terra","Kegiatan"],
+      ["repeating-linear-gradient(45deg,#3D5C3A,#3D5C3A 10px,#2A4128 10px,#2A4128 20px)","forest","Event"],
+      ["repeating-linear-gradient(45deg,#7CA8B8,#7CA8B8 10px,#5A8898 10px,#5A8898 20px)","sky","Agenda"],
+    ].map(([bg,pill,label])=>`
+    <div class="card" style="display:flex;overflow:hidden;">
+      <div class="news-img" style="background:${bg};"></div>
+      <div class="news-body">
+        <span class="pill ${pill}">${label}</span>
+        <div class="news-title">Konten segera hadir</div>
+        <div class="news-date">—</div>
+      </div>
+    </div>`).join("")}
+  </div>
+`; }
 
-function restartQ(){
-  curQ=0;curScore=0;answered=false;
-  document.getElementById('quiz-main').style.display='block';
-  document.getElementById('result-box').style.display='none';
-  loadQ();
-}
+/* ── BELAJAR HUB ───────────────────────────────────────────────────────── */
+function renderBelajar() { return `
+  <div class="brand-bar" style="background:#7CA8B8;">
+    <div class="brand-header">
+      <div class="brand-logo">B</div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;opacity:0.85;">Belajar</div>
+        <div style="font-size:9px;font-weight:500;opacity:0.7;">Latihan soal online</div>
+      </div>
+    </div>
+    <div class="brand-title-big">Belajar</div>
+  </div>
+  <div class="content">
+    <div class="section-title">🏅 Olimpiade Sains Nasional</div>
+    <div class="card terra mapel-card" onclick="go('belajar','osn')">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:34px;">🔬</div>
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;">Latihan OSN</div>
+          <div style="font-size:12px;opacity:0.9;margin-top:2px;">IPA · IPS · Matematika</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+        <span class="tag-badge">IPA</span>
+        <span class="tag-badge">IPS</span>
+        <span class="tag-badge">Matematika</span>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.15);border-radius:10px;font-size:12px;font-weight:700;text-align:center;">Pilih Mapel →</div>
+    </div>
 
-function backToList(){
-  document.getElementById('latihan-list').style.display='block';
-  document.getElementById('quiz-area').style.display='none';
-}
+    <div class="section-title">📝 Tes Kemampuan Akademik</div>
+    <div class="card forest mapel-card" onclick="go('belajar','tka')">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:34px;">📐</div>
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;">Latihan TKA</div>
+          <div style="font-size:12px;opacity:0.9;margin-top:2px;">Matematika · Bahasa Indonesia</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+        <span class="tag-badge">Matematika</span>
+        <span class="tag-badge">Bindo</span>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.15);border-radius:10px;font-size:12px;font-weight:700;text-align:center;">Pilih Mapel →</div>
+    </div>
+  </div>
+`; }
 
-function showMateri(id){
-  document.getElementById('materi-list').style.display='none';
-  document.getElementById('materi-detail').style.display='block';
-  window.scrollTo(0,0);
-}
+/* ── OSN LIST ──────────────────────────────────────────────────────────── */
+function renderOSN() {
+  const items = [
+    { emoji:"🔬", title:"OSN IPA", sub:"Ilmu Pengetahuan Alam", path:"osn-ipa.html",       bg:"#D96B3D" },
+    { emoji:"🌏", title:"OSN IPS", sub:"Ilmu Pengetahuan Sosial", path:"osn-ips.html",      bg:"#7CA8B8" },
+    { emoji:"📐", title:"OSN Matematika", sub:"Olimpiade Matematika SD", path:"osn-matematika.html", bg:"#3D5C3A" },
+  ];
+  return `
+  <div class="brand-bar" style="background:#D96B3D;">
+    <div class="brand-header">
+      <button class="back-btn" onclick="go('belajar')">← Kembali</button>
+    </div>
+    <div class="brand-title-big">Latihan OSN</div>
+  </div>
+  <div class="content">
+    <div style="font-size:12px;color:#5C4A38;margin-bottom:14px;">Pilih mata pelajaran OSN:</div>
+    ${items.map(it=>`
+    <div class="card mapel-card" onclick="openLink('${BASE}/${it.path}')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:50px;height:50px;border-radius:14px;background:${it.bg};border:2px solid #241910;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;">${it.emoji}</div>
+        <div style="flex:1;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;">${it.title}</div>
+          <div style="font-size:12px;color:#5C4A38;margin-top:2px;">${it.sub}</div>
+        </div>
+        <div style="font-size:20px;color:#5C4A38;">→</div>
+      </div>
+      <div style="margin-top:10px;padding:8px 12px;background:#FAF4E8;border-radius:10px;border:1.5px solid #241910;font-size:12px;font-weight:700;text-align:center;">Mulai Latihan →</div>
+    </div>`).join("")}
+  </div>
+`; }
 
-function backToMateriList(){
-  document.getElementById('materi-list').style.display='block';
-  document.getElementById('materi-detail').style.display='none';
-}
+/* ── TKA LIST ──────────────────────────────────────────────────────────── */
+function renderTKA() {
+  const items = [
+    { emoji:"📐", title:"TKA Matematika",       sub:"Operasi hitung, geometri & statistika", path:"latihan-tka.html",       bg:"#E8B23A" },
+    { emoji:"📖", title:"TKA Bahasa Indonesia",  sub:"Membaca, tata bahasa & ejaan",          path:"latihan-tka-bindo.html",  bg:"#7CA8B8" },
+  ];
+  return `
+  <div class="brand-bar" style="background:#3D5C3A;">
+    <div class="brand-header">
+      <button class="back-btn" onclick="go('belajar')">← Kembali</button>
+    </div>
+    <div class="brand-title-big">Latihan TKA</div>
+  </div>
+  <div class="content">
+    <div style="font-size:12px;color:#5C4A38;margin-bottom:14px;">Pilih mata pelajaran TKA:</div>
+    ${items.map(it=>`
+    <div class="card mapel-card" onclick="openLink('${BASE}/${it.path}')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:50px;height:50px;border-radius:14px;background:${it.bg};border:2px solid #241910;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;">${it.emoji}</div>
+        <div style="flex:1;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;">${it.title}</div>
+          <div style="font-size:12px;color:#5C4A38;margin-top:2px;">${it.sub}</div>
+        </div>
+        <div style="font-size:20px;color:#5C4A38;">→</div>
+      </div>
+      <div style="margin-top:10px;padding:8px 12px;background:#FAF4E8;border-radius:10px;border:1.5px solid #241910;font-size:12px;font-weight:700;text-align:center;">Mulai Latihan →</div>
+    </div>`).join("")}
+  </div>
+`; }
+
+/* ── GAME ──────────────────────────────────────────────────────────────── */
+function renderGame() { return `
+  <div class="brand-bar" style="background:#A33A2C;">
+    <div class="brand-header">
+      <div class="brand-logo" style="background:#A33A2C;color:#FAF4E8;border-color:rgba(255,255,255,0.4);">G</div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;opacity:0.85;">Game Edukasi</div>
+        <div style="font-size:9px;font-weight:500;opacity:0.7;">Buatan SDN 2 Pesantren</div>
+      </div>
+    </div>
+    <div class="brand-title-big">Game <span style="background:#E8B23A;color:#241910;padding:0 8px;border-radius:8px;border:2px solid #241910;display:inline-block;transform:rotate(2deg);">Edu</span></div>
+  </div>
+  <div class="content">
+    <div class="card dark" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div style="width:40px;height:40px;border-radius:12px;background:#E8B23A;color:#241910;border:2px solid #FAF4E8;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🏆</div>
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;">Game Edukasi SDN 2 Pesantren</div>
+        <div style="font-size:11px;opacity:0.7;margin-top:2px;">Belajar sambil bermain, makin seru!</div>
+      </div>
+    </div>
+
+    <div class="card terra">
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.5px;margin-bottom:4px;">🔤 Anagram</div>
+      <div style="font-size:12px;font-weight:600;opacity:0.92;margin-bottom:6px;">Susun huruf jadi kata yang bener</div>
+      <div style="font-size:11px;opacity:0.85;line-height:1.5;margin-bottom:10px;">Acak — atur ulang. Mainkan tiap hari biar makin jago kosakata!</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+        <span class="tag-badge">B. Indonesia</span>
+        <span class="tag-badge">6+ thn</span>
+        <span class="tag-badge">5 menit</span>
+      </div>
+      <button class="play-btn" onclick="openLink('${BASE}/Game-Anagram.html')">▶ Mainkan Sekarang</button>
+    </div>
+
+    <div class="card forest">
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.5px;margin-bottom:4px;">🛒 Toko Kuku</div>
+      <div style="font-size:12px;font-weight:600;opacity:0.92;margin-bottom:6px;">Jualan + ngitung kembalian</div>
+      <div style="font-size:11px;opacity:0.85;line-height:1.5;margin-bottom:10px;">Layanin pelanggan, hitung uang, jaga toko. Asah matematika dapur!</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+        <span class="tag-badge">Matematika</span>
+        <span class="tag-badge">7+ thn</span>
+        <span class="tag-badge">10 menit</span>
+      </div>
+      <button class="play-btn" onclick="openLink('${BASE}/toko-kuku.html')">▶ Mainkan Sekarang</button>
+    </div>
+  </div>
+`; }
+
+/* ── INIT ──────────────────────────────────────────────────────────────── */
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => go(btn.dataset.tab));
+});
+render();
 </script>
 </body>
 </html>
