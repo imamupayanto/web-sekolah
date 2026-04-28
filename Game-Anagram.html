@@ -403,7 +403,7 @@
   <div class="btn-row">
     <button class="action-btn btn-hint" onclick="showHint()">💡 Hint</button>
     <button class="action-btn btn-clear" onclick="clearAnswer()">🔄 Clear</button>
-    <button class="action-btn btn-skip" onclick="skipWord()">⏭ Skip</button>
+    <button class="action-btn btn-skip" id="btn-skip" onclick="skipWord()">⏭ Skip <span id="skip-left" style="background:rgba(0,0,0,0.15);border-radius:99px;padding:1px 7px;font-size:0.8rem;">5</span></button>
   </div>
   <div class="feedback" id="feedback"></div>
   <div class="hint-text" id="hint-text"></div>
@@ -478,7 +478,7 @@ const CAT_STYLES = {
 
 let current=null, answer=[], shuffled=[], timeLeft=120, interval=null;
 let score=0, wordCount=0, answered=[], hintUsed=false, gameRunning=false;
-let usedWords=[];
+let usedWords=[], skipLeft=5;
 
 // ---- WEB AUDIO ----
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -549,10 +549,13 @@ function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.fl
 function startGame(){
   document.getElementById("start-overlay").style.display="none";
   document.getElementById("end-overlay").style.display="none";
-  score=0; wordCount=0; answered=[]; usedWords=[]; timeLeft=120; gameRunning=true;
+  score=0; wordCount=0; answered=[]; usedWords=[]; timeLeft=120; gameRunning=true; skipLeft=5;
   document.getElementById("score").textContent=0;
   document.getElementById("word-count").textContent=0;
   document.getElementById("timer").textContent=120;
+  document.getElementById("skip-left").textContent=5;
+  let skipBtn=document.getElementById("btn-skip");
+  skipBtn.disabled=false; skipBtn.style.opacity="1"; skipBtn.style.cursor="pointer";
   document.getElementById("timer-box").className="hud-box hud-timer";
   document.getElementById("progress-fill").style.width="100%";
   document.getElementById("progress-fill").className="progress-fill";
@@ -736,7 +739,15 @@ function showHint(){
 }
 
 function skipWord(){
-  if(!gameRunning)return;
+  if(!gameRunning||skipLeft<=0)return;
+  skipLeft--;
+  document.getElementById("skip-left").textContent=skipLeft;
+  if(skipLeft===0){
+    let btn=document.getElementById("btn-skip");
+    btn.disabled=true;
+    btn.style.opacity="0.35";
+    btn.style.cursor="not-allowed";
+  }
   showFeedback("⏭ Jawaban: "+current.w.toUpperCase(),"");
   setTimeout(nextWord,900);
 }
