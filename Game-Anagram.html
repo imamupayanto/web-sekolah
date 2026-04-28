@@ -349,6 +349,25 @@
   .btn-main:active { transform: translateY(3px); box-shadow: 0 3px 0 #5A3A9A; }
 
   /* Stars animation on correct */
+  .bank-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+  .bank-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 7px 10px;
+    font-size: 0.85rem;
+  }
+  .bank-item .bank-emoji { font-size: 1.2rem; flex-shrink: 0; }
+  .bank-item .bank-en { font-family: 'Fredoka One', cursive; color: var(--purple); font-size: 0.95rem; }
+  .bank-item .bank-sep { color: #B8A8D0; font-weight: 700; }
+  .bank-item .bank-id { color: var(--text); font-weight: 700; font-size: 0.82rem; }
+
   .star-pop {
     position: fixed;
     font-size: 1.8rem;
@@ -430,6 +449,43 @@
       <span style="background:#FDE8F0;color:#8C1A3A;">🍎 Fruits</span>
     </div>
     <button class="btn-main" onclick="startGame()">Mulai Main! 🚀</button>
+    <button class="btn-main" onclick="showBank()" style="margin-top:10px;background:#fff;color:var(--purple);border:2.5px solid var(--purple);box-shadow:0 6px 0 #C8B8E8;">📖 Bank Kosakata</button>
+  </div>
+</div>
+
+<!-- BANK KOSAKATA SCREEN -->
+<div class="overlay" id="bank-overlay" style="display:none;">
+  <div class="overlay-card" style="max-width:460px;max-height:88vh;overflow-y:auto;padding:28px 24px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div class="overlay-title" style="font-size:1.5rem;margin:0;">📖 Bank Kosakata</div>
+      <button onclick="closeBank()" style="background:#EDE8F9;border:none;border-radius:10px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.9rem;color:var(--purple);cursor:pointer;">✕ Tutup</button>
+    </div>
+
+    <!-- Numbers -->
+    <div style="margin-bottom:18px;">
+      <div style="background:#EDE8F9;color:#4A2F9A;border-radius:10px;padding:7px 14px;font-weight:800;font-size:0.9rem;margin-bottom:10px;">🔢 Numbers (Angka)</div>
+      <div class="bank-grid" id="bank-numbers"></div>
+    </div>
+
+    <!-- Colors -->
+    <div style="margin-bottom:18px;">
+      <div style="background:#E8F8F0;color:#1A7A45;border-radius:10px;padding:7px 14px;font-weight:800;font-size:0.9rem;margin-bottom:10px;">🎨 Colors (Warna)</div>
+      <div class="bank-grid" id="bank-colors"></div>
+    </div>
+
+    <!-- School -->
+    <div style="margin-bottom:18px;">
+      <div style="background:#FEF5E0;color:#7A5700;border-radius:10px;padding:7px 14px;font-weight:800;font-size:0.9rem;margin-bottom:10px;">🏫 School Things (Benda Sekolah)</div>
+      <div class="bank-grid" id="bank-school"></div>
+    </div>
+
+    <!-- Fruits -->
+    <div style="margin-bottom:8px;">
+      <div style="background:#FDE8F0;color:#8C1A3A;border-radius:10px;padding:7px 14px;font-weight:800;font-size:0.9rem;margin-bottom:10px;">🍎 Fruits (Buah-buahan)</div>
+      <div class="bank-grid" id="bank-fruits"></div>
+    </div>
+
+    <button class="btn-main" onclick="closeBank()" style="margin-top:6px;">← Kembali ke Menu</button>
   </div>
 </div>
 
@@ -545,6 +601,43 @@ function playClick(){
 }
 
 function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+const TRANSLATIONS = {
+  one:"Satu",two:"Dua",three:"Tiga",four:"Empat",five:"Lima",
+  six:"Enam",seven:"Tujuh",eight:"Delapan",nine:"Sembilan",ten:"Sepuluh",
+  eleven:"Sebelas",twelve:"Dua Belas",thirteen:"Tiga Belas",fourteen:"Empat Belas",fifteen:"Lima Belas",
+  sixteen:"Enam Belas",seventeen:"Tujuh Belas",eighteen:"Delapan Belas",nineteen:"Sembilan Belas",twenty:"Dua Puluh",
+  red:"Merah",blue:"Biru",green:"Hijau",yellow:"Kuning",orange:"Oranye",
+  purple:"Ungu",pink:"Merah Muda",brown:"Cokelat",black:"Hitam",white:"Putih",gray:"Abu-abu",
+  book:"Buku",pencil:"Pensil",ruler:"Penggaris",bag:"Tas",eraser:"Penghapus",
+  pen:"Pena",desk:"Meja Belajar",window:"Jendela",door:"Pintu",wall:"Dinding",board:"Papan Tulis",table:"Meja",
+  banana:"Pisang",watermelon:"Semangka",orange_fruit:"Jeruk",mango:"Mangga",pineapple:"Nanas",
+  papaya:"Pepaya",snakefruit:"Salak",rambutan:"Rambutan",mangosteen:"Manggis",avocado:"Alpukat"
+};
+
+function showBank(){
+  document.getElementById("start-overlay").style.display="none";
+  document.getElementById("bank-overlay").style.display="flex";
+  ["numbers","colors","school","fruits"].forEach(cat=>{
+    let el=document.getElementById("bank-"+cat);
+    el.innerHTML="";
+    WORDS.filter(w=>w.cat===cat).forEach(w=>{
+      let id=w.w==="orange"&&cat==="fruits"?"orange_fruit":w.w;
+      let tr=TRANSLATIONS[id]||TRANSLATIONS[w.w]||"—";
+      el.innerHTML+=`<div class="bank-item">
+        <span class="bank-emoji">${w.e}</span>
+        <span class="bank-en">${w.w.toUpperCase()}</span>
+        <span class="bank-sep">=</span>
+        <span class="bank-id">${tr.toUpperCase()}</span>
+      </div>`;
+    });
+  });
+}
+
+function closeBank(){
+  document.getElementById("bank-overlay").style.display="none";
+  document.getElementById("start-overlay").style.display="flex";
+}
 
 function startGame(){
   document.getElementById("start-overlay").style.display="none";
