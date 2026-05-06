@@ -6,79 +6,67 @@
 <title>SDN 2 Pesantren</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: "Plus Jakarta Sans", system-ui, sans-serif; color: #241910; background: #F2E9D6; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: "Plus Jakarta Sans", system-ui, sans-serif; color: #241910; background: #F2E9D6; min-height: 100vh; display: flex; flex-direction: column; }
 
-  .phone { width: 380px; height: 760px; margin: 20px auto; border-radius: 32px; overflow: hidden; border: 8px solid rgba(36,25,16,0.85); box-shadow: 0 30px 80px rgba(0,0,0,0.18); background: #fff; display: flex; flex-direction: column; }
-  .status-bar { height: 30px; background: transparent; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 12px; font-weight: 700; color: #241910; position: relative; flex-shrink: 0; }
-  .status-notch { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); width: 80px; height: 18px; border-radius: 999px; background: #241910; }
-  .screen { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-height: 0; }
-  .screen::-webkit-scrollbar { display: none; }
-  .tab-bar { background: #FAF4E8; border-top: 2px solid #241910; padding: 8px; display: flex; justify-content: space-around; gap: 4px; flex-shrink: 0; }
-  .tab-btn { flex: 1; padding: 6px 4px; border: 2px solid #241910; border-radius: 14px; background: transparent; color: #241910; font-family: inherit; font-weight: 700; font-size: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: all 0.08s; }
-  .tab-btn.active { background: #241910; color: #FAF4E8; box-shadow: 2px 2px 0 #241910; }
-  .tab-btn:active { transform: translate(2px, 2px); }
+.screen { flex: 1; display: flex; flex-direction: column; }
+.tab-bar { background: #FAF4E8; border-top: 2px solid #241910; padding: 8px; display: flex; justify-content: space-around; gap: 4px; position: sticky; bottom: 0; z-index: 10; }
+.tab-btn { flex: 1; padding: 6px 4px; border: 2px solid #241910; border-radius: 14px; background: transparent; color: #241910; font-family: inherit; font-weight: 700; font-size: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: all 0.08s; }
+.tab-btn.active { background: #241910; color: #FAF4E8; box-shadow: 2px 2px 0 #241910; }
+.tab-btn:active { transform: translate(2px, 2px); }
 
-  .brand-bar { background: #D96B3D; border-bottom: 2px solid #241910; padding: 14px 18px; color: #FAF4E8; flex-shrink: 0; }
-  .brand-header { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
-  .brand-logo { width: 34px; height: 34px; border-radius: 50%; background: #FAF4E8; border: 2px solid #241910; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #241910; flex-shrink: 0; }
-  .brand-title-big { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 24px; line-height: 1.05; letter-spacing: -0.6px; }
+.brand-bar { padding: 14px 18px; color: #FAF4E8; flex-shrink: 0; }
+.brand-header { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+.brand-logo { width: 34px; height: 34px; border-radius: 50%; background: #FAF4E8; border: 2px solid #241910; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #241910; flex-shrink: 0; }
+.brand-title-big { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 24px; line-height: 1.05; letter-spacing: -0.6px; }
 
-  .content { flex: 1; overflow-y: auto; padding: 14px; }
-  .content::-webkit-scrollbar { display: none; }
+.content { flex: 1; padding: 14px; }
 
-  .card { background: #fff; border: 2px solid #241910; border-radius: 18px; padding: 14px; margin-bottom: 12px; box-shadow: 4px 4px 0 #241910; }
-  .card.dark    { background: #241910; color: #FAF4E8; }
-  .card.forest  { background: #3D5C3A; color: #FAF4E8; }
-  .card.mustard { background: #E8B23A; color: #241910; }
-  .card.sky     { background: #7CA8B8; color: #241910; }
-  .card.terra   { background: #D96B3D; color: #FAF4E8; }
-  .card.crimson { background: #A33A2C; color: #FAF4E8; }
+.card { background: #fff; border: 2px solid #241910; border-radius: 18px; padding: 14px; margin-bottom: 12px; box-shadow: 4px 4px 0 #241910; }
+.card.dark    { background: #241910; color: #FAF4E8; }
+.card.forest  { background: #3D5C3A; color: #FAF4E8; }
+.card.mustard { background: #E8B23A; color: #241910; }
+.card.sky     { background: #7CA8B8; color: #241910; }
+.card.terra   { background: #D96B3D; color: #FAF4E8; }
+.card.crimson { background: #A33A2C; color: #FAF4E8; }
 
-  .section-title { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 10px; margin-top: 4px; letter-spacing: -0.3px; }
+.section-title { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 10px; margin-top: 4px; letter-spacing: -0.3px; }
 
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-  .quick-tile { padding: 12px; min-height: 88px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; }
-  .quick-tile:active { transform: translate(2px,2px); box-shadow: none !important; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.quick-tile { padding: 12px; min-height: 88px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; }
+.quick-tile:active { transform: translate(2px,2px); box-shadow: none !important; }
 
-  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; background: #FAF4E8; color: #241910; border: 1.5px solid #241910; font-weight: 700; font-size: 11px; white-space: nowrap; }
-  .pill.dark   { background: #241910; color: #FAF4E8; border-color: #241910; }
-  .pill.terra  { background: #D96B3D; color: #FAF4E8; border-color: #D96B3D; }
-  .pill.forest { background: #3D5C3A; color: #FAF4E8; border-color: #3D5C3A; }
-  .pill.sky    { background: #7CA8B8; color: #241910; border-color: #7CA8B8; }
-  .pill.mustard{ background: #E8B23A; color: #241910; border-color: #E8B23A; }
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; background: #FAF4E8; color: #241910; border: 1.5px solid #241910; font-weight: 700; font-size: 11px; white-space: nowrap; }
+.pill.dark    { background: #241910; color: #FAF4E8; border-color: #241910; }
+.pill.terra   { background: #D96B3D; color: #FAF4E8; border-color: #D96B3D; }
+.pill.forest  { background: #3D5C3A; color: #FAF4E8; border-color: #3D5C3A; }
+.pill.sky     { background: #7CA8B8; color: #241910; border-color: #7CA8B8; }
+.pill.mustard { background: #E8B23A; color: #241910; border-color: #E8B23A; }
 
-  .news-img  { width: 80px; flex-shrink: 0; border-right: 2px solid #241910; height: 100px; }
-  .news-body { flex: 1; padding: 9px 11px; display: flex; flex-direction: column; gap: 4px; }
-  .news-title{ font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 13px; line-height: 1.3; }
-  .news-date { font-size: 11px; color: #5C4A38; font-weight: 500; }
+.news-img  { width: 80px; flex-shrink: 0; border-right: 2px solid #241910; height: 100px; }
+.news-body { flex: 1; padding: 9px 11px; display: flex; flex-direction: column; gap: 4px; }
+.news-title { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 13px; line-height: 1.3; }
+.news-date  { font-size: 11px; color: #5C4A38; font-weight: 500; }
 
-  .back-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: 2px solid rgba(255,255,255,0.5); border-radius: 999px; background: rgba(0,0,0,0.15); color: #FAF4E8; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 11px; margin-bottom: 8px; }
-  .back-btn:hover { background: rgba(0,0,0,0.25); }
+.back-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: 2px solid rgba(255,255,255,0.5); border-radius: 999px; background: rgba(0,0,0,0.15); color: #FAF4E8; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 11px; margin-bottom: 8px; }
+.back-btn:hover { background: rgba(0,0,0,0.25); }
 
-  .tag-badge { padding: 3px 8px; border-radius: 999px; background: rgba(0,0,0,0.18); color: #FAF4E8; border: 1.5px solid rgba(255,255,255,0.35); font-weight: 700; font-size: 10px; }
+.tag-badge { padding: 3px 8px; border-radius: 999px; background: rgba(0,0,0,0.18); color: #FAF4E8; border: 1.5px solid rgba(255,255,255,0.35); font-weight: 700; font-size: 10px; }
 
-  .mapel-card { cursor: pointer; margin-bottom: 12px; }
-  .mapel-card:active { transform: translate(2px,2px); box-shadow: none !important; }
-  .play-btn { width: 100%; padding: 11px; background: #E8B23A; color: #241910; border: 2px solid #241910; border-radius: 12px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 3px 3px 0 #241910; margin-top: 12px; }
-  .play-btn:active { transform: translate(2px,2px); box-shadow: none; }
+.mapel-card { cursor: pointer; margin-bottom: 12px; }
+.mapel-card:active { transform: translate(2px,2px); box-shadow: none !important; }
+.play-btn { width: 100%; padding: 11px; background: #E8B23A; color: #241910; border: 2px solid #241910; border-radius: 12px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 3px 3px 0 #241910; margin-top: 12px; }
+.play-btn:active { transform: translate(2px,2px); box-shadow: none; }
 </style>
 </head>
 <body>
 
-<div class="phone">
-  <div class="status-bar">
-    <span>9:41</span>
-    <div class="status-notch"></div>
-    <span>🔋</span>
-  </div>
-  <div class="screen" id="screen"></div>
-  <div class="tab-bar">
-    <button class="tab-btn active" data-tab="home">🏠 Beranda</button>
-    <button class="tab-btn" data-tab="news">📰 Berita</button>
-    <button class="tab-btn" data-tab="belajar">📚 Belajar</button>
-    <button class="tab-btn" data-tab="game">🎮 Game</button>
-  </div>
+<div class="screen" id="screen"></div>
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="home">🏠 Beranda</button>
+  <button class="tab-btn" data-tab="news">📰 Berita</button>
+  <button class="tab-btn" data-tab="belajar">📚 Belajar</button>
+  <button class="tab-btn" data-tab="game">🎮 Game</button>
 </div>
 
 <script>
@@ -90,35 +78,28 @@ function go(tab, sub) {
   document.querySelectorAll(".tab-btn").forEach(b =>
     b.classList.toggle("active", b.dataset.tab === tab));
   render();
+  window.scrollTo(0, 0);
 }
 
 function openLink(url) {
-  const screen = document.getElementById("screen");
-  screen.innerHTML = `
-    <div style="display:flex;flex-direction:column;height:100%;">
-      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#241910;color:#FAF4E8;flex-shrink:0;border-bottom:2px solid #241910;">
-        <button onclick="go(state.tab,state.sub)" style="padding:5px 12px;border:2px solid #FAF4E8;border-radius:999px;background:transparent;color:#FAF4E8;font-family:inherit;font-weight:700;font-size:11px;cursor:pointer;white-space:nowrap;">← Kembali</button>
-        <div style="font-size:10px;opacity:0.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${url.replace(BASE+"/","")}</div>
-      </div>
-      <iframe src="${url}" style="flex:1;border:none;width:100%;" allowfullscreen></iframe>
-    </div>`;
+  window.open(url, '_blank');
 }
 
 function render() {
   const screen = document.getElementById("screen");
-  if (state.tab === "home")    screen.innerHTML = renderHome();
+  if (state.tab === "home")         screen.innerHTML = renderHome();
   else if (state.tab === "news")    screen.innerHTML = renderNews();
   else if (state.tab === "belajar") {
-    if (!state.sub)         screen.innerHTML = renderBelajar();
+    if (!state.sub)              screen.innerHTML = renderBelajar();
     else if (state.sub === "osn") screen.innerHTML = renderOSN();
     else if (state.sub === "tka") screen.innerHTML = renderTKA();
   }
   else if (state.tab === "game") screen.innerHTML = renderGame();
 }
 
-/* ── HOME ─────────────────────────────────────────────────────────────── */
+/* ── HOME ── */
 function renderHome() { return `
-  <div class="brand-bar">
+  <div class="brand-bar" style="background:#D96B3D;">
     <div class="brand-header">
       <div class="brand-logo">S</div>
       <div>
@@ -174,7 +155,7 @@ function renderHome() { return `
   </div>
 `; }
 
-/* ── BERITA ────────────────────────────────────────────────────────────── */
+/* ── BERITA ── */
 function renderNews() { return `
   <div class="brand-bar" style="background:#3D5C3A;">
     <div class="brand-header">
@@ -216,7 +197,7 @@ function renderNews() { return `
   </div>
 `; }
 
-/* ── BELAJAR HUB ───────────────────────────────────────────────────────── */
+/* ── BELAJAR HUB ── */
 function renderBelajar() { return `
   <div class="brand-bar" style="background:#7CA8B8;">
     <div class="brand-header">
@@ -264,12 +245,12 @@ function renderBelajar() { return `
   </div>
 `; }
 
-/* ── OSN LIST ──────────────────────────────────────────────────────────── */
+/* ── OSN LIST ── */
 function renderOSN() {
   const items = [
-    { emoji:"🔬", title:"OSN IPA", sub:"Ilmu Pengetahuan Alam", path:"osn-ipa.html",       bg:"#D96B3D" },
-    { emoji:"🌏", title:"OSN IPS", sub:"Ilmu Pengetahuan Sosial", path:"osn-ips.html",      bg:"#7CA8B8" },
-    { emoji:"📐", title:"OSN Matematika", sub:"Olimpiade Matematika SD", path:"osn-matematika.html", bg:"#3D5C3A" },
+    { emoji:"🔬", title:"OSN IPA",       sub:"Ilmu Pengetahuan Alam",     path:"osn-ipa.html",        bg:"#D96B3D" },
+    { emoji:"🌏", title:"OSN IPS",       sub:"Ilmu Pengetahuan Sosial",   path:"osn-ips.html",        bg:"#7CA8B8" },
+    { emoji:"📐", title:"OSN Matematika",sub:"Olimpiade Matematika SD",   path:"osn-matematika.html", bg:"#3D5C3A" },
   ];
   return `
   <div class="brand-bar" style="background:#D96B3D;">
@@ -295,11 +276,11 @@ function renderOSN() {
   </div>
 `; }
 
-/* ── TKA LIST ──────────────────────────────────────────────────────────── */
+/* ── TKA LIST ── */
 function renderTKA() {
   const items = [
-    { emoji:"📐", title:"TKA Matematika",       sub:"Operasi hitung, geometri & statistika", path:"latihan-tka.html",       bg:"#E8B23A" },
-    { emoji:"📖", title:"TKA Bahasa Indonesia",  sub:"Membaca, tata bahasa & ejaan",          path:"latihan-tka-bindo.html",  bg:"#7CA8B8" },
+    { emoji:"📐", title:"TKA Matematika",      sub:"Operasi hitung, geometri & statistika", path:"latihan-tka.html",      bg:"#E8B23A" },
+    { emoji:"📖", title:"TKA Bahasa Indonesia", sub:"Membaca, tata bahasa & ejaan",          path:"latihan-tka-bindo.html", bg:"#7CA8B8" },
   ];
   return `
   <div class="brand-bar" style="background:#3D5C3A;">
@@ -325,7 +306,7 @@ function renderTKA() {
   </div>
 `; }
 
-/* ── GAME ──────────────────────────────────────────────────────────────── */
+/* ── GAME ── */
 function renderGame() { return `
   <div class="brand-bar" style="background:#A33A2C;">
     <div class="brand-header">
@@ -372,7 +353,7 @@ function renderGame() { return `
   </div>
 `; }
 
-/* ── INIT ──────────────────────────────────────────────────────────────── */
+/* ── INIT ── */
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => go(btn.dataset.tab));
 });
