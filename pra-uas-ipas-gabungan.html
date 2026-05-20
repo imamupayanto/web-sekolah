@@ -590,7 +590,6 @@ body::before{
   .gacha-result-card{width:260px;}
 }
 </style>
-<base target="_blank">
 </head>
 <body>
 
@@ -1224,7 +1223,8 @@ function jwbPG(sel){
   if(jawaban[cur]!==null) return;
   stopTimer();
   jawaban[cur]=sel;
-  if(sel===s.jawab) score++;
+  if(sel===s.jawab){ score++; playCorrectSound(); }
+  else{ playWrongSound(); }
   renderSoal();
 }
 function jwbBS(sel){
@@ -1232,7 +1232,8 @@ function jwbBS(sel){
   if(jawaban[cur]!==null) return;
   stopTimer();
   jawaban[cur]=sel;
-  if(sel===s.jawab) score++;
+  if(sel===s.jawab){ score++; playCorrectSound(); }
+  else{ playWrongSound(); }
   renderSoal();
 }
 function goSoal(dir){
@@ -1653,6 +1654,77 @@ function playShakeSound() {
   osc.stop(t + 0.4);
 }
 
+// ═══════════════════════════════════════════
+//  QUIZ SOUNDS - Benar & Salah
+// ═══════════════════════════════════════════
+function playCorrectSound() {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  // Happy ascending chime
+  const freqs = [523, 659, 784, 1047];
+  freqs.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t + i * 0.08);
+    gain.gain.setValueAtTime(0, t + i * 0.08);
+    gain.gain.linearRampToValueAtTime(0.2, t + i * 0.08 + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.08 + 0.4);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t + i * 0.08);
+    osc.stop(t + i * 0.08 + 0.5);
+  });
+  // Soft sparkle
+  const sparkle = audioCtx.createBufferSource();
+  const bufSize = audioCtx.sampleRate * 0.3;
+  const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) {
+    d[i] = (Math.random() * 2 - 1) * Math.max(0, 1 - i/bufSize) * 0.05;
+  }
+  sparkle.buffer = buf;
+  const sg = audioCtx.createGain();
+  sg.gain.setValueAtTime(0.15, t);
+  sg.gain.linearRampToValueAtTime(0, t + 0.3);
+  sparkle.connect(sg);
+  sg.connect(audioCtx.destination);
+  sparkle.start(t);
+  sparkle.stop(t + 0.3);
+}
+
+function playWrongSound() {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  // Low descending buzz
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(200, t);
+  osc.frequency.exponentialRampToValueAtTime(80, t + 0.35);
+  gain.gain.setValueAtTime(0.12, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.45);
+  // Dissonant second tone
+  const osc2 = audioCtx.createOscillator();
+  const gain2 = audioCtx.createGain();
+  osc2.type = 'square';
+  osc2.frequency.setValueAtTime(150, t + 0.1);
+  osc2.frequency.exponentialRampToValueAtTime(60, t + 0.4);
+  gain2.gain.setValueAtTime(0.08, t + 0.1);
+  gain2.gain.exponentialRampToValueAtTime(0.01, t + 0.45);
+  osc2.connect(gain2);
+  gain2.connect(audioCtx.destination);
+  osc2.start(t + 0.1);
+  osc2.stop(t + 0.5);
+}
+
+// ═══════════════════════════════════════════
+//  GACHA SOUND - Reveal per rarity
+// ═══════════════════════════════════════════
 function playRevealSound(type) {
   ensureAudio();
   const t = audioCtx.currentTime;
