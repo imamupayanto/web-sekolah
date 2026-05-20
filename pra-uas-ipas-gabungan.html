@@ -491,6 +491,33 @@ body::before{
 
 .gacha-result-desc{font-size:11px;color:var(--g-muted);line-height:1.65;font-weight:300;text-align:center;max-width:200px;opacity:.85;}
 
+/* Card Footer - Nama & Tanggal */
+.gacha-card-footer{
+  width:100%;padding:10px 14px 14px;display:flex;flex-direction:column;
+  align-items:center;gap:4px;font-family:'Raleway',sans-serif;
+}
+.t-common .gacha-card-footer{background:linear-gradient(180deg,#0a1018,#070a12);border-top:1px solid rgba(120,144,156,0.15);}
+.t-rare   .gacha-card-footer{background:linear-gradient(180deg,#030818,#020610);border-top:1px solid rgba(41,121,255,0.2);}
+.t-ultra  .gacha-card-footer{background:linear-gradient(180deg,#060010,#030008);border-top:1px solid rgba(192,64,251,0.2);}
+.t-legendary .gacha-card-footer{background:linear-gradient(180deg,#000c10,#000608);border-top:1px solid rgba(0,229,255,0.2);}
+.t-mythic .gacha-card-footer{background:linear-gradient(180deg,#0e0700,#080400);border-top:1px solid rgba(255,183,0,0.2);}
+
+.gacha-card-footer-line{
+  width:60%;height:1px;border-radius:1px;opacity:.25;margin-bottom:4px;
+  background:linear-gradient(90deg,transparent,var(--g-muted),transparent);
+}
+.gacha-footer-name{
+  font-size:10px;font-weight:600;color:var(--g-text);letter-spacing:.05em;
+}
+.gacha-footer-date{
+  font-size:9px;font-weight:400;color:var(--g-muted);letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.gacha-footer-score{
+  font-size:9px;font-weight:700;color:var(--g-muted);margin-top:2px;
+  font-family:'Cinzel',serif;letter-spacing:.1em;
+}
+
 .gacha-badge-row{display:flex;align-items:center;gap:6px;}
 .gacha-result-badge{
   font-family:'Cinzel',serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
@@ -884,6 +911,14 @@ body::before{
         <div class="gacha-result-name" id="gacha-r-name">—</div>
         <div class="gacha-card-divider"></div>
         <div class="gacha-result-desc" id="gacha-r-desc"></div>
+      </div>
+
+      <!-- Footer: Nama & Tanggal -->
+      <div class="gacha-card-footer" id="gacha-card-footer">
+        <div class="gacha-card-footer-line"></div>
+        <div class="gacha-footer-name" id="gacha-footer-name">—</div>
+        <div class="gacha-footer-date" id="gacha-footer-date">—</div>
+        <div class="gacha-footer-score" id="gacha-footer-score">—</div>
       </div>
     </div>
 
@@ -1464,6 +1499,14 @@ function openBox() {
     badgeEl.textContent = labelMap[type];
     starsEl.textContent = starMap[type];
     document.getElementById('gacha-r-desc').textContent = animal.desc;
+
+    // Populate footer: nama, tanggal, nilai
+    const now = new Date();
+    const tgl = now.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+    const jam = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('gacha-footer-name').textContent = namaSiswa || 'Siswa';
+    document.getElementById('gacha-footer-date').textContent = tgl + ' · ' + jam;
+    document.getElementById('gacha-footer-score').textContent = 'Nilai: ' + nilaiAkhir(score);
 
     // Update corner gems class
     document.querySelectorAll('.corner-gem').forEach(g => {
