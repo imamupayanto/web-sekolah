@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRA UAS Bahasa Indonesia — Kelas 5 + Hadiah</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Fredoka+One&family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   ROOT & BASE  (Kuis + Gacha)
+═══════════════════════════════════════════ */
+:root {
+  --rose:#f43f5e; --amber:#f59e0b; --green:#22c55e;
+  --sky:#0ea5e9; --purple:#8b5cf6; --indigo:#6366f1;
+  --bg:#f0f9ff; --text:#1e293b; --muted:#64748b;
+  --mythic:#ffb700; --mythic2:#ff6a00;
+  --legendary:#00e5ff; --legendary2:#00b8d4;
+  --ultra:#c040fb;  --ultra2:#7c4dff;
+  --rare:#2979ff;   --rare2:#00b0ff;
+  --common:#78909c; --common2:#546e7a;
+  --g-bg:#07080f; --g-bg2:#0d0f1e; --g-surface:#12152a;
+  --g-border:rgba(255,255,255,0.08);
+  --g-text:#e8eaf6; --g-muted:#7986cb;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 10%,#bae6fd55,transparent),
+    radial-gradient(ellipse 50% 50% at 90% 20%,#bbf7d055,transparent),
+    radial-gradient(ellipse 55% 45% at 50% 90%,#fde68a44,transparent);
+}
+
+/* ── MAIN CARD ── */
+.main-card{
+  position:relative;z-index:1;background:#fff;border-radius:28px;
+  box-shadow:0 8px 40px #0002;padding:2.8rem 2.4rem 2.4rem;
+  max-width:400px;width:90%;text-align:center;
+  animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.badge{
+  display:inline-block;background:linear-gradient(135deg,var(--rose),var(--amber));
+  color:#fff;font-size:.7rem;font-weight:800;letter-spacing:.13em;
+  text-transform:uppercase;padding:.3rem 1rem;border-radius:99px;margin-bottom:1rem;
+}
+.main-card h1{
+  font-family:'Fredoka One',cursive;font-size:clamp(2rem,8vw,2.8rem);line-height:1.1;
+  background:linear-gradient(135deg,#dc2626,#d97706);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:.35rem;
+}
+.mapel{font-size:.9rem;font-weight:700;color:var(--muted);margin-bottom:.8rem;}
+.pills{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:2rem;}
+.pill{background:#f1f5f9;border-radius:99px;padding:.22rem .75rem;font-size:.72rem;font-weight:700;color:var(--muted);}
+.btn-group{display:flex;flex-direction:column;gap:.9rem;}
+.big-btn{
+  display:flex;align-items:center;gap:.9rem;padding:1rem 1.4rem;
+  border-radius:16px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;
+  font-weight:900;color:#fff;transition:transform .18s,box-shadow .18s;
+  text-align:left;width:100%;
+}
+.big-btn:hover{transform:translateY(-3px);box-shadow:0 10px 28px #0003;}
+.big-btn:active{transform:translateY(0);}
+.btn-rangkuman{background:linear-gradient(135deg,#7c3aed,#6366f1);}
+.btn-soal{background:linear-gradient(135deg,#f59e0b,#f97316);}
+.big-btn .bicon{
+  font-size:1.7rem;flex-shrink:0;width:48px;height:48px;border-radius:13px;
+  background:#ffffff22;display:flex;align-items:center;justify-content:center;
+}
+.btw{flex:1;}
+.bl{font-size:1rem;font-weight:900;}
+.bd{font-size:.72rem;font-weight:600;opacity:.85;margin-top:.1rem;}
+.ba{font-size:1.1rem;opacity:.6;}
+
+/* ═══════════════════════════════════════════
+   MODAL BASE  (Rangkuman & Soal)
+═══════════════════════════════════════════ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:#0008;z-index:200;
+  align-items:flex-end;justify-content:center;
+}
+.modal-overlay.active{display:flex;}
+.modal{
+  background:#fff;border-radius:28px 28px 0 0;width:100%;max-width:660px;
+  max-height:90vh;display:flex;flex-direction:column;
+  animation:slideUp .35s cubic-bezier(.34,1.2,.64,1) both;overflow:hidden;
+}
+.mhandle{width:36px;height:4px;background:#e2e8f0;border-radius:99px;margin:.75rem auto .35rem;flex-shrink:0;}
+.mhead{
+  display:flex;align-items:center;gap:.8rem;padding:.5rem 1.4rem .9rem;
+  flex-shrink:0;border-bottom:1.5px solid #f1f5f9;
+}
+.mhead-icon{font-size:1.6rem;}
+.mhead-title{font-family:'Fredoka One',cursive;font-size:1.2rem;flex:1;}
+.mclose{
+  background:#f1f5f9;border:none;border-radius:9px;width:32px;height:32px;
+  cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;
+}
+.mclose:hover{background:#e2e8f0;}
+.mbody{overflow-y:auto;padding:1.2rem 1.4rem 2rem;flex:1;}
+
+.modal-overlay.fullscreen-active {
+  align-items: stretch;
+  padding: 0;
+}
+.modal-fullscreen {
+  border-radius: 0;
+  max-height: 100vh;
+  height: 100vh;
+  max-width: 100%;
+}
+
+/* ═══════════════════════════════════════════
+   RANGKUMAN — SIMPEL & MENARIK
+═══════════════════════════════════════════ */
+.r-chapter{margin-bottom:1.4rem;}
+.r-chap-label{
+  display:flex;align-items:center;gap:.6rem;
+  font-family:'Fredoka One',cursive;font-size:1rem;
+  margin-bottom:.65rem;
+}
+.r-chap-em{
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:1.2rem;width:36px;height:36px;border-radius:10px;flex-shrink:0;
+}
+.r-list{display:flex;flex-direction:column;gap:.35rem;}
+.r-item{
+  display:flex;align-items:flex-start;gap:.55rem;
+  background:#f8fafc;border-radius:10px;padding:.45rem .65rem;
+  font-size:.875rem;font-weight:600;line-height:1.5;
+}
+.r-bullet{flex-shrink:0;margin-top:.22rem;width:7px;height:7px;border-radius:50%;}
+.r-kw{font-weight:900;}
+.r-sub-head{
+  font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;
+  margin:.85rem 0 .45rem;display:flex;align-items:center;gap:.4rem;
+}
+.r-sub-head::after{content:'';flex:1;height:1.5px;background:#f1f5f9;border-radius:99px;}
+.r-divider{height:1px;background:#f1f5f9;margin:.3rem 0 1.1rem;}
+
+/* ═══════════════════════════════════════════
+   SOAL — SATU PER SATU
+═══════════════════════════════════════════ */
+.q-timer-wrap{
+  display:flex;align-items:center;gap:.6rem;
+  background:#f8fafc;border-radius:12px;
+  padding:.5rem .9rem;margin-bottom:.85rem;
+}
+.q-timer-ring{position:relative;flex-shrink:0;width:44px;height:44px;}
+.q-timer-ring svg{transform:rotate(-90deg);}
+.q-timer-track{fill:none;stroke:#e2e8f0;stroke-width:4;}
+.q-timer-bar{
+  fill:none;stroke-width:4;stroke-linecap:round;
+  stroke:#22c55e;
+  stroke-dasharray:113;stroke-dashoffset:0;
+  transition:stroke-dashoffset 1s linear, stroke .3s;
+}
+.q-timer-num{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka One',cursive;font-size:1rem;color:var(--text);
+}
+.q-timer-label{font-size:.8rem;font-weight:700;color:var(--muted);flex:1;}
+.q-timer-urgent .q-timer-bar{stroke:#f43f5e;}
+.q-timer-urgent .q-timer-num{color:#f43f5e;}
+.q-timer-warn .q-timer-bar{stroke:#f59e0b;}
+.q-timer-warn .q-timer-num{color:#d97706;}
+
+.q-progress-wrap{margin-bottom:1rem;}
+.q-prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;}
+.q-prog-num{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--muted);}
+.q-prog-score{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--amber);}
+.q-prog-bar-bg{background:#f1f5f9;border-radius:99px;height:6px;overflow:hidden;}
+.q-prog-bar{height:6px;border-radius:99px;background:linear-gradient(90deg,var(--amber),var(--rose));transition:width .4s ease;}
+.diff-chip{display:inline-block;border-radius:99px;padding:.15rem .6rem;font-size:.68rem;font-weight:800;margin-bottom:.7rem;}
+.chip-M{background:#dcfce7;color:#16a34a;}
+.chip-S{background:#fef9c3;color:#92400e;}
+.chip-K{background:#fee2e2;color:#dc2626;}
+
+.q-card{animation:fadeQ .3s ease both;}
+.q-text{font-weight:700;font-size:.97rem;line-height:1.55;margin-bottom:1rem;color:var(--text);}
+.q-opts{display:flex;flex-direction:column;gap:.42rem;}
+.q-opt{
+  display:flex;align-items:center;gap:.65rem;padding:.5rem .75rem;
+  border-radius:11px;background:#fff;border:1.8px solid #e2e8f0;
+  cursor:pointer;font-size:.88rem;font-weight:600;
+  transition:all .15s;text-align:left;width:100%;
+  font-family:'Nunito',sans-serif;color:var(--text);
+}
+.q-opt:hover:not(:disabled){border-color:var(--purple);background:#f5f3ff;}
+.q-opt.chosen{border-color:var(--purple);background:#f5f3ff;}
+.q-opt.correct{border-color:#16a34a;background:#f0fdf4;color:#16a34a;}
+.q-opt.wrong  {border-color:#e11d48;background:#fff1f2;color:#e11d48;}
+.q-opt.reveal {border-color:#16a34a;background:#f0fdf4;color:#16a34a;}
+.okey{
+  flex-shrink:0;width:24px;height:24px;border-radius:7px;background:#f1f5f9;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.73rem;font-weight:900;color:var(--muted);
+}
+.correct .okey{background:#16a34a;color:#fff;}
+.wrong .okey  {background:#e11d48;color:#fff;}
+.reveal .okey {background:#16a34a;color:#fff;}
+
+.q-result{
+  display:none;margin-top:.75rem;padding:.5rem .75rem;border-radius:10px;
+  font-size:.85rem;font-weight:800;text-align:center;
+}
+.q-result.show{display:block;}
+.q-result.ok{background:#dcfce7;color:#16a34a;}
+.q-result.no{background:#ffe4e6;color:#e11d48;}
+
+.q-nav{display:flex;gap:.65rem;margin-top:1.1rem;}
+.q-btn{
+  flex:1;padding:.65rem;border-radius:12px;border:none;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:.92rem;
+  transition:transform .15s,box-shadow .15s;
+}
+.q-btn:hover{transform:translateY(-2px);box-shadow:0 5px 16px #0002;}
+.q-btn-prev{background:#f1f5f9;color:var(--muted);}
+.q-btn-next{background:linear-gradient(135deg,var(--amber),#f97316);color:#fff;}
+.q-btn-finish{background:linear-gradient(135deg,var(--green),var(--sky));color:#fff;}
+.q-btn-hadiah{background:linear-gradient(135deg,#7c3aed,#c040fb);color:#fff;}
+.q-btn:disabled{opacity:.4;pointer-events:none;}
+
+/* ═══════════════════════════════════════════
+   HASIL AKHIR + PEMBAHASAN
+═══════════════════════════════════════════ */
+.hasil-wrap{text-align:center;}
+.hasil-emoji{font-size:3.5rem;margin-bottom:.5rem;}
+.hasil-title{font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:.3rem;}
+.hasil-sub{font-size:.9rem;font-weight:600;color:var(--muted);margin-bottom:1.2rem;}
+.hasil-score-box{
+  background:linear-gradient(135deg,#fef9c3,#fff7ed);
+  border-radius:16px;padding:1rem;margin-bottom:1.2rem;
+}
+.hasil-score-num{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--amber);line-height:1;}
+.hasil-score-label{font-size:.8rem;font-weight:700;color:#92400e;margin-top:.2rem;}
+.hasil-breakdown{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.3rem;flex-wrap:wrap;}
+.hb-item{background:#f8fafc;border-radius:10px;padding:.4rem .8rem;font-size:.78rem;font-weight:700;color:var(--muted);}
+
+.pembahasan-title{
+  font-family:'Fredoka One',cursive;font-size:1.05rem;
+  margin-bottom:.7rem;text-align:left;color:var(--text);
+}
+.pb-item{
+  border-radius:12px;padding:.75rem .9rem;margin-bottom:.6rem;
+  border:1.5px solid transparent;
+}
+.pb-item.pb-ok{background:#f0fdf4;border-color:#bbf7d0;}
+.pb-item.pb-no{background:#fff1f2;border-color:#fecdd3;}
+.pb-num{font-size:.7rem;font-weight:900;color:var(--muted);margin-bottom:.2rem;}
+.pb-q{font-size:.85rem;font-weight:700;margin-bottom:.4rem;line-height:1.45;color:var(--text);}
+.pb-status{font-size:.78rem;font-weight:800;margin-bottom:.3rem;}
+.pb-ok .pb-status{color:#16a34a;}
+.pb-no .pb-status{color:#e11d48;}
+.pb-info{font-size:.82rem;font-weight:600;color:var(--muted);line-height:1.5;}
+
+.btn-ulang{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  width:100%;padding:.75rem;border-radius:13px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--amber),#f97316);color:#fff;
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:.95rem;
+  margin-top:1.2rem;transition:transform .15s;
+}
+.btn-ulang:hover{transform:translateY(-2px);}
+
+/* ═══════════════════════════════════════════
+   GACHA OVERLAY & CARD
+═══════════════════════════════════════════ */
+#gacha-overlay{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;
+  background:rgba(4,5,12,0.92);backdrop-filter:blur(12px);
+  font-family:'Raleway',sans-serif;color:var(--g-text);
+}
+#gacha-overlay.show{display:flex;}
+
+.gacha-container{
+  position:relative;z-index:1;width:100%;max-width:640px;
+  padding:2rem 1.5rem 4rem;display:flex;flex-direction:column;
+  align-items:center;gap:1.8rem;
+}
+
+.gacha-header{text-align:center;padding-top:.5rem;}
+.gacha-header h1{
+  font-family:'Cinzel Decorative',serif;font-size:clamp(18px,5vw,28px);font-weight:900;
+  background:linear-gradient(135deg,#ffb700,#ff6a00 40%,#c040fb 70%,#7c4dff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:6px;
+}
+.gacha-header p{font-size:11px;color:var(--g-muted);letter-spacing:.2em;text-transform:uppercase;font-weight:300;}
+
+.gacha-divider{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--g-muted),transparent);opacity:.35;}
+
+.gacha-box-wrap{position:relative;width:190px;height:190px;cursor:pointer;}
+.gacha-box-glow-ring{position:absolute;inset:-20px;border-radius:50%;background:radial-gradient(circle,rgba(124,77,255,0.15) 0%,transparent 70%);animation:pulse-ring 3s ease-in-out infinite;pointer-events:none;}
+@keyframes pulse-ring{0%,100%{transform:scale(.9);opacity:.5;}50%{transform:scale(1.1);opacity:1;}}
+
+.gacha-lootbox{
+  width:190px;height:190px;background:var(--g-surface);border:1px solid rgba(124,77,255,0.3);
+  border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;transition:transform .1s,border-color .3s;position:relative;overflow:hidden;
+}
+.gacha-lootbox::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,77,255,0.08) 0%,transparent 60%);pointer-events:none;}
+.gacha-lootbox:hover{transform:scale(1.03);border-color:rgba(192,64,251,0.5);}
+.gacha-lootbox.shaking{animation:shake .5s cubic-bezier(.36,.07,.19,.97);}
+@keyframes shake{0%{transform:rotate(0) scale(1);}10%{transform:rotate(-10deg) scale(1.05);}25%{transform:rotate(10deg) scale(1.08);}40%{transform:rotate(-8deg) scale(1.06);}55%{transform:rotate(8deg) scale(1.05);}70%{transform:rotate(-4deg) scale(1.03);}85%{transform:rotate(4deg) scale(1.02);}100%{transform:rotate(0) scale(1);}}
+.gacha-box-hint{font-family:'Cinzel',serif;font-size:11px;color:var(--g-muted);letter-spacing:.15em;text-transform:uppercase;}
+
+.gacha-open-btn{
+  padding:13px 48px;font-family:'Cinzel',serif;font-size:13px;font-weight:600;letter-spacing:.15em;
+  text-transform:uppercase;cursor:pointer;border:none;border-radius:50px;
+  background:linear-gradient(135deg,#7c4dff,#c040fb);color:#fff;
+  transition:transform .1s,box-shadow .2s;box-shadow:0 4px 24px rgba(124,77,255,0.4);position:relative;overflow:hidden;
+}
+.gacha-open-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);pointer-events:none;}
+.gacha-open-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(124,77,255,0.55);}
+.gacha-open-btn:active{transform:scale(.97);}
+.gacha-open-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+
+.gacha-legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.gacha-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g-muted);}
+.gacha-legend-dot{width:7px;height:7px;border-radius:50%;}
+
+.gacha-result-card{
+  position:relative;width:280px;transform:scale(.7) translateY(40px) rotateX(8deg);
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1);perspective:800px;
+}
+#gacha-overlay.show .gacha-result-card{transform:scale(1) translateY(0) rotateX(0);}
+
+.card-halo{
+  position:absolute;inset:-24px;border-radius:36px;opacity:0;transition:opacity .4s;
+  pointer-events:none;filter:blur(18px);
+}
+.t-common  .card-halo{background:radial-gradient(ellipse,rgba(120,144,156,0.25),transparent 70%);opacity:1;}
+.t-rare    .card-halo{background:radial-gradient(ellipse,rgba(41,121,255,0.45),transparent 70%);opacity:1;}
+.t-ultra   .card-halo{background:radial-gradient(ellipse,rgba(192,64,251,0.5),transparent 70%);opacity:1;}
+.t-legendary .card-halo{background:radial-gradient(ellipse,rgba(0,229,255,0.55),transparent 70%);opacity:1;animation:halo-breathe 2s ease-in-out infinite alternate;}
+.t-mythic  .card-halo{background:radial-gradient(ellipse,rgba(255,183,0,0.6),transparent 70%);opacity:1;animation:halo-breathe 2s ease-in-out infinite alternate;}
+@keyframes halo-breathe{from{filter:blur(16px) brightness(1);}to{filter:blur(24px) brightness(1.4);}}
+
+.gacha-card-inner{
+  position:relative;width:100%;border-radius:20px;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+.gacha-card-banner{
+  width:100%;padding:10px 16px 8px;display:flex;align-items:center;justify-content:space-between;
+}
+.t-common .gacha-card-banner{background:linear-gradient(90deg,#1c2430,#263040);}
+.t-rare   .gacha-card-banner{background:linear-gradient(90deg,#041230,#062060);}
+.t-ultra  .gacha-card-banner{background:linear-gradient(90deg,#16053a,#2a0860);}
+.t-legendary .gacha-card-banner{background:linear-gradient(90deg,#002a30,#004a55);}
+.t-mythic .gacha-card-banner{background:linear-gradient(90deg,#2a1400,#4a2000);}
+
+.gacha-card-banner-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.25em;text-transform:uppercase;}
+.t-common .gacha-card-banner-label{color:#90a4ae;}
+.t-rare   .gacha-card-banner-label{color:#64b5f6;}
+.t-ultra  .gacha-card-banner-label{color:#ce93d8;}
+.t-legendary .gacha-card-banner-label{color:#00e5ff;}
+.t-mythic .gacha-card-banner-label{color:#ffb700;}
+
+.gacha-card-banner-stars{font-size:10px;letter-spacing:1px;}
+.t-common .gacha-card-banner-stars{color:#546e7a;}
+.t-rare   .gacha-card-banner-stars{color:#2979ff;}
+.t-ultra  .gacha-card-banner-stars{color:#c040fb;}
+.t-legendary .gacha-card-banner-stars{color:#00e5ff;animation:star-flicker 1.2s ease-in-out infinite alternate;}
+.t-mythic .gacha-card-banner-stars{color:#ffb700;animation:star-flicker 1.2s ease-in-out infinite alternate;}
+@keyframes star-flicker{from{opacity:.8;}to{opacity:1;text-shadow:0 0 8px #ffb700;}}
+
+.gacha-card-art{
+  width:100%;height:200px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+}
+.t-common .gacha-card-art{background:linear-gradient(180deg,#0d1a26 0%,#0a1018 100%);}
+.t-rare   .gacha-card-art{background:linear-gradient(180deg,#040f2a 0%,#030820 100%);}
+.t-ultra  .gacha-card-art{background:linear-gradient(180deg,#100520 0%,#08030f 100%);}
+.t-legendary .gacha-card-art{background:linear-gradient(180deg,#001a20 0%,#000d12 100%);}
+.t-mythic .gacha-card-art{background:linear-gradient(180deg,#1c0e00 0%,#0f0800 100%);}
+
+.art-aura{position:absolute;width:160px;height:160px;border-radius:50%;opacity:.35;}
+.t-common .art-aura{background:radial-gradient(circle,#78909c,transparent 70%);}
+.t-rare   .art-aura{background:radial-gradient(circle,#2979ff,transparent 70%);}
+.t-ultra  .art-aura{background:radial-gradient(circle,#c040fb,transparent 70%);}
+.t-legendary .art-aura{background:radial-gradient(circle,#00e5ff,transparent 70%);animation:aura-pulse 2s ease-in-out infinite alternate;opacity:.5;}
+.t-mythic .art-aura{background:radial-gradient(circle,#ffb700,transparent 70%);animation:aura-pulse 2s ease-in-out infinite alternate;opacity:.5;}
+@keyframes aura-pulse{from{transform:scale(.9);}to{transform:scale(1.15);opacity:.7;}}
+
+.art-hex{position:absolute;inset:0;
+  background-image:repeating-linear-gradient(60deg,rgba(255,255,255,0.02) 0,rgba(255,255,255,0.02) 1px,transparent 0,transparent 50%),
+    repeating-linear-gradient(120deg,rgba(255,255,255,0.02) 0,rgba(255,255,255,0.02) 1px,transparent 0,transparent 50%);
+  background-size:20px 20px;pointer-events:none;
+}
+
+.gacha-result-animal{
+  font-size:90px;line-height:1;position:relative;z-index:2;user-select:none;transition:filter .3s;
+}
+.gacha-result-animal.t-common{filter:drop-shadow(0 4px 12px rgba(120,144,156,0.5));}
+.gacha-result-animal.t-rare  {filter:drop-shadow(0 0 18px rgba(41,121,255,0.8)) drop-shadow(0 0 40px rgba(0,176,255,0.3));}
+.gacha-result-animal.t-ultra {filter:drop-shadow(0 0 20px rgba(192,64,251,0.9)) drop-shadow(0 0 50px rgba(124,77,255,0.4));}
+.gacha-result-animal.t-legendary{filter:drop-shadow(0 0 22px rgba(0,229,255,0.95)) drop-shadow(0 0 55px rgba(0,184,212,0.5));animation:animal-legendary 1.8s ease-in-out infinite alternate;}
+@keyframes animal-legendary{
+  from{filter:drop-shadow(0 0 16px rgba(0,229,255,.8)) drop-shadow(0 0 40px rgba(0,184,212,.4));transform:scale(1);}
+  to  {filter:drop-shadow(0 0 30px rgba(0,255,255,1))  drop-shadow(0 0 65px rgba(0,229,255,.6));transform:scale(1.05);}
+}
+.gacha-result-animal.t-mythic{
+  filter:drop-shadow(0 0 24px rgba(255,200,0,1)) drop-shadow(0 0 60px rgba(255,106,0,0.6));
+  animation:animal-mythic 1.8s ease-in-out infinite alternate;
+}
+@keyframes animal-mythic{
+  from{filter:drop-shadow(0 0 18px rgba(255,183,0,.9)) drop-shadow(0 0 40px rgba(255,106,0,.4));transform:scale(1);}
+  to  {filter:drop-shadow(0 0 32px rgba(255,220,0,1))  drop-shadow(0 0 70px rgba(255,60,0,.7)); transform:scale(1.06);}
+}
+
+.art-ring{position:absolute;border-radius:50%;border:1px solid;opacity:0;pointer-events:none;}
+.art-ring-1{width:120px;height:120px;}
+.art-ring-2{width:148px;height:148px;}
+.t-rare  .art-ring{opacity:1;border-color:rgba(41,121,255,0.3);}
+.t-ultra .art-ring{opacity:1;border-color:rgba(192,64,251,0.35);}
+.t-legendary .art-ring{opacity:1;border-color:rgba(0,229,255,0.4);}
+.t-mythic .art-ring{opacity:1;border-color:rgba(255,183,0,0.4);}
+.t-rare  .art-ring-1{animation:spin 7s linear infinite;}
+.t-ultra .art-ring-1{animation:spin 5s linear infinite;}
+.t-legendary .art-ring-1{animation:spin 4s linear infinite;}
+.t-mythic .art-ring-1{animation:spin 3s linear infinite;}
+.t-rare  .art-ring-2{animation:spin 12s linear infinite reverse;}
+.t-ultra .art-ring-2{animation:spin 8s linear infinite reverse;}
+.t-legendary .art-ring-2{animation:spin 6s linear infinite reverse;border-style:dashed;}
+.t-mythic .art-ring-2{animation:spin 5s linear infinite reverse;border-style:dashed;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.mythic-stars{position:absolute;inset:0;pointer-events:none;opacity:0;width:100%;height:100%;}
+.t-mythic .mythic-stars{opacity:1;}
+
+.gacha-card-info{
+  width:100%;padding:14px 18px 16px;display:flex;flex-direction:column;
+  align-items:center;gap:8px;position:relative;
+}
+.t-common .gacha-card-info{background:linear-gradient(180deg,#0d1520,#090c18);border-top:1px solid rgba(120,144,156,0.2);}
+.t-rare   .gacha-card-info{background:linear-gradient(180deg,#040e24,#030818);border-top:1px solid rgba(41,121,255,0.25);}
+.t-ultra  .gacha-card-info{background:linear-gradient(180deg,#0e0420,#060010);border-top:1px solid rgba(192,64,251,0.3);}
+.t-legendary .gacha-card-info{background:linear-gradient(180deg,#001820,#000c10);border-top:1px solid rgba(0,229,255,0.3);}
+.t-mythic .gacha-card-info{background:linear-gradient(180deg,#1a0c00,#0e0700);border-top:1px solid rgba(255,183,0,0.3);}
+
+.card-info-line{position:absolute;top:0;left:20%;right:20%;height:1px;border-radius:1px;}
+.t-common .card-info-line{background:linear-gradient(90deg,transparent,rgba(120,144,156,0.5),transparent);}
+.t-rare   .card-info-line{background:linear-gradient(90deg,transparent,rgba(41,121,255,0.7),transparent);}
+.t-ultra  .card-info-line{background:linear-gradient(90deg,transparent,rgba(192,64,251,0.8),transparent);}
+.t-legendary .card-info-line{background:linear-gradient(90deg,transparent,rgba(0,229,255,0.85),transparent);box-shadow:0 0 8px rgba(0,229,255,0.4);}
+.t-mythic .card-info-line{background:linear-gradient(90deg,transparent,rgba(255,183,0,0.9),transparent);box-shadow:0 0 8px rgba(255,183,0,0.5);}
+
+.gacha-result-eyebrow{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:var(--g-muted);opacity:.7;}
+
+.gacha-result-name{
+  font-family:'Cinzel Decorative',serif;font-size:18px;font-weight:900;line-height:1.1;text-align:center;
+}
+.gacha-result-name.t-common{color:#b0bec5;}
+.gacha-result-name.t-rare{background:linear-gradient(135deg,#64b5f6,#2979ff,#00b0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 8px rgba(41,121,255,0.5));}
+.gacha-result-name.t-ultra{background:linear-gradient(135deg,#e040fb,#c040fb,#7c4dff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 10px rgba(192,64,251,0.6));}
+.gacha-result-name.t-legendary{
+  background:linear-gradient(135deg,#e0ffff,#00e5ff,#00b8d4);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:name-legendary 1.6s ease-in-out infinite alternate;
+}
+@keyframes name-legendary{from{filter:drop-shadow(0 0 6px rgba(0,229,255,.6));}to{filter:drop-shadow(0 0 16px rgba(0,255,255,.9));}}
+.gacha-result-name.t-mythic{
+  background:linear-gradient(135deg,#fff5cc,#ffe066,#ffb700,#ff8c00,#ff6a00);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:name-mythic 1.6s ease-in-out infinite alternate;
+}
+@keyframes name-mythic{from{filter:drop-shadow(0 0 6px rgba(255,183,0,.6));}to{filter:drop-shadow(0 0 16px rgba(255,140,0,.9));}}
+
+.gacha-card-divider{width:80%;height:1px;border-radius:1px;opacity:.4;}
+.t-common .gacha-card-divider{background:linear-gradient(90deg,transparent,#78909c,transparent);}
+.t-rare   .gacha-card-divider{background:linear-gradient(90deg,transparent,#2979ff,transparent);}
+.t-ultra  .gacha-card-divider{background:linear-gradient(90deg,transparent,#c040fb,transparent);}
+.t-legendary .gacha-card-divider{background:linear-gradient(90deg,transparent,#00e5ff,transparent);}
+.t-mythic .gacha-card-divider{background:linear-gradient(90deg,transparent,#ffb700,transparent);}
+
+.gacha-result-desc{font-size:11px;color:var(--g-muted);line-height:1.65;font-weight:300;text-align:center;max-width:200px;opacity:.85;}
+
+.gacha-card-footer{
+  width:100%;padding:10px 14px 14px;display:flex;flex-direction:column;
+  align-items:center;gap:4px;font-family:'Raleway',sans-serif;
+}
+.t-common .gacha-card-footer{background:linear-gradient(180deg,#0a1018,#070a12);border-top:1px solid rgba(120,144,156,0.15);}
+.t-rare   .gacha-card-footer{background:linear-gradient(180deg,#030818,#020610);border-top:1px solid rgba(41,121,255,0.2);}
+.t-ultra  .gacha-card-footer{background:linear-gradient(180deg,#060010,#030008);border-top:1px solid rgba(192,64,251,0.2);}
+.t-legendary .gacha-card-footer{background:linear-gradient(180deg,#000c10,#000608);border-top:1px solid rgba(0,229,255,0.2);}
+.t-mythic .gacha-card-footer{background:linear-gradient(180deg,#0e0700,#080400);border-top:1px solid rgba(255,183,0,0.2);}
+
+.gacha-card-footer-line{
+  width:60%;height:1px;border-radius:1px;opacity:.25;margin-bottom:4px;
+  background:linear-gradient(90deg,transparent,var(--g-muted),transparent);
+}
+.gacha-footer-name{
+  font-size:10px;font-weight:600;color:var(--g-text);letter-spacing:.05em;
+}
+.gacha-footer-date{
+  font-size:9px;font-weight:400;color:var(--g-muted);letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.gacha-footer-score{
+  font-size:9px;font-weight:700;color:var(--g-muted);margin-top:2px;
+  font-family:'Cinzel',serif;letter-spacing:.1em;
+}
+
+.gacha-badge-row{display:flex;align-items:center;gap:6px;}
+.gacha-result-badge{
+  font-family:'Cinzel',serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 14px;border-radius:50px;border:1px solid;
+}
+.gacha-result-badge.t-common{color:#90a4ae;border-color:rgba(120,144,156,0.4);background:rgba(120,144,156,0.1);}
+.gacha-result-badge.t-rare  {color:#82c4ff;border-color:rgba(41,121,255,0.5);background:rgba(41,121,255,0.12);box-shadow:0 0 10px rgba(41,121,255,0.2);}
+.gacha-result-badge.t-ultra {color:#e090f8;border-color:rgba(192,64,251,0.55);background:rgba(192,64,251,0.12);box-shadow:0 0 12px rgba(192,64,251,0.25);}
+.gacha-result-badge.t-legendary{color:#00e5ff;border-color:rgba(0,229,255,0.6);background:rgba(0,229,255,0.1);box-shadow:0 0 14px rgba(0,229,255,0.3);animation:badge-glow-legendary 1.5s ease-in-out infinite alternate;}
+@keyframes badge-glow-legendary{from{box-shadow:0 0 8px rgba(0,229,255,0.25);}to{box-shadow:0 0 18px rgba(0,229,255,0.6);}}
+.gacha-result-badge.t-mythic{color:#ffe066;border-color:rgba(255,183,0,0.6);background:rgba(255,183,0,0.12);box-shadow:0 0 14px rgba(255,183,0,0.3);animation:badge-glow 1.5s ease-in-out infinite alternate;}
+@keyframes badge-glow{from{box-shadow:0 0 8px rgba(255,183,0,0.25);}to{box-shadow:0 0 18px rgba(255,140,0,0.5);}}
+
+.gacha-card-frame{position:absolute;inset:0;border-radius:20px;border:1.5px solid;pointer-events:none;}
+.t-common .gacha-card-frame{border-color:rgba(120,144,156,0.3);}
+.t-rare   .gacha-card-frame{border-color:rgba(41,121,255,0.45);box-shadow:inset 0 0 20px rgba(41,121,255,0.06),0 0 30px rgba(41,121,255,0.2);}
+.t-ultra  .gacha-card-frame{border-color:rgba(192,64,251,0.5);box-shadow:inset 0 0 24px rgba(192,64,251,0.07),0 0 40px rgba(124,77,255,0.25);}
+.t-legendary .gacha-card-frame{border-color:rgba(0,229,255,0.55);box-shadow:inset 0 0 28px rgba(0,229,255,0.08),0 0 50px rgba(0,229,255,0.3);animation:frame-legendary 2s ease-in-out infinite alternate;}
+@keyframes frame-legendary{from{box-shadow:inset 0 0 20px rgba(0,229,255,.06),0 0 35px rgba(0,229,255,.2);}to{box-shadow:inset 0 0 40px rgba(0,229,255,.12),0 0 65px rgba(0,229,255,.5);}}
+.t-mythic .gacha-card-frame{border-color:rgba(255,183,0,0.55);box-shadow:inset 0 0 30px rgba(255,183,0,0.08),0 0 50px rgba(255,140,0,0.35);animation:frame-mythic 2s ease-in-out infinite alternate;}
+@keyframes frame-mythic{from{box-shadow:inset 0 0 20px rgba(255,183,0,.06),0 0 40px rgba(255,140,0,.25);}to{box-shadow:inset 0 0 40px rgba(255,183,0,.12),0 0 70px rgba(255,100,0,.5);}}
+
+.corner-gem{position:absolute;width:10px;height:10px;border-radius:2px;transform:rotate(45deg);z-index:3;}
+.cg-tl{top:6px;left:6px;} .cg-tr{top:6px;right:6px;} .cg-bl{bottom:6px;left:6px;} .cg-br{bottom:6px;right:6px;}
+.t-common .corner-gem{background:#546e7a;box-shadow:0 0 4px #546e7a;}
+.t-rare   .corner-gem{background:#2979ff;box-shadow:0 0 6px rgba(41,121,255,0.8);}
+.t-ultra  .corner-gem{background:#c040fb;box-shadow:0 0 8px rgba(192,64,251,0.9);}
+.t-legendary .corner-gem{background:#00e5ff;box-shadow:0 0 10px rgba(0,229,255,1);animation:gem-pulse-legendary 1s ease-in-out infinite alternate;}
+@keyframes gem-pulse-legendary{from{box-shadow:0 0 6px rgba(0,229,255,.8);}to{box-shadow:0 0 16px rgba(0,255,255,1);}}
+.t-mythic .corner-gem{background:#ffb700;box-shadow:0 0 10px rgba(255,183,0,1);animation:gem-pulse 1s ease-in-out infinite alternate;}
+@keyframes gem-pulse{from{box-shadow:0 0 6px rgba(255,183,0,.8);}to{box-shadow:0 0 14px rgba(255,220,0,1);}}
+
+.gacha-btn-row{display:flex;gap:8px;align-items:center;margin-top:12px;justify-content:center;}
+.gacha-close-btn{
+  padding:9px 20px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  cursor:pointer;border-radius:50px;border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.04);color:var(--g-muted);transition:background .2s,color .2s;
+}
+.gacha-close-btn:hover{background:rgba(255,255,255,0.08);color:var(--g-text);}
+
+.gacha-dl-btn{
+  padding:9px 20px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  cursor:pointer;border-radius:50px;border:none;font-weight:700;transition:transform .15s,box-shadow .2s;
+}
+.gacha-dl-btn:hover{transform:translateY(-2px);}
+.gacha-dl-btn:active{transform:scale(.96);}
+.gacha-dl-btn.loading{opacity:.7;cursor:wait;}
+.t-common .gacha-dl-btn{background:linear-gradient(135deg,#78909c,#546e7a);color:#fff;box-shadow:0 3px 12px rgba(84,110,122,0.4);}
+.t-rare   .gacha-dl-btn{background:linear-gradient(135deg,#2979ff,#00b0ff);color:#fff;box-shadow:0 3px 14px rgba(41,121,255,0.5);}
+.t-rare   .gacha-dl-btn:hover{box-shadow:0 6px 22px rgba(41,121,255,0.7);}
+.t-ultra  .gacha-dl-btn{background:linear-gradient(135deg,#c040fb,#7c4dff);color:#fff;box-shadow:0 3px 14px rgba(192,64,251,0.5);}
+.t-ultra  .gacha-dl-btn:hover{box-shadow:0 6px 22px rgba(192,64,251,0.7);}
+.t-legendary .gacha-dl-btn{background:linear-gradient(135deg,#00e5ff,#00b8d4);color:#001a20;box-shadow:0 3px 14px rgba(0,229,255,0.5);}
+.t-mythic .gacha-dl-btn{background:linear-gradient(135deg,#ffe066,#ffb700,#ff6a00);color:#1a0800;box-shadow:0 3px 14px rgba(255,183,0,0.55);}
+.t-mythic .gacha-dl-btn:hover{box-shadow:0 6px 24px rgba(255,140,0,0.8);}
+
+.gacha-particle{position:fixed;border-radius:50%;pointer-events:none;z-index:1001;animation:pfly 1s ease-out forwards;}
+@keyframes pfly{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0);}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.2) rotate(720deg);}}
+
+/* ── ANIMATIONS ── */
+
+/* ── ADMIN PIN ── */
+.pdot{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid rgba(192,64,251,0.5);
+  background:transparent;transition:background .15s,border-color .15s;
+}
+.pdot.filled{background:#c040fb;border-color:#c040fb;box-shadow:0 0 8px rgba(192,64,251,0.7);}
+.pdot.error{background:#f43f5e;border-color:#f43f5e;animation:pinShake .4s ease;}
+.pin-key{
+  padding:.75rem;border-radius:12px;border:1px solid rgba(124,77,255,0.25);
+  background:rgba(255,255,255,0.05);color:#e8eaf6;
+  font-family:'Fredoka One',cursive;font-size:1.2rem;
+  cursor:pointer;transition:background .12s,transform .1s;
+}
+.pin-key:hover{background:rgba(192,64,251,0.18);transform:scale(1.06);}
+.pin-key:active{transform:scale(.94);}
+.pin-key-cancel{color:#7986cb;font-size:1rem;}
+.pin-key-del{color:#7986cb;font-size:1rem;}
+@keyframes pinShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
+
+@keyframes popIn  {from{opacity:0;transform:scale(.88);}to{opacity:1;transform:scale(1);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(55px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeQ  {from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:translateX(0);}}
+
+@media(max-width:420px){
+  .gacha-result-animal{font-size:52px;}
+  .gacha-result-card{width:260px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+   SCREEN NAMA
+═══════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════
+   ADMIN PIN MODAL
+═══════════════════════════════════════════ -->
+<div id="admin-pin-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:#1a1a2e;border:1px solid rgba(124,77,255,0.4);border-radius:24px;padding:2rem 1.8rem 1.8rem;max-width:320px;width:88%;text-align:center;box-shadow:0 0 60px rgba(124,77,255,0.25);animation:popIn .3s cubic-bezier(.34,1.56,.64,1) both;">
+    <div style="font-size:2.2rem;margin-bottom:.5rem">🔐</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:#c040fb;margin-bottom:.25rem;">Mode Admin</div>
+    <div style="font-size:.8rem;font-weight:600;color:#7986cb;margin-bottom:1.3rem;letter-spacing:.03em;">Masukkan PIN 6 digit</div>
+    <div id="pin-dots" style="display:flex;justify-content:center;gap:.5rem;margin-bottom:1.2rem;">
+      <div class="pdot" id="pd0"></div>
+      <div class="pdot" id="pd1"></div>
+      <div class="pdot" id="pd2"></div>
+      <div class="pdot" id="pd3"></div>
+      <div class="pdot" id="pd4"></div>
+      <div class="pdot" id="pd5"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.8rem;" id="pin-numpad">
+      <button class="pin-key" onclick="pinInput('1')">1</button>
+      <button class="pin-key" onclick="pinInput('2')">2</button>
+      <button class="pin-key" onclick="pinInput('3')">3</button>
+      <button class="pin-key" onclick="pinInput('4')">4</button>
+      <button class="pin-key" onclick="pinInput('5')">5</button>
+      <button class="pin-key" onclick="pinInput('6')">6</button>
+      <button class="pin-key" onclick="pinInput('7')">7</button>
+      <button class="pin-key" onclick="pinInput('8')">8</button>
+      <button class="pin-key" onclick="pinInput('9')">9</button>
+      <button class="pin-key pin-key-cancel" onclick="adminCancel()">✕</button>
+      <button class="pin-key" onclick="pinInput('0')">0</button>
+      <button class="pin-key pin-key-del" onclick="pinDelete()">⌫</button>
+    </div>
+    <div id="pin-err" style="color:#f43f5e;font-size:.78rem;font-weight:700;display:none;margin-top:.3rem;">PIN salah. Akses ditolak.</div>
+  </div>
+</div>
+
+<div id="screen-nama" style="position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:var(--bg);">
+  <div style="background:#fff;border-radius:28px;padding:2.4rem 2rem 2rem;max-width:360px;width:88%;text-align:center;box-shadow:0 8px 40px #0002;animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;">
+    <div style="font-size:3rem;margin-bottom:.6rem">👋</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:1.7rem;background:linear-gradient(135deg,#dc2626,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.35rem;">Isi Nama Dulu Ya</div>
+    <div style="font-size:.88rem;font-weight:600;color:var(--muted);margin-bottom:1.4rem;">Masukkan namamu dulu sebelum belajar 😊</div>
+    <input id="input-nama" type="text" placeholder="Tulis namamu di sini..." maxlength="40"
+      style="width:100%;border:2px solid #e2e8f0;border-radius:14px;padding:.7rem 1rem;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;color:var(--text);outline:none;transition:border-color .15s;margin-bottom:.9rem;text-align:center;"
+      oninput="document.getElementById('input-nama').style.borderColor='#8b5cf6'"
+      onkeydown="if(event.key==='Enter') mulai()"
+    />
+    <button onclick="mulai()" style="width:100%;padding:.75rem;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;transition:transform .15s,box-shadow .15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Mulai Belajar 🚀</button>
+    <div id="nama-err" style="color:#e11d48;font-size:.8rem;font-weight:700;margin-top:.6rem;display:none;">⚠️ Nama tidak boleh kosong!</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+   MAIN CARD
+═══════════════════════════════════════════ -->
+<div class="main-card" id="main-card" style="display:none">
+  <div class="badge">🎯 Persiapan UAS 2025/2026</div>
+  <h1>PRA UAS<br>Bahasa Indonesia</h1>
+  <div class="mapel">Bahasa Indonesia · Kelas V</div>
+  <div class="pills">
+    <span class="pill">📚 Kelas V SD</span>
+    <span class="pill">📝 100 Bank Soal</span>
+    <span class="pill">📍 SDN 2 Pesantren</span>
+    <span class="pill" id="pill-nama">👤 —</span>
+  </div>
+  <div class="btn-group">
+    <button class="big-btn btn-rangkuman" onclick="openModal('rangkuman')">
+      <div class="bicon">📖</div>
+      <div class="btw"><div class="bl">Rangkuman</div><div class="bd">Materi ringkas sesuai kisi-kisi</div></div>
+      <span class="ba">›</span>
+    </button>
+    <button class="big-btn btn-soal" onclick="openModal('soal')">
+      <div class="bicon">✏️</div>
+      <div class="btw"><div class="bl">Soal Latihan</div><div class="bd">30 soal acak · mudah–sedang–sulit</div></div>
+      <span class="ba">›</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+   MODAL RANGKUMAN
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-rangkuman" onclick="closeOnBg(event,'modal-rangkuman')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhead">
+      <span class="mhead-icon">📖</span>
+      <span class="mhead-title" style="color:#7c3aed">Rangkuman Bahasa Indonesia Kelas 5</span>
+      <button class="mclose" onclick="closeModal('modal-rangkuman')">✕</button>
+    </div>
+    <div class="mbody">
+      <div style="background:linear-gradient(135deg,#fef9c3,#fff7ed);border-radius:14px;padding:.85rem 1rem;margin-bottom:1.2rem;font-size:.85rem;font-weight:700;color:#92400e;line-height:1.6;">💡 <strong>Tips Belajar:</strong> Baca semua materi di bawah ini dengan pelan-pelan. Pahami setiap poin, bukan sekadar menghafal!</div>
+
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#fff1f2">📜</div><span style="color:#e11d48">Bab 1 — Teks Eksplanasi: Fakta, Opini, & Makna Kata</span></div>
+        <div class="r-sub-head" style="color:#f43f5e">A. Fakta vs Opini</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span><span class="r-kw">Fakta</span> adalah pernyataan yang benar-benar terjadi, bisa dibuktikan kebenarannya, dan bersifat objektif. Contoh: "Batik merupakan kain bergambar khas Indonesia."</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span><span class="r-kw">Opini</span> adalah pernyataan yang bersifat subjektif, berupa pendapat, perasaan, atau penilaian seseorang. Contoh: "Sebagai masyarakat Indonesia, kita harus bangga dengan batik."</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>Ciri fakta: menggunakan data, angka, atau informasi yang bisa diverifikasi. Ciri opini: menggunakan kata <span class="r-kw">"menurut saya", "seharusnya", "harus", "paling", "terbaik", "bangga", "sayang".</span></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>Dalam teks eksplanasi, opini sering muncul di bagian <span class="r-kw">simpulan atau rekomendasi</span> (kalimat terakhir/penutup).</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#f43f5e">B. Makna Kata (Denotatif & Kontekstual)</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span><span class="r-kw">Makna kata</span> dalam teks harus dipahami berdasarkan <span class="r-kw">konteks kalimat</span>, bukan hanya makna kamus. Contoh: "khas" dalam teks batik = keistimewaan setiap daerah; "teknik" = kepandaian membuat sesuatu.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span><span class="r-kw">Denotatif</span> = makna sebenarnya/literal sesuai kamus. <span class="r-kw">Konotatif</span> = makna kiasan/figuratif yang timbul karena pengalaman, budaya, atau perasaan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>Contoh konotatif: <span class="r-kw">"kambing hitam"</span> (orang yang disalahkan), <span class="r-kw">"panjang tangan"</span> (suka mencuri), <span class="r-kw">"berat hati"</span> (enggan melakukan sesuatu).</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#f43f5e">C. Struktur & Ciri Teks Eksplanasi</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>Struktur: <span class="r-kw">Pernyataan umum (fenomena)</span> → <span class="r-kw">Deretan penjelas (sebab-akibat)</span> → <span class="r-kw">Simpulan/interpretasi.</span></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>Ciri kebahasaan: menggunakan <span class="r-kw">kata hubung kausalitas</span> (karena, sebab, akibat, sehingga, oleh karena itu, maka, kemudian), <span class="r-kw">kata teknis</span>, dan <span class="r-kw">kalimat pasif</span>.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span><span class="r-kw">Kesimpulan</span> teks harus mencakup gagasan utama seluruh teks, bukan hanya bagian tertentu. Caranya: gabungkan ide pokok setiap paragraf.</span></div>
+        </div>
+      </div>
+      <div class="r-divider"></div>
+
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#f0fdf4">📢</div><span style="color:#16a34a">Bab 2 — Iklan, Poster, dan Persuasi</span></div>
+        <div class="r-sub-head" style="color:#16a34a">A. Iklan</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span><span class="r-kw">Iklan</span> adalah pesan yang dibuat untuk membujuk/meyakinkan orang agar membeli produk atau mengikuti suatu ajakan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>Ciri bahasa iklan: <span class="r-kw">persuasif, menarik, singkat, padat, jelas, menggunakan kata ajakan</span> (ayo, mari, yuk, jangan lupa), dan sering ada <span class="r-kw">kata sifat berlebihan</span> (terbaik, paling segar, nikmatnya tiada tara).</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>Iklan komersial = menjual produk/jasa. Iklan layanan masyarakat = mengajak perilaku positif (jaga kebersihan, hemat air).</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#16a34a">B. Poster</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span><span class="r-kw">Poster</span> adalah media visual yang menggabungkan gambar dan tulisan untuk menyampaikan pesan tertentu.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>Unsur poster: <span class="r-kw">judul, gambar menarik, slogan/pesan, informasi lengkap</span> (waktu, tempat, pelaksana — jika acara).</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>Poster persuasi bertujuan mengajak/membujuk (jaga kebersihan, jauhi narkoba, hemat energi). Poster informasi bertujuan mengumumkan (karnaval, konser).</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#16a34a">C. Kalimat Ajakan & Persuasif</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span><span class="r-kw">Kalimat ajakan</span> menggunakan kata <span class="r-kw">"ayo", "mari", "yuk", "marilah", "jangan"</span> untuk mengajak orang melakukan sesuatu. Contoh: "Marilah kita budayakan hidup sehat."</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span><span class="r-kw">Kalimat persuasif</span> lebih kuat dari ajakan — membujuk dengan alasan dan emosi. Contoh: "Bersih Itu Sehat, Bersih Itu Indah! Mari jaga kebersihan lingkungan kita!"</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>Kalimat <span class="r-kw">perintah</span> (harus, wajib) beda dengan ajakan. Ajakan lebih sopan dan mempersilakan.</span></div>
+        </div>
+      </div>
+      <div class="r-divider"></div>
+
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#fffbeb">📝</div><span style="color:#d97706">Bab 3 — Paragraf, Narasi, dan Kalimat Utama</span></div>
+        <div class="r-sub-head" style="color:#d97706">A. Kalimat Utama & Kalimat Penjelas</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span><span class="r-kw">Kalimat utama</span> = gagasan pokok paragraf, biasanya berisi informasi umum. <span class="r-kw">Kalimat penjelas</span> = detail, contoh, atau uraian yang mendukung kalimat utama.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>Paragraf <span class="r-kw">deduktif</span>: kalimat utama di awal (paling umum). Paragraf <span class="r-kw">induktif</span>: kalimat utama di akhir. Paragraf <span class="r-kw">campuran</span>: kalimat utama di awal dan akhir.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>Ciri kalimat utama: bersifat <span class="r-kw">umum</span>, tidak ada kata penghubung sebab-akibat, sering menggunakan kata <span class="r-kw">"adalah", "merupakan", "yaitu", "ialah"</span>.</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#d97706">B. Teks Narasi</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span><span class="r-kw">Teks narasi</span> menceritakan urutan peristiwa/kegiatan dengan runtut waktu. Ciri: menggunakan <span class="r-kw">kata kerja aktif, kata keterangan waktu</span> (pagi, siang, kemudian, setelah itu), dan <span class="r-kw">konjungsi temporal</span>.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>Struktur narasi: <span class="r-kw">orientasi (pengenalan)</span> → <span class="r-kw">komplikasi/peristiwa</span> → <span class="r-kw">resolusi/penyelesaian</span>.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>Narasi deduktif: kalimat utama di awal yang berisi pernyataan umum, diikuti peristiwa khusus. Contoh: "Danu dan Pian sedang mengerjakan soal..." (kalimat utama, pernyataan umum).</span></div>
+        </div>
+      </div>
+      <div class="r-divider"></div>
+
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#f0f9ff">🎭</div><span style="color:#0ea5e9">Bab 4 — Puisi & Bahasa Kiasan</span></div>
+        <div class="r-sub-head" style="color:#0ea5e9">A. Memahami Puisi</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span><span class="r-kw">Puisi</span> adalah bentuk karya sastra yang menggunakan bahasa kiasan, imajinatif, dan rima untuk menimbulkan perasaan/emosional.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span><span class="r-kw">Larik/bait</span> adalah baris dalam puisi. Makna larik tidak selalu harfiah — harus diartikan secara <span class="r-kw">kiasan/kontekstual</span>.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>Contoh makna kiasan: <span class="r-kw">"membawa mimpi di pundak rapuh"</span> = datang ke sekolah dengan harapan besar meski masih kecil/lemah. <span class="r-kw">"Guru adalah pelita tak padam"</span> = guru selalu memberikan cahaya ilmu tanpa kenal lelah.</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#0ea5e9">B. Menulis Ulang Puisi</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>Cara menulis ulang: ubah kata-kata kias menjadi <span class="r-kw">bahasa sehari-hari yang mudah dimengerti</span> tanpa mengubah makna/inti pesan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>Tips: identifikasi <span class="r-kw">subjek, predikat, dan keterangan</span> di setiap larik, lalu susun kembali menjadi paragraf prosa.</span></div>
+        </div>
+      </div>
+      <div class="r-divider"></div>
+
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#fef9ff">🔤</div><span style="color:#9333ea">Bab 5 — Imbuhan, Akronim, & Ungkapan</span></div>
+        <div class="r-sub-head" style="color:#9333ea">A. Imbuhan "ter-"</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#a855f7"></span><span>Imbuhan <span class="r-kw">"ter-"</span> memiliki beberapa makna: (1) <span class="r-kw">tidak sengaja</span> (terjatuh, terpukul, tersenggol), (2) <span class="r-kw">paling/tertinggi</span> (tertinggi, terbesar, terpanjang), (3) <span class="r-kw">sudah/bisa</span> (terbuka, tertutup, terpilih), (4) <span class="r-kw">terlalu</span> (terlambat, terlalu).</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#a855f7"></span><span>Contoh "tidak sengaja": <span class="r-kw">"Dia terpukul oleh temanya saat bermain voli."</span> → pukulan datang tanpa disengaja.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#a855f7"></span><span>Contoh "paling": <span class="r-kw">"Gedung tertinggi di kota ini."</span> → bukan tidak sengaja, melainkan superlatif.</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#9333ea">B. Akronim</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#a855f7"></span><span><span class="r-kw">Akronim</span> adalah kependekan yang merupakan <span class="r-kw">gabungan suku kata</span> dan membentuk kata baru yang bisa dilafalkan. Beda dengan singkatan (hanya huruf awal, dilafalkan per huruf).</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#a855f7"></span><span>Contoh akronim: <span class="r-kw">Paskibra</span> (Pasukan Pengibar Bendera), <span class="r-kw">Laser</span> (Light Amplification...), <span class="r-kw">Radar</span>. Bukan akronim: TV, SD, SMP, SMA (ini singkatan).</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#9333ea">C. Ungkapan/Frasa Konotatif</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#a855f7"></span><span><span class="r-kw">Otak udang</span> = tidak berpikir dengan baik. <span class="r-kw">Berat hati</span> = enggan melakukan sesuatu. <span class="r-kw">Banting tulang</span> = bekerja keras. <span class="r-kw">Kepala batu</span> = sulit menerima nasihat.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#a855f7"></span><span><span class="r-kw">Kambing hitam</span> = orang yang disalahkan. <span class="r-kw">Panjang tangan</span> = suka mencuri. <span class="r-kw">Buah bibir</span> = pembicaraan orang banyak.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+   MODAL SOAL
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-soal">
+  <div class="modal modal-fullscreen">
+    <div class="mhandle"></div>
+    <div class="mhead">
+      <span class="mhead-icon">✏️</span>
+      <span class="mhead-title" style="color:#f97316" id="soal-modal-title">Soal Latihan</span>
+      <button class="mclose" onclick="closeModal('modal-soal')">✕</button>
+    </div>
+    <div class="mbody" id="soal-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+   GACHA OVERLAY (Hidden by default)
+═══════════════════════════════════════════ -->
+<div id="gacha-overlay">
+  <div class="gacha-container">
+    <div class="gacha-header">
+      <h1>🎁 Kotak Hadiah</h1>
+      <p>Nilaimu ≥90! Buka hadiahmu sekarang</p>
+    </div>
+    <div class="gacha-divider"></div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:1.4rem;width:100%;">
+      <div class="gacha-box-wrap" onclick="openBox()" title="Klik untuk buka">
+        <div class="gacha-box-glow-ring"></div>
+        <div class="gacha-lootbox" id="gacha-lootbox">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <rect x="10" y="38" width="60" height="32" rx="5" fill="#1a1a3e" stroke="#7c4dff" stroke-width="1.5"/>
+            <rect x="10" y="18" width="60" height="22" rx="5" fill="#1e1b4b" stroke="#9c6bff" stroke-width="1.5"/>
+            <path d="M10 30 Q40 12 70 30" fill="#1e1b4b" stroke="#9c6bff" stroke-width="1.5"/>
+            <rect x="32" y="36" width="16" height="8" rx="4" fill="#3d2b7a" stroke="#c040fb" stroke-width="1"/>
+            <circle cx="40" cy="52" r="6" fill="#2d1b69" stroke="#c040fb" stroke-width="1.5"/>
+            <circle cx="40" cy="52" r="2.5" fill="#c040fb"/>
+            <text x="22" y="31" font-size="10">🐾</text>
+            <text x="50" y="28" font-size="8">✨</text>
+            <rect x="10" y="37" width="60" height="3" fill="#7c4dff" opacity=".4"/>
+          </svg>
+          <div class="gacha-box-hint">Klik untuk buka</div>
+        </div>
+      </div>
+
+      <button class="gacha-open-btn" id="gacha-open-btn" onclick="openBox()">✦ Buka Hadiah ✦</button>
+
+      <div class="gacha-legend">
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#78909c"></div>Common</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#2979ff"></div>Rare</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#c040fb"></div>Ultra Rare</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#00e5ff"></div>Legendary</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#ffb700"></div>Mythic</div>
+      </div>
+    </div>
+
+    <div class="gacha-divider"></div>
+  </div>
+
+  <!-- RESULT CARD -->
+  <div class="gacha-result-card" id="gacha-result-card" style="display:none;position:absolute;">
+    <div class="card-halo"></div>
+    <div class="gacha-card-inner" id="gacha-card-inner">
+      <div class="corner-gem cg-tl"></div>
+      <div class="corner-gem cg-tr"></div>
+      <div class="corner-gem cg-bl"></div>
+      <div class="corner-gem cg-br"></div>
+      <div class="gacha-card-frame"></div>
+
+      <div class="gacha-card-banner">
+        <span class="gacha-card-banner-label" id="gacha-r-badge">—</span>
+        <span class="gacha-card-banner-stars" id="gacha-r-stars">★★★★★</span>
+      </div>
+
+      <div class="gacha-card-art" id="gacha-card-art">
+        <div class="art-aura"></div>
+        <div class="art-hex"></div>
+        <div class="art-ring art-ring-2"></div>
+        <div class="art-ring art-ring-1"></div>
+        <svg class="mythic-stars" viewBox="0 0 200 200">
+          <g fill="#ffb700" opacity=".9">
+            <polygon points="100,8 103,18 114,18 105,24 108,34 100,28 92,34 95,24 86,18 97,18" opacity=".95"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(40,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(80,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(120,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(160,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(200,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(240,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(280,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(320,100,100) translate(0,-42)"/>
+          </g>
+        </svg>
+        <div class="gacha-result-animal" id="gacha-r-animal">🐱</div>
+      </div>
+
+      <div class="gacha-card-info" id="gacha-card-info">
+        <div class="card-info-line"></div>
+        <div class="gacha-result-eyebrow">Kamu mendapatkan</div>
+        <div class="gacha-result-name" id="gacha-r-name">—</div>
+        <div class="gacha-card-divider"></div>
+        <div class="gacha-result-desc" id="gacha-r-desc"></div>
+      </div>
+
+      <div class="gacha-card-footer" id="gacha-card-footer">
+        <div class="gacha-card-footer-line"></div>
+        <div class="gacha-footer-name" id="gacha-footer-name">—</div>
+        <div class="gacha-footer-date" id="gacha-footer-date">—</div>
+        <div class="gacha-footer-score" id="gacha-footer-score">—</div>
+      </div>
+    </div>
+
+    <div class="gacha-btn-row" id="gacha-btn-row" style="display:none;">
+      <button class="gacha-dl-btn" id="gacha-dl-btn" onclick="downloadCard()">⬇ Simpan Kartu</button>
+      <button class="gacha-close-btn" onclick="closeGachaResult()">✕ Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONFIG: Ganti dengan URL Web App Anda
+// ═══════════════════════════════════════════
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxKK1xTtO9LKZtGcRHOnOj7l8VUfRETeCqHG0jVZTflLaJAlhrSPukrgnuiRL1qCZuK/exec";
+
+// ═══════════════════════════════════════════
+//  BANK SOAL 100 — BAHASA INDONESIA KELAS 5
+// ═══════════════════════════════════════════
+const bank = [
+// Mudah (50)
+{id:1,lvl:'M',tipe:'pg',q:'Perbedaan utama fakta dan opini adalah…',opts:['Fakta bersifat subjektif, opini bersifat objektif','Fakta bisa dibuktikan, opini bersifat pendapat pribadi','Fakta selalu panjang, opini selalu pendek','Fakta dan opini sama-sama tidak bisa dibuktikan'],jawab:1,info:'Fakta adalah pernyataan yang benar-benar terjadi dan bisa dibuktikan. Opini adalah pendapat, perasaan, atau penilaian seseorang yang bersifat subjektif.'},
+{id:2,lvl:'M',tipe:'bs',q:'"Batik sudah menjadi ikon budaya penting di Indonesia" merupakan contoh kalimat fakta.',jawab:false,info:'Kalimat ini bersifat opini karena mengandung penilaian/penghargaan ("ikon budaya penting") yang bersifat subjektif dan tidak bisa dibuktikan secara objektif.'},
+{id:3,lvl:'M',tipe:'pg',q:'Ciri-ciri kalimat opini adalah…',opts:['Menggunakan data dan angka','Bersifat objektif dan logis','Mengandung kata penilaian seperti "harus", "bangga", "terbaik"','Bisa dibuktikan kebenarannya'],jawab:2,info:'Kalimat opini sering menggunakan kata-kata penilaian, perasaan, atau anjuran seperti "harus", "bangga", "terbaik", "paling", "menurut saya".'},
+{id:4,lvl:'M',tipe:'bs',q:'"Sejak 2 Oktober 2009, teknik pembuatan batik diakui oleh UNESCO" adalah kalimat opini.',jawab:false,info:'Kalimat ini adalah fakta karena berisi informasi yang bisa dibuktikan kebenarannya (ada data waktu dan instansi resmi UNESCO).'},
+{id:5,lvl:'M',tipe:'pg',q:'Dalam teks eksplanasi, opini biasanya terdapat di bagian…',opts:['Pernyataan umum di awal','Deretan penjelas di tengah','Simpulan atau penutup di akhir teks','Judul teks'],jawab:2,info:'Opini sering muncul di bagian simpulan/penutup teks eksplanasi sebagai rekomendasi, ajakan, atau penilaian penulis terhadap fenomena yang dijelaskan.'},
+{id:6,lvl:'M',tipe:'bs',q:'Makna kata harus dipahami berdasarkan konteks kalimat, bukan hanya makna kamus.',jawab:true,info:'Makna kata dalam teks harus disesuaikan dengan konteks kalimat/paragraf. Contoh: "khas" dalam teks batik berarti keistimewaan setiap daerah.'},
+{id:7,lvl:'M',tipe:'pg',q:'Makna kata "teknik" dalam konteks teks batik adalah…',opts:['Kepandaian membuat sesuatu','Alat untuk menggambar','Bahan dasar pembuatan kain','Tempat menjual barang'],jawab:0,info:'Dalam konteks teks batik, "teknik" berarti kepandaian atau cara khusus dalam membuat batik (menuliskan/menerakan malam pada kain).'},
+{id:8,lvl:'M',tipe:'bs',q:'Makna kata "warisan" dalam teks batik adalah barang yang dimiliki turun-temurun.',jawab:true,info:'Benar. "Warisan" adalah harta atau nilai yang diwariskan dari nenek moyang kepada generasi berikutnya.'},
+{id:9,lvl:'M',tipe:'pg',q:'Kesimpulan teks harus berisi…',opts:['Opini pribadi penulis yang panjang','Gagasan utama seluruh teks secara singkat','Salah satu detail kecil dari teks','Kata-kata yang sulit dipahami'],jawab:1,info:'Kesimpulan menyajikan gagasan utama/gagasan pokok seluruh teks secara singkat, padat, dan mencakup semua bagian teks.'},
+{id:10,lvl:'M',tipe:'bs',q:'Kesimpulan teks boleh ditambahi opini pribadi yang tidak ada hubungannya dengan teks.',jawab:false,info:'Kesimpulan harus sesuai dengan isi teks. Opini pribadi yang tidak berkaitan dengan teks akan membuat simpulan menjadi tidak valid.'},
+{id:11,lvl:'M',tipe:'pg',q:'Ciri utama teks eksplanasi adalah…',opts:['Menceritakan pengalaman pribadi dengan runtut','Menggunakan bahasa kiasan dan rima','Menguraikan proses terjadinya fenomena dengan sebab-akibat','Berisi dialog antar tokoh'],jawab:2,info:'Teks eksplanasi menjelaskan proses terjadinya fenomena (alam/sosial) dengan urutan sebab-akibat dan menggunakan fakta.'},
+{id:12,lvl:'M',tipe:'bs',q:'Teks eksplanasi menggunakan kata hubung kausalitas seperti "karena", "sehingga", "maka", dan "kemudian".',jawab:true,info:'Benar. Teks eksplanasi menggunakan konjungsi/kata hubung kausalitas dan temporal untuk menjelaskan proses sebab-akibat fenomena.'},
+{id:13,lvl:'M',tipe:'pg',q:'Fungsi simbol dalam peta adalah untuk…',opts:['Mempersulit pembaca memahami peta','Mempermudah pengguna membaca dan memahami peta','Menghias tampilan peta agar lebih cantik','Menunjukkan batas negara saja'],jawab:1,info:'Simbol pada peta berfungsi mempermudah pembaca dalam memahami informasi geografis yang ditampilkan tanpa harus menulis nama panjang.'},
+{id:14,lvl:'M',tipe:'bs',q:'Poster hanya digunakan untuk keperluan hiburan dan tidak memiliki tujuan persuasi.',jawab:false,info:'Poster bisa berfungsi untuk persuasi (mengajak/membujuk), informasi, atau promosi. Banyak poster yang bertujuan mengajak perilaku positif.'},
+{id:15,lvl:'M',tipe:'pg',q:'Bahasa yang digunakan dalam iklan biasanya bersifat…',opts:['Pasif, monoton, dan panjang','Persuasif, menarik, dan singkat padat','Sulit dipahami dan menggunakan istilah teknis','Formal dan kaku seperti laporan'],jawab:1,info:'Iklan menggunakan bahasa persuasif yang menarik perhatian, singkat, padat, jelas, dan mudah diingat agar pembaca tertarik.'},
+{id:16,lvl:'M',tipe:'bs',q:'Akronim adalah singkatan yang terdiri dari huruf-huruf awal kata dan dilafalkan per huruf.',jawab:false,info:'Yang dilafalkan per huruf adalah singkatan (TV, SD, SMA). Akronim adalah gabungan suku kata yang membentuk kata baru (Paskibra, Laser, Radar).'},
+{id:17,lvl:'M',tipe:'pg',q:'Contoh akronim yang benar adalah…',opts:['SD (Sekolah Dasar)','TV (Televisi)','Paskibra (Pasukan Pengibar Bendera)','SMA (Sekolah Menengah Atas)'],jawab:2,info:'Paskibra adalah akronim karena merupakan gabungan suku kata (Pasukan Pengibar Bendera) yang dilafalkan sebagai kata baru. SD, TV, SMA adalah singkatan.'},
+{id:18,lvl:'M',tipe:'bs',q:'"Laser" merupakan akronim dari bahasa Inggris yang terbentuk dari gabungan suku kata.',jawab:true,info:'Benar. Laser (Light Amplification by Stimulated Emission of Radiation) adalah akronim bahasa Inggris yang terbentuk dari gabungan suku kata.'},
+{id:19,lvl:'M',tipe:'pg',q:'Kalimat utama dalam paragraf deduktif terletak di…',opts:['Akhir paragraf','Tengah paragraf','Awal paragraf','Tidak ada kalimat utama'],jawab:2,info:'Paragraf deduktif meletakkan kalimat utama (gagasan umum) di awal paragraf, diikuti kalimat penjelas yang berisi detail.'},
+{id:20,lvl:'M',tipe:'bs',q:'Kalimat penjelas berfungsi untuk mendukung dan menguraikan kalimat utama dengan detail, contoh, atau fakta.',jawab:true,info:'Benar. Kalimat penjelas berisi detail, contoh, data, atau uraian yang memperkuat dan mengembangkan gagasan kalimat utama.'},
+{id:21,lvl:'M',tipe:'pg',q:'Ciri kalimat utama adalah…',opts:['Berisi detail kecil dan contoh spesifik','Menggunakan kata penghubung sebab-akibat','Bersifat umum dan berisi gagasan pokok paragraf','Selalu menggunakan angka dan data'],jawab:2,info:'Kalimat utama bersifat umum, tidak terlalu detail, dan berisi gagasan pokok yang akan dijelaskan oleh kalimat-kalimat berikutnya.'},
+{id:22,lvl:'M',tipe:'bs',q:'Teks narasi hanya boleh menceritakan pengalaman pribadi penulis.',jawab:false,info:'Teks narasi bisa menceritakan pengalaman pribadi, pengalaman orang lain, atau peristiwa fiksi/rekaan. Tidak harus pengalaman pribadi.'},
+{id:23,lvl:'M',tipe:'pg',q:'Ciri teks narasi yang benar adalah…',opts:['Menggunakan bahasa kiasan dan rima di setiap baris','Menceritakan urutan peristiwa dengan runtut waktu','Hanya berisi opini penulis tanpa peristiwa','Menggunakan banyak simbol dan legenda'],jawab:1,info:'Teks narasi menceritakan peristiwa/kegiatan dengan urutan waktu (kronologis) menggunakan kata kerja aktif dan keterangan waktu.'},
+{id:24,lvl:'M',tipe:'bs',q:'Teks narasi tidak memiliki urutan waktu karena bersifat bebas.',jawab:false,info:'Teks narasi memiliki urutan waktu (kronologis) yang jelas: orientasi → komplikasi → resolusi. Urutan waktu adalah ciri khas narasi.'},
+{id:25,lvl:'M',tipe:'pg',q:'Tujuan teks persuasi adalah…',opts:['Menceritakan peristiwa secara runtut','Mengajak atau membujuk pembaca melakukan sesuatu','Menjelaskan proses terjadinya fenomena','Menggambarkan keadaan secara detail'],jawab:1,info:'Teks persuasi bertujuan mengajak, membujuk, atau meyakinkan pembaca agar melakukan tindakan atau menerima suatu pandangan.'},
+{id:26,lvl:'M',tipe:'bs',q:'Kalimat persuasi sama dengan kalimat perintah karena keduanya menggunakan kata "harus" dan "wajib".',jawab:false,info:'Kalimat persuasi lebih lunak (membujuk dengan alasan/emosi), sedangkan kalimat perintah bersifat memaksa (harus, wajib). Keduanya berbeda.'},
+{id:27,lvl:'M',tipe:'pg',q:'Ciri kalimat ajakan yang tepat adalah…',opts:['Menggunakan kata "harus" dan "wajib"','Menggunakan kata "ayo", "mari", "yuk", "marilah"','Bersifat memaksa dan mengancam','Menggunakan bahasa yang sulit dimengerti'],jawab:1,info:'Kalimat ajakan menggunakan kata-kata seperti "ayo", "mari", "yuk", "marilah", "jangan lupa" untuk mengajak secara sopan.'},
+{id:28,lvl:'M',tipe:'bs',q:'Kalimat ajakan selalu menggunakan kata "harus" agar pembaca patuh.',jawab:false,info:'"Harus" menunjukkan kalimat perintah/bujukan yang kuat (persuasi), bukan ajakan. Ajakan lebih sopan menggunakan "ayo/mari/yuk".'},
+{id:29,lvl:'M',tipe:'pg',q:'Makna imbuhan "ter-" yang bermakna "tidak sengaja" terdapat pada kata…',opts:['Tertinggi','Terpukul','Terpopuler','Terbuka'],jawab:1,info:'"Terpukul" berarti dipukul tanpa disengaja (tidak sengaja). "Tertinggi" = paling tinggi, "terpopuler" = paling populer, "terbuka" = sudah terbuka.'},
+{id:30,lvl:'M',tipe:'bs',q:'Kata "tertawa" mengandung imbuhan "ter-" yang bermakna tidak sengaja.',jawab:false,info:'"Tertawa" adalah kata dasar yang tidak mengandung imbuhan "ter-" (bukan ter-tawa). Imbuhan "ter-" tidak bermakna tidak sengaja di sini karena bukan imbuhan.'},
+{id:31,lvl:'M',tipe:'pg',q:'Makna konotatif adalah…',opts:['Makna sebenarnya sesuai kamus','Makna kiasan atau makna tambahan yang timbul karena perasaan/budaya','Makna yang hanya ada dalam puisi','Makna yang bersifat objektif'],jawab:1,info:'Konotatif adalah makna kiasan/figuratif yang timbul karena pengalaman, perasaan, atau budaya. Berbeda dengan denotatif (makna sebenarnya).'},
+{id:32,lvl:'M',tipe:'bs',q:'Makna konotatif sama dengan makna denotatif karena keduanya adalah makna sebenarnya kata.',jawab:false,info:'Salah. Denotatif = makna sebenarnya/harfiah (kamus). Konotatif = makna kiasan/tambahan yang bersifat subjektif dan emosional.'},
+{id:33,lvl:'M',tipe:'pg',q:'Contoh kalimat yang menggunakan makna konotatif adalah…',opts:['Cuaca hari ini terasa sangat panas.','Senyumu seperti matahari terbit setelah hujan.','Risa memetik buah mangga yang masih hijau.','Fulan sedang makan nasi di warung.'],jawab:1,info:'"Senyumu seperti matahari terbit" adalah makna konotatif/kiasan yang membandingkan senyuman dengan kehangatan matahari pagi.'},
+{id:34,lvl:'M',tipe:'bs',q:'Ungkapan "panjang tangan" bermakna tangan seseorang yang benar-benar panjang secara fisik.',jawab:false,info:'"Panjang tangan" adalah ungkapan konotatif yang berarti suka mencuri atau mengambil barang orang lain. Bukan makna harfiah.'},
+{id:35,lvl:'M',tipe:'pg',q:'Makna ungkapan "otak udang" adalah…',opts:['Orang yang pandai memasak udang','Orang yang tidak berpikir dengan baik','Orang yang suka makan seafood','Orang yang bekerja di laut'],jawab:1,info:'"Otak udang" adalah ungkapan konotatif yang menyebut orang yang tidak berpikir dengan baik, tidak cerdas, atau ceroboh.'},
+{id:36,lvl:'M',tipe:'bs',q:'Ungkapan "berat hati" bermakna hati yang besar dan kuat.',jawab:false,info:'"Berat hati" berarti enggan atau tidak rela melakukan sesuatu. Bukan berarti hati yang besar secara fisik.'},
+{id:37,lvl:'M',tipe:'pg',q:'Struktur puisi terdiri dari…',opts:['Paragraf dan kalimat utama','Bait dan larik (baris)','Judul dan legenda','Orientasi dan resolusi'],jawab:1,info:'Puisi tersusun dari bait (strofe/kelompok larik) dan larik (baris-baris dalam puisi). Tidak menggunakan paragraf seperti prosa.'},
+{id:38,lvl:'M',tipe:'bs',q:'Puisi harus selalu berima (suku kata akhir yang berbunyi sama) di setiap lariknya.',jawab:false,info:'Puisi bebas (puisi modern) tidak harus berima. Yang penting adalah bahasa kiasan, imajinatif, dan penyampaian perasaan.'},
+{id:39,lvl:'M',tipe:'pg',q:'Makna larik puisi harus diartikan secara…',opts:['Harfiah sesuai kamus','Kiasan sesuai konteks dan perasaan','Matematis dengan rumus','Sejarah dengan tahun pasti'],jawab:1,info:'Makna larik puisi diartikan secara kiasan/kontekstual sesuai perasaan, imajinasi, dan pesan yang ingin disampaikan penyair.'},
+{id:40,lvl:'M',tipe:'bs',q:'Larik puisi sama dengan paragraf dalam teks prosa.',jawab:false,info:'Larik adalah baris dalam puisi, sedangkan paragraf adalah kumpulan kalimat dalam prosa. Keduanya berbeda bentuk dan fungsi.'},
+{id:41,lvl:'M',tipe:'pg',q:'Ciri bahasa iklan yang tepat adalah…',opts:['Menggunakan bahasa pasif dan monoton','Persuasif, menarik, dan menggunakan kata ajakan','Formal seperti surat dinas','Panjang dan sulit dipahami'],jawab:1,info:'Bahasa iklan bersifat persuasif, menarik, singkat, padat, dan sering menggunakan kata ajakan (ayo, mari, yuk) atau kata sifat berlebihan.'},
+{id:42,lvl:'M',tipe:'bs',q:'Iklan tidak boleh melebih-lebihkan keunggulan produk karena harus bersifat objektif.',jawab:false,info:'Iklan sering menggunakan bahasa hiperbola (berlebihan) untuk menarik perhatian dan membujuk konsumen, meski tetap tidak boleh menipu.'},
+{id:43,lvl:'M',tipe:'pg',q:'Fakta dalam teks adalah pernyataan yang…',opts:['Bersifat subjektif dan emosional','Bisa dibuktikan kebenarannya dan bersifat objektif','Berisi pendapat pribadi penulis','Menggunakan kata "menurut saya"'],jawab:1,info:'Fakta bersifat objektif, berisi data/informasi yang bisa diverifikasi, dan tidak mengandung penilaian pribadi.'},
+{id:44,lvl:'M',tipe:'bs',q:'Opini selalu benar karena merupakan pendapat seseorang yang berhak dihormati.',jawab:false,info:'Opini bersifat subjektif — bisa benar bisa salah tergantung sudut pandang. Opini bukan fakta yang mutlak benar.'},
+{id:45,lvl:'M',tipe:'pg',q:'Gagasan utama paragraf adalah…',opts:['Kalimat pertama yang panjang','Gagasan pokok yang mendasari seluruh paragraf','Detail kecil yang mendukung kalimat penjelas','Kata-kata sulit yang ada di paragraf'],jawab:1,info:'Gagasan utama adalah ide pokok/inti yang menjadi dasar seluruh paragraf, biasanya terdapat dalam kalimat utama.'},
+{id:46,lvl:'M',tipe:'bs',q:'Gagasan pokok dan kalimat utama adalah dua hal yang berbeda dalam paragraf.',jawab:false,info:'Gagasan pokok = gagasan utama. Kalimat utama adalah kalimat yang berisi gagasan pokok. Keduanya berkaitan erat (satu gagasan).'},
+{id:47,lvl:'M',tipe:'pg',q:'Ciri teks eksplanasi yang benar adalah…',opts:['Menggunakan dialog antar tokoh','Berisi runtutan peristiwa dengan konflik','Menguraikan proses terjadinya fenomena dengan fakta','Hanya berisi opini penulis'],jawab:2,info:'Teks eksplanasi menguraikan proses terjadinya fenomena (alam/sosial) berdasarkan fakta dengan urutan sebab-akibat.'},
+{id:48,lvl:'M',tipe:'bs',q:'Teks eksplanasi menceritakan pengalaman pribadi penulis dengan runtut waktu.',jawab:false,info:'Yang menceritakan pengalaman pribadi dengan runtut waktu adalah teks narasi (recount). Teks eksplanasi menjelaskan fenomena.'},
+{id:49,lvl:'M',tipe:'pg',q:'Persuasi dan ajakan berbeda karena…',opts:['Persuasi lebih memaksa, ajakan lebih membujuk','Ajakan lebih sopan, persuasi lebih kuat membujuk','Keduanya sama-sama memaksa','Tidak ada perbedaan antara keduanya'],jawab:1,info:'Ajakan lebih sopan dan ringan (ayo/mari). Persuasi lebih kuat dan intensif dalam membujuk/meyakinkan dengan alasan dan emosi.'},
+{id:50,lvl:'M',tipe:'bs',q:'Poster tidak memiliki tujuan persuasi karena hanya berisi gambar dan tulisan.',jawab:false,info:'Poster bisa memiliki tujuan persuasi (mengajak/membujuk), informatif (mengumumkan), atau promosi. Gambar+tulisan adalah medianya.'},
+
+// Sedang (30)
+{id:51,lvl:'S',tipe:'pg',q:'Perhatikan pernyataan: (1) "Batik diakui UNESCO" (2) "Batik adalah warisan terbaik" (3) "Hari Batik 2 Oktober". Manakah yang merupakan opini?',opts:['Hanya 1','Hanya 2','1 dan 3','Semua'],jawab:1,info:'"Batik adalah warisan terbaik" adalah opini karena mengandung penilaian "terbaik". Pernyataan 1 dan 3 adalah fakta yang bisa dibuktikan.'},
+{id:52,lvl:'S',tipe:'bs',q:'Opini bisa dibuktikan kebenarannya dengan data dan fakta ilmiah.',jawab:false,info:'Opini bersifat subjektif dan tidak bisa dibuktikan secara objektif. Hanya fakta yang bisa dibuktikan dengan data/ilmiah.'},
+{id:53,lvl:'S',tipe:'pg',q:'Makna kata "khas" dalam teks "Batik merupakan kain bergambar khas Indonesia" adalah…',opts:['Biasa dan umum','Keistimewaan setiap daerah','Sulit dibuat','Hanya untuk orang kaya'],jawab:1,info:'Dalam konteks teks, "khas" berarti keistimewaan atau ciri khas yang membedakan batik Indonesia dari batik negara lain.'},
+{id:54,lvl:'S',tipe:'bs',q:'Makna kata "bangga" dalam teks batik berarti merasa gembira dan bangga terhadap sesuatu yang dimiliki.',jawab:true,info:'Benar. "Bangga" adalah perasaan senang dan puas terhadap keberhasilan, keistimewaan, atau kepemilikan sesuatu yang berharga.'},
+{id:55,lvl:'S',tipe:'pg',q:'Simpulan teks "Kabut Asap" yang tepat adalah…',opts:['Kabut asap hanya mengganggu perekonomian saja','Kabut asap berdampak negatif bagi kesehatan dan ekonomi masyarakat','Kabut asap menyebabkan matahari tidak terbit','Kabut asap justru menyuburkan tanah'],jawab:1,info:'Teks menyebutkan dampak kabut asap bagi kesehatan (penyakit pernapasan, ISPA) dan ekonomi (aktivitas terganggu, jarak pandang terbatas).'},
+{id:56,lvl:'S',tipe:'bs',q:'Simpulan teks boleh ditambahi opini pribadi penulis asalkan relevan dengan isi teks.',jawab:false,info:'Simpulan harus objektif dan mencakup gagasan utama teks. Opini pribadi yang ditambahkan akan membuat simpulan menjadi subjektif.'},
+{id:57,lvl:'S',tipe:'pg',q:'Struktur poster yang tepat untuk acara karnaval sekolah harus mencantumkan…',opts:['Hanya gambar tanpa tulisan','Judul, gambar menarik, informasi waktu, tempat, dan pelaksana','Hanya tulisan panjang tanpa gambar','Hanya nama sekolah dan tanggal'],jawab:1,info:'Poster acara harus lengkap: judul, gambar menarik, serta informasi penting (waktu, tempat, pelaksana) agar pembaca mendapat informasi jelas.'},
+{id:58,lvl:'S',tipe:'bs',q:'Poster tidak perlu mencantumkan waktu dan tempat karena pembaca sudah tahu.',jawab:false,info:'Poster harus mencantumkan informasi lengkap termasuk waktu dan tempat agar pembaca yang belum tahu bisa memperoleh informasi.'},
+{id:59,lvl:'S',tipe:'pg',q:'Kalimat persuasi yang tepat untuk poster kebersihan adalah…',opts:['Kamu harus buang sampah atau saya marah!','Bersih Itu Sehat, Bersih Itu Indah! Mari jaga kebersihan lingkungan kita!','Saya perintahkan kamu buang sampah sekarang!','Jangan pernah buang sampah karena itu dosa!'],jawab:1,info:'Kalimat persuasi yang tepat menggunakan bahasa positif, menarik, dan mengajak (mari) tanpa bersifat memaksa atau mengancam.'},
+{id:60,lvl:'S',tipe:'bs',q:'Kalimat persuasi sama persis dengan kalimat perintah karena keduanya memaksa pembaca.',jawab:false,info:'Persuasi membujuk/meyakinkan dengan alasan dan emosi. Perintah memaksa dengan kata "harus/wajib". Keduanya berbeda intensitas dan cara.'},
+{id:61,lvl:'S',tipe:'pg',q:'Kalimat utama paragraf deduktif "Indonesia adalah negara yang kaya akan keberagaman suku, bahasa, dan budaya" berfungsi sebagai…',opts:['Contoh detail kecil','Gagasan umum yang akan dijelaskan','Kesimpulan dari paragraf','Kata pengantar yang tidak penting'],jawab:1,info:'Kalimat ini berisi gagasan umum (generalisasi) tentang keberagaman Indonesia yang akan dijelaskan detailnya oleh kalimat-kalimat berikutnya.'},
+{id:62,lvl:'S',tipe:'bs',q:'Paragraf deduktif adalah paragraf yang meletakkan kalimat utama di tengah paragraf.',jawab:false,info:'Paragraf deduktif meletakkan kalimat utama di AWAL. Paragraf induktif di akhir. Paragraf campuran di awal dan akhir.'},
+{id:63,lvl:'S',tipe:'pg',q:'Jika kalimat utama berbunyi "Indonesia kaya akan keberagaman", kalimat penjelas yang tepat adalah…',opts:['Indonesia memiliki banyak gunung berapi.','Lebih dari 1340 suku dan 700 lebih bahasa tercatat di Indonesia.','Indonesia terletak di antara dua benua.','Cuaca di Indonesia sangat panas.'],jawab:1,info:'Kalimat penjelas harus mendukung kalimat utama tentang keberagaman. Pernyataan tentang jumlah suku dan bahasa mendukung keberagaman.'},
+{id:64,lvl:'S',tipe:'bs',q:'Kalimat penjelas boleh tidak berkaitan dengan kalimat utama asalkan panjang dan detail.',jawab:false,info:'Kalimat penjelas harus berkaitan langsung dengan kalimat utama. Jika tidak berkaitan, paragraf menjadi tidak padu (koherensi hilang).'},
+{id:65,lvl:'S',tipe:'pg',q:'Makna konotatif "kambing hitam" dalam kalimat "Fulan dijadikan kambing hitam oleh temanya" adalah…',opts:['Fulan memelihara kambing berwarna hitam.','Fulan disalahkan atas kesalahan yang dilakukan orang lain.','Fulan suka makan daging kambing.','Fulan memakai pakaian warna hitam.'],jawab:1,info:'"Kambing hitam" adalah ungkapan konotatif yang berarti orang yang disalahkan atas perbuatan/kesalahan orang lain.'},
+{id:66,lvl:'S',tipe:'bs',q:'"Kambing hitam" dalam konteks percakapan sehari-hari selalu berarti hewan ternak.',jawab:false,info:'"Kambing hitam" bisa bermakna harfiah (hewan) dalam konteks peternakan, tapi dalam konteks sosial bermakna konotatif (orang yang disalahkan).'},
+{id:67,lvl:'S',tipe:'pg',q:'Makna larik puisi "membawa mimpi di pundak rapuh" adalah…',opts:['Membawa tas yang sangat berat.','Datang ke sekolah dengan harapan besar meski masih kecil/lemah.','Berangkat sekolah meskipun pundak sakit.','Berangkat sekolah sambil membawa bantal.'],jawab:1,info:'Makna kiasan: "mimpi" = harapan/cita-cita, "pundak rapuh" = diri yang masih kecil/lemah. Jadi berarti datang dengan harapan besar meski masih kecil.'},
+{id:68,lvl:'S',tipe:'bs',q:'Larik puisi harus selalu diartikan secara harfiah sesuai kamus besar bahasa Indonesia.',jawab:false,info:'Larik puisi sering menggunakan bahasa kiasan/figuratif yang tidak bisa diartikan harfiah. Harus dipahami secara kontekstual dan imajinatif.'},
+{id:69,lvl:'S',tipe:'pg',q:'Perbedaan denotatif dan konotatif adalah…',opts:['Denotatif = makna kiasan, konotatif = makna sebenarnya','Denotatif = makna sebenarnya, konotatif = makna kiasan','Keduanya sama-sama makna kiasan','Keduanya tidak ada hubungannya'],jawab:1,info:'Denotatif = makna sebenarnya/harfiah (kamus). Konotatif = makna kiasan/tambahan yang bersifat emosional dan subjektif.'},
+{id:70,lvl:'S',tipe:'bs',q:'Denotatif adalah makna kiasan yang timbul karena perasaan atau budaya pembaca.',jawab:false,info:'Yang dimaksud adalah konotatif. Denotatif adalah makna sebenarnya/literal sesuai kamus, bersifat objektif.'},
+{id:71,lvl:'S',tipe:'pg',q:'Imbuhan "ter-" yang bermakna "paling/tertinggi" terdapat pada kata…',opts:['Tersenyum','Terpukul','Tertinggi','Terjatuh'],jawab:2,info:'"Tertinggi" bermakna paling tinggi (superlatif). "Tersenyum" = kata dasar, "terpukul" = tidak sengaja, "terjatuh" = tidak sengaja.'},
+{id:72,lvl:'S',tipe:'bs',q:'"Tertinggi" dalam kalimat "Itu adalah gedung tertinggi di kota ini" bermakna tidak sengaja.',jawab:false,info:'"Tertinggi" di sini bermakna paling tinggi (superlatif), bukan tidak sengaja. Gedung tidak bisa "tidak sengaja" menjadi tinggi.'},
+{id:73,lvl:'S',tipe:'pg',q:'Akronim berbeda dari singkatan karena akronim…',opts:['Hanya terdiri dari dua huruf','Dilafalkan per huruf seperti SD','Merupakan gabungan suku kata yang membentuk kata baru','Tidak memiliki arti'],jawab:2,info:'Akronim = gabungan suku kata yang membentuk kata baru yang bisa dilafalkan (Paskibra, Laser, Radar). Singkatan = huruf awal, dilafalkan per huruf.'},
+{id:74,lvl:'S',tipe:'bs',q:'"Laser" adalah akronim bahasa Indonesia yang terbentuk dari gabungan suku kata.',jawab:false,info:'"Laser" adalah akronim bahasa Inggris (Light Amplification...), bukan bahasa Indonesia. Meski bentuknya akronim, asal bahasanya Inggris.'},
+{id:75,lvl:'S',tipe:'pg',q:'Ciri kebahasaan teks narasi yang benar adalah…',opts:['Menggunakan bahasa pasif dan konjungsi kausalitas','Menggunakan kata kerja aktif dan keterangan waktu','Menggunakan simbol dan legenda','Menggunakan bahasa yang sulit dan rumit'],jawab:1,info:'Teks narasi menggunakan kata kerja aktif (mengerjakan, membahas, belajar) dan keterangan waktu (pagi, kemudian, setelah itu, lalu).'},
+{id:76,lvl:'S',tipe:'bs',q:'Teks narasi menggunakan bahasa yang sulit dan rumit agar terlihat cerdas.',jawab:false,info:'Teks narasi menggunakan bahasa yang jelas, runtut, dan mudah dipahami. Bahasa sulit justru membingungkan pembaca.'},
+{id:77,lvl:'S',tipe:'pg',q:'Kalimat ajakan yang sesuai dengan teks tentang menjaga kebersihan sekolah adalah…',opts:['Yuk, jangan merokok demi kebaikan bersama.','Marilah jaga sekolah kita agar selalu bersih dan sehat.','Ayo naik bis biar tidak macet.','Hati-hati di jalan selamat sampai tujuan.'],jawab:1,info:'"Marilah jaga sekolah kita agar selalu bersih dan sehat" sesuai dengan tema teks tentang menjaga kebersihan lingkungan sekolah.'},
+{id:78,lvl:'S',tipe:'bs',q:'Kalimat ajakan sama dengan kalimat larangan karena keduanya menggunakan kata "jangan".',jawab:false,info:'Kalimat ajakan menggunakan kata positif (ayo, mari, yuk). Kalimat larangan menggunakan "jangan/hindari". Keduanya berbeda fungsi.'},
+{id:79,lvl:'S',tipe:'pg',q:'Tujuan poster ajakan membuang sampah pada tempatnya adalah…',opts:['Mengumumkan jadwal pembuangan sampah','Mengajak/membujuk agar membuang sampah pada tempatnya','Menceritakan sejarah sampah','Menjual tempat sampah'],jawab:1,info:'Poster tersebut bertujuan persuasi/ajakan agar masyarakat membuang sampah pada tempatnya untuk menjaga kebersihan.'},
+{id:80,lvl:'S',tipe:'bs',q:'Poster hanya digunakan untuk mengumumkan acara hiburan seperti konser dan karnaval.',jawab:false,info:'Poster bisa untuk berbagai tujuan: informasi acara, persuasi (ajakan), edukasi, promosi produk, dan lainnya.'},
+
+// Sulit (20)
+{id:81,lvl:'K',tipe:'pg',q:'Perhatikan pernyataan dalam teks Batik: (1) "Batik kain bergambar khas Indonesia" (2) "Kita harus bangga dengan batik" (3) "Teknik batik diakui UNESCO 2009" (4) "Batik dikenakan untuk acara". Manakah kombinasi fakta?',opts:['1 dan 2','1, 3, dan 4','2 dan 3','Semua'],jawab:1,info:'Fakta: 1 (data objektif), 3 (data waktu+instansi), 4 (informasi objektif). Opini: 2 (mengandung "harus bangga" = penilaian).'},
+{id:82,lvl:'K',tipe:'bs',q:'Semua pernyataan dalam teks eksplanasi selalu berupa fakta tanpa ada opini sama sekali.',jawab:false,info:'Teks eksplanasi didominasi fakta, tetapi bisa mengandung opini di bagian simpulan/penutup sebagai rekomendasi atau penilaian penulis.'},
+{id:83,lvl:'K',tipe:'pg',q:'Analisis struktur teks eksplanasi "Kabut Asap": bagian "Bencana kabut asap dapat menimbulkan dampak berbahaya" merupakan…',opts:['Deretan penjelas','Simpulan','Pernyataan umum/fenomena','Kalimat opini penutup'],jawab:2,info:'Kalimat ini berada di awal paragraf pertama yang menyatakan fenomena umum (kabut asap berbahaya), sehingga merupakan pernyataan umum.'},
+{id:84,lvl:'K',tipe:'bs',q:'Teks eksplanasi tidak memiliki simpulan karena hanya berisi penjelasan proses.',jawab:false,info:'Teks eksplanasi memiliki struktur: pernyataan umum → deretan penjelas → simpulan/interpretasi. Simpulan adalah bagian yang boleh ada.'},
+{id:85,lvl:'K',tipe:'pg',q:'Perbedaan iklan komersial dan iklan layanan masyarakat adalah…',opts:['Iklan komersial selalu panjang, layanan masyarakat selalu pendek','Iklan komersial menjual produk/jasa, layanan masyarakat mengajak perilaku positif','Keduanya sama-sama menjual barang','Iklan layanan masyarakat selalu berbayar'],jawab:1,info:'Iklan komersial bertujuan komersial (jual produk/jasa). Iklan layanan masyarakat bertujuan sosial (mengajak perilaku positif tanpa profit).'},
+{id:86,lvl:'K',tipe:'bs',q:'Iklan layanan masyarakat selalu menjual produk tertentu untuk mendapatkan keuntungan.',jawab:false,info:'Iklan layanan masyarakat tidak menjual produk. Tujuannya mengedukasi/mengajak masyarakat melakukan perilaku positif ( hemat energi, jaga kebersihan).'},
+{id:87,lvl:'K',tipe:'pg',q:'Diberikan kalimat utama: "Menjaga kebersihan lingkungan sekolah memiliki dampak positif." Kalimat penjelas yang paling tepat adalah…',opts:['Lingkungan yang bersih menciptakan suasana belajar kondusif dan meminimalkan risiko penyakit.','Sekolah dibangun tahun 1990 di desa kami.','Guru selalu datang tepat waktu setiap hari.','Siswa membawa bekal dari rumah masing-masing.'],jawab:0,info:'Kalimat penjelas harus mendukung kalimat utama tentang dampak positif kebersihan. Hanya pilihan A yang menjelaskan dampak positif.'},
+{id:88,lvl:'K',tipe:'bs',q:'Kalimat penjelas boleh tidak berkaitan dengan kalimat utama asalkan menggunakan kata sambung.',jawab:false,info:'Kalimat penjelas harus relevan dengan kalimat utama. Kata sambung saja tidak cukup jika isinya tidak mendukung gagasan pokok.'},
+{id:89,lvl:'K',tipe:'pg',q:'Makna kiasan larik puisi "Guru adalah pelita tak padam, menuntun langkah, merajut waktu" adalah…',opts:['Guru selalu membawa lilin ke mana-mana.','Guru terus memberikan ilmu dan bimbingan tanpa kenal lelah.','Guru bekerja sebagai penjual lilin.','Guru selalu tidur larut malam.'],jawab:1,info:'"Pelita tak padam" adalah kiasan untuk guru yang terus menerus memberikan cahaya ilmu dan bimbingan kepada murid tanpa henti.'},
+{id:90,lvl:'K',tipe:'bs',q:'Bahasa puisi selalu menggunakan makna denotatif agar mudah dipahami semua orang.',jawab:false,info:'Bahasa puisi justru banyak menggunakan makna konotatif/kiasan untuk menciptakan imajinasi, perasaan, dan kedalaman makna.'},
+{id:91,lvl:'K',tipe:'pg',q:'Perhatikan konteks: "Dia banting tulang setiap hari untuk menghidupi keluarganya." Makna "banting tulang" adalah…',opts:['Mematahkan tulang sendiri.','Bekerja keras dengan sungguh-sungguh.','Bertengkar dengan tulang.','Olahraga angkat besi.'],jawab:1,info:'"Banting tulang" adalah ungkapan konotatif yang berarti bekerja keras, berusaha dengan sekuat tenaga untuk mencapai tujuan.'},
+{id:92,lvl:'K',tipe:'bs',q:'Ungkapan "banting tulang" bermakna mematahkan tulang secara harfiah.',jawab:false,info:'"Banting tulang" adalah makna kiasan (konotatif) untuk bekerja keras. Bukan makna harfiah mematahkan tulang.'},
+{id:93,lvl:'K',tipe:'pg',q:'Analisis poster persuasi: "Ayo buang sampah pada tempatnya!" Tujuan persuasi poster ini adalah…',opts:['Mengumumkan lokasi tempat sampah baru.','Mengajak agar membuang sampah pada tempatnya untuk kebersihan bersama.','Menjual tempat sampah mahal.','Menceritakan sejarah tempat sampah.'],jawab:1,info:'Poster tersebut menggunakan kalimat ajakan (ayo) untuk membujuk/mengajak perilaku positif membuang sampah pada tempatnya.'},
+{id:94,lvl:'K',tipe:'bs',q:'Poster persuasi tidak perlu gambar yang menarik karena yang penting hanya tulisannya.',jawab:false,info:'Poster persuasi membutuhkan gambar yang menarik perhatian agar pesan lebih mudah tersampaikan dan diingat pembaca.'},
+{id:95,lvl:'K',tipe:'pg',q:'Imbuhan "ter-" dalam berbagai makna: "terpilih", "terlambat", "terpukul", "tertinggi". Manakah pasangan yang benar?',opts:['Terpilih = paling, terlambat = tidak sengaja','Terpukul = tidak sengaja, tertinggi = paling','Terlambat = paling, terpilih = tidak sengaja','Terpukul = paling, terlambat = tidak sengaja'],jawab:1,info:'Terpukul = tidak sengaja (dipukul tanpa sengaja). Tertinggi = paling tinggi (superlatif). Terlambat = sudah/terlalu lambat. Terpilih = sudah/bisa terpilih.'},
+{id:96,lvl:'K',tipe:'bs',q:'Semua kata berimbuhan "ter-" bermakna tidak sengaja tanpa pengecualian.',jawab:false,info:'Imbuhan "ter-" memiliki banyak makna: tidak sengaja, paling, sudah/bisa, terlalu. Tidak semua bermakna tidak sengaja.'},
+{id:97,lvl:'K',tipe:'pg',q:'Diberikan paragraf: "Indonesia kaya akan keberagaman suku, bahasa, dan budaya. Lebih dari 1340 suku..." Kalimat utama dan gagasan pendukung yang tepat adalah…',opts:['Kalimat utama = jumlah suku, pendukung = keberagaman bahasa.','Kalimat utama = keberagaman suku-bahasa-budaya, pendukung = data jumlah suku dan bahasa.','Kalimat utama = Indonesia adalah negara, pendukung = tidak ada.','Kalimat utama = bahasa Indonesia, pendukung = suku dan budaya.'],jawab:1,info:'Kalimat utama (awal) menyatakan keberagaman umum. Kalimat penjelas (berikutnya) memberikan data pendukung: jumlah suku dan bahasa.'},
+{id:98,lvl:'K',tipe:'bs',q:'Gagasan utama dan gagasan pendukung sama pentingnya dalam paragraf karena keduanya harus selalu panjang.',jawab:false,info:'Gagasan utama lebih penting sebagai inti paragraf. Gagasan pendukung (detail) hanya membantu menguraikan gagasan utama. Panjang tidak menentukan kepentingan.'},
+{id:99,lvl:'K',tipe:'pg',q:'Evaluasi: Teks narasi dan teks eksplanasi memiliki perbedaan struktur karena…',opts:['Keduanya sama-sama menggunakan dialog','Narasi runtut waktu+peristiwa, eksplanasi sebab-akibat+fenomena','Keduanya sama-sama tidak memiliki simpulan','Narasi hanya fakta, eksplanasi hanya opini'],jawab:1,info:'Narasi: runtut waktu (orientasi-komplikasi-resolusi). Eksplanasi: sebab-akibat fenomena (pernyataan umum-penjelas-simpulan). Strukturnya berbeda.'},
+{id:100,lvl:'K',tipe:'bs',q:'Teks narasi dan teks eksplanasi memiliki struktur yang sama karena keduanya menggunakan paragraf.',jawab:false,info:'Keduanya menggunakan paragraf, tetapi struktur isinya berbeda. Narasi berbasis kronologi peristiwa, eksplanasi berbasis sebab-akibat fenomena.'},
+];
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let namaSiswa = '';
+let soalAktif=[], cur=0, score=0, jawaban=[];
+let timerInterval=null, timerLeft=0;
+let hadiahDibuka = false;
+let hadiahResult = null;
+let dataTerkirim = false;
+const TIMER_SEC = 45;
+
+// ═══════════════════════════════════════════
+//  NAMA
+// ═══════════════════════════════════════════
+
+// ═══════════════════════════════════════════
+//  ADMIN PIN ENGINE
+// ═══════════════════════════════════════════
+const ADMIN_CODE = 'L4ZARUS';
+const ADMIN_PIN  = '123456';
+let pinBuffer = '';
+let adminMode  = false;
+
+function pinInput(digit){
+  if(pinBuffer.length >= 6) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if(pinBuffer.length === 6) setTimeout(checkPin, 150);
+}
+
+function pinDelete(){
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-err').style.display='none';
+}
+
+function updatePinDots(){
+  for(let i=0;i<6;i++){
+    const d = document.getElementById('pd'+i);
+    d.classList.toggle('filled', i < pinBuffer.length);
+    d.classList.remove('error');
+  }
+}
+
+function checkPin(){
+  if(pinBuffer === ADMIN_PIN){
+    adminMode = true;
+    document.getElementById('admin-pin-overlay').style.display='none';
+    document.getElementById('screen-nama').style.display='none';
+    document.getElementById('main-card').style.display='';
+    document.getElementById('pill-nama').textContent='👤 '+namaSiswa+' ⚡';
+    pinBuffer='';
+    updatePinDots();
+    score = 30;
+    hadiahDibuka = false;
+    hadiahResult = null;
+    dataTerkirim = true;
+    setTimeout(()=>{
+      document.getElementById('gacha-overlay').classList.add('show');
+      resetGachaUI();
+    }, 300);
+  } else {
+    for(let i=0;i<6;i++) document.getElementById('pd'+i).classList.add('error');
+    document.getElementById('pin-err').style.display='block';
+    pinBuffer='';
+    setTimeout(()=>{ updatePinDots(); }, 600);
+  }
+}
+
+function adminCancel(){
+  pinBuffer='';
+  updatePinDots();
+  document.getElementById('pin-err').style.display='none';
+  document.getElementById('admin-pin-overlay').style.display='none';
+}
+
+
+function mulai(){
+  const val = document.getElementById('input-nama').value.trim();
+  if(!val){
+    document.getElementById('nama-err').style.display='block';
+    document.getElementById('input-nama').style.borderColor='#e11d48';
+    return;
+  }
+  // Cek kode admin
+  if(val.toUpperCase() === ADMIN_CODE){
+    namaSiswa = val;
+    pinBuffer = '';
+    updatePinDots();
+    document.getElementById('pin-err').style.display='none';
+    document.getElementById('admin-pin-overlay').style.display='flex';
+    return;
+  }
+  namaSiswa = val;
+  document.getElementById('screen-nama').style.display='none';
+  document.getElementById('main-card').style.display='';
+  document.getElementById('pill-nama').textContent='👤 '+namaSiswa;
+}
+  namaSiswa = val;
+  document.getElementById('screen-nama').style.display='none';
+  document.getElementById('main-card').style.display='';
+  document.getElementById('pill-nama').textContent='👤 '+namaSiswa;
+}
+
+// ═══════════════════════════════════════════
+//  QUIZ ENGINE
+// ═══════════════════════════════════════════
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function pick30(){
+  const m=shuffle(bank.filter(s=>s.lvl==='M')).slice(0,15);
+  const s=shuffle(bank.filter(s=>s.lvl==='S')).slice(0,9);
+  const k=shuffle(bank.filter(s=>s.lvl==='K')).slice(0,6);
+  return shuffle([...m,...s,...k]);
+}
+function shuffleOpts(s){
+  if(s.tipe!=='pg') return s;
+  const idx=[0,1,2,3];
+  const sh=shuffle(idx);
+  return {...s, opts:sh.map(i=>s.opts[i]), jawab:sh.indexOf(s.jawab)};
+}
+function nilaiAkhir(benar){ return Math.round((benar/30)*100); }
+
+const chipCls={M:'chip-M',S:'chip-S',K:'chip-K'};
+const chipLbl={M:'🟢 Mudah',S:'🟡 Sedang',K:'🔴 Sulit'};
+
+function startQuiz(){
+  soalAktif=pick30().map(shuffleOpts); cur=0; score=0; jawaban=Array(30).fill(null);
+  hadiahDibuka = false; hadiahResult = null; dataTerkirim = false;
+  renderSoal();
+}
+
+function renderSoal(){
+  const s=soalAktif[cur];
+  const pct=Math.round((cur/30)*100);
+  const prev=jawaban[cur];
+
+  let html=`
+    <div class="q-progress-wrap">
+      <div class="q-prog-top">
+        <span class="q-prog-num">Soal ${cur+1} / 30</span>
+        <span class="q-prog-score">📊 Nilai: <strong>${nilaiAkhir(score)}</strong></span>
+      </div>
+      <div class="q-prog-bar-bg"><div class="q-prog-bar" style="width:${pct}%"></div></div>
+    </div>
+    <div class="q-timer-wrap" id="timer-wrap">
+      <div class="q-timer-ring">
+        <svg viewBox="0 0 44 44" width="44" height="44">
+          <circle class="q-timer-track" cx="22" cy="22" r="18"/>
+          <circle class="q-timer-bar" id="timer-bar" cx="22" cy="22" r="18"/>
+        </svg>
+        <div class="q-timer-num" id="timer-num">${prev!==null?'✓':TIMER_SEC}</div>
+      </div>
+      <div class="q-timer-label">${prev!==null?'Sudah dijawab':'Waktu tersisa untuk menjawab'}</div>
+    </div>
+    <div class="q-card">
+      <span class="diff-chip ${chipCls[s.lvl]}">${chipLbl[s.lvl]}</span>
+      <div class="q-text">${s.q}</div>
+      <div class="q-opts" id="opts-wrap">`;
+
+  if(s.tipe==='pg'){
+    const keys=['A','B','C','D'];
+    s.opts.forEach((o,oi)=>{
+      let cls='';
+      if(prev!==null){
+        if(oi===s.jawab) cls='reveal';
+        else if(oi===prev && prev!==s.jawab) cls='wrong';
+        else cls='disabled';
+      }
+      html+=`<button class="q-opt ${cls}" id="opt-${oi}" onclick="jwbPG(${oi})" ${prev!==null?'disabled':''}>
+        <span class="okey">${keys[oi]}</span>${o}
+      </button>`;
+    });
+  } else {
+    const choices=[{val:true,lbl:'✓ Benar'},{val:false,lbl:'✗ Salah'}];
+    choices.forEach(c=>{
+      let cls='';
+      if(prev!==null){
+        if(c.val===s.jawab) cls='reveal';
+        else if(c.val===prev && prev!==s.jawab) cls='wrong';
+        else cls='disabled';
+      }
+      html+=`<button class="q-opt ${cls}" id="opt-${c.val}" onclick="jwbBS(${c.val})" ${prev!==null?'disabled':''}>
+        <span class="okey">${c.val?'✓':'✗'}</span>${c.lbl}
+      </button>`;
+    });
+  }
+
+  html+=`</div>`;
+
+  if(prev!==null){
+    const ok = (s.tipe==='pg') ? prev===s.jawab : prev===s.jawab;
+    html+=`<div class="q-result show ${ok?'ok':'no'}">${ok?'✅ Jawaban Benar!':'❌ Jawaban Kurang Tepat'}</div>`;
+  }
+
+  html+=`<div class="q-nav">`;
+  if(cur===29){
+    html+=`<button class="q-btn q-btn-finish" onclick="showHasil()">Lihat Hasil 🎉</button>`;
+  } else {
+    html+=`<button class="q-btn q-btn-next" onclick="goSoal(1)" ${prev===null?'disabled':''}>Lanjut →</button>`;
+  }
+  html+=`</div></div>`;
+
+  document.getElementById('soal-body').innerHTML=html;
+  if(prev===null) startTimer(); else stopTimer();
+}
+
+function startTimer(){
+  stopTimer();
+  timerLeft = TIMER_SEC;
+  updateTimerUI();
+  timerInterval = setInterval(()=>{
+    timerLeft--;
+    updateTimerUI();
+    if(timerLeft<=0){
+      stopTimer();
+      timeUp();
+    }
+  },1000);
+}
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+}
+function updateTimerUI(){
+  const numEl  = document.getElementById('timer-num');
+  const barEl  = document.getElementById('timer-bar');
+  const wrapEl = document.getElementById('timer-wrap');
+  if(!numEl||!barEl||!wrapEl) return;
+  const pct = timerLeft/TIMER_SEC;
+  const circ = 2*Math.PI*18;
+  barEl.style.strokeDashoffset = circ*(1-pct);
+  numEl.textContent = timerLeft;
+  wrapEl.className = 'q-timer-wrap' + (timerLeft<=10?' q-timer-urgent': timerLeft<=20?' q-timer-warn':'');
+}
+function timeUp(){
+  const numEl  = document.getElementById('timer-num');
+  const wrapEl = document.getElementById('timer-wrap');
+  const labelEl = wrapEl ? wrapEl.querySelector('.q-timer-label') : null;
+  if(numEl) numEl.textContent='⏰';
+  if(labelEl) labelEl.textContent='Waktu habis! Lanjut ke soal berikutnya...';
+  if(wrapEl) wrapEl.classList.add('q-timer-urgent');
+  document.querySelectorAll('.q-opt').forEach(el=>el.disabled=true);
+  setTimeout(()=>{
+    if(cur<29){ cur++; renderSoal(); }
+    else showHasil();
+  },1000);
+}
+function jwbPG(sel){
+  const s=soalAktif[cur];
+  if(jawaban[cur]!==null) return;
+  stopTimer();
+  jawaban[cur]=sel;
+  if(sel===s.jawab){ score++; playCorrectSound(); }
+  else{ playWrongSound(); }
+  renderSoal();
+}
+function jwbBS(sel){
+  const s=soalAktif[cur];
+  if(jawaban[cur]!==null) return;
+  stopTimer();
+  jawaban[cur]=sel;
+  if(sel===s.jawab){ score++; playCorrectSound(); }
+  else{ playWrongSound(); }
+  renderSoal();
+}
+function goSoal(dir){
+  stopTimer();
+  cur+=dir;
+  if(cur<0) cur=0;
+  if(cur>29) cur=29;
+  renderSoal();
+}
+
+// ═══════════════════════════════════════════
+//  HASIL + GACHA TRIGGER
+// ═══════════════════════════════════════════
+function showHasil(){
+  stopTimer();
+  const nilai=nilaiAkhir(score);
+  let emoji='😢', judul='Terus Semangat Belajar!', warna='#f43f5e';
+  if(nilai>=90){emoji='🏆';judul='Luar Biasa!';warna='#f59e0b';}
+  else if(nilai>=75){emoji='🎉';judul='Bagus Sekali!';warna='#22c55e';}
+  else if(nilai>=60){emoji='👍';judul='Cukup Baik!';warna='#0ea5e9';}
+  else if(nilai>=40){emoji='💪';judul='Masih Bisa Lebih Baik!';warna='#8b5cf6';}
+
+  const cntM=soalAktif.filter(s=>s.lvl==='M').length;
+  const cntS=soalAktif.filter(s=>s.lvl==='S').length;
+  const cntK=soalAktif.filter(s=>s.lvl==='K').length;
+  const scM=soalAktif.reduce((a,s,i)=>s.lvl==='M'&&jawaban[i]===s.jawab?a+1:a,0);
+  const scS=soalAktif.reduce((a,s,i)=>s.lvl==='S'&&jawaban[i]===s.jawab?a+1:a,0);
+  const scK=soalAktif.reduce((a,s,i)=>s.lvl==='K'&&jawaban[i]===s.jawab?a+1:a,0);
+
+  let html=`<div class="hasil-wrap">
+    <div class="hasil-emoji">${emoji}</div>
+    <div class="hasil-title" style="color:${warna}">${judul}</div>
+    <div class="hasil-sub">Hasil latihan <strong>${namaSiswa}</strong></div>
+    <div class="hasil-score-box">
+      <div class="hasil-score-num" style="color:${warna}">${nilai}</div>
+      <div class="hasil-score-label">Nilai Akhir (skala 0–100)</div>
+      <div style="font-size:.8rem;font-weight:600;color:var(--muted);margin-top:.3rem">${score} benar dari 30 soal</div>
+    </div>
+    <div class="hasil-breakdown">
+      <div class="hb-item">🟢 Mudah: ${scM}/${cntM}</div>
+      <div class="hb-item">🟡 Sedang: ${scS}/${cntS}</div>
+      <div class="hb-item">🔴 Sulit: ${scK}/${cntK}</div>
+    </div>`;
+
+  if(nilai >= 90 && !hadiahDibuka){
+    html += `<button class="q-btn q-btn-hadiah" onclick="bukaHadiah()" style="margin-bottom:.8rem;">🎁 Buka Hadiah Spesial</button>`;
+  }
+
+  html += `<button class="btn-ulang" onclick="resetSemua()">🔀 Kerjakan Lagi</button>
+  </div>
+  <hr style="border:none;border-top:1.5px solid #f1f5f9;margin:1.4rem 0;">
+  <div class="pembahasan-title">📝 Pembahasan Lengkap</div>`;
+
+  soalAktif.forEach((s,i)=>{
+    const benar = jawaban[i]===s.jawab;
+    html+=`<div class="pb-item ${benar?'pb-ok':'pb-no'}">
+      <div class="pb-num">Soal ${i+1} · ${chipLbl[s.lvl]}</div>
+      <div class="pb-q">${s.q}</div>
+      <div class="pb-status">${benar?'✅ Kamu menjawab dengan benar':'❌ Kamu menjawab kurang tepat'}</div>
+      <div class="pb-info">${s.info}</div>
+    </div>`;
+  });
+
+  document.getElementById('soal-body').innerHTML=html;
+  document.getElementById('soal-modal-title').textContent='Hasil & Pembahasan';
+
+  if(!dataTerkirim){
+    kirimData(nilai, 'Belum dibuka');
+  }
+}
+
+function resetSemua(){
+  stopTimer();
+  closeModal('modal-soal');
+  soalAktif=[]; cur=0; score=0; jawaban=[];
+  hadiahDibuka=false; hadiahResult=null; dataTerkirim=false;
+  document.getElementById('soal-modal-title').textContent='Soal Latihan';
+}
+
+function bukaHadiah(){
+  hadiahDibuka = true;
+  closeModal('modal-soal');
+  document.getElementById('gacha-overlay').classList.add('show');
+  resetGachaUI();
+}
+
+// ═══════════════════════════════════════════
+//  SPREADSHEET INTEGRATION
+// ═══════════════════════════════════════════
+async function kirimData(nilai, hadiahLabel){
+  if(GAS_URL.includes('XXXXXXXX')){
+    console.log('GAS_URL belum diatur. Data belum terkirim.');
+    return;
+  }
+  const params = new URLSearchParams();
+  params.append('nama', namaSiswa || '-');
+  params.append('mapel', 'PRA UAS Bahasa Indonesia');
+  params.append('nilai', String(nilai));
+  params.append('hadiah', hadiahLabel || '-');
+
+  console.log('Mengirim data:', Object.fromEntries(params));
+
+  try{
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: params
+    });
+    dataTerkirim = true;
+    console.log('Data terkirim ke spreadsheet');
+  }catch(e){
+    console.error('Gagal kirim:', e);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  MODAL CONTROL
+// ═══════════════════════════════════════════
+function openModal(id){
+  if(id==='soal'){
+    document.getElementById('soal-modal-title').textContent='Soal Latihan';
+    startQuiz();
+    document.getElementById('modal-soal').classList.add('fullscreen-active');
+  }
+  document.getElementById(`modal-${id}`).classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeModal(id){
+  if(id==='modal-soal') stopTimer();
+  document.getElementById(id).classList.remove('active','fullscreen-active');
+  document.body.style.overflow='';
+}
+function closeOnBg(e,id){
+  if(e.target.id===id) closeModal(id);
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal('modal-rangkuman');closeModal('modal-soal');}
+});
+
+// ═══════════════════════════════════════════
+//  GACHA ENGINE
+// ═══════════════════════════════════════════
+const ANIMALS = {
+  mythic: [
+    { emoji: '🐉', name: 'Naga Emas', desc: 'Makhluk paling langka di seluruh bestiary! Naga Emas adalah legenda tertinggi yang hampir mustahil ditemukan.' }
+  ],
+  legendary: [
+    { emoji: '🦄', name: 'Unicorn', desc: 'Kuda bertanduk ajaib pembawa keberuntungan. Hanya yang terpilih yang bisa menemukannya.' },
+    { emoji: '🐳', name: 'Paus Bintang', desc: 'Paus raksasa yang berenang di antara bintang-bintang galaksi. Kemunculannya sangat langka.' },
+    { emoji: '🦁', name: 'Singa Emas', desc: 'Raja segala hewan berbulu emas berkilauan, simbol keagungan sejati.' },
+  ],
+  ultra: [
+    { emoji: '🦋', name: 'Kupu Phoenix', desc: 'Kupu-kupu berapi yang terlahir kembali dari abu. Sangat langka!' },
+    { emoji: '🦅', name: 'Elang Petir', desc: 'Elang raksasa pembawa kilat dari langit.' },
+    { emoji: '🐺', name: 'Serigala Bulan', desc: 'Serigala mistis yang menghowl di bawah bulan purnama.' },
+    { emoji: '🦊', name: 'Rubah Perak', desc: 'Rubah berwarna perak yang konon membawa keberuntungan.' },
+    { emoji: '🐬', name: 'Lumba-lumba Biru', desc: 'Lumba-lumba bercahaya dari laut dalam yang misterius.' },
+    { emoji: '🐯', name: 'Harimau Api', desc: 'Harimau dengan belang-belang api yang membara.' },
+    { emoji: '🦚', name: 'Merak Kristal', desc: 'Merak dengan bulu seindah kristal yang berkilauan.' },
+  ],
+  rare: [
+    { emoji: '🦝', name: 'Rakun Bintang', desc: 'Rakun berbintang yang suka mengoleksi benda berkilau.' },
+    { emoji: '🦜', name: 'Beo Neon', desc: 'Beo berwarna neon yang bisa menirukan sihir.' },
+    { emoji: '🐻', name: 'Beruang Salju', desc: 'Beruang kutub yang gagah dan kuat.' },
+    { emoji: '🦔', name: 'Landak Permata', desc: 'Landak berduri kristal yang menggemaskan.' },
+    { emoji: '🐊', name: 'Buaya Batu', desc: 'Buaya purba yang sekuat batu karang.' },
+    { emoji: '🦩', name: 'Flamingo Merah', desc: 'Flamingo anggun berwarna merah menyala.' },
+    { emoji: '🐙', name: 'Gurita Nebula', desc: 'Gurita bercahaya dari kedalaman samudera.' },
+    { emoji: '🦇', name: 'Kelelawar Malam', desc: 'Kelelawar penunggu malam yang misterius.' },
+    { emoji: '🐢', name: 'Kura Kuno', desc: 'Kura-kura berusia ribuan tahun penyimpan kebijaksanaan.' },
+    { emoji: '🦎', name: 'Kadal Zamrud', desc: 'Kadal berwarna zamrud yang menjaga harta terpendam.' },
+    { emoji: '🦂', name: 'Kalajengking Ungu', desc: 'Kalajengking misterius berbisa ungu dari gurun kuno.' },
+    { emoji: '🦈', name: 'Hiu Galaksi', desc: 'Hiu raksasa dengan sisik bermotif bintang galaksi.' },
+  ],
+  common: [
+    { emoji: '🐱', name: 'Kucing Biasa', desc: 'Kucing manja yang suka tidur sepanjang hari. Coba lagi!' },
+    { emoji: '🐶', name: 'Anjing Setia', desc: 'Sahabat manusia yang selalu setia menemani.' },
+    { emoji: '🐰', name: 'Kelinci Lompat', desc: 'Kelinci lincah yang suka melompat kesana kemari.' },
+    { emoji: '🐹', name: 'Hamster Pouch', desc: 'Hamster menggemaskan dengan pipi penuh biji-bijian.' },
+    { emoji: '🐦', name: 'Burung Gereja', desc: 'Burung kecil yang ceria berkicau setiap pagi.' },
+    { emoji: '🐟', name: 'Ikan Mas', desc: 'Ikan mas yang renang-renang tenang di kolam.' },
+    { emoji: '🐠', name: 'Ikan Badut', desc: 'Ikan warna-warni yang selalu ceria seperti badut.' },
+    { emoji: '🐔', name: 'Ayam Kampung', desc: 'Ayam kampung yang rajin berkokok setiap subuh.' },
+    { emoji: '🐑', name: 'Domba Wol', desc: 'Domba berbulu tebal yang nyaman dipeluk.' },
+    { emoji: '🐄', name: 'Sapi Gemuk', desc: 'Sapi makan rumput sepanjang hari di padang hijau.' },
+    { emoji: '🐷', name: 'Babi Lucu', desc: 'Babi pink yang suka berkubang lumpur.' },
+    { emoji: '🦆', name: 'Bebek Sesat', desc: 'Bebek yang selalu salah arah tapi tetap bahagia.' },
+    { emoji: '🐸', name: 'Katak Hijau', desc: 'Katak penyanyi yang berisik saat hujan tiba.' },
+    { emoji: '🐛', name: 'Ulat Daun', desc: 'Ulat kecil pemakan daun yang lambat tapi tekun.' },
+    { emoji: '🐝', name: 'Lebah Rajin', desc: 'Lebah pekerja keras penghasil madu manis.' },
+    { emoji: '🐌', name: 'Siput Santai', desc: 'Siput yang santai, tidak terburu-buru ke mana pun.' },
+  ]
+};
+
+function roll() {
+  const n = Math.random() * 100;
+  if (n < 0.5) return { type: 'mythic' };
+  if (n < 2.5) return { type: 'legendary' };
+  if (n < 7.5) return { type: 'ultra' };
+  if (n < 27.5) return { type: 'rare' };
+  return { type: 'common' };
+}
+function pickAnimal(type) {
+  const list = ANIMALS[type];
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+let gachaAnimating = false;
+let currentAnimal = null;
+
+function resetGachaUI(){
+  document.getElementById('gacha-result-card').style.display='none';
+  document.querySelector('.gacha-container').style.display='flex';
+  const btn = document.getElementById('gacha-open-btn');
+  btn.disabled = false;
+  btn.textContent = '✦ Buka Hadiah ✦';
+  const box = document.getElementById('gacha-lootbox');
+  box.style.cursor = 'pointer';
+  box.onclick = openBox;
+}
+
+function openBox() {
+  if (gachaAnimating || hadiahDibuka === 'done') return;
+  gachaAnimating = true;
+  playShakeSound();
+  const lootbox = document.getElementById('gacha-lootbox');
+  lootbox.classList.add('shaking');
+  setTimeout(() => {
+    lootbox.classList.remove('shaking');
+    const { type } = roll();
+    playRevealSound(type);
+    const animal = pickAnimal(type);
+    currentAnimal = animal;
+    hadiahResult = {type: type, name: animal.name};
+
+    const card     = document.getElementById('gacha-result-card');
+    const animalEl = document.getElementById('gacha-r-animal');
+    const nameEl   = document.getElementById('gacha-r-name');
+    const badgeEl  = document.getElementById('gacha-r-badge');
+    const cardArt  = document.getElementById('gacha-card-art');
+    const cardInfo = document.getElementById('gacha-card-info');
+    const starsEl  = document.getElementById('gacha-r-stars');
+
+    const starMap = { common:'★', rare:'★★★', ultra:'★★★★', legendary:'★★★★✦', mythic:'★★★★★' };
+    const labelMap = {
+      mythic:    '✦ Mythic ✦',
+      legendary: '⚡ Legendary ⚡',
+      ultra:     '◈ Ultra Rare ◈',
+      rare:      '◇ Rare ◇',
+      common:    'Common',
+    };
+
+    card.className     = 'gacha-result-card t-' + type;
+    cardArt.className  = 'gacha-card-art t-' + type;
+    cardInfo.className = 'gacha-card-info t-' + type;
+    animalEl.className = 'gacha-result-animal t-' + type;
+    animalEl.textContent = animal.emoji;
+    nameEl.className   = 'gacha-result-name t-' + type;
+    nameEl.textContent = animal.name;
+    badgeEl.className  = 'gacha-card-banner-label';
+    badgeEl.textContent = labelMap[type];
+    starsEl.textContent = starMap[type];
+    document.getElementById('gacha-r-desc').textContent = animal.desc;
+
+    const now = new Date();
+    const tgl = now.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+    const jam = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('gacha-footer-name').textContent = namaSiswa || 'Siswa';
+    document.getElementById('gacha-footer-date').textContent = tgl + ' · ' + jam;
+    document.getElementById('gacha-footer-score').textContent = 'Nilai: ' + nilaiAkhir(score);
+
+    document.querySelectorAll('.corner-gem').forEach(g => {
+      g.className = 'corner-gem ' + g.classList[1];
+    });
+
+    document.querySelector('.gacha-container').style.display='none';
+    card.style.display='block';
+    document.getElementById('gacha-btn-row').style.display='flex';
+
+    if (type !== 'common') spawnParticles(type);
+
+    hadiahDibuka = 'done';
+    const btn = document.getElementById('gacha-open-btn');
+    btn.disabled = true;
+    btn.textContent = '✦ Sudah Digunakan ✦';
+    lootbox.style.cursor = 'not-allowed';
+    lootbox.onclick = null;
+
+    const nilai = nilaiAkhir(score);
+    kirimData(nilai, labelMap[type]);
+
+    gachaAnimating = false;
+  }, 520);
+}
+
+function closeGachaResult(){
+  document.getElementById('gacha-overlay').classList.remove('show');
+}
+
+function spawnParticles(type) {
+  const pal = {
+    mythic:    ['#ffb700','#ff6a00','#ffe082','#ff3d00'],
+    legendary: ['#00e5ff','#00b8d4','#80deea','#ffffff'],
+    ultra:     ['#c040fb','#7c4dff','#e040fb','#b39ddb'],
+    rare:      ['#2979ff','#00b0ff','#40c4ff','#82b1ff'],
+  };
+  const colors = pal[type] || [];
+  const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  for (let i = 0; i < 30; i++) {
+    const el = document.createElement('div');
+    el.className = 'gacha-particle';
+    const angle = Math.random() * Math.PI * 2;
+    const dist  = 80 + Math.random() * 220;
+    const size  = 5 + Math.random() * 9;
+    el.style.cssText = `width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};left:${cx}px;top:${cy}px;--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;animation-duration:${.7+Math.random()*.5}s;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1300);
+  }
+}
+
+async function downloadCard() {
+  const btn = document.getElementById('gacha-dl-btn');
+  btn.classList.add('loading');
+  btn.textContent = '⏳ Memproses...';
+
+  const btnRow = document.getElementById('gacha-btn-row');
+  btnRow.style.display = 'none';
+
+  try {
+    const card = document.getElementById('gacha-card-inner');
+    const canvas = await html2canvas(card, {
+      backgroundColor: null,
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+
+    const padding = 32;
+    const final = document.createElement('canvas');
+    final.width  = canvas.width + padding * 2;
+    final.height = canvas.height + padding * 2 + 36;
+    const ctx = final.getContext('2d');
+
+    ctx.fillStyle = '#07080f';
+    ctx.fillRect(0, 0, final.width, final.height);
+    ctx.drawImage(canvas, padding, padding);
+
+    ctx.fillStyle = 'rgba(121,134,203,0.45)';
+    ctx.font = '20px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎁 kotak hadiah', final.width / 2, final.height - 10);
+
+    const name = currentAnimal ? currentAnimal.name.replace(/\s+/g,'-') : 'kartu';
+    const link = document.createElement('a');
+    link.download = `gacha-${name}.png`;
+    link.href = final.toDataURL('image/png');
+    link.click();
+  } catch(e) {
+    alert('Gagal mengunduh kartu. Coba lagi!');
+  }
+
+  btnRow.style.display = 'flex';
+  btn.classList.remove('loading');
+  btn.textContent = '⬇ Simpan Kartu';
+}
+
+// ═══════════════════════════════════════════
+//  AUDIO ENGINE - Efek Suara Gacha & Kuis
+// ═══════════════════════════════════════════
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playShakeSound() {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const noise = audioCtx.createBufferSource();
+
+  const bufferSize = audioCtx.sampleRate * 0.5;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * 0.3;
+  }
+  noise.buffer = buffer;
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.setValueAtTime(0.15, t);
+  noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+  noise.connect(noiseGain);
+  noiseGain.connect(audioCtx.destination);
+  noise.start(t);
+  noise.stop(t + 0.5);
+
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(80, t);
+  osc.frequency.exponentialRampToValueAtTime(40, t + 0.3);
+  gain.gain.setValueAtTime(0.4, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.4);
+}
+
+function playRevealSound(type) {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+
+  const freqMap = {
+    common: [330, 440],
+    rare: [440, 554, 659],
+    ultra: [523, 659, 784, 1047],
+    legendary: [659, 784, 1047, 1319, 1568],
+    mythic: [784, 988, 1175, 1568, 1976, 2349]
+  };
+
+  const freqs = freqMap[type] || freqMap.common;
+  const duration = type === 'mythic' ? 2.0 : type === 'legendary' ? 1.5 : 1.0;
+
+  freqs.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type === 'mythic' || type === 'legendary' ? 'sine' : 'triangle';
+    osc.frequency.setValueAtTime(freq, t + i * 0.12);
+
+    const vol = type === 'common' ? 0.15 : type === 'rare' ? 0.2 : type === 'ultra' ? 0.25 : type === 'legendary' ? 0.35 : 0.5;
+    gain.gain.setValueAtTime(0, t + i * 0.12);
+    gain.gain.linearRampToValueAtTime(vol, t + i * 0.12 + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.12 + 0.6);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t + i * 0.12);
+    osc.stop(t + i * 0.12 + 0.8);
+  });
+
+  if (type === 'ultra' || type === 'legendary' || type === 'mythic') {
+    const sparkle = audioCtx.createBufferSource();
+    const bufSize = audioCtx.sampleRate * duration;
+    const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.max(0, 1 - i/bufSize) * 0.08;
+    }
+    sparkle.buffer = buf;
+    const sg = audioCtx.createGain();
+    sg.gain.setValueAtTime(0.3, t);
+    sg.gain.linearRampToValueAtTime(0, t + duration);
+    sparkle.connect(sg);
+    sg.connect(audioCtx.destination);
+    sparkle.start(t);
+    sparkle.stop(t + duration);
+  }
+
+  if (type === 'mythic') {
+    const bass = audioCtx.createOscillator();
+    const bassGain = audioCtx.createGain();
+    bass.type = 'sine';
+    bass.frequency.setValueAtTime(60, t);
+    bass.frequency.linearRampToValueAtTime(30, t + 1.5);
+    bassGain.gain.setValueAtTime(0.5, t);
+    bassGain.gain.exponentialRampToValueAtTime(0.01, t + 2.0);
+    bass.connect(bassGain);
+    bassGain.connect(audioCtx.destination);
+    bass.start(t);
+    bass.stop(t + 2.0);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  QUIZ SOUNDS - Benar & Salah
+// ═══════════════════════════════════════════
+function playCorrectSound() {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  const freqs = [523, 659, 784, 1047];
+  freqs.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t + i * 0.08);
+    gain.gain.setValueAtTime(0, t + i * 0.08);
+    gain.gain.linearRampToValueAtTime(0.2, t + i * 0.08 + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.08 + 0.4);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t + i * 0.08);
+    osc.stop(t + i * 0.08 + 0.5);
+  });
+  const sparkle = audioCtx.createBufferSource();
+  const bufSize = audioCtx.sampleRate * 0.3;
+  const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) {
+    d[i] = (Math.random() * 2 - 1) * Math.max(0, 1 - i/bufSize) * 0.05;
+  }
+  sparkle.buffer = buf;
+  const sg = audioCtx.createGain();
+  sg.gain.setValueAtTime(0.15, t);
+  sg.gain.linearRampToValueAtTime(0, t + 0.3);
+  sparkle.connect(sg);
+  sg.connect(audioCtx.destination);
+  sparkle.start(t);
+  sparkle.stop(t + 0.3);
+}
+
+function playWrongSound() {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(200, t);
+  osc.frequency.exponentialRampToValueAtTime(80, t + 0.35);
+  gain.gain.setValueAtTime(0.12, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.45);
+  const osc2 = audioCtx.createOscillator();
+  const gain2 = audioCtx.createGain();
+  osc2.type = 'square';
+  osc2.frequency.setValueAtTime(150, t + 0.1);
+  osc2.frequency.exponentialRampToValueAtTime(60, t + 0.4);
+  gain2.gain.setValueAtTime(0.08, t + 0.1);
+  gain2.gain.exponentialRampToValueAtTime(0.01, t + 0.45);
+  osc2.connect(gain2);
+  gain2.connect(audioCtx.destination);
+  osc2.start(t + 0.1);
+  osc2.stop(t + 0.5);
+}
+
+</script>
+</body>
+</html>
