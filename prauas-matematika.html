@@ -728,7 +728,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
           <div class="r-item"><span class="r-bullet" style="background:#059669"></span><span><span class="r-kw">Data nilai</span>: kelompokkan nilai yang sama, hitung frekuensinya. Contoh: nilai 70 → hitung ada berapa 70 di data.</span></div>
           <div class="r-item"><span class="r-bullet" style="background:#059669"></span><span><span class="r-kw">Turus (tally)</span>: setiap 5 turus disilang menjadi satu kelompok. Mudah menghitung jumlah data banyak.</span></div>
           <div class="r-item"><span class="r-bullet" style="background:#059669"></span><span><span class="r-kw">Diagram batang</span>: sumbu tegak = frekuensi/jumlah, sumbu datar = kategori. Tinggi batang = banyaknya data.</span></div>
-          <div class="r-item"><span class="r-bullet" style="background:#059669"></span><span>Data nilai Kelas V SDN Sumber Rejeki: nilai 70 ada <span class="r-kw">5 siswa</span>, nilai 75 ada 3, nilai 80 ada 3, nilai 85 ada 5, nilai 90 ada 4, nilai 95 ada 6, nilai 100 ada 2. Siswa yang remidi (nilai &lt; 80) = 5+3 = <span class="r-kw">7 siswa.</span></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#059669"></span><span>Data nilai Kelas V SDN Sumber Rejeki: nilai 70 ada <span class="r-kw">5 siswa</span>, nilai 75 ada 3, nilai 80 ada 3, nilai 85 ada 5, nilai 90 ada 4, nilai 95 ada 6, nilai 100 ada 2. Siswa yang remidi (nilai &lt; 80) = 5+3 = <span class="r-kw">8 siswa.</span></span></div>
         </div>
       </div>
     </div>
@@ -850,7 +850,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   </div>
 </div>
 <script>
-const GAS_URL="https://script.google.com/macros/s/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/exec";
+const GAS_URL="https://script.google.com/macros/s/AKfycbxKK1xTtO9LKZtGcRHOnOj7l8VUfRETeCqHG0jVZTflLaJAlhrSPukrgnuiRL1qCZuK/exec";
 
 // SVG ilustrasi reusable
 const SVG={
@@ -1015,7 +1015,7 @@ const bank=[
 {id:39,lvl:'M',tipe:'pg',q:'Kerucut memiliki berapa titik sudut?',opts:['0','1','2','4'],jawab:1,info:'Kerucut memiliki 1 titik sudut yaitu di bagian puncaknya. Bagian alasnya berbentuk lingkaran (tidak memiliki sudut).'},
 {id:40,lvl:'M',tipe:'bs',q:'Dari data nilai kelas V, siswa yang mendapat nilai 85 berjumlah 5 siswa.',jawab:true,info:'Benar. Mencari nilai 85 dalam data: 85, 85, 85, 85, 85 = 5 kali muncul.'},
 {id:41,lvl:'M',tipe:'pg',q:'Luas persegi dengan sisi 9 cm adalah…',opts:['36 cm²','45 cm²','72 cm²','81 cm²'],jawab:3,info:'L persegi = s × s = 9 × 9 = 81 cm².'},
-{id:42,lvl:'M',tipe:'bs',q:'Jumlah siswa yang remidi (nilai < 80) dari data nilai kelas V adalah 7 siswa.',jawab:true,info:'Benar. Nilai 70 ada 5 siswa + nilai 75 ada 3 siswa = 8 siswa. Wait, 5+3=8. Sesuai data: 70→5, 75→3 = 8 siswa, bukan 7.'},
+{id:42,lvl:'M',tipe:'bs',q:'Jumlah siswa yang remidi (nilai < 80) dari data nilai kelas V adalah 7 siswa.',jawab:false,info:'SALAH. Nilai 70 ada 5 siswa + nilai 75 ada 3 siswa = 5 + 3 = 8 siswa yang remidi, bukan 7.'},
 {id:43,lvl:'M',tipe:'pg',q:'Bangun ruang yang memiliki tepat 5 titik sudut adalah…',opts:['Kubus','Balok','Limas segi empat','Tabung'],jawab:2,info:'Limas segi empat: 4 titik sudut di pojok alas + 1 titik puncak = 5 titik sudut. Kubus dan balok masing-masing punya 8 titik sudut.'},
 {id:44,lvl:'M',tipe:'bs',q:'Diagram batang dan tabel frekuensi adalah dua cara menyajikan data yang berbeda.',jawab:true,info:'Benar. Diagram batang menyajikan data secara visual dengan batang-batang, sedangkan tabel frekuensi menyajikannya dalam bentuk baris dan kolom.'},
 {id:45,lvl:'M',tipe:'pg',q:'Perhatikan gambar bangun gabungan. Jika luas bangun A = 128 cm² dan luas bangun B = 52 cm², maka luas gabungannya adalah…',illus:SVG.bangunGabungan,opts:['76 cm²','180 cm²','160 cm²','200 cm²'],jawab:1,info:'Luas gabungan = L_A + L_B = 128 + 52 = 180 cm².'},
@@ -1080,7 +1080,7 @@ const bank=[
 {id:100,lvl:'K',tipe:'bs',q:'Sudut refleksi 220° dapat dihitung sebagai 360° - 220° = 140° (sudut tumpul) yang merupakan sudut yang bersesuaian.',jawab:true,info:'Benar. Sudut refleksi 220° dan sudut pelengkapnya 360° - 220° = 140° (sudut tumpul) saling melengkapi menjadi 360° (sudut penuh).'},
 ];
 
-let namaSiswa='',soalAktif=[],cur=0,score=0,jawaban=[],timerInterval=null,timerLeft=0,hadiahDibuka=false,hadiahResult=null,dataTerkirim=false;
+let namaSiswa='',soalAktif=[],cur=0,score=0,jawaban=[],timerInterval=null,timerLeft=0,hadiahDibuka=false,hadiahResult=null,dataTerkirim=false,drawsLeft=1,hadiahResults=[];
 const TIMER_SEC=45;
 
 // ═══════════════════════════════════════════
@@ -1125,6 +1125,8 @@ function checkPin(){
     hadiahDibuka = false;
     hadiahResult = null;
     dataTerkirim = true;
+    drawsLeft = 2;
+    hadiahResults = [];
     setTimeout(()=>{
       document.getElementById('gacha-overlay').classList.add('show');
       resetGachaUI();
@@ -1171,7 +1173,7 @@ function pick30(){const m=shuffle(bank.filter(s=>s.lvl==='M')).slice(0,15);const
 function shuffleOpts(s){if(s.tipe!=='pg')return s;const idx=[0,1,2,3],sh=shuffle(idx);return{...s,opts:sh.map(i=>s.opts[i]),jawab:sh.indexOf(s.jawab)};}
 function nilaiAkhir(b){return Math.round((b/30)*100);}
 const chipCls={M:'chip-M',S:'chip-S',K:'chip-K'},chipLbl={M:'🟢 Mudah',S:'🟡 Sedang',K:'🔴 Sulit'};
-function startQuiz(){soalAktif=pick30().map(shuffleOpts);cur=0;score=0;jawaban=Array(30).fill(null);hadiahDibuka=false;hadiahResult=null;dataTerkirim=false;renderSoal();}
+function startQuiz(){soalAktif=pick30().map(shuffleOpts);cur=0;score=0;jawaban=Array(30).fill(null);hadiahDibuka=false;hadiahResult=null;dataTerkirim=false;drawsLeft=1;hadiahResults=[];renderSoal();}
 function renderSoal(){const s=soalAktif[cur],pct=Math.round((cur/30)*100),prev=jawaban[cur];
 let html=`<div class="q-progress-wrap"><div class="q-prog-top"><span class="q-prog-num">Soal ${cur+1} / 30</span><span class="q-prog-score">📊 Nilai: <strong>${nilaiAkhir(score)}</strong></span></div><div class="q-prog-bar-bg"><div class="q-prog-bar" style="width:${pct}%"></div></div></div><div class="q-timer-wrap" id="timer-wrap"><div class="q-timer-ring"><svg viewBox="0 0 44 44" width="44" height="44"><circle class="q-timer-track" cx="22" cy="22" r="18"/><circle class="q-timer-bar" id="timer-bar" cx="22" cy="22" r="18"/></svg><div class="q-timer-num" id="timer-num">${prev!==null?'✓':TIMER_SEC}</div></div><div class="q-timer-label">${prev!==null?'Sudah dijawab':'Waktu tersisa untuk menjawab'}</div></div><div class="q-card"><span class="diff-chip ${chipCls[s.lvl]}">${chipLbl[s.lvl]}</span><div class="q-text">${s.q}</div>`;
 if(s.illus)html+=`<div class="q-illus">${s.illus}</div>`;
@@ -1191,12 +1193,12 @@ function showHasil(){stopTimer();const nilai=nilaiAkhir(score);let emoji='😢',
 const cM=soalAktif.filter(s=>s.lvl==='M').length,cS=soalAktif.filter(s=>s.lvl==='S').length,cK=soalAktif.filter(s=>s.lvl==='K').length;
 const sM=soalAktif.reduce((a,s,i)=>s.lvl==='M'&&jawaban[i]===s.jawab?a+1:a,0),sS=soalAktif.reduce((a,s,i)=>s.lvl==='S'&&jawaban[i]===s.jawab?a+1:a,0),sK=soalAktif.reduce((a,s,i)=>s.lvl==='K'&&jawaban[i]===s.jawab?a+1:a,0);
 let html=`<div class="hasil-wrap"><div class="hasil-emoji">${emoji}</div><div class="hasil-title" style="color:${warna}">${judul}</div><div class="hasil-sub">Hasil latihan <strong>${namaSiswa}</strong></div><div class="hasil-score-box"><div class="hasil-score-num" style="color:${warna}">${nilai}</div><div class="hasil-score-label">Nilai Akhir (skala 0–100)</div><div style="font-size:.8rem;font-weight:600;color:var(--muted);margin-top:.3rem">${score} benar dari 30 soal</div></div><div class="hasil-breakdown"><div class="hb-item">🟢 Mudah: ${sM}/${cM}</div><div class="hb-item">🟡 Sedang: ${sS}/${cS}</div><div class="hb-item">🔴 Sulit: ${sK}/${cK}</div></div>`;
-if(nilai>=90&&!hadiahDibuka)html+=`<button class="q-btn q-btn-hadiah" onclick="bukaHadiah()" style="margin-bottom:.8rem;">🎁 Buka Hadiah Spesial</button>`;
+if(nilai>=90&&!hadiahDibuka)html+=`<button class="q-btn q-btn-hadiah" onclick="bukaHadiah()" style="margin-bottom:.8rem;">🎁 ${score===30?'Buka 2 Hadiah Spesial! ⭐':'Buka Hadiah Spesial'}</button>`;
 html+=`<button class="btn-ulang" onclick="resetSemua()">🔀 Kerjakan Lagi</button></div><hr style="border:none;border-top:1.5px solid #f1f5f9;margin:1.4rem 0;"><div class="pembahasan-title">📝 Pembahasan Lengkap</div>`;
 soalAktif.forEach((s,i)=>{const ok=jawaban[i]===s.jawab;html+=`<div class="pb-item ${ok?'pb-ok':'pb-no'}"><div class="pb-num">Soal ${i+1} · ${chipLbl[s.lvl]}</div><div class="pb-q">${s.q}</div>${s.illus?`<div class="pb-illus">${s.illus}</div>`:''}<div class="pb-status">${ok?'✅ Kamu menjawab dengan benar':'❌ Kamu menjawab kurang tepat'}</div><div class="pb-info">${s.info}</div></div>`;});
 document.getElementById('soal-body').innerHTML=html;document.getElementById('soal-modal-title').textContent='Hasil & Pembahasan';if(!dataTerkirim)kirimData(nilai,'Belum dibuka');}
-function resetSemua(){stopTimer();closeModal('modal-soal');soalAktif=[];cur=0;score=0;jawaban=[];hadiahDibuka=false;hadiahResult=null;dataTerkirim=false;document.getElementById('soal-modal-title').textContent='Soal Latihan';}
-function bukaHadiah(){hadiahDibuka=true;closeModal('modal-soal');document.getElementById('gacha-overlay').classList.add('show');resetGachaUI();}
+function resetSemua(){stopTimer();closeModal('modal-soal');soalAktif=[];cur=0;score=0;jawaban=[];hadiahDibuka=false;hadiahResult=null;dataTerkirim=false;drawsLeft=1;hadiahResults=[];document.getElementById('soal-modal-title').textContent='Soal Latihan';}
+function bukaHadiah(){hadiahDibuka=true;drawsLeft=(score===30)?2:1;hadiahResults=[];closeModal('modal-soal');document.getElementById('gacha-overlay').classList.add('show');resetGachaUI();}
 async function kirimData(nilai,hadiahLabel){if(GAS_URL.includes('XXXXXXXX'))return;const p=new URLSearchParams();p.append('nama',namaSiswa||'-');p.append('mapel','PRA UAS Matematika');p.append('nilai',String(nilai));p.append('hadiah',hadiahLabel||'-');try{await fetch(GAS_URL,{method:'POST',mode:'no-cors',body:p});dataTerkirim=true;}catch(e){}}
 function openModal(id){if(id==='soal'){document.getElementById('soal-modal-title').textContent='Soal Latihan';startQuiz();document.getElementById('modal-soal').classList.add('fullscreen-active');}document.getElementById(`modal-${id}`).classList.add('active');document.body.style.overflow='hidden';}
 function closeModal(id){if(id==='modal-soal')stopTimer();document.getElementById(id).classList.remove('active','fullscreen-active');document.body.style.overflow='';}
@@ -1207,7 +1209,21 @@ function roll(){const n=Math.random()*100;if(n<0.5)return{type:'mythic'};if(n<2.
 function pickAnimal(t){const l=ANIMALS[t];return l[Math.floor(Math.random()*l.length)];}
 let gachaAnimating=false,currentAnimal=null;
 function resetGachaUI(){document.getElementById('gacha-result-card').style.display='none';document.querySelector('.gacha-container').style.display='flex';const b=document.getElementById('gacha-open-btn');b.disabled=false;b.textContent='✦ Buka Hadiah ✦';const bx=document.getElementById('gacha-lootbox');bx.style.cursor='pointer';bx.onclick=openBox;}
-function openBox(){if(gachaAnimating||hadiahDibuka==='done')return;gachaAnimating=true;playShakeSound();const lb=document.getElementById('gacha-lootbox');lb.classList.add('shaking');setTimeout(()=>{lb.classList.remove('shaking');const{type}=roll();playRevealSound(type);const animal=pickAnimal(type);currentAnimal=animal;hadiahResult={type,name:animal.name};const card=document.getElementById('gacha-result-card'),ae=document.getElementById('gacha-r-animal'),ne=document.getElementById('gacha-r-name'),be=document.getElementById('gacha-r-badge'),ca=document.getElementById('gacha-card-art'),ci=document.getElementById('gacha-card-info'),se=document.getElementById('gacha-r-stars');const sm={common:'★',rare:'★★★',ultra:'★★★★',legendary:'★★★★✦',mythic:'★★★★★'},lm={mythic:'✦ Mythic ✦',legendary:'⚡ Legendary ⚡',ultra:'◈ Ultra Rare ◈',rare:'◇ Rare ◇',common:'Common'};card.className='gacha-result-card t-'+type;ca.className='gacha-card-art t-'+type;ci.className='gacha-card-info t-'+type;ae.className='gacha-result-animal t-'+type;ae.textContent=animal.emoji;ne.className='gacha-result-name t-'+type;ne.textContent=animal.name;be.textContent=lm[type];se.textContent=sm[type];document.getElementById('gacha-r-desc').textContent=animal.desc;const now=new Date(),tgl=now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}),jam=now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});document.getElementById('gacha-footer-name').textContent=namaSiswa||'Siswa';document.getElementById('gacha-footer-date').textContent=tgl+' · '+jam;document.getElementById('gacha-footer-score').textContent='Nilai: '+nilaiAkhir(score);document.querySelector('.gacha-container').style.display='none';card.style.display='block';document.getElementById('gacha-btn-row').style.display='flex';if(type!=='common')spawnParticles(type);hadiahDibuka='done';const btn=document.getElementById('gacha-open-btn');btn.disabled=true;btn.textContent='✦ Sudah Digunakan ✦';lb.style.cursor='not-allowed';lb.onclick=null;kirimData(nilaiAkhir(score),lm[type]);gachaAnimating=false;},520);}
+function openBox(){if(gachaAnimating||hadiahDibuka==='done')return;gachaAnimating=true;playShakeSound();const lb=document.getElementById('gacha-lootbox');lb.classList.add('shaking');setTimeout(()=>{lb.classList.remove('shaking');const{type}=roll();playRevealSound(type);const animal=pickAnimal(type);currentAnimal=animal;hadiahResult={type,name:animal.name};const card=document.getElementById('gacha-result-card'),ae=document.getElementById('gacha-r-animal'),ne=document.getElementById('gacha-r-name'),be=document.getElementById('gacha-r-badge'),ca=document.getElementById('gacha-card-art'),ci=document.getElementById('gacha-card-info'),se=document.getElementById('gacha-r-stars');const sm={common:'★',rare:'★★★',ultra:'★★★★',legendary:'★★★★✦',mythic:'★★★★★'},lm={mythic:'✦ Mythic ✦',legendary:'⚡ Legendary ⚡',ultra:'◈ Ultra Rare ◈',rare:'◇ Rare ◇',common:'Common'};card.className='gacha-result-card t-'+type;ca.className='gacha-card-art t-'+type;ci.className='gacha-card-info t-'+type;ae.className='gacha-result-animal t-'+type;ae.textContent=animal.emoji;ne.className='gacha-result-name t-'+type;ne.textContent=animal.name;be.textContent=lm[type];se.textContent=sm[type];document.getElementById('gacha-r-desc').textContent=animal.desc;const now=new Date(),tgl=now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}),jam=now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});document.getElementById('gacha-footer-name').textContent=namaSiswa||'Siswa';document.getElementById('gacha-footer-date').textContent=tgl+' · '+jam;document.getElementById('gacha-footer-score').textContent='Nilai: '+nilaiAkhir(score);document.querySelector('.gacha-container').style.display='none';card.style.display='block';document.getElementById('gacha-btn-row').style.display='flex';if(type!=='common')spawnParticles(type);hadiahResults.push(type);drawsLeft--;
+if(drawsLeft>0){
+  const bRow=document.getElementById('gacha-btn-row');
+  const dlBtn=document.createElement('button');
+  dlBtn.className='gacha-dl-btn';dlBtn.style.background='linear-gradient(135deg,#7c4dff,#c040fb)';
+  dlBtn.textContent='🎁 Draw Lagi!';
+  dlBtn.onclick=function(){dlBtn.remove();document.querySelector('.gacha-container').style.display='flex';document.getElementById('gacha-result-card').style.display='none';document.getElementById('gacha-btn-row').style.display='none';resetGachaUI();};
+  bRow.insertBefore(dlBtn,bRow.firstChild);
+}else{
+  hadiahDibuka='done';const btn=document.getElementById('gacha-open-btn');btn.disabled=true;btn.textContent='✦ Sudah Digunakan ✦';lb.style.cursor='not-allowed';lb.onclick=null;
+  const rp={common:0,rare:1,ultra:2,legendary:3,mythic:4};
+  const bestType=hadiahResults.reduce((a,b)=>rp[a]>=rp[b]?a:b);
+  kirimData(nilaiAkhir(score),lm[bestType]);
+}
+gachaAnimating=false;},520);}
 function closeGachaResult(){document.getElementById('gacha-overlay').classList.remove('show');}
 function spawnParticles(type){const pal={mythic:['#ffb700','#ff6a00','#ffe082','#ff3d00'],legendary:['#00e5ff','#00b8d4','#80deea','#ffffff'],ultra:['#c040fb','#7c4dff','#e040fb','#b39ddb'],rare:['#2979ff','#00b0ff','#40c4ff','#82b1ff']};const colors=pal[type]||[];const cx=window.innerWidth/2,cy=window.innerHeight/2;for(let i=0;i<30;i++){const el=document.createElement('div');el.className='gacha-particle';const angle=Math.random()*Math.PI*2,dist=80+Math.random()*220,size=5+Math.random()*9;el.style.cssText=`width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};left:${cx}px;top:${cy}px;--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;animation-duration:${.7+Math.random()*.5}s;`;document.body.appendChild(el);setTimeout(()=>el.remove(),1300);}}
 async function downloadCard(){const btn=document.getElementById('gacha-dl-btn');btn.classList.add('loading');btn.textContent='⏳ Memproses...';const bRow=document.getElementById('gacha-btn-row');bRow.style.display='none';try{const card=document.getElementById('gacha-card-inner'),canvas=await html2canvas(card,{backgroundColor:null,scale:2,useCORS:true,logging:false}),p=32,final=document.createElement('canvas');final.width=canvas.width+p*2;final.height=canvas.height+p*2+36;const ctx=final.getContext('2d');ctx.fillStyle='#07080f';ctx.fillRect(0,0,final.width,final.height);ctx.drawImage(canvas,p,p);ctx.fillStyle='rgba(121,134,203,0.45)';ctx.font='20px serif';ctx.textAlign='center';ctx.fillText('🎁 kotak hadiah',final.width/2,final.height-10);const name=currentAnimal?currentAnimal.name.replace(/\s+/g,'-'):'kartu',link=document.createElement('a');link.download=`gacha-${name}.png`;link.href=final.toDataURL('image/png');link.click();}catch(e){alert('Gagal mengunduh kartu. Coba lagi!');}bRow.style.display='flex';btn.classList.remove('loading');btn.textContent='⬇ Simpan Kartu';}
