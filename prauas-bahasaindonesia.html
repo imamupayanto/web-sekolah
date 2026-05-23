@@ -1040,6 +1040,8 @@ let soalAktif=[], cur=0, score=0, jawaban=[];
 let timerInterval=null, timerLeft=0;
 let hadiahDibuka = false;
 let hadiahResult = null;
+let drawsLeft = 1;
+let hadiahResults = [];
 let dataTerkirim = false;
 const TIMER_SEC = 45;
 
@@ -1130,11 +1132,6 @@ function mulai(){
   document.getElementById('main-card').style.display='';
   document.getElementById('pill-nama').textContent='👤 '+namaSiswa;
 }
-  namaSiswa = val;
-  document.getElementById('screen-nama').style.display='none';
-  document.getElementById('main-card').style.display='';
-  document.getElementById('pill-nama').textContent='👤 '+namaSiswa;
-}
 
 // ═══════════════════════════════════════════
 //  QUIZ ENGINE
@@ -1200,8 +1197,7 @@ function renderSoal(){
     s.opts.forEach((o,oi)=>{
       let cls='';
       if(prev!==null){
-        if(oi===s.jawab) cls='reveal';
-        else if(oi===prev && prev!==s.jawab) cls='wrong';
+        if(oi===prev){ if(prev===s.jawab) cls='correct'; else cls='wrong'; }
         else cls='disabled';
       }
       html+=`<button class="q-opt ${cls}" id="opt-${oi}" onclick="jwbPG(${oi})" ${prev!==null?'disabled':''}>
@@ -1213,8 +1209,7 @@ function renderSoal(){
     choices.forEach(c=>{
       let cls='';
       if(prev!==null){
-        if(c.val===s.jawab) cls='reveal';
-        else if(c.val===prev && prev!==s.jawab) cls='wrong';
+        if(c.val===prev){ if(prev===s.jawab) cls='correct'; else cls='wrong'; }
         else cls='disabled';
       }
       html+=`<button class="q-opt ${cls}" id="opt-${c.val}" onclick="jwbBS(${c.val})" ${prev!==null?'disabled':''}>
@@ -1343,7 +1338,7 @@ function showHasil(){
     </div>`;
 
   if(nilai >= 90 && !hadiahDibuka){
-    html += `<button class="q-btn q-btn-hadiah" onclick="bukaHadiah()" style="margin-bottom:.8rem;">🎁 Buka Hadiah Spesial</button>`;
+    html += `<button class="q-btn q-btn-hadiah" onclick="bukaHadiah()" style="margin-bottom:.8rem;">🎁 ${score===30?'Buka 2 Hadiah Spesial! ⭐':'Buka Hadiah Spesial'}</button>`;
   }
 
   html += `<button class="btn-ulang" onclick="resetSemua()">🔀 Kerjakan Lagi</button>
@@ -1373,12 +1368,14 @@ function resetSemua(){
   stopTimer();
   closeModal('modal-soal');
   soalAktif=[]; cur=0; score=0; jawaban=[];
-  hadiahDibuka=false; hadiahResult=null; dataTerkirim=false;
+  hadiahDibuka=false; hadiahResult=null; dataTerkirim=false; drawsLeft=1; hadiahResults=[];
   document.getElementById('soal-modal-title').textContent='Soal Latihan';
 }
 
 function bukaHadiah(){
   hadiahDibuka = true;
+  drawsLeft = (score === 30) ? 2 : 1;
+  hadiahResults = [];
   closeModal('modal-soal');
   document.getElementById('gacha-overlay').classList.add('show');
   resetGachaUI();
@@ -1579,15 +1576,39 @@ function openBox() {
 
     if (type !== 'common') spawnParticles(type);
 
-    hadiahDibuka = 'done';
-    const btn = document.getElementById('gacha-open-btn');
-    btn.disabled = true;
-    btn.textContent = '✦ Sudah Digunakan ✦';
-    lootbox.style.cursor = 'not-allowed';
-    lootbox.onclick = null;
+    // Simpan hasil draw ini
+    hadiahResults.push(type);
+    drawsLeft--;
 
-    const nilai = nilaiAkhir(score);
-    kirimData(nilai, labelMap[type]);
+    if(drawsLeft > 0){
+      // Masih ada draw lagi — tampilkan tombol Draw Lagi
+      const btnRow = document.getElementById('gacha-btn-row');
+      const drawLagiBtn = document.createElement('button');
+      drawLagiBtn.className = 'gacha-dl-btn';
+      drawLagiBtn.style.background = 'linear-gradient(135deg,#7c4dff,#c040fb)';
+      drawLagiBtn.textContent = '🎁 Draw Lagi!';
+      drawLagiBtn.onclick = function(){
+        drawLagiBtn.remove();
+        document.querySelector('.gacha-container').style.display='flex';
+        document.getElementById('gacha-result-card').style.display='none';
+        document.getElementById('gacha-btn-row').style.display='none';
+        resetGachaUI();
+      };
+      btnRow.insertBefore(drawLagiBtn, btnRow.firstChild);
+    } else {
+      // Semua draw selesai — kunci dan kirim data terbaik
+      hadiahDibuka = 'done';
+      const btn = document.getElementById('gacha-open-btn');
+      btn.disabled = true;
+      btn.textContent = '✦ Sudah Digunakan ✦';
+      lootbox.style.cursor = 'not-allowed';
+      lootbox.onclick = null;
+
+      const rarityPriority = {common:0,rare:1,ultra:2,legendary:3,mythic:4};
+      const bestType = hadiahResults.reduce((a,b) => rarityPriority[a]>=rarityPriority[b]?a:b);
+      const nilai = nilaiAkhir(score);
+      kirimData(nilai, labelMap[bestType]);
+    }
 
     gachaAnimating = false;
   }, 520);
