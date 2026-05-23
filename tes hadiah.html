@@ -76,7 +76,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 /* ===== RESULT CARD — Trading Card Style ===== */
 .result-card{
   position:relative;
-  width:280px;
+  width:360px;
   transform:scale(.7) translateY(40px) rotateX(8deg);
   transition:transform .5s cubic-bezier(.34,1.56,.64,1);
   perspective:800px;
@@ -142,7 +142,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 /* ── ARTWORK AREA ── */
 .card-art{
   width:100%;
-  height:200px;
+  height:260px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -179,7 +179,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 }
 
 .result-animal{
-  font-size:90px;
+  font-size:120px;
   line-height:1;
   position:relative;
   z-index:2;
@@ -233,11 +233,11 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 /* ── INFO AREA ── */
 .card-info{
   width:100%;
-  padding:14px 18px 16px;
+  padding:18px 24px 20px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:8px;
+  gap:10px;
   position:relative;
 }
 .t-common .card-info{background:linear-gradient(180deg,#0d1520,#090c18);border-top:1px solid rgba(120,144,156,0.2);}
@@ -263,7 +263,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 
 .result-animal-name{
   font-family:'Cinzel Decorative',serif;
-  font-size:18px;
+  font-size:22px;
   font-weight:900;
   line-height:1.1;
   text-align:center;
@@ -296,14 +296,14 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .t-legendary .card-divider{background:linear-gradient(90deg,transparent,#00e5ff,transparent);}
 .t-mythic .card-divider{background:linear-gradient(90deg,transparent,#ffb700,transparent);}
 
-.result-desc{font-size:11px;color:var(--muted);line-height:1.65;font-weight:300;text-align:center;max-width:200px;opacity:.85;}
+.result-desc{font-size:13px;color:var(--muted);line-height:1.65;font-weight:300;text-align:center;max-width:280px;opacity:.85;}
 
 /* Rarity badge row */
 .badge-row{display:flex;align-items:center;gap:6px;}
 .result-badge{
-  font-family:'Cinzel',serif;font-size:9px;font-weight:700;
+  font-family:'Cinzel',serif;font-size:11px;font-weight:700;
   letter-spacing:.14em;text-transform:uppercase;
-  padding:4px 14px;border-radius:50px;border:1px solid;
+  padding:6px 18px;border-radius:50px;border:1px solid;
 }
 .result-badge.t-common{color:#90a4ae;border-color:rgba(120,144,156,0.4);background:rgba(120,144,156,0.1);}
 .result-badge.t-rare  {color:#82c4ff;border-color:rgba(41,121,255,0.5);background:rgba(41,121,255,0.12);box-shadow:0 0 10px rgba(41,121,255,0.2);}
@@ -373,29 +373,29 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .name-screen.hide{opacity:0;pointer-events:none;}
 .name-box{
   display:flex;flex-direction:column;align-items:center;
-  gap:1.4rem;padding:2.4rem 2rem;
+  gap:1.8rem;padding:3.5rem 2.8rem;
   background:var(--surface);
   border:1px solid rgba(124,77,255,0.3);
-  border-radius:20px;
-  width:300px;
+  border-radius:24px;
+  width:400px;
   box-shadow:0 0 60px rgba(124,77,255,0.15);
 }
-.name-box h2{font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--text);text-align:center;line-height:1.5;}
-.name-box p{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;}
+.name-box h2{font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--text);text-align:center;line-height:1.5;}
+.name-box p{font-size:14px;color:var(--muted);text-align:center;line-height:1.6;}
 .name-input{
-  width:100%;padding:11px 16px;
-  font-family:'Cinzel',serif;font-size:13px;
+  width:100%;padding:15px 20px;
+  font-family:'Cinzel',serif;font-size:16px;
   background:rgba(255,255,255,0.04);
   border:1px solid rgba(124,77,255,0.4);
-  border-radius:10px;color:var(--text);
+  border-radius:12px;color:var(--text);
   outline:none;text-align:center;
   transition:border-color .2s,box-shadow .2s;
 }
 .name-input:focus{border-color:rgba(192,64,251,0.7);box-shadow:0 0 16px rgba(124,77,255,0.2);}
 .name-input::placeholder{color:var(--muted);opacity:.6;}
 .name-submit{
-  width:100%;padding:12px;
-  font-family:'Cinzel',serif;font-size:12px;font-weight:700;
+  width:100%;padding:16px;
+  font-family:'Cinzel',serif;font-size:15px;font-weight:700;
   letter-spacing:.18em;text-transform:uppercase;
   cursor:pointer;border:none;border-radius:50px;
   background:linear-gradient(135deg,#7c4dff,#c040fb);
@@ -730,6 +730,22 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 
   function closeResult() {
     document.getElementById('overlay').classList.remove('show');
+    // Reset untuk draw berikutnya — tampilkan name screen lagi
+    hasDrawn = false;
+    nameInput.value = '';
+    nameSubmit.disabled = true;
+    const screen = document.getElementById('name-screen');
+    screen.style.display = '';
+    setTimeout(() => screen.classList.remove('hide'), 10);
+    // Reset tombol buka hadiah
+    const btn = document.getElementById('open-btn');
+    btn.disabled = false;
+    btn.textContent = '✦ Buka Hadiah ✦';
+    btn.style.opacity = '';
+    btn.style.cursor = '';
+    const lootbox = document.getElementById('lootbox');
+    lootbox.style.cursor = '';
+    lootbox.onclick = () => openBox();
   }
 
   function renderHistory() {
