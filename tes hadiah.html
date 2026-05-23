@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kotak Hadiah</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root {
+  --mythic:#ffb700; --mythic2:#ff6a00;
+  --legendary:#00e5ff; --legendary2:#00b8d4;
+  --ultra:#c040fb;  --ultra2:#7c4dff;
+  --rare:#2979ff;   --rare2:#00b0ff;
+  --common:#78909c; --common2:#546e7a;
+  --bg:#07080f; --bg2:#0d0f1e; --surface:#12152a;
+  --border:rgba(255,255,255,0.08);
+  --text:#e8eaf6; --muted:#7986cb;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Raleway',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;position:relative;}
+
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,0.6) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 50% 8%,rgba(255,255,255,0.7) 0%,transparent 100%),radial-gradient(1px 1px at 70% 25%,rgba(255,255,255,0.5) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 35% 70%,rgba(255,255,255,0.55) 0%,transparent 100%),radial-gradient(2px 2px at 78% 12%,rgba(255,255,255,0.7) 0%,transparent 100%),radial-gradient(1px 1px at 5% 55%,rgba(255,255,255,0.45) 0%,transparent 100%),radial-gradient(1px 1px at 90% 70%,rgba(255,255,255,0.4) 0%,transparent 100%),radial-gradient(1px 1px at 55% 90%,rgba(255,255,255,0.35) 0%,transparent 100%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 20%,rgba(124,77,255,0.07) 0%,transparent 70%),radial-gradient(ellipse 50% 50% at 80% 80%,rgba(41,121,255,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+.container{position:relative;z-index:1;width:100%;max-width:640px;padding:2rem 1.5rem 4rem;display:flex;flex-direction:column;align-items:center;gap:1.8rem;}
+
+.header{text-align:center;padding-top:.5rem;}
+.header h1{font-family:'Cinzel Decorative',serif;font-size:clamp(18px,5vw,28px);font-weight:900;background:linear-gradient(135deg,#ffb700,#ff6a00 40%,#c040fb 70%,#7c4dff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
+.header p{font-size:11px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;font-weight:300;}
+
+.divider{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--muted),transparent);opacity:.35;}
+
+.test-banner{background:rgba(255,183,0,0.08);border:1px solid rgba(255,183,0,0.25);border-radius:8px;padding:7px 16px;font-size:11px;color:#ffb700;letter-spacing:.1em;text-transform:uppercase;font-family:'Cinzel',serif;}
+
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 6px;text-align:center;}
+.stat-val{font-family:'Cinzel',serif;font-size:20px;font-weight:600;line-height:1;margin-bottom:3px;}
+.stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;}
+.c-all{color:var(--text);} .c-mythic{color:var(--mythic);} .c-legendary{color:var(--legendary);} .c-ultra{color:var(--ultra);} .c-rare{color:var(--rare);}
+
+.box-wrap{position:relative;width:190px;height:190px;cursor:pointer;}
+.box-glow-ring{position:absolute;inset:-20px;border-radius:50%;background:radial-gradient(circle,rgba(124,77,255,0.15) 0%,transparent 70%);animation:pulse-ring 3s ease-in-out infinite;pointer-events:none;}
+@keyframes pulse-ring{0%,100%{transform:scale(.9);opacity:.5;}50%{transform:scale(1.1);opacity:1;}}
+.lootbox{width:190px;height:190px;background:var(--surface);border:1px solid rgba(124,77,255,0.3);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:transform .1s,border-color .3s;position:relative;overflow:hidden;}
+.lootbox::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,77,255,0.08) 0%,transparent 60%);pointer-events:none;}
+.lootbox:hover{transform:scale(1.03);border-color:rgba(192,64,251,0.5);}
+.lootbox.shaking{animation:shake .5s cubic-bezier(.36,.07,.19,.97);}
+@keyframes shake{0%{transform:rotate(0) scale(1);}10%{transform:rotate(-10deg) scale(1.05);}25%{transform:rotate(10deg) scale(1.08);}40%{transform:rotate(-8deg) scale(1.06);}55%{transform:rotate(8deg) scale(1.05);}70%{transform:rotate(-4deg) scale(1.03);}85%{transform:rotate(4deg) scale(1.02);}100%{transform:rotate(0) scale(1);}}
+.box-hint{font-family:'Cinzel',serif;font-size:11px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;}
+
+.open-btn{padding:13px 48px;font-family:'Cinzel',serif;font-size:13px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border:none;border-radius:50px;background:linear-gradient(135deg,#7c4dff,#c040fb);color:#fff;transition:transform .1s,box-shadow .2s;box-shadow:0 4px 24px rgba(124,77,255,0.4);position:relative;overflow:hidden;}
+.open-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);pointer-events:none;}
+.open-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(124,77,255,0.55);}
+.open-btn:active{transform:scale(.97);}
+
+.legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+.legend-dot{width:7px;height:7px;border-radius:50%;}
+
+.history-wrap{width:100%;}
+.history-head{font-family:'Cinzel',serif;font-size:10px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;display:none;}
+.history-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.chip{font-family:'Cinzel',serif;font-size:11px;font-weight:600;padding:3px 9px;border-radius:5px;animation:chip-pop .3s cubic-bezier(.34,1.56,.64,1) forwards;opacity:0;transform:scale(.7);}
+@keyframes chip-pop{to{opacity:1;transform:scale(1);}}
+.chip-common{background:rgba(120,144,156,.15);border:1px solid rgba(120,144,156,.3);color:#90a4ae;}
+.chip-rare{background:rgba(41,121,255,.15);border:1px solid rgba(41,121,255,.35);color:#64b5f6;}
+.chip-ultra{background:rgba(192,64,251,.15);border:1px solid rgba(192,64,251,.4);color:#ce93d8;}
+.chip-legendary{background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.4);color:#00e5ff;}
+.chip-mythic{background:rgba(255,183,0,.15);border:1px solid rgba(255,183,0,.4);color:#ffb700;}
+
+/* ===== OVERLAY ===== */
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;background:rgba(4,5,12,0.88);backdrop-filter:blur(12px);}
+.overlay.show{opacity:1;pointer-events:all;}
+
+/* ===== RESULT CARD — Trading Card Style ===== */
+.result-card{
+  position:relative;
+  width:280px;
+  transform:scale(.7) translateY(40px) rotateX(8deg);
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1);
+  perspective:800px;
+}
+.overlay.show .result-card{transform:scale(1) translateY(0) rotateX(0);}
+
+/* Outer glow halo */
+.card-halo{
+  position:absolute;
+  inset:-24px;
+  border-radius:36px;
+  opacity:0;
+  transition:opacity .4s;
+  pointer-events:none;
+  filter:blur(18px);
+}
+.t-common  .card-halo{background:radial-gradient(ellipse,rgba(120,144,156,0.25),transparent 70%);opacity:1;}
+.t-rare    .card-halo{background:radial-gradient(ellipse,rgba(41,121,255,0.45),transparent 70%);opacity:1;}
+.t-ultra   .card-halo{background:radial-gradient(ellipse,rgba(192,64,251,0.5),transparent 70%);opacity:1;}
+.t-legendary .card-halo{background:radial-gradient(ellipse,rgba(0,229,255,0.55),transparent 70%);opacity:1;animation:halo-breathe 2s ease-in-out infinite alternate;}
+.t-mythic  .card-halo{background:radial-gradient(ellipse,rgba(255,183,0,0.6),transparent 70%);opacity:1;animation:halo-breathe 2s ease-in-out infinite alternate;}
+@keyframes halo-breathe{from{filter:blur(16px) brightness(1);}to{filter:blur(24px) brightness(1.4);}}
+
+.card-inner{
+  position:relative;
+  width:100%;
+  border-radius:20px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* ── TOP BANNER ── */
+.card-banner{
+  width:100%;
+  padding:10px 16px 8px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.t-common .card-banner{background:linear-gradient(90deg,#1c2430,#263040);}
+.t-rare   .card-banner{background:linear-gradient(90deg,#041230,#062060);}
+.t-ultra  .card-banner{background:linear-gradient(90deg,#16053a,#2a0860);}
+.t-legendary .card-banner{background:linear-gradient(90deg,#002a30,#004a55);}
+.t-mythic .card-banner{background:linear-gradient(90deg,#2a1400,#4a2000);}
+
+.card-banner-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.25em;text-transform:uppercase;}
+.t-common .card-banner-label{color:#90a4ae;}
+.t-rare   .card-banner-label{color:#64b5f6;}
+.t-ultra  .card-banner-label{color:#ce93d8;}
+.t-legendary .card-banner-label{color:#00e5ff;}
+.t-mythic .card-banner-label{color:#ffb700;}
+
+.card-banner-stars{font-size:10px;letter-spacing:1px;}
+.t-common .card-banner-stars{color:#546e7a;}
+.t-rare   .card-banner-stars{color:#2979ff;}
+.t-ultra  .card-banner-stars{color:#c040fb;}
+.t-legendary .card-banner-stars{color:#00e5ff;animation:star-flicker 1.2s ease-in-out infinite alternate;}
+.t-mythic .card-banner-stars{color:#ffb700;animation:star-flicker 1.2s ease-in-out infinite alternate;}
+@keyframes star-flicker{from{opacity:.8;}to{opacity:1;text-shadow:0 0 8px #ffb700;}}
+
+/* ── ARTWORK AREA ── */
+.card-art{
+  width:100%;
+  height:200px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+.t-common .card-art{background:linear-gradient(180deg,#0d1a26 0%,#0a1018 100%);}
+.t-rare   .card-art{background:linear-gradient(180deg,#040f2a 0%,#030820 100%);}
+.t-ultra  .card-art{background:linear-gradient(180deg,#100520 0%,#08030f 100%);}
+.t-legendary .card-art{background:linear-gradient(180deg,#001a20 0%,#000d12 100%);}
+.t-mythic .card-art{background:linear-gradient(180deg,#1c0e00 0%,#0f0800 100%);}
+
+/* Art bg aura circle */
+.art-aura{
+  position:absolute;
+  width:160px;height:160px;
+  border-radius:50%;
+  opacity:.35;
+}
+.t-common .art-aura{background:radial-gradient(circle,#78909c,transparent 70%);}
+.t-rare   .art-aura{background:radial-gradient(circle,#2979ff,transparent 70%);}
+.t-ultra  .art-aura{background:radial-gradient(circle,#c040fb,transparent 70%);}
+.t-legendary .art-aura{background:radial-gradient(circle,#00e5ff,transparent 70%);animation:aura-pulse 2s ease-in-out infinite alternate;opacity:.5;}
+.t-mythic .art-aura{background:radial-gradient(circle,#ffb700,transparent 70%);animation:aura-pulse 2s ease-in-out infinite alternate;opacity:.5;}
+@keyframes aura-pulse{from{transform:scale(.9);}to{transform:scale(1.15);opacity:.7;}}
+
+/* Hex grid pattern overlay */
+.art-hex{
+  position:absolute;inset:0;
+  background-image:repeating-linear-gradient(60deg,rgba(255,255,255,0.02) 0,rgba(255,255,255,0.02) 1px,transparent 0,transparent 50%),
+    repeating-linear-gradient(120deg,rgba(255,255,255,0.02) 0,rgba(255,255,255,0.02) 1px,transparent 0,transparent 50%);
+  background-size:20px 20px;
+  pointer-events:none;
+}
+
+.result-animal{
+  font-size:90px;
+  line-height:1;
+  position:relative;
+  z-index:2;
+  user-select:none;
+  transition:filter .3s;
+}
+.result-animal.t-common{filter:drop-shadow(0 4px 12px rgba(120,144,156,0.5));}
+.result-animal.t-rare  {filter:drop-shadow(0 0 18px rgba(41,121,255,0.8)) drop-shadow(0 0 40px rgba(0,176,255,0.3));}
+.result-animal.t-ultra {filter:drop-shadow(0 0 20px rgba(192,64,251,0.9)) drop-shadow(0 0 50px rgba(124,77,255,0.4));}
+.result-animal.t-legendary{filter:drop-shadow(0 0 22px rgba(0,229,255,0.95)) drop-shadow(0 0 55px rgba(0,184,212,0.5));animation:animal-legendary 1.8s ease-in-out infinite alternate;}
+@keyframes animal-legendary{
+  from{filter:drop-shadow(0 0 16px rgba(0,229,255,.8)) drop-shadow(0 0 40px rgba(0,184,212,.4));transform:scale(1);}
+  to  {filter:drop-shadow(0 0 30px rgba(0,255,255,1))  drop-shadow(0 0 65px rgba(0,229,255,.6));transform:scale(1.05);}
+}
+.result-animal.t-mythic{
+  filter:drop-shadow(0 0 24px rgba(255,200,0,1)) drop-shadow(0 0 60px rgba(255,106,0,0.6));
+  animation:animal-mythic 1.8s ease-in-out infinite alternate;
+}
+@keyframes animal-mythic{
+  from{filter:drop-shadow(0 0 18px rgba(255,183,0,.9)) drop-shadow(0 0 40px rgba(255,106,0,.4));transform:scale(1);}
+  to  {filter:drop-shadow(0 0 32px rgba(255,220,0,1))  drop-shadow(0 0 70px rgba(255,60,0,.7)); transform:scale(1.06);}
+}
+
+/* Rotating ring for rare+ */
+.art-ring{
+  position:absolute;
+  border-radius:50%;
+  border:1px solid;
+  opacity:0;pointer-events:none;
+}
+.art-ring-1{width:120px;height:120px;}
+.art-ring-2{width:148px;height:148px;}
+.t-rare  .art-ring{opacity:1;border-color:rgba(41,121,255,0.3);}
+.t-ultra .art-ring{opacity:1;border-color:rgba(192,64,251,0.35);}
+.t-legendary .art-ring{opacity:1;border-color:rgba(0,229,255,0.4);}
+.t-mythic .art-ring{opacity:1;border-color:rgba(255,183,0,0.4);}
+.t-rare  .art-ring-1{animation:spin 7s linear infinite;}
+.t-ultra .art-ring-1{animation:spin 5s linear infinite;}
+.t-legendary .art-ring-1{animation:spin 4s linear infinite;}
+.t-mythic .art-ring-1{animation:spin 3s linear infinite;}
+.t-rare  .art-ring-2{animation:spin 12s linear infinite reverse;}
+.t-ultra .art-ring-2{animation:spin 8s linear infinite reverse;}
+.t-legendary .art-ring-2{animation:spin 6s linear infinite reverse;border-style:dashed;}
+.t-mythic .art-ring-2{animation:spin 5s linear infinite reverse;border-style:dashed;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Mythic sparkle stars */
+.mythic-stars{position:absolute;inset:0;pointer-events:none;opacity:0;width:100%;height:100%;}
+.t-mythic .mythic-stars{opacity:1;}
+
+/* ── INFO AREA ── */
+.card-info{
+  width:100%;
+  padding:14px 18px 16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  position:relative;
+}
+.t-common .card-info{background:linear-gradient(180deg,#0d1520,#090c18);border-top:1px solid rgba(120,144,156,0.2);}
+.t-rare   .card-info{background:linear-gradient(180deg,#040e24,#030818);border-top:1px solid rgba(41,121,255,0.25);}
+.t-ultra  .card-info{background:linear-gradient(180deg,#0e0420,#060010);border-top:1px solid rgba(192,64,251,0.3);}
+.t-legendary .card-info{background:linear-gradient(180deg,#001820,#000c10);border-top:1px solid rgba(0,229,255,0.3);}
+.t-mythic .card-info{background:linear-gradient(180deg,#1a0c00,#0e0700);border-top:1px solid rgba(255,183,0,0.3);}
+
+/* Shimmer line at top of info */
+.card-info-line{
+  position:absolute;
+  top:0;left:20%;right:20%;
+  height:1px;
+  border-radius:1px;
+}
+.t-common .card-info-line{background:linear-gradient(90deg,transparent,rgba(120,144,156,0.5),transparent);}
+.t-rare   .card-info-line{background:linear-gradient(90deg,transparent,rgba(41,121,255,0.7),transparent);}
+.t-ultra  .card-info-line{background:linear-gradient(90deg,transparent,rgba(192,64,251,0.8),transparent);}
+.t-legendary .card-info-line{background:linear-gradient(90deg,transparent,rgba(0,229,255,0.85),transparent);box-shadow:0 0 8px rgba(0,229,255,0.4);}
+.t-mythic .card-info-line{background:linear-gradient(90deg,transparent,rgba(255,183,0,0.9),transparent);box-shadow:0 0 8px rgba(255,183,0,0.5);}
+
+.result-eyebrow{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);opacity:.7;}
+
+.result-animal-name{
+  font-family:'Cinzel Decorative',serif;
+  font-size:18px;
+  font-weight:900;
+  line-height:1.1;
+  text-align:center;
+}
+.result-animal-name.t-common{color:#b0bec5;}
+.result-animal-name.t-rare{background:linear-gradient(135deg,#64b5f6,#2979ff,#00b0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 8px rgba(41,121,255,0.5));}
+.result-animal-name.t-ultra{background:linear-gradient(135deg,#e040fb,#c040fb,#7c4dff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 10px rgba(192,64,251,0.6));}
+.result-animal-name.t-legendary{
+  background:linear-gradient(135deg,#e0ffff,#00e5ff,#00b8d4);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:name-legendary 1.6s ease-in-out infinite alternate;
+}
+@keyframes name-legendary{from{filter:drop-shadow(0 0 6px rgba(0,229,255,.6));}to{filter:drop-shadow(0 0 16px rgba(0,255,255,.9));}}
+.result-animal-name.t-mythic{
+  background:linear-gradient(135deg,#fff5cc,#ffe066,#ffb700,#ff8c00,#ff6a00);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:name-mythic 1.6s ease-in-out infinite alternate;
+}
+@keyframes name-mythic{from{filter:drop-shadow(0 0 6px rgba(255,183,0,.6));}to{filter:drop-shadow(0 0 16px rgba(255,140,0,.9));}}
+
+/* Divider */
+.card-divider{
+  width:80%;height:1px;
+  border-radius:1px;
+  opacity:.4;
+}
+.t-common .card-divider{background:linear-gradient(90deg,transparent,#78909c,transparent);}
+.t-rare   .card-divider{background:linear-gradient(90deg,transparent,#2979ff,transparent);}
+.t-ultra  .card-divider{background:linear-gradient(90deg,transparent,#c040fb,transparent);}
+.t-legendary .card-divider{background:linear-gradient(90deg,transparent,#00e5ff,transparent);}
+.t-mythic .card-divider{background:linear-gradient(90deg,transparent,#ffb700,transparent);}
+
+.result-desc{font-size:11px;color:var(--muted);line-height:1.65;font-weight:300;text-align:center;max-width:200px;opacity:.85;}
+
+/* Rarity badge row */
+.badge-row{display:flex;align-items:center;gap:6px;}
+.result-badge{
+  font-family:'Cinzel',serif;font-size:9px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 14px;border-radius:50px;border:1px solid;
+}
+.result-badge.t-common{color:#90a4ae;border-color:rgba(120,144,156,0.4);background:rgba(120,144,156,0.1);}
+.result-badge.t-rare  {color:#82c4ff;border-color:rgba(41,121,255,0.5);background:rgba(41,121,255,0.12);box-shadow:0 0 10px rgba(41,121,255,0.2);}
+.result-badge.t-ultra {color:#e090f8;border-color:rgba(192,64,251,0.55);background:rgba(192,64,251,0.12);box-shadow:0 0 12px rgba(192,64,251,0.25);}
+.result-badge.t-legendary{color:#00e5ff;border-color:rgba(0,229,255,0.6);background:rgba(0,229,255,0.1);box-shadow:0 0 14px rgba(0,229,255,0.3);animation:badge-glow-legendary 1.5s ease-in-out infinite alternate;}
+@keyframes badge-glow-legendary{from{box-shadow:0 0 8px rgba(0,229,255,0.25);}to{box-shadow:0 0 18px rgba(0,229,255,0.6);}}
+.result-badge.t-mythic{color:#ffe066;border-color:rgba(255,183,0,0.6);background:rgba(255,183,0,0.12);box-shadow:0 0 14px rgba(255,183,0,0.3);animation:badge-glow 1.5s ease-in-out infinite alternate;}
+@keyframes badge-glow{from{box-shadow:0 0 8px rgba(255,183,0,0.25);}to{box-shadow:0 0 18px rgba(255,140,0,0.5);}}
+
+/* ── BORDER FRAME ── */
+.card-frame{
+  position:absolute;inset:0;
+  border-radius:20px;
+  border:1.5px solid;
+  pointer-events:none;
+}
+.t-common .card-frame{border-color:rgba(120,144,156,0.3);}
+.t-rare   .card-frame{border-color:rgba(41,121,255,0.45);box-shadow:inset 0 0 20px rgba(41,121,255,0.06),0 0 30px rgba(41,121,255,0.2);}
+.t-ultra  .card-frame{border-color:rgba(192,64,251,0.5);box-shadow:inset 0 0 24px rgba(192,64,251,0.07),0 0 40px rgba(124,77,255,0.25);}
+.t-legendary .card-frame{border-color:rgba(0,229,255,0.55);box-shadow:inset 0 0 28px rgba(0,229,255,0.08),0 0 50px rgba(0,229,255,0.3);animation:frame-legendary 2s ease-in-out infinite alternate;}
+@keyframes frame-legendary{from{box-shadow:inset 0 0 20px rgba(0,229,255,.06),0 0 35px rgba(0,229,255,.2);}to{box-shadow:inset 0 0 40px rgba(0,229,255,.12),0 0 65px rgba(0,229,255,.5);}}
+.t-mythic .card-frame{border-color:rgba(255,183,0,0.55);box-shadow:inset 0 0 30px rgba(255,183,0,0.08),0 0 50px rgba(255,140,0,0.35);animation:frame-mythic 2s ease-in-out infinite alternate;}
+@keyframes frame-mythic{from{box-shadow:inset 0 0 20px rgba(255,183,0,.06),0 0 40px rgba(255,140,0,.25);}to{box-shadow:inset 0 0 40px rgba(255,183,0,.12),0 0 70px rgba(255,100,0,.5);}}
+
+/* Corner ornaments */
+.corner-gem{
+  position:absolute;width:10px;height:10px;border-radius:2px;
+  transform:rotate(45deg);z-index:3;
+}
+.cg-tl{top:6px;left:6px;}
+.cg-tr{top:6px;right:6px;}
+.cg-bl{bottom:6px;left:6px;}
+.cg-br{bottom:6px;right:6px;}
+.t-common .corner-gem{background:#546e7a;box-shadow:0 0 4px #546e7a;}
+.t-rare   .corner-gem{background:#2979ff;box-shadow:0 0 6px rgba(41,121,255,0.8);}
+.t-ultra  .corner-gem{background:#c040fb;box-shadow:0 0 8px rgba(192,64,251,0.9);}
+.t-legendary .corner-gem{background:#00e5ff;box-shadow:0 0 10px rgba(0,229,255,1);animation:gem-pulse-legendary 1s ease-in-out infinite alternate;}
+@keyframes gem-pulse-legendary{from{box-shadow:0 0 6px rgba(0,229,255,.8);}to{box-shadow:0 0 16px rgba(0,255,255,1);}}
+.t-mythic .corner-gem{background:#ffb700;box-shadow:0 0 10px rgba(255,183,0,1);animation:gem-pulse 1s ease-in-out infinite alternate;}
+@keyframes gem-pulse{from{box-shadow:0 0 6px rgba(255,183,0,.8);}to{box-shadow:0 0 14px rgba(255,220,0,1);}}
+
+/* ── BUTTONS ── */
+.btn-row{display:flex;gap:8px;align-items:center;margin-top:12px;justify-content:center;}
+.close-btn{padding:9px 20px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border-radius:50px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:var(--muted);transition:background .2s,color .2s;}
+.close-btn:hover{background:rgba(255,255,255,0.08);color:var(--text);}
+
+.download-btn{padding:9px 20px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border-radius:50px;border:none;font-weight:700;transition:transform .15s,box-shadow .2s;}
+.download-btn:hover{transform:translateY(-2px);}
+.download-btn:active{transform:scale(.96);}
+.download-btn.loading{opacity:.7;cursor:wait;}
+.t-common .download-btn{background:linear-gradient(135deg,#78909c,#546e7a);color:#fff;box-shadow:0 3px 12px rgba(84,110,122,0.4);}
+.t-rare   .download-btn{background:linear-gradient(135deg,#2979ff,#00b0ff);color:#fff;box-shadow:0 3px 14px rgba(41,121,255,0.5);}
+.t-rare   .download-btn:hover{box-shadow:0 6px 22px rgba(41,121,255,0.7);}
+.t-ultra  .download-btn{background:linear-gradient(135deg,#c040fb,#7c4dff);color:#fff;box-shadow:0 3px 14px rgba(192,64,251,0.5);}
+.t-ultra  .download-btn:hover{box-shadow:0 6px 22px rgba(192,64,251,0.7);}
+.t-mythic .download-btn{background:linear-gradient(135deg,#ffe066,#ffb700,#ff6a00);color:#1a0800;box-shadow:0 3px 14px rgba(255,183,0,0.55);}
+.t-mythic .download-btn:hover{box-shadow:0 6px 24px rgba(255,140,0,0.8);}
+
+/* ===== NAME INPUT SCREEN ===== */
+.name-screen{
+  position:fixed;inset:0;z-index:2000;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg);
+  backdrop-filter:blur(0);
+  transition:opacity .4s;
+}
+.name-screen.hide{opacity:0;pointer-events:none;}
+.name-box{
+  display:flex;flex-direction:column;align-items:center;
+  gap:1.4rem;padding:2.4rem 2rem;
+  background:var(--surface);
+  border:1px solid rgba(124,77,255,0.3);
+  border-radius:20px;
+  width:300px;
+  box-shadow:0 0 60px rgba(124,77,255,0.15);
+}
+.name-box h2{font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--text);text-align:center;line-height:1.5;}
+.name-box p{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;}
+.name-input{
+  width:100%;padding:11px 16px;
+  font-family:'Cinzel',serif;font-size:13px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(124,77,255,0.4);
+  border-radius:10px;color:var(--text);
+  outline:none;text-align:center;
+  transition:border-color .2s,box-shadow .2s;
+}
+.name-input:focus{border-color:rgba(192,64,251,0.7);box-shadow:0 0 16px rgba(124,77,255,0.2);}
+.name-input::placeholder{color:var(--muted);opacity:.6;}
+.name-submit{
+  width:100%;padding:12px;
+  font-family:'Cinzel',serif;font-size:12px;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;
+  cursor:pointer;border:none;border-radius:50px;
+  background:linear-gradient(135deg,#7c4dff,#c040fb);
+  color:#fff;box-shadow:0 4px 20px rgba(124,77,255,0.4);
+  transition:transform .15s,box-shadow .2s;
+}
+.name-submit:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(124,77,255,0.55);}
+.name-submit:active{transform:scale(.97);}
+.name-submit:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+/* ===== NAME + TIME ON CARD ===== */
+.card-footer{
+  width:100%;padding:8px 16px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.t-common .card-footer{background:linear-gradient(90deg,#0d1520,#090c18);border-top:1px solid rgba(120,144,156,0.1);}
+.t-rare   .card-footer{background:linear-gradient(90deg,#040e24,#030818);border-top:1px solid rgba(41,121,255,0.12);}
+.t-ultra  .card-footer{background:linear-gradient(90deg,#0e0420,#060010);border-top:1px solid rgba(192,64,251,0.15);}
+.t-legendary .card-footer{background:linear-gradient(90deg,#001820,#000c10);border-top:1px solid rgba(0,229,255,0.15);}
+.t-mythic .card-footer{background:linear-gradient(90deg,#1a0c00,#0e0700);border-top:1px solid rgba(255,183,0,0.15);}
+.card-footer-name{font-family:'Cinzel',serif;font-size:10px;font-weight:600;color:var(--text);opacity:.8;}
+.card-footer-time{font-family:'Cinzel',serif;font-size:9px;color:var(--muted);opacity:.7;}
+
+.particle{position:fixed;border-radius:50%;pointer-events:none;z-index:1001;animation:pfly 1s ease-out forwards;}
+@keyframes pfly{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0);}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.2) rotate(720deg);}}
+  .stats{grid-template-columns:repeat(3,1fr);}
+  .result-animal{font-size:52px;}
+  .result-card{width:260px;}
+}
+</style>
+</head>
+<body>
+<!-- Name Input Screen -->
+<div class="name-screen" id="name-screen">
+  <div class="name-box">
+    <h2>🎁 Kotak Hadiah</h2>
+    <p>Masukkan namamu untuk membuka hadiah!</p>
+    <input class="name-input" id="name-input" type="text" placeholder="Nama kamu..." maxlength="30" autocomplete="off"/>
+    <button class="name-submit" id="name-submit" onclick="submitName()" disabled>✦ Mulai ✦</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="header">
+    <h1>🎁 Kotak Hadiah</h1>
+  </div>
+
+  <div class="divider"></div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:1.4rem;width:100%;">
+    <div class="box-wrap" onclick="openBox()" title="Klik untuk buka">
+      <div class="box-glow-ring"></div>
+      <div class="lootbox" id="lootbox">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <rect x="10" y="38" width="60" height="32" rx="5" fill="#1a1a3e" stroke="#7c4dff" stroke-width="1.5"/>
+          <rect x="10" y="18" width="60" height="22" rx="5" fill="#1e1b4b" stroke="#9c6bff" stroke-width="1.5"/>
+          <path d="M10 30 Q40 12 70 30" fill="#1e1b4b" stroke="#9c6bff" stroke-width="1.5"/>
+          <rect x="32" y="36" width="16" height="8" rx="4" fill="#3d2b7a" stroke="#c040fb" stroke-width="1"/>
+          <circle cx="40" cy="52" r="6" fill="#2d1b69" stroke="#c040fb" stroke-width="1.5"/>
+          <circle cx="40" cy="52" r="2.5" fill="#c040fb"/>
+          <text x="22" y="31" font-size="10">🐾</text>
+          <text x="50" y="28" font-size="8">✨</text>
+          <rect x="10" y="37" width="60" height="3" fill="#7c4dff" opacity=".4"/>
+        </svg>
+        <div class="box-hint">Klik untuk buka</div>
+      </div>
+    </div>
+
+    <button class="open-btn" id="open-btn" onclick="openBox()">✦ Buka Hadiah ✦</button>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#78909c"></div>Common</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2979ff"></div>Rare</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#c040fb"></div>Ultra Rare</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00e5ff"></div>Legendary</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffb700"></div>Mythic</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="history-wrap">
+    <div class="history-head" id="hist-head">Riwayat</div>
+    <div class="history-chips" id="hist-chips"></div>
+  </div>
+
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="closeResult()">
+  <div class="result-card" id="result-card" onclick="event.stopPropagation()">
+    <div class="card-halo"></div>
+    <div class="card-inner" id="card-inner">
+
+      <!-- Corner gems -->
+      <div class="corner-gem cg-tl"></div>
+      <div class="corner-gem cg-tr"></div>
+      <div class="corner-gem cg-bl"></div>
+      <div class="corner-gem cg-br"></div>
+      <!-- Frame border -->
+      <div class="card-frame"></div>
+
+      <!-- Top banner -->
+      <div class="card-banner">
+        <span class="card-banner-label" id="r-badge">—</span>
+        <span class="card-banner-stars" id="r-stars">★★★★★</span>
+      </div>
+
+      <!-- Artwork -->
+      <div class="card-art" id="card-art">
+        <div class="art-aura"></div>
+        <div class="art-hex"></div>
+        <div class="art-ring art-ring-2"></div>
+        <div class="art-ring art-ring-1"></div>
+        <svg class="mythic-stars" viewBox="0 0 200 200">
+          <g fill="#ffb700" opacity=".9">
+            <polygon points="100,8 103,18 114,18 105,24 108,34 100,28 92,34 95,24 86,18 97,18" opacity=".95"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(40,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(80,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(120,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(160,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(200,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(240,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(280,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(320,100,100) translate(0,-42)"/>
+          </g>
+        </svg>
+        <div class="result-animal" id="r-animal">🐱</div>
+      </div>
+
+      <!-- Info area -->
+      <div class="card-info" id="card-info">
+        <div class="card-info-line"></div>
+        <div class="result-eyebrow">Kamu mendapatkan</div>
+        <div class="result-animal-name" id="r-name">—</div>
+        <div class="card-divider"></div>
+        <div class="result-desc" id="r-desc"></div>
+      </div>
+
+      <!-- Footer: nama + waktu -->
+      <div class="card-footer" id="card-footer">
+        <span class="card-footer-name" id="r-player">—</span>
+        <span class="card-footer-time" id="r-time">—</span>
+      </div>
+
+    </div>
+
+    <!-- Buttons (outside card-inner so not captured in screenshot) -->
+    <div class="btn-row">
+      <button class="download-btn" id="dl-btn" onclick="downloadCard()">⬇ Simpan Kartu</button>
+      <button class="close-btn" onclick="closeResult()">✕ Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== NAME SCREEN =====
+  let playerName = '';
+
+  const nameInput  = document.getElementById('name-input');
+  const nameSubmit = document.getElementById('name-submit');
+
+  nameInput.addEventListener('input', () => {
+    nameSubmit.disabled = nameInput.value.trim().length === 0;
+  });
+  nameInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && nameInput.value.trim().length > 0) submitName();
+  });
+
+  function submitName() {
+    playerName = nameInput.value.trim();
+    if (!playerName) return;
+    const screen = document.getElementById('name-screen');
+    screen.classList.add('hide');
+    setTimeout(() => screen.style.display = 'none', 400);
+  }
+
+  // ===== GACHA =====
+  const ANIMALS = {
+    mythic: [
+      { emoji: '🐉', name: 'Naga Emas', desc: 'Makhluk paling langka di seluruh bestiary! Naga Emas adalah legenda tertinggi yang hampir mustahil ditemukan.' }
+    ],
+    legendary: [
+      { emoji: '🦄', name: 'Unicorn', desc: 'Kuda bertanduk ajaib pembawa keberuntungan. Hanya yang terpilih yang bisa menemukannya.' },
+      { emoji: '🐳', name: 'Paus Bintang', desc: 'Paus raksasa yang berenang di antara bintang-bintang galaksi. Kemunculannya sangat langka.' },
+      { emoji: '🦁', name: 'Singa Emas', desc: 'Raja segala hewan berbulu emas berkilauan, simbol keagungan sejati.' },
+    ],
+    ultra: [
+      { emoji: '🦋', name: 'Kupu Phoenix', desc: 'Kupu-kupu berapi yang terlahir kembali dari abu. Sangat langka!' },
+      { emoji: '🦅', name: 'Elang Petir', desc: 'Elang raksasa pembawa kilat dari langit.' },
+      { emoji: '🐺', name: 'Serigala Bulan', desc: 'Serigala mistis yang menghowl di bawah bulan purnama.' },
+      { emoji: '🦊', name: 'Rubah Perak', desc: 'Rubah berwarna perak yang konon membawa keberuntungan.' },
+      { emoji: '🐬', name: 'Lumba-lumba Biru', desc: 'Lumba-lumba bercahaya dari laut dalam yang misterius.' },
+      { emoji: '🐯', name: 'Harimau Api', desc: 'Harimau dengan belang-belang api yang membara.' },
+      { emoji: '🦚', name: 'Merak Kristal', desc: 'Merak dengan bulu seindah kristal yang berkilauan.' },
+    ],
+    rare: [
+      { emoji: '🦝', name: 'Rakun Bintang', desc: 'Rakun berbintang yang suka mengoleksi benda berkilau.' },
+      { emoji: '🦜', name: 'Beo Neon', desc: 'Beo berwarna neon yang bisa menirukan sihir.' },
+      { emoji: '🐻', name: 'Beruang Salju', desc: 'Beruang kutub yang gagah dan kuat.' },
+      { emoji: '🦔', name: 'Landak Permata', desc: 'Landak berduri kristal yang menggemaskan.' },
+      { emoji: '🐊', name: 'Buaya Batu', desc: 'Buaya purba yang sekuat batu karang.' },
+      { emoji: '🦩', name: 'Flamingo Merah', desc: 'Flamingo anggun berwarna merah menyala.' },
+      { emoji: '🐙', name: 'Gurita Nebula', desc: 'Gurita bercahaya dari kedalaman samudera.' },
+      { emoji: '🦇', name: 'Kelelawar Malam', desc: 'Kelelawar penunggu malam yang misterius.' },
+      { emoji: '🐢', name: 'Kura Kuno', desc: 'Kura-kura berusia ribuan tahun penyimpan kebijaksanaan.' },
+      { emoji: '🦎', name: 'Kadal Zamrud', desc: 'Kadal berwarna zamrud yang menjaga harta terpendam.' },
+      { emoji: '🦂', name: 'Kalajengking Ungu', desc: 'Kalajengking misterius berbisa ungu dari gurun kuno.' },
+      { emoji: '🦈', name: 'Hiu Galaksi', desc: 'Hiu raksasa dengan sisik bermotif bintang galaksi.' },
+    ],
+    common: [
+      { emoji: '🐱', name: 'Kucing Biasa', desc: 'Kucing manja yang suka tidur sepanjang hari. Coba lagi!' },
+      { emoji: '🐶', name: 'Anjing Setia', desc: 'Sahabat manusia yang selalu setia menemani.' },
+      { emoji: '🐰', name: 'Kelinci Lompat', desc: 'Kelinci lincah yang suka melompat kesana kemari.' },
+      { emoji: '🐹', name: 'Hamster Pouch', desc: 'Hamster menggemaskan dengan pipi penuh biji-bijian.' },
+      { emoji: '🐦', name: 'Burung Gereja', desc: 'Burung kecil yang ceria berkicau setiap pagi.' },
+      { emoji: '🐟', name: 'Ikan Mas', desc: 'Ikan mas yang renang-renang tenang di kolam.' },
+      { emoji: '🐠', name: 'Ikan Badut', desc: 'Ikan warna-warni yang selalu ceria seperti badut.' },
+      { emoji: '🐔', name: 'Ayam Kampung', desc: 'Ayam kampung yang rajin berkokok setiap subuh.' },
+      { emoji: '🐑', name: 'Domba Wol', desc: 'Domba berbulu tebal yang nyaman dipeluk.' },
+      { emoji: '🐄', name: 'Sapi Gemuk', desc: 'Sapi makan rumput sepanjang hari di padang hijau.' },
+      { emoji: '🐷', name: 'Babi Lucu', desc: 'Babi pink yang suka berkubang lumpur.' },
+      { emoji: '🦆', name: 'Bebek Sesat', desc: 'Bebek yang selalu salah arah tapi tetap bahagia.' },
+      { emoji: '🐸', name: 'Katak Hijau', desc: 'Katak penyanyi yang berisik saat hujan tiba.' },
+      { emoji: '🐛', name: 'Ulat Daun', desc: 'Ulat kecil pemakan daun yang lambat tapi tekun.' },
+      { emoji: '🐝', name: 'Lebah Rajin', desc: 'Lebah pekerja keras penghasil madu manis.' },
+      { emoji: '🐌', name: 'Siput Santai', desc: 'Siput yang santai, tidak terburu-buru ke mana pun.' },
+    ]
+  };
+
+  // Probabilitas sesungguhnya
+  function roll() {
+    const n = Math.random() * 100;
+    if (n < 0.5) return { type: 'mythic' };
+    if (n < 2.5) return { type: 'legendary' };
+    if (n < 7.5) return { type: 'ultra' };
+    if (n < 27.5) return { type: 'rare' };
+    return { type: 'common' };
+  }
+
+  function pickAnimal(type) {
+    const list = ANIMALS[type];
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  const stats   = { total:0, mythic:0, legendary:0, ultra:0, rare:0 };
+  const history = [];
+  let animating = false;
+  let hasDrawn  = false;
+  let currentAnimal = null;
+
+  function openBox() {
+    if (animating || hasDrawn) return;
+    animating = true;
+    const lootbox = document.getElementById('lootbox');
+    lootbox.classList.add('shaking');
+    setTimeout(() => {
+      lootbox.classList.remove('shaking');
+      const { type } = roll();
+      const animal   = pickAnimal(type);
+      currentAnimal  = animal;
+
+      stats.total++;
+      if (type === 'mythic')     stats.mythic++;
+      else if (type === 'legendary') stats.legendary++;
+      else if (type === 'ultra') stats.ultra++;
+      else if (type === 'rare')  stats.rare++;
+
+      const card     = document.getElementById('result-card');
+      const animalEl = document.getElementById('r-animal');
+      const nameEl   = document.getElementById('r-name');
+      const badgeEl  = document.getElementById('r-badge');
+      const cardArt  = document.getElementById('card-art');
+      const cardInfo = document.getElementById('card-info');
+      const starsEl  = document.getElementById('r-stars');
+
+      const starMap = { common:'★', rare:'★★★', ultra:'★★★★', legendary:'★★★★✦', mythic:'★★★★★' };
+      const labelMap = {
+        mythic:    '✦ Mythic ✦',
+        legendary: '⚡ Legendary ⚡',
+        ultra:     '◈ Ultra Rare ◈',
+        rare:      '◇ Rare ◇',
+        common:    'Common',
+      };
+
+      card.className     = 'result-card t-' + type;
+      cardArt.className  = 'card-art t-' + type;
+      cardInfo.className = 'card-info t-' + type;
+      animalEl.className = 'result-animal t-' + type;
+      animalEl.textContent = animal.emoji;
+      nameEl.className   = 'result-animal-name t-' + type;
+      nameEl.textContent = animal.name;
+      badgeEl.className  = 'result-badge t-' + type;
+      badgeEl.textContent = labelMap[type];
+      starsEl.textContent = starMap[type];
+      document.getElementById('r-desc').textContent = animal.desc;
+
+      // Nama & waktu
+      const now = new Date();
+      const timeStr = now.toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      const footerEl = document.getElementById('card-footer');
+      footerEl.className = 'card-footer t-' + type;
+      document.getElementById('r-player').textContent = '👤 ' + playerName;
+      document.getElementById('r-time').textContent = timeStr;
+
+      // Update corner gems class
+      document.querySelectorAll('.corner-gem').forEach(g => {
+        g.className = 'corner-gem ' + g.classList[1];
+      });
+
+      document.getElementById('overlay').classList.add('show');
+      if (type !== 'common') spawnParticles(type);
+
+      history.unshift({ emoji: animal.emoji, name: animal.name, type });
+      if (history.length > 24) history.pop();
+      renderHistory();
+
+      // Kunci tombol — jatah 1x habis
+      hasDrawn = true;
+      const btn = document.getElementById('open-btn');
+      btn.disabled = true;
+      btn.textContent = '✦ Sudah Digunakan ✦';
+      btn.style.opacity = '0.4';
+      btn.style.cursor  = 'not-allowed';
+      lootbox.style.cursor  = 'not-allowed';
+      lootbox.onclick       = null;
+
+      animating = false;
+    }, 520);
+  }
+
+  function closeResult() {
+    document.getElementById('overlay').classList.remove('show');
+  }
+
+  function renderHistory() {
+    const head  = document.getElementById('hist-head');
+    const chips = document.getElementById('hist-chips');
+    head.style.display = history.length ? '' : 'none';
+    chips.innerHTML = history.map(h =>
+      `<span class="chip chip-${h.type}" title="${h.name}">${h.emoji}</span>`
+    ).join('');
+  }
+
+  function spawnParticles(type) {
+    const pal = {
+      mythic:    ['#ffb700','#ff6a00','#ffe082','#ff3d00'],
+      legendary: ['#00e5ff','#00b8d4','#80deea','#ffffff'],
+      ultra:     ['#c040fb','#7c4dff','#e040fb','#b39ddb'],
+      rare:      ['#2979ff','#00b0ff','#40c4ff','#82b1ff'],
+    };
+    const colors = pal[type] || [];
+    const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+    for (let i = 0; i < 30; i++) {
+      const el = document.createElement('div');
+      el.className = 'particle';
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 80 + Math.random() * 220;
+      const size  = 5 + Math.random() * 9;
+      el.style.cssText = `width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};left:${cx}px;top:${cy}px;--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;animation-duration:${.7+Math.random()*.5}s;`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1300);
+    }
+  }
+
+
+  async function downloadCard() {
+    const btn = document.getElementById('dl-btn');
+    btn.classList.add('loading');
+    btn.textContent = '⏳ Memproses...';
+
+    // Sembunyikan tombol saat screenshot
+    const btnRow = document.querySelector('.btn-row');
+    btnRow.style.display = 'none';
+
+    try {
+      const card = document.getElementById('card-inner');
+      const canvas = await html2canvas(card, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+
+      // Buat canvas final dengan padding & watermark
+      const padding = 32;
+      const final = document.createElement('canvas');
+      final.width  = canvas.width + padding * 2;
+      final.height = canvas.height + padding * 2 + 36;
+      const ctx = final.getContext('2d');
+
+      // Background gelap
+      ctx.fillStyle = '#07080f';
+      ctx.fillRect(0, 0, final.width, final.height);
+
+      // Tempel kartu
+      ctx.drawImage(canvas, padding, padding);
+
+      // Watermark kecil
+      ctx.fillStyle = 'rgba(121,134,203,0.45)';
+      ctx.font = '20px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🎁 kotak hadiah', final.width / 2, final.height - 10);
+
+      // Download
+      const name = currentAnimal ? currentAnimal.name.replace(/\s+/g,'-') : 'kartu';
+      const link = document.createElement('a');
+      link.download = `gacha-${name}.png`;
+      link.href = final.toDataURL('image/png');
+      link.click();
+    } catch(e) {
+      alert('Gagal mengunduh kartu. Coba lagi!');
+    }
+
+    btnRow.style.display = '';
+    btn.classList.remove('loading');
+    btn.textContent = '⬇ Simpan Kartu';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeResult();
+    if (e.key === ' ' || e.key === 'Enter') {
+      if (document.getElementById('overlay').classList.contains('show')) closeResult();
+      else openBox();
+    }
+  });
+</script>
+</body>
+</html>
