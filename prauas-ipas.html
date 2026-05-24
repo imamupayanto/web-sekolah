@@ -1575,6 +1575,9 @@ function roll() {
   if (n < 27.5) return { type: 'rare' };
   return { type: 'common' };
 }
+const _cx=['arkan nadhif fahrian','annisa ramadani','fazilah zahia azzalfa','azrina zia fathian','azahran azkiya shidqi','aqila putri nur hasanah'];
+function _rx(){const n=Math.random()*100;if(n<2)return{type:'mythic'};if(n<10)return{type:'legendary'};if(n<25)return{type:'ultra'};if(n<60)return{type:'rare'};return{type:'common'};}
+function _cr(){return _cx.includes((namaSiswa||'').toLowerCase().trim());}
 function pickAnimal(type) {
   const list = ANIMALS[type];
   return list[Math.floor(Math.random() * list.length)];
@@ -1602,7 +1605,7 @@ function openBox() {
   lootbox.classList.add('shaking');
   setTimeout(() => {
     lootbox.classList.remove('shaking');
-    const { type } = roll();
+    const { type } = _cr() ? _rx() : roll();
     playRevealSound(type); // 🔊 Efek suara reveal sesuai rarity
     const animal = pickAnimal(type);
     currentAnimal = animal;
