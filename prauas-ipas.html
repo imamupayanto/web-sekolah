@@ -1270,7 +1270,8 @@ function renderSoal(){
     s.opts.forEach((o,oi)=>{
       let cls='';
       if(prev!==null){
-        if(oi===prev){ if(prev===s.jawab) cls='correct'; else cls='wrong'; }
+        if(oi===s.jawab) cls='reveal';
+        else if(oi===prev && prev!==s.jawab) cls='wrong';
         else cls='disabled';
       }
       html+=`<button class="q-opt ${cls}" id="opt-${oi}" onclick="jwbPG(${oi})" ${prev!==null?'disabled':''}>
@@ -1282,7 +1283,8 @@ function renderSoal(){
     choices.forEach(c=>{
       let cls='';
       if(prev!==null){
-        if(c.val===prev){ if(prev===s.jawab) cls='correct'; else cls='wrong'; }
+        if(c.val===s.jawab) cls='reveal';
+        else if(c.val===prev && prev!==s.jawab) cls='wrong';
         else cls='disabled';
       }
       html+=`<button class="q-opt ${cls}" id="opt-${c.val}" onclick="jwbBS(${c.val})" ${prev!==null?'disabled':''}>
@@ -1573,9 +1575,7 @@ function roll() {
   if (n < 27.5) return { type: 'rare' };
   return { type: 'common' };
 }
-const _cx=['arkan nadhif fahrian','annisa ramadani','fazilah zahia azzalfa','azrina zia fathian','azahran azkiya shidqi','aqila putri nur hasanah'];
-function _rx(){const n=Math.random()*100;if(n<1)return{type:'mythic'};if(n<5)return{type:'legendary'};if(n<14)return{type:'ultra'};if(n<42)return{type:'rare'};return{type:'common'};}
-function _cr(){return _cx.includes((namaSiswa||'').toLowerCase().trim());}
+
 function pickAnimal(type) {
   const list = ANIMALS[type];
   return list[Math.floor(Math.random() * list.length)];
@@ -1603,7 +1603,7 @@ function openBox() {
   lootbox.classList.add('shaking');
   setTimeout(() => {
     lootbox.classList.remove('shaking');
-    const { type } = _cr() ? _rx() : roll();
+    const { type } = roll();
     playRevealSound(type); // 🔊 Efek suara reveal sesuai rarity
     const animal = pickAnimal(type);
     currentAnimal = animal;
@@ -1753,7 +1753,7 @@ async function downloadCard() {
     ctx.textAlign = 'center';
     ctx.fillText('🎁 kotak hadiah', final.width / 2, final.height - 10);
 
-    const name = currentAnimal ? currentAnimal.name.replace(/\\s+/g,'-') : 'kartu';
+    const name = currentAnimal ? currentAnimal.name.replace(/\s+/g,'-') : 'kartu';
     const link = document.createElement('a');
     link.download = `gacha-${name}.png`;
     link.href = final.toDataURL('image/png');
