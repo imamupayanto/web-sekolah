@@ -3,404 +3,1931 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sedang Upgrade — SDN 2 Pesantren</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<title>PRA UAS IPAS — Kelas 5 + Hadiah</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Fredoka+One&family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-:root{
-  --bg:#07080f; --surface:#12152a; --surface2:#1a1f3a;
-  --purple:#7c4dff; --pink:#c040fb; --amber:#ffb700;
-  --cyan:#00e5ff; --green:#22c55e; --red:#f43f5e;
-  --text:#e8eaf6; --muted:#7986cb;
+/* ═══════════════════════════════════════════
+   ROOT & BASE  (Kuis + Gacha)
+═══════════════════════════════════════════ */
+:root {
+  /* Kuis */
+  --rose:#f43f5e; --amber:#f59e0b; --green:#22c55e;
+  --sky:#0ea5e9; --purple:#8b5cf6; --indigo:#6366f1;
+  --bg:#f0f9ff; --text:#1e293b; --muted:#64748b;
+  /* Gacha */
+  --mythic:#ffb700; --mythic2:#ff6a00;
+  --legendary:#00e5ff; --legendary2:#00b8d4;
+  --ultra:#c040fb;  --ultra2:#7c4dff;
+  --rare:#2979ff;   --rare2:#00b0ff;
+  --common:#78909c; --common2:#546e7a;
+  --g-bg:#07080f; --g-bg2:#0d0f1e; --g-surface:#12152a;
+  --g-border:rgba(255,255,255,0.08);
+  --g-text:#e8eaf6; --g-muted:#7986cb;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
-  font-family:'Nunito',sans-serif;
-  background:var(--bg);color:var(--text);
-  min-height:100vh;overflow:hidden;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  user-select:none;
+  font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 10%,#bae6fd55,transparent),
+    radial-gradient(ellipse 50% 50% at 90% 20%,#bbf7d055,transparent),
+    radial-gradient(ellipse 55% 45% at 50% 90%,#fde68a44,transparent);
 }
 
-/* ── STARFIELD ── */
-#stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
-
-/* ── PARTICLES ── */
-#particles{position:fixed;inset:0;z-index:0;pointer-events:none;}
-.particle{
-  position:absolute;border-radius:50%;
-  animation:floatUp var(--dur) linear infinite;
-  animation-delay:var(--del);opacity:0;
+/* ── MAIN CARD ── */
+.main-card{
+  position:relative;z-index:1;background:#fff;border-radius:28px;
+  box-shadow:0 8px 40px #0002;padding:2.8rem 2.4rem 2.4rem;
+  max-width:400px;width:90%;text-align:center;
+  animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;
 }
-@keyframes floatUp{
-  0%{opacity:0;transform:translateY(100vh) scale(0);}
-  10%{opacity:.5;}90%{opacity:.2;}
-  100%{opacity:0;transform:translateY(-10vh) scale(1);}
-}
-
-/* ── WRAP ── */
-.wrap{
-  position:relative;z-index:10;
-  display:flex;flex-direction:column;
-  align-items:center;gap:.8rem;
-  padding:1.2rem 1rem;
-  width:100%;max-width:480px;
-}
-
-/* ── BADGE ── */
 .badge{
-  font-size:.65rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;
-  background:rgba(124,77,255,.18);border:1px solid rgba(124,77,255,.4);
-  color:var(--purple);padding:.3rem 1rem;border-radius:99px;
-  animation:fadeIn .5s ease both;
+  display:inline-block;background:linear-gradient(135deg,var(--rose),var(--amber));
+  color:#fff;font-size:.7rem;font-weight:800;letter-spacing:.13em;
+  text-transform:uppercase;padding:.3rem 1rem;border-radius:99px;margin-bottom:1rem;
+}
+.main-card h1{
+  font-family:'Fredoka One',cursive;font-size:clamp(2rem,8vw,2.8rem);line-height:1.1;
+  background:linear-gradient(135deg,#dc2626,#d97706);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:.35rem;
+}
+.mapel{font-size:.9rem;font-weight:700;color:var(--muted);margin-bottom:.8rem;}
+.pills{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:2rem;}
+.pill{background:#f1f5f9;border-radius:99px;padding:.22rem .75rem;font-size:.72rem;font-weight:700;color:var(--muted);}
+.btn-group{display:flex;flex-direction:column;gap:.9rem;}
+.big-btn{
+  display:flex;align-items:center;gap:.9rem;padding:1rem 1.4rem;
+  border-radius:16px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;
+  font-weight:900;color:#fff;transition:transform .18s,box-shadow .18s;
+  text-align:left;width:100%;
+}
+.big-btn:hover{transform:translateY(-3px);box-shadow:0 10px 28px #0003;}
+.big-btn:active{transform:translateY(0);}
+.btn-rangkuman{background:linear-gradient(135deg,#7c3aed,#6366f1);}
+.btn-soal{background:linear-gradient(135deg,#f59e0b,#f97316);}
+.big-btn .bicon{
+  font-size:1.7rem;flex-shrink:0;width:48px;height:48px;border-radius:13px;
+  background:#ffffff22;display:flex;align-items:center;justify-content:center;
+}
+.btw{flex:1;}
+.bl{font-size:1rem;font-weight:900;}
+.bd{font-size:.72rem;font-weight:600;opacity:.85;margin-top:.1rem;}
+.ba{font-size:1.1rem;opacity:.6;}
+
+/* ═══════════════════════════════════════════
+   MODAL BASE  (Rangkuman & Soal)
+═══════════════════════════════════════════ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:#0008;z-index:200;
+  align-items:flex-end;justify-content:center;
+}
+.modal-overlay.active{display:flex;}
+.modal{
+  background:#fff;border-radius:28px 28px 0 0;width:100%;max-width:660px;
+  max-height:90vh;display:flex;flex-direction:column;
+  animation:slideUp .35s cubic-bezier(.34,1.2,.64,1) both;overflow:hidden;
+}
+.mhandle{width:36px;height:4px;background:#e2e8f0;border-radius:99px;margin:.75rem auto .35rem;flex-shrink:0;}
+.mhead{
+  display:flex;align-items:center;gap:.8rem;padding:.5rem 1.4rem .9rem;
+  flex-shrink:0;border-bottom:1.5px solid #f1f5f9;
+}
+.mhead-icon{font-size:1.6rem;}
+.mhead-title{font-family:'Fredoka One',cursive;font-size:1.2rem;flex:1;}
+.mclose{
+  background:#f1f5f9;border:none;border-radius:9px;width:32px;height:32px;
+  cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;
+}
+.mclose:hover{background:#e2e8f0;}
+.mbody{overflow-y:auto;padding:1.2rem 1.4rem 2rem;flex:1;}
+
+/* Fullscreen modal untuk soal */
+.modal-overlay.fullscreen-active {
+  align-items: stretch;
+  padding: 0;
+}
+.modal-fullscreen {
+  border-radius: 0;
+  max-height: 100vh;
+  height: 100vh;
+  max-width: 100%;
 }
 
-/* ── TITLE ── */
-.title-wrap{text-align:center;animation:fadeIn .5s ease .1s both;}
-.title{
-  font-family:'Cinzel Decorative',serif;font-size:clamp(16px,4.5vw,24px);
-  font-weight:700;
+/* ═══════════════════════════════════════════
+   RANGKUMAN — SIMPEL & MENARIK
+═══════════════════════════════════════════ */
+.r-chapter{margin-bottom:1.4rem;}
+.r-chap-label{
+  display:flex;align-items:center;gap:.6rem;
+  font-family:'Fredoka One',cursive;font-size:1rem;
+  margin-bottom:.65rem;
+}
+.r-chap-em{
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:1.2rem;width:36px;height:36px;border-radius:10px;flex-shrink:0;
+}
+.r-list{display:flex;flex-direction:column;gap:.35rem;}
+.r-item{
+  display:flex;align-items:flex-start;gap:.55rem;
+  background:#f8fafc;border-radius:10px;padding:.45rem .65rem;
+  font-size:.875rem;font-weight:600;line-height:1.5;
+}
+.r-bullet{flex-shrink:0;margin-top:.22rem;width:7px;height:7px;border-radius:50%;}
+.r-kw{font-weight:900;}
+.r-sub-head{
+  font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;
+  margin:.85rem 0 .45rem;display:flex;align-items:center;gap:.4rem;
+}
+.r-sub-head::after{content:'';flex:1;height:1.5px;background:#f1f5f9;border-radius:99px;}
+.r-divider{height:1px;background:#f1f5f9;margin:.3rem 0 1.1rem;}
+
+/* ═══════════════════════════════════════════
+   SOAL — SATU PER SATU
+═══════════════════════════════════════════ */
+.q-timer-wrap{
+  display:flex;align-items:center;gap:.6rem;
+  background:#f8fafc;border-radius:12px;
+  padding:.5rem .9rem;margin-bottom:.85rem;
+}
+.q-timer-ring{position:relative;flex-shrink:0;width:44px;height:44px;}
+.q-timer-ring svg{transform:rotate(-90deg);}
+.q-timer-track{fill:none;stroke:#e2e8f0;stroke-width:4;}
+.q-timer-bar{
+  fill:none;stroke-width:4;stroke-linecap:round;
+  stroke:#22c55e;
+  stroke-dasharray:113;stroke-dashoffset:0;
+  transition:stroke-dashoffset 1s linear, stroke .3s;
+}
+.q-timer-num{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka One',cursive;font-size:1rem;color:var(--text);
+}
+.q-timer-label{font-size:.8rem;font-weight:700;color:var(--muted);flex:1;}
+.q-timer-urgent .q-timer-bar{stroke:#f43f5e;}
+.q-timer-urgent .q-timer-num{color:#f43f5e;}
+.q-timer-warn .q-timer-bar{stroke:#f59e0b;}
+.q-timer-warn .q-timer-num{color:#d97706;}
+
+.q-progress-wrap{margin-bottom:1rem;}
+.q-prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;}
+.q-prog-num{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--muted);}
+.q-prog-score{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--amber);}
+.q-prog-bar-bg{background:#f1f5f9;border-radius:99px;height:6px;overflow:hidden;}
+.q-prog-bar{height:6px;border-radius:99px;background:linear-gradient(90deg,var(--amber),var(--rose));transition:width .4s ease;}
+.diff-chip{display:inline-block;border-radius:99px;padding:.15rem .6rem;font-size:.68rem;font-weight:800;margin-bottom:.7rem;}
+.chip-M{background:#dcfce7;color:#16a34a;}
+.chip-S{background:#fef9c3;color:#92400e;}
+.chip-K{background:#fee2e2;color:#dc2626;}
+
+.q-card{animation:fadeQ .3s ease both;}
+.q-text{font-weight:700;font-size:.97rem;line-height:1.55;margin-bottom:1rem;color:var(--text);}
+.q-opts{display:flex;flex-direction:column;gap:.42rem;}
+.q-opt{
+  display:flex;align-items:center;gap:.65rem;padding:.5rem .75rem;
+  border-radius:11px;background:#fff;border:1.8px solid #e2e8f0;
+  cursor:pointer;font-size:.88rem;font-weight:600;
+  transition:all .15s;text-align:left;width:100%;
+  font-family:'Nunito',sans-serif;color:var(--text);
+}
+.q-opt:hover:not(:disabled){border-color:var(--purple);background:#f5f3ff;}
+.q-opt.chosen{border-color:var(--purple);background:#f5f3ff;}
+.q-opt.correct{border-color:#16a34a;background:#f0fdf4;color:#16a34a;}
+.q-opt.wrong  {border-color:#e11d48;background:#fff1f2;color:#e11d48;}
+.q-opt.reveal {border-color:#16a34a;background:#f0fdf4;color:#16a34a;}
+.okey{
+  flex-shrink:0;width:24px;height:24px;border-radius:7px;background:#f1f5f9;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.73rem;font-weight:900;color:var(--muted);
+}
+.correct .okey{background:#16a34a;color:#fff;}
+.wrong .okey  {background:#e11d48;color:#fff;}
+.reveal .okey {background:#16a34a;color:#fff;}
+
+.q-result{
+  display:none;margin-top:.75rem;padding:.5rem .75rem;border-radius:10px;
+  font-size:.85rem;font-weight:800;text-align:center;
+}
+.q-result.show{display:block;}
+.q-result.ok{background:#dcfce7;color:#16a34a;}
+.q-result.no{background:#ffe4e6;color:#e11d48;}
+
+.q-nav{display:flex;gap:.65rem;margin-top:1.1rem;}
+.q-btn{
+  flex:1;padding:.65rem;border-radius:12px;border:none;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:.92rem;
+  transition:transform .15s,box-shadow .15s;
+}
+.q-btn:hover{transform:translateY(-2px);box-shadow:0 5px 16px #0002;}
+.q-btn-prev{background:#f1f5f9;color:var(--muted);}
+.q-btn-next{background:linear-gradient(135deg,var(--amber),#f97316);color:#fff;}
+.q-btn-finish{background:linear-gradient(135deg,var(--green),var(--sky));color:#fff;}
+.q-btn-hadiah{background:linear-gradient(135deg,#7c3aed,#c040fb);color:#fff;}
+.q-btn:disabled{opacity:.4;pointer-events:none;}
+
+/* ═══════════════════════════════════════════
+   HASIL AKHIR + PEMBAHASAN
+═══════════════════════════════════════════ */
+.hasil-wrap{text-align:center;}
+.hasil-emoji{font-size:3.5rem;margin-bottom:.5rem;}
+.hasil-title{font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:.3rem;}
+.hasil-sub{font-size:.9rem;font-weight:600;color:var(--muted);margin-bottom:1.2rem;}
+.hasil-score-box{
+  background:linear-gradient(135deg,#fef9c3,#fff7ed);
+  border-radius:16px;padding:1rem;margin-bottom:1.2rem;
+}
+.hasil-score-num{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--amber);line-height:1;}
+.hasil-score-label{font-size:.8rem;font-weight:700;color:#92400e;margin-top:.2rem;}
+.hasil-breakdown{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.3rem;flex-wrap:wrap;}
+.hb-item{background:#f8fafc;border-radius:10px;padding:.4rem .8rem;font-size:.78rem;font-weight:700;color:var(--muted);}
+
+.pembahasan-title{
+  font-family:'Fredoka One',cursive;font-size:1.05rem;
+  margin-bottom:.7rem;text-align:left;color:var(--text);
+}
+.pb-item{
+  border-radius:12px;padding:.75rem .9rem;margin-bottom:.6rem;
+  border:1.5px solid transparent;
+}
+.pb-item.pb-ok{background:#f0fdf4;border-color:#bbf7d0;}
+.pb-item.pb-no{background:#fff1f2;border-color:#fecdd3;}
+.pb-num{font-size:.7rem;font-weight:900;color:var(--muted);margin-bottom:.2rem;}
+.pb-q{font-size:.85rem;font-weight:700;margin-bottom:.4rem;line-height:1.45;color:var(--text);}
+.pb-status{font-size:.78rem;font-weight:800;margin-bottom:.3rem;}
+.pb-ok .pb-status{color:#16a34a;}
+.pb-no .pb-status{color:#e11d48;}
+.pb-info{font-size:.82rem;font-weight:600;color:var(--muted);line-height:1.5;}
+
+.btn-ulang{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  width:100%;padding:.75rem;border-radius:13px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--amber),#f97316);color:#fff;
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:.95rem;
+  margin-top:1.2rem;transition:transform .15s;
+}
+.btn-ulang:hover{transform:translateY(-2px);}
+
+/* ═══════════════════════════════════════════
+   GACHA OVERLAY & CARD
+═══════════════════════════════════════════ */
+#gacha-overlay{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;
+  background:rgba(4,5,12,0.92);backdrop-filter:blur(12px);
+  font-family:'Raleway',sans-serif;color:var(--g-text);
+}
+#gacha-overlay.show{display:flex;}
+
+.gacha-container{
+  position:relative;z-index:1;width:100%;max-width:640px;
+  padding:2rem 1.5rem 4rem;display:flex;flex-direction:column;
+  align-items:center;gap:1.8rem;
+}
+
+/* Gacha header */
+.gacha-header{text-align:center;padding-top:.5rem;}
+.gacha-header h1{
+  font-family:'Cinzel Decorative',serif;font-size:clamp(18px,5vw,28px);font-weight:900;
   background:linear-gradient(135deg,#ffb700,#ff6a00 40%,#c040fb 70%,#7c4dff);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:6px;
 }
-.subtitle{font-size:.75rem;font-weight:600;color:var(--muted);margin-top:.3rem;}
+.gacha-header p{font-size:11px;color:var(--g-muted);letter-spacing:.2em;text-transform:uppercase;font-weight:300;}
 
-/* ── CS BOX ── */
-.cs-box{
-  background:var(--surface);border:1px solid rgba(124,77,255,.3);
-  border-radius:14px;padding:.5rem 1.4rem;
-  font-family:'Fredoka One',cursive;font-size:.95rem;
-  color:var(--muted);display:flex;align-items:center;gap:.5rem;
-  animation:fadeIn .5s ease .2s both;
-}
-.cs-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);animation:blink 1.2s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
+.gacha-divider{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--g-muted),transparent);opacity:.35;}
 
-/* ── SCOREBOARD ── */
-.scoreboard{
-  display:flex;gap:.7rem;animation:fadeIn .5s ease .3s both;
+/* Box */
+.gacha-box-wrap{position:relative;width:190px;height:190px;cursor:pointer;}
+.gacha-box-glow-ring{position:absolute;inset:-20px;border-radius:50%;background:radial-gradient(circle,rgba(124,77,255,0.15) 0%,transparent 70%);animation:pulse-ring 3s ease-in-out infinite;pointer-events:none;}
+@keyframes pulse-ring{0%,100%{transform:scale(.9);opacity:.5;}50%{transform:scale(1.1);opacity:1;}}
+
+.gacha-lootbox{
+  width:190px;height:190px;background:var(--g-surface);border:1px solid rgba(124,77,255,0.3);
+  border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;transition:transform .1s,border-color .3s;position:relative;overflow:hidden;
 }
-.sc{
-  background:var(--surface);border:1px solid rgba(255,255,255,.07);
-  border-radius:12px;padding:.4rem 1rem;text-align:center;min-width:80px;
+.gacha-lootbox::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,77,255,0.08) 0%,transparent 60%);pointer-events:none;}
+.gacha-lootbox:hover{transform:scale(1.03);border-color:rgba(192,64,251,0.5);}
+.gacha-lootbox.shaking{animation:shake .5s cubic-bezier(.36,.07,.19,.97);}
+@keyframes shake{0%{transform:rotate(0) scale(1);}10%{transform:rotate(-10deg) scale(1.05);}25%{transform:rotate(10deg) scale(1.08);}40%{transform:rotate(-8deg) scale(1.06);}55%{transform:rotate(8deg) scale(1.05);}70%{transform:rotate(-4deg) scale(1.03);}85%{transform:rotate(4deg) scale(1.02);}100%{transform:rotate(0) scale(1);}}
+.gacha-box-hint{font-family:'Cinzel',serif;font-size:11px;color:var(--g-muted);letter-spacing:.15em;text-transform:uppercase;}
+
+.gacha-open-btn{
+  padding:13px 48px;font-family:'Cinzel',serif;font-size:13px;font-weight:600;letter-spacing:.15em;
+  text-transform:uppercase;cursor:pointer;border:none;border-radius:50px;
+  background:linear-gradient(135deg,#7c4dff,#c040fb);color:#fff;
+  transition:transform .1s,box-shadow .2s;box-shadow:0 4px 24px rgba(124,77,255,0.4);position:relative;overflow:hidden;
 }
-.sc-label{font-size:.58rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
-.sc-val{
-  font-family:'Fredoka One',cursive;font-size:1.6rem;line-height:1.1;
-  background:linear-gradient(135deg,var(--amber),#ff6a00);
+.gacha-open-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);pointer-events:none;}
+.gacha-open-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(124,77,255,0.55);}
+.gacha-open-btn:active{transform:scale(.97);}
+.gacha-open-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+
+.gacha-legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.gacha-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g-muted);}
+.gacha-legend-dot{width:7px;height:7px;border-radius:50%;}
+
+/* Result Card */
+.gacha-result-card{
+  position:relative;width:280px;transform:scale(.7) translateY(40px) rotateX(8deg);
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1);perspective:800px;
+}
+#gacha-overlay.show .gacha-result-card{transform:scale(1) translateY(0) rotateX(0);}
+
+.card-halo{
+  position:absolute;inset:-24px;border-radius:36px;opacity:0;transition:opacity .4s;
+  pointer-events:none;filter:blur(18px);
+}
+.t-common  .card-halo{background:radial-gradient(ellipse,rgba(120,144,156,0.25),transparent 70%);opacity:1;}
+.t-rare    .card-halo{background:radial-gradient(ellipse,rgba(41,121,255,0.45),transparent 70%);opacity:1;}
+.t-ultra   .card-halo{background:radial-gradient(ellipse,rgba(192,64,251,0.5),transparent 70%);opacity:1;}
+.t-legendary .card-halo{background:radial-gradient(ellipse,rgba(0,229,255,0.55),transparent 70%);opacity:1;animation:halo-breathe 2s ease-in-out infinite alternate;}
+.t-mythic  .card-halo{background:radial-gradient(ellipse,rgba(255,183,0,0.6),transparent 70%);opacity:1;animation:halo-breathe 2s ease-in-out infinite alternate;}
+@keyframes halo-breathe{from{filter:blur(16px) brightness(1);}to{filter:blur(24px) brightness(1.4);}}
+
+.gacha-card-inner{
+  position:relative;width:100%;border-radius:20px;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+/* Banner */
+.gacha-card-banner{
+  width:100%;padding:10px 16px 8px;display:flex;align-items:center;justify-content:space-between;
+}
+.t-common .gacha-card-banner{background:linear-gradient(90deg,#1c2430,#263040);}
+.t-rare   .gacha-card-banner{background:linear-gradient(90deg,#041230,#062060);}
+.t-ultra  .gacha-card-banner{background:linear-gradient(90deg,#16053a,#2a0860);}
+.t-legendary .gacha-card-banner{background:linear-gradient(90deg,#002a30,#004a55);}
+.t-mythic .gacha-card-banner{background:linear-gradient(90deg,#2a1400,#4a2000);}
+
+.gacha-card-banner-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.25em;text-transform:uppercase;}
+.t-common .gacha-card-banner-label{color:#90a4ae;}
+.t-rare   .gacha-card-banner-label{color:#64b5f6;}
+.t-ultra  .gacha-card-banner-label{color:#ce93d8;}
+.t-legendary .gacha-card-banner-label{color:#00e5ff;}
+.t-mythic .gacha-card-banner-label{color:#ffb700;}
+
+.gacha-card-banner-stars{font-size:10px;letter-spacing:1px;}
+.t-common .gacha-card-banner-stars{color:#546e7a;}
+.t-rare   .gacha-card-banner-stars{color:#2979ff;}
+.t-ultra  .gacha-card-banner-stars{color:#c040fb;}
+.t-legendary .gacha-card-banner-stars{color:#00e5ff;animation:star-flicker 1.2s ease-in-out infinite alternate;}
+.t-mythic .gacha-card-banner-stars{color:#ffb700;animation:star-flicker 1.2s ease-in-out infinite alternate;}
+@keyframes star-flicker{from{opacity:.8;}to{opacity:1;text-shadow:0 0 8px #ffb700;}}
+
+/* Artwork */
+.gacha-card-art{
+  width:100%;height:200px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+}
+.t-common .gacha-card-art{background:linear-gradient(180deg,#0d1a26 0%,#0a1018 100%);}
+.t-rare   .gacha-card-art{background:linear-gradient(180deg,#040f2a 0%,#030820 100%);}
+.t-ultra  .gacha-card-art{background:linear-gradient(180deg,#100520 0%,#08030f 100%);}
+.t-legendary .gacha-card-art{background:linear-gradient(180deg,#001a20 0%,#000d12 100%);}
+.t-mythic .gacha-card-art{background:linear-gradient(180deg,#1c0e00 0%,#0f0800 100%);}
+
+.art-aura{position:absolute;width:160px;height:160px;border-radius:50%;opacity:.35;}
+.t-common .art-aura{background:radial-gradient(circle,#78909c,transparent 70%);}
+.t-rare   .art-aura{background:radial-gradient(circle,#2979ff,transparent 70%);}
+.t-ultra  .art-aura{background:radial-gradient(circle,#c040fb,transparent 70%);}
+.t-legendary .art-aura{background:radial-gradient(circle,#00e5ff,transparent 70%);animation:aura-pulse 2s ease-in-out infinite alternate;opacity:.5;}
+.t-mythic .art-aura{background:radial-gradient(circle,#ffb700,transparent 70%);animation:aura-pulse 2s ease-in-out infinite alternate;opacity:.5;}
+@keyframes aura-pulse{from{transform:scale(.9);}to{transform:scale(1.15);opacity:.7;}}
+
+.art-hex{position:absolute;inset:0;
+  background-image:repeating-linear-gradient(60deg,rgba(255,255,255,0.02) 0,rgba(255,255,255,0.02) 1px,transparent 0,transparent 50%),
+    repeating-linear-gradient(120deg,rgba(255,255,255,0.02) 0,rgba(255,255,255,0.02) 1px,transparent 0,transparent 50%);
+  background-size:20px 20px;pointer-events:none;
+}
+
+.gacha-result-animal{
+  font-size:90px;line-height:1;position:relative;z-index:2;user-select:none;transition:filter .3s;
+}
+.gacha-result-animal.t-common{filter:drop-shadow(0 4px 12px rgba(120,144,156,0.5));}
+.gacha-result-animal.t-rare  {filter:drop-shadow(0 0 18px rgba(41,121,255,0.8)) drop-shadow(0 0 40px rgba(0,176,255,0.3));}
+.gacha-result-animal.t-ultra {filter:drop-shadow(0 0 20px rgba(192,64,251,0.9)) drop-shadow(0 0 50px rgba(124,77,255,0.4));}
+.gacha-result-animal.t-legendary{filter:drop-shadow(0 0 22px rgba(0,229,255,0.95)) drop-shadow(0 0 55px rgba(0,184,212,0.5));animation:animal-legendary 1.8s ease-in-out infinite alternate;}
+@keyframes animal-legendary{
+  from{filter:drop-shadow(0 0 16px rgba(0,229,255,.8)) drop-shadow(0 0 40px rgba(0,184,212,.4));transform:scale(1);}
+  to  {filter:drop-shadow(0 0 30px rgba(0,255,255,1))  drop-shadow(0 0 65px rgba(0,229,255,.6));transform:scale(1.05);}
+}
+.gacha-result-animal.t-mythic{
+  filter:drop-shadow(0 0 24px rgba(255,200,0,1)) drop-shadow(0 0 60px rgba(255,106,0,0.6));
+  animation:animal-mythic 1.8s ease-in-out infinite alternate;
+}
+@keyframes animal-mythic{
+  from{filter:drop-shadow(0 0 18px rgba(255,183,0,.9)) drop-shadow(0 0 40px rgba(255,106,0,.4));transform:scale(1);}
+  to  {filter:drop-shadow(0 0 32px rgba(255,220,0,1))  drop-shadow(0 0 70px rgba(255,60,0,.7)); transform:scale(1.06);}
+}
+
+.art-ring{position:absolute;border-radius:50%;border:1px solid;opacity:0;pointer-events:none;}
+.art-ring-1{width:120px;height:120px;}
+.art-ring-2{width:148px;height:148px;}
+.t-rare  .art-ring{opacity:1;border-color:rgba(41,121,255,0.3);}
+.t-ultra .art-ring{opacity:1;border-color:rgba(192,64,251,0.35);}
+.t-legendary .art-ring{opacity:1;border-color:rgba(0,229,255,0.4);}
+.t-mythic .art-ring{opacity:1;border-color:rgba(255,183,0,0.4);}
+.t-rare  .art-ring-1{animation:spin 7s linear infinite;}
+.t-ultra .art-ring-1{animation:spin 5s linear infinite;}
+.t-legendary .art-ring-1{animation:spin 4s linear infinite;}
+.t-mythic .art-ring-1{animation:spin 3s linear infinite;}
+.t-rare  .art-ring-2{animation:spin 12s linear infinite reverse;}
+.t-ultra .art-ring-2{animation:spin 8s linear infinite reverse;}
+.t-legendary .art-ring-2{animation:spin 6s linear infinite reverse;border-style:dashed;}
+.t-mythic .art-ring-2{animation:spin 5s linear infinite reverse;border-style:dashed;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.mythic-stars{position:absolute;inset:0;pointer-events:none;opacity:0;width:100%;height:100%;}
+.t-mythic .mythic-stars{opacity:1;}
+
+/* Info */
+.gacha-card-info{
+  width:100%;padding:14px 18px 16px;display:flex;flex-direction:column;
+  align-items:center;gap:8px;position:relative;
+}
+.t-common .gacha-card-info{background:linear-gradient(180deg,#0d1520,#090c18);border-top:1px solid rgba(120,144,156,0.2);}
+.t-rare   .gacha-card-info{background:linear-gradient(180deg,#040e24,#030818);border-top:1px solid rgba(41,121,255,0.25);}
+.t-ultra  .gacha-card-info{background:linear-gradient(180deg,#0e0420,#060010);border-top:1px solid rgba(192,64,251,0.3);}
+.t-legendary .gacha-card-info{background:linear-gradient(180deg,#001820,#000c10);border-top:1px solid rgba(0,229,255,0.3);}
+.t-mythic .gacha-card-info{background:linear-gradient(180deg,#1a0c00,#0e0700);border-top:1px solid rgba(255,183,0,0.3);}
+
+.card-info-line{position:absolute;top:0;left:20%;right:20%;height:1px;border-radius:1px;}
+.t-common .card-info-line{background:linear-gradient(90deg,transparent,rgba(120,144,156,0.5),transparent);}
+.t-rare   .card-info-line{background:linear-gradient(90deg,transparent,rgba(41,121,255,0.7),transparent);}
+.t-ultra  .card-info-line{background:linear-gradient(90deg,transparent,rgba(192,64,251,0.8),transparent);}
+.t-legendary .card-info-line{background:linear-gradient(90deg,transparent,rgba(0,229,255,0.85),transparent);box-shadow:0 0 8px rgba(0,229,255,0.4);}
+.t-mythic .card-info-line{background:linear-gradient(90deg,transparent,rgba(255,183,0,0.9),transparent);box-shadow:0 0 8px rgba(255,183,0,0.5);}
+
+.gacha-result-eyebrow{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:var(--g-muted);opacity:.7;}
+
+.gacha-result-name{
+  font-family:'Cinzel Decorative',serif;font-size:18px;font-weight:900;line-height:1.1;text-align:center;
+}
+.gacha-result-name.t-common{color:#b0bec5;}
+.gacha-result-name.t-rare{background:linear-gradient(135deg,#64b5f6,#2979ff,#00b0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 8px rgba(41,121,255,0.5));}
+.gacha-result-name.t-ultra{background:linear-gradient(135deg,#e040fb,#c040fb,#7c4dff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 10px rgba(192,64,251,0.6));}
+.gacha-result-name.t-legendary{
+  background:linear-gradient(135deg,#e0ffff,#00e5ff,#00b8d4);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:name-legendary 1.6s ease-in-out infinite alternate;
 }
-.sc-val.cv{
-  background:linear-gradient(135deg,var(--cyan),var(--purple));
+@keyframes name-legendary{from{filter:drop-shadow(0 0 6px rgba(0,229,255,.6));}to{filter:drop-shadow(0 0 16px rgba(0,255,255,.9));}}
+.gacha-result-name.t-mythic{
+  background:linear-gradient(135deg,#fff5cc,#ffe066,#ffb700,#ff8c00,#ff6a00);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:name-mythic 1.6s ease-in-out infinite alternate;
+}
+@keyframes name-mythic{from{filter:drop-shadow(0 0 6px rgba(255,183,0,.6));}to{filter:drop-shadow(0 0 16px rgba(255,140,0,.9));}}
+
+.gacha-card-divider{width:80%;height:1px;border-radius:1px;opacity:.4;}
+.t-common .gacha-card-divider{background:linear-gradient(90deg,transparent,#78909c,transparent);}
+.t-rare   .gacha-card-divider{background:linear-gradient(90deg,transparent,#2979ff,transparent);}
+.t-ultra  .gacha-card-divider{background:linear-gradient(90deg,transparent,#c040fb,transparent);}
+.t-legendary .gacha-card-divider{background:linear-gradient(90deg,transparent,#00e5ff,transparent);}
+.t-mythic .gacha-card-divider{background:linear-gradient(90deg,transparent,#ffb700,transparent);}
+
+.gacha-result-desc{font-size:11px;color:var(--g-muted);line-height:1.65;font-weight:300;text-align:center;max-width:200px;opacity:.85;}
+
+/* Card Footer - Nama & Tanggal */
+.gacha-card-footer{
+  width:100%;padding:10px 14px 14px;display:flex;flex-direction:column;
+  align-items:center;gap:4px;font-family:'Raleway',sans-serif;
+}
+.t-common .gacha-card-footer{background:linear-gradient(180deg,#0a1018,#070a12);border-top:1px solid rgba(120,144,156,0.15);}
+.t-rare   .gacha-card-footer{background:linear-gradient(180deg,#030818,#020610);border-top:1px solid rgba(41,121,255,0.2);}
+.t-ultra  .gacha-card-footer{background:linear-gradient(180deg,#060010,#030008);border-top:1px solid rgba(192,64,251,0.2);}
+.t-legendary .gacha-card-footer{background:linear-gradient(180deg,#000c10,#000608);border-top:1px solid rgba(0,229,255,0.2);}
+.t-mythic .gacha-card-footer{background:linear-gradient(180deg,#0e0700,#080400);border-top:1px solid rgba(255,183,0,0.2);}
+
+.gacha-card-footer-line{
+  width:60%;height:1px;border-radius:1px;opacity:.25;margin-bottom:4px;
+  background:linear-gradient(90deg,transparent,var(--g-muted),transparent);
+}
+.gacha-footer-name{
+  font-size:10px;font-weight:600;color:var(--g-text);letter-spacing:.05em;
+}
+.gacha-footer-date{
+  font-size:9px;font-weight:400;color:var(--g-muted);letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.gacha-footer-score{
+  font-size:9px;font-weight:700;color:var(--g-muted);margin-top:2px;
+  font-family:'Cinzel',serif;letter-spacing:.1em;
 }
 
-/* ── GRID ── */
-#grid{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:10px;width:min(90vw,360px);
-  animation:fadeIn .5s ease .4s both;
+.gacha-badge-row{display:flex;align-items:center;gap:6px;}
+.gacha-result-badge{
+  font-family:'Cinzel',serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 14px;border-radius:50px;border:1px solid;
 }
+.gacha-result-badge.t-common{color:#90a4ae;border-color:rgba(120,144,156,0.4);background:rgba(120,144,156,0.1);}
+.gacha-result-badge.t-rare  {color:#82c4ff;border-color:rgba(41,121,255,0.5);background:rgba(41,121,255,0.12);box-shadow:0 0 10px rgba(41,121,255,0.2);}
+.gacha-result-badge.t-ultra {color:#e090f8;border-color:rgba(192,64,251,0.55);background:rgba(192,64,251,0.12);box-shadow:0 0 12px rgba(192,64,251,0.25);}
+.gacha-result-badge.t-legendary{color:#00e5ff;border-color:rgba(0,229,255,0.6);background:rgba(0,229,255,0.1);box-shadow:0 0 14px rgba(0,229,255,0.3);animation:badge-glow-legendary 1.5s ease-in-out infinite alternate;}
+@keyframes badge-glow-legendary{from{box-shadow:0 0 8px rgba(0,229,255,0.25);}to{box-shadow:0 0 18px rgba(0,229,255,0.6);}}
+.gacha-result-badge.t-mythic{color:#ffe066;border-color:rgba(255,183,0,0.6);background:rgba(255,183,0,0.12);box-shadow:0 0 14px rgba(255,183,0,0.3);animation:badge-glow 1.5s ease-in-out infinite alternate;}
+@keyframes badge-glow{from{box-shadow:0 0 8px rgba(255,183,0,0.25);}to{box-shadow:0 0 18px rgba(255,140,0,0.5);}}
 
-/* ── HOLE ── */
-.hole{
-  position:relative;
-  background:var(--surface2);
-  border:1.5px solid rgba(255,255,255,.07);
-  border-radius:16px;
-  height:100px;overflow:hidden;
-  cursor:pointer;
-}
-.hole-inner{
-  position:absolute;bottom:0;left:0;right:0;
-  display:flex;align-items:flex-end;justify-content:center;
-  height:100%;
-  transform:translateY(100%);
-  transition:transform .18s cubic-bezier(.34,1.3,.64,1);
-  pointer-events:none;
-}
-.hole.up .hole-inner{ transform:translateY(10%); }
-.hole-emoji{font-size:2.6rem;line-height:1;padding-bottom:6px;}
+/* Frame */
+.gacha-card-frame{position:absolute;inset:0;border-radius:20px;border:1.5px solid;pointer-events:none;}
+.t-common .gacha-card-frame{border-color:rgba(120,144,156,0.3);}
+.t-rare   .gacha-card-frame{border-color:rgba(41,121,255,0.45);box-shadow:inset 0 0 20px rgba(41,121,255,0.06),0 0 30px rgba(41,121,255,0.2);}
+.t-ultra  .gacha-card-frame{border-color:rgba(192,64,251,0.5);box-shadow:inset 0 0 24px rgba(192,64,251,0.07),0 0 40px rgba(124,77,255,0.25);}
+.t-legendary .gacha-card-frame{border-color:rgba(0,229,255,0.55);box-shadow:inset 0 0 28px rgba(0,229,255,0.08),0 0 50px rgba(0,229,255,0.3);animation:frame-legendary 2s ease-in-out infinite alternate;}
+@keyframes frame-legendary{from{box-shadow:inset 0 0 20px rgba(0,229,255,.06),0 0 35px rgba(0,229,255,.2);}to{box-shadow:inset 0 0 40px rgba(0,229,255,.12),0 0 65px rgba(0,229,255,.5);}}
+.t-mythic .gacha-card-frame{border-color:rgba(255,183,0,0.55);box-shadow:inset 0 0 30px rgba(255,183,0,0.08),0 0 50px rgba(255,140,0,0.35);animation:frame-mythic 2s ease-in-out infinite alternate;}
+@keyframes frame-mythic{from{box-shadow:inset 0 0 20px rgba(255,183,0,.06),0 0 40px rgba(255,140,0,.25);}to{box-shadow:inset 0 0 40px rgba(255,183,0,.12),0 0 70px rgba(255,100,0,.5);}}
 
-/* dirt bar */
-.hole::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:22px;
-  background:linear-gradient(180deg,transparent,rgba(10,8,20,.9));
-  border-radius:0 0 14px 14px;pointer-events:none;z-index:2;
-}
+/* Corner gems */
+.corner-gem{position:absolute;width:10px;height:10px;border-radius:2px;transform:rotate(45deg);z-index:3;}
+.cg-tl{top:6px;left:6px;} .cg-tr{top:6px;right:6px;} .cg-bl{bottom:6px;left:6px;} .cg-br{bottom:6px;right:6px;}
+.t-common .corner-gem{background:#546e7a;box-shadow:0 0 4px #546e7a;}
+.t-rare   .corner-gem{background:#2979ff;box-shadow:0 0 6px rgba(41,121,255,0.8);}
+.t-ultra  .corner-gem{background:#c040fb;box-shadow:0 0 8px rgba(192,64,251,0.9);}
+.t-legendary .corner-gem{background:#00e5ff;box-shadow:0 0 10px rgba(0,229,255,1);animation:gem-pulse-legendary 1s ease-in-out infinite alternate;}
+@keyframes gem-pulse-legendary{from{box-shadow:0 0 6px rgba(0,229,255,.8);}to{box-shadow:0 0 16px rgba(0,255,255,1);}}
+.t-mythic .corner-gem{background:#ffb700;box-shadow:0 0 10px rgba(255,183,0,1);animation:gem-pulse 1s ease-in-out infinite alternate;}
+@keyframes gem-pulse{from{box-shadow:0 0 6px rgba(255,183,0,.8);}to{box-shadow:0 0 14px rgba(255,220,0,1);}}
 
-/* hit flash */
-.hole.hit .hole-inner{animation:hitAnim .25s ease forwards;}
-@keyframes hitAnim{
-  0%{transform:translateY(10%);}
-  40%{transform:translateY(-8%) scale(1.15);}
-  100%{transform:translateY(100%);}
+/* Buttons */
+.gacha-btn-row{display:flex;gap:8px;align-items:center;margin-top:12px;justify-content:center;}
+.gacha-close-btn{
+  padding:9px 20px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  cursor:pointer;border-radius:50px;border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.04);color:var(--g-muted);transition:background .2s,color .2s;
 }
-/* miss flash */
-.hole.miss{animation:missFlash .3s ease;}
-@keyframes missFlash{0%,100%{background:var(--surface2);}50%{background:rgba(244,63,94,.15);}}
+.gacha-close-btn:hover{background:rgba(255,255,255,0.08);color:var(--g-text);}
 
-/* rarity glow */
-.hole.rare .hole-inner{filter:drop-shadow(0 0 10px #ffb700);}
-.hole.bomb .hole-inner{filter:drop-shadow(0 0 10px #f43f5e);}
+.gacha-dl-btn{
+  padding:9px 20px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  cursor:pointer;border-radius:50px;border:none;font-weight:700;transition:transform .15s,box-shadow .2s;
+}
+.gacha-dl-btn:hover{transform:translateY(-2px);}
+.gacha-dl-btn:active{transform:scale(.96);}
+.gacha-dl-btn.loading{opacity:.7;cursor:wait;}
+.t-common .gacha-dl-btn{background:linear-gradient(135deg,#78909c,#546e7a);color:#fff;box-shadow:0 3px 12px rgba(84,110,122,0.4);}
+.t-rare   .gacha-dl-btn{background:linear-gradient(135deg,#2979ff,#00b0ff);color:#fff;box-shadow:0 3px 14px rgba(41,121,255,0.5);}
+.t-rare   .gacha-dl-btn:hover{box-shadow:0 6px 22px rgba(41,121,255,0.7);}
+.t-ultra  .gacha-dl-btn{background:linear-gradient(135deg,#c040fb,#7c4dff);color:#fff;box-shadow:0 3px 14px rgba(192,64,251,0.5);}
+.t-ultra  .gacha-dl-btn:hover{box-shadow:0 6px 22px rgba(192,64,251,0.7);}
+.t-legendary .gacha-dl-btn{background:linear-gradient(135deg,#00e5ff,#00b8d4);color:#001a20;box-shadow:0 3px 14px rgba(0,229,255,0.5);}
+.t-mythic .gacha-dl-btn{background:linear-gradient(135deg,#ffe066,#ffb700,#ff6a00);color:#1a0800;box-shadow:0 3px 14px rgba(255,183,0,0.55);}
+.t-mythic .gacha-dl-btn:hover{box-shadow:0 6px 24px rgba(255,140,0,0.8);}
 
-/* ── FLOAT SCORE ── */
-.float-score{
-  position:fixed;font-family:'Fredoka One',cursive;font-size:1.3rem;
-  pointer-events:none;z-index:999;
-  animation:floatScore .7s ease forwards;
-}
-@keyframes floatScore{
-  0%{opacity:1;transform:translateY(0) scale(1);}
-  100%{opacity:0;transform:translateY(-55px) scale(1.3);}
-}
+.gacha-particle{position:fixed;border-radius:50%;pointer-events:none;z-index:1001;animation:pfly 1s ease-out forwards;}
+@keyframes pfly{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0);}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.2) rotate(720deg);}}
 
-/* ── COMBO FLASH ── */
-#combo-flash{
-  position:fixed;top:42%;left:50%;
-  transform:translate(-50%,-50%);
-  font-family:'Fredoka One',cursive;font-size:2.2rem;
-  pointer-events:none;z-index:998;display:none;
+/* ── ADMIN PIN ── */
+.pdot{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid rgba(192,64,251,0.5);
+  background:transparent;transition:background .15s,border-color .15s;
 }
-#combo-flash.show{display:block;animation:comboAnim .55s ease forwards;}
-@keyframes comboAnim{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.4);}
-  35%{opacity:1;transform:translate(-50%,-50%) scale(1.2);}
-  70%{opacity:1;transform:translate(-50%,-50%) scale(1);}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(.8);}
+.pdot.filled{background:#c040fb;border-color:#c040fb;box-shadow:0 0 8px rgba(192,64,251,0.7);}
+.pdot.error{background:#f43f5e;border-color:#f43f5e;animation:pinShake .4s ease;}
+.pin-key{
+  padding:.75rem;border-radius:12px;border:1px solid rgba(124,77,255,0.25);
+  background:rgba(255,255,255,0.05);color:#e8eaf6;
+  font-family:'Fredoka One',cursive;font-size:1.2rem;
+  cursor:pointer;transition:background .12s,transform .1s;
 }
+.pin-key:hover{background:rgba(192,64,251,0.18);transform:scale(1.06);}
+.pin-key:active{transform:scale(.94);}
+.pin-key-cancel{color:#7986cb;font-size:1rem;}
+.pin-key-del{color:#7986cb;font-size:1rem;}
+@keyframes pinShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
 
-/* ── SPEED BADGE ── */
-#speed-badge{
-  font-size:.65rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;
-  padding:.25rem .8rem;border-radius:99px;
-  background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);
-  color:var(--green);transition:all .3s;
-  animation:fadeIn .5s ease .5s both;
-}
-#speed-badge.fast{background:rgba(255,183,0,.15);border-color:rgba(255,183,0,.4);color:var(--amber);}
-#speed-badge.turbo{background:rgba(244,63,94,.15);border-color:rgba(244,63,94,.4);color:var(--red);}
+/* ── ANIMATIONS ── */
+@keyframes popIn  {from{opacity:0;transform:scale(.88);}to{opacity:1;transform:scale(1);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(55px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeQ  {from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:translateX(0);}}
 
-.hint-text{
-  font-size:.7rem;font-weight:600;color:var(--muted);text-align:center;
-  animation:fadeIn .5s ease .6s both;
+@media(max-width:420px){
+  .gacha-result-animal{font-size:52px;}
+  .gacha-result-card{width:260px;}
 }
-.hint-text span{color:var(--text);font-weight:800;}
-
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
-<div id="particles"></div>
-<div id="combo-flash"></div>
+<!-- ═══════════════════════════════════════════
+   SCREEN NAMA
+═══════════════════════════════════════════ -->
+<div id="screen-nama" style="position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:var(--bg);">
+  <div style="background:#fff;border-radius:28px;padding:2.4rem 2rem 2rem;max-width:360px;width:88%;text-align:center;box-shadow:0 8px 40px #0002;animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;">
+    <div style="font-size:3rem;margin-bottom:.6rem">👋</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:1.7rem;background:linear-gradient(135deg,#dc2626,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.35rem;">Isi Nama Dulu Ya</div>
+    <div style="font-size:.88rem;font-weight:600;color:var(--muted);margin-bottom:1.4rem;">Masukkan namamu dulu sebelum belajar 😊</div>
+    <input id="input-nama" type="text" placeholder="Tulis namamu di sini..." maxlength="40"
+      style="width:100%;border:2px solid #e2e8f0;border-radius:14px;padding:.7rem 1rem;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;color:var(--text);outline:none;transition:border-color .15s;margin-bottom:.9rem;text-align:center;"
+      oninput="document.getElementById('input-nama').style.borderColor='#8b5cf6'"
+      onkeydown="if(event.key==='Enter') mulai()"
+    />
+    <button onclick="mulai()" style="width:100%;padding:.75rem;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;transition:transform .15s,box-shadow .15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Mulai Belajar 🚀</button>
+    <div id="nama-err" style="color:#e11d48;font-size:.8rem;font-weight:700;margin-top:.6rem;display:none;">⚠️ Nama tidak boleh kosong!</div>
+  </div>
+</div>
 
-<div class="wrap">
-  <div class="badge">🔧 SDN 2 Pesantren</div>
+<!-- ═══════════════════════════════════════════
+   ADMIN PIN MODAL
+═══════════════════════════════════════════ -->
+<div id="admin-pin-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:#1a1a2e;border:1px solid rgba(124,77,255,0.4);border-radius:24px;padding:2rem 1.8rem 1.8rem;max-width:320px;width:88%;text-align:center;box-shadow:0 0 60px rgba(124,77,255,0.25);animation:popIn .3s cubic-bezier(.34,1.56,.64,1) both;">
+    <div style="font-size:2.2rem;margin-bottom:.5rem">🔐</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:#c040fb;margin-bottom:.25rem;">Mode Admin</div>
+    <div style="font-size:.8rem;font-weight:600;color:#7986cb;margin-bottom:1.3rem;letter-spacing:.03em;">Masukkan PIN 6 digit</div>
+    <!-- PIN dots display -->
+    <div id="pin-dots" style="display:flex;justify-content:center;gap:.5rem;margin-bottom:1.2rem;">
+      <div class="pdot" id="pd0"></div>
+      <div class="pdot" id="pd1"></div>
+      <div class="pdot" id="pd2"></div>
+      <div class="pdot" id="pd3"></div>
+      <div class="pdot" id="pd4"></div>
+      <div class="pdot" id="pd5"></div>
+    </div>
+    <!-- Numpad -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.8rem;" id="pin-numpad">
+      <button class="pin-key" onclick="pinInput('1')">1</button>
+      <button class="pin-key" onclick="pinInput('2')">2</button>
+      <button class="pin-key" onclick="pinInput('3')">3</button>
+      <button class="pin-key" onclick="pinInput('4')">4</button>
+      <button class="pin-key" onclick="pinInput('5')">5</button>
+      <button class="pin-key" onclick="pinInput('6')">6</button>
+      <button class="pin-key" onclick="pinInput('7')">7</button>
+      <button class="pin-key" onclick="pinInput('8')">8</button>
+      <button class="pin-key" onclick="pinInput('9')">9</button>
+      <button class="pin-key pin-key-cancel" onclick="adminCancel()">✕</button>
+      <button class="pin-key" onclick="pinInput('0')">0</button>
+      <button class="pin-key pin-key-del" onclick="pinDelete()">⌫</button>
+    </div>
+    <div id="pin-err" style="color:#f43f5e;font-size:.78rem;font-weight:700;display:none;margin-top:.3rem;">PIN salah. Akses ditolak.</div>
+  </div>
+</div>
 
-  <div class="title-wrap">
-    <div class="title">Sedang Upgrade!</div>
-    <div class="subtitle">Soal-soal baru sedang disiapkan untukmu ✨</div>
+<!-- ═══════════════════════════════════════════
+   MAIN CARD
+═══════════════════════════════════════════ -->
+<div class="main-card" id="main-card" style="display:none">
+  <div class="badge">🎯 Persiapan UAS 2025/2026</div>
+  <h1>PRA UAS<br>IPAS</h1>
+  <div class="mapel">Ilmu Pengetahuan Alam &amp; Sosial · Kelas V</div>
+  <div class="pills">
+    <span class="pill">📚 Kelas V SD</span>
+    <span class="pill">📝 100 Bank Soal</span>
+    <span class="pill">📍 SDN 2 Pesantren</span>
+    <span class="pill" id="pill-nama">👤 —</span>
+  </div>
+  <div class="btn-group">
+    <button class="big-btn btn-rangkuman" onclick="openModal('rangkuman')">
+      <div class="bicon">📖</div>
+      <div class="btw"><div class="bl">Rangkuman</div><div class="bd">Materi ringkas sesuai kisi-kisi</div></div>
+      <span class="ba">›</span>
+    </button>
+    <button class="big-btn btn-soal" onclick="openModal('soal')">
+      <div class="bicon">✏️</div>
+      <div class="btw"><div class="bl">Soal Latihan</div><div class="bd">30 soal acak · mudah–sedang–sulit</div></div>
+      <span class="ba">›</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+   MODAL RANGKUMAN
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-rangkuman" onclick="closeOnBg(event,'modal-rangkuman')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhead">
+      <span class="mhead-icon">📖</span>
+      <span class="mhead-title" style="color:#7c3aed">Rangkuman IPAS Kelas 5</span>
+      <button class="mclose" onclick="closeModal('modal-rangkuman')">✕</button>
+    </div>
+    <div class="mbody">
+      <div style="background:linear-gradient(135deg,#fef9c3,#fff7ed);border-radius:14px;padding:.85rem 1rem;margin-bottom:1.2rem;font-size:.85rem;font-weight:700;color:#92400e;line-height:1.6;">🔥 <strong>Mode Tempur UAS!</strong> Kuasai poin kunci di setiap bab. Yang dicetak <span style="background:#fde68a;padding:0 4px;border-radius:4px;">kuning</span> = PALING SERING KELUAR di soal!</div>
+
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#fff1f2">🌋</div><span style="color:#e11d48">Bab 1 — Peristiwa Alam &amp; Perubahan Kondisi Bumi</span></div>
+        <div class="r-sub-head" style="color:#f43f5e">A. Apa itu Peristiwa Alam?</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span><span class="r-kw">Peristiwa alam murni</span> = terjadi sendiri tanpa campur tangan manusia. Contoh: <span class="r-kw">gempa bumi, gunung meletus, tsunami, angin topan, abrasi, banjir hujan deras, kekeringan, tanah longsor karena hujan.</span></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>⚡ <span class="r-kw">Gempa bumi</span> → pergerakan lempeng bumi atau aktivitas vulkanik di perut bumi.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>🌊 <span class="r-kw">Tsunami</span> → gempa di dasar laut → gelombang raksasa menghantam pantai. Tanda-tanda: air laut surut tiba-tiba, suara gemuruh dari laut, tanah berguncang hebat.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>🌋 <span class="r-kw">Gunung meletus</span> → tekanan magma meledak keluar melalui kawah.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>🌊 <span class="r-kw">Abrasi</span> → pantai terkikis gelombang laut terus-menerus (bukan tsunami, bukan banjir!).</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#f43f5e">B. Dampak Peristiwa Alam</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>🔴 <span class="r-kw">Negatif</span>: bangunan rusak, korban jiwa, lahan pertanian hancur, abu mencemari udara.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>🟢 <span class="r-kw">Positif gunung meletus</span>: abu vulkanik = pupuk alami → tanah sekitar gunung menjadi sangat subur!</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>🔥 <span class="r-kw">Kebakaran hutan</span>: kabut asap → sesak napas, air tercemar, hewan kehilangan habitat.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>🌧️ <span class="r-kw">Banjir</span>: rumah/sawah terendam, penyakit diare & leptospirosis, infrastruktur rusak.</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#f43f5e">C. Perubahan Alam Akibat MANUSIA (beda dari alam murni!)</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>🌳 <span class="r-kw">Tebang hutan liar</span> → pohon hilang → air tidak terserap → <strong>banjir + tanah longsor + lahan gersang</strong></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>🏗️ <span class="r-kw">Bangun di lahan hijau</span> → beton tutup tanah → air tidak meresap → <strong>banjir + O₂ berkurang</strong></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>⛏️ <span class="r-kw">Tambang liar</span> → tanah rusak, erosi naik, sungai tercemar.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>🔥 <span class="r-kw">Bakar hutan</span> → CO₂ naik, pemanasan global, habitat hancur, kabut asap.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>💡 <strong>Trik:</strong> Banjir + kabut asap bersamaan → penyebab kemungkinan <span class="r-kw">tebang hutan + bakar lahan sekaligus!</span></span></div>
+        </div>
+        <div class="r-sub-head" style="color:#f43f5e">D. Cara Selamatkan Hutan</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>✅ <span class="r-kw">Reboisasi</span>: tanam pohon di hutan gundul. ✅ <span class="r-kw">Tebang pilih</span>: hanya tebang pohon tua, pohon muda tetap hidup. ✅ <span class="r-kw">Larang penebangan liar.</span></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f43f5e"></span><span>❌ <strong>BUKAN cara menjaga hutan:</strong> membuka lahan baru dengan MEMBAKAR hutan — justru makin rusak!</span></div>
+        </div>
+      </div>
+      <div class="r-divider"></div>
+
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#f0fdf4">♻️</div><span style="color:#16a34a">Bab 2 — Pola Hidup &amp; Pengelolaan Sampah</span></div>
+        <div class="r-sub-head" style="color:#16a34a">A. Pola Hidup yang Merusak Lingkungan</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>🗑️ Buang sampah sembarangan → got mampet → <span class="r-kw">banjir + penyakit berkembang biak</span></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>🏭 Buang limbah pabrik ke sungai → <span class="r-kw">ikan mati, air tercemar, manusia sakit</span></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>🚬 Buang puntung rokok sembarangan → <span class="r-kw">bisa picu kebakaran lahan/hutan!</span></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>🌾 Pupuk kimia berlebihan → <span class="r-kw">tanah rusak, sungai tercemar</span></span></div>
+        </div>
+        <div class="r-sub-head" style="color:#16a34a">B. Sampah Organik vs Anorganik — WAJIB HAFAL!</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>🟤 <span class="r-kw">ORGANIK</span> (dari makhluk hidup, mudah terurai): kulit pisang, daun kering, sisa nasi, sayur busuk, buah busuk, ranting, <strong>kertas</strong>, kulit telur, ampas kopi.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>🔵 <span class="r-kw">ANORGANIK</span> (bikinan manusia, butuh ratusan tahun terurai): botol plastik, kantong kresek, kaleng, kaca, styrofoam, baterai, logam, karet sintetis.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>💡 <strong>Jangan salah:</strong> KERTAS = ORGANIK ✅ | PLASTIK/KALENG/KACA = ANORGANIK ✅</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>🎨 <strong>Warna tempat sampah:</strong> Organik → <span class="r-kw">hijau/cokelat</span> | Anorganik → <span class="r-kw">kuning/biru</span> | B3 (baterai, obat) → <span class="r-kw">merah</span></span></div>
+        </div>
+        <div class="r-sub-head" style="color:#16a34a">C. Cara Olah Sampah yang Benar</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>🥦 <span class="r-kw">Organik basah</span> (sisa makanan, sayur) → <strong>pengomposan</strong> → pupuk kompos untuk tanaman</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>📄 <span class="r-kw">Organik kering</span> (kertas, kardus) → <strong>daur ulang</strong> → jadi kertas baru</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>🧴 <span class="r-kw">Anorganik</span> (plastik, kaca, kaleng) → <strong>daur ulang sesuai jenisnya</strong> (harus dipisah dulu!)</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>🛢️ <span class="r-kw">Minyak jelantah</span> → <strong>instansi pengolahan minyak</strong> (JANGAN ke selokan → mampet + cemari air!)</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#16a34a">D. 3R — Reduce, Reuse, Recycle</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>1️⃣ <span class="r-kw">Reduce</span> (Kurangi): bawa tas sendiri, pakai produk isi ulang, tolak sedotan plastik. MENCEGAH sampah dari sumbernya.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>2️⃣ <span class="r-kw">Reuse</span> (Pakai ulang): isi ulang botol minum, pakai ulang kantong, baju bekas → donasi. Barang masih layak, jangan langsung buang!</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#22c55e"></span><span>3️⃣ <span class="r-kw">Recycle</span> (Daur ulang): kertas bekas → kerajinan, botol plastik → pot bunga, sampah organik → kompos.</span></div>
+        </div>
+      </div>
+      <div class="r-divider"></div>
+
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#fffbeb">🌍</div><span style="color:#d97706">Bab 3 — Dampak Lingkungan &amp; Interaksi Manusia</span></div>
+        <div class="r-sub-head" style="color:#d97706">A. Penyebab vs Cara Mengatasi Masalah Lingkungan</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>💡 <strong>Trik bedakan:</strong> Kalau soal tanya <em>penyebab</em> → cari yang MERUSAK. Kalau tanya <em>mengatasi</em> → cari yang MEMPERBAIKI.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>🔴 <span class="r-kw">PENYEBAB masalah</span>: buang sampah sembarangan, limbah pabrik ke sungai, tebang liar, bakar lahan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>🟢 <span class="r-kw">CARA MENGATASI</span>: bersihkan sungai, reboisasi, tanam pohon, buat sumur resapan. (Ini SOLUSI bukan penyebab!)</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#d97706">B. Dampak Ekonomi vs Dampak Sosial</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>💰 <span class="r-kw">EKONOMI</span> = urusan uang/penghasilan. Negatif: nelayan rugi, petani gagal panen, pariwisata sepi, biaya kesehatan naik. Positif: hutan lestari → wisata alam → pendapatan masyarakat naik.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>👥 <span class="r-kw">SOSIAL</span> = urusan kehidupan masyarakat. Contoh: warga mengungsi, sekolah terpaksa libur, rebutan air bersih, kualitas hidup turun, kepunahan hewan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>💡 <strong>Cara mudah bedakan:</strong> Ada kata <em>uang/pendapatan/penghasilan/rugi</em> → EKONOMI. Ada kata <em>masyarakat/warga/kehidupan sosial</em> → SOSIAL.</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#d97706">C. Jenis-Jenis Interaksi Manusia</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>✅ <strong>3 jenis interaksi yang ADA:</strong> <span class="r-kw">manusia–manusia, manusia–alam, manusia–lingkungan.</span></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>❌ "Manusia–ekonomi" = <strong>TIDAK ADA</strong> dalam ilmu pengetahuan (sering dijadikan pilihan jebakan!).</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>🤝 <span class="r-kw">Interaksi manusia–manusia</span> (gotong royong, kerja bakti, tolong-menolong) → nilai: kebersamaan, kekeluargaan, saling peduli, kasih sayang.</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#d97706">D. Interaksi Positif &amp; Negatif dengan Alam</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>🟢 <span class="r-kw">Positif</span>: reboisasi, bersihkan sungai/pantai, jaga terumbu karang, bertani organik, buat sumur resapan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>🔴 <span class="r-kw">Negatif</span>: buang limbah ke sungai, tebang liar, bakar lahan, berburu liar, tangkap ikan pakai bom/racun.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#f59e0b"></span><span>🔄 Kerja bakti bersihkan lingkungan = interaksi <span class="r-kw">manusia–manusia</span> (gotong royong) SEKALIGUS positif bagi <span class="r-kw">alam.</span></span></div>
+        </div>
+      </div>
+      <div class="r-divider"></div>
+
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#f0f9ff">🗺️</div><span style="color:#0ea5e9">Bab 4 — Peta &amp; Letak Geografis Indonesia</span></div>
+        <div class="r-sub-head" style="color:#0ea5e9">A. Komponen Wajib Peta</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>📌 <span class="r-kw">Judul</span>: nama wilayah/tema yang digambarkan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🗺️ <span class="r-kw">Legenda</span>: keterangan arti simbol dan warna (BUKAN daftar nama kota!).</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>📏 <span class="r-kw">Skala</span>: perbandingan jarak peta vs jarak sebenarnya di lapangan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🧭 <span class="r-kw">Orientasi</span>: petunjuk arah. Panah (↑) selalu menunjuk Utara.</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#0ea5e9">B. Simbol-Simbol Peta</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>✅ <strong>Fungsi simbol = MEMUDAHKAN</strong> (bukan mempersulit, bukan hiasan semata!) pembaca memahami peta.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🌉 Jembatan = garis melintang di atas sungai &nbsp;|&nbsp; ✈️ Bandara = gambar pesawat &nbsp;|&nbsp; 💧 Danau = area biru</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>⛰️ Gunung = segitiga (▲) &nbsp;|&nbsp; ★ Ibu kota = bintang &nbsp;|&nbsp; Warna hijau = dataran rendah &nbsp;|&nbsp; Cokelat = pegunungan</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#0ea5e9">C. Arah Mata Angin — Hafal Posisinya!</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🧭 <strong>4 arah utama:</strong> Utara (atas), Selatan (bawah), Timur (kanan), Barat (kiri).</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🧭 <strong>4 arah antara:</strong> Timur Laut (TL, kanan atas), Tenggara (TG, kanan bawah), Barat Daya (BD, kiri bawah), Barat Laut (BL, kiri atas).</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🔵 <span class="r-kw">Jarum kompas selalu menunjuk UTARA</span> karena tertarik medan magnet bumi di kutub utara.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>💡 <strong>Trik diagram (+):</strong> A di atas = Utara | B di kanan = Timur | C di bawah = Selatan | D di kiri = Barat.</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#0ea5e9">D. Hitung Jarak dengan Skala — Rumus Sakti!</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>📐 <strong>RUMUS:</strong> Jarak Sebenarnya = Jarak di Peta × Angka Skala → lalu bagi 100.000 untuk dapat km.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🔢 Skala 1:65.000 → 3 cm × 65.000 = 195.000 cm = <span class="r-kw">1,95 km</span> &nbsp;|&nbsp; 4 cm × 65.000 = 260.000 cm = <span class="r-kw">2,6 km</span></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🔢 Skala 1:500.000 → 6 cm × 500.000 = 3.000.000 cm = <span class="r-kw">30 km</span> &nbsp;|&nbsp; Skala 1:250.000 → 8 cm = <span class="r-kw">20 km</span></span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>⚖️ Skala angka BESAR (1:1.000.000) = wilayah luas, detail sedikit. Skala angka KECIL (1:65.000) = wilayah sempit, detail banyak.</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#0ea5e9">E. Letak Geografis Indonesia — Hafal 4 Penjuru!</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🌏 Indonesia diapit <span class="r-kw">2 benua: Asia</span> (barat laut) + <span class="r-kw">Australia</span> (tenggara) &nbsp;|&nbsp; Diapit <span class="r-kw">2 samudra: Hindia</span> (barat-selatan) + <span class="r-kw">Pasifik</span> (timur-utara).</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>⬆️ <span class="r-kw">Utara</span>: Malaysia, Singapura, Filipina, Laut Cina Selatan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>⬇️ <span class="r-kw">Selatan</span>: Australia, Timor Leste, Samudra Hindia. &nbsp;➡️ <span class="r-kw">Timur</span>: Papua Nugini, Samudra Pasifik. &nbsp;⬅️ <span class="r-kw">Barat</span>: Samudra Hindia.</span></div>
+        </div>
+        <div class="r-sub-head" style="color:#0ea5e9">F. Agraris vs Maritim — Indonesia Keduanya!</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🌾 <span class="r-kw">AGRARIS</span>: mayoritas penduduk = petani. Ciri: banyak sawah/ladang, penghasil padi/kopi/sayur/ternak.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>⚓ <span class="r-kw">MARITIM</span>: negara kepulauan, laut sangat luas, mayoritas masyarakat = nelayan, 2/3 wilayah = lautan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🇮🇩 <span class="r-kw">Indonesia = AGRARIS + MARITIM</span> sekaligus: lahan pertanian luas DAN ribuan pulau dikelilingi laut!</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>🌾 <span class="r-kw">Jaga agraris</span>: batasi alih fungsi lahan, hindari pencemaran tanah, pertanian organik, terasering, irigasi.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>⚓ <span class="r-kw">Jaga maritim</span>: lindungi terumbu karang, jangan buang sampah ke laut, larang overfishing, larang bom/racun ikan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#0ea5e9"></span><span>⚠️ Alih fungsi lahan pertanian besar-besaran → lahan berkurang → produksi pangan turun → <span class="r-kw">ketahanan pangan terancam!</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+   MODAL SOAL
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-soal">
+  <div class="modal modal-fullscreen">
+    <div class="mhandle"></div>
+    <div class="mhead">
+      <span class="mhead-icon">✏️</span>
+      <span class="mhead-title" style="color:#f97316" id="soal-modal-title">Soal Latihan</span>
+      <button class="mclose" onclick="closeModal('modal-soal')">✕</button>
+    </div>
+    <div class="mbody" id="soal-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+   GACHA OVERLAY (Hidden by default)
+═══════════════════════════════════════════ -->
+<div id="gacha-overlay">
+  <div class="gacha-container">
+    <div class="gacha-header">
+      <h1>🎁 Kotak Hadiah</h1>
+      <p>Nilaimu ≥90! Buka hadiahmu sekarang</p>
+    </div>
+    <div class="gacha-divider"></div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:1.4rem;width:100%;">
+      <div class="gacha-box-wrap" onclick="openBox()" title="Klik untuk buka">
+        <div class="gacha-box-glow-ring"></div>
+        <div class="gacha-lootbox" id="gacha-lootbox">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <rect x="10" y="38" width="60" height="32" rx="5" fill="#1a1a3e" stroke="#7c4dff" stroke-width="1.5"/>
+            <rect x="10" y="18" width="60" height="22" rx="5" fill="#1e1b4b" stroke="#9c6bff" stroke-width="1.5"/>
+            <path d="M10 30 Q40 12 70 30" fill="#1e1b4b" stroke="#9c6bff" stroke-width="1.5"/>
+            <rect x="32" y="36" width="16" height="8" rx="4" fill="#3d2b7a" stroke="#c040fb" stroke-width="1"/>
+            <circle cx="40" cy="52" r="6" fill="#2d1b69" stroke="#c040fb" stroke-width="1.5"/>
+            <circle cx="40" cy="52" r="2.5" fill="#c040fb"/>
+            <text x="22" y="31" font-size="10">🐾</text>
+            <text x="50" y="28" font-size="8">✨</text>
+            <rect x="10" y="37" width="60" height="3" fill="#7c4dff" opacity=".4"/>
+          </svg>
+          <div class="gacha-box-hint">Klik untuk buka</div>
+        </div>
+      </div>
+
+      <button class="gacha-open-btn" id="gacha-open-btn" onclick="openBox()">✦ Buka Hadiah ✦</button>
+
+      <div class="gacha-legend">
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#78909c"></div>Common</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#2979ff"></div>Rare</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#c040fb"></div>Ultra Rare</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#00e5ff"></div>Legendary</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#ffb700"></div>Mythic</div>
+      </div>
+    </div>
+
+    <div class="gacha-divider"></div>
   </div>
 
-  <div class="cs-box">
-    <div class="cs-dot"></div>
-    Coming Soon
-  </div>
+  <!-- RESULT CARD (centered overlay content) -->
+  <div class="gacha-result-card" id="gacha-result-card" style="display:none;position:absolute;">
+    <div class="card-halo"></div>
+    <div class="gacha-card-inner" id="gacha-card-inner">
+      <div class="corner-gem cg-tl"></div>
+      <div class="corner-gem cg-tr"></div>
+      <div class="corner-gem cg-bl"></div>
+      <div class="corner-gem cg-br"></div>
+      <div class="gacha-card-frame"></div>
 
-  <div class="scoreboard">
-    <div class="sc">
-      <div class="sc-label">Skor</div>
-      <div class="sc-val" id="score-el">0</div>
+      <div class="gacha-card-banner">
+        <span class="gacha-card-banner-label" id="gacha-r-badge">—</span>
+        <span class="gacha-card-banner-stars" id="gacha-r-stars">★★★★★</span>
+      </div>
+
+      <div class="gacha-card-art" id="gacha-card-art">
+        <div class="art-aura"></div>
+        <div class="art-hex"></div>
+        <div class="art-ring art-ring-2"></div>
+        <div class="art-ring art-ring-1"></div>
+        <svg class="mythic-stars" viewBox="0 0 200 200">
+          <g fill="#ffb700" opacity=".9">
+            <polygon points="100,8 103,18 114,18 105,24 108,34 100,28 92,34 95,24 86,18 97,18" opacity=".95"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(40,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(80,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(120,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(160,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(200,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(240,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(280,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(320,100,100) translate(0,-42)"/>
+          </g>
+        </svg>
+        <div class="gacha-result-animal" id="gacha-r-animal">🐱</div>
+      </div>
+
+      <div class="gacha-card-info" id="gacha-card-info">
+        <div class="card-info-line"></div>
+        <div class="gacha-result-eyebrow">Kamu mendapatkan</div>
+        <div class="gacha-result-name" id="gacha-r-name">—</div>
+        <div class="gacha-card-divider"></div>
+        <div class="gacha-result-desc" id="gacha-r-desc"></div>
+      </div>
+
+      <!-- Footer: Nama & Tanggal -->
+      <div class="gacha-card-footer" id="gacha-card-footer">
+        <div class="gacha-card-footer-line"></div>
+        <div class="gacha-footer-name" id="gacha-footer-name">—</div>
+        <div class="gacha-footer-date" id="gacha-footer-date">—</div>
+        <div class="gacha-footer-score" id="gacha-footer-score">—</div>
+      </div>
     </div>
-    <div class="sc">
-      <div class="sc-label">Combo</div>
-      <div class="sc-val cv" id="combo-el">x1</div>
+
+    <div class="gacha-btn-row" id="gacha-btn-row" style="display:none;">
+      <button class="gacha-dl-btn" id="gacha-dl-btn" onclick="downloadCard()">⬇ Simpan Kartu</button>
+      <button class="gacha-close-btn" onclick="closeGachaResult()">✕ Tutup</button>
     </div>
-    <div class="sc">
-      <div class="sc-label">Meleset</div>
-      <div class="sc-val" id="miss-el" style="background:linear-gradient(135deg,#f43f5e,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">0</div>
-    </div>
-  </div>
-
-  <div id="grid"></div>
-
-  <div id="speed-badge">🐢 Normal</div>
-
-  <div class="hint-text">
-    Pukul hewan yang muncul! Hindari <span>💣 Bom</span> — kena bom kombo reset!
   </div>
 </div>
 
 <script>
-// ── STARFIELD ──
-const canvas = document.getElementById('stars');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-for(let i=0;i<130;i++){
-  const x=Math.random()*canvas.width, y=Math.random()*canvas.height;
-  const r=Math.random()*1.4+.2, op=Math.random()*.6+.1;
-  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
-  ctx.fillStyle=`rgba(255,255,255,${op})`; ctx.fill();
+// ═══════════════════════════════════════════
+//  CONFIG: Ganti dengan URL Web App Anda
+// ═══════════════════════════════════════════
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxKK1xTtO9LKZtGcRHOnOj7l8VUfRETeCqHG0jVZTflLaJAlhrSPukrgnuiRL1qCZuK/exec";
+
+// ═══════════════════════════════════════════
+//  BANK SOAL 100
+// ═══════════════════════════════════════════
+const bank = [
+// ══ MUDAH (50) ══
+{id:1,lvl:'M',tipe:'pg',q:'Manakah yang BUKAN termasuk peristiwa alam murni?',opts:['Gunung meletus','Gempa bumi','Penebangan hutan oleh manusia','Tsunami'],jawab:2,info:'Peristiwa alam murni terjadi tanpa campur tangan manusia. Penebangan hutan adalah kegiatan manusia, sehingga bukan peristiwa alam murni.'},
+{id:2,lvl:'M',tipe:'bs',q:'Tsunami terjadi karena gempa bumi di dasar laut.',jawab:true,info:'Benar! Tsunami dipicu oleh gempa di dasar laut yang menggerakkan kolom air secara tiba-tiba sehingga menciptakan gelombang raksasa.'},
+{id:3,lvl:'M',tipe:'pg',q:'Dampak POSITIF dari letusan gunung berapi bagi lingkungan sekitarnya adalah…',opts:['Rumah-rumah hancur tertimpa lava','Tanah menjadi lebih subur karena abu vulkanik','Udara sangat kotor oleh asap','Sungai meluap dan membanjiri desa'],jawab:1,info:'Abu vulkanik mengandung mineral seperti belerang, kalium, dan fosfor yang menyuburkan tanah pertanian di sekitar gunung.'},
+{id:4,lvl:'M',tipe:'bs',q:'Abrasi adalah proses pengikisan garis pantai akibat hantaman gelombang laut.',jawab:true,info:'Benar! Abrasi terjadi karena hantaman gelombang laut yang terus-menerus mengikis dan menggerus garis pantai.'},
+{id:5,lvl:'M',tipe:'pg',q:'Kegiatan manusia berikut yang bisa menyebabkan tanah longsor adalah…',opts:['Membuat terasering di lereng bukit','Menanam pohon di lereng bukit','Menebang pohon di lereng bukit secara liar','Membuat saluran air yang baik'],jawab:2,info:'Pohon berfungsi mengikat tanah dengan akarnya. Bila pohon ditebang, tanah menjadi labil dan mudah longsor saat hujan deras.'},
+{id:6,lvl:'M',tipe:'bs',q:'Kekeringan adalah peristiwa alam yang terjadi karena curah hujan sangat tinggi dalam waktu lama.',jawab:false,info:'Salah! Kekeringan justru terjadi karena curah hujan SANGAT RENDAH atau tidak ada hujan dalam waktu lama, sehingga terjadi kekurangan air.'},
+{id:7,lvl:'M',tipe:'pg',q:'Membuang puntung rokok yang masih menyala di lahan kering dapat berakibat…',opts:['Tanah menjadi lebih subur','Tumbuhan tumbuh lebih cepat','Kebakaran lahan atau hutan','Banjir di sekitar area'],jawab:2,info:'Bara rokok yang masih menyala bisa membakar material kering seperti daun dan rumput, sehingga memicu kebakaran lahan atau hutan.'},
+{id:8,lvl:'M',tipe:'bs',q:'Kulit mangga dan sisa sayuran termasuk sampah anorganik.',jawab:false,info:'Kulit mangga dan sisa sayuran berasal dari tumbuhan (makhluk hidup) sehingga termasuk sampah ORGANIK yang mudah terurai secara alami.'},
+{id:9,lvl:'M',tipe:'pg',q:'Jenis sampah yang butuh ratusan tahun untuk terurai di alam adalah…',opts:['Kulit pisang','Sisa nasi','Daun gugur','Botol plastik'],jawab:3,info:'Botol plastik terbuat dari bahan sintetis (polimer) yang tidak dapat diurai oleh bakteri pengurai, sehingga butuh ratusan tahun untuk terurai.'},
+{id:10,lvl:'M',tipe:'bs',q:'Kertas bekas termasuk sampah organik yang bisa didaur ulang.',jawab:true,info:'Kertas terbuat dari serat kayu (bahan organik) sehingga termasuk sampah organik. Kertas bisa didaur ulang menjadi produk kertas baru.'},
+{id:11,lvl:'M',tipe:'pg',q:'Cara mengurangi sampah plastik yang paling tepat saat berbelanja adalah…',opts:['Membakar plastik di halaman rumah','Mengubur plastik di dalam tanah','Membawa tas belanja sendiri dari kain','Membuang plastik di selokan'],jawab:2,info:'Membawa tas kain sendiri mengurangi kebutuhan kantong plastik sekali pakai, sehingga langsung mengurangi produksi sampah plastik.'},
+{id:12,lvl:'M',tipe:'bs',q:'Sampah organik basah seperti sisa makanan paling baik diolah melalui pengomposan.',jawab:true,info:'Pengomposan adalah proses penguraian sampah organik oleh bakteri yang menghasilkan pupuk kompos untuk menyuburkan tanah.'},
+{id:13,lvl:'M',tipe:'pg',q:'Warna tempat sampah untuk bahan berbahaya seperti baterai bekas dan obat kadaluarsa adalah…',opts:['Hijau','Biru','Kuning','Merah'],jawab:3,info:'Tempat sampah merah digunakan untuk menampung bahan berbahaya dan beracun (B3) seperti baterai, obat kadaluarsa, dan lampu merkuri.'},
+{id:14,lvl:'M',tipe:'bs',q:'Membuang minyak jelantah ke selokan adalah cara yang benar untuk membuang minyak goreng bekas.',jawab:false,info:'Minyak jelantah yang dibuang ke selokan akan membekukan sisa minyak di pipa, menyumbat aliran air, dan mencemari tanah serta air tanah.'},
+{id:15,lvl:'M',tipe:'pg',q:'Reboisasi adalah kegiatan…',opts:['Menebang pohon tua di hutan','Menanam kembali pohon di hutan gundul','Membakar hutan untuk membuka lahan','Menambang mineral di dalam hutan'],jawab:1,info:'Reboisasi berarti menanam kembali pohon-pohon di hutan yang sudah gundul atau rusak akibat penebangan ataupun kebakaran.'},
+{id:16,lvl:'M',tipe:'bs',q:'Tebang pilih berarti hanya menebang pohon yang sudah tua atau besar saja, sehingga hutan tetap terjaga.',jawab:true,info:'Tebang pilih menjaga keseimbangan hutan karena pohon muda dibiarkan tumbuh dewasa, sementara hanya pohon yang sudah tua dan siap panen yang ditebang.'},
+{id:17,lvl:'M',tipe:'pg',q:'Sampah di sungai yang tidak dibersihkan akan berdampak langsung pada…',opts:['Tanah menjadi semakin subur','Air sungai tercemar dan ikan-ikan mati','Udara di sekitar menjadi lebih segar','Hujan menjadi lebih sering turun'],jawab:1,info:'Sampah di sungai mengandung zat kimia berbahaya yang mencemari air, meracuni ikan, dan merusak ekosistem sungai.'},
+{id:18,lvl:'M',tipe:'bs',q:'Styrofoam dan karet sintetis termasuk sampah anorganik yang sulit terurai.',jawab:true,info:'Styrofoam dan karet sintetis terbuat dari bahan polimer buatan manusia yang tidak dapat diurai oleh bakteri alami, sehingga sulit terurai.'},
+{id:19,lvl:'M',tipe:'pg',q:'Di antara pilihan berikut, manakah yang termasuk sampah organik?',opts:['Kaleng susu','Botol kaca','Kulit telur','Kantong plastik'],jawab:2,info:'Kulit telur berasal dari hewan (makhluk hidup) dan dapat terurai secara alami, sehingga termasuk sampah organik.'},
+{id:20,lvl:'M',tipe:'bs',q:'Mencampur semua jenis sampah dalam satu tempat adalah cara pengelolaan sampah yang baik.',jawab:false,info:'Sampah harus DIPILAH karena organik dan anorganik memiliki proses pengolahan yang berbeda. Mencampur keduanya mempersulit pengolahan dan daur ulang.'},
+{id:21,lvl:'M',tipe:'pg',q:'Kegiatan gotong royong membersihkan selokan termasuk jenis interaksi…',opts:['Manusia dengan ekonomi','Manusia dengan alam saja','Manusia dengan manusia','Manusia dengan teknologi'],jawab:2,info:'Gotong royong adalah kerja sama antar manusia, sehingga termasuk interaksi manusia dengan manusia (interaksi sosial).'},
+{id:22,lvl:'M',tipe:'bs',q:'Membuang limbah pabrik ke sungai merupakan contoh interaksi positif antara manusia dan lingkungan.',jawab:false,info:'Membuang limbah ke sungai MERUSAK ekosistem air dan mencemari lingkungan, sehingga ini adalah interaksi NEGATIF, bukan positif.'},
+{id:23,lvl:'M',tipe:'pg',q:'Salah satu dampak negatif secara ekonomi akibat pencemaran sungai adalah…',opts:['Nelayan mendapat lebih banyak ikan','Harga ikan di pasar menjadi murah','Nelayan kehilangan penghasilan karena ikan mati','Pariwisata pantai menjadi ramai'],jawab:2,info:'Sungai yang tercemar menyebabkan ikan mati, sehingga nelayan tidak mendapat tangkapan dan kehilangan sumber penghasilan.'},
+{id:24,lvl:'M',tipe:'bs',q:'Membersihkan pantai dari sampah merupakan contoh interaksi positif antara manusia dan alam.',jawab:true,info:'Membersihkan pantai adalah tindakan manusia menjaga ekosistem pantai agar tetap sehat, sehingga termasuk interaksi positif dengan alam.'},
+{id:25,lvl:'M',tipe:'pg',q:'Yang dimaksud dengan dampak sosial dari kerusakan lingkungan adalah…',opts:['Petani gagal panen karena banjir','Nelayan rugi karena ikan mati','Warga terpaksa mengungsi dari rumahnya','Harga bahan makanan meningkat'],jawab:2,info:'Dampak sosial berkaitan dengan kehidupan bermasyarakat. Warga mengungsi dari rumah adalah dampak pada kehidupan sosial, bukan pada penghasilan/ekonomi.'},
+{id:26,lvl:'M',tipe:'pg',q:'Fungsi legenda pada peta adalah…',opts:['Menunjukkan nama ibu kota negara','Menjelaskan arti simbol dan warna yang digunakan','Menunjukkan skala perbandingan peta','Menentukan batas negara'],jawab:1,info:'Legenda adalah keterangan yang menjelaskan makna simbol-simbol dan warna yang digunakan dalam peta agar pembaca dapat memahami informasinya.'},
+{id:27,lvl:'M',tipe:'bs',q:'Simbol segitiga (▲) pada peta digunakan untuk menggambarkan gunung.',jawab:true,info:'Benar! Simbol segitiga adalah konvensi umum dalam kartografi untuk menandai lokasi gunung atau puncak pegunungan.'},
+{id:28,lvl:'M',tipe:'pg',q:'Indonesia terletak di antara dua samudra, yaitu…',opts:['Samudra Atlantik dan Pasifik','Samudra Hindia dan Arktik','Samudra Hindia dan Pasifik','Samudra Pasifik dan Atlantik'],jawab:2,info:'Indonesia diapit oleh Samudra Hindia di sebelah barat dan selatan, serta Samudra Pasifik di sebelah timur dan utara.'},
+{id:29,lvl:'M',tipe:'bs',q:'Papua Nugini terletak di sebelah barat wilayah Indonesia.',jawab:false,info:'Papua Nugini berbatasan langsung dengan Indonesia di sebelah TIMUR, tepatnya berbagi batas darat dengan Provinsi Papua.'},
+{id:30,lvl:'M',tipe:'pg',q:'Negara yang berbatasan langsung dengan Indonesia di sebelah utara adalah…',opts:['Australia','Timor Leste','Filipina','Papua Nugini'],jawab:2,info:'Filipina terletak di sebelah utara kepulauan Indonesia, di utara Laut Sulawesi dan Laut Filipina.'},
+{id:31,lvl:'M',tipe:'bs',q:'Australia terletak di sebelah selatan wilayah Indonesia.',jawab:true,info:'Benar! Australia berbatasan dengan Indonesia di sebelah selatan, dipisahkan oleh Laut Timor, Laut Arafura, dan Selat Torres.'},
+{id:32,lvl:'M',tipe:'pg',q:'Jarum kompas selalu menunjuk ke arah utara karena…',opts:['Angin bertiup dari arah utara','Cahaya matahari dari timur mempengaruhi jarum','Tertarik oleh medan magnet bumi di kutub utara','Gravitasi bumi lebih kuat di utara'],jawab:2,info:'Jarum kompas terbuat dari logam magnetis yang selalu tertarik ke arah kutub utara magnet bumi, sehingga selalu menunjuk ke utara.'},
+{id:33,lvl:'M',tipe:'bs',q:'Pada peta, warna biru digunakan untuk menggambarkan wilayah perairan seperti danau dan laut.',jawab:true,info:'Warna biru adalah konvensi kartografi universal untuk menggambarkan wilayah perairan, termasuk laut, danau, dan sungai.'},
+{id:34,lvl:'M',tipe:'pg',q:'Ciri utama dari negara agraris adalah…',opts:['Sebagian besar penduduknya adalah nelayan','Mayoritas penduduknya bekerja sebagai petani','Wilayah perairannya lebih luas dari daratan','Tidak memiliki lahan pertanian sama sekali'],jawab:1,info:'Negara agraris dicirikan oleh mayoritas penduduk yang bermata pencaharian sebagai petani dan mengandalkan sektor pertanian.'},
+{id:35,lvl:'M',tipe:'bs',q:'Indonesia hanya bisa disebut sebagai negara maritim saja, bukan negara agraris.',jawab:false,info:'Indonesia disebut negara AGRARIS SEKALIGUS MARITIM karena memiliki lahan pertanian yang luas DAN wilayah laut yang sangat besar dengan banyak nelayan.'},
+{id:36,lvl:'M',tipe:'pg',q:'Produk yang merupakan hasil dari negara agraris adalah…',opts:['Kapal tanker dan perahu nelayan','Ikan, udang, dan cumi-cumi','Padi, kopi, sayuran, dan ternak','Minyak bumi dan gas alam'],jawab:2,info:'Padi, kopi, sayuran, dan hasil ternak adalah produk pertanian yang menjadi ciri khas negara agraris.'},
+{id:37,lvl:'M',tipe:'bs',q:'Negara maritim memiliki wilayah perairan yang lebih luas daripada daratannya.',jawab:true,info:'Benar! Negara maritim seperti Indonesia memiliki sekitar 2/3 wilayahnya berupa lautan, sehingga perairan lebih luas dari daratan.'},
+{id:38,lvl:'M',tipe:'pg',q:'Batas wilayah Indonesia di sebelah barat adalah…',opts:['Samudra Pasifik','Papua Nugini','Australia','Samudra Hindia'],jawab:3,info:'Di sebelah barat, Indonesia berbatasan dengan Samudra Hindia yang membentang luas dari India hingga Afrika.'},
+{id:39,lvl:'M',tipe:'bs',q:'Singapura terletak di sebelah utara Indonesia.',jawab:true,info:'Benar! Singapura terletak di sebelah utara kepulauan Riau, Indonesia, dan merupakan salah satu negara yang berbatasan dengan Indonesia di sebelah utara.'},
+{id:40,lvl:'M',tipe:'pg',q:'Arah Tenggara (TG) pada kompas berada di antara arah…',opts:['Utara dan Timur','Selatan dan Barat','Selatan dan Timur','Utara dan Barat'],jawab:2,info:'Tenggara (TG) adalah arah antara yang berada di antara Selatan dan Timur, sehingga posisinya di sudut kanan bawah diagram mata angin.'},
+{id:41,lvl:'M',tipe:'bs',q:'Simbol peta berfungsi memudahkan pembaca dalam memahami informasi geografis di peta.',jawab:true,info:'Benar! Simbol mewakili objek nyata dengan gambar yang ringkas dan mudah dipahami, sehingga pembaca tidak perlu membaca keterangan panjang.'},
+{id:42,lvl:'M',tipe:'pg',q:'Upaya menjaga kelestarian wilayah maritim yang paling tepat adalah…',opts:['Membuang jaring bekas ke laut','Menangkap ikan sebanyak-banyaknya setiap hari','Menjaga terumbu karang dari kerusakan','Membangun pabrik besar di pinggir pantai'],jawab:2,info:'Terumbu karang adalah ekosistem paling kaya di laut dan menjadi habitat ribuan spesies ikan. Menjaganya berarti menjaga ketahanan sumber daya laut.'},
+{id:43,lvl:'M',tipe:'bs',q:'Mencegah alih fungsi lahan pertanian menjadi kawasan perumahan merupakan upaya menjaga kelestarian wilayah agraris.',jawab:true,info:'Alih fungsi lahan pertanian mengurangi luas lahan tanam dan mengancam produksi pangan. Mencegahnya adalah upaya menjaga ketahanan pangan nasional.'},
+{id:44,lvl:'M',tipe:'pg',q:'Timor Leste berbatasan langsung dengan Indonesia di sebelah…',opts:['Utara','Timur','Barat','Selatan'],jawab:3,info:'Timor Leste berbatasan darat langsung dengan Provinsi Nusa Tenggara Timur (NTT) Indonesia di bagian selatan kepulauan Indonesia.'},
+{id:45,lvl:'M',tipe:'bs',q:'Penggunaan pupuk kimia secara berlebihan dapat merusak kesuburan tanah pertanian.',jawab:true,info:'Pupuk kimia berlebihan merusak struktur tanah, membunuh mikroorganisme tanah yang bermanfaat, dan mencemari air tanah di sekitar lahan pertanian.'},
+{id:46,lvl:'M',tipe:'pg',q:'Manakah yang termasuk interaksi negatif manusia dengan alam?',opts:['Membuat sumur resapan air hujan','Menanam mangrove di tepi pantai','Menangkap ikan menggunakan bom ikan','Melakukan pertanian organik'],jawab:2,info:'Menangkap ikan dengan bom merusak terumbu karang, membunuh semua jenis biota laut, dan menghancurkan ekosistem laut secara permanen.'},
+{id:47,lvl:'M',tipe:'bs',q:'Skala pada peta adalah perbandingan antara jarak di peta dengan jarak sebenarnya di lapangan.',jawab:true,info:'Benar! Skala menyatakan berapa kali jarak di lapangan lebih besar dari jarak yang sama yang digambarkan di peta.'},
+{id:48,lvl:'M',tipe:'pg',q:'Kandungan apa dalam abu vulkanik yang membuat tanah di sekitar gunung menjadi subur?',opts:['Gas beracun CO₂','Mineral seperti kalium dan fosfor','Batu-batuan keras','Pasir dan kerikil kasar'],jawab:1,info:'Abu vulkanik kaya akan mineral seperti kalium, fosfor, kalsium, dan magnesium yang dibutuhkan tanaman untuk tumbuh subur.'},
+{id:49,lvl:'M',tipe:'bs',q:'Membuat terasering di lereng bukit merupakan upaya mengurangi risiko longsor dan erosi tanah.',jawab:true,info:'Terasering membuat lereng berbentuk tangga sehingga aliran air hujan melambat, erosi berkurang, dan tanah tidak mudah longsor.'},
+{id:50,lvl:'M',tipe:'pg',q:'Pada peta, simbol bintang (★) biasanya digunakan untuk menandai…',opts:['Lokasi gunung berapi','Ibu kota provinsi atau negara','Lokasi danau','Pusat perbelanjaan'],jawab:1,info:'Simbol bintang (★) adalah konvensi kartografi untuk menandai ibu kota, baik ibu kota negara, provinsi, maupun kabupaten/kota.'},
+
+// ══ SEDANG (30) ══
+{id:51,lvl:'S',tipe:'pg',q:'Perhatikan daftar berikut: (1) kulit pisang (2) botol plastik (3) ampas kopi (4) kaleng minuman (5) daun kering. Yang termasuk sampah ORGANIK adalah…',opts:['1, 2, dan 3','1, 3, dan 5','2, 4, dan 5','2, 3, dan 4'],jawab:1,info:'Kulit pisang (1), ampas kopi (3), dan daun kering (5) berasal dari tumbuhan sehingga organik. Botol plastik (2) dan kaleng (4) adalah anorganik buatan manusia.'},
+{id:52,lvl:'S',tipe:'bs',q:'Pembakaran hutan untuk membuka lahan pertanian BUKAN cara yang tepat untuk mengatasi dampak penebangan hutan.',jawab:true,info:'Membakar hutan justru memperparah kerusakan: menghilangkan lebih banyak pohon, mencemari udara dengan asap, dan mempercepat pemanasan global.'},
+{id:53,lvl:'S',tipe:'pg',q:'Banjir dan tanah longsor yang terjadi secara bersamaan di suatu daerah berbukit paling mungkin disebabkan oleh…',opts:['Gempa bumi yang sangat kuat','Tsunami dari laut','Penebangan hutan liar di lereng bukit','Penggunaan pupuk kimia berlebihan'],jawab:2,info:'Penebangan hutan liar menghilangkan pohon-pohon yang mengikat tanah dan menyerap air, sehingga saat hujan deras, air langsung mengalir dan tanah mudah longsor.'},
+{id:54,lvl:'S',tipe:'bs',q:'Upaya reboisasi, penerapan tebang pilih, dan larangan penebangan liar saling melengkapi dalam menjaga kelestarian hutan.',jawab:true,info:'Ketiganya bekerja bersama: larangan penebangan liar mencegah kerusakan baru, tebang pilih menjaga keseimbangan, dan reboisasi memulihkan hutan yang sudah rusak.'},
+{id:55,lvl:'S',tipe:'pg',q:'Manakah kegiatan yang BUKAN merupakan penyebab pencemaran lingkungan?',opts:['Membuang sampah di selokan','Membersihkan sungai bersama warga','Membuang limbah pabrik ke sungai','Membakar sampah plastik di halaman'],jawab:1,info:'Membersihkan sungai adalah upaya MENGATASI pencemaran, bukan menjadi penyebabnya. Tiga pilihan lainnya jelas merusak lingkungan.'},
+{id:56,lvl:'S',tipe:'bs',q:'Kerja bakti membersihkan lingkungan merupakan interaksi manusia dengan manusia yang sekaligus berdampak positif bagi alam.',jawab:true,info:'Kerja bakti melibatkan gotong royong antar sesama manusia (interaksi sosial) dan hasilnya menjaga kebersihan alam (dampak positif bagi lingkungan).'},
+{id:57,lvl:'S',tipe:'pg',q:'Nelayan di Desa Pantai Muara mengeluh hasil tangkapannya berkurang drastis sejak pabrik di hulu sungai mulai beroperasi. Ini merupakan contoh dampak…',opts:['Positif ekonomi dari pembangunan','Negatif ekonomi dari pencemaran lingkungan','Positif sosial dari industrialisasi','Negatif alam yang tidak bisa dihindari'],jawab:1,info:'Limbah pabrik mencemari sungai dan laut, menyebabkan ikan mati. Nelayan kehilangan sumber penghasilan — ini dampak negatif EKONOMI dari kerusakan lingkungan.'},
+{id:58,lvl:'S',tipe:'bs',q:'"Manusia dan ekonomi" adalah salah satu jenis interaksi yang berlaku dalam kehidupan bermasyarakat menurut ilmu pengetahuan.',jawab:false,info:'Salah! Jenis interaksi yang diakui adalah: manusia–manusia, manusia–alam, dan manusia–lingkungan. "Manusia dan ekonomi" bukan jenis interaksi yang ada.'},
+{id:59,lvl:'S',tipe:'pg',q:'Hutan wisata alam yang dikelola dengan baik dapat memberikan dampak positif berupa…',opts:['Hutan menjadi lebih gersang dan tandus','Masyarakat sekitar mendapat penghasilan dari wisatawan','Pohon-pohon di hutan semakin berkurang','Biaya hidup masyarakat sekitar meningkat drastis'],jawab:1,info:'Ekowisata yang dikelola baik menghasilkan pendapatan bagi masyarakat melalui tiket, akomodasi, dan penjualan oleh-oleh, sekaligus menjaga kelestarian hutan.'},
+{id:60,lvl:'S',tipe:'bs',q:'Pada diagram arah mata angin berbentuk tanda (+), huruf yang ada di sebelah kiri menunjukkan arah Barat.',jawab:true,info:'Pada orientasi peta standar: kiri = Barat (West). Ini adalah konvensi yang sama di seluruh dunia dalam pembuatan peta.'},
+{id:61,lvl:'S',tipe:'pg',q:'Berdasarkan peta dengan skala 1:65.000, jika jarak antara dua desa di peta adalah 3 cm, maka jarak sebenarnya adalah…',opts:['1,3 km','1,95 km','3,25 km','6,5 km'],jawab:1,info:'Jarak sebenarnya = 3 cm × 65.000 = 195.000 cm = 1.950 m = 1,95 km.'},
+{id:62,lvl:'S',tipe:'bs',q:'Skala 1:500.000 berarti 1 cm di peta mewakili 5 km di lapangan.',jawab:true,info:'1 cm × 500.000 = 500.000 cm = 5.000 m = 5 km. Jadi 1 cm di peta mewakili jarak 5 km yang sebenarnya.'},
+{id:63,lvl:'S',tipe:'pg',q:'Pada gambar arah mata angin, jika huruf B berada di sebelah kanan, maka B menunjukkan arah…',opts:['Utara','Selatan','Timur','Barat'],jawab:2,info:'Pada diagram mata angin standar, posisi kanan menunjukkan arah Timur (East). Ini berlaku universal dalam semua peta.'},
+{id:64,lvl:'S',tipe:'bs',q:'Simbol pada peta berfungsi mempersulit pembaca dalam memahami informasi geografis.',jawab:false,info:'Salah! Simbol justru MEMUDAHKAN pembaca karena objek yang kompleks dapat digambarkan dengan tanda yang sederhana dan mudah dikenali.'},
+{id:65,lvl:'S',tipe:'pg',q:'Perhatikan: (1) Malaysia & Filipina di utara (2) Australia & Timor Leste di selatan (3) Papua Nugini di timur (4) Samudra Hindia di barat. Batas wilayah Indonesia yang BENAR adalah…',opts:['Hanya 1 dan 2 yang benar','Hanya 3 dan 4 yang benar','Semua (1, 2, 3, 4) benar','Hanya 1 dan 3 yang benar'],jawab:2,info:'Semua batas tersebut benar! Utara: Malaysia, Singapura, Filipina | Selatan: Australia, Timor Leste, Samudra Hindia | Timur: Papua Nugini, Samudra Pasifik | Barat: Samudra Hindia.'},
+{id:66,lvl:'S',tipe:'bs',q:'Samudra Pasifik berbatasan dengan Indonesia di sebelah timur dan utara.',jawab:true,info:'Benar! Samudra Pasifik yang luas berbatasan dengan kepulauan Indonesia di bagian timur (Papua) dan utara (Maluku Utara dan Sulawesi Utara).'},
+{id:67,lvl:'S',tipe:'pg',q:'Perbedaan mendasar negara agraris dan negara maritim terletak pada…',opts:['Ukuran luas wilayahnya','Jumlah pulau yang dimiliki','Sumber daya alam dan mata pencaharian utama penduduknya','Banyaknya penduduk yang tinggal di kota'],jawab:2,info:'Negara agraris mengandalkan pertanian (petani, hasil bumi), sedangkan negara maritim mengandalkan sumber daya laut (nelayan, pelayaran, perikanan).'},
+{id:68,lvl:'S',tipe:'bs',q:'Indonesia disebut negara agraris karena banyak penduduknya yang bermata pencaharian sebagai petani dan memiliki lahan pertanian yang luas.',jawab:true,info:'Benar! Indonesia memiliki sektor pertanian yang besar dengan jutaan petani yang menghasilkan padi, palawija, kopi, rempah-rempah, dan berbagai hasil bumi lainnya.'},
+{id:69,lvl:'S',tipe:'pg',q:'Upaya yang TEPAT untuk menjaga kelestarian wilayah maritim Indonesia adalah…',opts:['Menambah armada kapal untuk menangkap lebih banyak ikan','Membuang sampah plastik ke laut agar terbawa arus','Melarang penangkapan ikan menggunakan bahan peledak','Membangun dermaga besar langsung di atas terumbu karang'],jawab:2,info:'Melarang penggunaan bahan peledak melindungi terumbu karang dari kerusakan fisik. Bom ikan menghancurkan ekosistem yang memerlukan puluhan tahun untuk pulih.'},
+{id:70,lvl:'S',tipe:'bs',q:'Alih fungsi lahan pertanian yang besar-besaran dapat mengancam ketahanan pangan suatu daerah.',jawab:true,info:'Semakin banyak sawah dan ladang yang berubah menjadi perumahan atau industri, semakin sedikit lahan untuk bercocok tanam, sehingga produksi pangan berkurang.'},
+{id:71,lvl:'S',tipe:'pg',q:'Kegiatan berikut yang termasuk upaya menjaga kelestarian AGRARIS adalah…',opts:['Tidak membuang sampah ke laut','Menjaga terumbu karang dari kerusakan','Membuat sistem irigasi yang baik untuk sawah','Melarang penggunaan jaring ikan yang merusak'],jawab:2,info:'Sistem irigasi yang baik menjamin ketersediaan air untuk sawah, sehingga pertanian tetap produktif dan lahan agraris terjaga.'},
+{id:72,lvl:'S',tipe:'bs',q:'Interaksi antara manusia dengan alam yang bersifat negatif dapat menyebabkan bencana alam dan kepunahan spesies.',jawab:true,info:'Tindakan manusia yang merusak alam seperti deforestasi, polusi, dan perburuan liar dapat memicu bencana (banjir, longsor) dan menyebabkan kepunahan hewan.'},
+{id:73,lvl:'S',tipe:'pg',q:'Ciri yang menunjukkan Indonesia sebagai negara MARITIM adalah…',opts:['Menghasilkan padi dan kopi dalam jumlah besar','Sebagian besar wilayahnya berupa lautan dengan ribuan pulau','Mayoritas penduduknya bekerja di sektor industri','Memiliki banyak hutan hujan tropis'],jawab:1,info:'Wilayah Indonesia terdiri dari 17.000+ pulau dengan lautan yang sangat luas (sekitar 2/3 total wilayah), menjadikannya negara maritim terbesar di dunia.'},
+{id:74,lvl:'S',tipe:'bs',q:'Pertanian organik yang tidak menggunakan pestisida kimia berlebihan merupakan upaya menjaga kelestarian wilayah agraris.',jawab:true,info:'Pertanian organik menjaga kesuburan tanah secara alami, tidak mencemari tanah dan air, serta menghasilkan produk yang lebih sehat bagi konsumen.'},
+{id:75,lvl:'S',tipe:'pg',q:'Dampak kerusakan lingkungan yang termasuk dampak SOSIAL adalah…',opts:['Petani tidak bisa menjual hasil panennya','Ikan di sungai mati terkena limbah','Siswa tidak bisa sekolah karena daerahnya kebanjiran','Harga beras naik akibat gagal panen'],jawab:2,info:'Dampak sosial berkaitan dengan kehidupan bermasyarakat. Siswa tidak bisa sekolah karena banjir adalah gangguan pada kehidupan sosial masyarakat.'},
+{id:76,lvl:'S',tipe:'bs',q:'Larangan menangkap ikan di zona konservasi laut adalah upaya menjaga keseimbangan ekosistem laut.',jawab:true,info:'Zona konservasi memberi kesempatan populasi ikan untuk berkembang biak dengan aman, sehingga stok ikan terjaga untuk generasi mendatang.'},
+{id:77,lvl:'S',tipe:'pg',q:'Mengapa sampah organik dan anorganik harus dipisahkan sebelum diolah?',opts:['Agar truk sampah tidak kelebihan muatan','Karena keduanya memiliki proses pengolahan yang berbeda','Karena pemerintah mewajibkan dalam undang-undang','Agar tempat pembuangan sampah terlihat rapi'],jawab:1,info:'Organik diolah dengan pengomposan atau biogas, sedangkan anorganik dengan daur ulang sesuai jenis. Pencampuran membuat kedua proses pengolahan menjadi sulit dan tidak efisien.'},
+{id:78,lvl:'S',tipe:'bs',q:'Penggunaan ulang (reuse) botol minum yang masih layak pakai adalah penerapan konsep 3R.',jawab:true,info:'Reuse (pakai ulang) adalah salah satu dari 3R (Reduce, Reuse, Recycle). Memakai kembali botol yang masih baik mengurangi produksi sampah plastik baru.'},
+{id:79,lvl:'S',tipe:'pg',q:'Mengapa tebang pilih lebih baik dibandingkan tebang habis dalam pengelolaan hutan?',opts:['Karena tebang pilih lebih cepat dan menguntungkan','Karena tebang pilih menjaga keseimbangan hutan dengan membiarkan pohon muda tumbuh','Karena semua pohon harus ditebang untuk produktivitas maksimal','Karena pohon muda tidak bernilai ekonomis'],jawab:1,info:'Tebang pilih mempertahankan struktur dan keseimbangan hutan karena hanya pohon tua yang ditebang, sedangkan pohon muda terus tumbuh dan menjaga fungsi hutan.'},
+{id:80,lvl:'S',tipe:'bs',q:'Nilai kebersamaan dan kekeluargaan dapat tumbuh melalui kegiatan gotong royong antar warga.',jawab:true,info:'Gotong royong adalah bentuk interaksi sosial yang mempererat hubungan antar manusia dan menumbuhkan nilai-nilai positif seperti kebersamaan, kepedulian, dan kekeluargaan.'},
+
+// ══ SULIT (20) ══
+{id:81,lvl:'K',tipe:'pg',q:'Perhatikan kegiatan: (1) membuang sampah di sungai (2) reboisasi (3) membakar lahan (4) membersihkan pantai (5) menebang pohon sembarangan. Kombinasi yang SEMUANYA merupakan interaksi POSITIF manusia dengan alam adalah…',opts:['1 dan 3','2 dan 4','3 dan 5','1 dan 5'],jawab:1,info:'Reboisasi (2) memulihkan hutan dan membersihkan pantai (4) menjaga ekosistem laut — keduanya interaksi positif. Nomor 1, 3, dan 5 jelas merupakan interaksi negatif yang merusak.'},
+{id:82,lvl:'K',tipe:'bs',q:'Jika banjir dan kabut asap terjadi bersamaan di suatu wilayah, kemungkinan besar penyebabnya adalah penebangan dan pembakaran hutan secara bersamaan.',jawab:true,info:'Penebangan hutan menyebabkan banjir (tidak ada penyerapan air), sedangkan pembakaran lahan menghasilkan kabut asap. Bila keduanya terjadi bersamaan, kedua bencana ini bisa muncul sekaligus.'},
+{id:83,lvl:'K',tipe:'pg',q:'Peta Provinsi Jawa Barat menggunakan skala 1:500.000. Jika jarak antara dua kota di peta adalah 6 cm, berapa jarak sebenarnya?',opts:['3 km','30 km','300 km','3.000 km'],jawab:1,info:'Jarak sebenarnya = 6 cm × 500.000 = 3.000.000 cm = 30.000 m = 30 km.'},
+{id:84,lvl:'K',tipe:'bs',q:'Pada peta berskala 1:250.000, jarak 8 cm di peta sama dengan 20 km di lapangan.',jawab:true,info:'8 cm × 250.000 = 2.000.000 cm = 20.000 m = 20 km. Benar!'},
+{id:85,lvl:'K',tipe:'pg',q:'Pernyataan yang BENAR tentang batas wilayah Indonesia adalah…',opts:['Timor Leste berada di sebelah timur laut Indonesia','Samudra Pasifik berada di sebelah barat dan selatan Indonesia','Malaysia berbatasan langsung dengan Indonesia di sebelah utara','Papua Nugini terletak di sebelah barat daya Indonesia'],jawab:2,info:'Malaysia berbatasan langsung di sebelah utara, berbagi perbatasan darat di Kalimantan. Samudra Pasifik di timur-utara. Timor Leste di selatan. Papua Nugini di timur.'},
+{id:86,lvl:'K',tipe:'bs',q:'Skala 1:1.000.000 menggambarkan wilayah yang lebih luas namun dengan detail yang lebih sedikit dibanding skala 1:65.000.',jawab:true,info:'Semakin besar angka skala (seperti 1:1.000.000), semakin luas wilayah yang digambarkan namun semakin sedikit detailnya. Skala kecil (1:65.000) lebih detail tapi wilayahnya lebih sempit.'},
+{id:87,lvl:'K',tipe:'pg',q:'Desa Sukamaju memiliki peta dengan skala 1:65.000. Jarak antara dua titik di peta adalah 4 cm. Berapakah jarak sebenarnya di lapangan?',opts:['2,6 km','26 km','260 m','2.600 m'],jawab:0,info:'Jarak sebenarnya = 4 cm × 65.000 = 260.000 cm = 2.600 m = 2,6 km.'},
+{id:88,lvl:'K',tipe:'bs',q:'Mengapa Indonesia disebut negara agraris sekaligus maritim? Karena Indonesia memiliki lahan pertanian yang sangat luas DAN wilayah laut yang sangat besar.',jawab:true,info:'Indonesia memiliki jutaan hektar lahan pertanian (agraris) dan sekitar 5,8 juta km² wilayah laut dengan 17.000+ pulau (maritim), sehingga layak disebut keduanya.'},
+{id:89,lvl:'K',tipe:'pg',q:'Perhatikan: (1) membuang sampah sembarangan (2) membangun sumur resapan (3) limbah pabrik ke sungai (4) reboisasi. Yang merupakan PENYEBAB permasalahan lingkungan adalah…',opts:['1 dan 2','2 dan 4','1 dan 3','3 dan 4'],jawab:2,info:'Nomor 1 (buang sampah sembarangan) dan 3 (limbah pabrik ke sungai) adalah PENYEBAB masalah lingkungan. Nomor 2 dan 4 adalah SOLUSI untuk mengatasi masalah lingkungan.'},
+{id:90,lvl:'K',tipe:'bs',q:'Ekowisata berbasis alam yang dikelola dengan baik dapat memberikan dampak ekonomi positif sekaligus mendorong pelestarian lingkungan.',jawab:true,info:'Ekowisata menghasilkan pendapatan bagi masyarakat lokal sambil menciptakan insentif untuk menjaga alam, karena alam yang rusak tidak lagi menarik wisatawan.'},
+{id:91,lvl:'K',tipe:'pg',q:'Suatu kawasan pesisir mengalami abrasi parah. Cara paling tepat untuk mengatasi abrasi tersebut adalah…',opts:['Menambang pasir pantai untuk bangunan','Menanam hutan mangrove di sepanjang pantai','Membuang sampah di pantai agar menjadi pelindung','Menangkap ikan lebih banyak di sekitar pantai'],jawab:1,info:'Hutan mangrove memiliki akar napas yang kuat dan berfungsi sebagai pemecah gelombang alami, sehingga efektif mengurangi abrasi di kawasan pesisir.'},
+{id:92,lvl:'K',tipe:'bs',q:'Dampak pencemaran sungai oleh limbah pabrik yang berujung pada kematian ikan merupakan contoh dampak negatif ekonomi bagi nelayan.',jawab:true,info:'Kematian ikan akibat pencemaran langsung mengurangi hasil tangkapan nelayan dan berdampak pada penghasilan mereka — ini adalah dampak negatif EKONOMI dari kerusakan lingkungan.'},
+{id:93,lvl:'K',tipe:'pg',q:'Sebuah kawasan yang sebelumnya sawah luas dialihfungsikan menjadi kompleks industri besar. Dampak jangka panjang yang paling mungkin terjadi adalah…',opts:['Produksi padi daerah tersebut meningkat','Nelayan setempat mendapat lebih banyak ikan','Ketahanan pangan masyarakat setempat terancam','Hutan di sekitarnya menjadi lebih lebat'],jawab:2,info:'Berkurangnya lahan sawah akibat alih fungsi lahan mengurangi produksi padi secara langsung, sehingga ketahanan pangan masyarakat setempat terancam.'},
+{id:94,lvl:'K',tipe:'bs',q:'Simbol jembatan pada peta digambarkan berbeda dengan simbol danau karena keduanya mewakili objek yang berbeda jenis.',jawab:true,info:'Setiap jenis objek geografis memiliki simbol yang unik agar pembaca bisa membedakannya dengan mudah tanpa perlu membaca keterangan panjang.'},
+{id:95,lvl:'K',tipe:'pg',q:'Mengapa minyak jelantah TIDAK BOLEH dibuang ke selokan?',opts:['Karena warnanya kotor dan tidak menarik','Karena minyak akan menyumbat pipa dan mencemari tanah serta air tanah','Karena baunya mengganggu warga sekitar','Karena pemerintah melarang dalam aturan kebersihan'],jawab:1,info:'Minyak jelantah membekukan sisa lemak di dinding pipa yang akhirnya menyumbat aliran. Selain itu, minyak meresap ke tanah dan mencemari air tanah yang digunakan warga.'},
+{id:96,lvl:'K',tipe:'bs',q:'Interaksi manusia dengan alam yang positif dapat mencegah bencana dan menjaga keberlanjutan sumber daya alam untuk generasi mendatang.',jawab:true,info:'Ketika manusia menjaga alam dengan baik, alam memberikan manfaat yang berkelanjutan dan risiko bencana berkurang, sehingga sumber daya tetap tersedia untuk generasi berikutnya.'},
+{id:97,lvl:'K',tipe:'pg',q:'Mengapa pemilahan sampah organik dan anorganik sangat penting dalam sistem pengelolaan sampah modern?',opts:['Agar sampah terlihat lebih rapi dan berwarna','Karena organik diolah dengan kompos/biogas dan anorganik dengan daur ulang yang prosesnya berbeda','Karena aturan pemerintah mewajibkan semua warga melakukannya','Agar kendaraan pengangkut sampah tidak kotor'],jawab:1,info:'Setiap jenis sampah membutuhkan metode pengolahan yang berbeda dan spesifik: organik → kompos/biogas; anorganik → daur ulang. Pencampuran membuat keduanya tidak bisa diolah secara optimal.'},
+{id:98,lvl:'K',tipe:'bs',q:'Semakin banyak pohon yang ditebang di suatu daerah, semakin berkurang kemampuan tanah menyerap air hujan, sehingga risiko banjir meningkat.',jawab:true,info:'Akar pohon menyerap air hujan dan meresapkannya ke dalam tanah. Tanpa pohon, air langsung mengalir di permukaan dengan deras, mengikis tanah, dan menyebabkan banjir bandang.'},
+{id:99,lvl:'K',tipe:'pg',q:'Sebuah wilayah kepulauan memiliki ciri: 2/3 wilayahnya berupa lautan, banyak nelayan, penghasil ikan dan rumput laut, NAMUN juga memiliki sawah luas dan perkebunan kopi produktif. Wilayah ini paling tepat digolongkan sebagai…',opts:['Hanya negara agraris saja','Hanya negara maritim saja','Negara agraris sekaligus maritim','Negara industri yang sedang berkembang'],jawab:2,info:'Ciri lautan luas + nelayan = maritim; ciri sawah + perkebunan kopi = agraris. Ketika keduanya ada dalam satu wilayah, maka disebut agraris sekaligus maritim, persis seperti Indonesia.'},
+{id:100,lvl:'K',tipe:'bs',q:'Nilai gotong royong yang muncul dari kegiatan kerja bakti membersihkan lingkungan mencerminkan interaksi positif antara manusia dengan sesama manusia sekaligus dengan alam.',jawab:true,info:'Kerja bakti menggabungkan dua dimensi positif: interaksi sosial antar manusia (gotong royong, kebersamaan) dan interaksi positif dengan alam (lingkungan menjadi bersih dan terjaga).'},
+];
+
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let namaSiswa = '';
+let soalAktif=[], cur=0, score=0, jawaban=[];
+let timerInterval=null, timerLeft=0;
+let hadiahDibuka = false;
+let hadiahResult = null;
+let drawsLeft = 1;
+let hadiahResults = [];
+let dataTerkirim = false;
+const TIMER_SEC = 45;
+
+// ═══════════════════════════════════════════
+//  NAMA
+// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  ADMIN PIN ENGINE
+// ═══════════════════════════════════════════
+const ADMIN_CODE = 'L4ZARUS';
+const ADMIN_PIN  = '123456';
+let pinBuffer = '';
+let adminMode  = false;
+
+function pinInput(digit){
+  if(pinBuffer.length >= 6) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if(pinBuffer.length === 6) setTimeout(checkPin, 150);
 }
 
-// ── PARTICLES ──
-const pw=document.getElementById('particles');
-const pc=['#7c4dff','#c040fb','#ffb700','#00e5ff','#22c55e'];
-for(let i=0;i<16;i++){
-  const el=document.createElement('div'); el.className='particle';
-  const s=3+Math.random()*5;
-  el.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${pc[Math.floor(Math.random()*pc.length)]};--dur:${6+Math.random()*8}s;--del:${Math.random()*8}s;`;
-  pw.appendChild(el);
+function pinDelete(){
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-err').style.display='none';
 }
 
-// ── GAME ──
-const NORMAL = ['🐱','🐶','🐰','🐹','🦊','🐸','🐝','🦜','🐛','🐌'];
-const RARE   = ['🦄','🐉','🦁','🐯','🦅'];
-const BOMB   = '💣';
-
-const grid = document.getElementById('grid');
-const scoreEl = document.getElementById('score-el');
-const comboEl = document.getElementById('combo-el');
-const missEl  = document.getElementById('miss-el');
-const speedBadge = document.getElementById('speed-badge');
-const comboFlash = document.getElementById('combo-flash');
-
-let score=0, combo=1, misses=0, totalHits=0;
-let comboTimer=null;
-
-// Build 9 holes
-const holes=[];
-for(let i=0;i<9;i++){
-  const hole=document.createElement('div');
-  hole.className='hole';
-  const inner=document.createElement('div');
-  inner.className='hole-inner';
-  const em=document.createElement('div');
-  em.className='hole-emoji';
-  inner.appendChild(em);
-  hole.appendChild(inner);
-  grid.appendChild(hole);
-  holes.push({el:hole,inner,em,active:false,timer:null,type:null});
+function updatePinDots(){
+  for(let i=0;i<6;i++){
+    const d = document.getElementById('pd'+i);
+    d.classList.toggle('filled', i < pinBuffer.length);
+    d.classList.remove('error');
+  }
 }
 
-function getSpeedMs(){
-  if(totalHits>=40) return 700;
-  if(totalHits>=25) return 900;
-  if(totalHits>=12) return 1100;
-  return 1400;
+function checkPin(){
+  if(pinBuffer === ADMIN_PIN){
+    // PIN benar → langsung skip ke gacha
+    adminMode = true;
+    document.getElementById('admin-pin-overlay').style.display='none';
+    document.getElementById('screen-nama').style.display='none';
+    document.getElementById('main-card').style.display='';
+    document.getElementById('pill-nama').textContent='👤 '+namaSiswa+' ⚡';
+    pinBuffer='';
+    updatePinDots();
+    // Set skor tinggi agar gacha bisa dapat rarity apapun
+    score = 30;
+    hadiahDibuka = false;
+    hadiahResult = null;
+    dataTerkirim = true; // skip kirim data
+    // Langsung buka gacha
+    setTimeout(()=>{
+      document.getElementById('gacha-overlay').classList.add('show');
+      resetGachaUI();
+    }, 300);
+  } else {
+    // PIN salah
+    for(let i=0;i<6;i++) document.getElementById('pd'+i).classList.add('error');
+    document.getElementById('pin-err').style.display='block';
+    pinBuffer='';
+    setTimeout(()=>{
+      updatePinDots();
+    }, 600);
+  }
 }
-function updateSpeedBadge(){
-  if(totalHits>=40){speedBadge.textContent='🚀 Turbo!';speedBadge.className='turbo';}
-  else if(totalHits>=25){speedBadge.textContent='⚡ Cepat!';speedBadge.className='fast';}
-  else if(totalHits>=12){speedBadge.textContent='🏃 Mulai Cepat';speedBadge.className='';}
-  else{speedBadge.textContent='🐢 Normal';speedBadge.className='';}
+
+function adminCancel(){
+  pinBuffer='';
+  updatePinDots();
+  document.getElementById('pin-err').style.display='none';
+  document.getElementById('admin-pin-overlay').style.display='none';
 }
 
-function popUp(hIdx){
-  const h=holes[hIdx];
-  if(h.active) return;
+function mulai(){
+  const val = document.getElementById('input-nama').value.trim();
+  if(!val){
+    document.getElementById('nama-err').style.display='block';
+    document.getElementById('input-nama').style.borderColor='#e11d48';
+    return;
+  }
+  // Cek kode admin
+  if(val.toUpperCase() === ADMIN_CODE){
+    namaSiswa = val;
+    pinBuffer = '';
+    updatePinDots();
+    document.getElementById('pin-err').style.display='none';
+    document.getElementById('admin-pin-overlay').style.display='flex';
+    return;
+  }
+  namaSiswa = val;
+  document.getElementById('screen-nama').style.display='none';
+  document.getElementById('main-card').style.display='';
+  document.getElementById('pill-nama').textContent='👤 '+namaSiswa;
+}
 
-  const isBomb = totalHits>=8 && Math.random()<0.12;
-  const isRare = !isBomb && Math.random()<0.1;
-  const emoji  = isBomb ? BOMB : isRare ? RARE[Math.floor(Math.random()*RARE.length)] : NORMAL[Math.floor(Math.random()*NORMAL.length)];
+// ═══════════════════════════════════════════
+//  QUIZ ENGINE
+// ═══════════════════════════════════════════
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function pick30(){
+  const m=shuffle(bank.filter(s=>s.lvl==='M')).slice(0,15);
+  const s=shuffle(bank.filter(s=>s.lvl==='S')).slice(0,9);
+  const k=shuffle(bank.filter(s=>s.lvl==='K')).slice(0,6);
+  return shuffle([...m,...s,...k]);
+}
+function shuffleOpts(s){
+  if(s.tipe!=='pg') return s;
+  const idx=[0,1,2,3];
+  const sh=shuffle(idx);
+  return {...s, opts:sh.map(i=>s.opts[i]), jawab:sh.indexOf(s.jawab)};
+}
+function nilaiAkhir(benar){ return Math.round((benar/30)*100); }
 
-  h.active=true; h.type=isBomb?'bomb':isRare?'rare':'normal';
-  h.em.textContent=emoji;
-  h.el.classList.add('up');
-  if(isRare) h.el.classList.add('rare');
-  if(isBomb) h.el.classList.add('bomb');
+const chipCls={M:'chip-M',S:'chip-S',K:'chip-K'};
+const chipLbl={M:'🟢 Mudah',S:'🟡 Sedang',K:'🔴 Sulit'};
 
-  const stayMs = getSpeedMs();
-  h.timer=setTimeout(()=>{
-    if(h.active){
-      // missed (only penalize if not bomb)
-      if(h.type!=='bomb'){
-        misses++;
-        missEl.textContent=misses;
-        resetCombo();
-        h.el.classList.add('miss');
-        setTimeout(()=>h.el.classList.remove('miss'),300);
+function startQuiz(){
+  soalAktif=pick30().map(shuffleOpts); cur=0; score=0; jawaban=Array(30).fill(null);
+  hadiahDibuka = false; hadiahResult = null; dataTerkirim = false;
+  renderSoal();
+}
+
+function renderSoal(){
+  const s=soalAktif[cur];
+  const pct=Math.round((cur/30)*100);
+  const prev=jawaban[cur];
+
+  let html=`
+    <div class="q-progress-wrap">
+      <div class="q-prog-top">
+        <span class="q-prog-num">Soal ${cur+1} / 30</span>
+        <span class="q-prog-score">📊 Nilai: <strong>${nilaiAkhir(score)}</strong></span>
+      </div>
+      <div class="q-prog-bar-bg"><div class="q-prog-bar" style="width:${pct}%"></div></div>
+    </div>
+    <div class="q-timer-wrap" id="timer-wrap">
+      <div class="q-timer-ring">
+        <svg viewBox="0 0 44 44" width="44" height="44">
+          <circle class="q-timer-track" cx="22" cy="22" r="18"/>
+          <circle class="q-timer-bar" id="timer-bar" cx="22" cy="22" r="18"/>
+        </svg>
+        <div class="q-timer-num" id="timer-num">${prev!==null?'✓':TIMER_SEC}</div>
+      </div>
+      <div class="q-timer-label">${prev!==null?'Sudah dijawab':'Waktu tersisa untuk menjawab'}</div>
+    </div>
+    <div class="q-card">
+      <span class="diff-chip ${chipCls[s.lvl]}">${chipLbl[s.lvl]}</span>
+      <div class="q-text">${s.q}</div>
+      <div class="q-opts" id="opts-wrap">`;
+
+  if(s.tipe==='pg'){
+    const keys=['A','B','C','D'];
+    s.opts.forEach((o,oi)=>{
+      let cls='';
+      if(prev!==null){
+        if(oi===prev){ if(prev===s.jawab) cls='correct'; else cls='wrong'; }
+        else cls='disabled';
       }
-      hideHole(hIdx);
+      html+=`<button class="q-opt ${cls}" id="opt-${oi}" onclick="jwbPG(${oi})" ${prev!==null?'disabled':''}>
+        <span class="okey">${keys[oi]}</span>${o}
+      </button>`;
+    });
+  } else {
+    const choices=[{val:true,lbl:'✓ Benar'},{val:false,lbl:'✗ Salah'}];
+    choices.forEach(c=>{
+      let cls='';
+      if(prev!==null){
+        if(c.val===prev){ if(prev===s.jawab) cls='correct'; else cls='wrong'; }
+        else cls='disabled';
+      }
+      html+=`<button class="q-opt ${cls}" id="opt-${c.val}" onclick="jwbBS(${c.val})" ${prev!==null?'disabled':''}>
+        <span class="okey">${c.val?'✓':'✗'}</span>${c.lbl}
+      </button>`;
+    });
+  }
+
+  html+=`</div>`;
+
+  if(prev!==null){
+    const ok = (s.tipe==='pg') ? prev===s.jawab : prev===s.jawab;
+    html+=`<div class="q-result show ${ok?'ok':'no'}">${ok?'✅ Jawaban Benar!':'❌ Jawaban Kurang Tepat'}</div>`;
+  }
+
+  html+=`<div class="q-nav">`;
+  if(cur===29){
+    html+=`<button class="q-btn q-btn-finish" onclick="showHasil()">Lihat Hasil 🎉</button>`;
+  } else {
+    html+=`<button class="q-btn q-btn-next" onclick="goSoal(1)" ${prev===null?'disabled':''}>Lanjut →</button>`;
+  }
+  html+=`</div></div>`;
+
+  document.getElementById('soal-body').innerHTML=html;
+  if(prev===null) startTimer(); else stopTimer();
+}
+
+function startTimer(){
+  stopTimer();
+  timerLeft = TIMER_SEC;
+  updateTimerUI();
+  timerInterval = setInterval(()=>{
+    timerLeft--;
+    updateTimerUI();
+    if(timerLeft<=0){
+      stopTimer();
+      timeUp();
     }
-  }, stayMs);
+  },1000);
+}
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+}
+function updateTimerUI(){
+  const numEl  = document.getElementById('timer-num');
+  const barEl  = document.getElementById('timer-bar');
+  const wrapEl = document.getElementById('timer-wrap');
+  if(!numEl||!barEl||!wrapEl) return;
+  const pct = timerLeft/TIMER_SEC;
+  const circ = 2*Math.PI*18;
+  barEl.style.strokeDashoffset = circ*(1-pct);
+  numEl.textContent = timerLeft;
+  wrapEl.className = 'q-timer-wrap' + (timerLeft<=10?' q-timer-urgent': timerLeft<=20?' q-timer-warn':'');
+}
+function timeUp(){
+  const numEl  = document.getElementById('timer-num');
+  const wrapEl = document.getElementById('timer-wrap');
+  const labelEl = wrapEl ? wrapEl.querySelector('.q-timer-label') : null;
+  if(numEl) numEl.textContent='⏰';
+  if(labelEl) labelEl.textContent='Waktu habis! Lanjut ke soal berikutnya...';
+  if(wrapEl) wrapEl.classList.add('q-timer-urgent');
+  document.querySelectorAll('.q-opt').forEach(el=>el.disabled=true);
+  setTimeout(()=>{
+    if(cur<29){ cur++; renderSoal(); }
+    else showHasil();
+  },1000);
+}
+function jwbPG(sel){
+  const s=soalAktif[cur];
+  if(jawaban[cur]!==null) return;
+  stopTimer();
+  jawaban[cur]=sel;
+  if(sel===s.jawab){ score++; playCorrectSound(); }
+  else{ playWrongSound(); }
+  renderSoal();
+}
+function jwbBS(sel){
+  const s=soalAktif[cur];
+  if(jawaban[cur]!==null) return;
+  stopTimer();
+  jawaban[cur]=sel;
+  if(sel===s.jawab){ score++; playCorrectSound(); }
+  else{ playWrongSound(); }
+  renderSoal();
+}
+function goSoal(dir){
+  stopTimer();
+  cur+=dir;
+  if(cur<0) cur=0;
+  if(cur>29) cur=29;
+  renderSoal();
+}
 
-  h.el.onclick=()=>{
-    if(!h.active) return;
-    clearTimeout(h.timer);
-    const cx=h.el.getBoundingClientRect().left+h.el.offsetWidth/2;
-    const cy=h.el.getBoundingClientRect().top+h.el.offsetHeight/2;
+// ═══════════════════════════════════════════
+//  HASIL + GACHA TRIGGER
+// ═══════════════════════════════════════════
+function showHasil(){
+  stopTimer();
+  const nilai=nilaiAkhir(score);
+  let emoji='😢', judul='Terus Semangat Belajar!', warna='#f43f5e';
+  if(nilai>=90){emoji='🏆';judul='Luar Biasa!';warna='#f59e0b';}
+  else if(nilai>=75){emoji='🎉';judul='Bagus Sekali!';warna='#22c55e';}
+  else if(nilai>=60){emoji='👍';judul='Cukup Baik!';warna='#0ea5e9';}
+  else if(nilai>=40){emoji='💪';judul='Masih Bisa Lebih Baik!';warna='#8b5cf6';}
 
-    if(h.type==='bomb'){
-      // hit bomb
-      resetCombo();
-      showFloat(cx,cy,'💥 BOM!','#f43f5e');
-      h.el.classList.add('miss');
-      setTimeout(()=>h.el.classList.remove('miss'),300);
+  const cntM=soalAktif.filter(s=>s.lvl==='M').length;
+  const cntS=soalAktif.filter(s=>s.lvl==='S').length;
+  const cntK=soalAktif.filter(s=>s.lvl==='K').length;
+  const scM=soalAktif.reduce((a,s,i)=>s.lvl==='M'&&jawaban[i]===s.jawab?a+1:a,0);
+  const scS=soalAktif.reduce((a,s,i)=>s.lvl==='S'&&jawaban[i]===s.jawab?a+1:a,0);
+  const scK=soalAktif.reduce((a,s,i)=>s.lvl==='K'&&jawaban[i]===s.jawab?a+1:a,0);
+
+  let html=`<div class="hasil-wrap">
+    <div class="hasil-emoji">${emoji}</div>
+    <div class="hasil-title" style="color:${warna}">${judul}</div>
+    <div class="hasil-sub">Hasil latihan <strong>${namaSiswa}</strong></div>
+    <div class="hasil-score-box">
+      <div class="hasil-score-num" style="color:${warna}">${nilai}</div>
+      <div class="hasil-score-label">Nilai Akhir (skala 0–100)</div>
+      <div style="font-size:.8rem;font-weight:600;color:var(--muted);margin-top:.3rem">${score} benar dari 30 soal</div>
+    </div>
+    <div class="hasil-breakdown">
+      <div class="hb-item">🟢 Mudah: ${scM}/${cntM}</div>
+      <div class="hb-item">🟡 Sedang: ${scS}/${cntS}</div>
+      <div class="hb-item">🔴 Sulit: ${scK}/${cntK}</div>
+    </div>`;
+
+  // Tombol hadiah jika nilai >= 90 dan belum dibuka
+  if(nilai >= 90 && !hadiahDibuka){
+    html += `<button class="q-btn q-btn-hadiah" onclick="bukaHadiah()" style="margin-bottom:.8rem;">🎁 ${score===30?'Buka 2 Hadiah Spesial! ⭐':'Buka Hadiah Spesial'}</button>`;
+  }
+
+  html += `<button class="btn-ulang" onclick="resetSemua()">🔀 Kerjakan Lagi</button>
+  </div>
+  <hr style="border:none;border-top:1.5px solid #f1f5f9;margin:1.4rem 0;">
+  <div class="pembahasan-title">📝 Pembahasan Lengkap</div>`;
+
+  soalAktif.forEach((s,i)=>{
+    const benar = jawaban[i]===s.jawab;
+    html+=`<div class="pb-item ${benar?'pb-ok':'pb-no'}">
+      <div class="pb-num">Soal ${i+1} · ${chipLbl[s.lvl]}</div>
+      <div class="pb-q">${s.q}</div>
+      <div class="pb-status">${benar?'✅ Kamu menjawab dengan benar':'❌ Kamu menjawab kurang tepat'}</div>
+      <div class="pb-info">${s.info}</div>
+    </div>`;
+  });
+
+  document.getElementById('soal-body').innerHTML=html;
+  document.getElementById('soal-modal-title').textContent='Hasil & Pembahasan';
+
+  // Kirim data ke spreadsheet (hanya 1 kali)
+  if(!dataTerkirim){
+    kirimData(nilai, 'Belum dibuka');
+  }
+}
+
+function resetSemua(){
+  stopTimer();
+  closeModal('modal-soal');
+  soalAktif=[]; cur=0; score=0; jawaban=[];
+  hadiahDibuka=false; hadiahResult=null; dataTerkirim=false; drawsLeft=1; hadiahResults=[];
+  document.getElementById('soal-modal-title').textContent='Soal Latihan';
+}
+
+function bukaHadiah(){
+  hadiahDibuka = true;
+  drawsLeft = (score === 30) ? 2 : 1;
+  hadiahResults = [];
+  closeModal('modal-soal');
+  document.getElementById('gacha-overlay').classList.add('show');
+  resetGachaUI();
+}
+
+// ═══════════════════════════════════════════
+//  SPREADSHEET INTEGRATION
+// ═══════════════════════════════════════════
+async function kirimData(nilai, hadiahLabel){
+  if(GAS_URL.includes('XXXXXXXX')){
+    console.log('GAS_URL belum diatur. Data belum terkirim.');
+    return;
+  }
+  // Kirim sebagai form-urlencoded agar GAS bisa baca via e.parameter
+  const params = new URLSearchParams();
+  params.append('nama', namaSiswa || '-');
+  params.append('mapel', 'PRA UAS IPAS');
+  params.append('nilai', String(nilai));
+  params.append('hadiah', hadiahLabel || '-');
+
+  console.log('Mengirim data:', Object.fromEntries(params));
+
+  try{
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: params
+    });
+    dataTerkirim = true;
+    console.log('Data terkirim ke spreadsheet');
+  }catch(e){
+    console.error('Gagal kirim:', e);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  MODAL CONTROL
+// ═══════════════════════════════════════════
+function openModal(id){
+  if(id==='soal'){
+    document.getElementById('soal-modal-title').textContent='Soal Latihan';
+    startQuiz();
+    document.getElementById('modal-soal').classList.add('fullscreen-active');
+  }
+  document.getElementById(`modal-${id}`).classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeModal(id){
+  if(id==='modal-soal') stopTimer();
+  document.getElementById(id).classList.remove('active','fullscreen-active');
+  document.body.style.overflow='';
+}
+function closeOnBg(e,id){
+  if(e.target.id===id) closeModal(id);
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal('modal-rangkuman');closeModal('modal-soal');}
+});
+
+// ═══════════════════════════════════════════
+//  GACHA ENGINE
+// ═══════════════════════════════════════════
+const ANIMALS = {
+  mythic: [
+    { emoji: '🐉', name: 'Naga Emas', desc: 'Makhluk paling langka di seluruh bestiary! Naga Emas adalah legenda tertinggi yang hampir mustahil ditemukan.' }
+  ],
+  legendary: [
+    { emoji: '🦄', name: 'Unicorn', desc: 'Kuda bertanduk ajaib pembawa keberuntungan. Hanya yang terpilih yang bisa menemukannya.' },
+    { emoji: '🐳', name: 'Paus Bintang', desc: 'Paus raksasa yang berenang di antara bintang-bintang galaksi. Kemunculannya sangat langka.' },
+    { emoji: '🦁', name: 'Singa Emas', desc: 'Raja segala hewan berbulu emas berkilauan, simbol keagungan sejati.' },
+  ],
+  ultra: [
+    { emoji: '🦋', name: 'Kupu Phoenix', desc: 'Kupu-kupu berapi yang terlahir kembali dari abu. Sangat langka!' },
+    { emoji: '🦅', name: 'Elang Petir', desc: 'Elang raksasa pembawa kilat dari langit.' },
+    { emoji: '🐺', name: 'Serigala Bulan', desc: 'Serigala mistis yang menghowl di bawah bulan purnama.' },
+    { emoji: '🦊', name: 'Rubah Perak', desc: 'Rubah berwarna perak yang konon membawa keberuntungan.' },
+    { emoji: '🐬', name: 'Lumba-lumba Biru', desc: 'Lumba-lumba bercahaya dari laut dalam yang misterius.' },
+    { emoji: '🐯', name: 'Harimau Api', desc: 'Harimau dengan belang-belang api yang membara.' },
+    { emoji: '🦚', name: 'Merak Kristal', desc: 'Merak dengan bulu seindah kristal yang berkilauan.' },
+  ],
+  rare: [
+    { emoji: '🦝', name: 'Rakun Bintang', desc: 'Rakun berbintang yang suka mengoleksi benda berkilau.' },
+    { emoji: '🦜', name: 'Beo Neon', desc: 'Beo berwarna neon yang bisa menirukan sihir.' },
+    { emoji: '🐻', name: 'Beruang Salju', desc: 'Beruang kutub yang gagah dan kuat.' },
+    { emoji: '🦔', name: 'Landak Permata', desc: 'Landak berduri kristal yang menggemaskan.' },
+    { emoji: '🐊', name: 'Buaya Batu', desc: 'Buaya purba yang sekuat batu karang.' },
+    { emoji: '🦩', name: 'Flamingo Merah', desc: 'Flamingo anggun berwarna merah menyala.' },
+    { emoji: '🐙', name: 'Gurita Nebula', desc: 'Gurita bercahaya dari kedalaman samudera.' },
+    { emoji: '🦇', name: 'Kelelawar Malam', desc: 'Kelelawar penunggu malam yang misterius.' },
+    { emoji: '🐢', name: 'Kura Kuno', desc: 'Kura-kura berusia ribuan tahun penyimpan kebijaksanaan.' },
+    { emoji: '🦎', name: 'Kadal Zamrud', desc: 'Kadal berwarna zamrud yang menjaga harta terpendam.' },
+    { emoji: '🦂', name: 'Kalajengking Ungu', desc: 'Kalajengking misterius berbisa ungu dari gurun kuno.' },
+    { emoji: '🦈', name: 'Hiu Galaksi', desc: 'Hiu raksasa dengan sisik bermotif bintang galaksi.' },
+  ],
+  common: [
+    { emoji: '🐱', name: 'Kucing Biasa', desc: 'Kucing manja yang suka tidur sepanjang hari. Coba lagi!' },
+    { emoji: '🐶', name: 'Anjing Setia', desc: 'Sahabat manusia yang selalu setia menemani.' },
+    { emoji: '🐰', name: 'Kelinci Lompat', desc: 'Kelinci lincah yang suka melompat kesana kemari.' },
+    { emoji: '🐹', name: 'Hamster Pouch', desc: 'Hamster menggemaskan dengan pipi penuh biji-bijian.' },
+    { emoji: '🐦', name: 'Burung Gereja', desc: 'Burung kecil yang ceria berkicau setiap pagi.' },
+    { emoji: '🐟', name: 'Ikan Mas', desc: 'Ikan mas yang renang-renang tenang di kolam.' },
+    { emoji: '🐠', name: 'Ikan Badut', desc: 'Ikan warna-warni yang selalu ceria seperti badut.' },
+    { emoji: '🐔', name: 'Ayam Kampung', desc: 'Ayam kampung yang rajin berkokok setiap subuh.' },
+    { emoji: '🐑', name: 'Domba Wol', desc: 'Domba berbulu tebal yang nyaman dipeluk.' },
+    { emoji: '🐄', name: 'Sapi Gemuk', desc: 'Sapi makan rumput sepanjang hari di padang hijau.' },
+    { emoji: '🐷', name: 'Babi Lucu', desc: 'Babi pink yang suka berkubang lumpur.' },
+    { emoji: '🦆', name: 'Bebek Sesat', desc: 'Bebek yang selalu salah arah tapi tetap bahagia.' },
+    { emoji: '🐸', name: 'Katak Hijau', desc: 'Katak penyanyi yang berisik saat hujan tiba.' },
+    { emoji: '🐛', name: 'Ulat Daun', desc: 'Ulat kecil pemakan daun yang lambat tapi tekun.' },
+    { emoji: '🐝', name: 'Lebah Rajin', desc: 'Lebah pekerja keras penghasil madu manis.' },
+    { emoji: '🐌', name: 'Siput Santai', desc: 'Siput yang santai, tidak terburu-buru ke mana pun.' },
+  ]
+};
+
+function roll() {
+  const n = Math.random() * 100;
+  if (n < 0.5) return { type: 'mythic' };
+  if (n < 2.5) return { type: 'legendary' };
+  if (n < 7.5) return { type: 'ultra' };
+  if (n < 27.5) return { type: 'rare' };
+  return { type: 'common' };
+}
+
+function pickAnimal(type) {
+  const list = ANIMALS[type];
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+let gachaAnimating = false;
+let currentAnimal = null;
+
+function resetGachaUI(){
+  document.getElementById('gacha-result-card').style.display='none';
+  document.querySelector('.gacha-container').style.display='flex';
+  const btn = document.getElementById('gacha-open-btn');
+  btn.disabled = false;
+  btn.textContent = '✦ Buka Hadiah ✦';
+  const box = document.getElementById('gacha-lootbox');
+  box.style.cursor = 'pointer';
+  box.onclick = openBox;
+}
+
+function openBox() {
+  if (gachaAnimating || hadiahDibuka === 'done') return;
+  gachaAnimating = true;
+  playShakeSound(); // 🔊 Efek suara goyang box
+  const lootbox = document.getElementById('gacha-lootbox');
+  lootbox.classList.add('shaking');
+  setTimeout(() => {
+    lootbox.classList.remove('shaking');
+    const { type } = roll();
+    playRevealSound(type); // 🔊 Efek suara reveal sesuai rarity
+    const animal = pickAnimal(type);
+    currentAnimal = animal;
+    hadiahResult = {type: type, name: animal.name};
+
+    const card     = document.getElementById('gacha-result-card');
+    const animalEl = document.getElementById('gacha-r-animal');
+    const nameEl   = document.getElementById('gacha-r-name');
+    const badgeEl  = document.getElementById('gacha-r-badge');
+    const cardArt  = document.getElementById('gacha-card-art');
+    const cardInfo = document.getElementById('gacha-card-info');
+    const starsEl  = document.getElementById('gacha-r-stars');
+
+    const starMap = { common:'★', rare:'★★★', ultra:'★★★★', legendary:'★★★★✦', mythic:'★★★★★' };
+    const labelMap = {
+      mythic:    '✦ Mythic ✦',
+      legendary: '⚡ Legendary ⚡',
+      ultra:     '◈ Ultra Rare ◈',
+      rare:      '◇ Rare ◇',
+      common:    'Common',
+    };
+
+    card.className     = 'gacha-result-card t-' + type;
+    cardArt.className  = 'gacha-card-art t-' + type;
+    cardInfo.className = 'gacha-card-info t-' + type;
+    animalEl.className = 'gacha-result-animal t-' + type;
+    animalEl.textContent = animal.emoji;
+    nameEl.className   = 'gacha-result-name t-' + type;
+    nameEl.textContent = animal.name;
+    badgeEl.className  = 'gacha-card-banner-label';
+    badgeEl.textContent = labelMap[type];
+    starsEl.textContent = starMap[type];
+    document.getElementById('gacha-r-desc').textContent = animal.desc;
+
+    // Populate footer: nama, tanggal, nilai
+    const now = new Date();
+    const tgl = now.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+    const jam = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('gacha-footer-name').textContent = namaSiswa || 'Siswa';
+    document.getElementById('gacha-footer-date').textContent = tgl + ' · ' + jam;
+    document.getElementById('gacha-footer-score').textContent = 'Nilai: ' + nilaiAkhir(score);
+
+    // Update corner gems class
+    document.querySelectorAll('.corner-gem').forEach(g => {
+      g.className = 'corner-gem ' + g.classList[1];
+    });
+
+    document.querySelector('.gacha-container').style.display='none';
+    card.style.display='block';
+    document.getElementById('gacha-btn-row').style.display='flex';
+
+    if (type !== 'common') spawnParticles(type);
+
+    // Simpan hasil draw ini
+    hadiahResults.push(type);
+    drawsLeft--;
+
+    if(drawsLeft > 0){
+      // Masih ada draw lagi — tampilkan tombol Draw Lagi
+      const btnRow = document.getElementById('gacha-btn-row');
+      const drawLagiBtn = document.createElement('button');
+      drawLagiBtn.className = 'gacha-dl-btn';
+      drawLagiBtn.style.background = 'linear-gradient(135deg,#7c4dff,#c040fb)';
+      drawLagiBtn.textContent = '🎁 Draw Lagi!';
+      drawLagiBtn.onclick = function(){
+        drawLagiBtn.remove();
+        document.querySelector('.gacha-container').style.display='flex';
+        document.getElementById('gacha-result-card').style.display='none';
+        document.getElementById('gacha-btn-row').style.display='none';
+        resetGachaUI();
+      };
+      btnRow.insertBefore(drawLagiBtn, btnRow.firstChild);
     } else {
-      const pts=(h.type==='rare'?50:10)*combo;
-      score+=pts; totalHits++;
-      combo=Math.min(combo+1,10);
-      scoreEl.textContent=score;
-      comboEl.textContent='x'+combo;
-      updateSpeedBadge();
-      showFloat(cx,cy,'+'+pts, combo>=5?'#ffb700':combo>=3?'#00e5ff':'#22c55e');
-      showComboFlash();
-      clearTimeout(comboTimer);
-      comboTimer=setTimeout(resetCombo,2200);
+      // Semua draw selesai — kunci dan kirim data terbaik
+      hadiahDibuka = 'done';
+      const btn = document.getElementById('gacha-open-btn');
+      btn.disabled = true;
+      btn.textContent = '✦ Sudah Digunakan ✦';
+      lootbox.style.cursor = 'not-allowed';
+      lootbox.onclick = null;
+
+      const rarityPriority = {common:0,rare:1,ultra:2,legendary:3,mythic:4};
+      const bestType = hadiahResults.reduce((a,b) => rarityPriority[a]>=rarityPriority[b]?a:b);
+      const nilai = nilaiAkhir(score);
+      kirimData(nilai, labelMap[bestType]);
     }
-    h.el.classList.add('hit');
-    setTimeout(()=>hideHole(hIdx),250);
+
+    gachaAnimating = false;
+  }, 520);
+}
+
+function closeGachaResult(){
+  document.getElementById('gacha-overlay').classList.remove('show');
+  // Kembali ke main card
+}
+
+function spawnParticles(type) {
+  const pal = {
+    mythic:    ['#ffb700','#ff6a00','#ffe082','#ff3d00'],
+    legendary: ['#00e5ff','#00b8d4','#80deea','#ffffff'],
+    ultra:     ['#c040fb','#7c4dff','#e040fb','#b39ddb'],
+    rare:      ['#2979ff','#00b0ff','#40c4ff','#82b1ff'],
   };
-}
-
-function hideHole(i){
-  const h=holes[i];
-  h.active=false; h.type=null;
-  h.el.classList.remove('up','rare','bomb','hit');
-}
-
-function resetCombo(){
-  combo=1; comboEl.textContent='x1';
-}
-
-function showFloat(x,y,txt,color){
-  const el=document.createElement('div');
-  el.className='float-score';
-  el.textContent=txt; el.style.color=color;
-  el.style.left=x+'px'; el.style.top=y+'px';
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),700);
-}
-
-function showComboFlash(){
-  const labels={3:'Nice! 🔥',5:'Great! ⚡',7:'Amazing! 💫',10:'MAX! 🏆'};
-  const lbl=labels[combo];
-  if(lbl){
-    comboFlash.textContent=lbl;
-    comboFlash.className='show';
-    setTimeout(()=>comboFlash.className='',600);
+  const colors = pal[type] || [];
+  const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  for (let i = 0; i < 30; i++) {
+    const el = document.createElement('div');
+    el.className = 'gacha-particle';
+    const angle = Math.random() * Math.PI * 2;
+    const dist  = 80 + Math.random() * 220;
+    const size  = 5 + Math.random() * 9;
+    el.style.cssText = `width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};left:${cx}px;top:${cy}px;--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;animation-duration:${.7+Math.random()*.5}s;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1300);
   }
 }
 
-// ── SPAWN LOOP ──
-function scheduleNext(){
-  const active=holes.filter(h=>h.active).length;
-  const maxActive= totalHits>=30 ? 4 : totalHits>=15 ? 3 : 2;
-  const delay= totalHits>=40 ? 350 : totalHits>=25 ? 500 : totalHits>=12 ? 650 : 850;
+async function downloadCard() {
+  const btn = document.getElementById('gacha-dl-btn');
+  btn.classList.add('loading');
+  btn.textContent = '⏳ Memproses...';
 
-  if(active<maxActive){
-    const avail=holes.map((h,i)=>h.active?-1:i).filter(i=>i>=0);
-    if(avail.length){
-      const idx=avail[Math.floor(Math.random()*avail.length)];
-      popUp(idx);
+  const btnRow = document.getElementById('gacha-btn-row');
+  btnRow.style.display = 'none';
+
+  try {
+    const card = document.getElementById('gacha-card-inner');
+    const canvas = await html2canvas(card, {
+      backgroundColor: null,
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+
+    const padding = 32;
+    const final = document.createElement('canvas');
+    final.width  = canvas.width + padding * 2;
+    final.height = canvas.height + padding * 2 + 36;
+    const ctx = final.getContext('2d');
+
+    ctx.fillStyle = '#07080f';
+    ctx.fillRect(0, 0, final.width, final.height);
+    ctx.drawImage(canvas, padding, padding);
+
+    ctx.fillStyle = 'rgba(121,134,203,0.45)';
+    ctx.font = '20px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎁 kotak hadiah', final.width / 2, final.height - 10);
+
+    const name = currentAnimal ? currentAnimal.name.replace(/\s+/g,'-') : 'kartu';
+    const link = document.createElement('a');
+    link.download = `gacha-${name}.png`;
+    link.href = final.toDataURL('image/png');
+    link.click();
+  } catch(e) {
+    alert('Gagal mengunduh kartu. Coba lagi!');
+  }
+
+  btnRow.style.display = 'flex';
+  btn.classList.remove('loading');
+  btn.textContent = '⬇ Simpan Kartu';
+}
+
+// ═══════════════════════════════════════════
+//  AUDIO ENGINE - Efek Suara Gacha
+// ═══════════════════════════════════════════
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playShakeSound() {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const noise = audioCtx.createBufferSource();
+
+  // Create noise buffer for rattle effect
+  const bufferSize = audioCtx.sampleRate * 0.5;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * 0.3;
+  }
+  noise.buffer = buffer;
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.setValueAtTime(0.15, t);
+  noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+  noise.connect(noiseGain);
+  noiseGain.connect(audioCtx.destination);
+  noise.start(t);
+  noise.stop(t + 0.5);
+
+  // Low thump
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(80, t);
+  osc.frequency.exponentialRampToValueAtTime(40, t + 0.3);
+  gain.gain.setValueAtTime(0.4, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.4);
+}
+
+function playRevealSound(type) {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+
+  const freqMap = {
+    common: [330, 440],
+    rare: [440, 554, 659],
+    ultra: [523, 659, 784, 1047],
+    legendary: [659, 784, 1047, 1319, 1568],
+    mythic: [784, 988, 1175, 1568, 1976, 2349]
+  };
+
+  const freqs = freqMap[type] || freqMap.common;
+  const duration = type === 'mythic' ? 2.0 : type === 'legendary' ? 1.5 : 1.0;
+
+  // Main chime
+  freqs.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type === 'mythic' || type === 'legendary' ? 'sine' : 'triangle';
+    osc.frequency.setValueAtTime(freq, t + i * 0.12);
+    const vol = type === 'common' ? 0.15 : type === 'rare' ? 0.2 : type === 'ultra' ? 0.25 : type === 'legendary' ? 0.35 : 0.5;
+    gain.gain.setValueAtTime(0, t + i * 0.12);
+    gain.gain.linearRampToValueAtTime(vol, t + i * 0.12 + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.12 + 0.6);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t + i * 0.12);
+    osc.stop(t + i * 0.12 + 0.8);
+  });
+
+  // Sparkle noise for higher rarities
+  if (type === 'ultra' || type === 'legendary' || type === 'mythic') {
+    const sparkle = audioCtx.createBufferSource();
+    const bufSize = audioCtx.sampleRate * duration;
+    const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.max(0, 1 - i/bufSize) * 0.08;
     }
+    sparkle.buffer = buf;
+    const sg = audioCtx.createGain();
+    sg.gain.setValueAtTime(0.3, t);
+    sg.gain.linearRampToValueAtTime(0, t + duration);
+    sparkle.connect(sg);
+    sg.connect(audioCtx.destination);
+    sparkle.start(t);
+    sparkle.stop(t + duration);
   }
-  setTimeout(scheduleNext, delay + Math.random()*200);
+
+  // Deep bass for mythic
+  if (type === 'mythic') {
+    const bass = audioCtx.createOscillator();
+    const bassGain = audioCtx.createGain();
+    bass.type = 'sine';
+    bass.frequency.setValueAtTime(60, t);
+    bass.frequency.linearRampToValueAtTime(30, t + 1.5);
+    bassGain.gain.setValueAtTime(0.5, t);
+    bassGain.gain.exponentialRampToValueAtTime(0.01, t + 2.0);
+    bass.connect(bassGain);
+    bassGain.connect(audioCtx.destination);
+    bass.start(t);
+    bass.stop(t + 2.0);
+  }
 }
-scheduleNext();
+
+// ═══════════════════════════════════════════
+//  QUIZ SOUNDS - Benar & Salah
+// ═══════════════════════════════════════════
+function playCorrectSound() {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  const freqs = [523, 659, 784, 1047];
+  freqs.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t + i * 0.08);
+    gain.gain.setValueAtTime(0, t + i * 0.08);
+    gain.gain.linearRampToValueAtTime(0.2, t + i * 0.08 + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.08 + 0.4);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t + i * 0.08);
+    osc.stop(t + i * 0.08 + 0.5);
+  });
+  const sparkle = audioCtx.createBufferSource();
+  const bufSize = audioCtx.sampleRate * 0.3;
+  const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) {
+    d[i] = (Math.random() * 2 - 1) * Math.max(0, 1 - i/bufSize) * 0.05;
+  }
+  sparkle.buffer = buf;
+  const sg = audioCtx.createGain();
+  sg.gain.setValueAtTime(0.15, t);
+  sg.gain.linearRampToValueAtTime(0, t + 0.3);
+  sparkle.connect(sg);
+  sg.connect(audioCtx.destination);
+  sparkle.start(t);
+  sparkle.stop(t + 0.3);
+}
+
+function playWrongSound() {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(200, t);
+  osc.frequency.exponentialRampToValueAtTime(80, t + 0.35);
+  gain.gain.setValueAtTime(0.12, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.45);
+  const osc2 = audioCtx.createOscillator();
+  const gain2 = audioCtx.createGain();
+  osc2.type = 'square';
+  osc2.frequency.setValueAtTime(150, t + 0.1);
+  osc2.frequency.exponentialRampToValueAtTime(60, t + 0.4);
+  gain2.gain.setValueAtTime(0.08, t + 0.1);
+  gain2.gain.exponentialRampToValueAtTime(0.01, t + 0.45);
+  osc2.connect(gain2);
+  gain2.connect(audioCtx.destination);
+  osc2.start(t + 0.1);
+  osc2.stop(t + 0.5);
+}
+
 </script>
 </body>
 </html>
