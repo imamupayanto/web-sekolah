@@ -3,831 +3,1331 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Latihan OSN IPS SDN 2 Pesantren</title>
+<title>OSN IPS SD 2026 — SDN 2 Pesantren</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #3b82f6;
-    --primary-dark: #2563eb;
-    --secondary: #f59e0b;
-    --accent: #ec4899;
-    --gold: #f59e0b;
-    --green: #22c55e;
-    --red: #ef4444;
-    --bg: #0f172a;
-    --card: #1e293b;
-    --card2: #263248;
-    --text: #f1f5f9;
-    --muted: #94a3b8;
-    --border: #334155;
-    --easy: #22c55e;
-    --med: #f59e0b;
-    --hard: #ef4444;
-  }
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --secondary: #f59e0b;
+  --accent: #ec4899;
+  --gold: #f59e0b;
+  --green: #22c55e;
+  --red: #ef4444;
+  --bg: #0f172a;
+  --card: #1e293b;
+  --card2: #263248;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --border: #334155;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(59,130,246,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(236,72,153,0.12) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+.screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
+.screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ===== NAMA OVERLAY ===== */
+.nama-overlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(10,15,28,0.93);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.nama-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 24px; padding: 36px 28px;
+  max-width: 380px; width: 100%; text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+.nama-box h2 { font-family: 'Fredoka One', cursive; font-size: 1.8rem; color: var(--primary); margin-bottom: 8px; }
+.nama-box p { font-size: 0.9rem; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+.nama-input {
+  width: 100%; padding: 14px 16px;
+  border: 2px solid var(--border); border-radius: 12px;
+  background: var(--card2); color: var(--text);
+  font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 700;
+  outline: none; margin-bottom: 14px; transition: border-color 0.2s;
+}
+.nama-input:focus { border-color: var(--primary); }
+.nama-input::placeholder { color: var(--muted); font-weight: 600; }
+.nama-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border: none; border-radius: 12px;
+  font-family: 'Fredoka One', cursive; font-size: 1.2rem; color: white;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(59,130,246,0.35);
+}
+.nama-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.5); }
 
-  body {
-    font-family: 'Nunito', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* ===== MENU ===== */
+.menu-header { text-align: center; margin-bottom: 32px; }
+.menu-logo { font-family: 'Fredoka One', cursive; font-size: 3rem; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+.menu-sub { font-size: 0.95rem; color: var(--muted); margin-top: 6px; }
+.menu-school { font-size: 0.85rem; color: var(--secondary); font-weight: 700; margin-top: 4px; }
+.menu-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 480px; }
+.menu-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 20px 16px;
+  cursor: pointer; transition: all 0.2s; text-align: center;
+}
+.menu-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 8px 24px rgba(59,130,246,0.2); }
+.menu-card.full { grid-column: 1 / -1; }
+.menu-card .icon { font-size: 2rem; margin-bottom: 8px; }
+.menu-card .label { font-weight: 800; font-size: 1rem; }
+.menu-card .desc { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+.start-btn {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border: none; border-radius: 16px; padding: 18px;
+  font-family: 'Fredoka One', cursive; font-size: 1.4rem; color: white;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(59,130,246,0.4); letter-spacing: 0.5px;
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(59,130,246,0.5); }
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(59,130,246,0.15) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(236,72,153,0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 50% at 50% 50%, rgba(245,158,11,0.05) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
+/* ===== RULES ===== */
+.rules-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 28px 24px;
+  max-width: 500px; width: 100%;
+}
+.rules-title { font-family: 'Fredoka One', cursive; font-size: 1.6rem; color: var(--secondary); margin-bottom: 20px; text-align: center; }
+.rule-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+.rule-icon { font-size: 1.4rem; flex-shrink: 0; }
+.rule-text { font-size: 0.92rem; line-height: 1.6; }
+.rule-text strong { color: var(--primary); }
+.score-table { background: var(--card2); border-radius: 12px; padding: 14px; margin: 16px 0; }
+.score-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
+.score-row:last-child { border-bottom: none; }
+.score-badge { font-weight: 800; padding: 2px 10px; border-radius: 20px; font-size: 0.85rem; }
+.badge-green { background: rgba(34,197,94,0.2); color: var(--green); }
+.badge-red { background: rgba(239,68,68,0.2); color: var(--red); }
+.badge-gray { background: rgba(148,163,184,0.2); color: var(--muted); }
+.back-btn {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 28px;
+  color: var(--text); font-family: 'Nunito', sans-serif;
+  font-weight: 700; font-size: 1rem; cursor: pointer;
+  margin-top: 16px; transition: all 0.2s; display: block; width: 100%;
+}
+.back-btn:hover { border-color: var(--primary); }
 
-  .container {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 20px 16px 60px;
-    position: relative;
-    z-index: 1;
-  }
+/* ===== QUIZ ===== */
+#quizScreen { justify-content: flex-start; padding: 16px; }
+.quiz-topbar {
+  width: 100%; max-width: 680px;
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+}
+.quiz-progress-text { font-size: 0.85rem; color: var(--muted); font-weight: 700; }
+.quiz-score-live { font-size: 0.85rem; font-weight: 800; }
+.quiz-score-live span { color: var(--secondary); }
+.progress-bar-wrap { width: 100%; max-width: 680px; height: 6px; background: var(--card2); border-radius: 99px; margin-bottom: 14px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 99px; transition: width 0.4s ease; }
 
-  .header { text-align: center; padding: 32px 0 24px; }
+.timer-wrap { display: flex; justify-content: center; margin-bottom: 16px; }
+.timer-ring { position: relative; width: 70px; height: 70px; }
+.timer-ring svg { transform: rotate(-90deg); }
+.timer-ring circle { fill: none; stroke-width: 5; }
+.timer-track { stroke: var(--card2); }
+.timer-fill { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.3s; }
+.timer-number { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Fredoka One', cursive; font-size: 1.4rem; }
 
-  .logo-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    color: white;
-    padding: 6px 16px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
+.question-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 24px 20px;
+  width: 100%; max-width: 680px; margin-bottom: 14px;
+}
+.q-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.q-num { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+.q-badge { font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; font-weight: 700; }
+.badge-med { background: rgba(245,158,11,0.2); color: var(--gold); }
+.badge-hard { background: rgba(239,68,68,0.2); color: var(--red); }
+.q-topic { font-size: 0.75rem; color: var(--primary); font-weight: 700; background: rgba(59,130,246,0.1); padding: 3px 10px; border-radius: 20px; }
+.q-text { font-size: 1.05rem; line-height: 1.7; font-weight: 700; color: var(--text); }
 
-  .header h1 {
-    font-family: 'Fredoka One', cursive;
-    font-size: clamp(28px, 5vw, 48px);
-    background: linear-gradient(135deg, #fff 30%, var(--primary) 70%, var(--gold));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1.1;
-    margin-bottom: 8px;
-  }
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 680px; }
+.opt-btn {
+  background: var(--card); border: 2px solid var(--border);
+  border-radius: 14px; padding: 14px 16px; text-align: left;
+  cursor: pointer; transition: all 0.18s;
+  display: flex; gap: 10px; align-items: center;
+  font-family: 'Nunito', sans-serif; color: var(--text); font-size: 0.92rem; font-weight: 600;
+}
+.opt-btn:hover:not(:disabled) { border-color: var(--primary); background: rgba(59,130,246,0.08); transform: translateY(-1px); }
+.opt-btn .opt-key { width: 28px; height: 28px; border-radius: 8px; background: var(--card2); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; }
+.opt-btn.selected { border-color: var(--primary); background: rgba(59,130,246,0.12); }
+.opt-btn.selected .opt-key { background: var(--primary); color: white; }
 
-  .header p { color: var(--muted); font-size: 15px; font-weight: 600; }
+.skip-btn {
+  background: transparent; border: 1px dashed var(--border);
+  border-radius: 12px; padding: 10px 20px; color: var(--muted);
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.9rem;
+  cursor: pointer; transition: all 0.2s; margin-top: 10px;
+  width: 100%; max-width: 680px;
+}
+.skip-btn:hover { border-color: var(--muted); color: var(--text); }
 
-  .stats-bar {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-  }
+/* ===== RESULT ===== */
+.result-wrap { max-width: 680px; width: 100%; }
+.result-header { text-align: center; margin-bottom: 28px; }
+.result-emoji { font-size: 4rem; margin-bottom: 8px; }
+.result-title { font-family: 'Fredoka One', cursive; font-size: 2rem; }
+.result-name { font-size: 0.95rem; color: var(--primary); margin-top: 6px; font-weight: 800; }
+.result-school { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+.result-score-big {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 24px; text-align: center; margin-bottom: 16px;
+}
+.score-val { font-family: 'Fredoka One', cursive; font-size: 3.5rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.score-max { font-size: 1rem; color: var(--muted); margin-top: 4px; }
+.result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; text-align: center; }
+.stat-val { font-family: 'Fredoka One', cursive; font-size: 1.8rem; }
+.stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.stat-card.correct .stat-val { color: var(--green); }
+.stat-card.wrong .stat-val { color: var(--red); }
+.stat-card.skip .stat-val { color: var(--muted); }
+.predikat { display: inline-block; padding: 6px 18px; border-radius: 99px; font-weight: 800; font-size: 0.9rem; margin-top: 8px; }
+.pred-gold { background: rgba(245,158,11,0.2); color: var(--gold); }
+.pred-blue { background: rgba(59,130,246,0.2); color: var(--primary); }
+.pred-green { background: rgba(34,197,94,0.2); color: var(--green); }
+.pred-red { background: rgba(239,68,68,0.2); color: var(--red); }
 
-  .stat-box {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 12px 8px;
-    text-align: center;
-    transition: transform 0.2s;
-  }
+.review-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--secondary), #d97706);
+  border: none; border-radius: 14px; padding: 14px;
+  font-family: 'Fredoka One', cursive; font-size: 1.1rem; color: white;
+  cursor: pointer; margin-bottom: 10px; transition: all 0.2s;
+}
+.review-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,158,11,0.3); }
+.btn-send {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #059669, #047857);
+  border: none; border-radius: 14px;
+  font-family: 'Fredoka One', cursive; font-size: 1.1rem; color: white;
+  cursor: pointer; margin-bottom: 10px; transition: all 0.2s;
+}
+.btn-send:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(5,150,105,0.3); }
+.btn-send:disabled { opacity: 0.5; cursor: default; transform: none; }
+.send-status {
+  font-size: 0.85rem; text-align: center; padding: 10px;
+  border-radius: 10px; margin-bottom: 10px; display: none; font-weight: 700;
+}
+.send-status.ok { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.send-status.err { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.home-btn {
+  width: 100%; background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px;
+  font-family: 'Fredoka One', cursive; font-size: 1.1rem; color: var(--text);
+  cursor: pointer; transition: all 0.2s;
+}
+.home-btn:hover { border-color: var(--primary); }
 
-  .stat-box:hover { transform: translateY(-2px); }
+/* ===== REVIEW ===== */
+#reviewScreen { justify-content: flex-start; padding: 16px; }
+.review-header { width: 100%; max-width: 680px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+.review-title { font-family: 'Fredoka One', cursive; font-size: 1.5rem; flex: 1; }
+.review-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 20px;
+  width: 100%; max-width: 680px; margin-bottom: 12px;
+}
+.review-item.correct-item { border-color: rgba(34,197,94,0.4); }
+.review-item.wrong-item { border-color: rgba(239,68,68,0.4); }
+.review-item.skip-item { border-color: rgba(148,163,184,0.3); }
+.review-q-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 8px; }
+.review-q-num { font-weight: 800; color: var(--muted); font-size: 0.85rem; }
+.review-status { font-size: 0.8rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+.status-correct { background: rgba(34,197,94,0.2); color: var(--green); }
+.status-wrong { background: rgba(239,68,68,0.2); color: var(--red); }
+.status-skip { background: rgba(148,163,184,0.2); color: var(--muted); }
+.review-q-text { font-weight: 700; line-height: 1.6; margin-bottom: 12px; font-size: 0.95rem; }
+.review-answers { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.review-opt { padding: 8px 12px; border-radius: 10px; font-size: 0.88rem; font-weight: 600; background: var(--card2); }
+.review-opt.correct-opt { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); color: var(--green); }
+.review-opt.wrong-opt { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: var(--red); text-decoration: line-through; }
+.pembahasan { background: var(--card2); border-left: 3px solid var(--primary); border-radius: 0 10px 10px 0; padding: 12px 14px; margin-top: 10px; }
+.pembahasan-title { font-size: 0.8rem; font-weight: 800; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.pembahasan-text { font-size: 0.88rem; line-height: 1.7; color: var(--text); }
+.review-nav { display: flex; gap: 10px; width: 100%; max-width: 680px; margin-top: 8px; padding-bottom: 20px; }
+.review-nav button { flex: 1; border: none; border-radius: 12px; padding: 12px; font-family: 'Fredoka One', cursive; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
+.btn-result-back { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
+.btn-home { background: var(--card); border: 1px solid var(--border) !important; color: var(--text); }
 
-  .stat-num {
-    font-family: 'Fredoka One', cursive;
-    font-size: 26px;
-    line-height: 1;
-    margin-bottom: 2px;
-  }
-
-  .stat-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .stat-box.s1 .stat-num { color: var(--gold); }
-  .stat-box.s2 .stat-num { color: var(--green); }
-  .stat-box.s3 .stat-num { color: var(--red); }
-  .stat-box.s4 .stat-num { color: var(--secondary); }
-
-  .progress-wrap {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 18px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .progress-label { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
-
-  .progress-bar {
-    flex: 1;
-    height: 10px;
-    background: var(--border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary), var(--gold));
-    border-radius: 99px;
-    transition: width 0.5s ease;
-  }
-
-  .progress-pct {
-    font-family: 'Fredoka One', cursive;
-    font-size: 18px;
-    color: var(--gold);
-    white-space: nowrap;
-  }
-
-  .timer-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-
-  .timer-display {
-    font-family: 'Fredoka One', cursive;
-    font-size: 22px;
-    color: var(--secondary);
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 6px 18px;
-    border-radius: 10px;
-    letter-spacing: 2px;
-  }
-
-  .timer-display.warning { color: var(--red); animation: pulse 1s infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
-
-  .q-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 28px 24px;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-    animation: slideIn 0.35s ease;
-  }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .q-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-  }
-
-  .q-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
-
-  .q-num { font-family: 'Fredoka One', cursive; font-size: 13px; color: var(--muted); }
-
-  .q-topic {
-    background: rgba(59,130,246,0.15);
-    color: #93c5fd;
-    border: 1px solid rgba(59,130,246,0.3);
-    padding: 3px 10px;
-    border-radius: 99px;
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  .q-diff { margin-left: auto; }
-
-  .q-diff-label {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 99px;
-  }
-
-  .diff-easy { background: rgba(34,197,94,0.15);  color: var(--easy); border: 1px solid rgba(34,197,94,0.3); }
-  .diff-med  { background: rgba(245,158,11,0.15); color: var(--med);  border: 1px solid rgba(245,158,11,0.3); }
-  .diff-hard { background: rgba(239,68,68,0.15);  color: var(--red);  border: 1px solid rgba(239,68,68,0.3); }
-
-  .q-text {
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 1.6;
-    margin-bottom: 22px;
-    color: var(--text);
-  }
-
-  .options { display: grid; gap: 10px; }
-
-  .opt-btn {
-    background: var(--card2);
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 18px;
-    text-align: left;
-    cursor: pointer;
-    font-family: 'Nunito', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text);
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .opt-btn:hover:not(:disabled) {
-    border-color: var(--primary);
-    background: rgba(59,130,246,0.1);
-    transform: translateX(4px);
-  }
-
-  .opt-letter {
-    width: 28px; height: 28px;
-    border-radius: 8px;
-    background: var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 900;
-    flex-shrink: 0;
-    transition: all 0.2s;
-  }
-
-  .opt-btn.correct { border-color: var(--green); background: rgba(34,197,94,0.12); }
-  .opt-btn.correct .opt-letter { background: var(--green); color: white; }
-  .opt-btn.wrong   { border-color: var(--red);   background: rgba(239,68,68,0.1); }
-  .opt-btn.wrong   .opt-letter { background: var(--red);   color: white; }
-  .opt-btn:disabled { cursor: default; }
-
-  .feedback {
-    margin-top: 16px;
-    padding: 16px;
-    border-radius: 14px;
-    font-size: 15px;
-    font-weight: 700;
-    display: none;
-    text-align: center;
-  }
-
-  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .feedback.correct-fb { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.3);  color: #86efac; }
-  .feedback.wrong-fb   { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3);  color: #fca5a5; }
-
-  .feedback .fb-title {
-    font-family: 'Fredoka One', cursive;
-    font-size: 20px;
-  }
-
-  .action-row { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
-
-  .btn {
-    flex: 1; min-width: 120px;
-    padding: 14px 20px;
-    border-radius: 14px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 15px; font-weight: 800;
-    cursor: pointer; border: none;
-    transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-
-  .btn-next { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
-  .btn-next:hover { transform: scale(1.03); filter: brightness(1.1); }
-  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; filter: none; }
-
-  .btn-skip { background: var(--card2); border: 2px solid var(--border); color: var(--muted); }
-  .btn-skip:hover { border-color: var(--muted); color: var(--text); }
-
-  .btn-reset { background: rgba(236,72,153,0.15); border: 2px solid rgba(236,72,153,0.4); color: #f9a8d4; }
-  .btn-reset:hover { background: rgba(236,72,153,0.25); }
-
-  .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-
-  .filter-btn {
-    padding: 7px 16px; border-radius: 99px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 13px; font-weight: 800;
-    cursor: pointer; border: 2px solid var(--border);
-    background: var(--card2); color: var(--muted);
-    transition: all 0.2s;
-  }
-
-  .filter-btn.active, .filter-btn:hover {
-    border-color: var(--primary); color: #93c5fd;
-    background: rgba(59,130,246,0.1);
-  }
-
-  .result-screen {
-    display: none; text-align: center;
-    padding: 40px 20px; animation: slideIn 0.4s ease;
-  }
-
-  .result-screen.show { display: block; }
-  .result-emoji { font-size: 72px; margin-bottom: 16px; display: block; }
-
-  .result-score {
-    font-family: 'Fredoka One', cursive; font-size: 72px;
-    background: linear-gradient(135deg, var(--gold), var(--primary));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; line-height: 1; margin-bottom: 8px;
-  }
-
-  .result-msg { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 24px; }
-
-  .result-detail {
-    display: inline-grid; grid-template-columns: 1fr 1fr; gap: 12px;
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 20px; margin-bottom: 28px;
-    text-align: left; min-width: 280px;
-  }
-
-  .r-item { font-size: 14px; color: var(--muted); font-weight: 600; }
-  .r-val  { font-family: 'Fredoka One', cursive; font-size: 22px; }
-
-  .streak-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4);
-    color: var(--gold); padding: 4px 14px; border-radius: 99px;
-    font-size: 13px; font-weight: 800; margin-bottom: 20px; animation: fadeIn 0.3s;
-  }
-
-  @media (max-width: 520px) {
-    .stats-bar { grid-template-columns: repeat(2, 1fr); }
-    .q-text { font-size: 15px; }
-    .action-row { flex-direction: column; }
-    .btn { min-width: unset; }
-  }
-
-  .nama-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:999;}
-  .nama-box{background:#fff;border-radius:16px;padding:28px;width:90%;max-width:400px;text-align:center;}
-  .nama-box h2{font-size:20px;font-weight:800;margin-bottom:6px;color:#111;}
-  .nama-box p{font-size:13px;color:#6b7280;margin-bottom:16px;}
-  .nama-input{width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:15px;font-weight:600;font-family:inherit;outline:none;margin-bottom:12px;color:#111;}
-  .nama-input:focus{border-color:#1a56db;}
-  .nama-btn{width:100%;padding:13px;background:#111827;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
-  .nama-btn:hover{opacity:.85;}
-  .btn-send-osn{width:100%;padding:13px;background:#059669;color:white;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;}
-  .btn-send-osn:hover{opacity:.85;}
-  .btn-send-osn:disabled{opacity:.5;cursor:default;}
-  .send-status-osn{font-size:13px;text-align:center;padding:8px;border-radius:8px;margin-bottom:8px;display:none;}
-  .send-status-osn.ok{background:#dcfce7;color:#166534;}
-  .send-status-osn.err{background:#fee2e2;color:#991b1b;}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.3s ease forwards; }
+#reviewScreen, #resultScreen { overflow-y: auto; }
 </style>
 </head>
 <body>
 
+<!-- NAMA OVERLAY -->
 <div class="nama-overlay" id="namaOverlay">
   <div class="nama-box">
-    <h2>Selamat Datang! 👋</h2>
-    <p>Masukkan namamu sebelum memulai latihan</p>
-    <input class="nama-input" id="namaInput" type="text" placeholder="Nama lengkapmu..." maxlength="50"/>
-    <button class="nama-btn" onclick="mulaiLatihan()">Mulai Latihan →</button>
+    <h2>Halo! 👋</h2>
+    <p>Masukkan namamu sebelum mulai latihan OSN IPS</p>
+    <input class="nama-input" id="namaInput" type="text" placeholder="Nama lengkapmu..." maxlength="50"
+      onkeydown="if(event.key==='Enter') mulaiDenganNama()"/>
+    <button class="nama-btn" onclick="mulaiDenganNama()">Mulai Latihan →</button>
   </div>
 </div>
 
-<div class="container">
-
-  <div class="header">
-    <div class="logo-badge">🏆 OSN SD 2026</div>
-    <h1>Latihan OSN IPS</h1>
-    <p style="font-size:17px; font-weight:800; color:#f1f5f9; margin-bottom:4px;">SDN 2 Pesantren</p>
-    <p>Berlatih soal-soal IPS pilihan olimpiade setiap hari!</p>
+<!-- MENU -->
+<div id="menuScreen" class="screen">
+  <div class="menu-header">
+    <div class="menu-logo">🌏 OSN IPS</div>
+    <div class="menu-sub">Latihan Soal Olimpiade Sains Nasional SD 2026</div>
+    <div class="menu-school">✨ SDN 2 Pesantren</div>
   </div>
-
-  <div class="stats-bar">
-    <div class="stat-box s1"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Dikerjakan</div></div>
-    <div class="stat-box s2"><div class="stat-num" id="statBenar">0</div><div class="stat-label">Benar ✓</div></div>
-    <div class="stat-box s3"><div class="stat-num" id="statSalah">0</div><div class="stat-label">Salah ✗</div></div>
-    <div class="stat-box s4"><div class="stat-num" id="statSkor">0%</div><div class="stat-label">Skor</div></div>
+  <div class="menu-cards">
+    <button class="start-btn" onclick="startQuiz()">🚀 Mulai Latihan!</button>
+    <div class="menu-card" onclick="showRules()">
+      <div class="icon">📋</div>
+      <div class="label">Aturan</div>
+      <div class="desc">Cara penilaian & sistem skor</div>
+    </div>
+    <div class="menu-card" onclick="showInfo()">
+      <div class="icon">📚</div>
+      <div class="label">Info</div>
+      <div class="desc">100 soal, 25 acak/sesi</div>
+    </div>
+    <div class="menu-card full" style="background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(236,72,153,0.1)); border-color: rgba(59,130,246,0.3);">
+      <div class="icon">📌</div>
+      <div class="label">25 soal · 45 detik/soal</div>
+      <div class="desc">Tingkat Sedang–Sulit · Skor standar OSN</div>
+    </div>
   </div>
+</div>
 
-  <div id="streakBadge" class="streak-badge" style="display:none;">🔥 Streak <span id="streakNum">0</span> jawaban benar berturut-turut!</div>
-
-  <div class="progress-wrap">
-    <div class="progress-label">Soal <span id="qIdx">1</span>/<span id="qTotal">30</span></div>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <div class="progress-pct" id="progressPct">0%</div>
+<!-- RULES -->
+<div id="rulesScreen" class="screen">
+  <div class="rules-box fade-in">
+    <div class="rules-title">📋 Aturan Permainan</div>
+    <div class="rule-item"><div class="rule-icon">🎯</div><div class="rule-text">Setiap sesi terdiri dari <strong>25 soal pilihan ganda</strong> yang diambil secara <strong>acak</strong> dari database 100 soal.</div></div>
+    <div class="rule-item"><div class="rule-icon">⏱️</div><div class="rule-text">Setiap soal memiliki <strong>waktu 45 detik</strong>. Jika habis, soal dianggap <strong>tidak dikerjakan (0 poin)</strong>.</div></div>
+    <div class="rule-item"><div class="rule-icon">📊</div><div class="rule-text">Sistem skor mengikuti standar <strong>OSN Nasional</strong>:</div></div>
+    <div class="score-table">
+      <div class="score-row"><span>✅ Jawaban Benar</span><span class="score-badge badge-green">+4 poin</span></div>
+      <div class="score-row"><span>❌ Jawaban Salah</span><span class="score-badge badge-red">−1 poin</span></div>
+      <div class="score-row"><span>⏭️ Dilewati / Waktu Habis</span><span class="score-badge badge-gray">0 poin</span></div>
+    </div>
+    <div class="rule-item"><div class="rule-icon">🔒</div><div class="rule-text">Jawaban yang benar <strong>tidak ditampilkan</strong> saat menjawab. Lihat pembahasan lengkap <strong>setelah semua soal selesai</strong>.</div></div>
+    <div class="rule-item"><div class="rule-icon">🌟</div><div class="rule-text">Soal terdiri dari tingkat <strong>Sedang (⭐⭐)</strong> dan <strong>Sulit/Olimpiade (⭐⭐⭐)</strong>.</div></div>
+    <div class="rule-item"><div class="rule-icon">🏆</div><div class="rule-text">Skor maksimal: <strong>100 poin</strong> (25 soal × 4 poin). Raih nilai tertinggi!</div></div>
+    <button class="back-btn" onclick="showMenu()">← Kembali ke Menu</button>
   </div>
+</div>
 
-  <div class="filter-row">
-    <button class="filter-btn active" onclick="setFilter('all',event)">🗺️ Semua</button>
-    <button class="filter-btn" onclick="setFilter('geografi',event)">🌏 Geografi</button>
-    <button class="filter-btn" onclick="setFilter('sejarah',event)">📜 Sejarah</button>
-    <button class="filter-btn" onclick="setFilter('sosial',event)">👥 Sosial & Budaya</button>
-    <button class="filter-btn" onclick="setFilter('ekonomi',event)">💰 Ekonomi</button>
-    <button class="filter-btn" onclick="setFilter('asean',event)">🌐 ASEAN & Global</button>
+<!-- QUIZ -->
+<div id="quizScreen" class="screen">
+  <div class="quiz-topbar">
+    <div class="quiz-progress-text" id="progressText">Soal 1 dari 25</div>
+    <div class="quiz-score-live">Skor: <span id="liveScore">0</span></div>
   </div>
-
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
   <div class="timer-wrap">
-    ⏱️ <div class="timer-display" id="timerDisplay">02:00</div>
-    <button class="filter-btn" onclick="toggleTimer()" id="timerToggle">Matikan Timer</button>
-  </div>
-
-  <div id="quizSection">
-    <div class="q-card" id="questionCard">
-      <div class="q-meta">
-        <span class="q-num" id="qNumLabel">Soal #1</span>
-        <span class="q-topic" id="qTopicLabel">Geografi</span>
-        <span class="q-diff" id="qDiffLabel"></span>
-      </div>
-      <div class="q-text" id="qText">Memuat soal...</div>
-      <div id="optionsArea"></div>
-      <div class="feedback" id="feedback"></div>
-    </div>
-
-    <div class="action-row">
-      <button class="btn btn-skip"  onclick="skipQuestion()">⏭ Lewati</button>
-      <button class="btn btn-next"  id="nextBtn" onclick="nextQuestion()" disabled>Soal Berikutnya →</button>
-      <button class="btn btn-reset" onclick="resetSession()">🔄 Reset</button>
+    <div class="timer-ring">
+      <svg viewBox="0 0 70 70" width="70" height="70">
+        <circle class="timer-track" cx="35" cy="35" r="30"/>
+        <circle class="timer-fill" id="timerCircle" cx="35" cy="35" r="30" stroke-dasharray="188.5" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-number" id="timerNum">45</div>
     </div>
   </div>
-
-  <div class="result-screen" id="resultScreen">
-    <span class="result-emoji" id="resultEmoji">🏆</span>
-    <div class="result-score" id="resultScore">100%</div>
-    <div class="result-msg"   id="resultMsg">Luar biasa!</div>
-    <div class="result-detail">
-      <div><div class="r-item">Soal Dijawab</div><div class="r-val" id="rTotal"  style="color:var(--gold)">—</div></div>
-      <div><div class="r-item">Jawaban Benar</div><div class="r-val" id="rBenar" style="color:var(--green)">—</div></div>
-      <div><div class="r-item">Jawaban Salah</div><div class="r-val" id="rSalah" style="color:var(--red)">—</div></div>
-      <div><div class="r-item">Waktu Digunakan</div><div class="r-val" id="rWaktu" style="color:var(--secondary)">—</div></div>
+  <div class="question-card fade-in" id="questionCard">
+    <div class="q-meta">
+      <span class="q-num" id="qNum">Soal 1</span>
+      <span class="q-badge" id="qBadge">⭐⭐ Sedang</span>
+      <span class="q-topic" id="qTopic">Sejarah</span>
     </div>
-    <div id="sendStatusOsn" class="send-status-osn"></div>
-    <button class="btn-send-osn" id="btnSendOsn" onclick="kirimHasilOsn()">📤 Kirim Hasil ke Guru</button>
-    <div class="action-row" style="justify-content:center;max-width:340px;margin:0 auto;">
-      <button class="btn btn-next"  onclick="restartAll()">🔁 Mulai Ulang</button>
-      <button class="btn btn-reset" onclick="resetSession()">📝 Acak Soal Baru</button>
-    </div>
+    <div class="q-text" id="qText">Loading...</div>
   </div>
+  <div class="options-grid" id="optionsGrid"></div>
+  <button class="skip-btn" onclick="skipQuestion()">⏭️ Lewati Soal (0 poin)</button>
+</div>
 
+<!-- RESULT -->
+<div id="resultScreen" class="screen">
+  <div class="result-wrap fade-in">
+    <div class="result-header">
+      <div class="result-emoji" id="resultEmoji">🏆</div>
+      <div class="result-title" id="resultTitle">Luar Biasa!</div>
+      <div class="result-name" id="resultName">—</div>
+      <div class="result-school">SDN 2 Pesantren — OSN IPS 2026</div>
+      <div id="resultPred" class="predikat pred-gold">Juara!</div>
+    </div>
+    <div class="result-score-big">
+      <div class="score-val" id="finalScore">0</div>
+      <div class="score-max">dari 100 poin maksimal</div>
+    </div>
+    <div class="result-stats">
+      <div class="stat-card correct"><div class="stat-val" id="statCorrect">0</div><div class="stat-label">✅ Benar</div></div>
+      <div class="stat-card wrong"><div class="stat-val" id="statWrong">0</div><div class="stat-label">❌ Salah</div></div>
+      <div class="stat-card skip"><div class="stat-val" id="statSkip">0</div><div class="stat-label">⏭️ Skip</div></div>
+    </div>
+    <button class="review-btn" onclick="showReview()">📖 Lihat Pembahasan Lengkap</button>
+    <div id="sendStatus" class="send-status"></div>
+    <button class="btn-send" id="btnSend" onclick="kirimHasil()">📤 Kirim Hasil ke Guru</button>
+    <button class="home-btn" onclick="showMenu()">🏠 Kembali ke Menu</button>
+  </div>
+</div>
+
+<!-- REVIEW -->
+<div id="reviewScreen" class="screen">
+  <div class="review-header">
+    <div class="review-title">📖 Pembahasan Lengkap</div>
+  </div>
+  <div id="reviewList"></div>
+  <div class="review-nav">
+    <button class="btn-result-back" onclick="showResult()">← Kembali ke Hasil</button>
+    <button class="btn-home home-btn" onclick="showMenu()">🏠 Menu</button>
+  </div>
 </div>
 
 <script>
-// =====================================================================
-// BANK SOAL IPS OSN — TINGKAT TINGGI (tanpa hint & pembahasan)
-// 15 Mudah | 25 Sedang | 20 Sulit = 60 soal
-// =====================================================================
-const SOAL_BANK = [
+// ============================================================
+// DATABASE: 100 SOAL IPS OSN SD (SEDANG + SULIT)
+// Topik: Sejarah (25), Geografi (25), Ekonomi (25), Sosial-Budaya (15), ASEAN (10)
+// ============================================================
+const ALL_QUESTIONS = [
 
-  // ==================== MUDAH (⭐) ====================
-  {topic:"sejarah",diff:"easy",q:"Kerajaan Hindu tertua di Indonesia adalah ...",type:"mc",opts:["Majapahit","Sriwijaya","Kutai","Tarumanegara"],ans:2},
-  {topic:"sejarah",diff:"easy",q:"Proklamasi Kemerdekaan Indonesia dibacakan di Jalan ...",type:"mc",opts:["Imam Bonjol No. 1","Pegangsaan Timur No. 56","Merdeka Selatan No. 10","Veteran No. 3"],ans:1},
-  {topic:"geografi",diff:"easy",q:"Indonesia terletak di antara dua samudra, yaitu Samudra ...",type:"mc",opts:["Atlantik dan Pasifik","Hindia dan Atlantik","Pasifik dan Hindia","Arktik dan Pasifik"],ans:2},
-  {topic:"geografi",diff:"easy",q:"Gunung tertinggi di Indonesia adalah ...",type:"mc",opts:["Gunung Rinjani","Gunung Semeru","Gunung Kerinci","Puncak Jaya"],ans:3},
-  {topic:"ekonomi",diff:"easy",q:"Kegiatan ekonomi yang mengubah bahan baku menjadi barang jadi disebut ...",type:"mc",opts:["Distribusi","Konsumsi","Produksi","Perdagangan"],ans:2},
-  {topic:"sosial",diff:"easy",q:"Bahasa daerah dengan jumlah penutur terbanyak di Indonesia adalah bahasa ...",type:"mc",opts:["Sunda","Jawa","Madura","Batak"],ans:1},
-  {topic:"sosial",diff:"easy",q:"Tarian tradisional yang berasal dari Aceh dan biasa ditampilkan secara massal adalah ...",type:"mc",opts:["Saman","Pendet","Tor-tor","Kecak"],ans:0},
-  {topic:"asean",diff:"easy",q:"ASEAN didirikan pada tanggal ...",type:"mc",opts:["17 Agustus 1945","8 Agustus 1967","1 Januari 1970","31 Desember 1995"],ans:1},
-  {topic:"asean",diff:"easy",q:"Negara anggota ASEAN yang berbentuk kepulauan selain Indonesia adalah ...",type:"mc",opts:["Vietnam","Thailand","Filipina","Kamboja"],ans:2},
-  {topic:"sejarah",diff:"easy",q:"Tokoh yang dikenal sebagai 'Bapak Pendidikan Nasional' Indonesia adalah ...",type:"mc",opts:["RA Kartini","Mohammad Hatta","Ki Hajar Dewantara","Wahidin Sudirohusodo"],ans:2},
-  {topic:"geografi",diff:"easy",q:"Apa nama selat yang memisahkan Pulau Bali dan Pulau Lombok?",type:"mc",opts:["Selat Sunda","Selat Bali","Selat Lombok","Selat Makassar"],ans:2},
-  {topic:"ekonomi",diff:"easy",q:"Tempat bertemunya penjual dan pembeli yang menghasilkan kesepakatan harga disebut ...",type:"mc",opts:["Koperasi","Pasar","Bank","Perusahaan"],ans:1},
-  {topic:"sosial",diff:"easy",q:"Sistem kekerabatan yang menarik garis keturunan dari pihak ayah disebut ...",type:"mc",opts:["Matrilineal","Bilineal","Patrilineal","Ambilineal"],ans:2},
-  {topic:"asean",diff:"easy",q:"Ibu kota negara Thailand adalah ...",type:"mc",opts:["Kuala Lumpur","Manila","Bangkok","Hanoi"],ans:2},
-  {topic:"sejarah",diff:"easy",q:"Organisasi Budi Utomo didirikan pada tahun ...",type:"mc",opts:["1905","1908","1912","1928"],ans:1},
+// ===== SEJARAH (1-25) =====
+{
+  id:1, topic:"Sejarah", level:"med",
+  text:"Kerajaan Sriwijaya mencapai puncak kejayaan pada abad ke-7 M di bawah kepemimpinan Raja ...",
+  opts:["A. Hayam Wuruk","B. Balaputradewa","C. Mulawarman","D. Airlangga"],
+  ans:1,
+  pembahasan:"Balaputradewa adalah raja terbesar Sriwijaya yang memerintah sekitar abad ke-9 M, menjadikan Sriwijaya sebagai pusat perdagangan dan agama Buddha di Asia Tenggara."
+},
+{
+  id:2, topic:"Sejarah", level:"hard",
+  text:"Sistem tanam paksa (Cultuurstelsel) yang diterapkan VOC mewajibkan rakyat menyerahkan ... bagian dari tanahnya untuk ditanami tanaman ekspor.",
+  opts:["A. 1/3","B. 1/4","C. 1/5","D. 1/2"],
+  ans:2,
+  pembahasan:"Cultuurstelsel yang diterapkan Van den Bosch (1830) mewajibkan rakyat menyerahkan 1/5 (20%) tanahnya untuk ditanami tanaman ekspor, atau bekerja paksa 66 hari setahun."
+},
+{
+  id:3, topic:"Sejarah", level:"med",
+  text:"Perjanjian Linggarjati (1947) mengakui kedaulatan RI atas wilayah ...",
+  opts:["A. Seluruh bekas Hindia Belanda","B. Jawa, Madura, dan Sumatera","C. Jawa dan Madura saja","D. Jawa, Bali, dan Sumatera"],
+  ans:1,
+  pembahasan:"Perjanjian Linggarjati (25 Maret 1947) mengakui kedaulatan de facto RI atas Jawa, Madura, dan Sumatera. Belanda masih menguasai wilayah lainnya."
+},
+{
+  id:4, topic:"Sejarah", level:"hard",
+  text:"Konferensi Asia-Afrika 1955 di Bandung menghasilkan Dasasila Bandung. Salah satu prinsipnya adalah menolak campur tangan kekuatan luar dalam urusan dalam negeri. Prinsip ini juga dikenal sebagai ...",
+  opts:["A. Self-determination","B. Non-intervention","C. Non-alignment","D. Peaceful coexistence"],
+  ans:1,
+  pembahasan:"Prinsip non-intervention (tidak campur tangan urusan dalam negeri negara lain) adalah salah satu dari Dasasila Bandung yang menjadi dasar hubungan internasional negara-negara Asia-Afrika."
+},
+{
+  id:5, topic:"Sejarah", level:"med",
+  text:"Organisasi pergerakan nasional pertama di Indonesia yang berdiri pada tahun 1908 adalah ...",
+  opts:["A. Sarekat Islam","B. Indische Partij","C. Budi Utomo","D. Perhimpunan Indonesia"],
+  ans:2,
+  pembahasan:"Budi Utomo didirikan pada 20 Mei 1908 oleh mahasiswa STOVIA, diprakarsai dr. Wahidin Sudirohusodo dan dr. Sutomo. Tanggal ini diperingati sebagai Hari Kebangkitan Nasional."
+},
+{
+  id:6, topic:"Sejarah", level:"hard",
+  text:"Agresi Militer Belanda II (1948) berhasil menangkap Soekarno dan Hatta. Pemerintahan RI kemudian dipindahkan ke ...",
+  opts:["A. Yogyakarta","B. Bukittinggi (Sumatera Barat)","C. Madiun","D. Solo"],
+  ans:1,
+  pembahasan:"Saat Agresi Militer II, Syafruddin Prawiranegara memimpin Pemerintah Darurat Republik Indonesia (PDRI) yang berpusat di Bukittinggi, Sumatera Barat, mulai 19 Desember 1948."
+},
+{
+  id:7, topic:"Sejarah", level:"med",
+  text:"Peristiwa Sumpah Pemuda 28 Oktober 1928 mencetuskan tiga ikrar, salah satunya adalah mengaku berbahasa satu, bahasa ...",
+  opts:["A. Melayu","B. Jawa","C. Indonesia","D. Nusantara"],
+  ans:2,
+  pembahasan:"Sumpah Pemuda berikrar: bertumpah darah satu (Tanah Air Indonesia), berbangsa satu (Bangsa Indonesia), dan menjunjung bahasa persatuan (Bahasa Indonesia)."
+},
+{
+  id:8, topic:"Sejarah", level:"hard",
+  text:"Kerajaan Majapahit mencapai puncak kejayaan di bawah Raja Hayam Wuruk dengan Mahapatih Gajah Mada. Sumpah Palapa Gajah Mada bertujuan untuk ...",
+  opts:["A. Memperluas perdagangan ke India","B. Menyatukan seluruh Nusantara di bawah Majapahit","C. Mengusir pengaruh Cina dari Nusantara","D. Membangun armada laut terkuat di Asia"],
+  ans:1,
+  pembahasan:"Sumpah Palapa (sekitar 1336) berisi tekad Gajah Mada tidak akan menikmati palapa (rempah-rempah/kemewahan) sebelum menyatukan seluruh Nusantara di bawah kekuasaan Majapahit."
+},
+{
+  id:9, topic:"Sejarah", level:"med",
+  text:"Tokoh yang dikenal sebagai arsitek kemerdekaan Indonesia yang merumuskan teks proklamasi adalah ...",
+  opts:["A. Soekarno, Hatta, dan Achmad Soebardjo","B. Soekarno, Hatta, dan Sutan Sjahrir","C. Soekarno, Hatta, dan Soedirman","D. Soekarno, Hatta, dan Ahmad Yani"],
+  ans:0,
+  pembahasan:"Teks proklamasi dirumuskan di rumah Laksamana Maeda oleh Soekarno, Hatta, dan Achmad Soebardjo pada dini hari 17 Agustus 1945."
+},
+{
+  id:10, topic:"Sejarah", level:"hard",
+  text:"Pada masa penjajahan Jepang (1942-1945), lembaga yang dibentuk untuk mempersiapkan kemerdekaan Indonesia adalah BPUPKI. Sidang pertamanya (29 Mei-1 Juni 1945) membahas ...",
+  opts:["A. Rancangan Undang-Undang Dasar","B. Dasar negara Indonesia merdeka","C. Batas wilayah negara Indonesia","D. Susunan kabinet pertama"],
+  ans:1,
+  pembahasan:"Sidang pertama BPUPKI (29 Mei–1 Juni 1945) membahas dasar negara. Tiga tokoh berpidato: Moh. Yamin, Soepomo, dan Soekarno. Soekarno mencetuskan Pancasila pada 1 Juni 1945."
+},
+{
+  id:11, topic:"Sejarah", level:"med",
+  text:"Perlawanan Pangeran Diponegoro terhadap Belanda (1825-1830) dikenal sebagai Perang Jawa karena ...",
+  opts:["A. Berlangsung di seluruh pulau Jawa","B. Merupakan perang terbesar dan terlama di Jawa","C. Melibatkan semua kerajaan di Jawa","D. Dipimpin oleh raja-raja Jawa"],
+  ans:1,
+  pembahasan:"Perang Diponegoro (1825-1830) adalah konflik militer terbesar dan terlama yang pernah dialami Belanda di Jawa, menewaskan sekitar 200.000 jiwa dan menelan biaya sangat besar bagi Belanda."
+},
+{
+  id:12, topic:"Sejarah", level:"hard",
+  text:"Perjanjian Roem-Royen (1949) menjadi dasar pelaksanaan Konferensi Meja Bundar. Salah satu isi perjanjian ini dari pihak Belanda adalah ...",
+  opts:["A. Mengakui kemerdekaan RI sepenuhnya","B. Menghentikan operasi militer dan membebaskan pemimpin RI","C. Menyerahkan Irian Barat ke Indonesia","D. Menarik seluruh tentara dari Jawa"],
+  ans:1,
+  pembahasan:"Perjanjian Roem-Royen (7 Mei 1949): Belanda menghentikan operasi militer dan membebaskan Soekarno, Hatta, serta pemimpin RI yang ditawan, sebagai syarat pelaksanaan KMB."
+},
+{
+  id:13, topic:"Sejarah", level:"med",
+  text:"Masuknya agama Islam ke Nusantara melalui tiga jalur utama, yaitu perdagangan, perkawinan, dan ...",
+  opts:["A. Penaklukan militer","B. Tasawuf (dakwah para sufi)","C. Penyebaran kitab suci","D. Pembangunan masjid"],
+  ans:1,
+  pembahasan:"Islam masuk ke Nusantara melalui jalur perdagangan, perkawinan, dan tasawuf (dakwah para sufi). Para Wali Songo menggunakan pendekatan budaya dan tasawuf dalam menyebarkan Islam."
+},
+{
+  id:14, topic:"Sejarah", level:"hard",
+  text:"Dekrit Presiden 5 Juli 1959 yang dikeluarkan Soekarno menyatakan berlakunya kembali UUD 1945 dan membubarkan Konstituante. Latar belakang dikeluarkannya dekrit ini adalah ...",
+  opts:["A. PKI memberontak dan mengancam keamanan negara","B. Konstituante gagal menyepakati dasar negara setelah tiga tahun bersidang","C. Belanda kembali mengancam kedaulatan RI","D. Partai-partai politik tidak mau bekerja sama dengan pemerintah"],
+  ans:1,
+  pembahasan:"Konstituante (1956-1959) bersidang untuk merumuskan UUD baru tetapi gagal mencapai kesepakatan, terutama tentang dasar negara. Soekarno mengeluarkan Dekrit 5 Juli 1959 untuk mengakhiri kebuntuan."
+},
+{
+  id:15, topic:"Sejarah", level:"med",
+  text:"Pahlawan nasional yang dikenal sebagai 'Singa Podium' karena kemampuan orasinya dan aktif dalam pergerakan nasional adalah ...",
+  opts:["A. Moh. Hatta","B. Sutan Sjahrir","C. H.O.S. Tjokroaminoto","D. Tan Malaka"],
+  ans:2,
+  pembahasan:"H.O.S. Tjokroaminoto dikenal sebagai 'Raja tanpa Mahkota' dan 'Singa Podium' karena kemampuan orasinya yang membakar semangat. Ia memimpin Sarekat Islam dan menjadi guru bagi Soekarno muda."
+},
+{
+  id:16, topic:"Sejarah", level:"hard",
+  text:"Pemberontakan DI/TII di Jawa Barat dipimpin oleh S.M. Kartosuwiryo yang memproklamasikan Negara Islam Indonesia pada tahun ...",
+  opts:["A. 1947","B. 1948","C. 1949","D. 1950"],
+  ans:2,
+  pembahasan:"S.M. Kartosuwiryo memproklamasikan Negara Islam Indonesia (NII) atau Darul Islam pada 7 Agustus 1949, bertepatan saat Belanda mengakui kedaulatan RI melalui KMB."
+},
+{
+  id:17, topic:"Sejarah", level:"med",
+  text:"Pertempuran Ambarawa (1945) yang dipimpin Kolonel Soedirman berhasil mengusir pasukan ...",
+  opts:["A. Belanda (NICA)","B. Sekutu (Inggris)","C. Jepang","D. Amerika Serikat"],
+  ans:1,
+  pembahasan:"Pertempuran Ambarawa (November-Desember 1945) dipimpin Kolonel Soedirman menghadapi pasukan Sekutu (Inggris) yang diboncengi Belanda (NICA). Kemenangan ini menjadikan Soedirman sebagai Panglima Besar TKR."
+},
+{
+  id:18, topic:"Sejarah", level:"hard",
+  text:"Dalam hierarki kekuasaan kerajaan Hindu-Buddha di Nusantara, konsep 'dewa-raja' (devaraja) bermakna ...",
+  opts:["A. Raja adalah penjelmaan dewa di muka bumi","B. Dewa lebih berkuasa dari raja","C. Raja harus menyembah para dewa","D. Raja dipilih oleh para pendeta"],
+  ans:0,
+  pembahasan:"Konsep devaraja (dewa-raja) dalam tradisi Hindu adalah bahwa raja merupakan penjelmaan atau titisan dewa (biasanya Siwa atau Wisnu) di dunia. Hal ini memberikan legitimasi spiritual atas kekuasaan raja."
+},
+{
+  id:19, topic:"Sejarah", level:"med",
+  text:"Traktat Sumatra (1871) antara Belanda dan Inggris memberikan Belanda kebebasan untuk memperluas pengaruh di Sumatera, termasuk menyerang ...",
+  opts:["A. Kerajaan Siak","B. Kesultanan Aceh","C. Kerajaan Minangkabau","D. Kesultanan Deli"],
+  ans:1,
+  pembahasan:"Traktat Sumatra 1871 memungkinkan Belanda menyerang Aceh, yang kemudian memicu Perang Aceh (1873-1904). Perang ini merupakan perang terlama dan terberat yang dialami Belanda di Indonesia."
+},
+{
+  id:20, topic:"Sejarah", level:"hard",
+  text:"Peristiwa G30S/PKI 1965 menjadi pemicu lengsernya Soekarno. Surat Perintah Sebelas Maret (Supersemar) 1966 memindahkan kekuasaan ke tangan ...",
+  opts:["A. Adam Malik","B. Sri Sultan Hamengkubuwono IX","C. Soeharto","D. A.H. Nasution"],
+  ans:2,
+  pembahasan:"Supersemar 11 Maret 1966 memberikan mandat kepada Letjen Soeharto untuk memulihkan keamanan dan ketertiban. Supersemar menjadi dasar hukum Soeharto mengambil alih kendali pemerintahan."
+},
+{
+  id:21, topic:"Sejarah", level:"med",
+  text:"Salah satu isi Perjanjian Renville (1948) yang merugikan Indonesia adalah ...",
+  opts:["A. Belanda mengakui wilayah RI semakin luas","B. Tentara RI harus mundur dari wilayah yang diklaim Belanda","C. Belanda segera mengakui kemerdekaan RI","D. RI mendapatkan bantuan senjata dari PBB"],
+  ans:1,
+  pembahasan:"Perjanjian Renville (17 Januari 1948) sangat merugikan RI: wilayah yang diakui menyempit, dan tentara RI (TNI) harus mundur (hijrah) dari daerah yang dikuasai Belanda seperti Jawa Barat."
+},
+{
+  id:22, topic:"Sejarah", level:"hard",
+  text:"Kebijakan 'Politik Pintu Terbuka' (Open Door Policy) yang diterapkan Belanda pada akhir abad ke-19 di Indonesia bertujuan untuk ...",
+  opts:["A. Membuka Indonesia bagi investasi swasta asing dan Belanda","B. Membuka hubungan diplomatik dengan negara-negara Asia","C. Membebaskan rakyat dari sistem tanam paksa","D. Membuka jalur perdagangan baru ke China"],
+  ans:0,
+  pembahasan:"Politik Pintu Terbuka (setelah 1870) membuka Indonesia bagi investasi modal swasta Belanda dan asing, terutama di perkebunan. Ini menggantikan sistem monopoli pemerintah dan mendorong industrialisasi perkebunan."
+},
+{
+  id:23, topic:"Sejarah", level:"med",
+  text:"Perumusan Pancasila sebagai dasar negara melalui proses panjang. Piagam Jakarta (22 Juni 1945) memuat sila pertama yang kemudian diubah menjadi 'Ketuhanan Yang Maha Esa'. Bunyi aslinya adalah ...",
+  opts:["A. Ketuhanan dengan kewajiban menjalankan syariat Islam","B. Ketuhanan yang berdasarkan agama Islam","C. Ketuhanan dengan kewajiban menjalankan ajaran agama masing-masing","D. Ketuhanan Yang Maha Esa dengan kewajiban beribadah"],
+  ans:0,
+  pembahasan:"Piagam Jakarta mencantumkan: 'Ketuhanan dengan kewajiban menjalankan syariat Islam bagi pemeluk-pemeluknya.' Kalimat ini diubah pada 18 Agustus 1945 menjadi 'Ketuhanan Yang Maha Esa' demi persatuan bangsa."
+},
+{
+  id:24, topic:"Sejarah", level:"hard",
+  text:"Serangan Umum 1 Maret 1949 yang berhasil menguasai Yogyakarta selama 6 jam dipimpin oleh ...",
+  opts:["A. Soeharto","B. Soedirman","C. Abdul Haris Nasution","D. Oerip Soemohardjo"],
+  ans:0,
+  pembahasan:"Serangan Umum 1 Maret 1949 dikomandani Letkol Soeharto (Komandan Wehrkreise III). Serangan berhasil membuktikan kepada dunia internasional bahwa RI masih ada dan tentaranya masih kuat."
+},
+{
+  id:25, topic:"Sejarah", level:"med",
+  text:"Kerajaan Mataram Islam mencapai puncak kejayaan di bawah Sultan Agung (1613-1645). Salah satu pencapaiannya adalah ...",
+  opts:["A. Menyatukan seluruh Nusantara","B. Menyerang Batavia (Jakarta) dua kali untuk mengusir VOC","C. Membangun armada laut terbesar di Asia","D. Menjalin hubungan dagang dengan Eropa"],
+  ans:1,
+  pembahasan:"Sultan Agung menyerang Batavia dua kali (1628 dan 1629) untuk mengusir VOC. Meskipun gagal, serangan ini menunjukkan kekuatan Mataram dan tekad mengusir penjajah dari bumi Nusantara."
+},
 
-  // ==================== SEDANG (⭐⭐) ====================
-  {topic:"sejarah",diff:"med",q:"Perjanjian yang mengakibatkan Belanda mengakui kemerdekaan Indonesia secara penuh pada 27 Desember 1949 adalah hasil dari ...",type:"mc",opts:["Perjanjian Linggarjati","Perjanjian Renville","Konferensi Meja Bundar","Perjanjian Roem-Royen"],ans:2},
-  {topic:"sejarah",diff:"med",q:"Pada masa pendudukan Jepang, sistem kerja paksa yang diberlakukan disebut ...",type:"mc",opts:["Tanam Paksa","Romusha","Kerja Rodi","Cultuurstelsel"],ans:1},
-  {topic:"sejarah",diff:"med",q:"Peristiwa yang menjadi penyebab langsung Pertempuran Surabaya 10 November 1945 adalah ...",type:"mc",opts:["Tentara Belanda mendarat di Surabaya","Terbunuhnya Brigadir Jenderal Mallaby","Proklamasi kemerdekaan Indonesia","Kedatangan pasukan Sekutu ke Jakarta"],ans:1},
-  {topic:"sejarah",diff:"med",q:"Sistem tanam paksa (Cultuurstelsel) di Indonesia diterapkan oleh ...",type:"mc",opts:["Herman Willem Daendels","Thomas Stamford Raffles","Johannes van den Bosch","Jan Pieterszoon Coen"],ans:2},
-  {topic:"sejarah",diff:"med",q:"Sumpah Pemuda 28 Oktober 1928 dicetuskan dalam kongres pemuda yang berlangsung di ...",type:"mc",opts:["Bandung","Surabaya","Jakarta (Batavia)","Yogyakarta"],ans:2},
-  {topic:"geografi",diff:"med",q:"Fenomena terjadinya dua musim di Indonesia (musim hujan dan kemarau) disebabkan oleh ...",type:"mc",opts:["Rotasi bumi","Letak astronomis Indonesia","Pergerakan angin muson","Arus laut yang berganti arah"],ans:2},
-  {topic:"geografi",diff:"med",q:"Wilayah Indonesia yang terletak pada pertemuan tiga lempeng tektonik besar sehingga sering terjadi gempa adalah ...",type:"mc",opts:["Jawa","Papua","Sulawesi","Kalimantan"],ans:2},
-  {topic:"geografi",diff:"med",q:"Garis batas antara fauna tipe Australia dan tipe peralihan di Indonesia disebut garis ...",type:"mc",opts:["Wallace","Weber","Lydekker","Junghuhn"],ans:1},
-  {topic:"geografi",diff:"med",q:"Penyebab utama terjadinya angin darat dan angin laut di daerah pantai adalah ...",type:"mc",opts:["Perbedaan tekanan udara akibat perbedaan pemanasan daratan dan lautan","Rotasi bumi yang menyebabkan efek Coriolis","Perbedaan ketinggian antara daratan dan laut","Arus laut yang bergerak ke arah daratan"],ans:0},
-  {topic:"ekonomi",diff:"med",q:"Koperasi di Indonesia pertama kali didirikan oleh ...",type:"mc",opts:["Mohammad Hatta","Raden Aria Wiriaatmadja","Soekarno","Sri Sultan Hamengkubuwono IX"],ans:1},
-  {topic:"ekonomi",diff:"med",q:"Kebijakan pemerintah yang bertujuan mengendalikan jumlah uang beredar di masyarakat disebut kebijakan ...",type:"mc",opts:["Fiskal","Moneter","Perdagangan","Industri"],ans:1},
-  {topic:"ekonomi",diff:"med",q:"Salah satu komoditas ekspor utama Indonesia yang masuk dalam kategori hasil perkebunan adalah ...",type:"mc",opts:["Beras dan jagung","Sawit dan karet","Ikan dan udang","Batu bara dan timah"],ans:1},
-  {topic:"sosial",diff:"med",q:"Proses berubahnya nilai, norma, dan perilaku masyarakat akibat pengaruh budaya luar yang berlangsung secara cepat disebut ...",type:"mc",opts:["Akulturasi","Asimilasi","Modernisasi","Globalisasi"],ans:3},
-  {topic:"sosial",diff:"med",q:"Lembaga sosial yang berfungsi sebagai agen sosialisasi pertama bagi individu adalah ...",type:"mc",opts:["Sekolah","Keluarga","Pemerintah","Media massa"],ans:1},
-  {topic:"sosial",diff:"med",q:"Upacara Ngaben di Bali merupakan upacara ...",type:"mc",opts:["Kelahiran","Pernikahan","Pembakaran jenazah","Panen raya"],ans:2},
-  {topic:"asean",diff:"med",q:"ASEAN Free Trade Area (AFTA) bertujuan untuk ...",type:"mc",opts:["Membentuk mata uang tunggal ASEAN","Mengurangi hambatan perdagangan antar negara ASEAN","Membentuk angkatan bersenjata bersama ASEAN","Menyeragamkan kebijakan politik ASEAN"],ans:1},
-  {topic:"asean",diff:"med",q:"Negara di ASEAN yang tidak pernah dijajah oleh bangsa Eropa adalah ...",type:"mc",opts:["Vietnam","Myanmar","Thailand","Filipina"],ans:2},
-  {topic:"asean",diff:"med",q:"Masyarakat Ekonomi ASEAN (MEA) resmi berlaku pada tahun ...",type:"mc",opts:["2010","2013","2015","2018"],ans:2},
-  {topic:"sejarah",diff:"med",q:"Tokoh yang membacakan teks proklamasi kemerdekaan Indonesia bersama Soekarno adalah ...",type:"mc",opts:["Soedirman","Mohammad Hatta","Adam Malik","Sutan Sjahrir"],ans:1},
-  {topic:"geografi",diff:"med",q:"Jenis hutan yang mendominasi wilayah Kalimantan dan Papua adalah ...",type:"mc",opts:["Hutan musim","Hutan hujan tropis","Hutan mangrove","Hutan sabana"],ans:1},
-  {topic:"ekonomi",diff:"med",q:"Pengeluaran pemerintah yang digunakan untuk membiayai gaji pegawai negeri termasuk dalam jenis belanja ...",type:"mc",opts:["Modal","Barang","Pegawai","Subsidi"],ans:2},
-  {topic:"sosial",diff:"med",q:"Masuknya Islam ke Nusantara melalui jalur perdagangan pertama kali diperkirakan terjadi di daerah ...",type:"mc",opts:["Banten","Samudra Pasai (Aceh)","Demak","Gresik"],ans:1},
-  {topic:"asean",diff:"med",q:"Sekretariat tetap ASEAN berkedudukan di kota ...",type:"mc",opts:["Bangkok","Manila","Kuala Lumpur","Jakarta"],ans:3},
-  {topic:"sejarah",diff:"med",q:"Pemberontakan PKI Madiun pada September 1948 dipimpin oleh ...",type:"mc",opts:["D.N. Aidit","Musso","Tan Malaka","Semaun"],ans:1},
-  {topic:"geografi",diff:"med",q:"Indonesia memiliki garis pantai terpanjang kedua di dunia setelah ...",type:"mc",opts:["Amerika Serikat","Rusia","Kanada","Australia"],ans:2},
+// ===== GEOGRAFI (26-50) =====
+{
+  id:26, topic:"Geografi", level:"med",
+  text:"Indonesia terletak pada posisi astronomis antara 6°LU-11°LS dan 95°BT-141°BT. Posisi ini menyebabkan Indonesia memiliki iklim ...",
+  opts:["A. Subtropis","B. Tropis","C. Semi-arid","D. Sedang"],
+  ans:1,
+  pembahasan:"Letak astronomis Indonesia di sekitar garis khatulistiwa menyebabkan Indonesia beriklim tropis: suhu tinggi sepanjang tahun (26-28°C), curah hujan tinggi, dan kelembapan udara tinggi."
+},
+{
+  id:27, topic:"Geografi", level:"hard",
+  text:"Garis Wallace memisahkan fauna Asia dan fauna peralihan, sedangkan garis Weber memisahkan fauna peralihan dan fauna Australasia. Garis Weber melewati ...",
+  opts:["A. Selat Lombok","B. Timur Sulawesi dan Barat Maluku","C. Selat Makassar","D. Selat Flores"],
+  ans:1,
+  pembahasan:"Garis Weber melewati sebelah timur Sulawesi dan barat kepulauan Maluku. Di sebelah timur garis Weber, fauna lebih berciri Australia (marsupial, dll). Garis Wallace melewati Selat Lombok dan Selat Makassar."
+},
+{
+  id:28, topic:"Geografi", level:"med",
+  text:"Fenomena 'El Niño' yang terjadi di Samudra Pasifik berdampak pada Indonesia berupa ...",
+  opts:["A. Musim hujan lebih panjang dan banjir","B. Kekeringan panjang dan kebakaran hutan","C. Suhu laut lebih dingin dan ikan melimpah","D. Angin topan dan gelombang tinggi"],
+  ans:1,
+  pembahasan:"El Niño menyebabkan suhu permukaan laut Pasifik tengah-timur menghangat, sehingga Indonesia mengalami kekeringan panjang karena uap air bergerak ke Pasifik. Dampaknya: gagal panen dan kebakaran hutan."
+},
+{
+  id:29, topic:"Geografi", level:"hard",
+  text:"Indonesia memiliki Zona Ekonomi Eksklusif (ZEE) sejauh 200 mil laut dari garis pantai. Konsep ZEE ini diatur dalam ...",
+  opts:["A. Piagam PBB 1945","B. UNCLOS 1982 (Hukum Laut Internasional)","C. Deklarasi Djuanda 1957","D. Traktat London 1824"],
+  ans:1,
+  pembahasan:"ZEE diatur dalam UNCLOS 1982 (United Nations Convention on the Law of the Sea). Indonesia meratifikasi UNCLOS 1982 melalui UU No. 17 Tahun 1985, memberi hak pengelolaan sumber daya laut hingga 200 mil."
+},
+{
+  id:30, topic:"Geografi", level:"med",
+  text:"Persebaran penduduk Indonesia yang tidak merata menyebabkan Jawa menjadi pulau terpadat. Kebijakan pemerintah untuk mengatasi hal ini adalah ...",
+  opts:["A. Urbanisasi","B. Transmigrasi","C. Industrialisasi","D. Modernisasi"],
+  ans:1,
+  pembahasan:"Transmigrasi adalah program pemindahan penduduk dari daerah padat (Jawa, Bali, Madura) ke daerah jarang penduduk (Kalimantan, Sulawesi, Papua) untuk pemerataan penduduk dan pembangunan."
+},
+{
+  id:31, topic:"Geografi", level:"hard",
+  text:"Kepulauan Indonesia terbentuk akibat pertemuan tiga lempeng tektonik. Lempeng yang tidak bertemu di wilayah Indonesia adalah lempeng ...",
+  opts:["A. Indo-Australia","B. Eurasia","C. Pasifik","D. Amerika"],
+  ans:3,
+  pembahasan:"Tiga lempeng yang bertemu di Indonesia: Lempeng Indo-Australia (dari selatan), Lempeng Eurasia (dari utara), dan Lempeng Pasifik (dari timur). Lempeng Amerika tidak mempengaruhi wilayah Indonesia."
+},
+{
+  id:32, topic:"Geografi", level:"med",
+  text:"Sumber daya alam Indonesia yang termasuk dalam kategori sumber daya tidak terbarukan adalah ...",
+  opts:["A. Hutan tropis dan perikanan","B. Minyak bumi, gas alam, dan batu bara","C. Air, angin, dan sinar matahari","D. Tanah subur dan udara bersih"],
+  ans:1,
+  pembahasan:"Sumber daya tidak terbarukan (non-renewable) adalah yang tidak dapat dipulihkan dalam waktu singkat. Minyak bumi, gas alam, dan batu bara terbentuk jutaan tahun sehingga termasuk kategori ini."
+},
+{
+  id:33, topic:"Geografi", level:"hard",
+  text:"Fenomena 'upwelling' (pengangkatan massa air dingin dari dasar laut) di perairan selatan Jawa menyebabkan ...",
+  opts:["A. Suhu laut naik dan terumbu karang rusak","B. Suhu laut turun dan perairan kaya nutrisi sehingga ikan melimpah","C. Badai tropis sering terjadi di selatan Jawa","D. Arus laut berbalik arah ke utara"],
+  ans:1,
+  pembahasan:"Upwelling membawa air dingin kaya nutrien (nitrat, fosfat) ke permukaan. Ini menyuburkan fitoplankton sebagai dasar rantai makanan laut, sehingga perairan selatan Jawa kaya ikan."
+},
+{
+  id:34, topic:"Geografi", level:"med",
+  text:"Hutan mangrove di Indonesia berfungsi penting sebagai ...",
+  opts:["A. Sumber kayu keras untuk industri furniture","B. Pelindung pantai dari abrasi dan habitat biota laut","C. Lahan pertanian setelah direklamasi","D. Objek wisata bahari utama"],
+  ans:1,
+  pembahasan:"Hutan mangrove berfungsi sebagai: pelindung pantai dari abrasi dan tsunami, habitat pemijahan ikan dan udang, penyerap karbon, dan tempat hidup berbagai satwa. Indonesia memiliki mangrove terluas di dunia."
+},
+{
+  id:35, topic:"Geografi", level:"hard",
+  text:"Peta topografi menggunakan garis kontur. Garis kontur yang rapat menunjukkan ...",
+  opts:["A. Daerah yang datar","B. Daerah yang lerengnya curam","C. Daerah yang banyak sumber airnya","D. Daerah yang subur"],
+  ans:1,
+  pembahasan:"Garis kontur menghubungkan titik-titik yang memiliki ketinggian sama. Garis kontur yang rapat berarti perbedaan ketinggian dalam jarak horizontal kecil → lereng curam. Garis kontur renggang → lereng landai."
+},
+{
+  id:36, topic:"Geografi", level:"med",
+  text:"Provinsi penghasil minyak sawit (CPO) terbesar di Indonesia adalah ...",
+  opts:["A. Jawa Tengah","B. Sumatera Selatan","C. Riau dan Kalimantan Tengah","D. Sulawesi Selatan"],
+  ans:2,
+  pembahasan:"Riau dan Kalimantan Tengah merupakan provinsi penghasil kelapa sawit terbesar di Indonesia. Indonesia adalah produsen dan eksportir CPO terbesar di dunia, menyumbang lebih dari separuh produksi global."
+},
+{
+  id:37, topic:"Geografi", level:"hard",
+  text:"Konsep 'Deklarasi Djuanda' 1957 mengubah status perairan Indonesia. Sebelum deklarasi ini, perairan antarpulau Indonesia berstatus ...",
+  opts:["A. Perairan nasional Indonesia","B. Laut bebas yang dapat dilayari siapa saja","C. Zona ekonomi eksklusif","D. Wilayah sengketa internasional"],
+  ans:1,
+  pembahasan:"Sebelum Deklarasi Djuanda, perairan antarpulau Indonesia berstatus laut bebas (laut internasional) yang dapat dilayari semua negara. Deklarasi Djuanda menetapkan seluruh perairan antarpulau sebagai bagian dari wilayah Indonesia."
+},
+{
+  id:38, topic:"Geografi", level:"med",
+  text:"Gunung Krakatau yang meletus dahsyat pada 1883 terletak di Selat ...",
+  opts:["A. Selat Bali","B. Selat Sunda","C. Selat Lombok","D. Selat Bangka"],
+  ans:1,
+  pembahasan:"Gunung Krakatau berada di Selat Sunda antara Pulau Jawa dan Sumatera. Letusan 1883 adalah salah satu terbesar dalam sejarah modern, menghasilkan tsunami dan mengubah iklim global sementara."
+},
+{
+  id:39, topic:"Geografi", level:"hard",
+  text:"Pembagian wilayah waktu Indonesia menjadi WIB, WITA, dan WIT didasarkan pada perbedaan bujur setiap ...",
+  opts:["A. 10°","B. 15°","C. 20°","D. 30°"],
+  ans:1,
+  pembahasan:"Bumi berputar 360° dalam 24 jam = 15° per jam. Satu zona waktu berbeda 1 jam = 15° bujur. WIB = GMT+7 (105°BT), WITA = GMT+8 (120°BT), WIT = GMT+9 (135°BT). Selisih masing-masing 15° bujur."
+},
+{
+  id:40, topic:"Geografi", level:"med",
+  text:"Jenis tanah yang paling subur untuk pertanian di Pulau Jawa adalah tanah ...",
+  opts:["A. Laterit","B. Vulkanik (Andosol)","C. Podsolik","D. Gambut"],
+  ans:1,
+  pembahasan:"Tanah vulkanik (andosol) terbentuk dari abu vulkanik yang kaya mineral. Jawa memiliki banyak gunung berapi aktif sehingga tanahnya sangat subur untuk pertanian padi, tebu, dan kopi."
+},
+{
+  id:41, topic:"Geografi", level:"hard",
+  text:"Indonesia memiliki keanekaragaman hayati tertinggi kedua di dunia (megabiodiversity). Faktor utama yang menyebabkan hal ini adalah ...",
+  opts:["A. Wilayah Indonesia sangat luas dan terisolasi","B. Posisi di khatulistiwa, iklim tropis lembab, dan kondisi kepulauan","C. Banyaknya sungai besar dan danau di Indonesia","D. Aktivitas vulkanik yang menyuburkan tanah"],
+  ans:1,
+  pembahasan:"Keanekaragaman hayati Indonesia tinggi karena: iklim tropis lembab (mendukung pertumbuhan sepanjang tahun), bentuk kepulauan (memisahkan spesies sehingga berevolusi berbeda), dan posisi di persimpangan dua zona biogeografi."
+},
+{
+  id:42, topic:"Geografi", level:"med",
+  text:"Angin muson barat yang bertiup dari Oktober-April membawa musim hujan ke Indonesia. Angin ini berasal dari daratan ...",
+  opts:["A. Australia","B. Asia","C. Afrika","D. Amerika"],
+  ans:1,
+  pembahasan:"Angin muson barat bertiup dari Asia menuju Australia. Angin melewati Samudra Hindia dan membawa banyak uap air, sehingga Indonesia bagian barat dan tengah mengalami musim hujan pada Oktober-April."
+},
+{
+  id:43, topic:"Geografi", level:"hard",
+  text:"Danau Toba di Sumatera Utara terbentuk dari ...",
+  opts:["A. Erosi sungai purba yang membentuk cekungan","B. Letusan supervulkano purba sekitar 74.000 tahun lalu","C. Gempa bumi yang menyebabkan amblesan tanah","D. Pertemuan lempeng tektonik yang membentuk graben"],
+  ans:1,
+  pembahasan:"Danau Toba terbentuk dari letusan supervulkano sekitar 74.000 tahun lalu, salah satu letusan terbesar dalam 2 juta tahun terakhir. Letusan ini hampir memusnahkan manusia modern (genetic bottleneck theory)."
+},
+{
+  id:44, topic:"Geografi", level:"med",
+  text:"Terumbu karang di Indonesia terancam oleh berbagai faktor. Ancaman yang berasal dari aktivitas manusia adalah ...",
+  opts:["A. Badai dan gelombang besar","B. Pemutihan karang akibat pemanasan global","C. Penangkapan ikan dengan bahan peledak dan sianida","D. Predator alami bintang laut mahkota duri"],
+  ans:2,
+  pembahasan:"Ancaman dari manusia: penangkapan ikan dengan bom dan sianida, sedimentasi dari erosi darat, polusi limbah, dan penangkapan berlebihan. Ancaman dari alam: badai, pemutihan karang (bleaching) akibat suhu tinggi."
+},
+{
+  id:45, topic:"Geografi", level:"hard",
+  text:"Pulau Papua memiliki hutan hujan tropis terluas kedua di dunia. Fungsi ekologis utama hutan ini bagi bumi adalah ...",
+  opts:["A. Sumber kayu keras bernilai ekonomi tinggi","B. Penyerap karbon dioksida dan penghasil oksigen (paru-paru dunia)","C. Habitat fauna endemik yang tidak ada di tempat lain","D. Sumber air tawar terbesar di dunia"],
+  ans:1,
+  pembahasan:"Hutan hujan tropis Papua berfungsi sebagai 'paru-paru dunia': menyerap CO₂ dan menghasilkan O₂ dalam jumlah besar. Juga berfungsi sebagai penyimpan karbon, pengatur iklim mikro, dan habitat biodiversitas."
+},
+{
+  id:46, topic:"Geografi", level:"med",
+  text:"Industri pariwisata di Bali sangat berkembang. Faktor geografis yang mendukung perkembangan pariwisata Bali adalah ...",
+  opts:["A. Cuaca yang selalu cerah dan tidak pernah hujan","B. Lokasi strategis, pantai indah, dan relief alam yang bervariasi","C. Dekat dengan ibu kota Jakarta","D. Kaya sumber daya minyak bumi"],
+  ans:1,
+  pembahasan:"Faktor geografis yang mendukung pariwisata Bali: lokasi strategis di jalur internasional, pantai indah, sawah terasering, gunung berapi, iklim tropis hangat, dan relief alam yang bervariasi mendukung berbagai wisata alam."
+},
+{
+  id:47, topic:"Geografi", level:"hard",
+  text:"Perubahan fungsi lahan (alih fungsi lahan) dari pertanian ke pemukiman dan industri di Jawa berdampak langsung pada ...",
+  opts:["A. Meningkatnya produktivitas pertanian karena teknologi modern","B. Berkurangnya luas lahan pertanian dan ketahanan pangan nasional","C. Meningkatnya keanekaragaman hayati daerah tersebut","D. Berkurangnya kepadatan penduduk di Jawa"],
+  ans:1,
+  pembahasan:"Alih fungsi lahan pertanian di Jawa menyebabkan berkurangnya luas sawah produktif, yang berdampak pada penurunan produksi pangan dan ancaman ketahanan pangan nasional. Jawa adalah lumbung padi utama Indonesia."
+},
+{
+  id:48, topic:"Geografi", level:"med",
+  text:"Peta yang menampilkan informasi tentang kepadatan penduduk, persebaran, dan pertumbuhan penduduk disebut peta ...",
+  opts:["A. Topografi","B. Geologi","C. Kependudukan (Demografi)","D. Klimatologi"],
+  ans:2,
+  pembahasan:"Peta kependudukan (demografi) menyajikan informasi tentang: kepadatan penduduk, distribusi/persebaran penduduk, pertumbuhan penduduk, komposisi penduduk, dan migrasi penduduk di suatu wilayah."
+},
+{
+  id:49, topic:"Geografi", level:"hard",
+  text:"Indonesia memiliki potensi energi panas bumi (geothermal) terbesar di dunia. Penyebab melimpahnya energi panas bumi di Indonesia adalah ...",
+  opts:["A. Indonesia terletak di khatulistiwa sehingga menerima sinar matahari banyak","B. Indonesia berada di Cincin Api Pasifik dengan banyak gunung berapi aktif","C. Indonesia memiliki laut yang dalam dan menghasilkan panas dari tekanan air","D. Indonesia memiliki banyak sungai besar yang menghasilkan panas gesekan"],
+  ans:1,
+  pembahasan:"Indonesia berada di Cincin Api Pasifik (Ring of Fire) dengan 127 gunung berapi aktif. Aktivitas vulkanik dan tektonik yang tinggi menghasilkan panas bumi melimpah. Indonesia memiliki 40% potensi panas bumi dunia."
+},
+{
+  id:50, topic:"Geografi", level:"med",
+  text:"Bentang alam berupa delta sungai terbentuk dari proses ...",
+  opts:["A. Erosi air sungai yang mengikis tebing","B. Pengendapan material yang dibawa sungai di muaranya","C. Aktivitas gunung berapi yang membentuk tanah baru","D. Abrasi pantai yang membentuk cekungan"],
+  ans:1,
+  pembahasan:"Delta terbentuk dari proses sedimentasi (pengendapan) material yang dibawa aliran sungai ketika bertemu laut di muaranya. Arus sungai melambat, material mengendap membentuk daratan baru berbentuk kipas atau segitiga."
+},
 
-  // ==================== SULIT (⭐⭐⭐ OLIMPIADE) ====================
-  {topic:"sejarah",diff:"hard",q:"Naskah asli teks proklamasi yang diketik oleh Sayuti Melik mengalami beberapa perubahan dari naskah tulisan tangan Soekarno, salah satunya adalah kata 'tempoh' diubah menjadi ...",type:"mc",opts:["'waktu'","'masa'","'tempo'","'saat'"],ans:2},
-  {topic:"sejarah",diff:"hard",q:"Konferensi Asia-Afrika 1955 menghasilkan Dasasila Bandung. Salah satu isi dasasila adalah menghormati hak setiap bangsa untuk mempertahankan diri. Prinsip ini sejalan dengan pilar ke berapa dalam Piagam PBB?",type:"mc",opts:["Pasal 1","Pasal 2","Pasal 51","Pasal 99"],ans:2},
-  {topic:"sejarah",diff:"hard",q:"Gerakan Tiga A yang dibentuk Jepang memiliki semboyan 'Nippon Cahaya Asia, Nippon Pelindung Asia, Nippon Pemimpin Asia'. Tujuan utama gerakan ini adalah ...",type:"mc",opts:["Meningkatkan kesejahteraan rakyat Indonesia","Memenangkan dukungan rakyat Indonesia untuk Jepang dalam Perang Pasifik","Mempersiapkan kemerdekaan Indonesia","Mengusir Belanda dari Nusantara"],ans:1},
-  {topic:"sejarah",diff:"hard",q:"Pada masa Demokrasi Terpimpin (1959-1965), Soekarno membubarkan DPR hasil Pemilu 1955 karena DPR menolak ...",type:"mc",opts:["RAPBN yang diajukan pemerintah","Dekrit 5 Juli 1959","Pembentukan Kabinet Gotong Royong","Konsepsi Presiden Soekarno"],ans:0},
-  {topic:"sejarah",diff:"hard",q:"Perjanjian Bongaya (1667) antara VOC dan Kerajaan Gowa-Tallo mengakibatkan ...",type:"mc",opts:["Makassar menjadi pelabuhan bebas","VOC memonopoli perdagangan di Makassar","Gowa-Tallo memperluas wilayahnya","VOC meninggalkan wilayah Sulawesi"],ans:1},
-  {topic:"geografi",diff:"hard",q:"Fenomena 'upwelling' (pengangkatan massa air laut dari lapisan dalam ke permukaan) di perairan selatan Jawa menyebabkan ...",type:"mc",opts:["Suhu permukaan laut naik dan ikan berlimpah","Suhu permukaan laut turun dan ikan berlimpah karena kaya nutrisi","Terumbu karang rusak akibat air dingin","Badai tropis sering terbentuk"],ans:1},
-  {topic:"geografi",diff:"hard",q:"Indonesia sebagai negara kepulauan (archipelagic state) memiliki hak atas perairan di antara pulau-pulaunya yang disebut ...",type:"mc",opts:["Laut teritorial","Zona Ekonomi Eksklusif","Perairan kepulauan","Landas kontinen"],ans:2},
-  {topic:"geografi",diff:"hard",q:"Daerah Aliran Sungai (DAS) Mahakam di Kalimantan Timur memiliki ekosistem unik berupa danau-danau oxbow yang terbentuk dari ...",type:"mc",opts:["Letusan gunung berapi purba","Sungai yang berbelok meninggalkan meander terpotong","Penambangan batu bara yang membentuk cekungan","Proses sedimentasi delta sungai"],ans:1},
-  {topic:"ekonomi",diff:"hard",q:"Dalam teori ekonomi, 'tragedy of the commons' (tragedi milik bersama) terjadi karena ...",type:"mc",opts:["Pemerintah terlalu banyak mengatur sumber daya","Individu mengeksploitasi sumber daya milik bersama tanpa kendali demi kepentingan pribadi","Perusahaan swasta menguasai sumber daya publik","Ketidakmerataan distribusi pendapatan"],ans:1},
-  {topic:"ekonomi",diff:"hard",q:"Kebijakan pemerintah menetapkan harga minimum (floor price) pada komoditas pertanian bertujuan untuk ...",type:"mc",opts:["Melindungi konsumen dari harga yang terlalu tinggi","Melindungi petani dari harga yang terlalu rendah","Mengurangi produksi berlebihan","Meningkatkan impor pangan"],ans:1},
-  {topic:"ekonomi",diff:"hard",q:"Indeks Pembangunan Manusia (IPM/HDI) diukur berdasarkan tiga dimensi, yaitu ...",type:"mc",opts:["Pendapatan, pendidikan, dan kesehatan","Pendapatan, keamanan, dan lingkungan","Pendidikan, teknologi, dan sandang pangan","Kesehatan, infrastruktur, dan pemerintahan"],ans:0},
-  {topic:"sosial",diff:"hard",q:"Proses di mana dua kebudayaan yang berbeda saling memengaruhi sehingga menghasilkan kebudayaan baru namun masing-masing masih mempertahankan ciri khasnya disebut ...",type:"mc",opts:["Asimilasi","Akulturasi","Difusi","Enkulturasi"],ans:1},
-  {topic:"sosial",diff:"hard",q:"Konsep 'primordialisme' dalam kehidupan sosial merujuk pada ...",type:"mc",opts:["Semangat kebangsaan yang tinggi","Loyalitas berlebihan pada kelompok asal (suku, agama, daerah) sehingga menghambat integrasi nasional","Proses modernisasi masyarakat tradisional","Penghormatan terhadap nilai-nilai leluhur"],ans:1},
-  {topic:"sosial",diff:"hard",q:"Pada masa Hindu-Buddha di Nusantara, konsep 'mandala' dalam sistem pemerintahan berarti ...",type:"mc",opts:["Lingkaran kehidupan spiritual","Jaringan kerajaan dengan raja besar di pusat dan raja-raja kecil di sekitarnya","Hukum adat yang mengatur masyarakat","Upacara pemujaan dewa-dewa Hindu"],ans:1},
-  {topic:"asean",diff:"hard",q:"Deklarasi ZONE OF PEACE, FREEDOM AND NEUTRALITY (ZOPFAN) ditandatangani pada tahun 1971 di ...",type:"mc",opts:["Bangkok","Jakarta","Kuala Lumpur","Manila"],ans:2},
-  {topic:"asean",diff:"hard",q:"Dalam struktur ASEAN, lembaga tertinggi pengambil keputusan adalah ...",type:"mc",opts:["Sekretariat ASEAN","ASEAN Summit (KTT ASEAN)","ASEAN Coordinating Council","ASEAN Community Councils"],ans:1},
-  {topic:"asean",diff:"hard",q:"Prinsip non-interference (tidak campur tangan urusan dalam negeri) yang dipegang teguh ASEAN mulai mendapat tantangan serius terkait isu ...",type:"mc",opts:["Sengketa Laut China Selatan","Krisis ekonomi 1997","Kudeta militer Myanmar 2021","Isu perubahan iklim"],ans:2},
-  {topic:"sejarah",diff:"hard",q:"Salah satu latar belakang munculnya pergerakan nasional Indonesia pada awal abad ke-20 adalah Politik Etis Belanda. Tiga program Politik Etis adalah irigasi, transmigrasi, dan ...",type:"mc",opts:["Industrialisasi","Edukasi","Modernisasi","Demokratisasi"],ans:1},
-  {topic:"geografi",diff:"hard",q:"Konsep 'wawasan nusantara' pertama kali dicetuskan melalui Deklarasi Djuanda tahun 1957. Dampak hukum internasionalnya adalah diakuinya konsep negara kepulauan dalam ...",type:"mc",opts:["Piagam PBB 1945","UNCLOS 1982","Perjanjian Montego Bay 1958","Konvensi Wina 1969"],ans:1},
-  {topic:"ekonomi",diff:"hard",q:"Pernyataan yang PALING TEPAT menggambarkan perbedaan antara pertumbuhan ekonomi dan pembangunan ekonomi adalah ...",type:"mc",opts:["Pertumbuhan ekonomi bersifat kualitatif, pembangunan ekonomi bersifat kuantitatif","Pertumbuhan ekonomi hanya mengukur kenaikan PDB, pembangunan ekonomi mencakup peningkatan kualitas hidup secara menyeluruh","Pertumbuhan ekonomi lebih penting dari pembangunan ekonomi","Keduanya adalah istilah yang memiliki makna sama"],ans:1}
+// ===== EKONOMI (51-75) =====
+{
+  id:51, topic:"Ekonomi", level:"med",
+  text:"Sistem ekonomi Indonesia berdasarkan Pasal 33 UUD 1945 bercirikan ...",
+  opts:["A. Ekonomi liberal dengan pasar bebas sepenuhnya","B. Ekonomi komando yang dikuasai negara sepenuhnya","C. Ekonomi Pancasila berdasarkan asas kekeluargaan","D. Ekonomi campuran antara kapitalisme dan sosialisme"],
+  ans:2,
+  pembahasan:"Pasal 33 UUD 1945 menyatakan perekonomian berdasarkan asas kekeluargaan, cabang produksi yang penting dikuasai negara, dan bumi/air/kekayaan alam dikuasai negara untuk sebesar-besarnya kemakmuran rakyat."
+},
+{
+  id:52, topic:"Ekonomi", level:"hard",
+  text:"Konsep 'nilai tukar petani' (NTP) digunakan untuk mengukur ...",
+  opts:["A. Harga jual hasil pertanian di pasar internasional","B. Perbandingan harga yang diterima petani dengan harga yang dibayar petani","C. Jumlah produksi pertanian per hektar lahan","D. Pendapatan rata-rata petani per bulan"],
+  ans:1,
+  pembahasan:"NTP = indeks harga yang diterima petani / indeks harga yang dibayar petani × 100. NTP > 100 berarti petani untung (harga jual lebih tinggi dari biaya produksi). NTP < 100 berarti petani rugi."
+},
+{
+  id:53, topic:"Ekonomi", level:"med",
+  text:"Koperasi di Indonesia didirikan berdasarkan prinsip ...",
+  opts:["A. Mencari keuntungan sebesar-besarnya untuk pemilik modal","B. Keanggotaan sukarela, pengelolaan demokratis, dan pembagian sisa hasil usaha","C. Monopoli dalam bidang usaha tertentu","D. Modal harus berasal dari pinjaman bank pemerintah"],
+  ans:1,
+  pembahasan:"Prinsip koperasi: keanggotaan sukarela dan terbuka, pengelolaan demokratis (1 anggota 1 suara), pembagian SHU sesuai jasa anggota, kemandirian, pendidikan perkoperasian, dan kerja sama antarkoperasi."
+},
+{
+  id:54, topic:"Ekonomi", level:"hard",
+  text:"Indonesia dikenal sebagai negara 'agraris maritim'. Ini berarti ekonomi Indonesia bertumpu pada ...",
+  opts:["A. Industri manufaktur dan teknologi tinggi","B. Pertanian darat dan sumber daya kelautan","C. Perdagangan jasa dan keuangan","D. Pertambangan mineral dan energi"],
+  ans:1,
+  pembahasan:"Agraris maritim: Indonesia memiliki lahan pertanian subur (agraris) dan laut yang luas dengan sumber daya perikanan, mineral laut, dan jalur pelayaran strategis (maritim). Keduanya menjadi potensi ekonomi utama."
+},
+{
+  id:55, topic:"Ekonomi", level:"med",
+  text:"Ekspor terbesar Indonesia didominasi oleh sektor ...",
+  opts:["A. Manufaktur tekstil","B. Pertanian pangan","C. Sumber daya alam (batubara, sawit, minyak bumi)","D. Jasa keuangan dan perbankan"],
+  ans:2,
+  pembahasan:"Ekspor terbesar Indonesia: batu bara, minyak kelapa sawit (CPO), gas alam, karet, nikel, dan produk manufaktur (pakaian, elektronik). SDA masih mendominasi struktur ekspor Indonesia."
+},
+{
+  id:56, topic:"Ekonomi", level:"hard",
+  text:"Kebijakan 'harga dasar' atau 'harga minimum' yang ditetapkan pemerintah untuk hasil pertanian bertujuan untuk ...",
+  opts:["A. Menurunkan harga bahan pangan di pasaran","B. Melindungi petani agar tidak merugi saat panen raya","C. Mendorong impor bahan pangan untuk stabilitas harga","D. Meningkatkan persaingan antarpetani"],
+  ans:1,
+  pembahasan:"Harga dasar (floor price) ditetapkan pemerintah untuk melindungi petani dari jatuhnya harga saat panen raya melimpah. Jika harga pasar turun di bawah harga dasar, pemerintah wajib membeli hasil panen petani."
+},
+{
+  id:57, topic:"Ekonomi", level:"med",
+  text:"APBN (Anggaran Pendapatan dan Belanja Negara) yang mengalami defisit berarti ...",
+  opts:["A. Pendapatan lebih besar dari pengeluaran","B. Pengeluaran lebih besar dari pendapatan","C. Pendapatan sama dengan pengeluaran","D. Tidak ada pengeluaran untuk pembangunan"],
+  ans:1,
+  pembahasan:"APBN defisit = belanja negara > pendapatan negara. Untuk menutup defisit, pemerintah dapat berutang (dalam/luar negeri) atau menggunakan cadangan devisa. Defisit APBN Indonesia dibatasi maksimal 3% dari PDB."
+},
+{
+  id:58, topic:"Ekonomi", level:"hard",
+  text:"Dampak negatif langsung dari inflasi tinggi bagi masyarakat berpenghasilan tetap seperti PNS dan buruh adalah ...",
+  opts:["A. Nilai utang mereka meningkat","B. Daya beli mereka menurun karena harga barang naik lebih cepat dari gaji","C. Tabungan mereka bertambah karena bunga bank naik","D. Kesempatan kerja mereka bertambah"],
+  ans:1,
+  pembahasan:"Inflasi tinggi menggerus daya beli: harga barang naik, tapi gaji tetap. Rp 1 juta yang cukup untuk kebutuhan bulan lalu kini tidak cukup. Masyarakat berpenghasilan tetap paling terdampak oleh inflasi."
+},
+{
+  id:59, topic:"Ekonomi", level:"med",
+  text:"Pajak Pertambahan Nilai (PPN) yang dikenakan pada barang dan jasa termasuk jenis pajak ...",
+  opts:["A. Pajak langsung","B. Pajak tidak langsung","C. Pajak progresif","D. Pajak daerah"],
+  ans:1,
+  pembahasan:"PPN adalah pajak tidak langsung: beban pajak dialihkan dari produsen/penjual kepada konsumen melalui harga jual. Konsumen membayar PPN setiap membeli barang/jasa. PPN di Indonesia saat ini 11%."
+},
+{
+  id:60, topic:"Ekonomi", level:"hard",
+  text:"Peran Bank Indonesia sebagai bank sentral dalam menjaga stabilitas ekonomi salah satunya adalah melalui kebijakan moneter. Instrumen kebijakan moneter yang digunakan Bank Indonesia adalah ...",
+  opts:["A. Menetapkan tarif pajak dan bea cukai","B. Mengatur suku bunga, cadangan wajib bank, dan operasi pasar terbuka","C. Menetapkan harga bahan bakar minyak","D. Mengelola APBN dan pengeluaran pemerintah"],
+  ans:1,
+  pembahasan:"Bank Indonesia menggunakan instrumen moneter: BI Rate (suku bunga acuan), Giro Wajib Minimum (GWM/reserve requirement), dan Operasi Pasar Terbuka (OPT) yaitu jual-beli surat berharga untuk mengontrol uang beredar."
+},
+{
+  id:61, topic:"Ekonomi", level:"med",
+  text:"Kegiatan ekonomi yang berhubungan dengan penyaluran barang dari produsen ke konsumen disebut ...",
+  opts:["A. Produksi","B. Konsumsi","C. Distribusi","D. Investasi"],
+  ans:2,
+  pembahasan:"Distribusi adalah kegiatan menyalurkan barang/jasa dari produsen ke konsumen. Pelaku distribusi: pedagang besar (grosir), pedagang eceran, agen, dan broker. Distribusi yang efisien menurunkan harga dan meningkatkan pemerataan."
+},
+{
+  id:62, topic:"Ekonomi", level:"hard",
+  text:"Konsep 'ekonomi biru' (blue economy) yang sedang dikembangkan Indonesia mengacu pada ...",
+  opts:["A. Pengelolaan sumber daya laut secara berkelanjutan untuk pertumbuhan ekonomi","B. Pengembangan energi surya dan angin sebagai energi bersih","C. Ekonomi digital berbasis teknologi internet","D. Pertanian organik tanpa bahan kimia"],
+  ans:0,
+  pembahasan:"Ekonomi biru adalah pendekatan pembangunan berbasis sumber daya kelautan secara berkelanjutan: perikanan berkelanjutan, pariwisata bahari, energi laut, dan bioteknologi kelautan, tanpa merusak ekosistem laut."
+},
+{
+  id:63, topic:"Ekonomi", level:"med",
+  text:"Globalisasi ekonomi memberi dampak positif bagi Indonesia berupa ...",
+  opts:["A. Produk lokal terlindungi dari persaingan luar negeri","B. Masuknya investasi asing, teknologi baru, dan terbukanya pasar ekspor","C. Harga barang kebutuhan sehari-hari turun drastis","D. Berkurangnya ketergantungan pada negara lain"],
+  ans:1,
+  pembahasan:"Dampak positif globalisasi: masuknya investasi asing (FDI) membuka lapangan kerja, transfer teknologi, produk Indonesia bisa masuk pasar global, dan meningkatkan efisiensi ekonomi melalui persaingan."
+},
+{
+  id:64, topic:"Ekonomi", level:"hard",
+  text:"Program 'kemandirian pangan' bertujuan mencapai ketahanan pangan. Komponen utama ketahanan pangan menurut FAO adalah ...",
+  opts:["A. Produksi lokal, harga terjangkau, dan distribusi merata","B. Ketersediaan (availability), akses (access), dan pemanfaatan (utilization)","C. Impor pangan, subsidi, dan cadangan beras nasional","D. Teknologi pertanian, lahan subur, dan pupuk cukup"],
+  ans:1,
+  pembahasan:"FAO mendefinisikan ketahanan pangan melalui empat pilar: ketersediaan (produksi cukup), akses (mampu dijangkau secara ekonomi dan fisik), pemanfaatan (bergizi dan aman), dan stabilitas (konsisten sepanjang waktu)."
+},
+{
+  id:65, topic:"Ekonomi", level:"med",
+  text:"Pendapatan Domestik Bruto (PDB) per kapita digunakan untuk mengukur ...",
+  opts:["A. Total kekayaan alam suatu negara","B. Rata-rata tingkat kemakmuran penduduk suatu negara","C. Jumlah investasi asing di suatu negara","D. Nilai total ekspor suatu negara"],
+  ans:1,
+  pembahasan:"PDB per kapita = PDB total ÷ jumlah penduduk. Ini mengukur rata-rata pendapatan/kemakmuran per orang. Namun tidak menggambarkan distribusi pendapatan (bisa tinggi tapi tidak merata)."
+},
+{
+  id:66, topic:"Ekonomi", level:"hard",
+  text:"Indonesia tergabung dalam G20 (Group of Twenty). Keanggotaan ini menguntungkan Indonesia karena ...",
+  opts:["A. Indonesia mendapat dana bantuan dari negara maju anggota G20","B. Indonesia dapat berpartisipasi dalam pengambilan keputusan ekonomi global","C. Indonesia bebas dari kewajiban membayar utang luar negeri","D. Produk Indonesia otomatis bebas bea masuk di negara G20"],
+  ans:1,
+  pembahasan:"G20 adalah forum kerja sama ekonomi 20 negara ekonomi terbesar. Keanggotaan Indonesia memberi akses pada dialog kebijakan ekonomi global, mempengaruhi aturan perdagangan internasional, dan meningkatkan kepercayaan investor."
+},
+{
+  id:67, topic:"Ekonomi", level:"med",
+  text:"Usaha Mikro Kecil dan Menengah (UMKM) memegang peran penting dalam perekonomian Indonesia karena ...",
+  opts:["A. UMKM menghasilkan produk berkualitas ekspor tertinggi","B. UMKM menyerap tenaga kerja terbanyak dan menjadi tulang punggung ekonomi","C. UMKM menguasai lebih dari 50% aset perbankan nasional","D. UMKM tidak perlu membayar pajak sehingga lebih kompetitif"],
+  ans:1,
+  pembahasan:"UMKM Indonesia menyumbang sekitar 61% PDB dan menyerap 97% tenaga kerja. UMKM menjadi penopang ekonomi, terutama saat krisis ekonomi, karena lebih fleksibel dan tersebar di seluruh penjuru negeri."
+},
+{
+  id:68, topic:"Ekonomi", level:"hard",
+  text:"Dalam perdagangan internasional, 'neraca perdagangan' suatu negara dikatakan surplus jika ...",
+  opts:["A. Total impor lebih besar dari total ekspor","B. Total ekspor lebih besar dari total impor","C. Nilai investasi asing masuk lebih besar dari yang keluar","D. Utang luar negeri lebih kecil dari cadangan devisa"],
+  ans:1,
+  pembahasan:"Neraca perdagangan surplus = nilai ekspor > nilai impor. Indonesia mengalami surplus neraca perdagangan berarti lebih banyak barang yang dijual ke luar negeri dibandingkan yang dibeli dari luar negeri."
+},
+{
+  id:69, topic:"Ekonomi", level:"med",
+  text:"Kegiatan ekonomi kreatif yang mengutamakan kreativitas dan intelektualitas manusia sebagai sumber utama adalah ...",
+  opts:["A. Pertanian organik","B. Industri kuliner, fashion, dan desain","C. Pertambangan minyak bumi","D. Perikanan tangkap"],
+  ans:1,
+  pembahasan:"Ekonomi kreatif adalah ekonomi berbasis kreativitas, inovasi, dan kekayaan intelektual. Subsektor utama: kuliner, fashion, kriya, musik, film/animasi, game, desain, seni pertunjukan, dan arsitektur."
+},
+{
+  id:70, topic:"Ekonomi", level:"hard",
+  text:"'Paradoks kemiskinan di tengah kelimpahan sumber daya' yang dialami beberapa daerah penghasil SDA di Indonesia disebabkan oleh ...",
+  opts:["A. Penduduk setempat tidak mau bekerja keras","B. Iklim tropis yang menghambat produktivitas","C. Ketimpangan distribusi hasil SDA, korupsi, dan kurangnya nilai tambah","D. Kelebihan jumlah penduduk yang tidak terkendali"],
+  ans:2,
+  pembahasan:"'Resource curse' terjadi karena: SDA dieksploitasi perusahaan besar dengan sedikit kontribusi ke daerah, korupsi menggerogoti pendapatan daerah, ketergantungan pada SDA menghambat diversifikasi ekonomi, dan kurangnya industri pengolahan untuk menambah nilai."
+},
+{
+  id:71, topic:"Ekonomi", level:"med",
+  text:"Peran pemerintah dalam perekonomian antara lain sebagai regulator. Peran ini berarti pemerintah bertugas ...",
+  opts:["A. Memiliki dan mengelola seluruh perusahaan di Indonesia","B. Membuat aturan dan kebijakan ekonomi agar kegiatan ekonomi berjalan tertib","C. Menjadi pesaing utama perusahaan swasta","D. Menetapkan harga seluruh barang dan jasa"],
+  ans:1,
+  pembahasan:"Sebagai regulator, pemerintah membuat peraturan (UU, PP, Perpres) untuk mengatur kegiatan ekonomi: perlindungan konsumen, anti monopoli, standar produk, ketenagakerjaan, dan lain-lain demi keadilan dan efisiensi."
+},
+{
+  id:72, topic:"Ekonomi", level:"hard",
+  text:"Konsep 'comparative advantage' (keunggulan komparatif) dalam perdagangan internasional berarti ...",
+  opts:["A. Negara yang memiliki teknologi paling canggih menguasai perdagangan","B. Negara sebaiknya mengekspor barang yang biaya peluangnya relatif lebih rendah","C. Negara harus memproduksi semua kebutuhannya sendiri","D. Negara kaya selalu memiliki keunggulan dalam semua produk"],
+  ans:1,
+  pembahasan:"David Ricardo: negara mengekspor produk di mana biaya peluang (opportunity cost) produksinya relatif lebih rendah dibanding negara lain. Indonesia lebih efisien memproduksi sawit, maka ekspor sawit dan impor barang lain yang lebih mahal jika diproduksi sendiri."
+},
+{
+  id:73, topic:"Ekonomi", level:"med",
+  text:"Salah satu tujuan dibentuknya BUMN (Badan Usaha Milik Negara) adalah ...",
+  opts:["A. Bersaing dengan perusahaan asing di pasar internasional","B. Mengelola sektor-sektor vital yang menguasai hajat hidup orang banyak","C. Mencari keuntungan sebesar-besarnya untuk kas negara","D. Menjual saham ke investor asing untuk modernisasi"],
+  ans:1,
+  pembahasan:"BUMN dibentuk untuk mengelola sektor vital (air, listrik, BBM, transportasi) agar kebutuhan rakyat terpenuhi dengan harga terjangkau. Pasal 33 UUD 1945 mengamanatkan negara menguasai cabang produksi yang penting bagi rakyat."
+},
+{
+  id:74, topic:"Ekonomi", level:"hard",
+  text:"Program jaminan sosial BPJS Kesehatan dan BPJS Ketenagakerjaan di Indonesia merupakan bentuk ...",
+  opts:["A. Asuransi swasta yang dikelola pemerintah","B. Sistem jaminan sosial berbasis gotong royong (risk pooling)","C. Pajak kesehatan yang bersifat sukarela","D. Bantuan langsung tunai kepada masyarakat miskin"],
+  ans:1,
+  pembahasan:"BPJS menerapkan prinsip gotong royong (risk pooling): peserta yang sehat membantu yang sakit, yang muda membantu yang tua, yang bekerja membantu yang tidak mampu. Premi dibayar iuran untuk menanggung biaya bersama."
+},
+{
+  id:75, topic:"Ekonomi", level:"med",
+  text:"Nilai Indeks Pembangunan Manusia (IPM/HDI) Indonesia terus meningkat. IPM mengukur tiga dimensi, yaitu pendidikan, kesehatan, dan ...",
+  opts:["A. Keamanan nasional","B. Standar hidup layak (pendapatan per kapita)","C. Kebebasan politik","D. Ketersediaan infrastruktur"],
+  ans:1,
+  pembahasan:"IPM diukur berdasarkan: (1) Dimensi kesehatan: angka harapan hidup. (2) Dimensi pendidikan: rata-rata lama sekolah dan harapan lama sekolah. (3) Dimensi standar hidup: PNB per kapita (PPP)."
+},
+
+// ===== SOSIAL-BUDAYA (76-90) =====
+{
+  id:76, topic:"Sosial-Budaya", level:"med",
+  text:"Proses di mana seorang individu mempelajari nilai, norma, dan budaya masyarakatnya melalui interaksi dengan lingkungan disebut ...",
+  opts:["A. Asimilasi","B. Sosialisasi","C. Akulturasi","D. Modernisasi"],
+  ans:1,
+  pembahasan:"Sosialisasi adalah proses belajar budaya sepanjang hayat melalui agen-agen sosialisasi: keluarga (primer), sekolah, kelompok bermain, dan media massa. Sosialisasi membentuk kepribadian dan identitas sosial individu."
+},
+{
+  id:77, topic:"Sosial-Budaya", level:"hard",
+  text:"Pengaruh Hindu-Buddha terhadap budaya Indonesia yang masih dapat ditemukan hingga saat ini adalah ...",
+  opts:["A. Sistem kasta yang masih ketat di seluruh Indonesia","B. Aksara Jawa, wayang, dan upacara adat yang bercampur unsur Hindu","C. Bahasa Sansekerta menjadi bahasa sehari-hari","D. Seluruh masyarakat Jawa masih memeluk agama Hindu"],
+  ans:1,
+  pembahasan:"Warisan Hindu-Buddha di Indonesia: aksara Jawa (dari Pallawa), wayang (bercerita Mahabharata/Ramayana), upacara adat (Ngaben di Bali), arsitektur candi, kosa kata Sansekerta dalam bahasa Indonesia, dan seni tari (Legong, Ramayana)."
+},
+{
+  id:78, topic:"Sosial-Budaya", level:"med",
+  text:"Konsep 'Bhinneka Tunggal Ika' yang menjadi semboyan Indonesia memiliki makna ...",
+  opts:["A. Satu bahasa, satu bangsa, satu tanah air","B. Berbeda-beda tetapi tetap satu jua","C. Gotong royong membangun bangsa","D. Persatuan dalam keberagaman agama"],
+  ans:1,
+  pembahasan:"'Bhinneka Tunggal Ika' berasal dari kitab Sutasoma karya Mpu Tantular (abad ke-14) dan bermakna 'berbeda-beda tetapi tetap satu jua.' Semboyan ini mencerminkan persatuan Indonesia dalam keberagaman suku, agama, bahasa, dan adat."
+},
+{
+  id:79, topic:"Sosial-Budaya", level:"hard",
+  text:"Sistem kekerabatan matrilineal yang paling menonjol di Indonesia terdapat pada masyarakat ...",
+  opts:["A. Batak Toba","B. Jawa","C. Minangkabau","D. Bugis"],
+  ans:2,
+  pembahasan:"Minangkabau di Sumatera Barat menerapkan sistem matrilineal: garis keturunan dan warisan mengikuti garis ibu (perempuan). Ini unik karena Minangkabau juga masyarakat Muslim taat, membuktikan adat dan agama dapat berjalan berdampingan."
+},
+{
+  id:80, topic:"Sosial-Budaya", level:"med",
+  text:"Dampak negatif globalisasi terhadap budaya Indonesia adalah ...",
+  opts:["A. Masuknya teknologi yang memudahkan kehidupan","B. Berkembangnya pariwisata budaya","C. Memudarnya nilai budaya lokal karena pengaruh budaya asing","D. Meningkatnya ekspor produk seni dan budaya Indonesia"],
+  ans:2,
+  pembahasan:"Dampak negatif globalisasi pada budaya: westernisasi (meniru gaya hidup barat), lunturnya tradisi lokal, bahasa daerah terancam punah, budaya konsumtif, dan generasi muda lebih mengenal budaya asing daripada budayanya sendiri."
+},
+{
+  id:81, topic:"Sosial-Budaya", level:"hard",
+  text:"Konsep 'multikulturalisme' yang diterapkan dalam kehidupan berbangsa Indonesia mengandung arti ...",
+  opts:["A. Semua suku harus menyesuaikan diri dengan budaya mayoritas","B. Pengakuan dan penghormatan terhadap keberagaman budaya sebagai kekayaan bersama","C. Setiap suku boleh memisahkan diri membentuk negara sendiri","D. Budaya asing harus ditolak demi menjaga kemurnian budaya lokal"],
+  ans:1,
+  pembahasan:"Multikulturalisme mengakui dan menghargai keberagaman budaya sebagai kekayaan, bukan ancaman. Setiap kelompok memiliki hak atas identitas budayanya, dan perbedaan dirayakan bukan sekadar ditoleransi."
+},
+{
+  id:82, topic:"Sosial-Budaya", level:"med",
+  text:"Salah satu upaya pelestarian budaya daerah Indonesia agar tidak punah adalah ...",
+  opts:["A. Melarang penggunaan bahasa Indonesia di daerah tersebut","B. Memasukkan seni dan budaya daerah dalam kurikulum pendidikan lokal","C. Menutup daerah dari pengaruh luar","D. Mewajibkan warga kota pindah ke pedesaan"],
+  ans:1,
+  pembahasan:"Pelestarian budaya daerah: memasukkan ke kurikulum (muatan lokal), festival budaya, dukungan pemerintah daerah, mendaftarkan warisan budaya ke UNESCO, dan mendorong generasi muda aktif berpartisipasi dalam kegiatan budaya."
+},
+{
+  id:83, topic:"Sosial-Budaya", level:"hard",
+  text:"Fenomena 'diaspora' budaya Indonesia di luar negeri memberikan dampak positif berupa ...",
+  opts:["A. Berkurangnya tenaga kerja terampil di Indonesia","B. Promosi budaya Indonesia dan peningkatan soft power Indonesia di dunia","C. Hilangnya identitas budaya Indonesia di generasi kedua","D. Ketergantungan ekonomi Indonesia pada remitansi TKI"],
+  ans:1,
+  pembahasan:"Diaspora Indonesia di luar negeri mempromosikan budaya (batik, gamelan, kuliner) secara organik. Ini meningkatkan soft power Indonesia, menarik wisatawan, dan membuka peluang ekspor produk budaya Indonesia."
+},
+{
+  id:84, topic:"Sosial-Budaya", level:"med",
+  text:"Nilai gotong royong yang menjadi ciri khas masyarakat Indonesia tercermin dalam praktik ...",
+  opts:["A. Kompetisi antar desa dalam pembangunan","B. Kerja bersama membangun rumah, jalan desa, atau membantu korban bencana","C. Mengutamakan kepentingan individu di atas kepentingan bersama","D. Pembagian tugas berdasarkan upah yang dibayarkan"],
+  ans:1,
+  pembahasan:"Gotong royong adalah kegiatan kolektif tanpa mengharapkan bayaran: kerja bakti, membangun rumah bersama (di Jawa: 'sambatan'), membantu petani panen (di Bali: 'ngayah'), dan membantu korban bencana secara sukarela."
+},
+{
+  id:85, topic:"Sosial-Budaya", level:"hard",
+  text:"UNESCO menetapkan batik sebagai Warisan Budaya Tak Benda Indonesia pada tahun 2009. Pengakuan ini penting karena ...",
+  opts:["A. Melarang negara lain memproduksi motif batik serupa","B. Membuktikan orisinalitas batik sebagai budaya Indonesia dan mendorong pelestariannya","C. Memberikan keuntungan ekonomi langsung kepada pengrajin batik","D. Mewajibkan semua orang Indonesia memakai batik setiap hari"],
+  ans:1,
+  pembahasan:"Penetapan UNESCO sebagai Warisan Budaya Tak Benda membuktikan orisinalitas dan nilai budaya batik Indonesia, mendorong upaya pelestarian, meningkatkan kesadaran masyarakat, dan memperkuat posisi Indonesia dalam diplomasi budaya."
+},
+{
+  id:86, topic:"Sosial-Budaya", level:"med",
+  text:"Lembaga adat di masyarakat Indonesia berfungsi sebagai ...",
+  opts:["A. Pengganti pemerintah daerah dalam urusan administrasi","B. Penjaga nilai-nilai, norma adat, dan penyelesai konflik dalam masyarakat","C. Badan usaha yang mengelola tanah ulayat untuk keuntungan komersial","D. Perwakilan masyarakat dalam parlemen nasional"],
+  ans:1,
+  pembahasan:"Lembaga adat menjaga nilai-nilai tradisional, mengatur hubungan antarmasyarakat, menyelesaikan konflik melalui mekanisme adat, dan memelihara sumber daya alam (tanah ulayat) berdasarkan kearifan lokal."
+},
+{
+  id:87, topic:"Sosial-Budaya", level:"hard",
+  text:"Konsep 'kearifan lokal' (local wisdom) dalam pengelolaan sumber daya alam adalah ...",
+  opts:["A. Penolakan terhadap teknologi modern dalam pertanian","B. Pengetahuan dan praktik tradisional masyarakat lokal dalam menjaga keseimbangan alam","C. Hukum adat yang melarang orang luar masuk wilayah tertentu","D. Ritual keagamaan yang dilakukan sebelum memulai kegiatan pertanian"],
+  ans:1,
+  pembahasan:"Kearifan lokal dalam pengelolaan SDA: Subak (irigasi Bali), Sasi (larangan sementara menangkap ikan di Maluku), Marga (tanah adat Sumatera Selatan), dan berbagai sistem pengelolaan hutan adat yang terbukti menjaga kelestarian alam."
+},
+{
+  id:88, topic:"Sosial-Budaya", level:"med",
+  text:"Faktor utama yang menyebabkan tingginya tingkat urbanisasi di Indonesia adalah ...",
+  opts:["A. Program pemerintah yang memindahkan penduduk ke kota","B. Kesenjangan pembangunan antara desa dan kota (push-pull factor)","C. Bencana alam yang memaksa penduduk desa mengungsi","D. Perang antar suku yang mengusir penduduk dari desanya"],
+  ans:1,
+  pembahasan:"Urbanisasi didorong faktor pendorong (push): kemiskinan, sempitnya lapangan kerja dan lahan di desa; dan faktor penarik (pull): peluang kerja, fasilitas pendidikan, kesehatan, dan infrastruktur yang lebih baik di kota."
+},
+{
+  id:89, topic:"Sosial-Budaya", level:"hard",
+  text:"Dampak negatif urbanisasi yang berlebihan bagi kota besar seperti Jakarta adalah ...",
+  opts:["A. Berkurangnya jumlah tenaga kerja industri","B. Munculnya permukiman kumuh, kemacetan, polusi, dan beban sosial kota","C. Berkurangnya keberagaman budaya di kota","D. Meningkatnya lahan pertanian di pinggiran kota"],
+  ans:1,
+  pembahasan:"Urbanisasi berlebihan menyebabkan masalah kota: permukiman kumuh (slum), kemacetan parah, polusi udara dan air, kriminalitas meningkat, pengangguran terselubung, beban pelayanan publik, dan risiko banjir akibat pembangunan tidak terencana."
+},
+{
+  id:90, topic:"Sosial-Budaya", level:"med",
+  text:"Indonesia memiliki semboyan 'Bhineka Tunggal Ika' yang dikukuhkan dalam lambang negara Garuda Pancasila. Sikap yang mencerminkan pengamalan semboyan ini adalah ...",
+  opts:["A. Hanya berteman dengan sesama suku dan agama","B. Menghargai dan menghormati perbedaan suku, agama, dan budaya antar sesama warga","C. Memaksakan budaya daerah sendiri kepada orang lain","D. Menolak budaya daerah lain yang berbeda"],
+  ans:1,
+  pembahasan:"Pengamalan Bhinneka Tunggal Ika: berteman lintas suku dan agama, menghormati ibadah orang lain, belajar budaya daerah lain, berpartisipasi dalam kegiatan multikultural, dan menolak diskriminasi berdasarkan SARA."
+},
+
+// ===== ASEAN & GLOBAL (91-100) =====
+{
+  id:91, topic:"ASEAN", level:"med",
+  text:"ASEAN didirikan pada 8 Agustus 1967 di Bangkok oleh lima negara pendiri. Negara yang BUKAN pendiri ASEAN adalah ...",
+  opts:["A. Indonesia","B. Malaysia","C. Vietnam","D. Thailand"],
+  ans:2,
+  pembahasan:"Lima pendiri ASEAN: Indonesia, Malaysia, Filipina, Singapura, dan Thailand (Deklarasi Bangkok). Vietnam bergabung tahun 1995. Saat ini ASEAN beranggotakan 10 negara."
+},
+{
+  id:92, topic:"ASEAN", level:"hard",
+  text:"Komunitas ASEAN 2015 terdiri dari tiga pilar utama. Pilar yang berfokus pada keamanan dan stabilitas kawasan adalah ...",
+  opts:["A. ASEAN Economic Community (AEC)","B. ASEAN Political-Security Community (APSC)","C. ASEAN Socio-Cultural Community (ASCC)","D. ASEAN Free Trade Area (AFTA)"],
+  ans:1,
+  pembahasan:"Komunitas ASEAN 2015 terdiri dari: (1) APSC: keamanan dan politik, (2) AEC: integrasi ekonomi/pasar tunggal, (3) ASCC: sosial budaya. Ketiganya saling melengkapi untuk kemajuan kawasan ASEAN secara menyeluruh."
+},
+{
+  id:93, topic:"ASEAN", level:"med",
+  text:"Peran Indonesia dalam ASEAN yang paling menonjol adalah sebagai ...",
+  opts:["A. Negara dengan ekonomi terkecil di ASEAN","B. Penghasil teknologi tinggi di ASEAN","C. Negara dengan penduduk dan ekonomi terbesar di ASEAN","D. Sekretariat tetap ASEAN"],
+  ans:2,
+  pembahasan:"Indonesia adalah negara terbesar di ASEAN: penduduk ~275 juta (40% penduduk ASEAN) dan PDB terbesar di ASEAN. Indonesia juga salah satu pendiri dan sering menjadi mediator konflik di kawasan."
+},
+{
+  id:94, topic:"ASEAN", level:"hard",
+  text:"Sengketa Laut China Selatan yang melibatkan beberapa negara ASEAN dengan China merupakan tantangan bagi prinsip ASEAN, khususnya prinsip ...",
+  opts:["A. Non-alignment (tidak memihak blok)","B. Non-interference (tidak ikut campur urusan dalam negeri)","C. Consensus (musyawarah mufakat)","D. Pacific settlement of disputes (penyelesaian damai)"],
+  ans:1,
+  pembahasan:"Sengketa LCS menguji prinsip non-interference: ASEAN sulit bersikap tegas terhadap China karena prinsip ini mencegah campur tangan urusan negara lain. Akibatnya ASEAN sering dianggap tidak efektif menangani sengketa LCS."
+},
+{
+  id:95, topic:"ASEAN", level:"med",
+  text:"Indonesia menjadi tuan rumah Konferensi Asia-Afrika pertama pada tahun 1955 di Bandung. Tujuan utama konferensi ini adalah ...",
+  opts:["A. Membentuk blok militer negara-negara Asia dan Afrika","B. Memperkuat solidaritas negara-negara yang baru merdeka dan menentang kolonialisme","C. Membangun kerja sama ekonomi Asia-Afrika menghadapi Eropa","D. Membentuk PBB tandingan yang dipimpin negara berkembang"],
+  ans:1,
+  pembahasan:"KAA 1955 dihadiri 29 negara Asia-Afrika yang baru merdeka. Tujuan: memperkuat solidaritas, menentang kolonialisme dan imperialisme, mendukung kemerdekaan bangsa-bangsa terjajah, dan memperjuangkan perdamaian dunia."
+},
+{
+  id:96, topic:"ASEAN", level:"hard",
+  text:"Konsep 'ASEAN Centrality' dalam arsitektur kawasan Asia-Pasifik berarti ...",
+  opts:["A. ASEAN harus memiliki ibu kota permanen di tengah wilayah Asia Tenggara","B. ASEAN menjadi pusat/poros utama dalam forum dan kerja sama regional Asia-Pasifik","C. Seluruh negara Asia harus bergabung dengan ASEAN","D. ASEAN mengendalikan semua kebijakan ekonomi Asia-Pasifik"],
+  ans:1,
+  pembahasan:"ASEAN Centrality: posisi ASEAN sebagai pusat (hub) dalam forum multilateral regional seperti EAS, ARF, ADMM+. ASEAN menjadi penghubung antara kekuatan besar (AS, China, Jepang) dalam arsitektur keamanan kawasan."
+},
+{
+  id:97, topic:"ASEAN", level:"med",
+  text:"Brunei Darussalam merupakan negara anggota ASEAN yang memiliki pendapatan per kapita tertinggi. Sumber utama kekayaan Brunei adalah ...",
+  opts:["A. Pariwisata dan perdagangan jasa","B. Industri manufaktur elektronik","C. Minyak bumi dan gas alam","D. Pertanian dan perkebunan kelapa sawit"],
+  ans:2,
+  pembahasan:"Brunei Darussalam memiliki cadangan minyak dan gas alam yang besar relatif terhadap penduduknya yang hanya sekitar 400.000 jiwa. Pendapatan dari migas membuat Brunei menjadi salah satu negara terkaya di Asia."
+},
+{
+  id:98, topic:"ASEAN", level:"hard",
+  text:"Krisis ekonomi Asia 1997-1998 berdampak besar pada Indonesia. Salah satu sebab utama krisis di Indonesia adalah ...",
+  opts:["A. Serangan militer dari negara tetangga","B. Melemahnya rupiah secara drastis dan banyaknya utang swasta dalam mata uang asing","C. Embargo ekonomi dari negara-negara Barat","D. Bencana alam besar yang menghancurkan infrastruktur"],
+  ans:1,
+  pembahasan:"Krisis 1997-1998: Rupiah melemah dari Rp 2.500 menjadi Rp 15.000 per dolar AS. Utang swasta dalam dolar yang besar tidak bisa dibayar. Hasilnya: banyak perusahaan bangkrut, pengangguran melonjak, dan Indonesia meminta bantuan IMF."
+},
+{
+  id:99, topic:"ASEAN", level:"med",
+  text:"Indonesia berperan aktif dalam misi perdamaian PBB. Pasukan perdamaian Indonesia yang tergabung dalam Kontingen Garuda telah bertugas di berbagai negara konflik. Hal ini merupakan perwujudan dari amanat UUD 1945 untuk ...",
+  opts:["A. Memperluas pengaruh militer Indonesia di dunia","B. Ikut melaksanakan ketertiban dunia yang berdasarkan kemerdekaan, perdamaian abadi, dan keadilan sosial","C. Meningkatkan kemampuan tempur TNI","D. Mencari sekutu militer di luar negeri"],
+  ans:1,
+  pembahasan:"Pembukaan UUD 1945 alinea keempat mengamanatkan Indonesia ikut melaksanakan ketertiban dunia. Kontingen Garuda telah bertugas di Kongo, Lebanon, Sudan, Liberia, dan negara konflik lainnya sebagai perwujudan amanat konstitusi."
+},
+{
+  id:100, topic:"ASEAN", level:"hard",
+  text:"Dalam menghadapi revolusi industri 4.0, posisi Indonesia dalam rantai nilai global (global value chain) perlu ditingkatkan dari sekadar penghasil bahan baku menjadi ...",
+  opts:["A. Penghasil bahan baku dengan volume lebih besar","B. Penghasil produk jadi dan merek global dengan nilai tambah tinggi","C. Importir teknologi terbesar di Asia","D. Pusat konsumsi produk negara-negara maju"],
+  ans:1,
+  pembahasan:"Indonesia perlu naik kelas dalam rantai nilai global: dari eksportir bahan mentah (nikel, sawit, karet) menjadi eksportir produk jadi bernilai tinggi (kendaraan listrik, produk digital, produk olahan). Ini membutuhkan hilirisasi industri dan pengembangan SDM."
+},
 ];
 
 // ============================================================
-// STATE
+// APP STATE
 // ============================================================
-let allQ=[], qIdx=0, correct=0, wrong=0, answered=0, streak=0, maxStreak=0;
-let timerInterval=null, timerSec=120, timerOn=true;
-let filterTopic='all', sessionStart=Date.now();
-let namaSiswa='';
+let namaSiswa = '';
+let sessionQuestions = [];
+let currentIdx = 0;
+let score = 0;
+let answers = [];
+let timerInterval = null;
+let timeLeft = 45;
+let answered = false;
+const TOTAL_Q = 25;
+const TIME_PER_Q = 45;
+const CIRCUMFERENCE = 2 * Math.PI * 30;
 
-// ============================================================
-// INIT
-// ============================================================
-function initSession(){
-  clearTimer();
-  qIdx=0; correct=0; wrong=0; answered=0; streak=0; maxStreak=0;
-  sessionStart=Date.now();
-  let pool = filterTopic==='all' ? SOAL_BANK : SOAL_BANK.filter(q=>q.topic===filterTopic);
-  allQ = shuffle([...pool]).slice(0, Math.min(30, pool.length));
-  document.getElementById('quizSection').style.display='block';
-  document.getElementById('resultScreen').classList.remove('show');
-  updateStats(); updateStreak(); showQuestion();
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showMenu() { clearTimer(); showScreen('menuScreen'); }
+function showRules() { showScreen('rulesScreen'); }
+function showResult() { showScreen('resultScreen'); }
+function showInfo() {
+  alert('📚 Info Database Soal:\n\n• Total soal: 100 butir\n• Setiap sesi: 25 soal acak\n• Tingkat: Sedang (⭐⭐) dan Sulit (⭐⭐⭐)\n• Topik: Sejarah, Geografi, Ekonomi, Sosial-Budaya, ASEAN\n\n🏆 Skor Maksimal = 100 poin');
 }
 
-function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
-  return arr;
+function mulaiDenganNama() {
+  const input = document.getElementById('namaInput').value.trim();
+  if(!input) { alert('Nama tidak boleh kosong ya! 😊'); return; }
+  namaSiswa = input;
+  document.getElementById('namaOverlay').style.display = 'none';
+  showScreen('menuScreen');
 }
 
-// ============================================================
-// SHOW QUESTION
-// ============================================================
-function showQuestion(){
-  clearTimer();
-  if(qIdx>=allQ.length){showResult();return;}
-  const q=allQ[qIdx];
-  const letters=['A','B','C','D'];
+function startQuiz() {
+  const shuffled = [...ALL_QUESTIONS].sort(() => Math.random()-0.5);
+  sessionQuestions = shuffled.slice(0, TOTAL_Q);
+  currentIdx = 0; score = 0; answers = [];
+  showScreen('quizScreen');
+  renderQuestion();
+}
 
-  document.getElementById('qNumLabel').textContent=`Soal #${qIdx+1}`;
-  document.getElementById('qTopicLabel').textContent=topicLabel(q.topic);
-  document.getElementById('qText').innerHTML=q.q;
-
-  const diffMap={
-    easy:{cls:'diff-easy',txt:'⭐ Mudah'},
-    med: {cls:'diff-med', txt:'⭐⭐ Sedang'},
-    hard:{cls:'diff-hard',txt:'⭐⭐⭐ Olimpiade'}
-  };
-  const dm=diffMap[q.diff]||diffMap.easy;
-  document.getElementById('qDiffLabel').innerHTML=`<span class="q-diff-label ${dm.cls}">${dm.txt}</span>`;
-
-  const fb=document.getElementById('feedback');
-  fb.classList.remove('show','correct-fb','wrong-fb'); fb.innerHTML='';
-
-  const area=document.getElementById('optionsArea'); area.innerHTML='';
-  const opts=document.createElement('div'); opts.className='options';
-  q.opts.forEach((opt,i)=>{
-    const btn=document.createElement('button'); btn.className='opt-btn';
-    btn.innerHTML=`<span class="opt-letter">${letters[i]}</span>${opt}`;
-    btn.onclick=()=>checkMC(i,btn,q,opts);
-    opts.appendChild(btn);
+function renderQuestion() {
+  const q = sessionQuestions[currentIdx];
+  document.getElementById('progressText').textContent = `Soal ${currentIdx+1} dari ${TOTAL_Q}`;
+  document.getElementById('liveScore').textContent = score;
+  document.getElementById('progressFill').style.width = (currentIdx/TOTAL_Q*100)+'%';
+  document.getElementById('qNum').textContent = `Soal ${currentIdx+1}`;
+  document.getElementById('qBadge').className = 'q-badge '+(q.level==='hard'?'badge-hard':'badge-med');
+  document.getElementById('qBadge').textContent = q.level==='hard'?'⭐⭐⭐ Sulit':'⭐⭐ Sedang';
+  document.getElementById('qTopic').textContent = q.topic;
+  document.getElementById('qText').textContent = q.text;
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  const keys = ['A','B','C','D'];
+  q.opts.forEach((opt,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-key">${keys[i]}</span><span>${opt.replace(/^[ABCD]\.\s*/,'')}</span>`;
+    btn.onclick = () => selectAnswer(i, btn);
+    grid.appendChild(btn);
   });
-  area.appendChild(opts);
-
-  document.getElementById('nextBtn').disabled=true;
-  updateProgress();
-  if(timerOn) startTimer();
+  document.getElementById('questionCard').classList.remove('fade-in');
+  void document.getElementById('questionCard').offsetWidth;
+  document.getElementById('questionCard').classList.add('fade-in');
+  startTimer();
 }
 
-function topicLabel(t){
-  const m={
-    geografi:'🌏 Geografi',
-    sejarah: '📜 Sejarah',
-    sosial:  '👥 Sosial & Budaya',
-    ekonomi: '💰 Ekonomi',
-    asean:   '🌐 ASEAN & Global'
-  };
-  return m[t]||t;
-}
-
-// ============================================================
-// CHECK
-// ============================================================
-function checkMC(chosen,btn,q,optsContainer){
+function startTimer() {
   clearTimer();
-  const allBtns=optsContainer.querySelectorAll('.opt-btn');
-  allBtns.forEach(b=>b.disabled=true);
-  answered++;
-  const isCorrect=chosen===q.ans;
-  allBtns[q.ans].classList.add('correct');
-  if(!isCorrect){btn.classList.add('wrong');wrong++;streak=0;}
-  else{correct++;streak++;if(streak>maxStreak)maxStreak=streak;}
-  showFeedback(isCorrect); updateStats();
-  document.getElementById('nextBtn').disabled=false; updateStreak();
+  timeLeft = TIME_PER_Q; answered = false;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if(timeLeft <= 0) { clearTimer(); recordAnswer(-1); }
+  }, 1000);
 }
 
-function showFeedback(isCorrect){
-  const fb=document.getElementById('feedback');
-  fb.classList.remove('show','correct-fb','wrong-fb');
-  if(isCorrect){
-    fb.classList.add('correct-fb');
-    fb.innerHTML=`<div class="fb-title">✅ Benar!</div>`;
-  } else {
-    fb.classList.add('wrong-fb');
-    fb.innerHTML=`<div class="fb-title">❌ Salah!</div>`;
-  }
-  fb.classList.add('show');
+function updateTimerDisplay() {
+  document.getElementById('timerNum').textContent = timeLeft;
+  const offset = CIRCUMFERENCE * (1 - timeLeft/TIME_PER_Q);
+  const circle = document.getElementById('timerCircle');
+  circle.style.strokeDashoffset = offset;
+  if(timeLeft <= 10) { circle.style.stroke='#ef4444'; document.getElementById('timerNum').style.color='#ef4444'; }
+  else if(timeLeft <= 20) { circle.style.stroke='#f59e0b'; document.getElementById('timerNum').style.color='#f59e0b'; }
+  else { circle.style.stroke='var(--primary)'; document.getElementById('timerNum').style.color='var(--text)'; }
 }
 
-// ============================================================
-// NAVIGATION
-// ============================================================
-function nextQuestion(){qIdx++;showQuestion();}
-function skipQuestion(){answered++;wrong++;streak=0;qIdx++;updateStats();updateStreak();showQuestion();}
-
-// ============================================================
-// TIMER
-// ============================================================
-function startTimer(){
-  timerSec=120; updateTimerDisplay();
-  timerInterval=setInterval(()=>{
-    timerSec--; updateTimerDisplay();
-    if(timerSec<=0){
-      clearTimer();
-      const q=allQ[qIdx];
-      if(q){
-        const area=document.getElementById('optionsArea');
-        const allBtns=area.querySelectorAll('.opt-btn');
-        allBtns.forEach(b=>b.disabled=true);
-        allBtns[q.ans].classList.add('correct');
-        const fb=document.getElementById('feedback');
-        fb.classList.remove('show','correct-fb','wrong-fb');
-        fb.classList.add('wrong-fb','show');
-        fb.innerHTML=`<div class="fb-title">⏰ Waktu Habis!</div>`;
-        answered++;wrong++;streak=0;
-        updateStats();updateStreak();
-        document.getElementById('nextBtn').disabled=false;
-      }
-    }
-  },1000);
+function clearTimer() {
+  if(timerInterval) { clearInterval(timerInterval); timerInterval = null; }
 }
 
-function clearTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}}
-
-function updateTimerDisplay(){
-  const d=document.getElementById('timerDisplay');
-  const m=Math.floor(timerSec/60),s=timerSec%60;
-  d.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  d.classList.toggle('warning',timerSec<=20);
+function selectAnswer(idx, btnEl) {
+  if(answered) return;
+  answered = true; clearTimer();
+  document.querySelectorAll('.opt-btn').forEach(b => { b.classList.remove('selected'); b.disabled = true; });
+  btnEl.classList.add('selected');
+  setTimeout(() => recordAnswer(idx), 600);
 }
 
-function toggleTimer(){
-  timerOn=!timerOn;
-  document.getElementById('timerToggle').textContent=timerOn?'Matikan Timer':'Hidupkan Timer';
-  if(!timerOn){clearTimer();document.getElementById('timerDisplay').textContent='∞';document.getElementById('timerDisplay').classList.remove('warning');}
-  else{if(!document.getElementById('nextBtn').disabled)return;startTimer();}
+function skipQuestion() {
+  if(answered) return;
+  clearTimer(); recordAnswer(-1);
 }
 
-// ============================================================
-// STATS & UI
-// ============================================================
-function updateStats(){
-  document.getElementById('statTotal').textContent=answered;
-  document.getElementById('statBenar').textContent=correct;
-  document.getElementById('statSalah').textContent=wrong;
-  const pct=answered>0?Math.round((correct/answered)*100):0;
-  document.getElementById('statSkor').textContent=pct+'%';
+function recordAnswer(selected) {
+  const q = sessionQuestions[currentIdx];
+  let status;
+  if(selected === -1) status = 'skip';
+  else if(selected === q.ans) { status = 'correct'; score += 4; }
+  else { status = 'wrong'; score -= 1; }
+  answers.push({ selected, correct: q.ans, status, qIdx: currentIdx });
+  currentIdx++;
+  if(currentIdx >= TOTAL_Q) finishQuiz();
+  else renderQuestion();
 }
 
-function updateProgress(){
-  const total=allQ.length, pct=Math.round((qIdx/total)*100);
-  document.getElementById('qIdx').textContent=qIdx+1;
-  document.getElementById('qTotal').textContent=total;
-  document.getElementById('progressFill').style.width=pct+'%';
-  document.getElementById('progressPct').textContent=pct+'%';
-}
-
-function updateStreak(){
-  const badge=document.getElementById('streakBadge');
-  if(streak>=3){badge.style.display='inline-flex';document.getElementById('streakNum').textContent=streak;}
-  else{badge.style.display='none';}
-}
-
-// ============================================================
-// FILTER
-// ============================================================
-function setFilter(topic,event){
-  filterTopic=topic;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  if(event&&event.target) event.target.classList.add('active');
-  initSession();
-}
-
-// ============================================================
-// RESULT
-// ============================================================
-function showResult(){
+function finishQuiz() {
   clearTimer();
-  const pct=answered>0?Math.round((correct/answered)*100):0;
-  const elapsed=Math.round((Date.now()-sessionStart)/1000);
-  const m=Math.floor(elapsed/60),s=elapsed%60;
-  document.getElementById('quizSection').style.display='none';
-  document.getElementById('resultScreen').classList.add('show');
-  let emoji='😢',msg='Jangan menyerah, terus berlatih!';
-  if(pct>=90){emoji='🏆';msg='Luar biasa! Kamu calon juara OSN IPS!';}
-  else if(pct>=75){emoji='⭐';msg='Bagus sekali! Sedikit lagi sempurna!';}
-  else if(pct>=60){emoji='💪';msg='Cukup bagus! Terus semangat berlatih!';}
-  else if(pct>=40){emoji='📚';msg='Masih perlu banyak latihan, kamu pasti bisa!';}
-  document.getElementById('resultEmoji').textContent=emoji;
-  document.getElementById('resultScore').textContent=pct+'%';
-  document.getElementById('resultMsg').textContent=msg;
-  document.getElementById('rTotal').textContent=answered;
-  document.getElementById('rBenar').textContent=correct;
-  document.getElementById('rSalah').textContent=wrong;
-  document.getElementById('rWaktu').textContent=`${m}m ${s}s`;
-  document.getElementById('btnSendOsn').disabled=false;
-  document.getElementById('btnSendOsn').textContent='📤 Kirim Hasil ke Guru';
-  document.getElementById('sendStatusOsn').style.display='none';
+  const correct = answers.filter(a=>a.status==='correct').length;
+  const wrong = answers.filter(a=>a.status==='wrong').length;
+  const skip = answers.filter(a=>a.status==='skip').length;
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('statCorrect').textContent = correct;
+  document.getElementById('statWrong').textContent = wrong;
+  document.getElementById('statSkip').textContent = skip;
+  document.getElementById('resultName').textContent = '👤 ' + namaSiswa;
+  let emoji, title, pred, predClass;
+  if(score >= 85) { emoji='🏆'; title='Luar Biasa!'; pred='🌟 Medali Emas OSN'; predClass='pred-gold'; }
+  else if(score >= 70) { emoji='🥈'; title='Hebat! Hampir Sempurna!'; pred='🥈 Medali Perak OSN'; predClass='pred-blue'; }
+  else if(score >= 55) { emoji='🥉'; title='Bagus! Terus Berlatih!'; pred='🥉 Medali Perunggu OSN'; predClass='pred-green'; }
+  else { emoji='📚'; title='Semangat Belajar!'; pred='📚 Perlu Latihan Lebih'; predClass='pred-red'; }
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultPred').textContent = pred;
+  document.getElementById('resultPred').className = 'predikat ' + predClass;
+  document.getElementById('btnSend').disabled = false;
+  document.getElementById('btnSend').textContent = '📤 Kirim Hasil ke Guru';
+  document.getElementById('sendStatus').style.display = 'none';
+  showScreen('resultScreen');
 }
 
-function resetSession(){initSession();}
-function restartAll(){
-  filterTopic='all';
-  document.querySelectorAll('.filter-btn').forEach((b,i)=>{b.classList.toggle('active',i===0);});
-  initSession();
+function showReview() {
+  const list = document.getElementById('reviewList');
+  list.innerHTML = '';
+  answers.forEach((a,i) => {
+    const q = sessionQuestions[a.qIdx];
+    const div = document.createElement('div');
+    div.className = `review-item ${a.status}-item fade-in`;
+    const statusLabel = a.status==='correct'?'✅ Benar (+4)':a.status==='wrong'?'❌ Salah (−1)':'⏭️ Dilewati (0)';
+    const statusClass = a.status==='correct'?'status-correct':a.status==='wrong'?'status-wrong':'status-skip';
+    let optsHtml = '';
+    q.opts.forEach((opt,oi) => {
+      let cls = '';
+      if(oi === q.ans) cls = 'correct-opt';
+      else if(oi === a.selected && a.status==='wrong') cls = 'wrong-opt';
+      optsHtml += `<div class="review-opt ${cls}">${opt}</div>`;
+    });
+    div.innerHTML = `
+      <div class="review-q-header">
+        <div class="review-q-num">Soal ${i+1} • ${q.topic} • ${q.level==='hard'?'⭐⭐⭐':'⭐⭐'}</div>
+        <div class="review-status ${statusClass}">${statusLabel}</div>
+      </div>
+      <div class="review-q-text">${q.text}</div>
+      <div class="review-answers">${optsHtml}</div>
+      <div class="pembahasan">
+        <div class="pembahasan-title">📖 Pembahasan</div>
+        <div class="pembahasan-text">${q.pembahasan}</div>
+      </div>`;
+    list.appendChild(div);
+  });
+  showScreen('reviewScreen');
 }
 
-window.onload=initSession;
-
-function mulaiLatihan(){
-  const input=document.getElementById('namaInput').value.trim();
-  if(!input){alert('Nama tidak boleh kosong ya! 😊');return;}
-  namaSiswa=input;
-  document.getElementById('namaOverlay').style.display='none';
-  initSession();
-}
-
-function kirimHasilOsn(){
-  const btn=document.getElementById('btnSendOsn');
-  const status=document.getElementById('sendStatusOsn');
-  const pct=answered>0?Math.round((correct/answered)*100):0;
-  const now=new Date().toLocaleString('id-ID');
-  btn.disabled=true; btn.textContent='⏳ Mengirim...';
-  const payload={
-    nama: namaSiswa||'Tidak diketahui',
-    mapel:'IPS OSN',
-    nilai: pct+'%  ('+correct+'/'+answered+')',
+function kirimHasil() {
+  const btn = document.getElementById('btnSend');
+  const status = document.getElementById('sendStatus');
+  const correct = answers.filter(a=>a.status==='correct').length;
+  const wrong = answers.filter(a=>a.status==='wrong').length;
+  const skip = answers.filter(a=>a.status==='skip').length;
+  const now = new Date().toLocaleString('id-ID');
+  btn.disabled = true; btn.textContent = '⏳ Mengirim...';
+  const payload = {
+    nama: namaSiswa || 'Tidak diketahui',
+    mapel: 'IPS OSN SD 2026',
+    skor: score + ' poin',
+    benar: correct,
+    salah: wrong,
+    skip: skip,
     waktu: now
   };
-  fetch('https://script.google.com/macros/s/AKfycbz02XVUcOcjEoQGQw-C90DvBgjCX5OOrYIlXlxfPTabnFR4LU7ikxVeXkbKjMSaM6UkKg/exec',{
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
+  fetch('https://script.google.com/macros/s/AKfycbz02XVUcOcjEoQGQw-C90DvBgjCX5OOrYIlXlxfPTabnFR4LU7ikxVeXkbKjMSaM6UkKg/exec', {
+    method: 'POST', mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
   })
-  .then(()=>{
-    btn.textContent='✓ Hasil Terkirim!';
-    status.style.display='block';
-    status.className='send-status-osn ok';
-    status.textContent='✓ Hasil berhasil dikirim ke guru!';
+  .then(() => {
+    btn.textContent = '✓ Hasil Terkirim!';
+    status.style.display = 'block';
+    status.className = 'send-status ok';
+    status.textContent = '✅ Hasil berhasil dikirim ke guru!';
   })
-  .catch(()=>{
-    btn.disabled=false;
-    btn.textContent='📤 Kirim Hasil ke Guru';
-    status.style.display='block';
-    status.className='send-status-osn err';
-    status.textContent='✗ Gagal mengirim. Cek koneksi dan coba lagi.';
+  .catch(() => {
+    btn.disabled = false;
+    btn.textContent = '📤 Kirim Hasil ke Guru';
+    status.style.display = 'block';
+    status.className = 'send-status err';
+    status.textContent = '✗ Gagal mengirim. Cek koneksi dan coba lagi.';
   });
 }
 </script>
