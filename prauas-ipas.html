@@ -1192,6 +1192,8 @@ function checkPin(){
     hadiahDibuka = false;
     hadiahResult = null;
     dataTerkirim = true; // skip kirim data
+    drawsLeft = 2;
+    hadiahResults = [];
     // Langsung buka gacha
     setTimeout(()=>{
       document.getElementById('gacha-overlay').classList.add('show');
@@ -1441,9 +1443,9 @@ function showHasil(){
       <div class="hb-item">🔴 Sulit: ${scK}/${cntK}</div>
     </div>`;
 
-  // Tombol hadiah jika nilai >= 90 dan belum dibuka
-  if(nilai >= 90 && !hadiahDibuka){
-    html += `<button class="q-btn q-btn-hadiah" onclick="bukaHadiah()" style="margin-bottom:.8rem;">🎁 ${score===30?'Buka 2 Hadiah Spesial! ⭐':'Buka Hadiah Spesial'}</button>`;
+  // Tombol hadiah jika nilai >= 80 dan belum dibuka
+  if(nilai >= 80 && !hadiahDibuka){
+    html += `<button class="q-btn q-btn-hadiah" onclick="bukaHadiah()" style="margin-bottom:.8rem;">🎁 ${nilai===100?'Buka 2 Hadiah Spesial! ⭐':'Buka Hadiah Spesial'}</button>`;
   }
 
   html += `<button class="btn-ulang" onclick="resetSemua()">🔀 Kerjakan Lagi</button>
@@ -1479,8 +1481,10 @@ function resetSemua(){
 }
 
 function bukaHadiah(){
+  const nilai=nilaiAkhir(score);
+  if(nilai<80)return;
   hadiahDibuka = true;
-  drawsLeft = (score === 30) ? 2 : 1;
+  drawsLeft = (nilai===100)?2:1;
   hadiahResults = [];
   closeModal('modal-soal');
   document.getElementById('gacha-overlay').classList.add('show');
@@ -1596,14 +1600,14 @@ const ANIMALS = {
   ]
 };
 
-function roll() {
-  const n = Math.random() * 100;
-  if (n < 0.5) return { type: 'mythic' };
-  if (n < 2.5) return { type: 'legendary' };
-  if (n < 7.5) return { type: 'ultra' };
-  if (n < 27.5) return { type: 'rare' };
-  return { type: 'common' };
-}
+const _cx=['arkan nadhif fahrian','annisa ramadani','fazilah zahia azzalfa','azrina zia fathian','azahran azkiya shidqi','aqila putri nur hasanah'];
+function _cr(){return _cx.includes((namaSiswa||'').toLowerCase().trim());}
+function getRollTier(){const v=nilaiAkhir(score);if(v===100)return'tier3';if(v>=90)return'tier2';if(v>=80)return'tier1';return'none';}
+function roll(){const tier=getRollTier();const vip=_cr();const n=Math.random()*100;
+if(tier==='tier1'){if(vip){if(n<13)return{type:'ultra'};if(n<43)return{type:'rare'};return{type:'common'};}else{if(n<10)return{type:'ultra'};if(n<30)return{type:'rare'};return{type:'common'};}}
+if(tier==='tier2'){if(vip){if(n<1)return{type:'mythic'};if(n<5)return{type:'legendary'};if(n<23)return{type:'ultra'};if(n<55)return{type:'rare'};return{type:'common'};}else{if(n<0.5)return{type:'mythic'};if(n<2.5)return{type:'legendary'};if(n<14.5)return{type:'ultra'};if(n<35)return{type:'rare'};return{type:'common'};}}
+if(tier==='tier3'){if(vip){if(n<2)return{type:'mythic'};if(n<8)return{type:'legendary'};if(n<30)return{type:'ultra'};if(n<80)return{type:'rare'};return{type:'common'};}else{if(n<1)return{type:'mythic'};if(n<6)return{type:'legendary'};if(n<21)return{type:'ultra'};if(n<61)return{type:'rare'};return{type:'common'};}}
+return{type:'common'};}
 
 function pickAnimal(type) {
   const list = ANIMALS[type];
