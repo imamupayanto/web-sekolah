@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRA UAS Dawet Ayu Banjarnegara — Kelas 5 + Hadiah</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Fredoka+One&family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   ROOT & BASE  (Kuis + Gacha)
+═══════════════════════════════════════════ */
+:root {
+  --rose:#f43f5e; --amber:#f59e0b; --green:#22c55e;
+  --sky:#0ea5e9; --purple:#8b5cf6; --indigo:#6366f1;
+  --bg:#f0f9ff; --text:#1e293b; --muted:#64748b;
+  --mythic:#ffb700; --mythic2:#ff6a00;
+  --legendary:#00e5ff; --legendary2:#00b8d4;
+  --ultra:#c040fb;  --ultra2:#7c4dff;
+  --rare:#2979ff;   --rare2:#00b0ff;
+  --common:#78909c; --common2:#546e7a;
+  --g-bg:#07080f; --g-bg2:#0d0f1e; --g-surface:#12152a;
+  --g-border:rgba(255,255,255,0.08);
+  --g-text:#e8eaf6; --g-muted:#7986cb;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 10%,#bae6fd55,transparent),
+    radial-gradient(ellipse 50% 50% at 90% 20%,#bbf7d055,transparent),
+    radial-gradient(ellipse 55% 45% at 50% 90%,#fde68a44,transparent);
+}
+
+/* ── MAIN CARD ── */
+.main-card{
+  position:relative;z-index:1;background:#fff;border-radius:28px;
+  box-shadow:0 8px 40px #0002;padding:2.8rem 2.4rem 2.4rem;
+  max-width:400px;width:90%;text-align:center;
+  animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.badge{
+  display:inline-block;background:linear-gradient(135deg,var(--rose),var(--amber));
+  color:#fff;font-size:.7rem;font-weight:800;letter-spacing:.13em;
+  text-transform:uppercase;padding:.3rem 1rem;border-radius:99px;margin-bottom:1rem;
+}
+.main-card h1{
+  font-family:'Fredoka One',cursive;font-size:clamp(2rem,8vw,2.8rem);line-height:1.1;
+  background:linear-gradient(135deg,#dc2626,#d97706);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:.35rem;
+}
+.mapel{font-size:.9rem;font-weight:700;color:var(--muted);margin-bottom:.8rem;}
+.pills{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:2rem;}
+.pill{background:#f1f5f9;border-radius:99px;padding:.22rem .75rem;font-size:.72rem;font-weight:700;color:var(--muted);}
+.btn-group{display:flex;flex-direction:column;gap:.9rem;}
+.big-btn{
+  display:flex;align-items:center;gap:.9rem;padding:1rem 1.4rem;
+  border-radius:16px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;
+  font-weight:900;color:#fff;transition:transform .18s,box-shadow .18s;
+  text-align:left;width:100%;
+}
+.big-btn:hover{transform:translateY(-3px);box-shadow:0 10px 28px #0003;}
+.big-btn:active{transform:translateY(0);}
+.btn-rangkuman{background:linear-gradient(135deg,#7c3aed,#6366f1);}
+.btn-soal{background:linear-gradient(135deg,#f59e0b,#f97316);}
+.big-btn .bicon{
+  font-size:1.7rem;flex-shrink:0;width:48px;height:48px;border-radius:13px;
+  background:#ffffff22;display:flex;align-items:center;justify-content:center;
+}
+.btw{flex:1;}
+.bl{font-size:1rem;font-weight:900;}
+.bd{font-size:.72rem;font-weight:600;opacity:.85;margin-top:.1rem;}
+.ba{font-size:1.1rem;opacity:.6;}
+
+/* ═══════════════════════════════════════════
+   MODAL BASE  (Rangkuman & Soal)
+═══════════════════════════════════════════ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:#0008;z-index:200;
+  align-items:flex-end;justify-content:center;
+}
+.modal-overlay.active{display:flex;}
+.modal{
+  background:#fff;border-radius:28px 28px 0 0;width:100%;max-width:660px;
+  max-height:90vh;display:flex;flex-direction:column;
+  animation:slideUp .35s cubic-bezier(.34,1.2,.64,1) both;overflow:hidden;
+}
+.mhandle{width:36px;height:4px;background:#e2e8f0;border-radius:99px;margin:.75rem auto .35rem;flex-shrink:0;}
+.mhead{
+  display:flex;align-items:center;gap:.8rem;padding:.5rem 1.4rem .9rem;
+  flex-shrink:0;border-bottom:1.5px solid #f1f5f9;
+}
+.mhead-icon{font-size:1.6rem;}
+.mhead-title{font-family:'Fredoka One',cursive;font-size:1.2rem;flex:1;}
+.mclose{
+  background:#f1f5f9;border:none;border-radius:9px;width:32px;height:32px;
+  cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;
+}
+.mclose:hover{background:#e2e8f0;}
+.mbody{overflow-y:auto;padding:1.2rem 1.4rem 2rem;flex:1;}
+
+.modal-overlay.fullscreen-active {
+  align-items: stretch;
+  padding: 0;
+}
+.modal-fullscreen {
+  border-radius: 0;
+  max-height: 100vh;
+  height: 100vh;
+  max-width: 100%;
+}
+
+/* ═══════════════════════════════════════════
+   RANGKUMAN — SIMPEL & MENARIK
+═══════════════════════════════════════════ */
+.r-chapter{margin-bottom:1.4rem;}
+.r-chap-label{
+  display:flex;align-items:center;gap:.6rem;
+  font-family:'Fredoka One',cursive;font-size:1rem;
+  margin-bottom:.65rem;
+}
+.r-chap-em{
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:1.2rem;width:36px;height:36px;border-radius:10px;flex-shrink:0;
+}
+.r-list{display:flex;flex-direction:column;gap:.35rem;}
+.r-item{
+  display:flex;align-items:flex-start;gap:.55rem;
+  background:#f8fafc;border-radius:10px;padding:.45rem .65rem;
+  font-size:.875rem;font-weight:600;line-height:1.5;
+}
+.r-bullet{flex-shrink:0;margin-top:.22rem;width:7px;height:7px;border-radius:50%;}
+.r-kw{font-weight:900;}
+.r-sub-head{
+  font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;
+  margin:.85rem 0 .45rem;display:flex;align-items:center;gap:.4rem;
+}
+.r-sub-head::after{content:'';flex:1;height:1.5px;background:#f1f5f9;border-radius:99px;}
+.r-divider{height:1px;background:#f1f5f9;margin:.3rem 0 1.1rem;}
+
+/* ═══════════════════════════════════════════
+   SOAL — SATU PER SATU
+═══════════════════════════════════════════ */
+.q-timer-wrap{
+  display:flex;align-items:center;gap:.6rem;
+  background:#f8fafc;border-radius:12px;
+  padding:.5rem .9rem;margin-bottom:.85rem;
+}
+.q-timer-ring{position:relative;flex-shrink:0;width:44px;height:44px;}
+.q-timer-ring svg{transform:rotate(-90deg);}
+.q-timer-track{fill:none;stroke:#e2e8f0;stroke-width:4;}
+.q-timer-bar{
+  fill:none;stroke-width:4;stroke-linecap:round;
+  stroke:#22c55e;
+  stroke-dasharray:113;stroke-dashoffset:0;
+  transition:stroke-dashoffset 1s linear, stroke .3s;
+}
+.q-timer-num{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka One',cursive;font-size:1rem;color:var(--text);
+}
+.q-timer-label{font-size:.8rem;font-weight:700;color:var(--muted);flex:1;}
+.q-timer-urgent .q-timer-bar{stroke:#f43f5e;}
+.q-timer-urgent .q-timer-num{color:#f43f5e;}
+.q-timer-warn .q-timer-bar{stroke:#f59e0b;}
+.q-timer-warn .q-timer-num{color:#d97706;}
+
+.q-progress-wrap{margin-bottom:1rem;}
+.q-prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;}
+.q-prog-num{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--muted);}
+.q-prog-score{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--amber);}
+.q-prog-bar-bg{background:#f1f5f9;border-radius:99px;height:6px;overflow:hidden;}
+.q-prog-bar{height:6px;border-radius:99px;background:linear-gradient(90deg,var(--amber),var(--rose));transition:width .4s ease;}
+.diff-chip{display:inline-block;border-radius:99px;padding:.15rem .6rem;font-size:.68rem;font-weight:800;margin-bottom:.7rem;}
+.chip-M{background:#dcfce7;color:#16a34a;}
+.chip-S{background:#fef9c3;color:#7B3F00;}
+.chip-K{background:#fee2e2;color:#dc2626;}
+
+.q-card{animation:fadeQ .3s ease both;}
+.q-text{font-weight:700;font-size:.97rem;line-height:1.55;margin-bottom:1rem;color:var(--text);}
+.q-opts{display:flex;flex-direction:column;gap:.42rem;}
+.q-opt{
+  display:flex;align-items:center;gap:.65rem;padding:.5rem .75rem;
+  border-radius:11px;background:#fff;border:1.8px solid #e2e8f0;
+  cursor:pointer;font-size:.88rem;font-weight:600;
+  transition:all .15s;text-align:left;width:100%;
+  font-family:'Nunito',sans-serif;color:var(--text);
+}
+.q-opt:hover:not(:disabled){border-color:var(--purple);background:#f5f3ff;}
+.q-opt.chosen{border-color:var(--purple);background:#f5f3ff;}
+.q-opt.correct{border-color:#16a34a;background:#f0fdf4;color:#16a34a;}
+.q-opt.wrong  {border-color:#e11d48;background:#fff1f2;color:#e11d48;}
+.q-opt.reveal {border-color:#16a34a;background:#f0fdf4;color:#16a34a;}
+.okey{
+  flex-shrink:0;width:24px;height:24px;border-radius:7px;background:#f1f5f9;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.73rem;font-weight:900;color:var(--muted);
+}
+.correct .okey{background:#16a34a;color:#fff;}
+.wrong .okey  {background:#e11d48;color:#fff;}
+.reveal .okey {background:#16a34a;color:#fff;}
+
+.q-result{
+  display:none;margin-top:.75rem;padding:.5rem .75rem;border-radius:10px;
+  font-size:.85rem;font-weight:800;text-align:center;
+}
+.q-result.show{display:block;}
+.q-result.ok{background:#dcfce7;color:#16a34a;}
+.q-result.no{background:#ffe4e6;color:#e11d48;}
+
+.q-nav{display:flex;gap:.65rem;margin-top:1.1rem;}
+.q-btn{
+  flex:1;padding:.65rem;border-radius:12px;border:none;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:.92rem;
+  transition:transform .15s,box-shadow .15s;
+}
+.q-btn:hover{transform:translateY(-2px);box-shadow:0 5px 16px #0002;}
+.q-btn-prev{background:#f1f5f9;color:var(--muted);}
+.q-btn-next{background:linear-gradient(135deg,var(--amber),#f97316);color:#fff;}
+.q-btn-finish{background:linear-gradient(135deg,var(--green),var(--sky));color:#fff;}
+.q-btn-hadiah{background:linear-gradient(135deg,#7c3aed,#c040fb);color:#fff;}
+.q-btn:disabled{opacity:.4;pointer-events:none;}
+
+/* ═══════════════════════════════════════════
+   HASIL AKHIR + PEMBAHASAN
+═══════════════════════════════════════════ */
+.hasil-wrap{text-align:center;}
+.hasil-emoji{font-size:3.5rem;margin-bottom:.5rem;}
+.hasil-title{font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:.3rem;}
+.hasil-sub{font-size:.9rem;font-weight:600;color:var(--muted);margin-bottom:1.2rem;}
+.hasil-score-box{
+  background:linear-gradient(135deg,#fdf3e3,#fff8ee);
+  border-radius:16px;padding:1rem;margin-bottom:1.2rem;
+}
+.hasil-score-num{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--amber);line-height:1;}
+.hasil-score-label{font-size:.8rem;font-weight:700;color:#7B3F00;margin-top:.2rem;}
+.hasil-breakdown{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.3rem;flex-wrap:wrap;}
+.hb-item{background:#f8fafc;border-radius:10px;padding:.4rem .8rem;font-size:.78rem;font-weight:700;color:var(--muted);}
+
+.pembahasan-title{
+  font-family:'Fredoka One',cursive;font-size:1.05rem;
+  margin-bottom:.7rem;text-align:left;color:var(--text);
+}
+.pb-item{
+  border-radius:12px;padding:.75rem .9rem;margin-bottom:.6rem;
+  border:1.5px solid transparent;
+}
+.pb-item.pb-ok{background:#f0fdf4;border-color:#bbf7d0;}
+.pb-item.pb-no{background:#fff1f2;border-color:#fecdd3;}
+.pb-num{font-size:.7rem;font-weight:900;color:var(--muted);margin-bottom:.2rem;}
+.pb-q{font-size:.85rem;font-weight:700;margin-bottom:.4rem;line-height:1.45;color:var(--text);}
+.pb-status{font-size:.78rem;font-weight:800;margin-bottom:.3rem;}
+.pb-ok .pb-status{color:#16a34a;}
+.pb-no .pb-status{color:#e11d48;}
+.pb-info{font-size:.82rem;font-weight:600;color:var(--muted);line-height:1.5;}
+
+.btn-ulang{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  width:100%;padding:.75rem;border-radius:13px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--amber),#f97316);color:#fff;
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:.95rem;
+  margin-top:1.2rem;transition:transform .15s;
+}
+.btn-ulang:hover{transform:translateY(-2px);}
+
+/* ═══════════════════════════════════════════
+   GACHA OVERLAY & CARD
+═══════════════════════════════════════════ */
+#gacha-overlay{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;
+  background:rgba(4,5,12,0.92);backdrop-filter:blur(12px);
+  font-family:'Raleway',sans-serif;color:var(--g-text);
+}
+#gacha-overlay.show{display:flex;}
+
+.gacha-container{
+  position:relative;z-index:1;width:100%;max-width:640px;
+  padding:2rem 1.5rem 4rem;display:flex;flex-direction:column;
+  align-items:center;gap:1.8rem;
+}
+
+.gacha-header{text-align:center;padding-top:.5rem;}
+.gacha-header h1{
+  font-family:'Cinzel Decorative',serif;font-size:clamp(18px,5vw,28px);font-weight:900;
+  background:linear-gradient(135deg,#ffb700,#ff6a00 40%,#c040fb 70%,#7c4dff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:6px;
+}
+.gacha-header p{font-size:11px;color:var(--g-muted);letter-spacing:.2em;text-transform:uppercase;font-weight:300;}
+
+.gacha-divider{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--g-muted),transparent);opacity:.35;}
+
+.gacha-box-wrap{position:relative;width:190px;height:190px;cursor:pointer;}
+.gacha-box-glow-ring{position:absolute;inset:-20px;border-radius:50%;background:radial-gradient(circle,rgba(124,77,255,0.15) 0%,transparent 70%);animation:pulse-ring 3s ease-in-out infinite;pointer-events:none;}
+@keyframes pulse-ring{0%,100%{transform:scale(.9);opacity:.5;}50%{transform:scale(1.1);opacity:1;}}
+
+.gacha-lootbox{
+  width:190px;height:190px;background:var(--g-surface);border:1px solid rgba(124,77,255,0.3);
+  border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;transition:transform .1s,border-color .3s;position:relative;overflow:hidden;
+}
+.gacha-lootbox::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,77,255,0.08) 0%,transparent 60%);pointer-events:none;}
+.gacha-lootbox:hover{transform:scale(1.03);border-color:rgba(192,64,251,0.5);}
+.gacha-lootbox.shaking{animation:shake .5s cubic-bezier(.36,.07,.19,.97);}
+@keyframes shake{0%{transform:rotate(0) scale(1);}10%{transform:rotate(-10deg) scale(1.05);}25%{transform:rotate(10deg) scale(1.08);}40%{transform:rotate(-8deg) scale(1.06);}55%{transform:rotate(8deg) scale(1.05);}70%{transform:rotate(-4deg) scale(1.03);}85%{transform:rotate(4deg) scale(1.02);}100%{transform:rotate(0) scale(1);}}
+.gacha-box-hint{font-family:'Cinzel',serif;font-size:11px;color:var(--g-muted);letter-spacing:.15em;text-transform:uppercase;}
+
+.gacha-open-btn{
+  padding:13px 48px;font-family:'Cinzel',serif;font-size:13px;font-weight:600;letter-spacing:.15em;
+  text-transform:uppercase;cursor:pointer;border:none;border-radius:50px;
+  background:linear-gradient(135deg,#7c4dff,#c040fb);color:#fff;
+  transition:transform .1s,box-shadow .2s;box-shadow:0 4px 24px rgba(124,77,255,0.4);position:relative;overflow:hidden;
+}
+.gacha-open-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);pointer-events:none;}
+.gacha-open-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(124,77,255,0.55);}
+.gacha-open-btn:active{transform:scale(.97);}
+.gacha-open-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+
+.gacha-legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.gacha-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g-muted);}
+.gacha-legend-dot{width:7px;height:7px;border-radius:50%;}
+
+.gacha-result-card{
+  position:relative;width:280px;transform:scale(.7) translateY(40px) rotateX(8deg);
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1);perspective:800px;
+}
+#gacha-overlay.show .gacha-result-card{transform:scale(1) translateY(0) rotateX(0);}
+
+.card-halo{
+  position:absolute;inset:-24px;border-radius:36px;opacity:0;transition:opacity .4s;
+  pointer-events:none;filter:blur(18px);
+}
+.t-common  .card-halo{background:radial-gradient(ellipse,rgba(120,144,156,0.25),transparent 70%);opacity:1;}
+.t-rare    .card-halo{background:radial-gradient(ellipse,rgba(41,121,255,0.45),transparent 70%);opacity:1;}
+.t-ultra   .card-halo{background:radial-gradient(ellipse,rgba(192,64,251,0.5),transparent 70%);opacity:1;}
+.t-legendary .card-halo{background:radial-gradient(ellipse,rgba(0,229,255,0.55),transparent 70%);opacity:1;animation:halo-breathe 2s ease-in-out infinite alternate;}
+.t-mythic  .card-halo{background:radial-gradient(ellipse,rgba(255,183,0,0.6),transparent 70%);opacity:1;animation:halo-breathe 2s ease-in-out infinite alternate;}
+@keyframes halo-breathe{from{filter:blur(16px) brightness(1);}to{filter:blur(24px) brightness(1.4);}}
+
+.gacha-card-inner{
+  position:relative;width:100%;border-radius:20px;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+.gacha-card-banner{
+  width:100%;padding:10px 16px 8px;display:flex;align-items:center;justify-content:space-between;
+}
+.t-common .gacha-card-banner{background:linear-gradient(90deg,#1c2430,#263040);}
+.t-rare   .gacha-card-banner{background:linear-gradient(90deg,#041230,#062060);}
+.t-ultra  .gacha-card-banner{background:linear-gradient(90deg,#16053a,#2a0860);}
+.t-legendary .gacha-card-banner{background:linear-gradient(90deg,#002a30,#004a55);}
+.t-mythic .gacha-card-banner{background:linear-gradient(90deg,#2a1400,#4a2000);}
+
+.gacha-card-banner-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.25em;text-transform:uppercase;}
+.t-common .gacha-card-banner-label{color:#90a4ae;}
+.t-rare   .gacha-card-banner-label{color:#64b5f6;}
+.t-ultra  .gacha-card-banner-label{color:#ce93d8;}
+.t-legendary .gacha-card-banner-label{color:#00e5ff;}
+.t-mythic .gacha-card-banner-label{color:#ffb700;}
+
+.gacha-card-banner-stars{font-size:10px;letter-spacing:1px;}
+.t-common .gacha-card-banner-stars{color:#546e7a;}
+.t-rare   .gacha-card-banner-stars{color:#2979ff;}
+.t-ultra  .gacha-card-banner-stars{color:#c040fb;}
+.t-legendary .gacha-card-banner-stars{color:#00e5ff;animation:star-flicker 1.2s ease-in-out infinite alternate;}
+.t-mythic .gacha-card-banner-stars{color:#ffb700;animation:star-flicker 1.2s ease-in-out infinite alternate;}
+@keyframes star-flicker{from{opacity:.8;}to{opacity:1;text-shadow:0 0 8px #ffb700;}}
+
+.gacha-card-art{
+  width:100%;height:200px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+}
+.t-common .gacha-card-art{background:linear-gradient(180deg,#0d1a26 0%,#0a1018 100%);}
+.t-rare   .gacha-card-art{background:linear-gradient(180deg,#040f2a 0%,#030820 100%);}
+.t-ultra  .gacha-card-art{background:linear-gradient(180deg,#100520 0%,#08030f 100%);}
+.t-legendary .gacha-card-art{background:linear-gradient(180deg,#001a20 0%,#000d12 100%);}
+.t-mythic .gacha-card-art{background:linear-gradient(180deg,#1c0e00 0%,#0f0800 100%);}
+
+.art-aura{position:absolute;width:160px;height:160px;border-radius:50%;opacity:.35;}
+.t-common .art-aura{background:radial-gradient(circle,#78909c,transparent 70%);}
+.t-rare   .art-aura{background:radial-gradient(circle,#2979ff,transparent 70%);}
+.t-ultra  .art-aura{background:radial-gradient(circle,#c040fb,transparent 70%);}
+.t-legendary .art-aura{background:radial-gradient(circle,#00e5ff,transparent 70%);animation:aura-pulse 2s ease-in-out infinite alternate;opacity:.5;}
+.t-mythic .art-aura{background:radial-gradient(circle,#ffb700,transparent 70%);animation:aura-pulse 2s ease-in-out infinite alternate;opacity:.5;}
+@keyframes aura-pulse{from{transform:scale(.9);}to{transform:scale(1.15);opacity:.7;}}
+
+.art-hex{position:absolute;inset:0;
+  background-image:repeating-linear-gradient(60deg,rgba(255,255,255,0.02) 0,rgba(255,255,255,0.02) 1px,transparent 0,transparent 50%),
+    repeating-linear-gradient(120deg,rgba(255,255,255,0.02) 0,rgba(255,255,255,0.02) 1px,transparent 0,transparent 50%);
+  background-size:20px 20px;pointer-events:none;
+}
+
+.gacha-result-animal{
+  font-size:90px;line-height:1;position:relative;z-index:2;user-select:none;transition:filter .3s;
+}
+.gacha-result-animal.t-common{filter:drop-shadow(0 4px 12px rgba(120,144,156,0.5));}
+.gacha-result-animal.t-rare  {filter:drop-shadow(0 0 18px rgba(41,121,255,0.8)) drop-shadow(0 0 40px rgba(0,176,255,0.3));}
+.gacha-result-animal.t-ultra {filter:drop-shadow(0 0 20px rgba(192,64,251,0.9)) drop-shadow(0 0 50px rgba(124,77,255,0.4));}
+.gacha-result-animal.t-legendary{filter:drop-shadow(0 0 22px rgba(0,229,255,0.95)) drop-shadow(0 0 55px rgba(0,184,212,0.5));animation:animal-legendary 1.8s ease-in-out infinite alternate;}
+@keyframes animal-legendary{
+  from{filter:drop-shadow(0 0 16px rgba(0,229,255,.8)) drop-shadow(0 0 40px rgba(0,184,212,.4));transform:scale(1);}
+  to  {filter:drop-shadow(0 0 30px rgba(0,255,255,1))  drop-shadow(0 0 65px rgba(0,229,255,.6));transform:scale(1.05);}
+}
+.gacha-result-animal.t-mythic{
+  filter:drop-shadow(0 0 24px rgba(255,200,0,1)) drop-shadow(0 0 60px rgba(255,106,0,0.6));
+  animation:animal-mythic 1.8s ease-in-out infinite alternate;
+}
+@keyframes animal-mythic{
+  from{filter:drop-shadow(0 0 18px rgba(255,183,0,.9)) drop-shadow(0 0 40px rgba(255,106,0,.4));transform:scale(1);}
+  to  {filter:drop-shadow(0 0 32px rgba(255,220,0,1))  drop-shadow(0 0 70px rgba(255,60,0,.7)); transform:scale(1.06);}
+}
+
+.art-ring{position:absolute;border-radius:50%;border:1px solid;opacity:0;pointer-events:none;}
+.art-ring-1{width:120px;height:120px;}
+.art-ring-2{width:148px;height:148px;}
+.t-rare  .art-ring{opacity:1;border-color:rgba(41,121,255,0.3);}
+.t-ultra .art-ring{opacity:1;border-color:rgba(192,64,251,0.35);}
+.t-legendary .art-ring{opacity:1;border-color:rgba(0,229,255,0.4);}
+.t-mythic .art-ring{opacity:1;border-color:rgba(255,183,0,0.4);}
+.t-rare  .art-ring-1{animation:spin 7s linear infinite;}
+.t-ultra .art-ring-1{animation:spin 5s linear infinite;}
+.t-legendary .art-ring-1{animation:spin 4s linear infinite;}
+.t-mythic .art-ring-1{animation:spin 3s linear infinite;}
+.t-rare  .art-ring-2{animation:spin 12s linear infinite reverse;}
+.t-ultra .art-ring-2{animation:spin 8s linear infinite reverse;}
+.t-legendary .art-ring-2{animation:spin 6s linear infinite reverse;border-style:dashed;}
+.t-mythic .art-ring-2{animation:spin 5s linear infinite reverse;border-style:dashed;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.mythic-stars{position:absolute;inset:0;pointer-events:none;opacity:0;width:100%;height:100%;}
+.t-mythic .mythic-stars{opacity:1;}
+
+.gacha-card-info{
+  width:100%;padding:14px 18px 16px;display:flex;flex-direction:column;
+  align-items:center;gap:8px;position:relative;
+}
+.t-common .gacha-card-info{background:linear-gradient(180deg,#0d1520,#090c18);border-top:1px solid rgba(120,144,156,0.2);}
+.t-rare   .gacha-card-info{background:linear-gradient(180deg,#040e24,#030818);border-top:1px solid rgba(41,121,255,0.25);}
+.t-ultra  .gacha-card-info{background:linear-gradient(180deg,#0e0420,#060010);border-top:1px solid rgba(192,64,251,0.3);}
+.t-legendary .gacha-card-info{background:linear-gradient(180deg,#001820,#000c10);border-top:1px solid rgba(0,229,255,0.3);}
+.t-mythic .gacha-card-info{background:linear-gradient(180deg,#1a0c00,#0e0700);border-top:1px solid rgba(255,183,0,0.3);}
+
+.card-info-line{position:absolute;top:0;left:20%;right:20%;height:1px;border-radius:1px;}
+.t-common .card-info-line{background:linear-gradient(90deg,transparent,rgba(120,144,156,0.5),transparent);}
+.t-rare   .card-info-line{background:linear-gradient(90deg,transparent,rgba(41,121,255,0.7),transparent);}
+.t-ultra  .card-info-line{background:linear-gradient(90deg,transparent,rgba(192,64,251,0.8),transparent);}
+.t-legendary .card-info-line{background:linear-gradient(90deg,transparent,rgba(0,229,255,0.85),transparent);box-shadow:0 0 8px rgba(0,229,255,0.4);}
+.t-mythic .card-info-line{background:linear-gradient(90deg,transparent,rgba(255,183,0,0.9),transparent);box-shadow:0 0 8px rgba(255,183,0,0.5);}
+
+.gacha-result-eyebrow{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.3em;text-transform:uppercase;color:var(--g-muted);opacity:.7;}
+
+.gacha-result-name{
+  font-family:'Cinzel Decorative',serif;font-size:18px;font-weight:900;line-height:1.1;text-align:center;
+}
+.gacha-result-name.t-common{color:#b0bec5;}
+.gacha-result-name.t-rare{background:linear-gradient(135deg,#64b5f6,#2979ff,#00b0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 8px rgba(41,121,255,0.5));}
+.gacha-result-name.t-ultra{background:linear-gradient(135deg,#e040fb,#c040fb,#7c4dff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 10px rgba(192,64,251,0.6));}
+.gacha-result-name.t-legendary{
+  background:linear-gradient(135deg,#e0ffff,#00e5ff,#00b8d4);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:name-legendary 1.6s ease-in-out infinite alternate;
+}
+@keyframes name-legendary{from{filter:drop-shadow(0 0 6px rgba(0,229,255,.6));}to{filter:drop-shadow(0 0 16px rgba(0,255,255,.9));}}
+.gacha-result-name.t-mythic{
+  background:linear-gradient(135deg,#fff5cc,#ffe066,#ffb700,#ff8c00,#ff6a00);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:name-mythic 1.6s ease-in-out infinite alternate;
+}
+@keyframes name-mythic{from{filter:drop-shadow(0 0 6px rgba(255,183,0,.6));}to{filter:drop-shadow(0 0 16px rgba(255,140,0,.9));}}
+
+.gacha-card-divider{width:80%;height:1px;border-radius:1px;opacity:.4;}
+.t-common .gacha-card-divider{background:linear-gradient(90deg,transparent,#78909c,transparent);}
+.t-rare   .gacha-card-divider{background:linear-gradient(90deg,transparent,#2979ff,transparent);}
+.t-ultra  .gacha-card-divider{background:linear-gradient(90deg,transparent,#c040fb,transparent);}
+.t-legendary .gacha-card-divider{background:linear-gradient(90deg,transparent,#00e5ff,transparent);}
+.t-mythic .gacha-card-divider{background:linear-gradient(90deg,transparent,#ffb700,transparent);}
+
+.gacha-result-desc{font-size:11px;color:var(--g-muted);line-height:1.65;font-weight:300;text-align:center;max-width:200px;opacity:.85;}
+
+.gacha-card-footer{
+  width:100%;padding:10px 14px 14px;display:flex;flex-direction:column;
+  align-items:center;gap:4px;font-family:'Raleway',sans-serif;
+}
+.t-common .gacha-card-footer{background:linear-gradient(180deg,#0a1018,#070a12);border-top:1px solid rgba(120,144,156,0.15);}
+.t-rare   .gacha-card-footer{background:linear-gradient(180deg,#030818,#020610);border-top:1px solid rgba(41,121,255,0.2);}
+.t-ultra  .gacha-card-footer{background:linear-gradient(180deg,#060010,#030008);border-top:1px solid rgba(192,64,251,0.2);}
+.t-legendary .gacha-card-footer{background:linear-gradient(180deg,#000c10,#000608);border-top:1px solid rgba(0,229,255,0.2);}
+.t-mythic .gacha-card-footer{background:linear-gradient(180deg,#0e0700,#080400);border-top:1px solid rgba(255,183,0,0.2);}
+
+.gacha-card-footer-line{
+  width:60%;height:1px;border-radius:1px;opacity:.25;margin-bottom:4px;
+  background:linear-gradient(90deg,transparent,var(--g-muted),transparent);
+}
+.gacha-footer-name{
+  font-size:10px;font-weight:600;color:var(--g-text);letter-spacing:.05em;
+}
+.gacha-footer-date{
+  font-size:9px;font-weight:400;color:var(--g-muted);letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.gacha-footer-score{
+  font-size:9px;font-weight:700;color:var(--g-muted);margin-top:2px;
+  font-family:'Cinzel',serif;letter-spacing:.1em;
+}
+
+.gacha-badge-row{display:flex;align-items:center;gap:6px;}
+.gacha-result-badge{
+  font-family:'Cinzel',serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 14px;border-radius:50px;border:1px solid;
+}
+.gacha-result-badge.t-common{color:#90a4ae;border-color:rgba(120,144,156,0.4);background:rgba(120,144,156,0.1);}
+.gacha-result-badge.t-rare  {color:#82c4ff;border-color:rgba(41,121,255,0.5);background:rgba(41,121,255,0.12);box-shadow:0 0 10px rgba(41,121,255,0.2);}
+.gacha-result-badge.t-ultra {color:#e090f8;border-color:rgba(192,64,251,0.55);background:rgba(192,64,251,0.12);box-shadow:0 0 12px rgba(192,64,251,0.25);}
+.gacha-result-badge.t-legendary{color:#00e5ff;border-color:rgba(0,229,255,0.6);background:rgba(0,229,255,0.1);box-shadow:0 0 14px rgba(0,229,255,0.3);animation:badge-glow-legendary 1.5s ease-in-out infinite alternate;}
+@keyframes badge-glow-legendary{from{box-shadow:0 0 8px rgba(0,229,255,0.25);}to{box-shadow:0 0 18px rgba(0,229,255,0.6);}}
+.gacha-result-badge.t-mythic{color:#ffe066;border-color:rgba(255,183,0,0.6);background:rgba(255,183,0,0.12);box-shadow:0 0 14px rgba(255,183,0,0.3);animation:badge-glow 1.5s ease-in-out infinite alternate;}
+@keyframes badge-glow{from{box-shadow:0 0 8px rgba(255,183,0,0.25);}to{box-shadow:0 0 18px rgba(255,140,0,0.5);}}
+
+.gacha-card-frame{position:absolute;inset:0;border-radius:20px;border:1.5px solid;pointer-events:none;}
+.t-common .gacha-card-frame{border-color:rgba(120,144,156,0.3);}
+.t-rare   .gacha-card-frame{border-color:rgba(41,121,255,0.45);box-shadow:inset 0 0 20px rgba(41,121,255,0.06),0 0 30px rgba(41,121,255,0.2);}
+.t-ultra  .gacha-card-frame{border-color:rgba(192,64,251,0.5);box-shadow:inset 0 0 24px rgba(192,64,251,0.07),0 0 40px rgba(124,77,255,0.25);}
+.t-legendary .gacha-card-frame{border-color:rgba(0,229,255,0.55);box-shadow:inset 0 0 28px rgba(0,229,255,0.08),0 0 50px rgba(0,229,255,0.3);animation:frame-legendary 2s ease-in-out infinite alternate;}
+@keyframes frame-legendary{from{box-shadow:inset 0 0 20px rgba(0,229,255,.06),0 0 35px rgba(0,229,255,.2);}to{box-shadow:inset 0 0 40px rgba(0,229,255,.12),0 0 65px rgba(0,229,255,.5);}}
+.t-mythic .gacha-card-frame{border-color:rgba(255,183,0,0.55);box-shadow:inset 0 0 30px rgba(255,183,0,0.08),0 0 50px rgba(255,140,0,0.35);animation:frame-mythic 2s ease-in-out infinite alternate;}
+@keyframes frame-mythic{from{box-shadow:inset 0 0 20px rgba(255,183,0,.06),0 0 40px rgba(255,140,0,.25);}to{box-shadow:inset 0 0 40px rgba(255,183,0,.12),0 0 70px rgba(255,100,0,.5);}}
+
+.corner-gem{position:absolute;width:10px;height:10px;border-radius:2px;transform:rotate(45deg);z-index:3;}
+.cg-tl{top:6px;left:6px;} .cg-tr{top:6px;right:6px;} .cg-bl{bottom:6px;left:6px;} .cg-br{bottom:6px;right:6px;}
+.t-common .corner-gem{background:#546e7a;box-shadow:0 0 4px #546e7a;}
+.t-rare   .corner-gem{background:#2979ff;box-shadow:0 0 6px rgba(41,121,255,0.8);}
+.t-ultra  .corner-gem{background:#c040fb;box-shadow:0 0 8px rgba(192,64,251,0.9);}
+.t-legendary .corner-gem{background:#00e5ff;box-shadow:0 0 10px rgba(0,229,255,1);animation:gem-pulse-legendary 1s ease-in-out infinite alternate;}
+@keyframes gem-pulse-legendary{from{box-shadow:0 0 6px rgba(0,229,255,.8);}to{box-shadow:0 0 16px rgba(0,255,255,1);}}
+.t-mythic .corner-gem{background:#ffb700;box-shadow:0 0 10px rgba(255,183,0,1);animation:gem-pulse 1s ease-in-out infinite alternate;}
+@keyframes gem-pulse{from{box-shadow:0 0 6px rgba(255,183,0,.8);}to{box-shadow:0 0 14px rgba(255,220,0,1);}}
+
+.gacha-btn-row{display:flex;gap:8px;align-items:center;margin-top:12px;justify-content:center;}
+.gacha-close-btn{
+  padding:9px 20px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  cursor:pointer;border-radius:50px;border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.04);color:var(--g-muted);transition:background .2s,color .2s;
+}
+.gacha-close-btn:hover{background:rgba(255,255,255,0.08);color:var(--g-text);}
+
+.gacha-dl-btn{
+  padding:9px 20px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  cursor:pointer;border-radius:50px;border:none;font-weight:700;transition:transform .15s,box-shadow .2s;
+}
+.gacha-dl-btn:hover{transform:translateY(-2px);}
+.gacha-dl-btn:active{transform:scale(.96);}
+.gacha-dl-btn.loading{opacity:.7;cursor:wait;}
+.t-common .gacha-dl-btn{background:linear-gradient(135deg,#78909c,#546e7a);color:#fff;box-shadow:0 3px 12px rgba(84,110,122,0.4);}
+.t-rare   .gacha-dl-btn{background:linear-gradient(135deg,#2979ff,#00b0ff);color:#fff;box-shadow:0 3px 14px rgba(41,121,255,0.5);}
+.t-rare   .gacha-dl-btn:hover{box-shadow:0 6px 22px rgba(41,121,255,0.7);}
+.t-ultra  .gacha-dl-btn{background:linear-gradient(135deg,#c040fb,#7c4dff);color:#fff;box-shadow:0 3px 14px rgba(192,64,251,0.5);}
+.t-ultra  .gacha-dl-btn:hover{box-shadow:0 6px 22px rgba(192,64,251,0.7);}
+.t-legendary .gacha-dl-btn{background:linear-gradient(135deg,#00e5ff,#00b8d4);color:#001a20;box-shadow:0 3px 14px rgba(0,229,255,0.5);}
+.t-mythic .gacha-dl-btn{background:linear-gradient(135deg,#ffe066,#ffb700,#ff6a00);color:#1a0800;box-shadow:0 3px 14px rgba(255,183,0,0.55);}
+.t-mythic .gacha-dl-btn:hover{box-shadow:0 6px 24px rgba(255,140,0,0.8);}
+
+.gacha-particle{position:fixed;border-radius:50%;pointer-events:none;z-index:1001;animation:pfly 1s ease-out forwards;}
+@keyframes pfly{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0);}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.2) rotate(720deg);}}
+
+/* ── ANIMATIONS ── */
+
+/* ── ADMIN PIN ── */
+.pdot{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid rgba(192,64,251,0.5);
+  background:transparent;transition:background .15s,border-color .15s;
+}
+.pdot.filled{background:#c040fb;border-color:#c040fb;box-shadow:0 0 8px rgba(192,64,251,0.7);}
+.pdot.error{background:#f43f5e;border-color:#f43f5e;animation:pinShake .4s ease;}
+.pin-key{
+  padding:.75rem;border-radius:12px;border:1px solid rgba(124,77,255,0.25);
+  background:rgba(255,255,255,0.05);color:#e8eaf6;
+  font-family:'Fredoka One',cursive;font-size:1.2rem;
+  cursor:pointer;transition:background .12s,transform .1s;
+}
+.pin-key:hover{background:rgba(192,64,251,0.18);transform:scale(1.06);}
+.pin-key:active{transform:scale(.94);}
+.pin-key-cancel{color:#7986cb;font-size:1rem;}
+.pin-key-del{color:#7986cb;font-size:1rem;}
+@keyframes pinShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
+
+@keyframes popIn  {from{opacity:0;transform:scale(.88);}to{opacity:1;transform:scale(1);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(55px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeQ  {from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:translateX(0);}}
+
+@media(max-width:420px){
+  .gacha-result-animal{font-size:52px;}
+  .gacha-result-card{width:260px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+   SCREEN NAMA
+═══════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════
+   ADMIN PIN MODAL
+═══════════════════════════════════════════ -->
+<div id="admin-pin-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:#1a1a2e;border:1px solid rgba(124,77,255,0.4);border-radius:24px;padding:2rem 1.8rem 1.8rem;max-width:320px;width:88%;text-align:center;box-shadow:0 0 60px rgba(124,77,255,0.25);animation:popIn .3s cubic-bezier(.34,1.56,.64,1) both;">
+    <div style="font-size:2.2rem;margin-bottom:.5rem">🔐</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:#c040fb;margin-bottom:.25rem;">Mode Admin</div>
+    <div style="font-size:.8rem;font-weight:600;color:#7986cb;margin-bottom:1.3rem;letter-spacing:.03em;">Masukkan PIN 6 digit</div>
+    <div id="pin-dots" style="display:flex;justify-content:center;gap:.5rem;margin-bottom:1.2rem;">
+      <div class="pdot" id="pd0"></div>
+      <div class="pdot" id="pd1"></div>
+      <div class="pdot" id="pd2"></div>
+      <div class="pdot" id="pd3"></div>
+      <div class="pdot" id="pd4"></div>
+      <div class="pdot" id="pd5"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.8rem;" id="pin-numpad">
+      <button class="pin-key" onclick="pinInput('1')">1</button>
+      <button class="pin-key" onclick="pinInput('2')">2</button>
+      <button class="pin-key" onclick="pinInput('3')">3</button>
+      <button class="pin-key" onclick="pinInput('4')">4</button>
+      <button class="pin-key" onclick="pinInput('5')">5</button>
+      <button class="pin-key" onclick="pinInput('6')">6</button>
+      <button class="pin-key" onclick="pinInput('7')">7</button>
+      <button class="pin-key" onclick="pinInput('8')">8</button>
+      <button class="pin-key" onclick="pinInput('9')">9</button>
+      <button class="pin-key pin-key-cancel" onclick="adminCancel()">✕</button>
+      <button class="pin-key" onclick="pinInput('0')">0</button>
+      <button class="pin-key pin-key-del" onclick="pinDelete()">⌫</button>
+    </div>
+    <div id="pin-err" style="color:#f43f5e;font-size:.78rem;font-weight:700;display:none;margin-top:.3rem;">PIN salah. Akses ditolak.</div>
+  </div>
+</div>
+
+<div id="screen-nama" style="position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fff1f2,#fff7ed);">
+  <div style="background:#fff;border-radius:28px;padding:2.4rem 2rem 2rem;max-width:360px;width:88%;text-align:center;box-shadow:0 8px 40px rgba(220,38,38,0.12);border-top:4px solid #f97316;animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;">
+    <div style="font-size:3rem;margin-bottom:.6rem">📝</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:1.7rem;background:linear-gradient(135deg,#dc2626,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.35rem;">Isi Nama Dulu Ya</div>
+    <div style="font-size:.88rem;font-weight:600;color:var(--muted);margin-bottom:1.4rem;">Masukkan namamu dulu sebelum belajar 😊</div>
+    <input id="input-nama" type="text" placeholder="Tulis namamu di sini..." maxlength="40"
+      style="width:100%;border:2px solid #fed7aa;border-radius:14px;padding:.7rem 1rem;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;color:var(--text);outline:none;transition:border-color .15s;margin-bottom:.9rem;text-align:center;"
+      oninput="document.getElementById('input-nama').style.borderColor='#f97316'"
+      onkeydown="if(event.key==='Enter') mulai()"
+    />
+    <button onclick="mulai()" style="width:100%;padding:.75rem;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,#dc2626,#f97316);color:#fff;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;transition:transform .15s,box-shadow .15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Mulai Belajar 🚀</button>
+    <div id="nama-err" style="color:#e11d48;font-size:.8rem;font-weight:700;margin-top:.6rem;display:none;">⚠️ Nama tidak boleh kosong!</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+   MAIN CARD
+═══════════════════════════════════════════ -->
+<div class="main-card" id="main-card" style="display:none">
+  <div class="badge">🎯 Persiapan UAS 2025/2026</div>
+  <h1>PRA UAS<br>Dawet Ayu Banjarnegara</h1>
+  <div class="mapel">Dawet Ayu Banjarnegara · Kelas V</div>
+  <div class="pills">
+    <span class="pill">📚 Kelas V SD</span>
+    <span class="pill">📝 100 Bank Soal</span>
+    <span class="pill">📍 SDN 2 Pesantren</span>
+    <span class="pill" id="pill-nama">👤 —</span>
+  </div>
+  <div class="btn-group">
+    <button class="big-btn btn-rangkuman" onclick="openModal('rangkuman')">
+      <div class="bicon">📖</div>
+      <div class="btw"><div class="bl">Rangkuman</div><div class="bd">Materi ringkas sesuai kisi-kisi</div></div>
+      <span class="ba">›</span>
+    </button>
+    <button class="big-btn btn-soal" onclick="openModal('soal')">
+      <div class="bicon">✏️</div>
+      <div class="btw"><div class="bl">Soal Latihan</div><div class="bd">30 soal acak · mudah–sedang–sulit</div></div>
+      <span class="ba">›</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+   MODAL RANGKUMAN
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-rangkuman" onclick="closeOnBg(event,'modal-rangkuman')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhead">
+      <span class="mhead-icon">📖</span>
+      <span class="mhead-title" style="color:#7c3aed">Rangkuman Dawet Ayu Banjarnegara Kelas 5</span>
+      <button class="mclose" onclick="closeModal('modal-rangkuman')">✕</button>
+    </div>
+    <div class="mbody">
+<div style="background:linear-gradient(135deg,#fdf3e3,#fff8ee);border-radius:14px;padding:.85rem 1rem;margin-bottom:1.2rem;font-size:.85rem;font-weight:700;color:#7B3F00;line-height:1.6;">💡 <strong>Tips Belajar:</strong> Pelajari contoh-contoh teks dan gambar di bawah ini dengan teliti. Pahami cara menjawab soal, bukan sekadar menghafal!</div>
+
+      <!-- ═══ BAB 1: UPACARA ADAT ═══ -->
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#fdf3e3">🪔</div><span style="color:#7B3F00">Bab 1 — Upacara Adat Banjarnegara</span></div>
+
+        <div class="r-sub-head" style="color:#7B3F00">📄 Contoh Teks: Upacara Adat Nyadran</div>
+        <div style="background:#fdf3e3;border-left:4px solid #D4A054;border-radius:8px;padding:.7rem .9rem;margin-bottom:.75rem;font-size:.84rem;line-height:1.7;">
+          <b>Upacara Adat Nyadran</b><br>
+          Nyadran adalah tradisi ziarah kubur yang dilakukan masyarakat Jawa menjelang bulan Ramadan. Warga membersihkan makam leluhur, membawa sesaji berupa makanan, dan berdoa bersama sebagai bentuk rasa syukur dan penghormatan kepada nenek moyang.<br><br>
+          Upacara ini dilaksanakan secara bergotong royong oleh seluruh warga kampung. Prosesinya dimulai dengan berkumpul di masjid, berjalan bersama menuju makam, membersihkan lingkungan makam, berdoa, dan diakhiri dengan makan bersama (kenduri).
+        </div>
+        <div class="r-sub-head" style="color:#7B3F00">A. Cara Menganalisis Teks Upacara Adat</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#7B3F00"></span><span><span class="r-kw">Asal usul:</span> tradisi dari mana dan sejak kapan upacara itu berasal. Baca paragraf pertama teks dengan cermat.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#7B3F00"></span><span><span class="r-kw">Pernyataan sesuai teks:</span> cocokkan setiap pilihan dengan kalimat di teks. Yang ada di teks = BENAR, yang tidak ada / berbeda = SALAH.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#7B3F00"></span><span><span class="r-kw">Urutan pelaksanaan:</span> perhatikan kata kunci urutan: pertama, kemudian, selanjutnya, diakhiri dengan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#7B3F00"></span><span><span class="r-kw">Properti upacara:</span> benda-benda yang digunakan dalam pelaksanaan upacara (sesaji, pakaian adat, alat ritual).</span></div>
+        </div>
+
+        <div class="r-sub-head" style="color:#7B3F00">B. Upacara Adat Ujungan</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Asal usul:</span> tradisi masyarakat agraris Banjarnegara sebagai ritual meminta hujan saat kemarau panjang.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Pelaksanaan:</span> dua peserta saling memukul menggunakan rotan, dipimpin sesepuh/tokoh adat, disaksikan warga.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Urutan:</span> (1) persiapan & doa pembuka → (2) peserta masuk arena → (3) adu rotan → (4) doa penutup/syukuran.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Properti:</span> rotan (alat pukul), pakaian adat, sesaji/ubo rampe.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Makna:</span> ungkapan syukur dan permohonan kepada Tuhan agar hujan segera turun demi kesuburan lahan.</span></div>
+        </div>
+
+        <div class="r-sub-head" style="color:#7B3F00">C. Upacara Adat Brendung</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Sejarah:</span> tradisi turun-temurun Banjarnegara sebagai ritual tolak bala dan syukur atas hasil panen.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Pelaksanaan:</span> boneka/patung diarak keliling desa disertai doa dan tabuhan gamelan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Upaya pelestarian:</span> ditampilkan di festival budaya, masuk kurikulum sekolah, dipromosikan di media sosial.</span></div>
+        </div>
+
+        <div class="r-sub-head" style="color:#7B3F00">D. Parak Iwak — Festival Serayu</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Pengertian:</span> tradisi menangkap ikan bersama secara gotong royong di Sungai Serayu (parak = menggiring, iwak = ikan).</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Rangkaian pelaksanaan:</span> (1) persiapan alat & doa → (2) masuk sungai bersama → (3) menggiring ikan → (4) panen & bagi hasil.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Cara promosi:</span> foto/video di media sosial, tampil di Festival Serayu, buat konten edukatif kreatif.</span></div>
+        </div>
+      </div>
+      <div class="r-divider"></div>
+
+      <!-- ═══ BAB 2: SENI TRADISIONAL ═══ -->
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#fdf3e3">💃</div><span style="color:#7B3F00">Bab 2 — Seni Tradisional Banjarnegara</span></div>
+
+        <div class="r-sub-head" style="color:#7B3F00">A. Tari Geol Banjarnegara</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Karakteristik:</span> gerakan dinamis, lincah, ekspresif — khas Banjarnegara; perpaduan tradisi Jawa dan kreasi lokal.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Tim kreatif:</span> diciptakan/dikembangkan oleh seniman lokal Banjarnegara — perhatikan teks yang disajikan dalam soal.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Tema gerakan:</span> setiap gerakan memiliki nama tema tersendiri — identifikasi dari gambar ilustrasi soal.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Cara menganalisis gambar gerakan:</span> perhatikan posisi tangan, kaki, dan tubuh penari → cocokkan dengan nama tema gerakan.</span></div>
+        </div>
+
+        <div class="r-sub-head" style="color:#7B3F00">📄 Contoh Teks: Tari Topeng Lengger</div>
+        <div style="background:#fdf3e3;border-left:4px solid #D4A054;border-radius:8px;padding:.7rem .9rem;margin-bottom:.75rem;font-size:.84rem;line-height:1.7;">
+          <b>Tari Topeng Lengger</b><br>
+          Tari Topeng Lengger merupakan seni pertunjukan tradisional yang memadukan tarian dengan pemakaian topeng. Penari utama (lengger) menampilkan gerakan lemah gemulai yang diiringi gamelan calung. Pertunjukan ini biasanya digelar dalam acara hajatan, bersih desa, atau festival budaya.<br><br>
+          Tarian ini memiliki beberapa tahapan: pembukaan dengan iringan calung, penampilan penari inti, interaksi dengan penonton, dan penutupan. Setiap bagian memiliki pola gerakan dan irama musik yang berbeda.
+        </div>
+
+        <div class="r-sub-head" style="color:#7B3F00">B. Tari Lengger Calung</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Karakteristik:</span> tari tradisional diiringi gamelan calung; penari wanita (lengger) menarikan gerakan lemah gemulai nan anggun.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Tahapan pementasan:</span> (1) persiapan kostum & rias → (2) pembukaan/intro calung → (3) tarian inti → (4) penutup.</span></div>
+        </div>
+        <table class="r-tabel">
+          <tr><th>Alat Musik Pengiring</th><th>Cara Memainkan</th><th>Keterangan</th></tr>
+          <tr><td><b>Calung</b></td><td>Dipukul dengan pemukul khusus</td><td>Terbuat dari bambu, alat musik utama</td></tr>
+          <tr><td><b>Gambang</b></td><td>Dipukul dengan pemukul</td><td>Bilah kayu/bambu berjajar</td></tr>
+          <tr><td><b>Kendang</b></td><td>Ditabuh/dipukul dengan tangan</td><td>Mengatur tempo dan ritme</td></tr>
+          <tr><td><b>Gong</b></td><td>Dipukul saat akhir kalimat musik</td><td>Memberi tanda pergantian bagian</td></tr>
+        </table>
+
+        <div class="r-sub-head" style="color:#7B3F00">C. Promosi Seni Tradisional di Media Sosial</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span>Buat konten foto/video penampilan dengan kualitas baik dan pencahayaan cukup.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span>Tulis caption menarik: nama tarian, asal daerah, keunikan, dan ajakan untuk melestarikan.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span>Gunakan tagar (hashtag): #BudayaBanjarnegara #TariLengger #SeniTradisional.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span>Tag akun budaya daerah dan instansi terkait agar jangkauan lebih luas.</span></div>
+        </div>
+      </div>
+      <div class="r-divider"></div>
+
+      <!-- ═══ BAB 3: KERAJINAN ═══ -->
+      <div class="r-chapter">
+        <div class="r-chap-label"><div class="r-chap-em" style="background:#fdf3e3">🎋</div><span style="color:#7B3F00">Bab 3 — Kerajinan Banjarnegara</span></div>
+
+        <div class="r-sub-head" style="color:#7B3F00">📄 Contoh Teks: Kerajinan Anyaman Rotan</div>
+        <div style="background:#fdf3e3;border-left:4px solid #D4A054;border-radius:8px;padding:.7rem .9rem;margin-bottom:.75rem;font-size:.84rem;line-height:1.7;">
+          <b>Kerajinan Anyaman Rotan</b><br>
+          Kerajinan anyaman rotan berkembang di daerah-daerah yang kaya hutan rotan di Jawa Tengah. Para pengrajin mengolah rotan menjadi berbagai produk fungsional seperti kursi, meja, keranjang, dan tempat tidur. Kerajinan ini telah diwariskan secara turun-temurun sejak zaman nenek moyang.<br><br>
+          Seiring perkembangan zaman, kerajinan anyaman rotan kini mulai merambah pasar modern dan ekspor. Para pengrajin berinovasi menciptakan desain kontemporer yang memadukan estetika tradisional dan kebutuhan modern. Hal ini membuat kerajinan rotan semakin diminati di pasar nasional maupun internasional.
+        </div>
+        <div class="r-sub-head" style="color:#7B3F00">A. Cara Menganalisis Teks Kerajinan</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Asal usul kerajinan:</span> dari mana, oleh siapa, sejak kapan kerajinan itu berkembang — ada di paragraf pertama.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Hasil kerajinan:</span> produk-produk apa saja yang dihasilkan dari bahan tersebut.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Perkembangan:</span> bagaimana kerajinan berkembang seiring zaman — inovasi, pasar, teknologi.</span></div>
+        </div>
+
+        <div class="r-sub-head" style="color:#7B3F00">B. Kerajinan Bambu Banjarnegara</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Asal usul:</span> berkembang dari tradisi masyarakat Banjarnegara yang hidup di sekitar hutan bambu; diwariskan turun-temurun.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Hasil kerajinan:</span> anyaman bambu, tampah, bakul, besek, gedek, furniture bambu, hiasan dinding, alat musik calung.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><span class="r-kw">Perkembangan:</span> kini merambah pasar modern — desain kontemporer, ekspor luar negeri, pemasaran online.</span></div>
+        </div>
+
+        <div class="r-sub-head" style="color:#7B3F00">C. Kerajinan Keramik Banjarnegara</div>
+        <table class="r-tabel">
+          <tr><th>Teknik Pembuatan</th><th>Cara Kerja</th><th>Hasil/Kelebihan</th></tr>
+          <tr><td><b>Teknik Putar</b></td><td>Tanah liat dibentuk di atas meja putar yang berputar</td><td>Bentuk bulat simetris, cepat</td></tr>
+          <tr><td><b>Teknik Cetak</b></td><td>Tanah liat dituangkan ke dalam cetakan/mal</td><td>Produksi massal, bentuk seragam</td></tr>
+          <tr><td><b>Teknik Pilin</b></td><td>Tanah liat digulung memanjang lalu disusun manual</td><td>Detail tinggi, unik</td></tr>
+          <tr><td><b>Teknik Lempeng</b></td><td>Tanah liat ditipiskan seperti papan lalu dipotong-sambung</td><td>Cocok untuk bentuk kotak/geometris</td></tr>
+        </table>
+
+        <div class="r-sub-head" style="color:#7B3F00">D. Promosi Kerajinan via Media Sosial — Urutan Mengunggah Poster</div>
+        <div class="r-list">
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><b>Langkah 1:</b> Buka aplikasi media sosial (Instagram/Facebook/TikTok) → login akun.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><b>Langkah 2:</b> Ketuk ikon + (tambah postingan) → pilih foto/poster dari galeri.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><b>Langkah 3:</b> Edit tampilan jika perlu (filter, crop, brightness) → ketuk Berikutnya.</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><b>Langkah 4:</b> Tulis caption menarik: nama produk, keunikan, harga, kontak, hashtag (#KerajinanBanjarnegara).</span></div>
+          <div class="r-item"><span class="r-bullet" style="background:#D4A054"></span><span><b>Langkah 5:</b> Tandai lokasi dan tag akun terkait → ketuk Bagikan/Unggah.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-soal">
+  <div class="modal modal-fullscreen">
+    <div class="mhandle"></div>
+    <div class="mhead">
+      <span class="mhead-icon">✏️</span>
+      <span class="mhead-title" style="color:#f97316" id="soal-modal-title">Soal Latihan</span>
+      <button class="mclose" onclick="closeModal('modal-soal')">✕</button>
+    </div>
+    <div class="mbody" id="soal-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+   GACHA OVERLAY (Hidden by default)
+═══════════════════════════════════════════ -->
+<div id="gacha-overlay">
+  <div class="gacha-container">
+    <div class="gacha-header">
+      <h1>🎁 Kotak Hadiah</h1>
+      <p>Nilaimu ≥90! Buka hadiahmu sekarang</p>
+    </div>
+    <div class="gacha-divider"></div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:1.4rem;width:100%;">
+      <div class="gacha-box-wrap" onclick="openBox()" title="Klik untuk buka">
+        <div class="gacha-box-glow-ring"></div>
+        <div class="gacha-lootbox" id="gacha-lootbox">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <rect x="10" y="38" width="60" height="32" rx="5" fill="#1a1a3e" stroke="#7c4dff" stroke-width="1.5"/>
+            <rect x="10" y="18" width="60" height="22" rx="5" fill="#1e1b4b" stroke="#9c6bff" stroke-width="1.5"/>
+            <path d="M10 30 Q40 12 70 30" fill="#1e1b4b" stroke="#9c6bff" stroke-width="1.5"/>
+            <rect x="32" y="36" width="16" height="8" rx="4" fill="#3d2b7a" stroke="#c040fb" stroke-width="1"/>
+            <circle cx="40" cy="52" r="6" fill="#2d1b69" stroke="#c040fb" stroke-width="1.5"/>
+            <circle cx="40" cy="52" r="2.5" fill="#c040fb"/>
+            <text x="22" y="31" font-size="10">🐾</text>
+            <text x="50" y="28" font-size="8">✨</text>
+            <rect x="10" y="37" width="60" height="3" fill="#7c4dff" opacity=".4"/>
+          </svg>
+          <div class="gacha-box-hint">Klik untuk buka</div>
+        </div>
+      </div>
+
+      <button class="gacha-open-btn" id="gacha-open-btn" onclick="openBox()">✦ Buka Hadiah ✦</button>
+
+      <div class="gacha-legend">
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#78909c"></div>Common</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#2979ff"></div>Rare</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#c040fb"></div>Ultra Rare</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#00e5ff"></div>Legendary</div>
+        <div class="gacha-legend-item"><div class="gacha-legend-dot" style="background:#ffb700"></div>Mythic</div>
+      </div>
+    </div>
+
+    <div class="gacha-divider"></div>
+  </div>
+
+  <!-- RESULT CARD -->
+  <div class="gacha-result-card" id="gacha-result-card" style="display:none;position:absolute;">
+    <div class="card-halo"></div>
+    <div class="gacha-card-inner" id="gacha-card-inner">
+      <div class="corner-gem cg-tl"></div>
+      <div class="corner-gem cg-tr"></div>
+      <div class="corner-gem cg-bl"></div>
+      <div class="corner-gem cg-br"></div>
+      <div class="gacha-card-frame"></div>
+
+      <div class="gacha-card-banner">
+        <span class="gacha-card-banner-label" id="gacha-r-badge">—</span>
+        <span class="gacha-card-banner-stars" id="gacha-r-stars">★★★★★</span>
+      </div>
+
+      <div class="gacha-card-art" id="gacha-card-art">
+        <div class="art-aura"></div>
+        <div class="art-hex"></div>
+        <div class="art-ring art-ring-2"></div>
+        <div class="art-ring art-ring-1"></div>
+        <svg class="mythic-stars" viewBox="0 0 200 200">
+          <g fill="#ffb700" opacity=".9">
+            <polygon points="100,8 103,18 114,18 105,24 108,34 100,28 92,34 95,24 86,18 97,18" opacity=".95"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(40,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(80,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(120,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(160,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(200,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(240,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(280,100,100) translate(0,-42)"/>
+            <polygon points="100,8 101,13 106,13 102,16 103,21 100,18 97,21 98,16 94,13 99,13" transform="rotate(320,100,100) translate(0,-42)"/>
+          </g>
+        </svg>
+        <div class="gacha-result-animal" id="gacha-r-animal">🐱</div>
+      </div>
+
+      <div class="gacha-card-info" id="gacha-card-info">
+        <div class="card-info-line"></div>
+        <div class="gacha-result-eyebrow">Kamu mendapatkan</div>
+        <div class="gacha-result-name" id="gacha-r-name">—</div>
+        <div class="gacha-card-divider"></div>
+        <div class="gacha-result-desc" id="gacha-r-desc"></div>
+      </div>
+
+      <div class="gacha-card-footer" id="gacha-card-footer">
+        <div class="gacha-card-footer-line"></div>
+        <div class="gacha-footer-name" id="gacha-footer-name">—</div>
+        <div class="gacha-footer-date" id="gacha-footer-date">—</div>
+        <div class="gacha-footer-score" id="gacha-footer-score">—</div>
+      </div>
+    </div>
+
+    <div class="gacha-btn-row" id="gacha-btn-row" style="display:none;">
+      <button class="gacha-dl-btn" id="gacha-dl-btn" onclick="downloadCard()">⬇ Simpan Kartu</button>
+      <button class="gacha-close-btn" onclick="closeGachaResult()">✕ Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONFIG: Ganti dengan URL Web App Anda
+// ═══════════════════════════════════════════
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxKK1xTtO9LKZtGcRHOnOj7l8VUfRETeCqHG0jVZTflLaJAlhrSPukrgnuiRL1qCZuK/exec";
+
+// ═══════════════════════════════════════════
+//  BANK SOAL 100 — BAHASA INDONESIA KELAS 5
+// ═══════════════════════════════════════════
+const bank = [
+// ══════ MUDAH (50 soal) ══════
+
+// Upacara Ujungan
+{id:1,lvl:'M',tipe:'pg',q:'Upacara Adat Ujungan berasal dari tradisi masyarakat Banjarnegara sebagai ritual…',opts:['Menyambut tahun baru Jawa','Meminta hujan saat kemarau panjang','Merayakan hasil panen melimpah','Menolak wabah penyakit'],jawab:1,info:'Ujungan adalah tradisi masyarakat agraris Banjarnegara yang dilakukan saat kemarau panjang sebagai ritual permohonan turunnya hujan kepada Tuhan.'},
+{id:2,lvl:'M',tipe:'bs',q:'Dalam Upacara Adat Ujungan, peserta saling memukul menggunakan rotan yang dipimpin oleh sesepuh adat.',jawab:true,info:'Benar. Ujungan: dua peserta saling memukul pakai rotan, dipimpin sesepuh/tokoh adat, disaksikan warga kampung.'},
+{id:3,lvl:'M',tipe:'bs',q:'Properti utama Upacara Adat Ujungan adalah pedang dan tameng.',jawab:false,info:'SALAH. Properti utama Ujungan adalah rotan (alat pukul), pakaian adat, dan sesaji/ubo rampe — bukan pedang dan tameng.'},
+{id:4,lvl:'M',tipe:'pg',q:'Urutan pelaksanaan Upacara Adat Ujungan yang benar adalah…',opts:['Adu rotan → persiapan → doa penutup → doa pembuka','Doa pembuka → peserta masuk arena → adu rotan → doa penutup/syukuran','Syukuran → adu rotan → peserta masuk → doa','Peserta masuk → adu rotan → doa → persiapan'],jawab:1,info:'Urutan Ujungan: (1) persiapan & doa pembuka → (2) peserta masuk arena → (3) adu rotan → (4) doa penutup/syukuran. Selalu dimulai doa dan diakhiri syukuran.'},
+{id:5,lvl:'M',tipe:'pg',q:'Makna Upacara Adat Ujungan bagi masyarakat Banjarnegara adalah…',opts:['Hiburan semata tanpa makna budaya','Ungkapan syukur dan permohonan kepada Tuhan agar hujan turun','Tes kekuatan fisik para pemuda desa','Cara mengusir hewan pengganggu sawah'],jawab:1,info:'Ujungan bermakna sebagai ungkapan syukur sekaligus permohonan kepada Tuhan agar hujan segera turun untuk kesuburan lahan pertanian.'},
+
+// Upacara Brendung
+{id:6,lvl:'M',tipe:'pg',q:'Upacara Adat Brendung merupakan tradisi turun-temurun Banjarnegara sebagai ritual…',opts:['Meminta hujan dan mengusir hama','Tolak bala dan rasa syukur atas hasil panen','Menyambut tamu kehormatan dari luar daerah','Merayakan pernikahan adat Jawa'],jawab:1,info:'Brendung adalah ritual tolak bala (menolak malapetaka) sekaligus ungkapan syukur atas hasil panen yang dilakukan secara turun-temurun.'},
+{id:7,lvl:'M',tipe:'bs',q:'Dalam Upacara Adat Brendung, boneka atau patung diarak keliling desa disertai doa dan tabuhan gamelan.',jawab:true,info:'Benar. Ciri khas Brendung: mengarak boneka/patung keliling desa sambil diiringi doa dan tabuhan gamelan sebagai bagian dari ritual.'},
+{id:8,lvl:'M',tipe:'pg',q:'Salah satu upaya pelestarian Upacara Adat Ujungan dan Brendung adalah…',opts:['Melarang masyarakat menggelar upacara tersebut','Menampilkan upacara di festival budaya dan memasukkan ke kurikulum sekolah','Menyimpan upacara sebagai rahasia turun-temurun','Hanya menggelar upacara di acara pejabat pemerintah'],jawab:1,info:'Upaya pelestarian: ditampilkan di festival budaya, dimasukkan kurikulum sekolah, dipromosikan di media sosial agar dikenal generasi muda.'},
+
+// Parak Iwak
+{id:9,lvl:'M',tipe:'pg',q:'Parak Iwak adalah tradisi yang berasal dari kata "parak" artinya menggiring dan "iwak" artinya…',opts:['Ikan','Burung','Kerbau','Air'],jawab:0,info:'Parak = menggiring, Iwak = ikan. Jadi Parak Iwak adalah tradisi menggiring/menangkap ikan bersama secara gotong royong di sungai.'},
+{id:10,lvl:'M',tipe:'bs',q:'Parak Iwak dilaksanakan secara gotong royong oleh warga di Sungai Serayu Banjarnegara.',jawab:true,info:'Benar. Parak Iwak adalah tradisi menangkap ikan bersama secara gotong royong di Sungai Serayu yang menjadi bagian dari Festival Serayu Banjarnegara.'},
+{id:11,lvl:'M',tipe:'bs',q:'Rangkaian Parak Iwak dimulai dengan masuk sungai langsung tanpa persiapan dan doa terlebih dahulu.',jawab:false,info:'SALAH. Rangkaian Parak Iwak: (1) persiapan alat & doa → (2) masuk sungai bersama → (3) menggiring ikan → (4) panen & bagi hasil. Selalu dimulai persiapan dan doa.'},
+
+// Tari Geol
+{id:12,lvl:'M',tipe:'bs',q:'Tari Geol Banjarnegara memiliki karakteristik gerakan yang dinamis, lincah, dan ekspresif sebagai perpaduan tradisi Jawa dan kreasi lokal.',jawab:true,info:'Benar. Karakteristik Tari Geol: gerakan dinamis, lincah, ekspresif — merupakan perpaduan tradisi Jawa dan kreasi seniman lokal Banjarnegara.'},
+{id:13,lvl:'M',tipe:'pg',q:'Tim kreatif yang menciptakan Tari Geol Banjarnegara adalah…',opts:['Seniman dari luar Banjarnegara','Seniman lokal Banjarnegara','Pemerintah pusat Jakarta','Grup seni dari Yogyakarta'],jawab:1,info:'Tari Geol diciptakan dan dikembangkan oleh seniman lokal Banjarnegara. Detail nama tim kreatif ada di teks yang disajikan dalam soal ujian.'},
+{id:14,lvl:'M',tipe:'pg',q:'Cara menganalisis nama tema gerakan Tari Geol berdasarkan gambar adalah…',opts:['Melihat warna kostum penari','Memperhatikan posisi tangan, kaki, dan tubuh penari lalu mencocokkan dengan nama tema','Menghitung jumlah penari dalam gambar','Melihat latar belakang panggung'],jawab:1,info:'Menganalisis tema gerakan dari gambar: perhatikan posisi tangan, kaki, badan penari → cocokkan dengan nama-nama tema gerakan Tari Geol.'},
+
+// Tari Lengger Calung
+{id:15,lvl:'M',tipe:'bs',q:'Tari Lengger Calung adalah tarian tradisional yang diiringi gamelan calung dengan penari wanita yang disebut lengger.',jawab:true,info:'Benar. Karakteristik Tari Lengger Calung: diiringi gamelan calung, penari wanita (lengger) menarikan gerakan lemah gemulai nan anggun.'},
+{id:16,lvl:'M',tipe:'pg',q:'Urutan tahapan pementasan Tari Lengger Calung yang benar adalah…',opts:['Tarian inti → persiapan → intro calung → penutup','Persiapan kostum & rias → pembukaan/intro calung → tarian inti → penutup','Intro calung → persiapan → tarian → rias','Penutup → tarian inti → intro → persiapan'],jawab:1,info:'Tahapan pementasan: (1) persiapan kostum & rias → (2) pembukaan/intro calung → (3) tarian inti → (4) penutup. Urutan ini penting untuk dihafalkan.'},
+{id:17,lvl:'M',tipe:'pg',q:'Alat musik calung dalam Tari Lengger Calung dimainkan dengan cara…',opts:['Ditiup','Dipetik','Dipukul dengan pemukul khusus','Digesek dengan busur'],jawab:2,info:'Calung terbuat dari bambu dan dimainkan dengan cara dipukul menggunakan pemukul khusus. Ini berbeda dengan seruling (ditiup) atau gitar (dipetik).'},
+{id:18,lvl:'M',tipe:'bs',q:'Kendang dalam Tari Lengger Calung dimainkan dengan cara ditabuh atau dipukul menggunakan tangan.',jawab:true,info:'Benar. Kendang dimainkan dengan cara ditabuh/dipukul menggunakan tangan. Fungsinya mengatur tempo dan ritme seluruh pertunjukan.'},
+
+// Promosi media sosial
+{id:19,lvl:'M',tipe:'pg',q:'Langkah pertama dalam mengunggah poster kerajinan di media sosial adalah…',opts:['Langsung tulis caption','Buka aplikasi media sosial dan login akun','Pilih filter dan edit foto','Tag akun teman-teman'],jawab:1,info:'Urutan mengunggah poster: (1) buka aplikasi & login → (2) ketuk ikon + pilih foto → (3) edit → (4) tulis caption → (5) tandai lokasi → (6) bagikan.'},
+{id:20,lvl:'M',tipe:'pg',q:'Kerajinan bambu Banjarnegara berasal dari tradisi masyarakat yang hidup di sekitar…',opts:['Pantai dan lautan','Hutan bambu','Pegunungan bersalju','Dataran tinggi teh'],jawab:1,info:'Kerajinan bambu Banjarnegara berkembang dari tradisi masyarakat yang hidup di sekitar hutan bambu dan diwariskan secara turun-temurun.'},
+{id:21,lvl:'M',tipe:'pg',q:'Yang BUKAN merupakan hasil kerajinan bambu Banjarnegara adalah…',opts:['Tampah dan bakul','Gedek dan besek','Keramik vas bunga','Alat musik calung'],jawab:2,info:'Keramik vas bunga terbuat dari tanah liat (bukan bambu). Hasil kerajinan bambu: anyaman, tampah, bakul, besek, gedek, furniture, calung.'},
+
+// Kerajinan keramik
+{id:22,lvl:'M',tipe:'pg',q:'Teknik pembuatan keramik yang menggunakan cetakan/mal sehingga cocok untuk produksi massal adalah…',opts:['Teknik Putar','Teknik Cetak','Teknik Pilin','Teknik Lempeng'],jawab:1,info:'Teknik Cetak: tanah liat dituangkan ke cetakan/mal — cocok untuk produksi massal karena menghasilkan bentuk yang seragam secara efisien.'},
+{id:23,lvl:'M',tipe:'pg',q:'Pasangan teknik pembuatan keramik dan caranya yang BENAR adalah…',opts:['Teknik Pilin → meja putar','Teknik Putar → tanah liat digulung memanjang','Teknik Lempeng → tanah liat ditipiskan lalu dipotong dan disambung','Teknik Cetak → tanah liat digesek sampai tipis'],jawab:2,info:'Teknik Lempeng: tanah liat ditipiskan seperti papan/lempeng, dipotong sesuai pola, lalu disambung. Cocok untuk bentuk kotak/geometris.'},
+{id:24,lvl:'M',tipe:'bs',q:'Teknik Pilin dalam pembuatan keramik dilakukan dengan cara menggulungkan tanah liat memanjang seperti cacing lalu disusun membentuk keramik yang diinginkan.',jawab:true,info:'Benar. Teknik Pilin: tanah liat digulung memanjang (seperti cacing), lalu disusun melingkar atau dibentuk manual. Menghasilkan detail yang tinggi.'},
+
+// Promosi + langkah media sosial
+{id:25,lvl:'M',tipe:'pg',q:'Caption yang baik saat mempromosikan kerajinan Banjarnegara di media sosial sebaiknya berisi…',opts:['Hanya gambar tanpa teks apapun','Nama produk, keunikan, harga, kontak, dan hashtag relevan','Keluhan tentang produk yang tidak laku','Kalimat yang sangat panjang dan membingungkan'],jawab:1,info:'Caption promosi yang baik: nama produk, keunikan/nilai budaya, harga, cara pesan/kontak, dan hashtag relevan (#KerajinanBanjarnegara).'},
+
+// Soal umum tambahan MUDAH (26–50)
+{id:26,lvl:'M',tipe:'bs',q:'Festival Serayu Banjarnegara menampilkan Parak Iwak sebagai salah satu atraksi budaya unggulan.',jawab:true,info:'Benar. Parak Iwak ditampilkan dalam Festival Serayu Banjarnegara sebagai atraksi budaya yang menunjukkan kearifan lokal dalam memanfaatkan sumber daya sungai.'},
+{id:27,lvl:'M',tipe:'pg',q:'Cara memainkan gong dalam Tari Lengger Calung adalah…',opts:['Ditiup','Dipetik dawainya','Dipukul saat akhir kalimat musik','Digoyang-goyangkan'],jawab:2,info:'Gong dipukul saat akhir kalimat musik untuk memberi tanda pergantian bagian atau akhir dari satu frase lagu dalam pertunjukan.'},
+{id:28,lvl:'M',tipe:'bs',q:'Kerajinan bambu Banjarnegara kini telah berkembang merambah pasar modern dan bahkan diekspor ke luar negeri.',jawab:true,info:'Benar. Perkembangan kerajinan bambu Banjarnegara: kini merambah pasar modern, hadir dalam desain kontemporer, dan dipasarkan secara online bahkan diekspor.'},
+{id:29,lvl:'M',tipe:'pg',q:'Langkah keempat mengunggah poster di media sosial setelah mengedit foto adalah…',opts:['Buka aplikasi','Login akun','Pilih foto dari galeri','Menulis caption menarik dengan hashtag'],jawab:3,info:'Setelah mengedit (langkah 3), langkah 4 = tulis caption menarik berisi nama kegiatan, deskripsi singkat, ajakan, dan hashtag.'},
+{id:30,lvl:'M',tipe:'bs',q:'Teknik Putar dalam pembuatan keramik menghasilkan bentuk yang bulat dan simetris.',jawab:true,info:'Benar. Teknik Putar: tanah liat dibentuk di atas meja putar yang berputar → menghasilkan bentuk bulat simetris secara efisien.'},
+{id:31,lvl:'M',tipe:'pg',q:'Upacara Adat Ujungan termasuk jenis upacara yang berkaitan dengan…',opts:['Siklus kehidupan manusia (lahir-menikah-meninggal)','Kegiatan pertanian dan permohonan hujan','Penyambutan pejabat pemerintah','Perayaan hari kemerdekaan'],jawab:1,info:'Ujungan berkaitan dengan kegiatan pertanian — digelar saat kemarau panjang sebagai ritual permohonan hujan agar lahan pertanian subur kembali.'},
+{id:32,lvl:'M',tipe:'bs',q:'Penggunaan hashtag dalam postingan media sosial berfungsi memperluas jangkauan konten kepada pengguna yang mencari topik tersebut.',jawab:true,info:'Benar. Hashtag (#) membantu konten ditemukan oleh pengguna lain yang mencari topik yang sama, sehingga jangkauan promosi menjadi lebih luas.'},
+{id:33,lvl:'M',tipe:'pg',q:'Gambang dalam Tari Lengger Calung terbuat dari…',opts:['Logam besi','Bilah kayu atau bambu berjajar','Kulit binatang','Dawai baja'],jawab:1,info:'Gambang terdiri dari bilah-bilah kayu atau bambu yang berjajar, dimainkan dengan cara dipukul menggunakan pemukul. Termasuk alat musik perkusi melodis.'},
+{id:34,lvl:'M',tipe:'bs',q:'Masyarakat Banjarnegara yang mewarisi tradisi Ujungan termasuk masyarakat agraris yang menggantungkan hidupnya pada pertanian.',jawab:true,info:'Benar. Ujungan lahir dari masyarakat agraris yang bergantung pada pertanian. Ritual minta hujan sangat penting bagi kelangsungan lahan dan panen mereka.'},
+{id:35,lvl:'M',tipe:'pg',q:'Tujuan memasukkan upacara adat ke dalam kurikulum sekolah adalah…',opts:['Menambah beban belajar siswa','Melestarikan budaya lokal agar dikenal generasi muda','Menggantikan pelajaran umum','Mempromosikan pariwisata asing'],jawab:1,info:'Memasukkan upacara adat ke kurikulum bertujuan melestarikan budaya lokal agar dikenal, dicintai, dan dilestarikan oleh generasi muda penerus bangsa.'},
+{id:36,lvl:'M',tipe:'bs',q:'Pada Tari Lengger Calung, penari utama disebut "lengger" dan biasanya adalah penari wanita.',jawab:true,info:'Benar. "Lengger" adalah sebutan untuk penari utama wanita dalam pertunjukan Tari Lengger Calung yang menampilkan gerakan lemah gemulai dan anggun.'},
+{id:37,lvl:'M',tipe:'pg',q:'Produk kerajinan bambu yang berfungsi sebagai alat musik tradisional adalah…',opts:['Tampah','Bakul','Calung','Besek'],jawab:2,info:'Calung adalah alat musik tradisional yang terbuat dari bambu. Produk lain (tampah, bakul, besek) adalah peralatan rumah tangga, bukan alat musik.'},
+{id:38,lvl:'M',tipe:'bs',q:'Dalam mengunggah poster di media sosial, menandai lokasi (tag lokasi) dapat membantu orang-orang di sekitar area tersebut menemukan konten kita.',jawab:true,info:'Benar. Tag lokasi membantu algoritma media sosial menampilkan konten kepada pengguna yang berada di atau tertarik dengan lokasi tersebut.'},
+{id:39,lvl:'M',tipe:'pg',q:'Mengapa Upacara Adat Brendung perlu dilestarikan?',opts:['Karena upacara ini menghasilkan banyak keuntungan finansial','Karena merupakan warisan budaya yang mencerminkan identitas dan kearifan lokal masyarakat','Karena diwajibkan oleh pemerintah pusat','Karena hanya upacara Brendung yang ada di Indonesia'],jawab:1,info:'Brendung perlu dilestarikan karena merupakan warisan budaya leluhur yang mencerminkan identitas, nilai, dan kearifan lokal masyarakat Banjarnegara.'},
+{id:40,lvl:'M',tipe:'pg',q:'Perbedaan utama antara Teknik Putar dan Teknik Cetak dalam pembuatan keramik adalah…',opts:['Bahan baku yang digunakan berbeda','Putar menggunakan meja berputar untuk bentuk bulat, Cetak menggunakan cetakan/mal untuk produksi massal','Putar untuk produksi massal, Cetak untuk satu buah','Tidak ada perbedaan, keduanya sama'],jawab:1,info:'Teknik Putar = meja berputar → bentuk bulat simetris (satu per satu). Teknik Cetak = cetakan/mal → bentuk seragam, cocok produksi massal.'},
+{id:41,lvl:'M',tipe:'bs',q:'Rotan adalah properti utama yang digunakan dalam Upacara Adat Ujungan sebagai alat pukul.',jawab:true,info:'Benar. Rotan adalah properti khas Ujungan — digunakan sebagai alat pukul antar peserta. Tanpa rotan, upacara ini tidak bisa terlaksana.'},
+{id:42,lvl:'M',tipe:'pg',q:'Dalam mempromosikan ragam seni tradisional Banjarnegara, argumentasi yang paling tepat adalah…',opts:['Seni tradisional sudah ketinggalan zaman dan perlu diganti','Seni tradisional Banjarnegara kaya nilai budaya dan perlu kita lestarikan bersama agar tidak punah','Seni tradisional hanya untuk orang tua saja','Lebih baik belajar seni modern dari luar negeri'],jawab:1,info:'Argumentasi promosi yang tepat: seni tradisional kaya nilai budaya, merupakan identitas bangsa, dan perlu dilestarikan bersama oleh semua generasi.'},
+{id:43,lvl:'M',tipe:'bs',q:'Besek adalah salah satu hasil kerajinan bambu yang biasanya digunakan sebagai wadah makanan dalam acara adat.',jawab:true,info:'Benar. Besek adalah kotak anyaman bambu berbentuk persegi dengan tutup, biasa digunakan sebagai wadah makanan dalam acara adat, syukuran, atau kenduri.'},
+{id:44,lvl:'M',tipe:'pg',q:'Langkah yang dilakukan SETELAH mengunggah poster di media sosial agar lebih banyak orang melihat adalah…',opts:['Langsung menutup aplikasi','Memantau respons, membalas komentar, dan membagikan kembali (share) ke story','Menghapus postingan karena sudah selesai','Membuat akun baru untuk mengunggah ulang'],jawab:1,info:'Setelah unggah: pantau respons/komentar, balas interaksi, dan bagikan ke story untuk meningkatkan jangkauan. Engagement aktif meningkatkan visibilitas konten.'},
+{id:45,lvl:'M',tipe:'bs',q:'Festival budaya merupakan salah satu cara efektif untuk mempromosikan dan melestarikan upacara adat Banjarnegara.',jawab:true,info:'Benar. Festival budaya mengumpulkan banyak penonton dari berbagai daerah, sehingga efektif memperkenalkan dan mempromosikan upacara adat secara luas.'},
+{id:46,lvl:'M',tipe:'pg',q:'Apa yang membedakan kerajinan bambu Banjarnegara dengan kerajinan keramik Banjarnegara?',opts:['Daerah asalnya berbeda','Bahan bakunya berbeda — bambu vs tanah liat','Keduanya menggunakan bahan yang sama','Hanya teknik pembuatannya yang berbeda'],jawab:1,info:'Perbedaan utama: bahan baku. Kerajinan bambu = bahan bambu. Kerajinan keramik = bahan tanah liat. Keduanya berasal dari Banjarnegara tapi berbahan baku berbeda.'},
+{id:47,lvl:'M',tipe:'bs',q:'Tari Geol Banjarnegara merupakan tarian yang hanya boleh ditampilkan dalam acara pernikahan saja.',jawab:false,info:'SALAH. Tari Geol dapat ditampilkan dalam berbagai acara: festival budaya, penyambutan tamu, hari jadi daerah, pentas seni sekolah, dan berbagai acara lainnya.'},
+{id:48,lvl:'M',tipe:'pg',q:'Sesaji atau ubo rampe dalam Upacara Adat Ujungan berfungsi sebagai…',opts:['Hadiah untuk peserta yang menang','Perlengkapan ritual yang melengkapi pelaksanaan upacara','Makanan untuk dijual kepada penonton','Bahan bakar untuk membakar rotan'],jawab:1,info:'Sesaji/ubo rampe adalah perlengkapan ritual yang digunakan dalam upacara adat sebagai simbol permohonan dan syukur kepada Tuhan.'},
+{id:49,lvl:'M',tipe:'bs',q:'Kerajinan anyaman bambu seperti tampah dan gedek masih banyak digunakan dalam kehidupan sehari-hari masyarakat Banjarnegara.',jawab:true,info:'Benar. Tampah (alat tampi beras) dan gedek (dinding anyaman bambu) masih digunakan dalam kehidupan sehari-hari, terutama di pedesaan Banjarnegara.'},
+{id:50,lvl:'M',tipe:'pg',q:'Tujuan utama mempromosikan budaya Banjarnegara melalui media sosial adalah…',opts:['Mendapatkan banyak followers semata','Memperkenalkan dan melestarikan budaya lokal kepada masyarakat luas','Mengikuti tren media sosial yang sedang populer','Menjual budaya kepada pihak asing'],jawab:1,info:'Tujuan promosi budaya di medsos: memperkenalkan budaya lokal kepada masyarakat luas, menumbuhkan kebanggaan, dan mengajak generasi muda ikut melestarikan.'},
+
+// ══════ SEDANG (30 soal) ══════
+{id:51,lvl:'S',tipe:'pg',q:'Berdasarkan teks upacara adat, pernyataan yang BENAR tentang Upacara Adat Ujungan adalah…',opts:['Ujungan dilakukan untuk merayakan panen raya yang melimpah','Ujungan menggunakan bambu sebagai alat utama dalam prosesi','Ujungan dilakukan sebagai ritual meminta hujan dengan peserta saling memukul menggunakan rotan','Ujungan hanya boleh diikuti oleh perempuan desa'],jawab:2,info:'Pernyataan benar tentang Ujungan: ritual meminta hujan, peserta saling memukul pakai rotan, dipimpin sesepuh. Pilihan lain tidak sesuai dengan isi teks.'},
+{id:52,lvl:'S',tipe:'bs',q:'Seorang pelajar yang membuat video singkat tentang Tari Lengger Calung lalu mengunggahnya ke TikTok dengan caption menarik termasuk upaya mempromosikan seni tradisional.',jawab:true,info:'Benar. Membuat konten video dan mengunggahnya ke media sosial adalah cara efektif mempromosikan seni tradisional kepada generasi muda yang aktif di platform digital.'},
+{id:53,lvl:'S',tipe:'pg',q:'Analisis teks Brendung: "Boneka diarak keliling desa dengan iringan gamelan." Pernyataan yang sesuai teks tersebut adalah…',opts:['Boneka diam di satu tempat sepanjang upacara','Boneka diarak keliling desa diiringi gamelan sebagai bagian ritual Brendung','Gamelan dimainkan setelah upacara selesai','Boneka hanya ditampilkan di dalam gedung'],jawab:1,info:'Sesuai deskripsi teks: boneka diarak keliling desa disertai iringan gamelan — ini adalah elemen khas Brendung yang perlu dipahami.'},
+{id:54,lvl:'S',tipe:'pg',q:'Dalam menganalisis ilustrasi teks Parak Iwak, tindakan yang mencerminkan nilai gotong royong adalah…',opts:['Satu orang menangkap semua ikan sendiri','Warga beramai-ramai masuk sungai bersama, menggiring ikan, dan membagi hasil secara merata','Hanya warga kaya yang boleh ikut Parak Iwak','Ikan yang ditangkap dijual ke pasar tanpa dibagi'],jawab:1,info:'Nilai gotong royong dalam Parak Iwak: dilakukan bersama-sama, semua warga berpartisipasi, dan hasil dibagi secara merata — mencerminkan kebersamaan.'},
+{id:55,lvl:'S',tipe:'bs',q:'Karakteristik Tari Geol yang membedakannya dari tarian Jawa lainnya adalah gerakan yang lebih dinamis, lincah, dan ekspresif khas Banjarnegara.',jawab:true,info:'Benar. Keunikan Tari Geol ada pada gerakan dinamis, lincah, dan ekspresif yang merupakan perpaduan tradisi Jawa dengan kreasi lokal seniman Banjarnegara.'},
+{id:56,lvl:'S',tipe:'pg',q:'Dari gambar gerakan Tari Geol yang disajikan, cara yang tepat untuk menentukan nama tema gerakan adalah…',opts:['Melihat jumlah penari saja','Menganalisis posisi dan ekspresi penari sesuai nama tema yang tertera','Membaca tulisan di baju penari','Menebak berdasarkan warna kostum'],jawab:1,info:'Cara tepat menentukan tema gerakan dari gambar: analisis posisi tangan, kaki, tubuh, dan ekspresi penari → cocokkan dengan nama tema gerakan yang disediakan.'},
+{id:57,lvl:'S',tipe:'bs',q:'Gambar alat musik calung yang terbuat dari potongan bambu berbentuk U tergantung pada rangka, dimainkan dengan cara dipukul.',jawab:true,info:'Benar. Calung adalah instrumen musik tradisional Banjarnegara terbuat dari bambu, berbentuk bilah-bilah bambu yang digantung pada rangka, dimainkan dengan cara dipukul.'},
+{id:58,lvl:'S',tipe:'pg',q:'Berdasarkan gambar alat musik pengiring Tari Lengger Calung, alat yang berfungsi mengatur tempo pertunjukan adalah…',opts:['Calung','Gambang','Gong','Kendang'],jawab:3,info:'Kendang berfungsi sebagai pengatur tempo dan ritme seluruh pertunjukan. Pemusik kendang menentukan cepat-lambat dan dinamika permainan musik.'},
+{id:59,lvl:'S',tipe:'pg',q:'Perkembangan kerajinan bambu Banjarnegara yang menunjukkan adaptasi terhadap pasar modern adalah…',opts:['Tetap membuat produk tradisional tanpa perubahan','Berinovasi menciptakan desain kontemporer dan memasarkan secara online bahkan ekspor','Berhenti berproduksi karena kalah dengan produk plastik','Hanya dijual di pasar tradisional lokal'],jawab:1,info:'Adaptasi kerajinan bambu ke pasar modern: desain kontemporer (memadukan estetika tradisional dan kebutuhan modern), pemasaran online, dan ekspor ke luar negeri.'},
+{id:60,lvl:'S',tipe:'bs',q:'Teknik Pilin dalam pembuatan keramik membutuhkan keterampilan tangan yang tinggi karena dilakukan secara manual tanpa bantuan cetakan.',jawab:true,info:'Benar. Teknik Pilin dilakukan manual: tanah liat digulung memanjang lalu disusun satu per satu. Tidak ada cetakan — mengandalkan keterampilan dan kreativitas tangan pengrajin.'},
+{id:61,lvl:'S',tipe:'pg',q:'Seorang siswa ingin membuat argumentasi di media sosial untuk mempromosikan Tari Lengger Calung. Argumentasi yang paling efektif adalah…',opts:['Tari ini membosankan tapi harus tetap ada','Tari Lengger Calung adalah warisan budaya Banjarnegara yang indah dan perlu kita jaga bersama agar tidak punah','Tidak perlu promosi karena sudah banyak yang tahu','Tari ini hanya untuk orang tua saja'],jawab:1,info:'Argumentasi efektif: positif, menyebutkan nilai budaya, mengajak partisipasi bersama, dan menekankan pentingnya pelestarian untuk generasi mendatang.'},
+{id:62,lvl:'S',tipe:'pg',q:'Berdasarkan teks kerajinan bambu, hal yang menjadi asal usul berkembangnya kerajinan ini di Banjarnegara adalah…',opts:['Kunjungan pengrajin dari luar negeri','Tradisi masyarakat yang hidup di sekitar hutan bambu dan diwariskan turun-temurun','Program pemerintah pusat untuk mengembangkan UMKM','Persaingan dengan kerajinan plastik modern'],jawab:1,info:'Asal usul: berkembang organik dari tradisi masyarakat Banjarnegara yang tinggal dekat hutan bambu, diwariskan dari generasi ke generasi secara turun-temurun.'},
+{id:63,lvl:'S',tipe:'bs',q:'Upacara Adat Ujungan dan Brendung sama-sama merupakan warisan budaya tak benda yang perlu dilestarikan.',jawab:true,info:'Benar. Keduanya termasuk warisan budaya tak benda (intangible cultural heritage) berupa tradisi dan praktik budaya yang diwariskan secara turun-temurun.'},
+{id:64,lvl:'S',tipe:'pg',q:'Langkah promosi di media sosial manakah yang PALING penting untuk menjangkau audiens yang lebih luas?',opts:['Mengunggah foto dengan resolusi rendah','Menulis caption panjang tanpa hashtag','Menggunakan hashtag relevan dan menandai akun budaya daerah','Hanya memposting teks tanpa gambar'],jawab:2,info:'Hashtag dan tag akun terkait adalah kunci jangkauan luas di media sosial. Hashtag membantu konten ditemukan pengguna yang mencari topik tersebut.'},
+{id:65,lvl:'S',tipe:'bs',q:'Menjodohkan pasangan teknik keramik: Teknik Putar → bentuk bulat simetris adalah pasangan yang BENAR.',jawab:true,info:'Benar. Teknik Putar menggunakan meja yang berputar sehingga menghasilkan bentuk yang bulat dan simetris — ciri khas hasil teknik putar.'},
+{id:66,lvl:'S',tipe:'pg',q:'Apabila disajikan pernyataan "Parak Iwak menggunakan alat pancing modern", maka pernyataan tersebut adalah…',opts:['Benar, karena pancing lebih efektif','Salah, karena Parak Iwak menggunakan alat tradisional secara gotong royong','Benar, karena zaman sudah modern','Tidak bisa ditentukan benar atau salahnya'],jawab:1,info:'SALAH. Parak Iwak menggunakan alat tradisional secara gotong royong, bukan pancing modern individual. Kearifan lokal ini justru menekankan kebersamaan.'},
+{id:67,lvl:'S',tipe:'pg',q:'Berdasarkan ilustrasi teks Parak Iwak, cara mempromosikan upacara adat di media sosial yang paling tepat adalah…',opts:['Menyimpan dokumentasi sendiri tanpa disebarkan','Mengunggah foto/video dengan narasi yang menjelaskan keunikan dan nilai budayanya','Hanya memposting jadwal tanpa penjelasan','Menulis kritik terhadap upacara tersebut'],jawab:1,info:'Promosi efektif: unggah foto/video berkualitas + narasi yang menjelaskan nama tradisi, asal daerah, makna budaya, dan ajakan untuk melestarikan.'},
+{id:68,lvl:'S',tipe:'bs',q:'Gedek adalah anyaman bambu yang digunakan sebagai dinding rumah tradisional Banjarnegara.',jawab:true,info:'Benar. Gedek adalah anyaman bambu yang digunakan sebagai dinding atau penyekat ruangan dalam rumah tradisional Jawa, termasuk di Banjarnegara.'},
+{id:69,lvl:'S',tipe:'pg',q:'Mengapa penting mendokumentasikan upacara adat melalui foto dan video?',opts:['Agar bisa dijual ke stasiun televisi','Sebagai bukti fisik warisan budaya dan media promosi kepada masyarakat luas','Untuk pameran foto pribadi saja','Karena diwajibkan oleh undang-undang'],jawab:1,info:'Dokumentasi penting sebagai: (1) arsip/bukti warisan budaya, (2) media edukasi, (3) bahan promosi di media sosial untuk memperkenalkan budaya kepada masyarakat luas.'},
+{id:70,lvl:'S',tipe:'bs',q:'Upacara adat yang berkaitan dengan permohonan hujan biasanya dilaksanakan saat musim hujan tiba.',jawab:false,info:'SALAH. Upacara meminta hujan (seperti Ujungan) justru dilaksanakan saat musim KEMARAU panjang — ketika hujan tidak kunjung turun dan lahan pertanian kering.'},
+{id:71,lvl:'S',tipe:'pg',q:'Bentuk kerajinan keramik yang paling cocok dibuat menggunakan teknik lempeng adalah…',opts:['Guci berbentuk bulat','Vas bunga silindris','Kotak penyimpan perhiasan berbentuk persegi','Mangkuk bundar'],jawab:2,info:'Teknik Lempeng cocok untuk bentuk kotak/geometris (persegi, persegi panjang) karena tanah liat ditipiskan jadi lempeng lalu dipotong dan disambung sesuai pola.'},
+{id:72,lvl:'S',tipe:'bs',q:'Tari Lengger Calung hanya bisa dipentaskan oleh seniman profesional dan tidak bisa dipelajari oleh pelajar.',jawab:false,info:'SALAH. Tari Lengger Calung justru perlu diajarkan kepada generasi muda termasuk pelajar agar tarian ini tetap lestari dan ada penerus yang menjaganya.'},
+{id:73,lvl:'S',tipe:'pg',q:'Pernyataan yang paling tepat menggambarkan perkembangan kerajinan bambu Banjarnegara saat ini adalah…',opts:['Semakin berkurang karena kalah bersaing dengan plastik','Stagnan dan tidak ada perkembangan berarti','Berkembang pesat dengan inovasi desain modern dan pemasaran digital/online','Hanya dikenal di tingkat lokal Banjarnegara saja'],jawab:2,info:'Perkembangan kerajinan bambu Banjarnegara: berkembang pesat — inovasi desain kontemporer, pemasaran online, dan ekspor ke pasar nasional/internasional.'},
+{id:74,lvl:'S',tipe:'bs',q:'Mengunggah poster dengan resolusi gambar yang baik dan caption informatif dapat meningkatkan efektivitas promosi budaya di media sosial.',jawab:true,info:'Benar. Kualitas visual (resolusi tinggi) + caption informatif adalah dua faktor utama yang menentukan efektivitas konten promosi di platform media sosial.'},
+{id:75,lvl:'S',tipe:'pg',q:'Dari teks tentang Brendung, pesan utama yang ingin disampaikan penulis terkait pelestarian adalah…',opts:['Brendung tidak perlu dilestarikan karena sudah kuno','Brendung harus dilestarikan dan dipromosikan agar tetap dikenal generasi mendatang','Brendung cukup diingat sebagai cerita masa lalu','Brendung hanya untuk kabupaten Banjarnegara saja'],jawab:1,info:'Pesan utama teks: Brendung adalah warisan berharga yang harus dilestarikan dan dipromosikan agar tidak punah dan tetap dikenal oleh generasi mendatang.'},
+{id:76,lvl:'S',tipe:'pg',q:'Nilai utama yang terkandung dalam tradisi Parak Iwak adalah…',opts:['Kompetisi dan persaingan','Keserakahan menangkap ikan sebanyak-banyaknya','Gotong royong, kebersamaan, dan pembagian hasil yang adil','Individualisme dan kerja sendiri'],jawab:2,info:'Nilai utama Parak Iwak: gotong royong (dilakukan bersama), kebersamaan (semua terlibat), dan keadilan (hasil dibagi merata) — nilai-nilai luhur kearifan lokal.'},
+{id:77,lvl:'S',tipe:'bs',q:'Menjodohkan pasangan yang benar: Upacara Brendung → ritual tolak bala dan syukur panen.',jawab:true,info:'Benar. Brendung = ritual tolak bala (menolak malapetaka) + syukur atas hasil panen. Beda dengan Ujungan yang merupakan ritual meminta hujan.'},
+{id:78,lvl:'S',tipe:'pg',q:'Seorang siswa membuat postingan: "Kunjungi pertunjukan Tari Lengger Calung Banjarnegara — tarian anggun yang memukau! #BudayaBanjarnegara #LenggerCalung". Postingan ini termasuk…',opts:['Kritik terhadap budaya Banjarnegara','Upaya promosi seni tradisional Banjarnegara di media sosial','Laporan akademik tentang seni tari','Iklan komersial untuk mencari keuntungan'],jawab:1,info:'Postingan tersebut adalah contoh promosi seni tradisional di media sosial — mengajak orang mengunjungi, memberi keterangan positif, dan menggunakan hashtag relevan.'},
+{id:79,lvl:'S',tipe:'bs',q:'Keramik yang dibuat dengan teknik cetak memiliki bentuk yang lebih bervariasi dan unik dibanding teknik putar.',jawab:false,info:'SALAH. Teknik Cetak menghasilkan bentuk yang SERAGAM (sama) karena dicetak dengan cetakan yang sama. Teknik Pilin justru lebih bervariasi karena dikerjakan manual.'},
+{id:80,lvl:'S',tipe:'pg',q:'Urutan langkah mengunggah poster di media sosial yang BENAR adalah…',opts:['Caption → foto → login → buka app → unggah','Buka app → login → ketuk + pilih foto → edit → caption → tag lokasi → unggah','Edit → buka app → caption → login → unggah','Tag lokasi → foto → buka app → caption → unggah'],jawab:1,info:'Urutan benar: (1) buka app & login → (2) ketuk + & pilih foto → (3) edit → (4) tulis caption & hashtag → (5) tandai lokasi & tag → (6) unggah/bagikan.'},
+
+// ══════ SULIT (20 soal) ══════
+{id:81,lvl:'K',tipe:'pg',q:'Analisis teks Ujungan: "Upacara ini dilaksanakan saat kemarau panjang melanda." Ilustrasi yang TEPAT menggambarkan kondisi tersebut adalah…',opts:['Sawah hijau subur dan sungai penuh air','Petani sedang memanen padi dengan riang gembira','Lahan pertanian kering, tanaman layu, warga khawatir kekurangan air','Hujan lebat mengguyur desa sepanjang malam'],jawab:2,info:'Konteks Ujungan: kemarau panjang → lahan kering, tanaman layu, warga cemas kekurangan air. Inilah kondisi yang mendorong dilaksanakannya ritual Ujungan.'},
+{id:82,lvl:'K',tipe:'bs',q:'Pernyataan "Upacara Brendung hanya berfungsi sebagai hiburan semata tanpa makna ritual" adalah pernyataan yang SALAH.',jawab:true,info:'Benar (pernyataan itu SALAH). Brendung memiliki makna ritual yang dalam: tolak bala dan syukur panen. Bukan sekadar hiburan — ada nilai spiritual dan kultural yang kuat.'},
+{id:83,lvl:'K',tipe:'pg',q:'Menjodohkan pasangan upacara adat dan maknanya yang BENAR: Ujungan → ?, Brendung → ?, Parak Iwak → ?',opts:['Ujungan=panen raya, Brendung=minta hujan, Parak=tolak bala','Ujungan=minta hujan, Brendung=tolak bala+syukur panen, Parak Iwak=menangkap ikan gotong royong','Ujungan=pernikahan adat, Brendung=kematian, Parak=panen','Ujungan=tolak bala, Brendung=minta hujan, Parak=pernikahan'],jawab:1,info:'Pasangan benar: Ujungan = ritual minta hujan | Brendung = tolak bala + syukur panen | Parak Iwak = menangkap ikan bersama (gotong royong) di sungai.'},
+{id:84,lvl:'K',tipe:'bs',q:'Analisis gambar gerakan Tari Geol: jika posisi tangan penari terangkat ke atas dengan jari membuka dan kaki berjinjit, maka tema gerakannya cenderung menggambarkan kegembiraan atau kebebasan.',jawab:true,info:'Benar. Dalam analisis gerakan tari: posisi tangan terangkat + jari membuka + kaki berjinjit umumnya menggambarkan kegembiraan, kebebasan, atau keindahan dalam tari tradisional.'},
+{id:85,lvl:'K',tipe:'pg',q:'Perbedaan antara Tari Geol dan Tari Lengger Calung yang paling mendasar berdasarkan teks adalah…',opts:['Keduanya sama persis','Geol lebih dinamis dan lincah, Lengger Calung lebih lemah gemulai dan diiringi calung','Lengger Calung ditarikan pria, Geol ditarikan wanita','Geol dari luar Banjarnegara, Lengger Calung asli Banjarnegara'],jawab:1,info:'Perbedaan mendasar: Tari Geol = dinamis, lincah, ekspresif. Tari Lengger Calung = lemah gemulai, anggun, diiringi gamelan calung. Keduanya khas Banjarnegara.'},
+{id:86,lvl:'K',tipe:'pg',q:'Berdasarkan gambar alat musik pengiring Tari Lengger Calung, menjodohkan yang BENAR adalah…',opts:['Calung dimainkan ditiup, Kendang dipukul, Gong dipetik','Calung dipukul, Gambang dipukul, Kendang ditabuh tangan, Gong dipukul saat akhir kalimat musik','Semua alat dimainkan dengan cara ditiup','Calung dipetik, Gambang ditiup, Kendang dipukul, Gong ditabuh'],jawab:1,info:'Cara main: Calung = dipukul | Gambang = dipukul | Kendang = ditabuh tangan | Gong = dipukul saat akhir kalimat musik. Semua alat musik Lengger Calung termasuk perkusi.'},
+{id:87,lvl:'K',tipe:'bs',q:'Menjodohkan: Teknik Cetak → produksi massal | Teknik Pilin → detail tinggi manual | Teknik Putar → bentuk bulat. Semua pasangan ini BENAR.',jawab:true,info:'Benar semua: Cetak = produksi massal (cetakan sama) | Pilin = detail tinggi karena manual satu per satu | Putar = bentuk bulat simetris dari meja berputar.'},
+{id:88,lvl:'K',tipe:'pg',q:'Analisis paragraf: "Kerajinan bambu Banjarnegara kini merambah pasar modern dengan desain kontemporer." Simpulan paling tepat dari pernyataan tersebut adalah…',opts:['Kerajinan bambu sudah meninggalkan nilai tradisionalnya','Kerajinan bambu berhasil beradaptasi dengan kebutuhan pasar modern tanpa kehilangan kearifan lokal','Kerajinan bambu tidak diminati lagi oleh konsumen','Kerajinan bambu hanya diproduksi untuk ekspor'],jawab:1,info:'Simpulan tepat: kerajinan bambu berhasil beradaptasi ke pasar modern (desain kontemporer, online, ekspor) sambil tetap mempertahankan kearifan dan nilai lokal.'},
+{id:89,lvl:'K',tipe:'pg',q:'Apabila seorang siswa diminta membuat argumentasi mempromosikan kerajinan bambu Banjarnegara di media sosial, paragraf yang paling efektif adalah…',opts:['Kerajinan bambu itu kuno dan tidak menarik bagi anak muda.','Kerajinan bambu Banjarnegara adalah karya tangan yang memukau — memadukan tradisi leluhur dengan sentuhan modern yang elegan. Dukung pengrajin lokal kita! #BambuBanjarnegara','Saya tidak tahu kerajinan bambu itu apa.','Lebih baik beli produk impor yang kualitasnya terjamin.'],jawab:1,info:'Argumentasi efektif: kalimat positif dan menarik, menyebutkan keunikan (tradisi + modern), mengajak (dukung pengrajin lokal), dan hashtag relevan.'},
+{id:90,lvl:'K',tipe:'bs',q:'Urutan mengunggah poster di media sosial yang salah jika langkah penulisan caption dilakukan sebelum memilih foto adalah karena caption seharusnya dibuat setelah foto dipilih dan diedit.',jawab:true,info:'Benar. Caption dibuat SETELAH foto dipilih dan diedit agar caption bisa disesuaikan dengan konten foto. Urutan: pilih foto → edit → baru tulis caption.'},
+{id:91,lvl:'K',tipe:'pg',q:'Menganalisis nilai budaya Upacara Adat Ujungan: nilai yang PALING mendasar dari tradisi ini adalah…',opts:['Nilai olahraga dan adu kekuatan fisik','Nilai keagamaan dan kepercayaan kepada Tuhan dalam memohon rezeki berupa hujan','Nilai hiburan rakyat yang meriah','Nilai ekonomi dari tiket masuk penonton'],jawab:1,info:'Nilai paling mendasar Ujungan: nilai kepercayaan/spiritual — masyarakat meyakini Tuhan akan mengabulkan doa permohonan hujan yang disampaikan melalui ritual ini.'},
+{id:92,lvl:'K',tipe:'bs',q:'Jika disajikan teks tentang upacara adat baru yang belum pernah dipelajari, cara terbaik menjawab soal tentang asal usulnya adalah membaca paragraf pertama teks dengan cermat.',jawab:true,info:'Benar. Paragraf pertama teks biasanya berisi informasi tentang asal usul, latar belakang, dan gambaran umum suatu tradisi. Ini adalah strategi membaca efektif.'},
+{id:93,lvl:'K',tipe:'pg',q:'Strategi pelestarian budaya Banjarnegara yang menggabungkan pendidikan formal dan promosi digital paling efektif karena…',opts:['Lebih murah biayanya','Menjangkau generasi muda baik di sekolah maupun di platform digital yang mereka gunakan sehari-hari','Lebih mudah dilakukan oleh pemerintah saja','Tidak memerlukan partisipasi masyarakat'],jawab:1,info:'Kombinasi kurikulum sekolah + media sosial paling efektif karena menjangkau generasi muda di dua tempat berbeda: lingkungan belajar formal dan platform digital keseharian mereka.'},
+{id:94,lvl:'K',tipe:'pg',q:'Berdasarkan teks kerajinan keramik, teknik manakah yang menghasilkan produk paling unik namun membutuhkan waktu paling lama?',opts:['Teknik Cetak','Teknik Putar','Teknik Pilin','Teknik Lempeng'],jawab:2,info:'Teknik Pilin paling membutuhkan waktu karena sepenuhnya manual: tanah liat digulung satu per satu dan disusun dengan tangan. Hasilnya sangat unik tapi prosesnya paling lama.'},
+{id:95,lvl:'K',tipe:'bs',q:'Argumentasi untuk mempromosikan seni tradisional di media sosial harus bersifat positif, informatif, dan mengajak audiens untuk ikut melestarikan — bukan sekadar mengeluh atau mengkritik.',jawab:true,info:'Benar. Argumentasi promosi yang efektif: positif (bukan negatif), informatif (jelaskan nilai budayanya), dan persuasif (ajak audiens berpartisipasi melestarikan).'},
+{id:96,lvl:'K',tipe:'pg',q:'Menganalisis teks secara kritis: jika teks Brendung menyebutkan "upacara ini semakin jarang dilaksanakan karena generasi muda kurang tertarik", solusi yang paling tepat adalah…',opts:['Membiarkan tradisi tersebut menghilang karena sudah tidak relevan','Melarang generasi muda menggunakan media sosial','Mengintegrasikan Brendung ke kurikulum sekolah dan membuat konten kreatif di media sosial','Hanya menggelar Brendung sekali dalam 10 tahun'],jawab:2,info:'Solusi tepat: integrasikan ke kurikulum (pendidikan formal) + konten kreatif di medsos (promosi digital). Kombinasi keduanya paling efektif menarik minat generasi muda.'},
+{id:97,lvl:'K',tipe:'pg',q:'Parak Iwak sebagai bagian dari Festival Serayu Banjarnegara memiliki nilai penting karena…',opts:['Menghasilkan ikan dalam jumlah besar untuk dijual','Memperlihatkan kekayaan ikan di Sungai Serayu saja','Mempertahankan kearifan lokal gotong royong dan memperkenalkan budaya Banjarnegara kepada wisatawan','Merupakan kompetisi antar desa untuk memperebutkan hadiah'],jawab:2,info:'Nilai penting Parak Iwak dalam festival: mempertahankan kearifan lokal gotong royong + ajang memperkenalkan budaya Banjarnegara kepada wisatawan dan masyarakat luas.'},
+{id:98,lvl:'K',tipe:'bs',q:'Menjodohkan: kerajinan bambu menghasilkan "tampah" yang digunakan untuk menampi beras, dan "besek" yang digunakan sebagai wadah makanan adat. Pasangan ini BENAR.',jawab:true,info:'Benar. Tampah = alat anyaman bambu bulat untuk menampi/memisahkan beras dari sekam. Besek = kotak anyaman bambu dengan tutup untuk wadah makanan dalam acara adat.'},
+{id:99,lvl:'K',tipe:'pg',q:'Evaluasi menyeluruh: manakah pernyataan yang BENAR tentang hubungan antara kerajinan bambu, tarian, dan upacara adat Banjarnegara?',opts:['Ketiganya tidak memiliki hubungan satu sama lain','Ketiganya merupakan warisan budaya Banjarnegara yang saling melengkapi dan perlu dijaga bersama','Hanya kerajinan bambu yang penting untuk dilestarikan','Tarian lebih penting dari upacara adat dan kerajinan'],jawab:1,info:'Ketiganya adalah warisan budaya Banjarnegara yang saling melengkapi: upacara adat (ritual), tarian (seni pertunjukan), kerajinan (seni rupa) — semua sama pentingnya untuk dilestarikan.'},
+{id:100,lvl:'K',tipe:'pg',q:'Seorang siswa ditugaskan membuat konten promosi lengkap budaya Banjarnegara di media sosial. Urutan langkah yang paling logis adalah…',opts:['Unggah dulu baru buat caption','Tulis caption → buka app → pilih foto → unggah','Dokumentasikan budaya (foto/video) → pilih konten terbaik → buat caption menarik + hashtag → unggah di media sosial → pantau respons','Langsung bagikan tanpa persiapan'],jawab:2,info:'Urutan logis promosi budaya: dokumentasi → seleksi konten → buat caption + hashtag → unggah → pantau. Dimulai dari dokumentasi berkualitas, diakhiri dengan evaluasi respons.'},
+];;;
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let namaSiswa = '';
+let soalAktif=[], cur=0, score=0, jawaban=[];
+let timerInterval=null, timerLeft=0;
+let hadiahDibuka = false;
+let hadiahResult = null;
+let drawsLeft = 1;
+let hadiahResults = [];
+let dataTerkirim = false;
+const TIMER_SEC = 45;
+
+// ═══════════════════════════════════════════
+//  NAMA
+// ═══════════════════════════════════════════
+
+// ═══════════════════════════════════════════
+//  ADMIN PIN ENGINE
+// ═══════════════════════════════════════════
+const ADMIN_CODE = 'L4ZARUS';
+const ADMIN_PIN  = '123456';
+let pinBuffer = '';
+let adminMode  = false;
+
+function pinInput(digit){
+  if(pinBuffer.length >= 6) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if(pinBuffer.length === 6) setTimeout(checkPin, 150);
+}
+
+function pinDelete(){
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-err').style.display='none';
+}
+
+function updatePinDots(){
+  for(let i=0;i<6;i++){
+    const d = document.getElementById('pd'+i);
+    d.classList.toggle('filled', i < pinBuffer.length);
+    d.classList.remove('error');
+  }
+}
+
+function checkPin(){
+  if(pinBuffer === ADMIN_PIN){
+    adminMode = true;
+    document.getElementById('admin-pin-overlay').style.display='none';
+    document.getElementById('screen-nama').style.display='none';
+    document.getElementById('main-card').style.display='';
+    document.getElementById('pill-nama').textContent='👤 '+namaSiswa+' ⚡';
+    pinBuffer='';
+    updatePinDots();
+    score = 30;
+    hadiahDibuka = false;
+    hadiahResult = null;
+    dataTerkirim = true;
+    setTimeout(()=>{
+      document.getElementById('gacha-overlay').classList.add('show');
+      resetGachaUI();
+    }, 300);
+  } else {
+    for(let i=0;i<6;i++) document.getElementById('pd'+i).classList.add('error');
+    document.getElementById('pin-err').style.display='block';
+    pinBuffer='';
+    setTimeout(()=>{ updatePinDots(); }, 600);
+  }
+}
+
+function adminCancel(){
+  pinBuffer='';
+  updatePinDots();
+  document.getElementById('pin-err').style.display='none';
+  document.getElementById('admin-pin-overlay').style.display='none';
+}
+
+
+function mulai(){
+  const val = document.getElementById('input-nama').value.trim();
+  if(!val){
+    document.getElementById('nama-err').style.display='block';
+    document.getElementById('input-nama').style.borderColor='#e11d48';
+    return;
+  }
+  // Cek kode admin
+  if(val.toUpperCase() === ADMIN_CODE){
+    namaSiswa = val;
+    pinBuffer = '';
+    updatePinDots();
+    document.getElementById('pin-err').style.display='none';
+    document.getElementById('admin-pin-overlay').style.display='flex';
+    return;
+  }
+  namaSiswa = val;
+  document.getElementById('screen-nama').style.display='none';
+  document.getElementById('main-card').style.display='';
+  document.getElementById('pill-nama').textContent='👤 '+namaSiswa;
+}
+
+// ═══════════════════════════════════════════
+//  QUIZ ENGINE
+// ═══════════════════════════════════════════
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function pick30(){
+  const m=shuffle(bank.filter(s=>s.lvl==='M')).slice(0,15);
+  const s=shuffle(bank.filter(s=>s.lvl==='S')).slice(0,9);
+  const k=shuffle(bank.filter(s=>s.lvl==='K')).slice(0,6);
+  return shuffle([...m,...s,...k]);
+}
+function shuffleOpts(s){
+  if(s.tipe!=='pg') return s;
+  const idx=[0,1,2,3];
+  const sh=shuffle(idx);
+  return {...s, opts:sh.map(i=>s.opts[i]), jawab:sh.indexOf(s.jawab)};
+}
+function nilaiAkhir(benar){ return Math.round((benar/30)*100); }
+
+const chipCls={M:'chip-M',S:'chip-S',K:'chip-K'};
+const chipLbl={M:'🟢 Mudah',S:'🟡 Sedang',K:'🔴 Sulit'};
+
+function startQuiz(){
+  soalAktif=pick30().map(shuffleOpts); cur=0; score=0; jawaban=Array(30).fill(null);
+  hadiahDibuka = false; hadiahResult = null; dataTerkirim = false;
+  renderSoal();
+}
+
+function renderSoal(){
+  const s=soalAktif[cur];
+  const pct=Math.round((cur/30)*100);
+  const prev=jawaban[cur];
+
+  let html=`
+    <div class="q-progress-wrap">
+      <div class="q-prog-top">
+        <span class="q-prog-num">Soal ${cur+1} / 30</span>
+        <span class="q-prog-score">📊 Nilai: <strong>${nilaiAkhir(score)}</strong></span>
+      </div>
+      <div class="q-prog-bar-bg"><div class="q-prog-bar" style="width:${pct}%"></div></div>
+    </div>
+    <div class="q-timer-wrap" id="timer-wrap">
+      <div class="q-timer-ring">
+        <svg viewBox="0 0 44 44" width="44" height="44">
+          <circle class="q-timer-track" cx="22" cy="22" r="18"/>
+          <circle class="q-timer-bar" id="timer-bar" cx="22" cy="22" r="18"/>
+        </svg>
+        <div class="q-timer-num" id="timer-num">${prev!==null?'✓':TIMER_SEC}</div>
+      </div>
+      <div class="q-timer-label">${prev!==null?'Sudah dijawab':'Waktu tersisa untuk menjawab'}</div>
+    </div>
+    <div class="q-card">
+      <span class="diff-chip ${chipCls[s.lvl]}">${chipLbl[s.lvl]}</span>
+      <div class="q-text">${s.q}</div>
+      <div class="q-opts" id="opts-wrap">`;
+
+  if(s.tipe==='pg'){
+    const keys=['A','B','C','D'];
+    s.opts.forEach((o,oi)=>{
+      let cls='';
+      if(prev!==null){
+        if(oi===prev){ if(prev===s.jawab) cls='correct'; else cls='wrong'; }
+        else cls='disabled';
+      }
+      html+=`<button class="q-opt ${cls}" id="opt-${oi}" onclick="jwbPG(${oi})" ${prev!==null?'disabled':''}>
+        <span class="okey">${keys[oi]}</span>${o}
+      </button>`;
+    });
+  } else {
+    const choices=[{val:true,lbl:'✓ Benar'},{val:false,lbl:'✗ Salah'}];
+    choices.forEach(c=>{
+      let cls='';
+      if(prev!==null){
+        if(c.val===prev){ if(prev===s.jawab) cls='correct'; else cls='wrong'; }
+        else cls='disabled';
+      }
+      html+=`<button class="q-opt ${cls}" id="opt-${c.val}" onclick="jwbBS(${c.val})" ${prev!==null?'disabled':''}>
+        <span class="okey">${c.val?'✓':'✗'}</span>${c.lbl}
+      </button>`;
+    });
+  }
+
+  html+=`</div>`;
+
+  if(prev!==null){
+    const ok = (s.tipe==='pg') ? prev===s.jawab : prev===s.jawab;
+    html+=`<div class="q-result show ${ok?'ok':'no'}">${ok?'✅ Jawaban Benar!':'❌ Jawaban Kurang Tepat'}</div>`;
+  }
+
+  html+=`<div class="q-nav">`;
+  if(cur===29){
+    html+=`<button class="q-btn q-btn-finish" onclick="showHasil()">Lihat Hasil 🎉</button>`;
+  } else {
+    html+=`<button class="q-btn q-btn-next" onclick="goSoal(1)" ${prev===null?'disabled':''}>Lanjut →</button>`;
+  }
+  html+=`</div></div>`;
+
+  document.getElementById('soal-body').innerHTML=html;
+  if(prev===null) startTimer(); else stopTimer();
+}
+
+function startTimer(){
+  stopTimer();
+  timerLeft = TIMER_SEC;
+  updateTimerUI();
+  timerInterval = setInterval(()=>{
+    timerLeft--;
+    updateTimerUI();
+    if(timerLeft<=0){
+      stopTimer();
+      timeUp();
+    }
+  },1000);
+}
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+}
+function updateTimerUI(){
+  const numEl  = document.getElementById('timer-num');
+  const barEl  = document.getElementById('timer-bar');
+  const wrapEl = document.getElementById('timer-wrap');
+  if(!numEl||!barEl||!wrapEl) return;
+  const pct = timerLeft/TIMER_SEC;
+  const circ = 2*Math.PI*18;
+  barEl.style.strokeDashoffset = circ*(1-pct);
+  numEl.textContent = timerLeft;
+  wrapEl.className = 'q-timer-wrap' + (timerLeft<=10?' q-timer-urgent': timerLeft<=20?' q-timer-warn':'');
+}
+function timeUp(){
+  const numEl  = document.getElementById('timer-num');
+  const wrapEl = document.getElementById('timer-wrap');
+  const labelEl = wrapEl ? wrapEl.querySelector('.q-timer-label') : null;
+  if(numEl) numEl.textContent='⏰';
+  if(labelEl) labelEl.textContent='Waktu habis! Lanjut ke soal berikutnya...';
+  if(wrapEl) wrapEl.classList.add('q-timer-urgent');
+  document.querySelectorAll('.q-opt').forEach(el=>el.disabled=true);
+  setTimeout(()=>{
+    if(cur<29){ cur++; renderSoal(); }
+    else showHasil();
+  },1000);
+}
+function jwbPG(sel){
+  const s=soalAktif[cur];
+  if(jawaban[cur]!==null) return;
+  stopTimer();
+  jawaban[cur]=sel;
+  if(sel===s.jawab){ score++; playCorrectSound(); }
+  else{ playWrongSound(); }
+  renderSoal();
+}
+function jwbBS(sel){
+  const s=soalAktif[cur];
+  if(jawaban[cur]!==null) return;
+  stopTimer();
+  jawaban[cur]=sel;
+  if(sel===s.jawab){ score++; playCorrectSound(); }
+  else{ playWrongSound(); }
+  renderSoal();
+}
+function goSoal(dir){
+  stopTimer();
+  cur+=dir;
+  if(cur<0) cur=0;
+  if(cur>29) cur=29;
+  renderSoal();
+}
+
+// ═══════════════════════════════════════════
+//  HASIL + GACHA TRIGGER
+// ═══════════════════════════════════════════
+function showHasil(){
+  stopTimer();
+  const nilai=nilaiAkhir(score);
+  let emoji='😢', judul='Terus Semangat Belajar!', warna='#f43f5e';
+  if(nilai>=90){emoji='🏆';judul='Luar Biasa!';warna='#f59e0b';}
+  else if(nilai>=75){emoji='🎉';judul='Bagus Sekali!';warna='#22c55e';}
+  else if(nilai>=60){emoji='👍';judul='Cukup Baik!';warna='#0ea5e9';}
+  else if(nilai>=40){emoji='💪';judul='Masih Bisa Lebih Baik!';warna='#8b5cf6';}
+
+  const cntM=soalAktif.filter(s=>s.lvl==='M').length;
+  const cntS=soalAktif.filter(s=>s.lvl==='S').length;
+  const cntK=soalAktif.filter(s=>s.lvl==='K').length;
+  const scM=soalAktif.reduce((a,s,i)=>s.lvl==='M'&&jawaban[i]===s.jawab?a+1:a,0);
+  const scS=soalAktif.reduce((a,s,i)=>s.lvl==='S'&&jawaban[i]===s.jawab?a+1:a,0);
+  const scK=soalAktif.reduce((a,s,i)=>s.lvl==='K'&&jawaban[i]===s.jawab?a+1:a,0);
+
+  let html=`<div class="hasil-wrap">
+    <div class="hasil-emoji">${emoji}</div>
+    <div class="hasil-title" style="color:${warna}">${judul}</div>
+    <div class="hasil-sub">Hasil latihan <strong>${namaSiswa}</strong></div>
+    <div class="hasil-score-box">
+      <div class="hasil-score-num" style="color:${warna}">${nilai}</div>
+      <div class="hasil-score-label">Nilai Akhir (skala 0–100)</div>
+      <div style="font-size:.8rem;font-weight:600;color:var(--muted);margin-top:.3rem">${score} benar dari 30 soal</div>
+    </div>
+    <div class="hasil-breakdown">
+      <div class="hb-item">🟢 Mudah: ${scM}/${cntM}</div>
+      <div class="hb-item">🟡 Sedang: ${scS}/${cntS}</div>
+      <div class="hb-item">🔴 Sulit: ${scK}/${cntK}</div>
+    </div>`;
+
+  if(nilai >= 90 && !hadiahDibuka){
+    html += `<button class="q-btn q-btn-hadiah" onclick="bukaHadiah()" style="margin-bottom:.8rem;">🎁 ${score===30?'Buka 2 Hadiah Spesial! ⭐':'Buka Hadiah Spesial'}</button>`;
+  }
+
+  html += `<button class="btn-ulang" onclick="resetSemua()">🔀 Kerjakan Lagi</button>
+  </div>
+  <hr style="border:none;border-top:1.5px solid #f1f5f9;margin:1.4rem 0;">
+  <div class="pembahasan-title">📝 Pembahasan Lengkap</div>`;
+
+  soalAktif.forEach((s,i)=>{
+    const benar = jawaban[i]===s.jawab;
+    html+=`<div class="pb-item ${benar?'pb-ok':'pb-no'}">
+      <div class="pb-num">Soal ${i+1} · ${chipLbl[s.lvl]}</div>
+      <div class="pb-q">${s.q}</div>
+      <div class="pb-status">${benar?'✅ Kamu menjawab dengan benar':'❌ Kamu menjawab kurang tepat'}</div>
+      <div class="pb-info">${s.info}</div>
+    </div>`;
+  });
+
+  document.getElementById('soal-body').innerHTML=html;
+  document.getElementById('soal-modal-title').textContent='Hasil & Pembahasan';
+
+  if(!dataTerkirim){
+    kirimData(nilai, 'Belum dibuka');
+  }
+}
+
+function resetSemua(){
+  stopTimer();
+  closeModal('modal-soal');
+  soalAktif=[]; cur=0; score=0; jawaban=[];
+  hadiahDibuka=false; hadiahResult=null; dataTerkirim=false; drawsLeft=1; hadiahResults=[];
+  document.getElementById('soal-modal-title').textContent='Soal Latihan';
+}
+
+function bukaHadiah(){
+  hadiahDibuka = true;
+  drawsLeft = (score === 30) ? 2 : 1;
+  hadiahResults = [];
+  closeModal('modal-soal');
+  document.getElementById('gacha-overlay').classList.add('show');
+  resetGachaUI();
+}
+
+// ═══════════════════════════════════════════
+//  SPREADSHEET INTEGRATION
+// ═══════════════════════════════════════════
+async function kirimData(nilai, hadiahLabel){
+  if(GAS_URL.includes('XXXXXXXX')){
+    console.log('GAS_URL belum diatur. Data belum terkirim.');
+    return;
+  }
+  const params = new URLSearchParams();
+  params.append('nama', namaSiswa || '-');
+  params.append('mapel', 'PRA UAS Dawet Ayu Banjarnegara');
+  params.append('nilai', String(nilai));
+  params.append('hadiah', hadiahLabel || '-');
+
+  console.log('Mengirim data:', Object.fromEntries(params));
+
+  try{
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: params
+    });
+    dataTerkirim = true;
+    console.log('Data terkirim ke spreadsheet');
+  }catch(e){
+    console.error('Gagal kirim:', e);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  MODAL CONTROL
+// ═══════════════════════════════════════════
+function openModal(id){
+  if(id==='soal'){
+    document.getElementById('soal-modal-title').textContent='Soal Latihan';
+    startQuiz();
+    document.getElementById('modal-soal').classList.add('fullscreen-active');
+  }
+  document.getElementById(`modal-${id}`).classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeModal(id){
+  if(id==='modal-soal') stopTimer();
+  document.getElementById(id).classList.remove('active','fullscreen-active');
+  document.body.style.overflow='';
+}
+function closeOnBg(e,id){
+  if(e.target.id===id) closeModal(id);
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal('modal-rangkuman');closeModal('modal-soal');}
+});
+
+// ═══════════════════════════════════════════
+//  GACHA ENGINE
+// ═══════════════════════════════════════════
+const ANIMALS = {
+  mythic: [
+    { emoji: '🐉', name: 'Naga Emas', desc: 'Makhluk paling langka di seluruh bestiary! Naga Emas adalah legenda tertinggi yang hampir mustahil ditemukan.' }
+  ],
+  legendary: [
+    { emoji: '🦄', name: 'Unicorn', desc: 'Kuda bertanduk ajaib pembawa keberuntungan. Hanya yang terpilih yang bisa menemukannya.' },
+    { emoji: '🐳', name: 'Paus Bintang', desc: 'Paus raksasa yang berenang di antara bintang-bintang galaksi. Kemunculannya sangat langka.' },
+    { emoji: '🦁', name: 'Singa Emas', desc: 'Raja segala hewan berbulu emas berkilauan, simbol keagungan sejati.' },
+  ],
+  ultra: [
+    { emoji: '🦋', name: 'Kupu Phoenix', desc: 'Kupu-kupu berapi yang terlahir kembali dari abu. Sangat langka!' },
+    { emoji: '🦅', name: 'Elang Petir', desc: 'Elang raksasa pembawa kilat dari langit.' },
+    { emoji: '🐺', name: 'Serigala Bulan', desc: 'Serigala mistis yang menghowl di bawah bulan purnama.' },
+    { emoji: '🦊', name: 'Rubah Perak', desc: 'Rubah berwarna perak yang konon membawa keberuntungan.' },
+    { emoji: '🐬', name: 'Lumba-lumba Biru', desc: 'Lumba-lumba bercahaya dari laut dalam yang misterius.' },
+    { emoji: '🐯', name: 'Harimau Api', desc: 'Harimau dengan belang-belang api yang membara.' },
+    { emoji: '🦚', name: 'Merak Kristal', desc: 'Merak dengan bulu seindah kristal yang berkilauan.' },
+  ],
+  rare: [
+    { emoji: '🦝', name: 'Rakun Bintang', desc: 'Rakun berbintang yang suka mengoleksi benda berkilau.' },
+    { emoji: '🦜', name: 'Beo Neon', desc: 'Beo berwarna neon yang bisa menirukan sihir.' },
+    { emoji: '🐻', name: 'Beruang Salju', desc: 'Beruang kutub yang gagah dan kuat.' },
+    { emoji: '🦔', name: 'Landak Permata', desc: 'Landak berduri kristal yang menggemaskan.' },
+    { emoji: '🐊', name: 'Buaya Batu', desc: 'Buaya purba yang sekuat batu karang.' },
+    { emoji: '🦩', name: 'Flamingo Merah', desc: 'Flamingo anggun berwarna merah menyala.' },
+    { emoji: '🐙', name: 'Gurita Nebula', desc: 'Gurita bercahaya dari kedalaman samudera.' },
+    { emoji: '🦇', name: 'Kelelawar Malam', desc: 'Kelelawar penunggu malam yang misterius.' },
+    { emoji: '🐢', name: 'Kura Kuno', desc: 'Kura-kura berusia ribuan tahun penyimpan kebijaksanaan.' },
+    { emoji: '🦎', name: 'Kadal Zamrud', desc: 'Kadal berwarna zamrud yang menjaga harta terpendam.' },
+    { emoji: '🦂', name: 'Kalajengking Ungu', desc: 'Kalajengking misterius berbisa ungu dari gurun kuno.' },
+    { emoji: '🦈', name: 'Hiu Galaksi', desc: 'Hiu raksasa dengan sisik bermotif bintang galaksi.' },
+  ],
+  common: [
+    { emoji: '🐱', name: 'Kucing Biasa', desc: 'Kucing manja yang suka tidur sepanjang hari. Coba lagi!' },
+    { emoji: '🐶', name: 'Anjing Setia', desc: 'Sahabat manusia yang selalu setia menemani.' },
+    { emoji: '🐰', name: 'Kelinci Lompat', desc: 'Kelinci lincah yang suka melompat kesana kemari.' },
+    { emoji: '🐹', name: 'Hamster Pouch', desc: 'Hamster menggemaskan dengan pipi penuh biji-bijian.' },
+    { emoji: '🐦', name: 'Burung Gereja', desc: 'Burung kecil yang ceria berkicau setiap pagi.' },
+    { emoji: '🐟', name: 'Ikan Mas', desc: 'Ikan mas yang renang-renang tenang di kolam.' },
+    { emoji: '🐠', name: 'Ikan Badut', desc: 'Ikan warna-warni yang selalu ceria seperti badut.' },
+    { emoji: '🐔', name: 'Ayam Kampung', desc: 'Ayam kampung yang rajin berkokok setiap subuh.' },
+    { emoji: '🐑', name: 'Domba Wol', desc: 'Domba berbulu tebal yang nyaman dipeluk.' },
+    { emoji: '🐄', name: 'Sapi Gemuk', desc: 'Sapi makan rumput sepanjang hari di padang hijau.' },
+    { emoji: '🐷', name: 'Babi Lucu', desc: 'Babi pink yang suka berkubang lumpur.' },
+    { emoji: '🦆', name: 'Bebek Sesat', desc: 'Bebek yang selalu salah arah tapi tetap bahagia.' },
+    { emoji: '🐸', name: 'Katak Hijau', desc: 'Katak penyanyi yang berisik saat hujan tiba.' },
+    { emoji: '🐛', name: 'Ulat Daun', desc: 'Ulat kecil pemakan daun yang lambat tapi tekun.' },
+    { emoji: '🐝', name: 'Lebah Rajin', desc: 'Lebah pekerja keras penghasil madu manis.' },
+    { emoji: '🐌', name: 'Siput Santai', desc: 'Siput yang santai, tidak terburu-buru ke mana pun.' },
+  ]
+};
+
+function roll() {
+  const n = Math.random() * 100;
+  if (n < 0.5) return { type: 'mythic' };
+  if (n < 2.5) return { type: 'legendary' };
+  if (n < 7.5) return { type: 'ultra' };
+  if (n < 27.5) return { type: 'rare' };
+  return { type: 'common' };
+}
+function pickAnimal(type) {
+  const list = ANIMALS[type];
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+let gachaAnimating = false;
+let currentAnimal = null;
+
+function resetGachaUI(){
+  document.getElementById('gacha-result-card').style.display='none';
+  document.querySelector('.gacha-container').style.display='flex';
+  const btn = document.getElementById('gacha-open-btn');
+  btn.disabled = false;
+  btn.textContent = '✦ Buka Hadiah ✦';
+  const box = document.getElementById('gacha-lootbox');
+  box.style.cursor = 'pointer';
+  box.onclick = openBox;
+}
+
+function openBox() {
+  if (gachaAnimating || hadiahDibuka === 'done') return;
+  gachaAnimating = true;
+  playShakeSound();
+  const lootbox = document.getElementById('gacha-lootbox');
+  lootbox.classList.add('shaking');
+  setTimeout(() => {
+    lootbox.classList.remove('shaking');
+    const { type } = roll();
+    playRevealSound(type);
+    const animal = pickAnimal(type);
+    currentAnimal = animal;
+    hadiahResult = {type: type, name: animal.name};
+
+    const card     = document.getElementById('gacha-result-card');
+    const animalEl = document.getElementById('gacha-r-animal');
+    const nameEl   = document.getElementById('gacha-r-name');
+    const badgeEl  = document.getElementById('gacha-r-badge');
+    const cardArt  = document.getElementById('gacha-card-art');
+    const cardInfo = document.getElementById('gacha-card-info');
+    const starsEl  = document.getElementById('gacha-r-stars');
+
+    const starMap = { common:'★', rare:'★★★', ultra:'★★★★', legendary:'★★★★✦', mythic:'★★★★★' };
+    const labelMap = {
+      mythic:    '✦ Mythic ✦',
+      legendary: '⚡ Legendary ⚡',
+      ultra:     '◈ Ultra Rare ◈',
+      rare:      '◇ Rare ◇',
+      common:    'Common',
+    };
+
+    card.className     = 'gacha-result-card t-' + type;
+    cardArt.className  = 'gacha-card-art t-' + type;
+    cardInfo.className = 'gacha-card-info t-' + type;
+    animalEl.className = 'gacha-result-animal t-' + type;
+    animalEl.textContent = animal.emoji;
+    nameEl.className   = 'gacha-result-name t-' + type;
+    nameEl.textContent = animal.name;
+    badgeEl.className  = 'gacha-card-banner-label';
+    badgeEl.textContent = labelMap[type];
+    starsEl.textContent = starMap[type];
+    document.getElementById('gacha-r-desc').textContent = animal.desc;
+
+    const now = new Date();
+    const tgl = now.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+    const jam = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('gacha-footer-name').textContent = namaSiswa || 'Siswa';
+    document.getElementById('gacha-footer-date').textContent = tgl + ' · ' + jam;
+    document.getElementById('gacha-footer-score').textContent = 'Nilai: ' + nilaiAkhir(score);
+
+    document.querySelectorAll('.corner-gem').forEach(g => {
+      g.className = 'corner-gem ' + g.classList[1];
+    });
+
+    document.querySelector('.gacha-container').style.display='none';
+    card.style.display='block';
+    document.getElementById('gacha-btn-row').style.display='flex';
+
+    if (type !== 'common') spawnParticles(type);
+
+    // Simpan hasil draw ini
+    hadiahResults.push(type);
+    drawsLeft--;
+
+    if(drawsLeft > 0){
+      // Masih ada draw lagi — tampilkan tombol Draw Lagi
+      const btnRow = document.getElementById('gacha-btn-row');
+      const drawLagiBtn = document.createElement('button');
+      drawLagiBtn.className = 'gacha-dl-btn';
+      drawLagiBtn.style.background = 'linear-gradient(135deg,#7c4dff,#c040fb)';
+      drawLagiBtn.textContent = '🎁 Draw Lagi!';
+      drawLagiBtn.onclick = function(){
+        drawLagiBtn.remove();
+        document.querySelector('.gacha-container').style.display='flex';
+        document.getElementById('gacha-result-card').style.display='none';
+        document.getElementById('gacha-btn-row').style.display='none';
+        resetGachaUI();
+      };
+      btnRow.insertBefore(drawLagiBtn, btnRow.firstChild);
+    } else {
+      // Semua draw selesai — kunci dan kirim data terbaik
+      hadiahDibuka = 'done';
+      const btn = document.getElementById('gacha-open-btn');
+      btn.disabled = true;
+      btn.textContent = '✦ Sudah Digunakan ✦';
+      lootbox.style.cursor = 'not-allowed';
+      lootbox.onclick = null;
+
+      const rarityPriority = {common:0,rare:1,ultra:2,legendary:3,mythic:4};
+      const bestType = hadiahResults.reduce((a,b) => rarityPriority[a]>=rarityPriority[b]?a:b);
+      const nilai = nilaiAkhir(score);
+      kirimData(nilai, labelMap[bestType]);
+    }
+
+    gachaAnimating = false;
+  }, 520);
+}
+
+function closeGachaResult(){
+  document.getElementById('gacha-overlay').classList.remove('show');
+}
+
+function spawnParticles(type) {
+  const pal = {
+    mythic:    ['#ffb700','#ff6a00','#ffe082','#ff3d00'],
+    legendary: ['#00e5ff','#00b8d4','#80deea','#ffffff'],
+    ultra:     ['#c040fb','#7c4dff','#e040fb','#b39ddb'],
+    rare:      ['#2979ff','#00b0ff','#40c4ff','#82b1ff'],
+  };
+  const colors = pal[type] || [];
+  const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  for (let i = 0; i < 30; i++) {
+    const el = document.createElement('div');
+    el.className = 'gacha-particle';
+    const angle = Math.random() * Math.PI * 2;
+    const dist  = 80 + Math.random() * 220;
+    const size  = 5 + Math.random() * 9;
+    el.style.cssText = `width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};left:${cx}px;top:${cy}px;--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;animation-duration:${.7+Math.random()*.5}s;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1300);
+  }
+}
+
+async function downloadCard() {
+  const btn = document.getElementById('gacha-dl-btn');
+  btn.classList.add('loading');
+  btn.textContent = '⏳ Memproses...';
+
+  const btnRow = document.getElementById('gacha-btn-row');
+  btnRow.style.display = 'none';
+
+  try {
+    const card = document.getElementById('gacha-card-inner');
+    const canvas = await html2canvas(card, {
+      backgroundColor: null,
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+
+    const padding = 32;
+    const final = document.createElement('canvas');
+    final.width  = canvas.width + padding * 2;
+    final.height = canvas.height + padding * 2 + 36;
+    const ctx = final.getContext('2d');
+
+    ctx.fillStyle = '#07080f';
+    ctx.fillRect(0, 0, final.width, final.height);
+    ctx.drawImage(canvas, padding, padding);
+
+    ctx.fillStyle = 'rgba(121,134,203,0.45)';
+    ctx.font = '20px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎁 kotak hadiah', final.width / 2, final.height - 10);
+
+    const name = currentAnimal ? currentAnimal.name.replace(/\s+/g,'-') : 'kartu';
+    const link = document.createElement('a');
+    link.download = `gacha-${name}.png`;
+    link.href = final.toDataURL('image/png');
+    link.click();
+  } catch(e) {
+    alert('Gagal mengunduh kartu. Coba lagi!');
+  }
+
+  btnRow.style.display = 'flex';
+  btn.classList.remove('loading');
+  btn.textContent = '⬇ Simpan Kartu';
+}
+
+// ═══════════════════════════════════════════
+//  AUDIO ENGINE - Efek Suara Gacha & Kuis
+// ═══════════════════════════════════════════
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playShakeSound() {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const noise = audioCtx.createBufferSource();
+
+  const bufferSize = audioCtx.sampleRate * 0.5;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * 0.3;
+  }
+  noise.buffer = buffer;
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.setValueAtTime(0.15, t);
+  noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+  noise.connect(noiseGain);
+  noiseGain.connect(audioCtx.destination);
+  noise.start(t);
+  noise.stop(t + 0.5);
+
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(80, t);
+  osc.frequency.exponentialRampToValueAtTime(40, t + 0.3);
+  gain.gain.setValueAtTime(0.4, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.4);
+}
+
+function playRevealSound(type) {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+
+  const freqMap = {
+    common: [330, 440],
+    rare: [440, 554, 659],
+    ultra: [523, 659, 784, 1047],
+    legendary: [659, 784, 1047, 1319, 1568],
+    mythic: [784, 988, 1175, 1568, 1976, 2349]
+  };
+
+  const freqs = freqMap[type] || freqMap.common;
+  const duration = type === 'mythic' ? 2.0 : type === 'legendary' ? 1.5 : 1.0;
+
+  freqs.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type === 'mythic' || type === 'legendary' ? 'sine' : 'triangle';
+    osc.frequency.setValueAtTime(freq, t + i * 0.12);
+
+    const vol = type === 'common' ? 0.15 : type === 'rare' ? 0.2 : type === 'ultra' ? 0.25 : type === 'legendary' ? 0.35 : 0.5;
+    gain.gain.setValueAtTime(0, t + i * 0.12);
+    gain.gain.linearRampToValueAtTime(vol, t + i * 0.12 + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.12 + 0.6);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t + i * 0.12);
+    osc.stop(t + i * 0.12 + 0.8);
+  });
+
+  if (type === 'ultra' || type === 'legendary' || type === 'mythic') {
+    const sparkle = audioCtx.createBufferSource();
+    const bufSize = audioCtx.sampleRate * duration;
+    const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.max(0, 1 - i/bufSize) * 0.08;
+    }
+    sparkle.buffer = buf;
+    const sg = audioCtx.createGain();
+    sg.gain.setValueAtTime(0.3, t);
+    sg.gain.linearRampToValueAtTime(0, t + duration);
+    sparkle.connect(sg);
+    sg.connect(audioCtx.destination);
+    sparkle.start(t);
+    sparkle.stop(t + duration);
+  }
+
+  if (type === 'mythic') {
+    const bass = audioCtx.createOscillator();
+    const bassGain = audioCtx.createGain();
+    bass.type = 'sine';
+    bass.frequency.setValueAtTime(60, t);
+    bass.frequency.linearRampToValueAtTime(30, t + 1.5);
+    bassGain.gain.setValueAtTime(0.5, t);
+    bassGain.gain.exponentialRampToValueAtTime(0.01, t + 2.0);
+    bass.connect(bassGain);
+    bassGain.connect(audioCtx.destination);
+    bass.start(t);
+    bass.stop(t + 2.0);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  QUIZ SOUNDS - Benar & Salah
+// ═══════════════════════════════════════════
+function playCorrectSound() {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  const freqs = [523, 659, 784, 1047];
+  freqs.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t + i * 0.08);
+    gain.gain.setValueAtTime(0, t + i * 0.08);
+    gain.gain.linearRampToValueAtTime(0.2, t + i * 0.08 + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.08 + 0.4);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t + i * 0.08);
+    osc.stop(t + i * 0.08 + 0.5);
+  });
+  const sparkle = audioCtx.createBufferSource();
+  const bufSize = audioCtx.sampleRate * 0.3;
+  const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) {
+    d[i] = (Math.random() * 2 - 1) * Math.max(0, 1 - i/bufSize) * 0.05;
+  }
+  sparkle.buffer = buf;
+  const sg = audioCtx.createGain();
+  sg.gain.setValueAtTime(0.15, t);
+  sg.gain.linearRampToValueAtTime(0, t + 0.3);
+  sparkle.connect(sg);
+  sg.connect(audioCtx.destination);
+  sparkle.start(t);
+  sparkle.stop(t + 0.3);
+}
+
+function playWrongSound() {
+  ensureAudio();
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(200, t);
+  osc.frequency.exponentialRampToValueAtTime(80, t + 0.35);
+  gain.gain.setValueAtTime(0.12, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.45);
+  const osc2 = audioCtx.createOscillator();
+  const gain2 = audioCtx.createGain();
+  osc2.type = 'square';
+  osc2.frequency.setValueAtTime(150, t + 0.1);
+  osc2.frequency.exponentialRampToValueAtTime(60, t + 0.4);
+  gain2.gain.setValueAtTime(0.08, t + 0.1);
+  gain2.gain.exponentialRampToValueAtTime(0.01, t + 0.45);
+  osc2.connect(gain2);
+  gain2.connect(audioCtx.destination);
+  osc2.start(t + 0.1);
+  osc2.stop(t + 0.5);
+}
+
+</script>
+</body>
+</html>
