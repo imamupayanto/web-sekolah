@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Math Battle - Split Screen</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; font-family: 'Poppins','Segoe UI',Arial,sans-serif; background: #0b0f19; }
+
+  #mainMenu {
+    height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,0.08), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(255,255,255,0.06), transparent 40%),
+      linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color: #fff; gap: 24px; padding: 24px; overflow-y: auto;
+  }
+  #mainMenu h1 {
+    font-size: clamp(36px,5vw,56px); text-align: center; font-weight: 800; letter-spacing: 1px;
+    background: linear-gradient(90deg,#ffd700,#ff8a00);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 4px 24px rgba(255,180,0,0.25); margin-bottom: 4px;
+  }
+  #devCredit {
+    position: absolute; bottom: 10px; right: 14px; font-size: 12px; opacity: 0.45; color: #fff; letter-spacing: 0.3px;
+  }
+  #mainMenu { position: relative; }
+
+  #mainMenu .subtitle { font-size: 16px; opacity: 0.65; margin-top: -18px; margin-bottom: 6px; }
+  #materialGrid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 1100px; }
+  .material-card {
+    width: 300px; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.14);
+    border-radius: 20px; padding: 26px 20px; text-align: center; cursor: pointer;
+    transition: all 0.18s ease; backdrop-filter: blur(6px);
+  }
+  .material-card:hover, .material-card:active { transform: translateY(-4px); border-color: #ffd700; box-shadow: 0 10px 28px rgba(255,180,0,0.25); }
+  .material-card .icon { font-size: 46px; margin-bottom: 10px; }
+  .material-card h3 { font-size: 20px; margin-bottom: 8px; color: #ffd700; }
+  .material-card p { font-size: 14px; opacity: 0.75; line-height: 1.4; }
+
+  #backBtn {
+    position: absolute; top: 18px; left: 18px; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 16px; border-radius: 20px;
+    font-size: 14px; cursor: pointer; font-weight: 600; z-index: 5;
+  }
+  #setup { position: relative; }
+
+  .summary-link-btn {
+    margin-top: 6px; font-size: 16px; padding: 12px 26px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; font-weight: 700;
+  }
+  .summary-link-btn.play {
+    background: linear-gradient(135deg,#2ecc71,#27ae60); border: none; font-size: 20px; padding: 16px 40px;
+    box-shadow: 0 8px 24px rgba(46,204,113,0.4); margin-top: 12px;
+  }
+  #summaryScreen {
+    height: 100%; overflow-y: auto; position: relative;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364); color: #fff;
+  }
+  .summary-inner { max-width: 780px; margin: 0 auto; padding: 80px 24px 50px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  #summaryScreen h1 {
+    font-size: clamp(30px,4.5vw,44px); text-align: center; font-weight: 800;
+    background: linear-gradient(90deg,#ffd700,#ff8a00); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  #summaryScreen .subtitle { opacity: 0.7; margin-top: -10px; }
+  .summary-card {
+    width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px; padding: 18px 22px; text-align: left;
+  }
+  .summary-card h3 { color: #ffd700; margin-bottom: 8px; font-size: 19px; }
+  .summary-card p { font-size: 15px; line-height: 1.6; opacity: 0.9; margin-bottom: 4px; }
+  .back-floating {
+    position: absolute; top: 18px; left: 18px; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 16px; border-radius: 20px;
+    font-size: 14px; cursor: pointer; font-weight: 600; z-index: 5;
+  }
+
+  /* ---------- SETUP SCREEN ---------- */
+  #setup {
+    height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,0.08), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(255,255,255,0.06), transparent 40%),
+      linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color: #fff; gap: 22px; padding: 24px; overflow-y: auto;
+  }
+  #setup h1 {
+    font-size: clamp(36px,5vw,56px); text-align: center; font-weight: 800; letter-spacing: 1px;
+    background: linear-gradient(90deg,#ffd700,#ff8a00);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 4px 24px rgba(255,180,0,0.25);
+    margin-bottom: 4px;
+  }
+  #setup .subtitle { font-size: 16px; opacity: 0.65; margin-top: -14px; margin-bottom: 6px; letter-spacing: 0.5px; }
+  .setup-card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px; padding: 18px 24px; backdrop-filter: blur(6px);
+    display: flex; flex-direction: column; gap: 12px; align-items: center; width: min(92%, 640px);
+  }
+  .setup-card label { font-size: 18px; font-weight: 600; opacity: 0.85; letter-spacing: 0.5px; }
+  .setup-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .choice-btn {
+    font-size: 18px; padding: 12px 22px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  .choice-btn:active { transform: scale(0.95); }
+  .choice-btn.active {
+    background: linear-gradient(135deg,#ffd700,#ff8a00); color: #1a1200; border-color: #ffd700;
+    box-shadow: 0 4px 18px rgba(255,180,0,0.4); transform: translateY(-2px);
+  }
+  #startBtn {
+    font-size: 26px; padding: 18px 56px; border-radius: 50px; border: none;
+    background: linear-gradient(135deg,#2ecc71,#27ae60); color: #fff; cursor: pointer; font-weight: 800;
+    margin-top: 8px; letter-spacing: 1px; box-shadow: 0 8px 24px rgba(46,204,113,0.4);
+    transition: transform 0.15s ease;
+  }
+  #startBtn:active { transform: scale(0.96); }
+
+  /* ---------- GAME SCREEN ---------- */
+  #game { height: 100%; display: none; grid-gap: 8px; padding: 8px; background: #05070c; }
+  .panel {
+    border-radius: 22px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; padding: 14px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.08);
+  }
+  .panel::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(160deg, rgba(255,255,255,0.16), rgba(255,255,255,0) 45%);
+  }
+  .panel-name {
+    font-size: clamp(18px,3.2vh,26px); font-weight: 800; color: #fff; opacity: 0.95; margin-bottom: 2px;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.35); letter-spacing: 0.5px; z-index: 1;
+  }
+  .panel-score {
+    font-size: clamp(34px,8vh,72px); font-weight: 900; color: #fff; margin-bottom: 8px; z-index: 1;
+    text-shadow: 0 3px 10px rgba(0,0,0,0.4);
+  }
+  .panel-question {
+    font-size: clamp(32px,9vh,80px); font-weight: 800; color: #fff; margin-bottom: 16px; text-align:center;
+    z-index: 1; background: rgba(0,0,0,0.18); padding: 8px 28px; border-radius: 16px;
+  }
+  .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 520px; z-index: 1; }
+  .ans-btn {
+    font-size: clamp(22px,5vh,44px); padding: 18px; border-radius: 14px; border: none;
+    background: rgba(255,255,255,0.95); color: #222; font-weight: 800; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.1s ease;
+  }
+  .ans-btn:active { transform: scale(0.94); }
+  .ans-btn.correct { background: #2ecc71 !important; color: #fff !important; }
+  .ans-btn.wrong { background: #e74c3c !important; color: #fff !important; }
+  .flash { animation: flash 0.4s; }
+  @keyframes flash { 0%{transform:scale(1);} 50%{transform:scale(1.08);} 100%{transform:scale(1);} }
+
+  #topbar { position: fixed; top: 0; left: 0; right: 0; height: 118px; background: #05070c;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; z-index: 10; padding: 6px 0; }
+  #infoRow { display:flex; align-items:center; justify-content:center; gap:20px; font-size:16px; color:#cfd8e3; }
+  #timer { font-weight: 800; color: #ffd700; letter-spacing: 0.5px; }
+  #resetBtn {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff;
+    padding: 7px 18px; border-radius: 20px; font-size: 14px; cursor: pointer; font-weight: 600;
+  }
+  #resetBtn:active { background: rgba(255,255,255,0.18); }
+
+  #tugWrap { width: 92%; max-width: 900px; height: 34px; position: relative; margin-top: 34px; }
+  #tugCharacters { position: absolute; top: -34px; left: 0; right: 0; display: flex; justify-content: space-between; pointer-events: none; }
+  .tugTeam { display: flex; gap: 2px; }
+  .tugTeam.right { flex-direction: row-reverse; }
+  .tugPerson { font-size: 26px; animation: pullLoop 0.6s ease-in-out infinite; transform-origin: bottom center; }
+  .tugTeam.right .tugPerson { transform: scaleX(-1); animation: pullLoopR 0.6s ease-in-out infinite; }
+  .tugPerson:nth-child(2) { animation-delay: 0.1s; }
+  .tugPerson:nth-child(3) { animation-delay: 0.2s; }
+  @keyframes pullLoop {
+    0%,100% { transform: rotate(-12deg) translateX(0); }
+    50% { transform: rotate(4deg) translateX(-4px); }
+  }
+  @keyframes pullLoopR {
+    0%,100% { transform: scaleX(-1) rotate(-12deg) translateX(0); }
+    50% { transform: scaleX(-1) rotate(4deg) translateX(-4px); }
+  }
+  #tugTrack {
+    width: 100%; height: 16px; margin-top: 9px; border-radius: 10px;
+    background: repeating-linear-gradient(90deg, #8b5a2b 0 12px, #a06a35 12px 24px);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.08);
+  }
+  #tugZones { position:absolute; top:0; left:0; right:0; height:100%; display:flex; }
+  .tugZone { flex:1; text-align:center; font-size:12px; font-weight:700; padding-top:1px; opacity:0.9; letter-spacing: 0.3px; }
+  #tugKnot {
+    position: absolute; top: 1px; width: 36px; height: 36px; margin-left: -18px;
+    display:flex; align-items:center; justify-content:center; font-size: 26px;
+    transition: left 0.6s cubic-bezier(.34,1.56,.64,1);
+    filter: drop-shadow(0 3px 5px rgba(0,0,0,0.6));
+  }
+  .tug-pull { animation: tugpull 0.4s; }
+  @keyframes tugpull { 0%{transform:scale(1);} 50%{transform:scale(1.4) rotate(-10deg);} 100%{transform:scale(1);} }
+
+  #gameArea { position: absolute; top: 118px; left: 0; right: 0; bottom: 0; }
+
+  #winOverlay {
+    display: none; position: fixed; inset: 0;
+    background: radial-gradient(circle at 50% 40%, rgba(40,20,0,0.92), rgba(0,0,0,0.95));
+    color: #fff; flex-direction: column; align-items: center; justify-content: center; gap: 24px; z-index: 20;
+  }
+  #winOverlay h2 {
+    font-size: clamp(38px,6vw,64px); color: #ffd700; text-align: center; font-weight: 900;
+    text-shadow: 0 0 30px rgba(255,215,0,0.6); animation: winpop 0.5s ease;
+  }
+  @keyframes winpop { 0%{transform:scale(0.5); opacity:0;} 70%{transform:scale(1.1);} 100%{transform:scale(1); opacity:1;} }
+  #winOverlay button {
+    font-size: 24px; padding: 16px 46px; border-radius: 50px; border: none;
+    background: linear-gradient(135deg,#2ecc71,#27ae60); color: #fff; cursor: pointer; font-weight: 800;
+    box-shadow: 0 8px 24px rgba(46,204,113,0.4);
+  }  #game.game-vsbot { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+  @media (orientation: portrait) {
+    #game.game-vsbot { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+  }
+  .bot-thinking { font-size: 14px; opacity: 0.8; margin-top: -4px; margin-bottom: 6px; animation: thinkPulse 1s infinite; z-index:1; }
+  @keyframes thinkPulse { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+  #rotateOverlay {
+    display: none; position: fixed; inset: 0; z-index: 999; background: #0b0f19; color: #fff;
+    flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 30px;
+  }
+  #rotateOverlay .icon { font-size: 64px; animation: rotateHint 1.6s ease-in-out infinite; }
+  #rotateOverlay p { font-size: 20px; opacity: 0.8; }
+  @keyframes rotateHint { 0%,100%{transform:rotate(0deg);} 50%{transform:rotate(90deg);} }
+  @media (orientation: portrait) {
+    body:not(.vsbot-active) #rotateOverlay { display: flex; }
+    body:not(.vsbot-active) #setup, body:not(.vsbot-active) #topbar, body:not(.vsbot-active) #gameArea, body:not(.vsbot-active) #winOverlay { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="rotateOverlay">
+  <div class="icon">📱</div>
+  <h2>Putar Layar ke Landscape</h2>
+  <p>Aplikasi ini dirancang untuk layar mendatar (landscape) sesuai papan digital.</p>
+</div>
+
+<!-- MENU UTAMA -->
+<div id="mainMenu">
+  <h1>🧮 Math Battle</h1>
+  <div class="subtitle">Pilih materi yang ingin diduelkan</div>
+  <div id="materialGrid">
+    <div class="material-card" data-material="order">
+      <div class="icon">📏</div>
+      <h3>Mengurutkan Bilangan</h3>
+      <p>Membandingkan dan mengurutkan bilangan bulat pada garis bilangan.</p>
+    </div>
+    <div class="material-card" data-material="addsub">
+      <div class="icon">➕➖</div>
+      <h3>Penjumlahan & Pengurangan</h3>
+      <p>Operasi penjumlahan dan pengurangan bilangan bulat.</p>
+    </div>
+    <div class="material-card" data-material="muldiv">
+      <div class="icon">✖️➗</div>
+      <h3>Perkalian & Pembagian</h3>
+      <p>Operasi perkalian dan pembagian bilangan bulat.</p>
+    </div>
+  </div>
+  <button id="openSummaryBtn" class="summary-link-btn">📖 Baca Rangkuman Materi Dulu</button>
+  <div id="devCredit">Developed by Imam Upayanto</div>
+</div>
+
+<!-- RANGKUMAN MATERI -->
+<div id="summaryScreen" style="display:none;">
+  <button id="summaryBackBtn" class="back-floating">← Kembali ke Menu</button>
+  <div class="summary-inner">
+    <h1>📖 Rangkuman Materi</h1>
+    <div class="subtitle">Bab 1 — Bilangan Bulat</div>
+
+    <div class="summary-card">
+      <h3>🔢 1. Pengertian Bilangan Bulat</h3>
+      <p>Bilangan bulat terdiri dari tiga kelompok: <b>bilangan positif</b> (1, 2, 3, ...) di sebelah kanan nol, <b>nol</b> (0) sebagai titik tengah, dan <b>bilangan negatif</b> (-1, -2, -3, ...) di sebelah kiri nol. Semakin jauh ke kiri dari nol, nilainya semakin kecil.</p>
+      <p>Bilangan negatif sering muncul dalam kehidupan sehari-hari untuk menunjukkan sesuatu yang "kurang dari normal" atau "di bawah patokan".</p>
+      <p><i>Contoh dalam kehidupan sehari-hari:</i></p>
+      <p>• Suhu -5°C artinya 5 derajat di bawah titik beku (0°C)<br>
+      • Kedalaman -20 m artinya 20 meter di bawah permukaan laut<br>
+      • Utang Rp -50.000 artinya kekurangan uang sebesar Rp50.000<br>
+      • Lantai basement -2 artinya 2 lantai di bawah lantai dasar</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>📏 2. Garis Bilangan & Urutan</h3>
+      <p>Garis bilangan digambar mendatar dengan angka tersusun berurutan. Semakin ke <b>kanan</b>, nilai semakin <b>besar</b>. Semakin ke <b>kiri</b>, nilai semakin <b>kecil</b>. Semua bilangan negatif selalu lebih kecil daripada semua bilangan positif, dan 0 lebih besar dari semua bilangan negatif.</p>
+      <p>Cara mudah membandingkan: bayangkan posisinya di garis bilangan, lalu lihat siapa yang lebih ke kanan.</p>
+      <p><i>Contoh membandingkan (isi dengan &gt;, &lt;, atau =):</i></p>
+      <p>• -8 &lt; -2 &nbsp; (karena -8 lebih ke kiri)<br>
+      • 5 &gt; -10 &nbsp; (positif selalu lebih besar dari negatif)<br>
+      • -3 &gt; -7 &nbsp; (karena -3 lebih dekat ke nol / lebih ke kanan)<br>
+      • 0 &gt; -1 &nbsp; (nol selalu lebih besar dari bilangan negatif)</p>
+      <p><i>Contoh mengurutkan dari terkecil:</i> -9, -4, 0, 3, 7</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>➕➖ 3. Penjumlahan & Pengurangan</h3>
+      <p>Bayangkan bergerak di garis bilangan. Menjumlah dengan bilangan <b>positif</b> = bergerak ke <b>kanan</b>. Menjumlah dengan bilangan <b>negatif</b> = bergerak ke <b>kiri</b>. Mengurangi = kebalikan arah dari menjumlah (mengurangi bilangan negatif = bergerak ke kanan).</p>
+      <p><i>Contoh penjumlahan:</i></p>
+      <p>• -3 + 5 = 2 &nbsp;(dari -3 bergerak 5 langkah ke kanan)<br>
+      • 4 + (-6) = -2 &nbsp;(dari 4 bergerak 6 langkah ke kiri)<br>
+      • -7 + (-2) = -9 &nbsp;(dua-duanya negatif, makin ke kiri)</p>
+      <p><i>Contoh pengurangan:</i></p>
+      <p>• 4 - 7 = -3 &nbsp;(dari 4 bergerak 7 langkah ke kiri)<br>
+      • -5 - 3 = -8 &nbsp;(makin jauh ke kiri)<br>
+      • 6 - (-4) = 10 &nbsp;(kurang dengan negatif = tambah, jadi ke kanan)</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>✖️➗ 4. Perkalian & Pembagian</h3>
+      <p>Kunci utamanya adalah <b>aturan tanda</b> — berlaku sama untuk perkalian maupun pembagian:</p>
+      <p>• (+) x (+) = (+) &nbsp;→&nbsp; sama tanda, hasil positif<br>
+      • (-) x (-) = (+) &nbsp;→&nbsp; sama tanda, hasil positif<br>
+      • (+) x (-) = (-) &nbsp;→&nbsp; beda tanda, hasil negatif<br>
+      • (-) x (+) = (-) &nbsp;→&nbsp; beda tanda, hasil negatif</p>
+      <p><i>Contoh perkalian:</i></p>
+      <p>• 3 x 4 = 12 &nbsp;|&nbsp; -3 x 4 = -12 &nbsp;|&nbsp; -3 x (-4) = 12</p>
+      <p><i>Contoh pembagian:</i></p>
+      <p>• 12 : 4 = 3 &nbsp;|&nbsp; -12 : 4 = -3 &nbsp;|&nbsp; -12 : (-4) = 3</p>
+      <p><i>Contoh soal cerita:</i> Suhu turun 2°C setiap jam selama 4 jam. Berapa perubahan suhunya? &nbsp;→&nbsp; -2 x 4 = -8°C</p>
+    </div>
+
+    <button id="summaryPlayBtn" class="summary-link-btn play">🎮 Yuk Main Sekarang!</button>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div id="setup" style="display:none;">
+  <button id="backBtn">← Kembali</button>
+  <h1 id="setupTitle">🧮 Math Battle</h1>
+  <div class="subtitle" id="setupSubtitle">Adu cepat berhitung • Tarik Tambang Matematika</div>
+
+  <div class="setup-card">
+    <label>🎮 Mode Permainan</label>
+    <div class="setup-row">
+      <button class="choice-btn active" data-mode="2p">👥 2 Pemain</button>
+      <button class="choice-btn" data-mode="bot">🤖 Lawan Bot</button>
+    </div>
+  </div>
+
+  <div class="setup-card" id="botLevelCard" style="display:none;">
+    <label>🧠 Level Bot</label>
+    <div class="setup-row">
+      <button class="choice-btn active" data-botlevel="normal">😊 Biasa</button>
+      <button class="choice-btn" data-botlevel="smart">🧠 Cerdas</button>
+    </div>
+  </div>
+
+  <div class="setup-card">
+    <label>🎯 Tingkat Kesulitan</label>
+    <div class="setup-row">
+      <button class="choice-btn active" data-diff="easy">Mudah (1-10)</button>
+      <button class="choice-btn" data-diff="medium">Sedang (1-50)</button>
+      <button class="choice-btn" data-diff="hard">Sulit (1-100)</button>
+    </div>
+  </div>
+
+  <div class="setup-card">
+    <label>🏁 Target Skor Menang</label>
+    <div class="setup-row">
+      <button class="choice-btn" data-target="10">10</button>
+      <button class="choice-btn active" data-target="15">15</button>
+      <button class="choice-btn" data-target="20">20</button>
+    </div>
+  </div>
+
+  <button id="startBtn">▶ MULAI GAME</button>
+</div>
+
+<!-- GAME -->
+<div id="topbar" style="display:none;">
+  <div id="infoRow">
+    <span>⏱ Waktu: <span id="timer">00:00</span></span>
+    <button id="resetBtn">Reset Game</button>
+  </div>
+  <div id="tugWrap">
+    <div id="tugCharacters">
+      <div class="tugTeam left" id="tugTeamLeft"></div>
+      <div class="tugTeam right" id="tugTeamRight"></div>
+    </div>
+    <div id="tugTrack"></div>
+    <div id="tugZones"></div>
+    <div id="tugKnot">🪢</div>
+  </div>
+</div>
+<div id="gameArea" style="display:none;">
+  <div id="game"></div>
+</div>
+
+<!-- WIN OVERLAY -->
+<div id="winOverlay">
+  <h2 id="winText">🏆 Tim A Menang!</h2>
+  <button id="playAgainBtn">Main Lagi</button>
+</div>
+
+<script>
+let numPlayers = 2;
+let material = 'addsub';
+let difficulty = 'easy';
+let targetScore = 15;
+let vsBot = false;
+let botLevel = 'normal';
+let scores = [];
+let panels = [];
+let startTime = null;
+let timerInterval = null;
+
+let COLORS = ['#c0392b','#2980b9'];
+let NAMES = ['🔴 Tim Merah','🔵 Tim Biru'];
+const BOT_INDEX = 0;
+const MATERIAL_TITLES = {
+  order: '📏 Mengurutkan Bilangan',
+  addsub: '➕➖ Penjumlahan & Pengurangan',
+  muldiv: '✖️➗ Perkalian & Pembagian'
+};
+
+// ---- MENU UTAMA ----
+document.querySelectorAll('.material-card').forEach(card=>{
+  card.onclick = ()=>{
+    material = card.dataset.material;
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('setup').style.display = 'flex';
+    document.getElementById('setupTitle').textContent = MATERIAL_TITLES[material];
+  };
+});
+document.getElementById('backBtn').onclick = ()=>{
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('mainMenu').style.display = 'flex';
+};
+document.getElementById('openSummaryBtn').onclick = ()=>{
+  document.getElementById('mainMenu').style.display = 'none';
+  document.getElementById('summaryScreen').style.display = 'block';
+};
+document.getElementById('summaryBackBtn').onclick = ()=>{
+  document.getElementById('summaryScreen').style.display = 'none';
+  document.getElementById('mainMenu').style.display = 'flex';
+};
+document.getElementById('summaryPlayBtn').onclick = ()=>{
+  document.getElementById('summaryScreen').style.display = 'none';
+  document.getElementById('mainMenu').style.display = 'flex';
+};
+
+// ---- SETUP LOGIC ----
+document.querySelectorAll('[data-mode]').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('[data-mode]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    vsBot = btn.dataset.mode === 'bot';
+    document.getElementById('botLevelCard').style.display = vsBot ? 'flex' : 'none';
+  };
+});
+document.querySelectorAll('[data-botlevel]').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('[data-botlevel]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    botLevel = btn.dataset.botlevel;
+  };
+});
+document.querySelectorAll('[data-diff]').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('[data-diff]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    difficulty = btn.dataset.diff;
+  };
+});
+document.querySelectorAll('[data-target]').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('[data-target]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    targetScore = parseInt(btn.dataset.target);
+  };
+});
+
+document.getElementById('startBtn').onclick = startGame;
+document.getElementById('resetBtn').onclick = ()=>location.reload();
+document.getElementById('playAgainBtn').onclick = ()=>location.reload();
+
+function startGame(){
+  if(vsBot){
+    COLORS = ['#7f8c8d','#2980b9'];
+    NAMES = [botLevel==='smart' ? '🧠 Bot Cerdas' : '😊 Bot Biasa', '🙋 Kamu'];
+    document.body.classList.add('vsbot-active');
+  } else {
+    COLORS = ['#c0392b','#2980b9'];
+    NAMES = ['🔴 Tim Merah','🔵 Tim Biru'];
+    document.body.classList.remove('vsbot-active');
+  }
+
+  // coba kunci ke landscape hanya untuk mode 2 pemain (papan besar)
+  if(!vsBot){
+    try{
+      if(document.documentElement.requestFullscreen){
+        document.documentElement.requestFullscreen().catch(()=>{});
+      }
+      if(screen.orientation && screen.orientation.lock){
+        screen.orientation.lock('landscape').catch(()=>{});
+      }
+    }catch(e){}
+  }
+
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('topbar').style.display = 'flex';
+  document.getElementById('gameArea').style.display = 'block';
+
+  scores = new Array(numPlayers).fill(0);
+
+  const tugZones = document.getElementById('tugZones');
+  tugZones.innerHTML = '';
+  for(let i=0;i<numPlayers;i++){
+    const z = document.createElement('div');
+    z.className = 'tugZone';
+    z.style.color = COLORS[i];
+    z.textContent = NAMES[i];
+    tugZones.appendChild(z);
+  }
+
+  const leftTeam = document.getElementById('tugTeamLeft');
+  const rightTeam = document.getElementById('tugTeamRight');
+  leftTeam.innerHTML = '';
+  rightTeam.innerHTML = '';
+  for(let p=0;p<3;p++){
+    const l = document.createElement('span');
+    l.className = 'tugPerson';
+    l.textContent = '🧑';
+    l.style.filter = `drop-shadow(0 0 3px ${COLORS[0]})`;
+    leftTeam.appendChild(l);
+
+    const r = document.createElement('span');
+    r.className = 'tugPerson';
+    r.textContent = '🧑';
+    r.style.filter = `drop-shadow(0 0 3px ${COLORS[1]})`;
+    rightTeam.appendChild(r);
+  }
+
+  updateTugKnot();
+
+  const gameDiv = document.getElementById('game');
+  gameDiv.style.display = 'grid';
+  gameDiv.style.height = '100%';
+  if(vsBot){
+    gameDiv.classList.add('game-vsbot');
+    gameDiv.style.gridTemplateColumns = '';
+    gameDiv.style.gridTemplateRows = '';
+  } else {
+    gameDiv.classList.remove('game-vsbot');
+    gameDiv.style.gridTemplateColumns = '1fr 1fr';
+    gameDiv.style.gridTemplateRows = '1fr';
+  }
+
+  gameDiv.innerHTML = '';
+  panels = [];
+  for(let i=0;i<numPlayers;i++){
+    const panel = document.createElement('div');
+    panel.className = 'panel';
+    panel.style.background = COLORS[i];
+    panel.innerHTML = `
+      <div class="panel-name">${NAMES[i]}</div>
+      <div class="panel-score" id="score-${i}">0</div>
+      ${(vsBot && i===BOT_INDEX) ? '<div class="bot-thinking" id="bot-thinking-'+i+'">🤔 sedang menghitung...</div>' : ''}
+      <div class="panel-question" id="question-${i}"></div>
+      <div class="answers" id="answers-${i}"></div>
+    `;
+    gameDiv.appendChild(panel);
+    panels.push(panel);
+    newQuestion(i);
+  }
+
+  startTime = Date.now();
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTugKnot(){
+  const knot = document.getElementById('tugKnot');
+  const totalScore = scores.reduce((a,b)=>a+b,0);
+  let posPercent = 50; // netral di tengah
+  if(totalScore > 0){
+    // posisi zona tiap tim (tengah dari slot masing-masing)
+    const slotWidth = 100 / numPlayers;
+    let weightedSum = 0;
+    scores.forEach((s,i)=>{
+      const zoneCenter = slotWidth*i + slotWidth/2;
+      weightedSum += s * zoneCenter;
+    });
+    posPercent = weightedSum / totalScore;
+  }
+  knot.style.left = posPercent + '%';
+}
+
+function updateTimer(){
+  const elapsed = Math.floor((Date.now()-startTime)/1000);
+  const m = String(Math.floor(elapsed/60)).padStart(2,'0');
+  const s = String(elapsed%60).padStart(2,'0');
+  document.getElementById('timer').textContent = `${m}:${s}`;
+}
+
+function genQuestion(){
+  if(material === 'order') return genOrderQuestion();
+  if(material === 'muldiv') return genMulDivQuestion();
+  return genAddSubQuestion();
+}
+
+function genAddSubQuestion(){
+  const maxNum = difficulty==='easy' ? 10 : difficulty==='medium' ? 50 : 100;
+  const op = Math.random() < 0.5 ? '+' : '-';
+  const a = rand(-maxNum, maxNum);
+  const b = rand(-maxNum, maxNum);
+  const answer = op==='+' ? a+b : a-b;
+  return {text:`${a} ${op} (${b}) = ?`, answer, type:'number'};
+}
+
+function genOrderQuestion(){
+  const maxNum = difficulty==='easy' ? 10 : difficulty==='medium' ? 50 : 100;
+  let a = rand(-maxNum, maxNum);
+  let b = rand(-maxNum, maxNum);
+  // sesekali buat sama agar tanda "=" juga muncul
+  if(Math.random() < 0.15) b = a;
+  const answer = a > b ? '>' : (a < b ? '<' : '=');
+  return {text:`${a}  ...  ${b}`, answer, type:'symbol'};
+}
+
+function genMulDivQuestion(){
+  const maxFactor = difficulty==='easy' ? 5 : difficulty==='medium' ? 10 : 12;
+  const op = Math.random() < 0.5 ? 'x' : ':';
+  let a,b,answer;
+  if(op==='x'){
+    a = rand(-maxFactor, maxFactor) || 1;
+    b = rand(-maxFactor, maxFactor) || 1;
+    answer = a*b;
+  } else {
+    b = rand(-maxFactor, maxFactor) || 1;
+    answer = rand(-maxFactor, maxFactor) || 1;
+    a = b*answer;
+  }
+  return {text:`${a} ${op} (${b}) = ?`, answer, type:'number'};
+}
+function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+function newQuestion(i){
+  const q = genQuestion();
+  panels[i].dataset.answer = q.answer;
+  document.getElementById(`question-${i}`).textContent = q.text;
+
+  let arr;
+  if(q.type === 'symbol'){
+    arr = ['>','<','='];
+  } else {
+    const choices = new Set([q.answer]);
+    const maxOffset = difficulty==='easy' ? 4 : difficulty==='medium' ? 8 : 12;
+    while(choices.size < 4){
+      const offset = rand(-maxOffset,maxOffset);
+      const wrong = q.answer + offset;
+      if(wrong !== q.answer) choices.add(wrong);
+    }
+    arr = Array.from(choices).sort(()=>Math.random()-0.5);
+  }
+
+  const answersDiv = document.getElementById(`answers-${i}`);
+  answersDiv.innerHTML = '';
+  arr.forEach(val=>{
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.textContent = val;
+    btn.onclick = ()=>checkAnswer(i, val, q.answer, btn);
+    answersDiv.appendChild(btn);
+  });
+
+  if(vsBot && i === BOT_INDEX){
+    answersDiv.style.pointerEvents = 'none';
+    const delay = botLevel === 'smart' ? (500 + Math.random()*900) : (1500 + Math.random()*2500);
+    setTimeout(()=>botAnswer(i), delay);
+  }
+}
+
+function botAnswer(i){
+  const answersDiv = document.getElementById(`answers-${i}`);
+  const btns = answersDiv.querySelectorAll('.ans-btn');
+  if(!btns.length) return; // soal sudah berganti / game sudah selesai
+  const correctVal = panels[i].dataset.answer;
+  const correctChance = botLevel === 'smart' ? 0.95 : 0.65;
+  let chosenBtn;
+  if(Math.random() < correctChance){
+    chosenBtn = Array.from(btns).find(b=>b.textContent == correctVal);
+  } else {
+    const wrongBtns = Array.from(btns).filter(b=>b.textContent != correctVal);
+    chosenBtn = wrongBtns[Math.floor(Math.random()*wrongBtns.length)] || btns[0];
+  }
+  if(chosenBtn) chosenBtn.click();
+}
+
+function checkAnswer(i, chosen, correct, btnEl){
+  const allBtns = document.querySelectorAll(`#answers-${i} .ans-btn`);
+  allBtns.forEach(b=>b.onclick=null);
+  if(chosen === correct){
+    btnEl.classList.add('correct','flash');
+    scores[i]++;
+    document.getElementById(`score-${i}`).textContent = scores[i];
+    updateTugKnot();
+    const knot = document.getElementById('tugKnot');
+    knot.classList.remove('tug-pull');
+    void knot.offsetWidth;
+    knot.classList.add('tug-pull');
+    if(scores[i] >= targetScore){
+      setTimeout(()=>endGame(i), 500);
+      return;
+    }
+    setTimeout(()=>newQuestion(i), 600);
+  } else {
+    btnEl.classList.add('wrong','flash');
+    allBtns.forEach(b=>{ if(b.textContent == correct) b.classList.add('correct'); });
+    setTimeout(()=>newQuestion(i), 900);
+  }
+}
+
+function endGame(winnerIdx){
+  clearInterval(timerInterval);
+  document.getElementById('winText').textContent = `🏆 ${NAMES[winnerIdx]} Menang!`;
+  document.getElementById('winOverlay').style.display = 'flex';
+}
+</script>
+</body>
+</html>
