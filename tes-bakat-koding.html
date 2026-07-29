@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tes Awal Bakat Koding — Usia 12 Tahun</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:#0f172a; --card:#1e293b; --ink:#f1f5f9; --muted:#94a3b8;
+    --accent:#38bdf8; --accent2:#a78bfa; --ok:#4ade80; --warn:#fbbf24;
+  }
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    background:var(--bg); color:var(--ink);
+    min-height:100vh; overflow:hidden;
+  }
+  .stage{ height:100vh; display:flex; align-items:center; justify-content:center; padding:3vh 4vw 10vh; }
+  .slide{ display:none; width:100%; max-width:1100px; animation:fade .35s ease; }
+  .slide.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;} }
+
+  .tag{
+    display:inline-block; font-size:clamp(.8rem,1.4vw,1.05rem); font-weight:700;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--accent);
+    border:2px solid var(--accent); border-radius:99px; padding:.35em 1.1em; margin-bottom:1.2rem;
+  }
+  h1{ font-size:clamp(2.2rem,6vw,4.6rem); line-height:1.1; margin-bottom:1.2rem; }
+  h2{ font-size:clamp(1.5rem,3.6vw,2.9rem); line-height:1.25; margin-bottom:1.6rem; }
+  .lead{ font-size:clamp(1.05rem,2vw,1.5rem); color:var(--muted); line-height:1.6; max-width:60ch; }
+
+  ol.opts{ list-style:none; display:grid; gap:.85rem; margin-top:.5rem; }
+  ol.opts li{
+    background:var(--card); border-left:6px solid var(--accent2);
+    border-radius:12px; padding:1rem 1.4rem;
+    font-size:clamp(1.05rem,2.2vw,1.75rem); display:flex; gap:1rem; align-items:baseline;
+  }
+  ol.opts li b{ color:var(--accent2); min-width:1.6em; }
+
+  pre.box{
+    background:#020617; border:2px dashed #334155; border-radius:14px;
+    padding:1.2rem 1.5rem; margin:1rem 0 1.4rem; color:var(--ok);
+    font-family:"Consolas",monospace; font-size:clamp(1rem,2.1vw,1.6rem); line-height:1.7;
+    white-space:pre-wrap;
+  }
+  .grid-map{ font-family:"Consolas",monospace; font-size:clamp(1.1rem,2.6vw,2rem); letter-spacing:.5em; line-height:1.5; color:var(--warn); background:#020617; border-radius:14px; padding:1.2rem 1.5rem; display:inline-block; margin:1rem 0 1.4rem; }
+
+  .note{ margin-top:1.5rem; color:var(--muted); font-size:clamp(.9rem,1.5vw,1.15rem); font-style:italic; }
+
+  /* pembahasan */
+  .exp h2{ color:var(--accent); }
+  .answer{
+    background:linear-gradient(90deg,rgba(74,222,128,.18),transparent);
+    border-left:6px solid var(--ok); border-radius:10px;
+    padding:1rem 1.4rem; margin:1rem 0 1.2rem;
+    font-size:clamp(1.1rem,2.3vw,1.8rem); font-weight:700;
+  }
+  .why{ font-size:clamp(1rem,1.9vw,1.4rem); line-height:1.7; max-width:65ch; color:#cbd5e1; }
+  .skill{ display:inline-block; margin-top:1.3rem; background:var(--card); color:var(--warn);
+    border-radius:8px; padding:.5em 1em; font-size:clamp(.85rem,1.5vw,1.1rem); font-weight:600; }
+
+  /* nav */
+  .bar{
+    position:fixed; left:0; right:0; bottom:0; height:64px;
+    background:rgba(2,6,23,.92); border-top:1px solid #1e293b;
+    display:flex; align-items:center; justify-content:space-between; padding:0 1.5rem; gap:1rem;
+  }
+  .bar button{
+    background:var(--accent); color:#04202e; border:none; border-radius:8px;
+    padding:.6em 1.5em; font-size:1rem; font-weight:700; cursor:pointer;
+  }
+  .bar button:disabled{ opacity:.3; cursor:default; }
+  .counter{ color:var(--muted); font-size:.95rem; font-weight:600; letter-spacing:.05em; }
+  .prog{ position:fixed; top:0; left:0; height:4px; background:var(--accent); transition:width .3s; }
+  @media print{ .bar,.prog{display:none} .slide{display:block!important; page-break-after:always;} body{overflow:visible;background:#fff;color:#000} .stage{height:auto;display:block} }
+</style>
+</head>
+<body>
+<div class="prog" id="prog"></div>
+<div class="stage" id="stage">
+
+  <!-- COVER -->
+  <section class="slide active">
+    <span class="tag">Tes Awal</span>
+    <h1>Tes Bakat Koding</h1>
+    <p class="lead">10 soal untuk melihat cara berpikirmu. Tidak perlu tahu apa pun tentang koding — cukup gunakan logika dan ketelitian.<br><br>
+    <b style="color:var(--ok)">Tulis jawabanmu di kertas: nomor soal + huruf pilihan (A/B/C/D).</b><br><br>
+    Waktu: 30 menit. Boleh mencoret-coret di kertas untuk membantu berpikir.</p>
+    <p class="note">Tekan tombol Lanjut atau panah kanan → untuk mulai.</p>
+  </section>
+
+  <!-- SOAL 1 -->
+  <section class="slide">
+    <span class="tag">Soal 1</span>
+    <h2>Angka berapa yang muncul berikutnya?</h2>
+    <pre class="box">2 , 4 , 8 , 16 , 32 , ___</pre>
+    <ol class="opts">
+      <li><b>A.</b> 40</li>
+      <li><b>B.</b> 48</li>
+      <li><b>C.</b> 64</li>
+      <li><b>D.</b> 34</li>
+    </ol>
+  </section>
+
+  <!-- SOAL 2 -->
+  <section class="slide">
+    <span class="tag">Soal 2</span>
+    <h2>Robot berjalan di papan kotak. Ia mulai menghadap ATAS.</h2>
+    <pre class="box">MAJU 2
+PUTAR KANAN
+MAJU 3
+PUTAR KANAN
+MAJU 2</pre>
+    <p class="lead" style="margin-bottom:1rem">Sekarang robot menghadap ke arah mana?</p>
+    <ol class="opts">
+      <li><b>A.</b> Atas</li>
+      <li><b>B.</b> Kanan</li>
+      <li><b>C.</b> Bawah</li>
+      <li><b>D.</b> Kiri</li>
+    </ol>
+  </section>
+
+  <!-- SOAL 3 -->
+  <section class="slide">
+    <span class="tag">Soal 3</span>
+    <h2>Manakah cara paling singkat untuk menuliskan perintah ini?</h2>
+    <pre class="box">MAJU, MAJU, MAJU, BELOK
+MAJU, MAJU, MAJU, BELOK
+MAJU, MAJU, MAJU, BELOK</pre>
+    <ol class="opts">
+      <li><b>A.</b> ULANGI 3 KALI: (MAJU 3 kali, lalu BELOK)</li>
+      <li><b>B.</b> ULANGI 9 KALI: (MAJU, BELOK)</li>
+      <li><b>C.</b> ULANGI 3 KALI: (MAJU, BELOK)</li>
+      <li><b>D.</b> ULANGI 4 KALI: (MAJU 3 kali)</li>
+    </ol>
+  </section>
+
+  <!-- SOAL 4 -->
+  <section class="slide">
+    <span class="tag">Soal 4</span>
+    <h2>Aturan permainan:</h2>
+    <pre class="box">JIKA angka habis dibagi 3  → tulis "SERU"
+JIKA TIDAK, JIKA angka genap → tulis "OKE"
+SELAIN ITU                  → tulis angkanya</pre>
+    <p class="lead" style="margin-bottom:1rem">Apa yang ditulis untuk angka <b style="color:var(--warn)">12</b>?</p>
+    <ol class="opts">
+      <li><b>A.</b> SERU</li>
+      <li><b>B.</b> OKE</li>
+      <li><b>C.</b> SERU OKE</li>
+      <li><b>D.</b> 12</li>
+    </ol>
+  </section>
+
+  <!-- SOAL 5 -->
+  <section class="slide">
+    <span class="tag">Soal 5</span>
+    <h2>Ada dua gelas: gelas A berisi jus, gelas B berisi susu.<br>Kamu ingin menukar isinya.</h2>
+    <p class="lead" style="margin-bottom:1rem">Langkah mana yang benar?</p>
+    <ol class="opts">
+      <li><b>A.</b> Tuang A ke B, lalu tuang B ke A</li>
+      <li><b>B.</b> Tuang A ke gelas kosong C, tuang B ke A, tuang C ke B</li>
+      <li><b>C.</b> Tuang B ke A, lalu tuang A ke B</li>
+      <li><b>D.</b> Tuang A dan B bersamaan ke gelas C</li>
+    </ol>
+  </section>
+
+  <!-- SOAL 6 -->
+  <section class="slide">
+    <span class="tag">Soal 6</span>
+    <h2>Resep membuat teh ini ada satu langkah yang salah tempat. Langkah nomor berapa?</h2>
+    <pre class="box">1. Rebus air sampai mendidih
+2. Angkat kantong teh dari gelas
+3. Masukkan kantong teh ke gelas
+4. Tuang air panas ke gelas
+5. Tunggu 3 menit</pre>
+    <ol class="opts">
+      <li><b>A.</b> Langkah 1</li>
+      <li><b>B.</b> Langkah 2</li>
+      <li><b>C.</b> Langkah 4</li>
+      <li><b>D.</b> Langkah 5</li>
+    </ol>
+  </section>
+
+  <!-- SOAL 7 -->
+  <section class="slide">
+    <span class="tag">Soal 7</span>
+    <h2>Sebuah mesin mengubah angka. Perhatikan polanya:</h2>
+    <pre class="box">3  →  7
+5  →  11
+8  →  17
+10 →  ?</pre>
+    <ol class="opts">
+      <li><b>A.</b> 19</li>
+      <li><b>B.</b> 20</li>
+      <li><b>C.</b> 21</li>
+      <li><b>D.</b> 22</li>
+    </ol>
+  </section>
+
+  <!-- SOAL 8 -->
+  <section class="slide">
+    <span class="tag">Soal 8</span>
+    <h2>Tiga anak punya hewan berbeda: kucing, ikan, burung.</h2>
+    <pre class="box">• Andi tidak punya hewan yang bisa terbang
+• Beni tidak punya kucing dan tidak punya burung
+• Citra bukan pemilik ikan</pre>
+    <p class="lead" style="margin-bottom:1rem">Siapa pemilik kucing?</p>
+    <ol class="opts">
+      <li><b>A.</b> Andi</li>
+      <li><b>B.</b> Beni</li>
+      <li><b>C.</b> Citra</li>
+      <li><b>D.</b> Tidak bisa ditentukan</li>
+    </ol>
+  </section>
+
+  <!-- SOAL 9 -->
+  <section class="slide">
+    <span class="tag">Soal 9</span>
+    <h2>Kamu punya 8 kartu bernomor urut 1–8 yang tertutup.<br>Kamu boleh bertanya "lebih besar atau lebih kecil?"</h2>
+    <p class="lead" style="margin-bottom:1rem">Berapa <b style="color:var(--warn)">paling sedikit</b> pertanyaan yang dijamin cukup untuk menemukan satu kartu tertentu?</p>
+    <ol class="opts">
+      <li><b>A.</b> 2 pertanyaan</li>
+      <li><b>B.</b> 3 pertanyaan</li>
+      <li><b>C.</b> 4 pertanyaan</li>
+      <li><b>D.</b> 8 pertanyaan</li>
+    </ol>
+  </section>
+
+  <!-- SOAL 10 -->
+  <section class="slide">
+    <span class="tag">Soal 10</span>
+    <h2>Kamu diminta membuat program "penyiram tanaman otomatis".<br>Apa langkah PERTAMA yang paling tepat?</h2>
+    <ol class="opts">
+      <li><b>A.</b> Langsung menulis kode sebanyak-banyaknya</li>
+      <li><b>B.</b> Menentukan dengan jelas: kapan tanaman harus disiram dan berapa banyak</li>
+      <li><b>C.</b> Membeli komputer yang paling cepat</li>
+      <li><b>D.</b> Mencari program orang lain lalu menyalinnya seluruhnya</li>
+    </ol>
+    <p class="note">Selesai! Tunggu instruksi guru sebelum lanjut ke pembahasan.</p>
+  </section>
+
+  <!-- BATAS -->
+  <section class="slide">
+    <span class="tag" style="color:var(--ok);border-color:var(--ok)">Selesai</span>
+    <h1>Sekarang kita bahas bersama 🎉</h1>
+    <p class="lead">Kumpulkan lembar jawabanmu dulu, ya. Setelah itu kita lihat jawaban yang benar dan <b style="color:var(--accent)">kenapa</b> jawabannya begitu.<br><br>
+    Ingat: salah itu tidak apa-apa. Yang penting kamu paham cara berpikirnya.</p>
+  </section>
+
+  <!-- PEMBAHASAN 1 -->
+  <section class="slide exp">
+    <span class="tag">Pembahasan 1</span>
+    <h2>2, 4, 8, 16, 32, ___</h2>
+    <div class="answer">Jawaban: C. 64</div>
+    <p class="why">Setiap angka adalah <b>dua kali lipat</b> angka sebelumnya, bukan ditambah. 2→4→8→16→32, jadi berikutnya 32 × 2 = 64.<br><br>
+    Kalau kamu menjawab 40 atau 34, kemungkinan kamu mencari pola "tambah". Trik: cek selisihnya (2, 4, 8, 16) — kalau selisihnya ikut berubah, coba lihat perkalian.</p>
+    <span class="skill">🧩 Mengenali pola</span>
+  </section>
+
+  <!-- PEMBAHASAN 2 -->
+  <section class="slide exp">
+    <span class="tag">Pembahasan 2</span>
+    <h2>Arah hadap robot</h2>
+    <div class="answer">Jawaban: C. Bawah</div>
+    <p class="why">Yang menentukan arah hadap hanyalah perintah PUTAR — perintah MAJU tidak mengubah arah.<br><br>
+    Mulai <b>Atas</b> → putar kanan jadi <b>Kanan</b> → putar kanan lagi jadi <b>Bawah</b>. Dua kali putar kanan = berbalik arah.<br><br>
+    Tips: bayangkan dirimu berdiri di posisi robot, atau putar kertasmu.</p>
+    <span class="skill">🤖 Berpikir runtut & spasial</span>
+  </section>
+
+  <!-- PEMBAHASAN 3 -->
+  <section class="slide exp">
+    <span class="tag">Pembahasan 3</span>
+    <h2>Menyingkat perintah berulang</h2>
+    <div class="answer">Jawaban: A. ULANGI 3 KALI: (MAJU 3 kali, lalu BELOK)</div>
+    <p class="why">Perhatikan bahwa satu baris yang sama diulang <b>3 kali</b>. Isi satu baris itu adalah: MAJU tiga kali, lalu BELOK sekali.<br><br>
+    Pilihan C salah karena hanya MAJU satu kali per putaran. Ini namanya <b>perulangan (loop)</b> — salah satu ide paling penting dalam koding: menulis sedikit, tapi mesin mengerjakan banyak.</p>
+    <span class="skill">🔁 Perulangan (loop)</span>
+  </section>
+
+  <!-- PEMBAHASAN 4 -->
+  <section class="slide exp">
+    <span class="tag">Pembahasan 4</span>
+    <h2>Angka 12</h2>
+    <div class="answer">Jawaban: A. SERU</div>
+    <p class="why">Angka 12 memang genap, tapi <b>urutan aturan itu penting</b>. Aturan pertama diperiksa lebih dulu: 12 habis dibagi 3 (12 ÷ 3 = 4), jadi hasilnya "SERU" dan aturan berikutnya <b>tidak diperiksa lagi</b>.<br><br>
+    Kata "JIKA TIDAK" berarti aturan itu hanya dijalankan kalau aturan sebelumnya gagal. Komputer membaca aturan dari atas ke bawah dan berhenti di yang pertama cocok.</p>
+    <span class="skill">🔀 Logika percabangan (if/else)</span>
+  </section>
+
+  <!-- PEMBAHASAN 5 -->
+  <section class="slide exp">
+    <span class="tag">Pembahasan 5</span>
+    <h2>Menukar isi dua gelas</h2>
+    <div class="answer">Jawaban: B. Perlu gelas ketiga (C)</div>
+    <p class="why">Kalau kamu langsung menuang A ke B, jus dan susu tercampur — isi aslinya hilang selamanya.<br><br>
+    Jadi butuh <b>tempat penampungan sementara</b>: pindahkan jus ke gelas C dulu, baru A kosong bisa diisi susu, lalu jus dari C dituang ke B.<br><br>
+    Di dunia koding, gelas = <b>variabel</b>, dan gelas C disebut variabel sementara (<i>temporary variable</i>).</p>
+    <span class="skill">📦 Variabel & penyimpanan data</span>
+  </section>
+
+  <!-- PEMBAHASAN 6 -->
+  <section class="slide exp">
+    <span class="tag">Pembahasan 6</span>
+    <h2>Resep teh yang keliru</h2>
+    <div class="answer">Jawaban: B. Langkah 2</div>
+    <p class="why">"Angkat kantong teh" tidak mungkin dilakukan sebelum kantong teh dimasukkan. Langkah itu seharusnya berada di paling akhir, setelah menunggu 3 menit.<br><br>
+    Mencari langkah yang urutannya salah persis seperti pekerjaan <b>debugging</b> — mencari kesalahan dalam program. Programmer menghabiskan banyak waktu untuk ini, dan itu normal.</p>
+    <span class="skill">🐛 Debugging & ketelitian urutan</span>
+  </section>
+
+  <!-- PEMBAHASAN 7 -->
+  <section class="slide exp">
+    <span class="tag">Pembahasan 7</span>
+    <h2>Mesin pengubah angka</h2>
+    <div class="answer">Jawaban: C. 21</div>
+    <p class="why">Aturannya: <b>dikali 2, lalu ditambah 1</b>.<br>
+    3 × 2 + 1 = 7 ✔ &nbsp;|&nbsp; 5 × 2 + 1 = 11 ✔ &nbsp;|&nbsp; 8 × 2 + 1 = 17 ✔<br>
+    Maka 10 × 2 + 1 = <b>21</b>.<br><br>
+    Cara menemukannya: coba satu aturan, lalu <b>uji ke semua contoh</b>. Kalau ada satu yang tidak cocok, aturannya salah. Inilah cara kerja seorang programmer.</p>
+    <span class="skill">⚙️ Berpikir fungsi (input → output)</span>
+  </section>
+
+  <!-- PEMBAHASAN 8 -->
+  <section class="slide exp">
+    <span class="tag">Pembahasan 8</span>
+    <h2>Siapa pemilik kucing?</h2>
+    <div class="answer">Jawaban: A. Andi</div>
+    <p class="why">Kerjakan petunjuk yang <b>paling pasti</b> lebih dulu:<br><br>
+    1. Beni bukan kucing dan bukan burung → yang tersisa hanya satu → <b>Beni = ikan</b>.<br>
+    2. Andi tidak punya hewan yang bisa terbang → Andi bukan burung. Ikan sudah milik Beni → <b>Andi = kucing</b>.<br>
+    3. Sisanya untuk Citra → <b>Citra = burung</b>. Cocok, karena Citra memang bukan pemilik ikan.<br><br>
+    Triknya: mulai dari petunjuk yang menyisakan pilihan paling sedikit, lalu <b>coret</b> yang sudah terpakai. Cara ini persis seperti komputer menyaring data.</p>
+    <span class="skill">🔍 Penalaran deduktif</span>
+  </section>
+
+  <!-- PEMBAHASAN 9 -->
+  <section class="slide exp">
+    <span class="tag">Pembahasan 9</span>
+    <h2>Menebak 1 dari 8 kartu</h2>
+    <div class="answer">Jawaban: B. 3 pertanyaan</div>
+    <p class="why">Setiap pertanyaan yang bagus <b>membelah pilihan menjadi dua</b>:<br>
+    8 kartu → tanya "lebih besar dari 4?" → sisa 4 → tanya lagi → sisa 2 → tanya lagi → sisa 1. Jadi <b>3 pertanyaan</b>.<br><br>
+    Rumusnya: 2 × 2 × 2 = 8. Cara ini disebut <b>pencarian biner</b>, dan inilah alasan komputer bisa mencari satu data di antara jutaan dengan sangat cepat.</p>
+    <span class="skill">⚡ Efisiensi & strategi pencarian</span>
+  </section>
+
+  <!-- PEMBAHASAN 10 -->
+  <section class="slide exp">
+    <span class="tag">Pembahasan 10</span>
+    <h2>Langkah pertama membuat program</h2>
+    <div class="answer">Jawaban: B. Menentukan dengan jelas apa yang harus dilakukan</div>
+    <p class="why">Komputer hanya bisa menjalankan perintah yang <b>jelas dan pasti</b>. Kalau kita sendiri belum tahu "kapan tanaman disiram", program tidak mungkin ditulis dengan benar — secepat apa pun komputernya.<br><br>
+    Programmer yang baik <b>berpikir dulu, baru mengetik</b>. Memahami masalah adalah setengah dari pekerjaan.</p>
+    <span class="skill">🎯 Mendefinisikan masalah</span>
+  </section>
+
+  <!-- PENUTUP -->
+  <section class="slide">
+    <span class="tag" style="color:var(--ok);border-color:var(--ok)">Penutup</span>
+    <h1>Skor bukan penentu</h1>
+    <p class="lead">Tes ini <b>bukan</b> untuk menilai pintar atau tidak. Tes ini menunjukkan cara berpikirmu paling kuat di bagian mana — pola, urutan, logika, atau strategi.<br><br>
+    Semua kemampuan tadi bisa dilatih. Programmer hebat pun dulu banyak salah menjawab soal seperti ini.<br><br>
+    <b style="color:var(--accent)">Selamat datang di kelas koding! 🚀</b></p>
+  </section>
+
+</div>
+
+<div class="bar">
+  <button id="prev">← Kembali</button>
+  <span class="counter" id="counter"></span>
+  <button id="next">Lanjut →</button>
+</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  let i=0;
+  const counter=document.getElementById('counter'),
+        prog=document.getElementById('prog'),
+        prev=document.getElementById('prev'),
+        next=document.getElementById('next');
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    counter.textContent=(i+1)+' / '+slides.length;
+    prog.style.width=((i+1)/slides.length*100)+'%';
+    prev.disabled=i===0; next.disabled=i===slides.length-1;
+  }
+  next.onclick=()=>show(i+1);
+  prev.onclick=()=>show(i-1);
+  document.addEventListener('keydown',e=>{
+    if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1);}
+    if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(i-1);}
+    if(e.key==='Home')show(0);
+    if(e.key==='End')show(slides.length-1);
+  });
+  show(0);
+</script>
+</body>
+</html>
