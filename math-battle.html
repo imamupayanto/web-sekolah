@@ -3,232 +3,241 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Math Battle - Split Screen</title>
+<title>Math Battle — Tarik Tambang Matematika</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; overflow: hidden; font-family: 'Poppins','Segoe UI',Arial,sans-serif; background: #0b0f19; }
+  :root{
+    --ink:#1b1442;
+    --grape:#6C3BF4;
+    --grape2:#9B5CFF;
+    --sun:#FFC93C;
+    --sun2:#FF8A3D;
+    --mint:#20E3B2;
+    --rose:#FF5D8F;
+    --sky:#38BDF8;
+    --card:rgba(255,255,255,.14);
+    --stroke:rgba(255,255,255,.28);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; user-select:none; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; overflow:hidden; font-family:'Fredoka','Baloo 2','Poppins','Segoe UI',Arial,sans-serif; background:#2b1b6b; color:#fff; }
+  button{ font-family:inherit; }
 
-  #mainMenu {
-    height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  /* ---------- BACKDROP ---------- */
+  .stage{
+    height:100%; position:relative; overflow:hidden;
     background:
-      radial-gradient(circle at 15% 20%, rgba(255,255,255,0.08), transparent 40%),
-      radial-gradient(circle at 85% 80%, rgba(255,255,255,0.06), transparent 40%),
-      linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    color: #fff; gap: 24px; padding: 24px; overflow-y: auto;
+      radial-gradient(900px 600px at 12% 18%, rgba(255,201,60,.28), transparent 60%),
+      radial-gradient(800px 600px at 88% 82%, rgba(32,227,178,.24), transparent 60%),
+      radial-gradient(700px 500px at 70% 10%, rgba(255,93,143,.22), transparent 60%),
+      linear-gradient(150deg,#3D1E82 0%,#5B2BC9 45%,#7A3BEA 100%);
   }
-  #mainMenu h1 {
-    font-size: clamp(36px,5vw,56px); text-align: center; font-weight: 800; letter-spacing: 1px;
-    background: linear-gradient(90deg,#ffd700,#ff8a00);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    text-shadow: 0 4px 24px rgba(255,180,0,0.25); margin-bottom: 4px;
-  }
-  #devCredit {
-    position: absolute; bottom: 10px; right: 14px; font-size: 12px; opacity: 0.45; color: #fff; letter-spacing: 0.3px;
-  }
-  #mainMenu { position: relative; }
+  .blob{ position:absolute; border-radius:50%; filter:blur(2px); opacity:.5; pointer-events:none;
+         box-shadow:0 0 40px rgba(255,255,255,.15) inset; }
+  .b1{ width:220px;height:220px; left:-60px; top:12%; background:radial-gradient(circle at 30% 30%,#FFD86B,#FF8A3D); animation:float1 9s ease-in-out infinite; }
+  .b2{ width:170px;height:170px; right:-40px; top:58%; background:radial-gradient(circle at 30% 30%,#7BF7DA,#12B995); animation:float2 11s ease-in-out infinite; }
+  .b3{ width:120px;height:120px; right:16%; top:8%; background:radial-gradient(circle at 30% 30%,#FF9DBE,#FF3D77); animation:float1 13s ease-in-out infinite; }
+  @keyframes float1{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-26px) scale(1.06);}}
+  @keyframes float2{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(24px) scale(1.08);}}
+  .sym{ position:absolute; font-size:44px; font-weight:800; opacity:.13; pointer-events:none; animation:spin 18s linear infinite; }
+  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-  #mainMenu .subtitle { font-size: 16px; opacity: 0.65; margin-top: -18px; margin-bottom: 6px; }
-  #materialGrid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 1100px; }
-  .material-card {
-    width: 300px; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.14);
-    border-radius: 20px; padding: 26px 20px; text-align: center; cursor: pointer;
-    transition: all 0.18s ease; backdrop-filter: blur(6px);
-  }
-  .material-card:hover, .material-card:active { transform: translateY(-4px); border-color: #ffd700; box-shadow: 0 10px 28px rgba(255,180,0,0.25); }
-  .material-card .icon { font-size: 46px; margin-bottom: 10px; }
-  .material-card h3 { font-size: 20px; margin-bottom: 8px; color: #ffd700; }
-  .material-card p { font-size: 14px; opacity: 0.75; line-height: 1.4; }
+  .scroller{ position:relative; z-index:2; height:100%; overflow-y:auto; display:flex; flex-direction:column;
+             align-items:center; justify-content:center; gap:18px; padding:64px 20px 40px; text-align:center; }
 
-  #backBtn {
-    position: absolute; top: 18px; left: 18px; background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 16px; border-radius: 20px;
-    font-size: 14px; cursor: pointer; font-weight: 600; z-index: 5;
-  }
-  #setup { position: relative; }
+  /* ---------- TITLES ---------- */
+  .logo{ font-family:'Baloo 2','Fredoka',sans-serif; font-size:clamp(40px,6.4vw,74px); font-weight:800; line-height:1.05;
+    letter-spacing:.5px; color:#fff;
+    text-shadow:0 3px 0 #C64BA6, 0 6px 0 #8E2FA8, 0 12px 26px rgba(0,0,0,.4); }
+  .logo .grad{ background:linear-gradient(180deg,#FFF3B0,#FFC93C 55%,#FF8A3D);
+    -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:none; }
+  .badge{ display:inline-block; margin-top:6px; padding:7px 18px; border-radius:999px; font-size:14px; font-weight:600;
+    background:rgba(255,255,255,.16); border:1px solid var(--stroke); backdrop-filter:blur(6px); letter-spacing:.4px; }
+  .subtitle{ font-size:16px; opacity:.85; }
 
-  .summary-link-btn {
-    margin-top: 6px; font-size: 16px; padding: 12px 26px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; font-weight: 700;
+  /* ---------- CARDS ---------- */
+  #materialGrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; max-width:1180px; margin-top:4px; }
+  @media (max-width:1120px){ #materialGrid{ grid-template-columns:repeat(3,1fr); } }
+  @media (max-width:820px){ #materialGrid{ grid-template-columns:repeat(2,1fr); } }
+  .material-card{
+    padding:16px 14px 15px; border-radius:22px; cursor:pointer; text-align:center; position:relative;
+    background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.08));
+    border:2px solid var(--stroke); backdrop-filter:blur(10px);
+    box-shadow:0 10px 0 rgba(0,0,0,.22), 0 18px 34px rgba(0,0,0,.28);
+    transition:transform .16s cubic-bezier(.34,1.56,.64,1), box-shadow .16s ease, border-color .16s ease;
   }
-  .summary-link-btn.play {
-    background: linear-gradient(135deg,#2ecc71,#27ae60); border: none; font-size: 20px; padding: 16px 40px;
-    box-shadow: 0 8px 24px rgba(46,204,113,0.4); margin-top: 12px;
+  .material-card:hover{ transform:translateY(-6px) rotate(-.6deg); border-color:var(--sun); box-shadow:0 14px 0 rgba(0,0,0,.22), 0 24px 44px rgba(255,180,0,.28); }
+  .material-card:active{ transform:translateY(2px) scale(.98); box-shadow:0 4px 0 rgba(0,0,0,.22); }
+  .material-card .icon{ font-size:34px; display:block; margin-bottom:5px; filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)); animation:bob 3s ease-in-out infinite; }
+  .material-card:nth-child(2) .icon{ animation-delay:.25s } .material-card:nth-child(3) .icon{ animation-delay:.5s }
+  .material-card:nth-child(4) .icon{ animation-delay:.75s } .material-card:nth-child(5) .icon{ animation-delay:1s }
+  .material-card:nth-child(6) .icon{ animation-delay:1.25s } .material-card:nth-child(7) .icon{ animation-delay:1.5s }
+  .material-card:nth-child(8) .icon{ animation-delay:1.75s }
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .material-card .num{ position:absolute; top:8px; left:10px; font-size:12px; font-weight:800; opacity:.55;
+    background:rgba(0,0,0,.28); border-radius:999px; width:22px; height:22px; display:grid; place-items:center; }
+  .material-card h3{ font-size:16px; font-weight:700; color:#FFE9A8; margin-bottom:4px; line-height:1.2; }
+  .material-card p{ font-size:12.5px; opacity:.82; line-height:1.4; font-weight:400; }
+  .material-card.mix{ border-color:rgba(255,201,60,.65); background:linear-gradient(180deg,rgba(255,201,60,.26),rgba(255,138,61,.12)); }
+
+  /* ---------- BUTTONS ---------- */
+  .btn{
+    border:none; cursor:pointer; font-weight:700; color:#fff; border-radius:999px; letter-spacing:.4px;
+    transition:transform .12s cubic-bezier(.34,1.56,.64,1), filter .15s ease, box-shadow .15s ease;
   }
-  #summaryScreen {
-    height: 100%; overflow-y: auto; position: relative;
-    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364); color: #fff;
+  .btn:active{ transform:translateY(4px); }
+  .btn-ghost{ background:rgba(255,255,255,.14); border:1.5px solid var(--stroke); padding:11px 22px; font-size:15px;
+    box-shadow:0 5px 0 rgba(0,0,0,.2); backdrop-filter:blur(6px); }
+  .btn-ghost:active{ box-shadow:0 1px 0 rgba(0,0,0,.2); }
+  .btn-play{ background:linear-gradient(180deg,#38F0B4,#12B995); color:#04352A; font-size:20px; padding:15px 38px;
+    box-shadow:0 7px 0 #0A8A6F, 0 16px 30px rgba(18,185,149,.4); font-weight:800; }
+  .btn-play:active{ box-shadow:0 2px 0 #0A8A6F; }
+  .btn-start{ background:linear-gradient(180deg,#FFD86B,#FF8A3D); color:#4A1D00; font-size:26px; padding:18px 54px;
+    box-shadow:0 8px 0 #C4560E, 0 18px 34px rgba(255,138,61,.45); font-weight:800; margin-top:6px;
+    animation:pulseGlow 2.4s ease-in-out infinite; }
+  .btn-start:active{ box-shadow:0 2px 0 #C4560E; animation:none; }
+  @keyframes pulseGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
+
+  .float-tl{ position:absolute; top:16px; left:16px; z-index:6; }
+  .float-tr{ position:absolute; top:16px; right:16px; z-index:6; display:flex; gap:8px; }
+  #devCredit{ position:absolute; bottom:10px; right:14px; font-size:12px; opacity:.5; z-index:3; }
+  #soundBtn{ width:46px; height:46px; padding:0; font-size:19px; display:grid; place-items:center; }
+
+  /* ---------- SUMMARY ---------- */
+  #summaryScreen .scroller{ justify-content:flex-start; }
+  .summary-inner{ max-width:820px; width:100%; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .summary-card{
+    width:100%; text-align:left; border-radius:22px; padding:20px 24px;
+    background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.07));
+    border:1.5px solid var(--stroke); backdrop-filter:blur(8px); box-shadow:0 10px 26px rgba(0,0,0,.25);
   }
-  .summary-inner { max-width: 780px; margin: 0 auto; padding: 80px 24px 50px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  #summaryScreen h1 {
-    font-size: clamp(30px,4.5vw,44px); text-align: center; font-weight: 800;
-    background: linear-gradient(90deg,#ffd700,#ff8a00); -webkit-background-clip: text; background-clip: text; color: transparent;
+  .summary-card h3{ font-size:19px; font-weight:700; color:#FFE9A8; margin-bottom:8px; }
+  .summary-card p{ font-size:15px; line-height:1.65; opacity:.94; margin-bottom:5px; font-weight:400; }
+  .summary-card b{ color:#9BF7DE; }
+
+  /* ---------- SETUP ---------- */
+  .setup-card{
+    width:min(94%,660px); border-radius:24px; padding:16px 22px 18px;
+    background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
+    border:1.5px solid var(--stroke); backdrop-filter:blur(8px);
+    display:flex; flex-direction:column; gap:11px; align-items:center;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
   }
-  #summaryScreen .subtitle { opacity: 0.7; margin-top: -10px; }
-  .summary-card {
-    width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 16px; padding: 18px 22px; text-align: left;
+  .setup-card label{ font-size:16px; font-weight:700; opacity:.95; letter-spacing:.4px; }
+  .setup-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .choice-btn{
+    font-size:17px; padding:11px 20px; border-radius:16px; border:2px solid rgba(255,255,255,.3);
+    background:rgba(255,255,255,.10); color:#fff; cursor:pointer; font-weight:600;
+    box-shadow:0 4px 0 rgba(0,0,0,.22); transition:all .14s cubic-bezier(.34,1.56,.64,1);
   }
-  .summary-card h3 { color: #ffd700; margin-bottom: 8px; font-size: 19px; }
-  .summary-card p { font-size: 15px; line-height: 1.6; opacity: 0.9; margin-bottom: 4px; }
-  .back-floating {
-    position: absolute; top: 18px; left: 18px; background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 16px; border-radius: 20px;
-    font-size: 14px; cursor: pointer; font-weight: 600; z-index: 5;
+  .choice-btn:active{ transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.22); }
+  .choice-btn.active{
+    background:linear-gradient(180deg,#FFE07A,#FF9C3D); color:#4A1D00; border-color:#FFF0BC;
+    box-shadow:0 5px 0 #C4560E, 0 10px 22px rgba(255,160,60,.42); transform:translateY(-2px);
   }
 
-  /* ---------- SETUP SCREEN ---------- */
-  #setup {
-    height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background:
-      radial-gradient(circle at 15% 20%, rgba(255,255,255,0.08), transparent 40%),
-      radial-gradient(circle at 85% 80%, rgba(255,255,255,0.06), transparent 40%),
-      linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    color: #fff; gap: 22px; padding: 24px; overflow-y: auto;
+  /* ---------- GAME ---------- */
+  #game{ height:100%; display:none; grid-gap:10px; padding:10px; background:#150C33; }
+  .panel{
+    border-radius:26px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    position:relative; overflow:hidden; padding:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 0 0 3px rgba(255,255,255,.14);
   }
-  #setup h1 {
-    font-size: clamp(36px,5vw,56px); text-align: center; font-weight: 800; letter-spacing: 1px;
-    background: linear-gradient(90deg,#ffd700,#ff8a00);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    text-shadow: 0 4px 24px rgba(255,180,0,0.25);
-    margin-bottom: 4px;
+  .panel::before{ content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(165deg, rgba(255,255,255,.22), rgba(255,255,255,0) 48%),
+               radial-gradient(600px 300px at 50% 120%, rgba(0,0,0,.28), transparent 70%); }
+  .panel.hit::after{ content:''; position:absolute; inset:0; background:rgba(255,255,255,.55); animation:hitflash .35s ease-out forwards; pointer-events:none; }
+  @keyframes hitflash{ from{opacity:.8} to{opacity:0} }
+  .panel-name{ font-size:clamp(16px,3vh,24px); font-weight:700; z-index:1; text-shadow:0 2px 6px rgba(0,0,0,.45); }
+  .panel-score{
+    font-family:'Baloo 2',sans-serif; font-size:clamp(34px,8.5vh,76px); font-weight:800; line-height:1; z-index:1;
+    margin:2px 0 8px; text-shadow:0 4px 0 rgba(0,0,0,.28), 0 10px 20px rgba(0,0,0,.4);
   }
-  #setup .subtitle { font-size: 16px; opacity: 0.65; margin-top: -14px; margin-bottom: 6px; letter-spacing: 0.5px; }
-  .setup-card {
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 20px; padding: 18px 24px; backdrop-filter: blur(6px);
-    display: flex; flex-direction: column; gap: 12px; align-items: center; width: min(92%, 640px);
+  .panel-score.pop{ animation:scorepop .45s cubic-bezier(.34,1.8,.5,1); }
+  @keyframes scorepop{0%{transform:scale(1)}45%{transform:scale(1.35) rotate(-4deg)}100%{transform:scale(1)}}
+  .panel-question{
+    font-family:'Baloo 2',sans-serif; font-size:clamp(30px,8.5vh,74px); font-weight:800; text-align:center; z-index:1;
+    background:rgba(0,0,0,.24); padding:8px 30px; border-radius:20px; margin-bottom:16px;
+    border:2px solid rgba(255,255,255,.18); box-shadow:inset 0 3px 12px rgba(0,0,0,.3);
   }
-  .setup-card label { font-size: 18px; font-weight: 600; opacity: 0.85; letter-spacing: 0.5px; }
-  .setup-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
-  .choice-btn {
-    font-size: 18px; padding: 12px 22px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.25);
-    background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; font-weight: 600;
-    transition: all 0.15s ease;
+  .answers{ display:grid; grid-template-columns:1fr 1fr; gap:13px; width:100%; max-width:540px; z-index:1; }
+  .ans-btn{
+    font-family:'Baloo 2',sans-serif; font-size:clamp(22px,5vh,44px); padding:16px; border-radius:18px; border:none;
+    background:linear-gradient(180deg,#ffffff,#E7ECF7); color:#241a4d; font-weight:800; cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.3); transition:transform .1s ease, box-shadow .1s ease;
   }
-  .choice-btn:active { transform: scale(0.95); }
-  .choice-btn.active {
-    background: linear-gradient(135deg,#ffd700,#ff8a00); color: #1a1200; border-color: #ffd700;
-    box-shadow: 0 4px 18px rgba(255,180,0,0.4); transform: translateY(-2px);
-  }
-  #startBtn {
-    font-size: 26px; padding: 18px 56px; border-radius: 50px; border: none;
-    background: linear-gradient(135deg,#2ecc71,#27ae60); color: #fff; cursor: pointer; font-weight: 800;
-    margin-top: 8px; letter-spacing: 1px; box-shadow: 0 8px 24px rgba(46,204,113,0.4);
-    transition: transform 0.15s ease;
-  }
-  #startBtn:active { transform: scale(0.96); }
+  .ans-btn:active{ transform:translateY(4px); box-shadow:0 2px 0 rgba(0,0,0,.3); }
+  .ans-btn.correct{ background:linear-gradient(180deg,#4BF0A8,#12B36F)!important; color:#04321F!important; box-shadow:0 6px 0 #0A7A4C!important; }
+  .ans-btn.wrong{ background:linear-gradient(180deg,#FF8E8E,#E23B3B)!important; color:#fff!important; box-shadow:0 6px 0 #96201F!important; }
+  .flash{ animation:flash .42s; }
+  @keyframes flash{0%{transform:scale(1)}45%{transform:scale(1.12) rotate(-2deg)}100%{transform:scale(1)}}
+  .shake{ animation:shake .4s; }
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
 
-  /* ---------- GAME SCREEN ---------- */
-  #game { height: 100%; display: none; grid-gap: 8px; padding: 8px; background: #05070c; }
-  .panel {
-    border-radius: 22px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    position: relative; overflow: hidden; padding: 14px;
-    box-shadow: 0 8px 28px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.08);
-  }
-  .panel::before {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(160deg, rgba(255,255,255,0.16), rgba(255,255,255,0) 45%);
-  }
-  .panel-name {
-    font-size: clamp(18px,3.2vh,26px); font-weight: 800; color: #fff; opacity: 0.95; margin-bottom: 2px;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.35); letter-spacing: 0.5px; z-index: 1;
-  }
-  .panel-score {
-    font-size: clamp(34px,8vh,72px); font-weight: 900; color: #fff; margin-bottom: 8px; z-index: 1;
-    text-shadow: 0 3px 10px rgba(0,0,0,0.4);
-  }
-  .panel-question {
-    font-size: clamp(32px,9vh,80px); font-weight: 800; color: #fff; margin-bottom: 16px; text-align:center;
-    z-index: 1; background: rgba(0,0,0,0.18); padding: 8px 28px; border-radius: 16px;
-  }
-  .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; max-width: 520px; z-index: 1; }
-  .ans-btn {
-    font-size: clamp(22px,5vh,44px); padding: 18px; border-radius: 14px; border: none;
-    background: rgba(255,255,255,0.95); color: #222; font-weight: 800; cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.1s ease;
-  }
-  .ans-btn:active { transform: scale(0.94); }
-  .ans-btn.correct { background: #2ecc71 !important; color: #fff !important; }
-  .ans-btn.wrong { background: #e74c3c !important; color: #fff !important; }
-  .flash { animation: flash 0.4s; }
-  @keyframes flash { 0%{transform:scale(1);} 50%{transform:scale(1.08);} 100%{transform:scale(1);} }
+  /* ---------- TOPBAR / TUG ---------- */
+  #topbar{ position:fixed; top:0; left:0; right:0; height:124px; z-index:10; padding:8px 0;
+    background:linear-gradient(180deg,#241452,#150C33); border-bottom:2px solid rgba(255,255,255,.12);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+  #infoRow{ display:flex; align-items:center; justify-content:center; gap:14px; font-size:15px; color:#DCD6FF; font-weight:600; }
+  #timerChip{ background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); padding:6px 16px; border-radius:999px; }
+  #timer{ font-weight:800; color:var(--sun); }
+  #targetChip{ background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); padding:6px 16px; border-radius:999px; }
+  #resetBtn{ padding:7px 18px; font-size:14px; }
 
-  #topbar { position: fixed; top: 0; left: 0; right: 0; height: 118px; background: #05070c;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; z-index: 10; padding: 6px 0; }
-  #infoRow { display:flex; align-items:center; justify-content:center; gap:20px; font-size:16px; color:#cfd8e3; }
-  #timer { font-weight: 800; color: #ffd700; letter-spacing: 0.5px; }
-  #resetBtn {
-    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff;
-    padding: 7px 18px; border-radius: 20px; font-size: 14px; cursor: pointer; font-weight: 600;
-  }
-  #resetBtn:active { background: rgba(255,255,255,0.18); }
+  #tugWrap{ width:92%; max-width:920px; height:36px; position:relative; margin-top:32px; }
+  #tugCharacters{ position:absolute; top:-34px; left:0; right:0; display:flex; justify-content:space-between; pointer-events:none; }
+  .tugTeam{ display:flex; gap:2px; }
+  .tugTeam.right{ flex-direction:row-reverse; }
+  .tugPerson{ font-size:26px; animation:pullLoop .6s ease-in-out infinite; transform-origin:bottom center; }
+  .tugTeam.right .tugPerson{ transform:scaleX(-1); animation:pullLoopR .6s ease-in-out infinite; }
+  .tugPerson:nth-child(2){ animation-delay:.1s } .tugPerson:nth-child(3){ animation-delay:.2s }
+  @keyframes pullLoop{0%,100%{transform:rotate(-12deg) translateX(0)}50%{transform:rotate(4deg) translateX(-4px)}}
+  @keyframes pullLoopR{0%,100%{transform:scaleX(-1) rotate(-12deg) translateX(0)}50%{transform:scaleX(-1) rotate(4deg) translateX(-4px)}}
+  #tugTrack{ width:100%; height:18px; margin-top:9px; border-radius:12px;
+    background:repeating-linear-gradient(90deg,#8b5a2b 0 12px,#a87139 12px 24px);
+    box-shadow:inset 0 3px 7px rgba(0,0,0,.65), 0 2px 0 rgba(255,255,255,.08); }
+  #tugFill{ position:absolute; top:9px; left:0; height:18px; border-radius:12px; opacity:.38; transition:all .6s cubic-bezier(.34,1.56,.64,1); pointer-events:none; }
+  #tugZones{ position:absolute; top:0; left:0; right:0; height:100%; display:flex; }
+  .tugZone{ flex:1; text-align:center; font-size:12.5px; font-weight:700; letter-spacing:.3px; text-shadow:0 2px 4px rgba(0,0,0,.6); }
+  #tugKnot{ position:absolute; top:2px; width:38px; height:38px; margin-left:-19px; display:flex; align-items:center; justify-content:center;
+    font-size:27px; transition:left .6s cubic-bezier(.34,1.56,.64,1); filter:drop-shadow(0 4px 6px rgba(0,0,0,.7)); }
+  .tug-pull{ animation:tugpull .42s; }
+  @keyframes tugpull{0%{transform:scale(1)}50%{transform:scale(1.45) rotate(-12deg)}100%{transform:scale(1)}}
 
-  #tugWrap { width: 92%; max-width: 900px; height: 34px; position: relative; margin-top: 34px; }
-  #tugCharacters { position: absolute; top: -34px; left: 0; right: 0; display: flex; justify-content: space-between; pointer-events: none; }
-  .tugTeam { display: flex; gap: 2px; }
-  .tugTeam.right { flex-direction: row-reverse; }
-  .tugPerson { font-size: 26px; animation: pullLoop 0.6s ease-in-out infinite; transform-origin: bottom center; }
-  .tugTeam.right .tugPerson { transform: scaleX(-1); animation: pullLoopR 0.6s ease-in-out infinite; }
-  .tugPerson:nth-child(2) { animation-delay: 0.1s; }
-  .tugPerson:nth-child(3) { animation-delay: 0.2s; }
-  @keyframes pullLoop {
-    0%,100% { transform: rotate(-12deg) translateX(0); }
-    50% { transform: rotate(4deg) translateX(-4px); }
-  }
-  @keyframes pullLoopR {
-    0%,100% { transform: scaleX(-1) rotate(-12deg) translateX(0); }
-    50% { transform: scaleX(-1) rotate(4deg) translateX(-4px); }
-  }
-  #tugTrack {
-    width: 100%; height: 16px; margin-top: 9px; border-radius: 10px;
-    background: repeating-linear-gradient(90deg, #8b5a2b 0 12px, #a06a35 12px 24px);
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.08);
-  }
-  #tugZones { position:absolute; top:0; left:0; right:0; height:100%; display:flex; }
-  .tugZone { flex:1; text-align:center; font-size:12px; font-weight:700; padding-top:1px; opacity:0.9; letter-spacing: 0.3px; }
-  #tugKnot {
-    position: absolute; top: 1px; width: 36px; height: 36px; margin-left: -18px;
-    display:flex; align-items:center; justify-content:center; font-size: 26px;
-    transition: left 0.6s cubic-bezier(.34,1.56,.64,1);
-    filter: drop-shadow(0 3px 5px rgba(0,0,0,0.6));
-  }
-  .tug-pull { animation: tugpull 0.4s; }
-  @keyframes tugpull { 0%{transform:scale(1);} 50%{transform:scale(1.4) rotate(-10deg);} 100%{transform:scale(1);} }
+  #gameArea{ position:absolute; top:124px; left:0; right:0; bottom:0; }
 
-  #gameArea { position: absolute; top: 118px; left: 0; right: 0; bottom: 0; }
+  /* ---------- WIN ---------- */
+  #winOverlay{ display:none; position:fixed; inset:0; z-index:30; flex-direction:column; align-items:center; justify-content:center; gap:22px;
+    background:radial-gradient(circle at 50% 38%, rgba(88,42,180,.94), rgba(10,5,30,.97)); }
+  #confetti{ position:fixed; inset:0; z-index:31; pointer-events:none; display:none; }
+  #winInner{ position:relative; z-index:32; display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; padding:20px; }
+  #winTrophy{ font-size:clamp(64px,11vw,120px); animation:trophyIn .7s cubic-bezier(.34,1.7,.5,1), bob 2.6s ease-in-out .7s infinite; filter:drop-shadow(0 12px 28px rgba(255,200,60,.5)); }
+  @keyframes trophyIn{0%{transform:scale(0) rotate(-40deg);opacity:0}70%{transform:scale(1.25) rotate(8deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+  #winText{ font-family:'Baloo 2',sans-serif; font-size:clamp(34px,6vw,62px); font-weight:800; color:#fff;
+    text-shadow:0 3px 0 #C64BA6, 0 6px 0 #8E2FA8, 0 0 40px rgba(255,215,0,.5); animation:winpop .5s ease; }
+  @keyframes winpop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+  #winStats{ font-size:17px; opacity:.9; font-weight:600; }
+  #winBtns{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
 
-  #winOverlay {
-    display: none; position: fixed; inset: 0;
-    background: radial-gradient(circle at 50% 40%, rgba(40,20,0,0.92), rgba(0,0,0,0.95));
-    color: #fff; flex-direction: column; align-items: center; justify-content: center; gap: 24px; z-index: 20;
+  /* ---------- LAYOUT MODES ---------- */
+  #game.game-vsbot{ grid-template-columns:1fr 1fr; grid-template-rows:1fr; }
+  @media (orientation:portrait){ #game.game-vsbot{ grid-template-columns:1fr; grid-template-rows:1fr 1fr; } }
+  .bot-thinking{ font-size:14px; opacity:.85; margin:-4px 0 6px; animation:thinkPulse 1s infinite; z-index:1; font-weight:600; }
+  @keyframes thinkPulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+  #rotateOverlay{ display:none; position:fixed; inset:0; z-index:999; background:linear-gradient(150deg,#3D1E82,#7A3BEA);
+    flex-direction:column; align-items:center; justify-content:center; gap:14px; text-align:center; padding:30px; }
+  #rotateOverlay .icon{ font-size:64px; animation:rotateHint 1.6s ease-in-out infinite; }
+  #rotateOverlay h2{ font-family:'Baloo 2',sans-serif; font-size:28px; }
+  #rotateOverlay p{ font-size:17px; opacity:.85; font-weight:400; max-width:420px; }
+  @keyframes rotateHint{0%,100%{transform:rotate(0)}50%{transform:rotate(90deg)}}
+  @media (orientation:portrait){
+    body:not(.vsbot-active) #rotateOverlay{ display:flex; }
+    body:not(.vsbot-active) #setup, body:not(.vsbot-active) #topbar,
+    body:not(.vsbot-active) #gameArea, body:not(.vsbot-active) #winOverlay{ display:none!important; }
   }
-  #winOverlay h2 {
-    font-size: clamp(38px,6vw,64px); color: #ffd700; text-align: center; font-weight: 900;
-    text-shadow: 0 0 30px rgba(255,215,0,0.6); animation: winpop 0.5s ease;
-  }
-  @keyframes winpop { 0%{transform:scale(0.5); opacity:0;} 70%{transform:scale(1.1);} 100%{transform:scale(1); opacity:1;} }
-  #winOverlay button {
-    font-size: 24px; padding: 16px 46px; border-radius: 50px; border: none;
-    background: linear-gradient(135deg,#2ecc71,#27ae60); color: #fff; cursor: pointer; font-weight: 800;
-    box-shadow: 0 8px 24px rgba(46,204,113,0.4);
-  }  #game.game-vsbot { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
-  @media (orientation: portrait) {
-    #game.game-vsbot { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
-  }
-  .bot-thinking { font-size: 14px; opacity: 0.8; margin-top: -4px; margin-bottom: 6px; animation: thinkPulse 1s infinite; z-index:1; }
-  @keyframes thinkPulse { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
-  #rotateOverlay {
-    display: none; position: fixed; inset: 0; z-index: 999; background: #0b0f19; color: #fff;
-    flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 30px;
-  }
-  #rotateOverlay .icon { font-size: 64px; animation: rotateHint 1.6s ease-in-out infinite; }
-  #rotateOverlay p { font-size: 20px; opacity: 0.8; }
-  @keyframes rotateHint { 0%,100%{transform:rotate(0deg);} 50%{transform:rotate(90deg);} }
-  @media (orientation: portrait) {
-    body:not(.vsbot-active) #rotateOverlay { display: flex; }
-    body:not(.vsbot-active) #setup, body:not(.vsbot-active) #topbar, body:not(.vsbot-active) #gameArea, body:not(.vsbot-active) #winOverlay { display: none !important; }
-  }
+  ::-webkit-scrollbar{ width:8px } ::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.25); border-radius:8px }
 </style>
 </head>
 <body>
@@ -239,140 +248,185 @@
   <p>Aplikasi ini dirancang untuk layar mendatar (landscape) sesuai papan digital.</p>
 </div>
 
-<!-- MENU UTAMA -->
-<div id="mainMenu">
-  <h1>🧮 Math Battle</h1>
-  <div class="subtitle">Pilih materi yang ingin diduelkan</div>
-  <div id="materialGrid">
-    <div class="material-card" data-material="order">
-      <div class="icon">📏</div>
-      <h3>Mengurutkan Bilangan</h3>
-      <p>Membandingkan dan mengurutkan bilangan bulat pada garis bilangan.</p>
+<!-- ============ MENU UTAMA ============ -->
+<div id="mainMenu" class="stage">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="sym" style="left:8%;top:70%">➗</div>
+  <div class="sym" style="right:10%;top:26%">✖️</div>
+  <div class="sym" style="left:44%;top:6%">➕</div>
+  <div class="float-tr"><button id="soundBtn" class="btn btn-ghost" title="Suara">🔊</button></div>
+  <div class="scroller">
+    <div>
+      <div class="logo">🧮 MATH <span class="grad">BATTLE</span></div>
+      <div class="badge">Tarik Tambang Matematika • Bab 1 Bilangan Bulat</div>
     </div>
-    <div class="material-card" data-material="addsub">
-      <div class="icon">➕➖</div>
-      <h3>Penjumlahan & Pengurangan</h3>
-      <p>Operasi penjumlahan dan pengurangan bilangan bulat.</p>
+    <div class="subtitle">Pilih materi yang ingin diduelkan 👇</div>
+    <div id="materialGrid">
+      <div class="material-card" data-material="order">
+        <span class="num">1</span><span class="icon">📏</span>
+        <h3>Mengurutkan Bilangan</h3>
+        <p>Membandingkan bilangan bulat dengan &gt;, &lt;, atau =.</p>
+      </div>
+      <div class="material-card" data-material="add">
+        <span class="num">2</span><span class="icon">➕</span>
+        <h3>Penjumlahan</h3>
+        <p>Menjumlahkan bilangan bulat positif dan negatif.</p>
+      </div>
+      <div class="material-card" data-material="sub">
+        <span class="num">3</span><span class="icon">➖</span>
+        <h3>Pengurangan</h3>
+        <p>Mengurangkan bilangan bulat positif dan negatif.</p>
+      </div>
+      <div class="material-card" data-material="addsub">
+        <span class="num">4</span><span class="icon">🔢</span>
+        <h3>Penjumlahan &amp; Pengurangan</h3>
+        <p>Gabungan soal tambah dan kurang secara acak.</p>
+      </div>
+      <div class="material-card" data-material="mul">
+        <span class="num">5</span><span class="icon">✖️</span>
+        <h3>Perkalian</h3>
+        <p>Perkalian bilangan bulat dengan aturan tanda.</p>
+      </div>
+      <div class="material-card" data-material="div">
+        <span class="num">6</span><span class="icon">➗</span>
+        <h3>Pembagian</h3>
+        <p>Pembagian bilangan bulat dengan aturan tanda.</p>
+      </div>
+      <div class="material-card" data-material="muldiv">
+        <span class="num">7</span><span class="icon">🧮</span>
+        <h3>Perkalian &amp; Pembagian</h3>
+        <p>Gabungan soal kali dan bagi secara acak.</p>
+      </div>
+      <div class="material-card mix" data-material="mixed">
+        <span class="num">8</span><span class="icon">🎲</span>
+        <h3>Campuran</h3>
+        <p>Semua materi diacak — tantangan paling seru!</p>
+      </div>
     </div>
-    <div class="material-card" data-material="muldiv">
-      <div class="icon">✖️➗</div>
-      <h3>Perkalian & Pembagian</h3>
-      <p>Operasi perkalian dan pembagian bilangan bulat.</p>
-    </div>
+    <button id="openSummaryBtn" class="btn btn-ghost">📖 Baca Rangkuman Materi Dulu</button>
   </div>
-  <button id="openSummaryBtn" class="summary-link-btn">📖 Baca Rangkuman Materi Dulu</button>
   <div id="devCredit">Developed by Imam Upayanto</div>
 </div>
 
-<!-- RANGKUMAN MATERI -->
-<div id="summaryScreen" style="display:none;">
-  <button id="summaryBackBtn" class="back-floating">← Kembali ke Menu</button>
-  <div class="summary-inner">
-    <h1>📖 Rangkuman Materi</h1>
-    <div class="subtitle">Bab 1 — Bilangan Bulat</div>
+<!-- ============ RANGKUMAN ============ -->
+<div id="summaryScreen" class="stage" style="display:none;">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="float-tl"><button id="summaryBackBtn" class="btn btn-ghost">← Kembali</button></div>
+  <div class="scroller">
+    <div class="summary-inner">
+      <div class="logo" style="font-size:clamp(30px,4.6vw,46px)">📖 Rangkuman <span class="grad">Materi</span></div>
+      <div class="badge">Bab 1 — Bilangan Bulat</div>
 
-    <div class="summary-card">
-      <h3>🔢 1. Pengertian Bilangan Bulat</h3>
-      <p>Bilangan bulat terdiri dari tiga kelompok: <b>bilangan positif</b> (1, 2, 3, ...) di sebelah kanan nol, <b>nol</b> (0) sebagai titik tengah, dan <b>bilangan negatif</b> (-1, -2, -3, ...) di sebelah kiri nol. Semakin jauh ke kiri dari nol, nilainya semakin kecil.</p>
-      <p>Bilangan negatif sering muncul dalam kehidupan sehari-hari untuk menunjukkan sesuatu yang "kurang dari normal" atau "di bawah patokan".</p>
-      <p><i>Contoh dalam kehidupan sehari-hari:</i></p>
-      <p>• Suhu -5°C artinya 5 derajat di bawah titik beku (0°C)<br>
-      • Kedalaman -20 m artinya 20 meter di bawah permukaan laut<br>
-      • Utang Rp -50.000 artinya kekurangan uang sebesar Rp50.000<br>
-      • Lantai basement -2 artinya 2 lantai di bawah lantai dasar</p>
+      <div class="summary-card">
+        <h3>🔢 1. Pengertian Bilangan Bulat</h3>
+        <p>Bilangan bulat terdiri dari tiga kelompok: <b>bilangan positif</b> (1, 2, 3, ...) di sebelah kanan nol, <b>nol</b> (0) sebagai titik tengah, dan <b>bilangan negatif</b> (-1, -2, -3, ...) di sebelah kiri nol. Semakin jauh ke kiri dari nol, nilainya semakin kecil.</p>
+        <p>Bilangan negatif sering muncul dalam kehidupan sehari-hari untuk menunjukkan sesuatu yang "kurang dari normal" atau "di bawah patokan".</p>
+        <p><i>Contoh dalam kehidupan sehari-hari:</i></p>
+        <p>• Suhu -5°C artinya 5 derajat di bawah titik beku (0°C)<br>
+        • Kedalaman -20 m artinya 20 meter di bawah permukaan laut<br>
+        • Utang Rp -50.000 artinya kekurangan uang sebesar Rp50.000<br>
+        • Lantai basement -2 artinya 2 lantai di bawah lantai dasar</p>
+      </div>
+
+      <div class="summary-card">
+        <h3>📏 2. Garis Bilangan &amp; Urutan</h3>
+        <p>Garis bilangan digambar mendatar dengan angka tersusun berurutan. Semakin ke <b>kanan</b>, nilai semakin <b>besar</b>. Semakin ke <b>kiri</b>, nilai semakin <b>kecil</b>. Semua bilangan negatif selalu lebih kecil daripada semua bilangan positif, dan 0 lebih besar dari semua bilangan negatif.</p>
+        <p>Cara mudah membandingkan: bayangkan posisinya di garis bilangan, lalu lihat siapa yang lebih ke kanan.</p>
+        <p><i>Contoh membandingkan (isi dengan &gt;, &lt;, atau =):</i></p>
+        <p>• -8 &lt; -2 &nbsp; (karena -8 lebih ke kiri)<br>
+        • 5 &gt; -10 &nbsp; (positif selalu lebih besar dari negatif)<br>
+        • -3 &gt; -7 &nbsp; (karena -3 lebih dekat ke nol / lebih ke kanan)<br>
+        • 0 &gt; -1 &nbsp; (nol selalu lebih besar dari bilangan negatif)</p>
+        <p><i>Contoh mengurutkan dari terkecil:</i> -9, -4, 0, 3, 7</p>
+      </div>
+
+      <div class="summary-card">
+        <h3>➕➖ 3. Penjumlahan &amp; Pengurangan</h3>
+        <p>Bayangkan bergerak di garis bilangan. Menjumlah dengan bilangan <b>positif</b> = bergerak ke <b>kanan</b>. Menjumlah dengan bilangan <b>negatif</b> = bergerak ke <b>kiri</b>. Mengurangi = kebalikan arah dari menjumlah (mengurangi bilangan negatif = bergerak ke kanan).</p>
+        <p><i>Contoh penjumlahan:</i></p>
+        <p>• -3 + 5 = 2 &nbsp;(dari -3 bergerak 5 langkah ke kanan)<br>
+        • 4 + (-6) = -2 &nbsp;(dari 4 bergerak 6 langkah ke kiri)<br>
+        • -7 + (-2) = -9 &nbsp;(dua-duanya negatif, makin ke kiri)</p>
+        <p><i>Contoh pengurangan:</i></p>
+        <p>• 4 - 7 = -3 &nbsp;(dari 4 bergerak 7 langkah ke kiri)<br>
+        • -5 - 3 = -8 &nbsp;(makin jauh ke kiri)<br>
+        • 6 - (-4) = 10 &nbsp;(kurang dengan negatif = tambah, jadi ke kanan)</p>
+      </div>
+
+      <div class="summary-card">
+        <h3>✖️➗ 4. Perkalian &amp; Pembagian</h3>
+        <p>Kunci utamanya adalah <b>aturan tanda</b> — berlaku sama untuk perkalian maupun pembagian:</p>
+        <p>• (+) x (+) = (+) &nbsp;→&nbsp; sama tanda, hasil positif<br>
+        • (-) x (-) = (+) &nbsp;→&nbsp; sama tanda, hasil positif<br>
+        • (+) x (-) = (-) &nbsp;→&nbsp; beda tanda, hasil negatif<br>
+        • (-) x (+) = (-) &nbsp;→&nbsp; beda tanda, hasil negatif</p>
+        <p><i>Contoh perkalian:</i></p>
+        <p>• 3 x 4 = 12 &nbsp;|&nbsp; -3 x 4 = -12 &nbsp;|&nbsp; -3 x (-4) = 12</p>
+        <p><i>Contoh pembagian:</i></p>
+        <p>• 12 : 4 = 3 &nbsp;|&nbsp; -12 : 4 = -3 &nbsp;|&nbsp; -12 : (-4) = 3</p>
+        <p><i>Contoh soal cerita:</i> Suhu turun 2°C setiap jam selama 4 jam. Berapa perubahan suhunya? &nbsp;→&nbsp; -2 x 4 = -8°C</p>
+      </div>
+
+      <button id="summaryPlayBtn" class="btn btn-play">🎮 Yuk Main Sekarang!</button>
     </div>
-
-    <div class="summary-card">
-      <h3>📏 2. Garis Bilangan & Urutan</h3>
-      <p>Garis bilangan digambar mendatar dengan angka tersusun berurutan. Semakin ke <b>kanan</b>, nilai semakin <b>besar</b>. Semakin ke <b>kiri</b>, nilai semakin <b>kecil</b>. Semua bilangan negatif selalu lebih kecil daripada semua bilangan positif, dan 0 lebih besar dari semua bilangan negatif.</p>
-      <p>Cara mudah membandingkan: bayangkan posisinya di garis bilangan, lalu lihat siapa yang lebih ke kanan.</p>
-      <p><i>Contoh membandingkan (isi dengan &gt;, &lt;, atau =):</i></p>
-      <p>• -8 &lt; -2 &nbsp; (karena -8 lebih ke kiri)<br>
-      • 5 &gt; -10 &nbsp; (positif selalu lebih besar dari negatif)<br>
-      • -3 &gt; -7 &nbsp; (karena -3 lebih dekat ke nol / lebih ke kanan)<br>
-      • 0 &gt; -1 &nbsp; (nol selalu lebih besar dari bilangan negatif)</p>
-      <p><i>Contoh mengurutkan dari terkecil:</i> -9, -4, 0, 3, 7</p>
-    </div>
-
-    <div class="summary-card">
-      <h3>➕➖ 3. Penjumlahan & Pengurangan</h3>
-      <p>Bayangkan bergerak di garis bilangan. Menjumlah dengan bilangan <b>positif</b> = bergerak ke <b>kanan</b>. Menjumlah dengan bilangan <b>negatif</b> = bergerak ke <b>kiri</b>. Mengurangi = kebalikan arah dari menjumlah (mengurangi bilangan negatif = bergerak ke kanan).</p>
-      <p><i>Contoh penjumlahan:</i></p>
-      <p>• -3 + 5 = 2 &nbsp;(dari -3 bergerak 5 langkah ke kanan)<br>
-      • 4 + (-6) = -2 &nbsp;(dari 4 bergerak 6 langkah ke kiri)<br>
-      • -7 + (-2) = -9 &nbsp;(dua-duanya negatif, makin ke kiri)</p>
-      <p><i>Contoh pengurangan:</i></p>
-      <p>• 4 - 7 = -3 &nbsp;(dari 4 bergerak 7 langkah ke kiri)<br>
-      • -5 - 3 = -8 &nbsp;(makin jauh ke kiri)<br>
-      • 6 - (-4) = 10 &nbsp;(kurang dengan negatif = tambah, jadi ke kanan)</p>
-    </div>
-
-    <div class="summary-card">
-      <h3>✖️➗ 4. Perkalian & Pembagian</h3>
-      <p>Kunci utamanya adalah <b>aturan tanda</b> — berlaku sama untuk perkalian maupun pembagian:</p>
-      <p>• (+) x (+) = (+) &nbsp;→&nbsp; sama tanda, hasil positif<br>
-      • (-) x (-) = (+) &nbsp;→&nbsp; sama tanda, hasil positif<br>
-      • (+) x (-) = (-) &nbsp;→&nbsp; beda tanda, hasil negatif<br>
-      • (-) x (+) = (-) &nbsp;→&nbsp; beda tanda, hasil negatif</p>
-      <p><i>Contoh perkalian:</i></p>
-      <p>• 3 x 4 = 12 &nbsp;|&nbsp; -3 x 4 = -12 &nbsp;|&nbsp; -3 x (-4) = 12</p>
-      <p><i>Contoh pembagian:</i></p>
-      <p>• 12 : 4 = 3 &nbsp;|&nbsp; -12 : 4 = -3 &nbsp;|&nbsp; -12 : (-4) = 3</p>
-      <p><i>Contoh soal cerita:</i> Suhu turun 2°C setiap jam selama 4 jam. Berapa perubahan suhunya? &nbsp;→&nbsp; -2 x 4 = -8°C</p>
-    </div>
-
-    <button id="summaryPlayBtn" class="summary-link-btn play">🎮 Yuk Main Sekarang!</button>
   </div>
 </div>
 
-<!-- SETUP -->
-<div id="setup" style="display:none;">
-  <button id="backBtn">← Kembali</button>
-  <h1 id="setupTitle">🧮 Math Battle</h1>
-  <div class="subtitle" id="setupSubtitle">Adu cepat berhitung • Tarik Tambang Matematika</div>
-
-  <div class="setup-card">
-    <label>🎮 Mode Permainan</label>
-    <div class="setup-row">
-      <button class="choice-btn active" data-mode="2p">👥 2 Pemain</button>
-      <button class="choice-btn" data-mode="bot">🤖 Lawan Bot</button>
+<!-- ============ SETUP ============ -->
+<div id="setup" class="stage" style="display:none;">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="float-tl"><button id="backBtn" class="btn btn-ghost">← Kembali</button></div>
+  <div class="scroller">
+    <div>
+      <div class="logo" id="setupTitle" style="font-size:clamp(30px,4.8vw,50px)">🧮 Math Battle</div>
+      <div class="badge" id="setupSubtitle">Adu cepat berhitung • Tarik Tambang Matematika</div>
     </div>
-  </div>
 
-  <div class="setup-card" id="botLevelCard" style="display:none;">
-    <label>🧠 Level Bot</label>
-    <div class="setup-row">
-      <button class="choice-btn active" data-botlevel="normal">😊 Biasa</button>
-      <button class="choice-btn" data-botlevel="smart">🧠 Cerdas</button>
+    <div class="setup-card">
+      <label>🎮 Mode Permainan</label>
+      <div class="setup-row">
+        <button class="choice-btn active" data-mode="2p">👥 2 Pemain</button>
+        <button class="choice-btn" data-mode="bot">🤖 Lawan Bot</button>
+      </div>
     </div>
-  </div>
 
-  <div class="setup-card">
-    <label>🎯 Tingkat Kesulitan</label>
-    <div class="setup-row">
-      <button class="choice-btn active" data-diff="easy">Mudah (1-10)</button>
-      <button class="choice-btn" data-diff="medium">Sedang (1-50)</button>
-      <button class="choice-btn" data-diff="hard">Sulit (1-100)</button>
+    <div class="setup-card" id="botLevelCard" style="display:none;">
+      <label>🧠 Level Bot</label>
+      <div class="setup-row">
+        <button class="choice-btn active" data-botlevel="normal">😊 Biasa</button>
+        <button class="choice-btn" data-botlevel="smart">🧠 Cerdas</button>
+      </div>
     </div>
-  </div>
 
-  <div class="setup-card">
-    <label>🏁 Target Skor Menang</label>
-    <div class="setup-row">
-      <button class="choice-btn" data-target="10">10</button>
-      <button class="choice-btn active" data-target="15">15</button>
-      <button class="choice-btn" data-target="20">20</button>
+    <div class="setup-card">
+      <label>🎯 Tingkat Kesulitan</label>
+      <div class="setup-row">
+        <button class="choice-btn active" data-diff="easy">🌱 Mudah (1-10)</button>
+        <button class="choice-btn" data-diff="medium">🔥 Sedang (1-50)</button>
+        <button class="choice-btn" data-diff="hard">💀 Sulit (1-100)</button>
+      </div>
     </div>
-  </div>
 
-  <button id="startBtn">▶ MULAI GAME</button>
+    <div class="setup-card">
+      <label>🏁 Target Skor Menang</label>
+      <div class="setup-row">
+        <button class="choice-btn" data-target="10">10</button>
+        <button class="choice-btn active" data-target="15">15</button>
+        <button class="choice-btn" data-target="20">20</button>
+      </div>
+    </div>
+
+    <button id="startBtn" class="btn btn-start">▶ MULAI GAME</button>
+  </div>
 </div>
 
-<!-- GAME -->
+<!-- ============ GAME ============ -->
 <div id="topbar" style="display:none;">
   <div id="infoRow">
-    <span>⏱ Waktu: <span id="timer">00:00</span></span>
-    <button id="resetBtn">Reset Game</button>
+    <span id="timerChip">⏱ <span id="timer">00:00</span></span>
+    <span id="targetChip">🏁 Target <b id="targetLabel">15</b></span>
+    <button id="soundBtn2" class="btn btn-ghost" style="padding:7px 14px;font-size:14px">🔊</button>
+    <button id="resetBtn" class="btn btn-ghost">↺ Reset</button>
   </div>
   <div id="tugWrap">
     <div id="tugCharacters">
@@ -380,6 +434,7 @@
       <div class="tugTeam right" id="tugTeamRight"></div>
     </div>
     <div id="tugTrack"></div>
+    <div id="tugFill"></div>
     <div id="tugZones"></div>
     <div id="tugKnot">🪢</div>
   </div>
@@ -388,13 +443,22 @@
   <div id="game"></div>
 </div>
 
-<!-- WIN OVERLAY -->
+<!-- ============ WIN ============ -->
+<canvas id="confetti"></canvas>
 <div id="winOverlay">
-  <h2 id="winText">🏆 Tim A Menang!</h2>
-  <button id="playAgainBtn">Main Lagi</button>
+  <div id="winInner">
+    <div id="winTrophy">🏆</div>
+    <div id="winText">Tim A Menang!</div>
+    <div id="winStats"></div>
+    <div id="winBtns">
+      <button id="playAgainBtn" class="btn btn-play">🔁 Main Lagi</button>
+      <button id="menuBtn" class="btn btn-ghost">🏠 Menu Utama</button>
+    </div>
+  </div>
 </div>
 
 <script>
+/* ================= STATE ================= */
 let numPlayers = 2;
 let material = 'addsub';
 let difficulty = 'easy';
@@ -405,103 +469,123 @@ let scores = [];
 let panels = [];
 let startTime = null;
 let timerInterval = null;
+let soundOn = true;
 
-let COLORS = ['#c0392b','#2980b9'];
-let NAMES = ['🔴 Tim Merah','🔵 Tim Biru'];
+let COLORS = ['#E0453E','#2F7FE0'];
+let NAMES  = ['🔴 Tim Merah','🔵 Tim Biru'];
 const BOT_INDEX = 0;
 const MATERIAL_TITLES = {
-  order: '📏 Mengurutkan Bilangan',
-  addsub: '➕➖ Penjumlahan & Pengurangan',
-  muldiv: '✖️➗ Perkalian & Pembagian'
+  order:  '📏 Mengurutkan Bilangan',
+  add:    '➕ Penjumlahan',
+  sub:    '➖ Pengurangan',
+  addsub: '🔢 Penjumlahan & Pengurangan',
+  mul:    '✖️ Perkalian',
+  div:    '➗ Pembagian',
+  muldiv: '🧮 Perkalian & Pembagian',
+  mixed:  '🎲 Campuran'
 };
+const PANEL_BG = c => `linear-gradient(160deg, ${c} 0%, ${shade(c,-28)} 100%)`;
+function shade(hex, pct){
+  const n = parseInt(hex.slice(1),16);
+  let r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+  r=Math.max(0,Math.min(255,r+pct)); g=Math.max(0,Math.min(255,g+pct)); b=Math.max(0,Math.min(255,b+pct));
+  return `rgb(${r},${g},${b})`;
+}
 
-// ---- MENU UTAMA ----
+/* ================= SOUND (Web Audio, tanpa file) ================= */
+let actx = null;
+function ac(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return actx; }
+function tone(freq, dur=0.12, type='square', vol=0.16, delay=0){
+  if(!soundOn) return;
+  const c = ac(); if(!c) return;
+  const t0 = c.currentTime + delay;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t0);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  o.connect(g).connect(c.destination); o.start(t0); o.stop(t0+dur+0.03);
+}
+const SFX = {
+  click(){ tone(520,0.07,'triangle',0.10); },
+  correct(){ tone(660,0.10,'triangle',0.16,0); tone(880,0.10,'triangle',0.16,0.09); tone(1180,0.16,'triangle',0.15,0.18); },
+  wrong(){ tone(200,0.16,'sawtooth',0.13,0); tone(140,0.22,'sawtooth',0.12,0.12); },
+  tug(){ tone(300,0.08,'square',0.08); },
+  win(){ [523,659,784,1046,1318].forEach((f,i)=>tone(f,0.28,'triangle',0.18,i*0.13)); }
+};
+function toggleSound(){
+  soundOn = !soundOn;
+  document.querySelectorAll('#soundBtn,#soundBtn2').forEach(b=> b.textContent = soundOn ? '🔊' : '🔇');
+  if(soundOn) SFX.click();
+}
+document.getElementById('soundBtn').onclick = toggleSound;
+document.getElementById('soundBtn2').onclick = toggleSound;
+
+/* ================= NAVIGASI ================= */
+function show(id, mode){ document.getElementById(id).style.display = mode || 'block'; }
+function hide(id){ document.getElementById(id).style.display = 'none'; }
+
 document.querySelectorAll('.material-card').forEach(card=>{
   card.onclick = ()=>{
+    SFX.click();
     material = card.dataset.material;
-    document.getElementById('mainMenu').style.display = 'none';
-    document.getElementById('setup').style.display = 'flex';
+    hide('mainMenu'); show('setup');
     document.getElementById('setupTitle').textContent = MATERIAL_TITLES[material];
   };
 });
-document.getElementById('backBtn').onclick = ()=>{
-  document.getElementById('setup').style.display = 'none';
-  document.getElementById('mainMenu').style.display = 'flex';
-};
-document.getElementById('openSummaryBtn').onclick = ()=>{
-  document.getElementById('mainMenu').style.display = 'none';
-  document.getElementById('summaryScreen').style.display = 'block';
-};
-document.getElementById('summaryBackBtn').onclick = ()=>{
-  document.getElementById('summaryScreen').style.display = 'none';
-  document.getElementById('mainMenu').style.display = 'flex';
-};
-document.getElementById('summaryPlayBtn').onclick = ()=>{
-  document.getElementById('summaryScreen').style.display = 'none';
-  document.getElementById('mainMenu').style.display = 'flex';
-};
+document.getElementById('backBtn').onclick = ()=>{ SFX.click(); hide('setup'); show('mainMenu'); };
+document.getElementById('openSummaryBtn').onclick = ()=>{ SFX.click(); hide('mainMenu'); show('summaryScreen'); };
+document.getElementById('summaryBackBtn').onclick = ()=>{ SFX.click(); hide('summaryScreen'); show('mainMenu'); };
+document.getElementById('summaryPlayBtn').onclick = ()=>{ SFX.click(); hide('summaryScreen'); show('mainMenu'); };
 
-// ---- SETUP LOGIC ----
-document.querySelectorAll('[data-mode]').forEach(btn=>{
-  btn.onclick = ()=>{
-    document.querySelectorAll('[data-mode]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    vsBot = btn.dataset.mode === 'bot';
-    document.getElementById('botLevelCard').style.display = vsBot ? 'flex' : 'none';
-  };
+/* ================= SETUP ================= */
+function bindChoice(sel, fn){
+  document.querySelectorAll(sel).forEach(btn=>{
+    btn.onclick = ()=>{
+      SFX.click();
+      document.querySelectorAll(sel).forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      fn(btn);
+    };
+  });
+}
+bindChoice('[data-mode]', b=>{
+  vsBot = b.dataset.mode === 'bot';
+  document.getElementById('botLevelCard').style.display = vsBot ? 'flex' : 'none';
 });
-document.querySelectorAll('[data-botlevel]').forEach(btn=>{
-  btn.onclick = ()=>{
-    document.querySelectorAll('[data-botlevel]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    botLevel = btn.dataset.botlevel;
-  };
-});
-document.querySelectorAll('[data-diff]').forEach(btn=>{
-  btn.onclick = ()=>{
-    document.querySelectorAll('[data-diff]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    difficulty = btn.dataset.diff;
-  };
-});
-document.querySelectorAll('[data-target]').forEach(btn=>{
-  btn.onclick = ()=>{
-    document.querySelectorAll('[data-target]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    targetScore = parseInt(btn.dataset.target);
-  };
-});
+bindChoice('[data-botlevel]', b=> botLevel = b.dataset.botlevel);
+bindChoice('[data-diff]',     b=> difficulty = b.dataset.diff);
+bindChoice('[data-target]',   b=> targetScore = parseInt(b.dataset.target));
 
 document.getElementById('startBtn').onclick = startGame;
 document.getElementById('resetBtn').onclick = ()=>location.reload();
 document.getElementById('playAgainBtn').onclick = ()=>location.reload();
+document.getElementById('menuBtn').onclick = ()=>location.reload();
 
+/* ================= GAME ================= */
 function startGame(){
+  SFX.click();
   if(vsBot){
-    COLORS = ['#7f8c8d','#2980b9'];
-    NAMES = [botLevel==='smart' ? '🧠 Bot Cerdas' : '😊 Bot Biasa', '🙋 Kamu'];
+    COLORS = ['#6D6E85','#2F7FE0'];
+    NAMES  = [botLevel==='smart' ? '🧠 Bot Cerdas' : '😊 Bot Biasa', '🙋 Kamu'];
     document.body.classList.add('vsbot-active');
   } else {
-    COLORS = ['#c0392b','#2980b9'];
-    NAMES = ['🔴 Tim Merah','🔵 Tim Biru'];
+    COLORS = ['#E0453E','#2F7FE0'];
+    NAMES  = ['🔴 Tim Merah','🔵 Tim Biru'];
     document.body.classList.remove('vsbot-active');
   }
 
-  // coba kunci ke landscape hanya untuk mode 2 pemain (papan besar)
   if(!vsBot){
     try{
-      if(document.documentElement.requestFullscreen){
-        document.documentElement.requestFullscreen().catch(()=>{});
-      }
-      if(screen.orientation && screen.orientation.lock){
-        screen.orientation.lock('landscape').catch(()=>{});
-      }
+      if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+      if(screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
     }catch(e){}
   }
 
-  document.getElementById('setup').style.display = 'none';
+  hide('setup');
   document.getElementById('topbar').style.display = 'flex';
-  document.getElementById('gameArea').style.display = 'block';
+  show('gameArea');
+  document.getElementById('targetLabel').textContent = targetScore;
 
   scores = new Array(numPlayers).fill(0);
 
@@ -509,27 +593,21 @@ function startGame(){
   tugZones.innerHTML = '';
   for(let i=0;i<numPlayers;i++){
     const z = document.createElement('div');
-    z.className = 'tugZone';
-    z.style.color = COLORS[i];
-    z.textContent = NAMES[i];
+    z.className = 'tugZone'; z.style.color = COLORS[i]; z.textContent = NAMES[i];
     tugZones.appendChild(z);
   }
 
   const leftTeam = document.getElementById('tugTeamLeft');
   const rightTeam = document.getElementById('tugTeamRight');
-  leftTeam.innerHTML = '';
-  rightTeam.innerHTML = '';
+  leftTeam.innerHTML = ''; rightTeam.innerHTML = '';
   for(let p=0;p<3;p++){
     const l = document.createElement('span');
-    l.className = 'tugPerson';
-    l.textContent = '🧑';
-    l.style.filter = `drop-shadow(0 0 3px ${COLORS[0]})`;
+    l.className = 'tugPerson'; l.textContent = '🧑';
+    l.style.filter = `drop-shadow(0 0 4px ${COLORS[0]})`;
     leftTeam.appendChild(l);
-
     const r = document.createElement('span');
-    r.className = 'tugPerson';
-    r.textContent = '🧑';
-    r.style.filter = `drop-shadow(0 0 3px ${COLORS[1]})`;
+    r.className = 'tugPerson'; r.textContent = '🧑';
+    r.style.filter = `drop-shadow(0 0 4px ${COLORS[1]})`;
     rightTeam.appendChild(r);
   }
 
@@ -540,12 +618,10 @@ function startGame(){
   gameDiv.style.height = '100%';
   if(vsBot){
     gameDiv.classList.add('game-vsbot');
-    gameDiv.style.gridTemplateColumns = '';
-    gameDiv.style.gridTemplateRows = '';
+    gameDiv.style.gridTemplateColumns = ''; gameDiv.style.gridTemplateRows = '';
   } else {
     gameDiv.classList.remove('game-vsbot');
-    gameDiv.style.gridTemplateColumns = '1fr 1fr';
-    gameDiv.style.gridTemplateRows = '1fr';
+    gameDiv.style.gridTemplateColumns = '1fr 1fr'; gameDiv.style.gridTemplateRows = '1fr';
   }
 
   gameDiv.innerHTML = '';
@@ -553,7 +629,7 @@ function startGame(){
   for(let i=0;i<numPlayers;i++){
     const panel = document.createElement('div');
     panel.className = 'panel';
-    panel.style.background = COLORS[i];
+    panel.style.background = PANEL_BG(COLORS[i]);
     panel.innerHTML = `
       <div class="panel-name">${NAMES[i]}</div>
       <div class="panel-score" id="score-${i}">0</div>
@@ -572,19 +648,19 @@ function startGame(){
 
 function updateTugKnot(){
   const knot = document.getElementById('tugKnot');
+  const fill = document.getElementById('tugFill');
   const totalScore = scores.reduce((a,b)=>a+b,0);
-  let posPercent = 50; // netral di tengah
+  let posPercent = 50;
   if(totalScore > 0){
-    // posisi zona tiap tim (tengah dari slot masing-masing)
     const slotWidth = 100 / numPlayers;
     let weightedSum = 0;
-    scores.forEach((s,i)=>{
-      const zoneCenter = slotWidth*i + slotWidth/2;
-      weightedSum += s * zoneCenter;
-    });
+    scores.forEach((s,i)=>{ weightedSum += s * (slotWidth*i + slotWidth/2); });
     posPercent = weightedSum / totalScore;
   }
   knot.style.left = posPercent + '%';
+  // pita warna: sisi yang menang mewarnai jalur
+  if(posPercent < 50){ fill.style.left='0%'; fill.style.width=(50-posPercent)+'%'; fill.style.background=COLORS[0]; }
+  else { fill.style.left='50%'; fill.style.width=(posPercent-50)+'%'; fill.style.background=COLORS[1]; }
 }
 
 function updateTimer(){
@@ -594,36 +670,40 @@ function updateTimer(){
   document.getElementById('timer').textContent = `${m}:${s}`;
 }
 
+/* ================= SOAL ================= */
 function genQuestion(){
-  if(material === 'order') return genOrderQuestion();
-  if(material === 'muldiv') return genMulDivQuestion();
-  return genAddSubQuestion();
+  let m = material;
+  if(m === 'mixed'){
+    m = ['order','add','sub','mul','div'][Math.floor(Math.random()*5)];
+  }
+  if(m === 'order')  return genOrderQuestion();
+  if(m === 'add')    return genAddSubQuestion('+');
+  if(m === 'sub')    return genAddSubQuestion('−');
+  if(m === 'addsub') return genAddSubQuestion(Math.random()<0.5 ? '+' : '−');
+  if(m === 'mul')    return genMulDivQuestion('×');
+  if(m === 'div')    return genMulDivQuestion(':');
+  if(m === 'muldiv') return genMulDivQuestion(Math.random()<0.5 ? '×' : ':');
+  return genAddSubQuestion('+');
 }
-
-function genAddSubQuestion(){
+function genAddSubQuestion(op){
   const maxNum = difficulty==='easy' ? 10 : difficulty==='medium' ? 50 : 100;
-  const op = Math.random() < 0.5 ? '+' : '-';
   const a = rand(-maxNum, maxNum);
   const b = rand(-maxNum, maxNum);
   const answer = op==='+' ? a+b : a-b;
   return {text:`${a} ${op} (${b}) = ?`, answer, type:'number'};
 }
-
 function genOrderQuestion(){
   const maxNum = difficulty==='easy' ? 10 : difficulty==='medium' ? 50 : 100;
   let a = rand(-maxNum, maxNum);
   let b = rand(-maxNum, maxNum);
-  // sesekali buat sama agar tanda "=" juga muncul
   if(Math.random() < 0.15) b = a;
   const answer = a > b ? '>' : (a < b ? '<' : '=');
-  return {text:`${a}  ...  ${b}`, answer, type:'symbol'};
+  return {text:`${a}  ⬜  ${b}`, answer, type:'symbol'};
 }
-
-function genMulDivQuestion(){
+function genMulDivQuestion(op){
   const maxFactor = difficulty==='easy' ? 5 : difficulty==='medium' ? 10 : 12;
-  const op = Math.random() < 0.5 ? 'x' : ':';
   let a,b,answer;
-  if(op==='x'){
+  if(op==='×'){
     a = rand(-maxFactor, maxFactor) || 1;
     b = rand(-maxFactor, maxFactor) || 1;
     answer = a*b;
@@ -639,7 +719,9 @@ function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 function newQuestion(i){
   const q = genQuestion();
   panels[i].dataset.answer = q.answer;
-  document.getElementById(`question-${i}`).textContent = q.text;
+  const qEl = document.getElementById(`question-${i}`);
+  qEl.textContent = q.text;
+  qEl.classList.remove('flash'); void qEl.offsetWidth; qEl.classList.add('flash');
 
   let arr;
   if(q.type === 'symbol'){
@@ -648,8 +730,7 @@ function newQuestion(i){
     const choices = new Set([q.answer]);
     const maxOffset = difficulty==='easy' ? 4 : difficulty==='medium' ? 8 : 12;
     while(choices.size < 4){
-      const offset = rand(-maxOffset,maxOffset);
-      const wrong = q.answer + offset;
+      const wrong = q.answer + rand(-maxOffset,maxOffset);
       if(wrong !== q.answer) choices.add(wrong);
     }
     arr = Array.from(choices).sort(()=>Math.random()-0.5);
@@ -657,6 +738,7 @@ function newQuestion(i){
 
   const answersDiv = document.getElementById(`answers-${i}`);
   answersDiv.innerHTML = '';
+  answersDiv.style.pointerEvents = '';
   arr.forEach(val=>{
     const btn = document.createElement('button');
     btn.className = 'ans-btn';
@@ -675,7 +757,7 @@ function newQuestion(i){
 function botAnswer(i){
   const answersDiv = document.getElementById(`answers-${i}`);
   const btns = answersDiv.querySelectorAll('.ans-btn');
-  if(!btns.length) return; // soal sudah berganti / game sudah selesai
+  if(!btns.length) return;
   const correctVal = panels[i].dataset.answer;
   const correctChance = botLevel === 'smart' ? 0.95 : 0.65;
   let chosenBtn;
@@ -691,32 +773,82 @@ function botAnswer(i){
 function checkAnswer(i, chosen, correct, btnEl){
   const allBtns = document.querySelectorAll(`#answers-${i} .ans-btn`);
   allBtns.forEach(b=>b.onclick=null);
+
   if(chosen === correct){
+    SFX.correct();
     btnEl.classList.add('correct','flash');
     scores[i]++;
-    document.getElementById(`score-${i}`).textContent = scores[i];
+    const sc = document.getElementById(`score-${i}`);
+    sc.textContent = scores[i];
+    sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop');
+    panels[i].classList.remove('hit'); void panels[i].offsetWidth; panels[i].classList.add('hit');
+
     updateTugKnot();
     const knot = document.getElementById('tugKnot');
-    knot.classList.remove('tug-pull');
-    void knot.offsetWidth;
-    knot.classList.add('tug-pull');
-    if(scores[i] >= targetScore){
-      setTimeout(()=>endGame(i), 500);
-      return;
-    }
+    knot.classList.remove('tug-pull'); void knot.offsetWidth; knot.classList.add('tug-pull');
+    SFX.tug();
+
+    if(scores[i] >= targetScore){ setTimeout(()=>endGame(i), 500); return; }
     setTimeout(()=>newQuestion(i), 600);
   } else {
-    btnEl.classList.add('wrong','flash');
+    SFX.wrong();
+    btnEl.classList.add('wrong','shake');
     allBtns.forEach(b=>{ if(b.textContent == correct) b.classList.add('correct'); });
     setTimeout(()=>newQuestion(i), 900);
   }
 }
 
+/* ================= WIN + CONFETTI ================= */
 function endGame(winnerIdx){
   clearInterval(timerInterval);
-  document.getElementById('winText').textContent = `🏆 ${NAMES[winnerIdx]} Menang!`;
+  const elapsed = Math.floor((Date.now()-startTime)/1000);
+  const mm = String(Math.floor(elapsed/60)).padStart(2,'0');
+  const ss = String(elapsed%60).padStart(2,'0');
+  document.getElementById('winText').textContent = `${NAMES[winnerIdx]} Menang!`;
+  document.getElementById('winStats').textContent =
+    `Skor ${scores[0]} — ${scores[1]}  •  Waktu ${mm}:${ss}  •  ${MATERIAL_TITLES[material]}`;
   document.getElementById('winOverlay').style.display = 'flex';
+  SFX.win();
+  launchConfetti(COLORS[winnerIdx]);
 }
+
+let confettiRAF = null;
+function launchConfetti(mainColor){
+  const cv = document.getElementById('confetti');
+  cv.style.display = 'block';
+  const ctx = cv.getContext('2d');
+  const resize = ()=>{ cv.width = innerWidth; cv.height = innerHeight; };
+  resize(); addEventListener('resize', resize);
+
+  const palette = [mainColor,'#FFC93C','#20E3B2','#FF5D8F','#FFFFFF','#9B5CFF'];
+  const parts = Array.from({length:160}, ()=>({
+    x: Math.random()*cv.width,
+    y: -20 - Math.random()*cv.height*0.6,
+    w: 6+Math.random()*8, h: 9+Math.random()*12,
+    vy: 1.8+Math.random()*3.4, vx: -1.4+Math.random()*2.8,
+    rot: Math.random()*Math.PI, vr: -0.14+Math.random()*0.28,
+    c: palette[Math.floor(Math.random()*palette.length)]
+  }));
+
+  let frames = 0;
+  (function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    parts.forEach(p=>{
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.vx += Math.sin(frames/28)*0.02;
+      if(p.y > cv.height+30){ p.y = -25; p.x = Math.random()*cv.width; }
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    });
+    frames++;
+    confettiRAF = requestAnimationFrame(draw);
+  })();
+}
+
+/* unlock audio pada interaksi pertama (kebijakan browser) */
+['pointerdown','keydown'].forEach(ev=>{
+  addEventListener(ev, function once(){ const c = ac(); if(c && c.state==='suspended') c.resume(); removeEventListener(ev, once); }, {once:true});
+});
 </script>
 </body>
 </html>
