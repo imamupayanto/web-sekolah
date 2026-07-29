@@ -459,7 +459,7 @@
     <div id="winText">Tim A Menang!</div>
     <div id="winStats"></div>
     <div id="winBtns">
-      <button id="playAgainBtn" class="btn btn-play">🔁 Main Lagi</button>
+      <button id="playAgainBtn" class="btn btn-play">🔁 Main Lagi (mode sama)</button>
       <button id="menuBtn" class="btn btn-ghost">🏠 Menu Utama</button>
     </div>
   </div>
@@ -478,6 +478,7 @@ let panels = [];
 let startTime = null;
 let timerInterval = null;
 let soundOn = true;
+let round = 0;            // penanda ronde aktif
 
 let COLORS = ['#E0453E','#2F7FE0'];
 let NAMES  = ['🔴 Tim Merah','🔵 Tim Biru'];
@@ -570,14 +571,35 @@ bindChoice('[data-botlevel]', b=> botLevel = b.dataset.botlevel);
 bindChoice('[data-diff]',     b=> difficulty = b.dataset.diff);
 bindChoice('[data-target]',   b=> targetScore = parseInt(b.dataset.target));
 
-document.getElementById('startBtn').onclick = startGame;
-document.getElementById('resetBtn').onclick = ()=>location.reload();
-document.getElementById('playAgainBtn').onclick = ()=>location.reload();
-document.getElementById('menuBtn').onclick = ()=>location.reload();
+document.getElementById('startBtn').onclick = ()=>startGame();
+document.getElementById('resetBtn').onclick = ()=>{ SFX.click(); startGame(true); };   // ulangi ronde, setting sama
+document.getElementById('playAgainBtn').onclick = ()=>{ SFX.click(); closeWin(); startGame(true); };
+document.getElementById('menuBtn').onclick = ()=>{ SFX.click(); backToMenu(); };
+
+/* Bersihkan layar menang + confetti */
+function closeWin(){
+  document.getElementById('winOverlay').style.display = 'none';
+  stopConfetti();
+}
+/* Kembali ke menu utama tanpa reload */
+function backToMenu(){
+  closeWin();
+  clearInterval(timerInterval);
+  round++;                                   // batalkan semua timer soal yang tertunda
+  document.getElementById('topbar').style.display = 'none';
+  hide('gameArea');
+  document.getElementById('game').innerHTML = '';
+  document.body.classList.remove('vsbot-active');
+  try{ if(document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{}); }catch(e){}
+  show('mainMenu');
+}
 
 /* ================= GAME ================= */
-function startGame(){
-  SFX.click();
+function startGame(isRestart){
+  if(!isRestart) SFX.click();
+  clearInterval(timerInterval);
+  round++;                       // token ronde: timer soal dari ronde lama akan diabaikan
+  closeWin();
   if(vsBot){
     COLORS = ['#6D6E85','#2F7FE0'];
     NAMES  = [BOT_NAMES[botLevel] || BOT_NAMES.normal, '🙋 Kamu'];
@@ -588,7 +610,7 @@ function startGame(){
     document.body.classList.remove('vsbot-active');
   }
 
-  if(!vsBot){
+  if(!vsBot && !isRestart){
     try{
       if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
       if(screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
@@ -763,7 +785,8 @@ function newQuestion(i){
   if(vsBot && i === BOT_INDEX){
     answersDiv.style.pointerEvents = 'none';
     const d = BOT_DELAY[botLevel] || BOT_DELAY.normal;
-    setTimeout(()=>botAnswer(i), d[0] + Math.random()*d[1]);
+    const r = round;
+    setTimeout(()=>{ if(r === round) botAnswer(i); }, d[0] + Math.random()*d[1]);
   }
 }
 
@@ -784,6 +807,7 @@ function botAnswer(i){
 }
 
 function checkAnswer(i, chosen, correct, btnEl){
+  const r = round;
   const allBtns = document.querySelectorAll(`#answers-${i} .ans-btn`);
   allBtns.forEach(b=>b.onclick=null);
 
@@ -803,13 +827,13 @@ function checkAnswer(i, chosen, correct, btnEl){
     SFX.correct(); SFX.tug();
     btnEl.classList.add('correct','flash');
     panels[i].classList.remove('hit'); void panels[i].offsetWidth; panels[i].classList.add('hit');
-    if(scores[i] >= targetScore){ setTimeout(()=>endGame(i), 500); return; }
-    setTimeout(()=>newQuestion(i), 600);
+    if(scores[i] >= targetScore){ setTimeout(()=>{ if(r === round) endGame(i); }, 500); return; }
+    setTimeout(()=>{ if(r === round) newQuestion(i); }, 600);
   } else {
     SFX.wrong();
     btnEl.classList.add('wrong','shake');
     allBtns.forEach(b=>{ if(b.textContent == correct) b.classList.add('correct'); });
-    setTimeout(()=>newQuestion(i), 900);
+    setTimeout(()=>{ if(r === round) newQuestion(i); }, 900);
   }
 }
 
@@ -839,7 +863,17 @@ function endGame(winnerIdx){
 }
 
 let confettiRAF = null;
+function stopConfetti(){
+  if(confettiRAF){ cancelAnimationFrame(confettiRAF); confettiRAF = null; }
+  const cv = document.getElementById('confetti');
+  if(cv){
+    const ctx = cv.getContext('2d');
+    if(ctx) ctx.clearRect(0,0,cv.width,cv.height);
+    cv.style.display = 'none';
+  }
+}
 function launchConfetti(mainColor){
+  stopConfetti();
   const cv = document.getElementById('confetti');
   cv.style.display = 'block';
   const ctx = cv.getContext('2d');
