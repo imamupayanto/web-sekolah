@@ -183,6 +183,11 @@
   #timerChip{ background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); padding:6px 16px; border-radius:999px; }
   #timer{ font-weight:800; color:var(--sun); }
   #targetChip{ background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); padding:6px 16px; border-radius:999px; }
+  #ruleChip{ background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); padding:6px 14px; border-radius:999px; font-size:13.5px; }
+  .score-delta{ position:absolute; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:clamp(24px,4.5vh,44px);
+    z-index:3; pointer-events:none; text-shadow:0 3px 8px rgba(0,0,0,.5); animation:deltaUp 1s ease-out forwards; }
+  @keyframes deltaUp{ 0%{opacity:0;transform:translateY(10px) scale(.7)} 25%{opacity:1;transform:translateY(-6px) scale(1.15)}
+    100%{opacity:0;transform:translateY(-64px) scale(1)} }
   #resetBtn{ padding:7px 18px; font-size:14px; }
 
   #tugWrap{ width:92%; max-width:920px; height:36px; position:relative; margin-top:32px; }
@@ -393,6 +398,7 @@
     <div class="setup-card" id="botLevelCard" style="display:none;">
       <label>🧠 Level Bot</label>
       <div class="setup-row">
+        <button class="choice-btn" data-botlevel="easy">🐢 Mudah</button>
         <button class="choice-btn active" data-botlevel="normal">😊 Biasa</button>
         <button class="choice-btn" data-botlevel="smart">🧠 Cerdas</button>
       </div>
@@ -408,7 +414,7 @@
     </div>
 
     <div class="setup-card">
-      <label>🏁 Target Skor Menang <span style="font-weight:400;opacity:.7;font-size:13px">— pilih ⚡5 untuk mode cepat</span></label>
+      <label>🏁 Target Skor Menang <span style="font-weight:400;opacity:.7;font-size:13px">— benar <b>+2</b>, salah <b>−1</b> • pilih ⚡5 untuk mode cepat</span></label>
       <div class="setup-row">
         <button class="choice-btn" data-target="5">⚡ 5</button>
         <button class="choice-btn" data-target="10">10</button>
@@ -426,6 +432,7 @@
   <div id="infoRow">
     <span id="timerChip">⏱ <span id="timer">00:00</span></span>
     <span id="targetChip">🏁 Target <b id="targetLabel">15</b></span>
+    <span id="ruleChip">✅ +2 &nbsp;•&nbsp; ❌ −1</span>
     <button id="soundBtn2" class="btn btn-ghost" style="padding:7px 14px;font-size:14px">🔊</button>
     <button id="resetBtn" class="btn btn-ghost">↺ Reset</button>
   </div>
@@ -475,6 +482,11 @@ let soundOn = true;
 let COLORS = ['#E0453E','#2F7FE0'];
 let NAMES  = ['🔴 Tim Merah','🔵 Tim Biru'];
 const BOT_INDEX = 0;
+const POINT_CORRECT = 2;
+const POINT_WRONG   = -1;
+const BOT_NAMES  = { easy:'🐢 Bot Mudah', normal:'😊 Bot Biasa', smart:'🧠 Bot Cerdas' };
+const BOT_ACCURACY = { easy:0.40, normal:0.65, smart:0.95 };
+const BOT_DELAY    = { easy:[3000,3000], normal:[1500,2500], smart:[500,900] }; // [min, random-range]
 const MATERIAL_TITLES = {
   order:  '📏 Mengurutkan Bilangan',
   add:    '➕ Penjumlahan',
@@ -568,7 +580,7 @@ function startGame(){
   SFX.click();
   if(vsBot){
     COLORS = ['#6D6E85','#2F7FE0'];
-    NAMES  = [botLevel==='smart' ? '🧠 Bot Cerdas' : '😊 Bot Biasa', '🙋 Kamu'];
+    NAMES  = [BOT_NAMES[botLevel] || BOT_NAMES.normal, '🙋 Kamu'];
     document.body.classList.add('vsbot-active');
   } else {
     COLORS = ['#E0453E','#2F7FE0'];
@@ -650,14 +662,11 @@ function startGame(){
 function updateTugKnot(){
   const knot = document.getElementById('tugKnot');
   const fill = document.getElementById('tugFill');
-  const totalScore = scores.reduce((a,b)=>a+b,0);
-  let posPercent = 50;
-  if(totalScore > 0){
-    const slotWidth = 100 / numPlayers;
-    let weightedSum = 0;
-    scores.forEach((s,i)=>{ weightedSum += s * (slotWidth*i + slotWidth/2); });
-    posPercent = weightedSum / totalScore;
-  }
+  // selisih skor menentukan posisi simpul; skor boleh minus
+  const diff = (scores[1] || 0) - (scores[0] || 0);           // + => condong ke kanan (pemain 2)
+  const range = Math.max(targetScore, 1);
+  let posPercent = 50 + (diff / range) * 45;
+  posPercent = Math.max(4, Math.min(96, posPercent));
   knot.style.left = posPercent + '%';
   // pita warna: sisi yang menang mewarnai jalur
   if(posPercent < 50){ fill.style.left='0%'; fill.style.width=(50-posPercent)+'%'; fill.style.background=COLORS[0]; }
@@ -686,12 +695,15 @@ function genQuestion(){
   if(m === 'muldiv') return genMulDivQuestion(Math.random()<0.5 ? '×' : ':');
   return genAddSubQuestion('+');
 }
+// bilangan negatif diberi kurung, positif ditulis polos
+function wrapNum(n){ return n < 0 ? `(${n})` : `${n}`; }
+
 function genAddSubQuestion(op){
   const maxNum = difficulty==='easy' ? 10 : difficulty==='medium' ? 50 : 100;
   const a = rand(-maxNum, maxNum);
   const b = rand(-maxNum, maxNum);
   const answer = op==='+' ? a+b : a-b;
-  return {text:`${a} ${op} (${b}) = ?`, answer, type:'number'};
+  return {text:`${a} ${op} ${wrapNum(b)} = ?`, answer, type:'number'};
 }
 function genOrderQuestion(){
   const maxNum = difficulty==='easy' ? 10 : difficulty==='medium' ? 50 : 100;
@@ -713,7 +725,7 @@ function genMulDivQuestion(op){
     answer = rand(-maxFactor, maxFactor) || 1;
     a = b*answer;
   }
-  return {text:`${a} ${op} (${b}) = ?`, answer, type:'number'};
+  return {text:`${a} ${op} ${wrapNum(b)} = ?`, answer, type:'number'};
 }
 function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
@@ -750,8 +762,8 @@ function newQuestion(i){
 
   if(vsBot && i === BOT_INDEX){
     answersDiv.style.pointerEvents = 'none';
-    const delay = botLevel === 'smart' ? (500 + Math.random()*900) : (1500 + Math.random()*2500);
-    setTimeout(()=>botAnswer(i), delay);
+    const d = BOT_DELAY[botLevel] || BOT_DELAY.normal;
+    setTimeout(()=>botAnswer(i), d[0] + Math.random()*d[1]);
   }
 }
 
@@ -760,7 +772,7 @@ function botAnswer(i){
   const btns = answersDiv.querySelectorAll('.ans-btn');
   if(!btns.length) return;
   const correctVal = panels[i].dataset.answer;
-  const correctChance = botLevel === 'smart' ? 0.95 : 0.65;
+  const correctChance = BOT_ACCURACY[botLevel] ?? BOT_ACCURACY.normal;
   let chosenBtn;
   if(Math.random() < correctChance){
     chosenBtn = Array.from(btns).find(b=>b.textContent == correctVal);
@@ -775,20 +787,22 @@ function checkAnswer(i, chosen, correct, btnEl){
   const allBtns = document.querySelectorAll(`#answers-${i} .ans-btn`);
   allBtns.forEach(b=>b.onclick=null);
 
-  if(chosen === correct){
-    SFX.correct();
+  const benar = (chosen === correct);
+  scores[i] += benar ? POINT_CORRECT : POINT_WRONG;
+
+  const sc = document.getElementById(`score-${i}`);
+  sc.textContent = scores[i];
+  sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop');
+  showDelta(i, benar ? `+${POINT_CORRECT}` : `${POINT_WRONG}`, benar);
+
+  updateTugKnot();
+  const knot = document.getElementById('tugKnot');
+  knot.classList.remove('tug-pull'); void knot.offsetWidth; knot.classList.add('tug-pull');
+
+  if(benar){
+    SFX.correct(); SFX.tug();
     btnEl.classList.add('correct','flash');
-    scores[i]++;
-    const sc = document.getElementById(`score-${i}`);
-    sc.textContent = scores[i];
-    sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop');
     panels[i].classList.remove('hit'); void panels[i].offsetWidth; panels[i].classList.add('hit');
-
-    updateTugKnot();
-    const knot = document.getElementById('tugKnot');
-    knot.classList.remove('tug-pull'); void knot.offsetWidth; knot.classList.add('tug-pull');
-    SFX.tug();
-
     if(scores[i] >= targetScore){ setTimeout(()=>endGame(i), 500); return; }
     setTimeout(()=>newQuestion(i), 600);
   } else {
@@ -797,6 +811,17 @@ function checkAnswer(i, chosen, correct, btnEl){
     allBtns.forEach(b=>{ if(b.textContent == correct) b.classList.add('correct'); });
     setTimeout(()=>newQuestion(i), 900);
   }
+}
+
+function showDelta(i, text, benar){
+  const el = document.createElement('div');
+  el.className = 'score-delta';
+  el.textContent = text;
+  el.style.color = benar ? '#5BFFB0' : '#FF9A9A';
+  el.style.top = '18%';
+  el.style.left = (36 + Math.random()*28) + '%';
+  panels[i].appendChild(el);
+  setTimeout(()=>el.remove(), 1050);
 }
 
 /* ================= WIN + CONFETTI ================= */
