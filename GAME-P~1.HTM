@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perjalanan Paket Data — Permainan Cara Kerja Internet</title>
+<style>
+  :root{
+    --ungu:#5b3fa8; --ungu2:#7c5fd3; --pucat:#f1edfb;
+    --hijau:#1f9d55; --merah:#d94a4a; --kuning:#f5b301;
+    --teks:#2b2b3d; --abu:#6b6b80; --garis:#e3ddf5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--teks);
+    background:linear-gradient(165deg,#f6f3ff 0%,#e9f1fd 100%);
+    min-height:100vh;padding:18px 12px 50px;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+  .kartu{background:#fff;border:1px solid var(--garis);border-radius:20px;padding:24px;
+         box-shadow:0 8px 26px rgba(91,63,168,.10)}
+  h1{font-size:1.7rem;color:var(--ungu);line-height:1.25}
+  h2{font-size:1.15rem;color:var(--ungu)}
+  .sub{color:var(--abu);font-size:.95rem;margin-top:6px}
+  .sembunyi{display:none !important}
+  .tengah{text-align:center}
+
+  .btn{background:var(--ungu);color:#fff;border:none;padding:14px 30px;font-size:1.05rem;
+       font-weight:700;border-radius:14px;cursor:pointer;font-family:inherit;transition:.15s}
+  .btn:hover{background:var(--ungu2);transform:translateY(-2px)}
+  .btn.alt{background:#fff;color:var(--ungu);border:2px solid var(--ungu)}
+  .btn.alt:hover{background:var(--pucat)}
+
+  .info{background:var(--pucat);border-radius:14px;padding:15px 17px;font-size:.94rem;line-height:1.65;margin:18px 0}
+  .info b{color:var(--ungu)}
+
+  /* ---- bar atas ---- */
+  .bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .chip{background:var(--pucat);color:var(--ungu);font-weight:700;padding:8px 15px;border-radius:999px;font-size:.9rem}
+  .chip.skor{background:#fff4d6;color:#8a6100}
+
+  /* ---- jalur / track ---- */
+  .track{position:relative;background:linear-gradient(180deg,#f8f6ff,#eef4fe);
+         border:2px dashed var(--garis);border-radius:18px;padding:52px 10px 14px;margin-bottom:20px;overflow:hidden}
+  .rel{position:relative;height:74px}
+  .garis{position:absolute;top:34px;left:6%;right:6%;height:5px;border-radius:9px;
+         background:repeating-linear-gradient(90deg,var(--garis) 0 12px,transparent 12px 22px)}
+  .pos{position:absolute;top:0;transform:translateX(-50%);text-align:center;width:76px}
+  .pos .ikon{font-size:1.9rem;filter:grayscale(1);opacity:.45;transition:.35s;display:block;line-height:1.2}
+  .pos .nm{font-size:.66rem;color:var(--abu);font-weight:700;margin-top:2px;line-height:1.2}
+  .pos.aktif .ikon{filter:none;opacity:1;transform:scale(1.32)}
+  .pos.lewat .ikon{filter:none;opacity:.95}
+  .pos.aktif .nm{color:var(--ungu)}
+  .paket{position:absolute;top:-40px;font-size:1.7rem;transform:translateX(-50%);
+         transition:left .85s cubic-bezier(.5,-.2,.3,1.3)}
+  .paket.getar{animation:getar .4s}
+  @keyframes getar{0%,100%{transform:translateX(-50%) rotate(0)}25%{transform:translateX(-50%) rotate(-18deg)}75%{transform:translateX(-50%) rotate(18deg)}}
+
+  /* ---- panggung ---- */
+  .adegan{font-size:3.4rem;text-align:center;margin:4px 0 10px;animation:naik .45s}
+  @keyframes naik{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .tahap-nama{text-align:center;font-weight:800;color:var(--ungu);font-size:1.25rem;margin-bottom:6px}
+  .cerita{text-align:center;color:var(--abu);font-size:.95rem;line-height:1.6;margin-bottom:18px}
+  .tanya{font-size:1.12rem;font-weight:700;text-align:center;line-height:1.5;margin-bottom:16px}
+
+  .opsi{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
+  .opsi button{background:#fff;border:2px solid var(--garis);border-radius:15px;padding:16px 14px;
+    font-size:1rem;font-family:inherit;color:var(--teks);cursor:pointer;transition:.14s;
+    display:flex;align-items:center;gap:11px;text-align:left;font-weight:600}
+  .opsi button:hover:not(:disabled){border-color:var(--ungu2);background:var(--pucat);transform:translateY(-2px)}
+  .opsi button:disabled{cursor:default;opacity:.85}
+  .opsi .em{font-size:1.6rem;flex:0 0 auto}
+  .opsi button.benar{border-color:var(--hijau);background:#eafaf1;opacity:1}
+  .opsi button.salah{border-color:var(--merah);background:#fdeceb;animation:goyang .35s}
+  @keyframes goyang{0%,100%{transform:none}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+  .balasan{margin-top:16px;border-radius:14px;padding:14px 16px;font-size:.95rem;line-height:1.6;animation:naik .3s}
+  .balasan.ok{background:#eafaf1;border:1px solid #b7e5cb}
+  .balasan.no{background:#fdeceb;border:1px solid #f3c4c2}
+  .balasan b{display:block;margin-bottom:3px}
+
+  /* ---- hasil ---- */
+  .bintang{font-size:2.9rem;letter-spacing:6px;margin:10px 0}
+  .bintang span{display:inline-block;animation:pop .5s backwards}
+  @keyframes pop{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+  .skor-besar{font-size:3.2rem;font-weight:800;color:var(--ungu);line-height:1}
+  .ringkas{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}
+  .ringkas div{flex:1;min-width:100px;background:var(--pucat);border-radius:14px;padding:13px;text-align:center}
+  .ringkas b{display:block;font-size:1.4rem;color:var(--ungu)}
+  .ringkas span{font-size:.8rem;color:var(--abu)}
+  .rekap{text-align:left;background:#fbfaff;border:1px solid var(--garis);border-radius:14px;padding:16px;margin-bottom:18px}
+  .rekap li{margin:7px 0 7px 20px;font-size:.92rem;line-height:1.55}
+  .aksi{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .mini{font-size:.78rem;color:var(--abu);margin-top:16px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== MULAI ===== -->
+  <section id="hal-mulai" class="kartu tengah">
+    <div style="font-size:3.6rem">📦</div>
+    <h1>Perjalanan Paket Data</h1>
+    <p class="sub">Permainan seru: bagaimana internet bekerja saat kamu main game online</p>
+
+    <div class="info" style="text-align:left">
+      <b>Cara Bermain:</b><br>
+      Kamu adalah sebuah <b>paket data</b> 📦. Kamu harus berkeliling melewati <b>6 pos</b>
+      sampai bisa kembali ke komputer.<br>
+      Di setiap pos ada satu pertanyaan — <b>klik jawaban yang benar</b> supaya kamu bisa lanjut jalan!<br>
+      Jawab benar pada percobaan pertama = <b>20 poin</b> ⭐
+    </div>
+
+    <button class="btn" id="btn-mulai">🚀 Mulai Petualangan</button>
+    <p class="mini">Tanpa isi nama — langsung main. Bisa diulang sebanyak yang kamu mau.</p>
+  </section>
+
+  <!-- ===== PERMAINAN ===== -->
+  <section id="hal-main" class="kartu sembunyi">
+    <div class="bar">
+      <span class="chip" id="c-pos">Pos 1 / 6</span>
+      <span class="chip skor" id="c-skor">⭐ 0 poin</span>
+    </div>
+
+    <div class="track">
+      <div class="rel">
+        <div class="garis"></div>
+        <div class="paket" id="paket">📦</div>
+        <div id="pos-pos"></div>
+      </div>
+    </div>
+
+    <div class="adegan" id="adegan">💻</div>
+    <p class="tahap-nama" id="tahap-nama">—</p>
+    <p class="cerita" id="cerita">—</p>
+    <p class="tanya" id="tanya">—</p>
+    <div class="opsi" id="opsi"></div>
+    <div id="balasan"></div>
+    <div class="tengah" style="margin-top:18px">
+      <button class="btn sembunyi" id="btn-lanjut">Lanjut Jalan →</button>
+    </div>
+  </section>
+
+  <!-- ===== HASIL ===== -->
+  <section id="hal-hasil" class="kartu tengah sembunyi">
+    <div style="font-size:3.4rem" id="emo">🎉</div>
+    <h2 id="judul">Sampai Tujuan!</h2>
+    <div class="bintang" id="bintang"></div>
+    <div class="skor-besar" id="skor-akhir">0</div>
+    <p class="sub">poin</p>
+    <div class="ringkas">
+      <div><b id="r-sekali">0</b><span>Benar sekali coba</span></div>
+      <div><b id="r-salah">0</b><span>Total salah</span></div>
+      <div><b id="r-waktu">0</b><span>Waktu</span></div>
+    </div>
+    <div class="rekap">
+      <b style="color:var(--ungu)">📚 Yang sudah kamu pelajari:</b>
+      <ol id="daftar-rekap"></ol>
+    </div>
+    <div class="aksi">
+      <button class="btn" id="btn-ulang">🔁 Main Lagi</button>
+      <button class="btn alt" id="btn-pulang">🏠 Halaman Depan</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =============== DATA PERMAINAN =============== */
+const POS = [
+  {ikon:"💻", nama:"Komputer"},
+  {ikon:"📶", nama:"Router"},
+  {ikon:"🏢", nama:"ISP"},
+  {ikon:"🌐", nama:"Jaringan"},
+  {ikon:"🖥️", nama:"Server"},
+  {ikon:"🎮", nama:"Layar Kamu"}
+];
+
+const TAHAP = [
+  {
+    adegan:"💻", nama:"Pos 1 — Komputer Kamu",
+    cerita:"Kamu duduk di depan komputer dan ingin bermain game online.",
+    tanya:"Apa yang kamu lakukan supaya permainan dimulai?",
+    opsi:[
+      {em:"▶️", t:"Klik tombol “Main”", benar:true},
+      {em:"🔌", t:"Cabut kabel listrik"},
+      {em:"🖨️", t:"Nyalakan printer"}
+    ],
+    ok:"Betul! Saat kamu klik “Main”, komputer membuat sebuah permintaan berbentuk data — itulah kamu, si paket data 📦",
+    no:"Belum tepat. Perjalanan data selalu dimulai dari perintah yang KAMU berikan, yaitu klik tombol “Main”.",
+    belajar:"Perjalanan data dimulai saat kita mengklik sesuatu di komputer."
+  },
+  {
+    adegan:"📶", nama:"Pos 2 — Modem / Router",
+    cerita:"Kamu keluar dari komputer. Di rumah ada sebuah alat berantena yang memancarkan Wi-Fi.",
+    tanya:"Ke mana paket data pergi setelah keluar dari komputer?",
+    opsi:[
+      {em:"📶", t:"Ke modem / router rumah", benar:true},
+      {em:"🧊", t:"Ke kulkas dapur"},
+      {em:"📺", t:"Ke televisi ruang tamu"}
+    ],
+    ok:"Hebat! Router adalah pintu gerbang rumahmu ke internet. Semua data keluar-masuk lewat sini.",
+    no:"Belum tepat. Alat di rumah yang menghubungkan komputer ke internet adalah modem / router.",
+    belajar:"Data dari komputer pergi dulu ke modem / router di rumah."
+  },
+  {
+    adegan:"🏢", nama:"Pos 3 — ISP",
+    cerita:"Router mengantarmu ke sebuah kantor besar penyedia layanan internet.",
+    tanya:"ISP itu singkatan dari apa?",
+    opsi:[
+      {em:"🏢", t:"Internet Service Provider", benar:true},
+      {em:"❓", t:"Ikatan Sistem Pengguna"},
+      {em:"❓", t:"Internet Sangat Praktis"}
+    ],
+    ok:"Tepat sekali! ISP = Internet Service Provider, yaitu penyedia layanan internet. Contohnya IndiHome dan Biznet.",
+    no:"Belum tepat. ISP artinya Internet Service Provider — perusahaan yang menyediakan internet untuk rumahmu.",
+    belajar:"ISP (Internet Service Provider) adalah penyedia layanan internet, misalnya IndiHome atau Biznet."
+  },
+  {
+    adegan:"🌐", nama:"Pos 4 — Jaringan Internet",
+    cerita:"Wow! Kamu masuk ke jaringan raksasa yang menghubungkan seluruh dunia.",
+    tanya:"Lewat apa saja paket data menyeberangi lautan menuju negara lain?",
+    opsi:[
+      {em:"🛰️", t:"Kabel serat optik bawah laut & satelit", benar:true},
+      {em:"🕊️", t:"Dibawa terbang oleh burung"},
+      {em:"🚲", t:"Diantar naik sepeda"}
+    ],
+    ok:"Keren! Data melesat lewat kabel serat optik di dasar laut, dan kadang lewat satelit di angkasa.",
+    no:"Belum tepat. Data menyeberangi lautan lewat kabel serat optik bawah laut, kadang juga lewat satelit.",
+    belajar:"Data melewati router, kabel serat optik bawah laut, dan satelit untuk sampai ke negara lain."
+  },
+  {
+    adegan:"🖥️", nama:"Pos 5 — Server Game",
+    cerita:"Akhirnya kamu tiba di komputer besar milik pembuat game.",
+    tanya:"Apa yang dilakukan server setelah menerima permintaanmu?",
+    opsi:[
+      {em:"⚙️", t:"Memproses lalu mengirim hasilnya kembali", benar:true},
+      {em:"🗑️", t:"Membuang permintaanmu"},
+      {em:"😴", t:"Tidur sampai besok pagi"}
+    ],
+    ok:"Betul! Server memproses perintahmu, lalu menyiapkan data hasil seperti posisi pemain lain, skor, dan peta.",
+    no:"Belum tepat. Tugas server adalah memproses permintaanmu lalu mengirimkan hasilnya kembali.",
+    belajar:"Server menerima permintaan kita, memprosesnya, lalu mengirim data hasil kembali."
+  },
+  {
+    adegan:"🎮", nama:"Pos 6 — Kembali ke Kamu",
+    cerita:"Server sudah selesai bekerja. Saatnya pulang membawa hasil!",
+    tanya:"Lewat jalur mana data hasil kembali ke komputermu?",
+    opsi:[
+      {em:"🔁", t:"Jalur yang sama seperti tadi", benar:true},
+      {em:"📮", t:"Dikirim lewat kantor pos"},
+      {em:"🚪", t:"Lewat jendela rumah"}
+    ],
+    ok:"Sempurna! Data hasil pulang lewat jalur yang sama, lalu tampil di layarmu. Semua ini terjadi dalam sekejap!",
+    no:"Belum tepat. Data hasil kembali melewati jalur yang sama: server → jaringan → ISP → router → komputermu.",
+    belajar:"Data hasil kembali lewat jalur yang sama dan langsung tampil di layar komputer kita."
+  }
+];
+
+/* =============== SUARA (tanpa file) =============== */
+let AC = null;
+function nada(freq, mulai, lama, tipe="sine", vol=.16){
+  if(!AC) return;
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = tipe; o.frequency.value = freq;
+  o.connect(g); g.connect(AC.destination);
+  const t = AC.currentTime + mulai;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + .015);
+  g.gain.exponentialRampToValueAtTime(.0001, t + lama);
+  o.start(t); o.stop(t + lama + .05);
+}
+const sfx = {
+  benar(){ [523.25,659.25,783.99].forEach((f,i)=>nada(f, i*.09, .22)); },
+  salah(){ nada(196, 0, .18, "square", .1); nada(155, .12, .26, "square", .1); },
+  jalan(){ nada(880, 0, .09, "triangle", .09); nada(1174, .07, .12, "triangle", .07); },
+  menang(){ [523.25,659.25,783.99,1046.5,1318.5].forEach((f,i)=>nada(f, i*.12, .45)); }
+};
+
+/* =============== LOGIKA =============== */
+const $ = id => document.getElementById(id);
+let ke=0, skor=0, sekali=0, salah=0, sudahSalah=false, t0=0;
+
+function tampil(id){
+  ["hal-mulai","hal-main","hal-hasil"].forEach(h=>$(h).classList.add("sembunyi"));
+  $(id).classList.remove("sembunyi");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function persen(i){ return 6 + i * (88/(POS.length-1)); }
+
+function gambarPos(){
+  $("pos-pos").innerHTML = POS.map((p,i)=>
+    `<div class="pos" id="pos${i}" style="left:${persen(i)}%">
+       <span class="ikon">${p.ikon}</span><span class="nm">${p.nama}</span>
+     </div>`).join("");
+}
+
+function mulai(){
+  if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  if(AC && AC.state === "suspended") AC.resume();
+  ke=0; skor=0; sekali=0; salah=0; t0=Date.now();
+  gambarPos();
+  tampil("hal-main");
+  render();
+}
+
+function render(){
+  sudahSalah = false;
+  const t = TAHAP[ke];
+  $("c-pos").textContent = `Pos ${ke+1} / ${TAHAP.length}`;
+  $("c-skor").textContent = `⭐ ${skor} poin`;
+  $("adegan").textContent = t.adegan;
+  $("adegan").style.animation = "none"; void $("adegan").offsetWidth; $("adegan").style.animation = "";
+  $("tahap-nama").textContent = t.nama;
+  $("cerita").textContent = t.cerita;
+  $("tanya").textContent = t.tanya;
+  $("balasan").innerHTML = "";
+  $("btn-lanjut").classList.add("sembunyi");
+
+  // posisi paket & pos
+  $("paket").style.left = persen(ke) + "%";
+  POS.forEach((p,i)=>{
+    const el = $("pos"+i);
+    el.classList.toggle("aktif", i === ke);
+    el.classList.toggle("lewat", i < ke);
+  });
+
+  const kotak = $("opsi");
+  kotak.innerHTML = "";
+  // acak urutan opsi
+  t.opsi.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]).forEach(o=>{
+    const b = document.createElement("button");
+    b.innerHTML = `<span class="em">${o.em}</span><span>${o.t}</span>`;
+    b.onclick = ()=>pilih(o, b);
+    kotak.appendChild(b);
+  });
+}
+
+function pilih(o, tombol){
+  const t = TAHAP[ke];
+  if(!o.benar){
+    if(!sudahSalah){ salah++; }
+    sudahSalah = true;
+    tombol.classList.add("salah");
+    tombol.disabled = true;
+    sfx.salah();
+    $("paket").classList.add("getar");
+    setTimeout(()=>$("paket").classList.remove("getar"), 420);
+    $("balasan").innerHTML = `<div class="balasan no"><b>❌ Ups, coba lagi!</b>${t.no}</div>`;
+    return;
+  }
+  // benar
+  [...$("opsi").children].forEach(b=>b.disabled = true);
+  tombol.classList.add("benar");
+  sfx.benar();
+  if(!sudahSalah){ skor += 20; sekali++; } else { skor += 5; }
+  $("c-skor").textContent = `⭐ ${skor} poin`;
+  $("balasan").innerHTML = `<div class="balasan ok"><b>✅ Benar!</b>${t.ok}</div>`;
+  const btn = $("btn-lanjut");
+  btn.textContent = (ke === TAHAP.length-1) ? "🏁 Selesai & Lihat Hasil" : "Lanjut Jalan →";
+  btn.classList.remove("sembunyi");
+}
+
+$("btn-lanjut").onclick = ()=>{
+  if(ke < TAHAP.length-1){
+    ke++;
+    sfx.jalan();
+    $("paket").style.left = persen(ke) + "%";
+    setTimeout(render, 380);
+  } else {
+    selesai();
+  }
+};
+
+function selesai(){
+  const det = Math.max(1, Math.floor((Date.now()-t0)/1000));
+  const b = sekali === 6 ? 3 : sekali >= 4 ? 2 : 1;
+  $("bintang").innerHTML = [0,1,2].map(i =>
+      `<span style="animation-delay:${i*.25}s">${i < b ? "⭐" : "☆"}</span>`).join("");
+  $("skor-akhir").textContent = skor;
+  $("r-sekali").textContent = sekali + "/6";
+  $("r-salah").textContent = salah;
+  $("r-waktu").textContent = Math.floor(det/60) + "m " + (det%60) + "d";
+  $("emo").textContent = b === 3 ? "🏆" : b === 2 ? "🎉" : "💪";
+  $("judul").textContent = b === 3 ? "Sempurna! Kamu Ahli Internet!"
+                        : b === 2 ? "Hebat! Kamu Sampai Tujuan!"
+                        : "Sampai Tujuan! Ayo Coba Lagi";
+  $("daftar-rekap").innerHTML = TAHAP.map(t=>`<li>${t.belajar}</li>`).join("");
+  sfx.menang();
+  tampil("hal-hasil");
+}
+
+$("btn-mulai").onclick = mulai;
+$("btn-ulang").onclick = mulai;
+$("btn-pulang").onclick = ()=>tampil("hal-mulai");
+</script>
+</body>
+</html>
