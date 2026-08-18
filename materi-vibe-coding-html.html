@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vibe Coding & HTML — Materi untuk Pemula</title>
+<style>
+  :root{
+    --bg:#0e1117; --panel:#161b25; --panel2:#1c2230; --line:#2a3242;
+    --text:#e7ecf3; --muted:#9aa7bb; --accent:#6ea8ff; --accent2:#7ee0b8;
+    --warn:#ffcf70; --danger:#ff8b8b; --code:#0b0f16;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f6f8fc; --panel:#ffffff; --panel2:#f0f3f9; --line:#dde3ee;
+      --text:#141a24; --muted:#5b6779; --accent:#1f5fd6; --accent2:#0f8a63;
+      --warn:#9a6b00; --danger:#c22f2f; --code:#0f1420;
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:76px}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.7; font-size:16.5px;
+  }
+  .wrap{max-width:980px; margin:0 auto; padding:0 20px}
+
+  /* ===== NAV ===== */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(10px);
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex; gap:6px; align-items:center; height:60px; overflow-x:auto; scrollbar-width:none}
+  nav .wrap::-webkit-scrollbar{display:none}
+  nav .brand{font-weight:700; margin-right:14px; white-space:nowrap; font-size:15px}
+  nav a{
+    color:var(--muted); text-decoration:none; font-size:14px; padding:7px 12px;
+    border-radius:999px; white-space:nowrap; border:1px solid transparent;
+  }
+  nav a:hover{color:var(--text); background:var(--panel2)}
+  nav a.active{color:var(--text); background:var(--panel2); border-color:var(--line)}
+
+  /* ===== HERO ===== */
+  header.hero{padding:64px 0 44px; border-bottom:1px solid var(--line)}
+  .kicker{
+    display:inline-block; font-size:12.5px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--line); background:var(--panel);
+    padding:5px 12px; border-radius:999px; margin-bottom:18px;
+  }
+  h1{font-size:clamp(30px,5vw,46px); line-height:1.15; margin:0 0 14px; letter-spacing:-.02em}
+  .lead{font-size:18px; color:var(--muted); max-width:64ch; margin:0}
+  .toc{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; margin-top:32px}
+  .toc a{
+    display:block; text-decoration:none; color:inherit; background:var(--panel);
+    border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px;
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .toc a:hover{transform:translateY(-2px); border-color:var(--accent)}
+  .toc b{display:block; font-size:15px; margin-bottom:3px}
+  .toc span{font-size:13.5px; color:var(--muted)}
+
+  /* ===== SECTIONS ===== */
+  section{padding:56px 0; border-bottom:1px solid var(--line)}
+  h2{font-size:clamp(24px,3.4vw,32px); margin:0 0 8px; letter-spacing:-.015em}
+  .secnum{
+    display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px;
+    border-radius:9px; background:var(--accent); color:#fff; font-size:15px; font-weight:700;
+    margin-right:10px; vertical-align:2px;
+  }
+  h3{font-size:19px; margin:34px 0 8px; letter-spacing:-.01em}
+  h4{font-size:16px; margin:22px 0 6px}
+  p{margin:0 0 14px}
+  ul,ol{margin:0 0 14px; padding-left:22px}
+  li{margin-bottom:7px}
+  .sub{color:var(--muted); font-size:15px}
+  strong{color:var(--text)}
+
+  /* ===== CARDS & BOXES ===== */
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin:18px 0}
+  .grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin:18px 0}
+  .grid3{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin:18px 0}
+  .grid2 .card,.grid3 .card{margin:0}
+  .note{border-left:3px solid var(--accent); background:var(--panel2); padding:14px 18px; border-radius:0 10px 10px 0; margin:18px 0}
+  .note.warn{border-left-color:var(--warn)}
+  .note.good{border-left-color:var(--accent2)}
+  .note .t{font-weight:700; font-size:14px; margin-bottom:4px; display:block}
+  .analogy{background:linear-gradient(135deg, color-mix(in srgb,var(--accent) 12%, var(--panel)), var(--panel));
+           border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin:18px 0}
+
+  /* ===== FLOW ===== */
+  .flow{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin:20px 0}
+  .step{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; position:relative}
+  .step .n{font-size:12px; color:var(--accent); font-weight:700; letter-spacing:.08em; text-transform:uppercase}
+  .step .h{font-weight:700; margin:4px 0 4px; font-size:15px}
+  .step .d{font-size:13.5px; color:var(--muted); line-height:1.55}
+
+  /* ===== CODE ===== */
+  .codewrap{position:relative; margin:14px 0}
+  pre{
+    background:var(--code); color:#e6edf3; border:1px solid var(--line); border-radius:12px;
+    padding:18px 18px; overflow-x:auto; margin:0; font-size:14px; line-height:1.65;
+  }
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace}
+  p code, li code, td code{
+    background:var(--panel2); border:1px solid var(--line); padding:1px 6px;
+    border-radius:6px; font-size:.88em; color:var(--accent);
+  }
+  .tag{color:#7ee787} .attr{color:#79c0ff} .val{color:#ffa657} .cmt{color:#8b949e; font-style:italic} .txt{color:#e6edf3}
+  .copy{
+    position:absolute; top:10px; right:10px; background:var(--panel2); color:var(--muted);
+    border:1px solid var(--line); border-radius:8px; padding:5px 11px; font-size:12px;
+    cursor:pointer; opacity:.85;
+  }
+  .copy:hover{color:var(--text); opacity:1}
+
+  /* ===== PROMPT BOX ===== */
+  .prompt{
+    background:var(--panel2); border:1px dashed var(--line); border-radius:12px;
+    padding:16px 18px; margin:12px 0; font-size:14.5px; position:relative;
+  }
+  .prompt .lbl{font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent2); font-weight:700; display:block; margin-bottom:8px}
+  .prompt p{margin:0 0 8px} .prompt p:last-child{margin:0}
+
+  /* ===== TABLE ===== */
+  .tablewrap{overflow-x:auto; margin:18px 0; border:1px solid var(--line); border-radius:12px}
+  table{border-collapse:collapse; width:100%; font-size:14.5px; min-width:520px}
+  th,td{text-align:left; padding:11px 14px; border-bottom:1px solid var(--line)}
+  th{background:var(--panel2); font-size:13px; letter-spacing:.04em; text-transform:uppercase; color:var(--muted)}
+  tr:last-child td{border-bottom:none}
+
+  /* ===== ANATOMY ===== */
+  .anatomy{background:var(--code); border:1px solid var(--line); border-radius:12px; padding:26px 18px 18px; text-align:center; margin:18px 0; overflow-x:auto}
+  .anatomy .line{font-family:ui-monospace,Menlo,monospace; font-size:clamp(15px,2.6vw,21px); white-space:nowrap}
+  .anatomy .lbls{display:flex; justify-content:center; gap:clamp(8px,4vw,44px); margin-top:14px; flex-wrap:wrap}
+  .anatomy .lb{font-size:12px; color:var(--muted)}
+  .anatomy .lb b{display:block; color:var(--accent)}
+
+  /* ===== PLAYGROUND ===== */
+  .play{border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin:20px 0; background:var(--panel)}
+  .play .bar{display:flex; align-items:center; gap:10px; padding:11px 14px; background:var(--panel2); border-bottom:1px solid var(--line); flex-wrap:wrap}
+  .play .bar b{font-size:13.5px}
+  .play .bar .sp{flex:1}
+  .btn{background:var(--accent); color:#fff; border:none; border-radius:8px; padding:7px 14px; font-size:13px; cursor:pointer; font-weight:600}
+  .btn.ghost{background:transparent; color:var(--muted); border:1px solid var(--line)}
+  .btn:hover{filter:brightness(1.08)}
+  .play .panes{display:grid; grid-template-columns:1fr 1fr; min-height:290px}
+  @media(max-width:720px){ .play .panes{grid-template-columns:1fr} }
+  .play textarea{
+    width:100%; height:100%; min-height:290px; border:none; resize:vertical;
+    background:var(--code); color:#e6edf3; padding:16px; font-family:ui-monospace,Menlo,monospace;
+    font-size:13.5px; line-height:1.6; outline:none; border-right:1px solid var(--line);
+  }
+  .play iframe{width:100%; height:100%; min-height:290px; border:none; background:#fff}
+
+  /* ===== MISC ===== */
+  .pill{display:inline-block; font-size:12px; padding:3px 10px; border-radius:999px; background:var(--panel2); border:1px solid var(--line); color:var(--muted); margin:0 6px 6px 0}
+  .checklist{list-style:none; padding:0}
+  .checklist li{padding-left:28px; position:relative}
+  .checklist li::before{content:"✓"; position:absolute; left:0; top:0; color:var(--accent2); font-weight:700}
+  .xlist{list-style:none; padding:0}
+  .xlist li{padding-left:28px; position:relative}
+  .xlist li::before{content:"✕"; position:absolute; left:0; top:0; color:var(--danger); font-weight:700}
+  footer{padding:44px 0 60px; color:var(--muted); font-size:14px; text-align:center}
+  .toTop{margin-top:10px}
+  .toTop a{color:var(--accent); text-decoration:none; font-size:13.5px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <span class="brand">Vibe Coding &amp; HTML</span>
+    <a href="#bagian1">1 · Vibe Coding</a>
+    <a href="#bagian2">2 · Vibe Coding HTML</a>
+    <a href="#bagian3">3 · Dasar HTML</a>
+    <a href="#praktik">Coba Sendiri</a>
+    <a href="#contekan">Contekan</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="kicker">Materi Belajar · Level Pemula Total</span>
+    <h1>Vibe Coding &amp; HTML<br>untuk yang Belum Pernah Ngoding</h1>
+    <p class="lead">Panduan santai tentang cara kerja vibe coding, cara memakainya untuk membuat website sederhana, dan dasar-dasar HTML yang benar-benar perlu Anda tahu. Tidak perlu install apa pun — cukup browser dan sedikit rasa penasaran.</p>
+
+    <div class="toc">
+      <a href="#bagian1"><b>1. Bagaimana Vibe Coding Bekerja</b><span>Konsep, alur kerja, dan kenapa bisa jalan</span></a>
+      <a href="#bagian2"><b>2. Vibe Coding untuk HTML</b><span>Resep prompt &amp; bikin web sederhana</span></a>
+      <a href="#bagian3"><b>3. Apa Itu HTML</b><span>Tag, struktur, dan cara browser membacanya</span></a>
+      <a href="#praktik"><b>4. Praktik Langsung</b><span>Editor mini — ketik, langsung lihat hasilnya</span></a>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════ BAGIAN 1 ══════════════════ -->
+<section id="bagian1">
+  <div class="wrap">
+    <h2><span class="secnum">1</span>Bagaimana Vibe Coding Bekerja</h2>
+    <p class="sub">Dari "saya mau begini" sampai jadi program — tanpa harus hafal sintaks.</p>
+
+    <h3>Definisi paling sederhana</h3>
+    <p><strong>Vibe coding</strong> adalah cara membuat program dengan <em>menjelaskan apa yang Anda inginkan dalam bahasa manusia</em> kepada AI, lalu AI yang menuliskan kodenya. Anda fokus pada <strong>hasil dan rasa</strong> ("vibe"-nya) — bukan pada detail teknis penulisan kode.</p>
+    <p>Istilah ini dipopulerkan sekitar awal 2025 oleh Andrej Karpathy, yang menggambarkannya kira-kira sebagai: "Anda menyerah pada vibes, lupakan bahwa kodenya ada, dan tinggal lihat apakah hasilnya jalan." Intinya: peran Anda bergeser dari <em>penulis kode</em> menjadi <em>pengarah dan penguji</em>.</p>
+
+    <div class="analogy">
+      <strong>Analogi: memesan makanan vs memasak sendiri</strong>
+      <p style="margin-top:8px">Coding tradisional itu seperti memasak: Anda harus tahu bahan, takaran, urutan, dan suhu. Vibe coding itu seperti memesan ke koki: Anda bilang <em>"saya mau nasi goreng, jangan pedas, tambah telur"</em>, koki yang meracik. Tugas Anda: mendeskripsikan pesanan dengan jelas, mencicipi, lalu bilang <em>"kurang asin"</em> sampai pas.</p>
+      <p style="margin:8px 0 0">Konsekuensinya juga sama: kalau pesanan Anda kabur, hasilnya kabur. Dan Anda tetap perlu mencicipi — koki tidak tahu selera Anda kalau tidak dikasih tahu.</p>
+    </div>
+
+    <h3>Kenapa AI bisa menulis kode?</h3>
+    <p>Model AI seperti Claude atau ChatGPT dilatih dengan jumlah teks yang sangat besar, termasuk jutaan baris kode program beserta penjelasannya. Dari situ ia mempelajari <strong>pola</strong>: kalimat seperti "buat tombol berwarna biru" biasanya berpasangan dengan potongan kode tertentu.</p>
+    <p>Jadi AI tidak "mengerti" seperti manusia dan tidak menjalankan program di kepalanya. Ia <strong>memprediksi kode yang paling masuk akal</strong> berdasarkan pola yang pernah dilihatnya. Ini penting dipahami, karena menjelaskan dua sifatnya sekaligus:</p>
+    <div class="grid2">
+      <div class="card">
+        <h4 style="margin-top:0; color:var(--accent2)">Kelebihannya</h4>
+        <p class="sub" style="margin:0">Sangat cepat dan andal untuk hal-hal yang <strong>umum dan sering ditulis orang</strong> — halaman web, formulir, tampilan standar. Kode seperti ini sudah "ribuan kali" ada dalam data latihannya.</p>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0; color:var(--warn)">Kelemahannya</h4>
+        <p class="sub" style="margin:0">Bisa <strong>mengarang dengan percaya diri</strong> (halusinasi) saat diminta hal yang jarang atau sangat spesifik. Kodenya terlihat rapi dan meyakinkan, tapi belum tentu jalan. Karena itu <strong>menguji hasil itu wajib</strong>.</p>
+      </div>
+    </div>
+
+    <h3>Siklus kerja vibe coding</h3>
+    <p>Vibe coding bukan sekali jadi. Ia berputar dalam lingkaran kecil yang diulang sampai hasilnya sesuai:</p>
+
+    <div class="flow">
+      <div class="step"><div class="n">Langkah 1</div><div class="h">Niat</div><div class="d">Tentukan dulu di kepala: saya mau bikin <em>apa</em>, untuk <em>siapa</em>, isinya <em>apa saja</em>.</div></div>
+      <div class="step"><div class="n">Langkah 2</div><div class="h">Prompt</div><div class="d">Tuliskan niat itu ke AI sejelas mungkin — semakin konkret, semakin tepat hasilnya.</div></div>
+      <div class="step"><div class="n">Langkah 3</div><div class="h">AI Menulis Kode</div><div class="d">AI menghasilkan kode lengkap. Anda tidak harus paham setiap baris, tapi jangan buta total.</div></div>
+      <div class="step"><div class="n">Langkah 4</div><div class="h">Jalankan &amp; Lihat</div><div class="d">Buka hasilnya. Ini bagian terpenting: <strong>lihat dengan mata sendiri</strong>, jangan percaya begitu saja.</div></div>
+      <div class="step"><div class="n">Langkah 5</div><div class="h">Koreksi</div><div class="d">"Warnanya terlalu gelap", "tombolnya kekecilan" → kirim balik. Ulangi dari langkah 3.</div></div>
+    </div>
+
+    <div class="note">
+      <span class="t">Kunci utamanya ada di langkah 5</span>
+      Pemula sering berhenti di langkah 3 dan kecewa karena hasil pertama tidak sempurna. Padahal <strong>hasil pertama memang tidak pernah sempurna</strong> — bahkan bagi yang sudah ahli. Kekuatan vibe coding justru ada pada kecepatan mengulang: revisi ke-5 bisa selesai dalam 3 menit, bukan 3 jam.
+    </div>
+
+    <h3>Yang berubah dan yang tidak berubah</h3>
+    <div class="tablewrap">
+      <table>
+        <tr><th>Aspek</th><th>Coding Tradisional</th><th>Vibe Coding</th></tr>
+        <tr><td>Bahasa yang dipakai</td><td>Bahasa pemrograman</td><td>Bahasa sehari-hari</td></tr>
+        <tr><td>Keterampilan utama</td><td>Menulis sintaks yang benar</td><td>Menjelaskan maksud dengan jelas</td></tr>
+        <tr><td>Waktu bikin web sederhana</td><td>Berjam-jam s/d berhari-hari</td><td>Beberapa menit</td></tr>
+        <tr><td>Kesalahan ketik (typo)</td><td>Masalah besar</td><td>Hampir tidak jadi masalah</td></tr>
+        <tr><td><strong>Tanggung jawab atas hasil</strong></td><td><strong>Tetap di Anda</strong></td><td><strong>Tetap di Anda</strong></td></tr>
+        <tr><td><strong>Perlu menguji hasil</strong></td><td><strong>Ya</strong></td><td><strong>Ya</strong></td></tr>
+      </table>
+    </div>
+    <p class="sub">Dua baris terakhir sengaja ditebalkan. AI mempercepat pengerjaan, tapi tidak memindahkan tanggung jawab. Kalau webnya salah, yang menanggung tetap Anda.</p>
+
+    <h3>Kapan vibe coding cocok, kapan hati-hati</h3>
+    <div class="grid2">
+      <div class="card">
+        <h4 style="margin-top:0">Sangat cocok untuk</h4>
+        <ul class="checklist" style="margin-bottom:0">
+          <li>Halaman web sederhana, portofolio, undangan</li>
+          <li>Prototipe cepat untuk menunjukkan ide</li>
+          <li>Belajar — minta AI menjelaskan kodenya</li>
+          <li>Tugas berulang: rapikan data, ubah format</li>
+          <li>Proyek pribadi yang risikonya kecil</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0">Perlu hati-hati untuk</h4>
+        <ul class="xlist" style="margin-bottom:0">
+          <li>Sistem yang menyimpan data pribadi orang lain</li>
+          <li>Apa pun yang berhubungan dengan uang/pembayaran</li>
+          <li>Aplikasi besar dengan banyak bagian saling terkait</li>
+          <li>Hal yang butuh keamanan serius</li>
+          <li>Kode yang akan dipakai orang banyak tanpa diperiksa ahli</li>
+        </ul>
+      </div>
+    </div>
+    <p class="sub">Aturan praktis: <strong>semakin besar kerugian bila kodenya salah, semakin perlu manusia yang paham memeriksanya.</strong> Untuk belajar dan membuat web sederhana seperti di materi ini — risikonya nyaris nol, jadi silakan bereksperimen sebebas-bebasnya.</p>
+
+    <div class="toTop"><a href="#bagian1">↑ kembali ke atas</a></div>
+  </div>
+</section>
+
+<!-- ══════════════════ BAGIAN 2 ══════════════════ -->
+<section id="bagian2">
+  <div class="wrap">
+    <h2><span class="secnum">2</span>Vibe Coding Khusus HTML</h2>
+    <p class="sub">Membuat website sederhana dari nol, hanya dengan mengetik permintaan.</p>
+
+    <h3>Kenapa HTML adalah tempat terbaik untuk memulai</h3>
+    <p>Dari semua jenis coding, HTML adalah yang <strong>paling ramah untuk vibe coding pemula</strong>. Alasannya:</p>
+    <div class="grid3">
+      <div class="card"><h4 style="margin-top:0">Hasilnya langsung terlihat</h4><p class="sub" style="margin:0">Tidak perlu paham kode untuk menilai. Buka di browser, kalau tampilannya bagus berarti berhasil.</p></div>
+      <div class="card"><h4 style="margin-top:0">Tanpa instalasi</h4><p class="sub" style="margin:0">Tidak perlu install program apa pun. Cukup satu file dan browser yang sudah ada di komputer Anda.</p></div>
+      <div class="card"><h4 style="margin-top:0">Aman untuk salah</h4><p class="sub" style="margin:0">HTML tidak bisa merusak apa pun. Salah? Hapus, minta lagi. Tidak ada yang hilang.</p></div>
+      <div class="card"><h4 style="margin-top:0">Satu file, selesai</h4><p class="sub" style="margin:0">Tampilan, gaya, dan interaksi bisa muat dalam satu berkas <code>.html</code>. Tidak ada struktur folder rumit.</p></div>
+      <div class="card"><h4 style="margin-top:0">AI sangat jago di sini</h4><p class="sub" style="margin:0">HTML adalah kode yang paling banyak ada di internet, jadi AI paling terlatih di bidang ini.</p></div>
+      <div class="card"><h4 style="margin-top:0">Mudah dibagikan</h4><p class="sub" style="margin:0">Kirim file-nya ke siapa pun, langsung bisa dibuka. Tidak perlu server.</p></div>
+    </div>
+
+    <h3>Alur lengkap: dari ide ke web jadi</h3>
+    <ol>
+      <li><strong>Tulis permintaan ke AI</strong> — jelaskan halaman apa yang Anda mau.</li>
+      <li><strong>Minta dalam satu file HTML utuh</strong> — ini kalimat ajaibnya, jangan lupa.</li>
+      <li><strong>Salin seluruh kodenya</strong> — dari <code>&lt;!DOCTYPE html&gt;</code> sampai <code>&lt;/html&gt;</code>.</li>
+      <li><strong>Tempel di Notepad</strong> (Windows) atau TextEdit mode plain text (Mac).</li>
+      <li><strong>Simpan dengan nama</strong> <code>index.html</code> — pastikan akhirannya <code>.html</code>, bukan <code>.txt</code>.</li>
+      <li><strong>Klik dua kali file-nya</strong> — otomatis terbuka di browser. Website Anda sudah jadi.</li>
+      <li><strong>Belum pas? Minta revisi</strong> — lalu ulangi langkah 3–6.</li>
+    </ol>
+
+    <div class="note good">
+      <span class="t">Cara lebih cepat lagi</span>
+      Pakai editor mini di <a href="#praktik" style="color:var(--accent)">bagian Praktik Langsung</a> di halaman ini. Tempel kodenya di kotak kiri, hasilnya langsung muncul di kanan — tanpa perlu menyimpan file sama sekali.
+    </div>
+
+    <h3>Resep prompt yang bagus: 5 bahan</h3>
+    <p>Prompt yang baik itu bukan yang panjang, tapi yang <strong>lengkap unsurnya</strong>. Ini lima bahan yang sebaiknya ada:</p>
+    <div class="tablewrap">
+      <table>
+        <tr><th>Bahan</th><th>Pertanyaan yang dijawab</th><th>Contoh</th></tr>
+        <tr><td><strong>1. Apa</strong></td><td>Halaman jenis apa?</td><td>"halaman profil pribadi"</td></tr>
+        <tr><td><strong>2. Isi</strong></td><td>Bagian apa saja di dalamnya?</td><td>"foto, nama, bio 3 kalimat, 3 keahlian, kontak"</td></tr>
+        <tr><td><strong>3. Gaya</strong></td><td>Rasanya seperti apa?</td><td>"bersih, modern, warna biru-putih, banyak ruang kosong"</td></tr>
+        <tr><td><strong>4. Teknis</strong></td><td>Bentuk keluarannya bagaimana?</td><td>"satu file HTML utuh, CSS di dalamnya, responsif di HP"</td></tr>
+        <tr><td><strong>5. Data</strong></td><td>Isi asli atau contoh?</td><td>"pakai teks contoh dulu, nanti saya ganti"</td></tr>
+      </table>
+    </div>
+
+    <h4>Bandingkan sendiri</h4>
+    <div class="prompt" style="border-color:var(--danger)">
+      <span class="lbl" style="color:var(--danger)">✕ Prompt lemah</span>
+      <p>Buatkan website.</p>
+    </div>
+    <p class="sub">Terlalu kabur. AI akan menebak, dan tebakannya kemungkinan besar bukan yang Anda bayangkan.</p>
+
+    <div class="prompt">
+      <span class="lbl">✓ Prompt kuat</span>
+      <p>Buatkan <strong>satu file HTML lengkap</strong> untuk halaman profil pribadi saya.</p>
+      <p><strong>Isinya:</strong> foto bulat di atas (pakai gambar placeholder), nama "Imam", satu kalimat deskripsi, bio 3 kalimat, daftar 3 keahlian dalam bentuk kartu, dan tombol kontak email di bagian bawah.</p>
+      <p><strong>Gayanya:</strong> modern dan bersih, dominan putih dengan aksen biru, sudut membulat, banyak ruang kosong.</p>
+      <p><strong>Teknis:</strong> CSS ditulis di dalam file yang sama (jangan file terpisah), harus rapi juga dibuka di HP, tanpa library eksternal.</p>
+      <p>Pakai teks contoh dulu, nanti saya ganti sendiri.</p>
+    </div>
+
+    <h3>Kalimat-kalimat yang sebaiknya selalu Anda pakai</h3>
+    <div class="card">
+      <p style="margin-bottom:10px"><strong>Untuk memastikan hasilnya bisa langsung dipakai:</strong></p>
+      <p><span class="pill">"Buat dalam satu file HTML lengkap"</span> <span class="pill">"CSS-nya di dalam file yang sama"</span> <span class="pill">"jangan pakai library dari internet"</span> <span class="pill">"tampilkan kode utuhnya, jangan dipotong"</span> <span class="pill">"pastikan rapi juga di layar HP"</span></p>
+      <p style="margin:14px 0 10px"><strong>Untuk merevisi:</strong></p>
+      <p><span class="pill">"warnanya terlalu mencolok, buat lebih lembut"</span> <span class="pill">"tulisannya kekecilan, perbesar"</span> <span class="pill">"tambahkan bagian X di bawah bagian Y"</span> <span class="pill">"jaraknya terlalu rapat, beri ruang lebih"</span> <span class="pill">"kirim ulang kode lengkapnya setelah diubah"</span></p>
+      <p style="margin:14px 0 10px"><strong>Untuk belajar sambil jalan:</strong></p>
+      <p style="margin:0"><span class="pill">"jelaskan setiap bagian kodenya untuk pemula"</span> <span class="pill">"bagian mana yang harus saya ubah kalau mau ganti warna?"</span> <span class="pill">"beri komentar di setiap baris penting"</span></p>
+    </div>
+
+    <div class="note warn">
+      <span class="t">Kesalahan paling sering: "kirim ulang kode lengkapnya"</span>
+      Saat merevisi, AI kadang hanya mengirim potongan yang berubah. Kalau Anda pemula, ini membingungkan karena tidak tahu harus ditempel di mana. Selalu tambahkan <strong>"kirim ulang kode lengkapnya dari awal sampai akhir"</strong> di setiap permintaan revisi.
+    </div>
+
+    <h3>Empat masalah umum &amp; solusinya</h3>
+    <div class="tablewrap">
+      <table>
+        <tr><th>Yang terjadi</th><th>Penyebab biasanya</th><th>Yang harus dilakukan</th></tr>
+        <tr><td>File dibuka, tapi yang muncul cuma tulisan kode</td><td>File tersimpan sebagai <code>.txt</code></td><td>Ganti nama jadi <code>index.html</code>. Di Windows, aktifkan dulu "File name extensions" di File Explorer.</td></tr>
+        <tr><td>Halaman kosong / putih polos</td><td>Kode tersalin tidak lengkap</td><td>Pastikan tersalin dari <code>&lt;!DOCTYPE html&gt;</code> sampai <code>&lt;/html&gt;</code>. Minta AI kirim ulang utuh.</td></tr>
+        <tr><td>Gambar tidak muncul (ikon rusak)</td><td>Alamat gambar karangan AI</td><td>Minta: "ganti semua gambar dengan placeholder yang pasti bisa dimuat, atau pakai warna blok saja".</td></tr>
+        <tr><td>Berantakan saat dibuka di HP</td><td>Belum dibuat responsif</td><td>Minta: "buat responsif untuk layar HP, gunakan media query".</td></tr>
+      </table>
+    </div>
+
+    <h3>Prinsip yang membedakan hasil bagus dan asal jadi</h3>
+    <ul>
+      <li><strong>Mulai kecil, tambah sedikit demi sedikit.</strong> Minta kerangkanya dulu, baru tambah bagian satu per satu. Jangan minta 10 fitur sekaligus di prompt pertama — kalau ada yang salah, Anda tidak tahu yang mana.</li>
+      <li><strong>Satu revisi, satu fokus.</strong> "Ubah warna jadi hijau" lebih mudah dieksekusi tepat daripada "ubah warna, geser menu, tambah footer, perbesar font" sekaligus.</li>
+      <li><strong>Simpan versi yang sudah bagus.</strong> Sebelum minta perubahan besar, simpan file lama dengan nama lain (<code>profil-v1.html</code>). Kalau versi baru malah lebih jelek, Anda bisa kembali.</li>
+      <li><strong>Buka hasilnya, jangan cuma dibaca kodenya.</strong> Kode yang "kelihatan benar" tapi tidak pernah dijalankan adalah jebakan paling umum dalam vibe coding.</li>
+      <li><strong>Sisihkan waktu untuk paham sedikit.</strong> Anda tidak perlu jadi programmer. Tapi kalau tahu sedikit HTML (bagian 3 di bawah), Anda bisa mengubah teks dan warna sendiri tanpa bolak-balik ke AI — jauh lebih cepat.</li>
+    </ul>
+
+    <div class="toTop"><a href="#bagian1">↑ kembali ke atas</a></div>
+  </div>
+</section>
+
+<!-- ══════════════════ BAGIAN 3 ══════════════════ -->
+<section id="bagian3">
+  <div class="wrap">
+    <h2><span class="secnum">3</span>Apa Itu HTML &amp; Cara Kerjanya</h2>
+    <p class="sub">Dasar yang benar-benar perlu Anda tahu — tidak lebih, tidak kurang.</p>
+
+    <h3>HTML itu apa?</h3>
+    <p><strong>HTML</strong> singkatan dari <em>HyperText Markup Language</em>. Perhatikan kata terakhirnya: <strong>Markup</strong>, bukan <em>Programming</em>. HTML bukan bahasa pemrograman — ia tidak menghitung, tidak mengambil keputusan. Tugasnya cuma satu: <strong>memberi tanda pada teks agar browser tahu setiap bagian itu apa.</strong></p>
+
+    <div class="analogy">
+      <strong>Analogi: menandai buku dengan stabilo</strong>
+      <p style="margin-top:8px">Bayangkan Anda punya selembar kertas berisi tulisan polos. Anda lalu menandainya: bagian ini <em>judul</em>, ini <em>paragraf</em>, ini <em>daftar</em>, ini <em>gambar</em>. Nah, tanda-tanda itulah HTML. Browser membaca tanda tersebut lalu menampilkan judul dengan huruf besar tebal, paragraf dengan huruf biasa, dan seterusnya.</p>
+      <p style="margin:8px 0 0">Jadi HTML tidak "membuat" tampilan — HTML <strong>menjelaskan makna</strong>, dan browser yang menerjemahkannya jadi tampilan.</p>
+    </div>
+
+    <h3>Tiga bersaudara dalam sebuah website</h3>
+    <p>Setiap website dibangun dari tiga hal yang bekerja bersama:</p>
+    <div class="grid3">
+      <div class="card"><h4 style="margin-top:0; color:var(--accent)">HTML — Kerangka</h4><p class="sub" style="margin:0">Menentukan <strong>apa isinya</strong>: judul, teks, gambar, tombol. Seperti tulang dan organ pada tubuh.</p></div>
+      <div class="card"><h4 style="margin-top:0; color:var(--accent2)">CSS — Penampilan</h4><p class="sub" style="margin:0">Menentukan <strong>seperti apa tampilannya</strong>: warna, ukuran, jarak, tata letak. Seperti pakaian dan gaya rambut.</p></div>
+      <div class="card"><h4 style="margin-top:0; color:var(--warn)">JavaScript — Perilaku</h4><p class="sub" style="margin:0">Menentukan <strong>apa yang terjadi</strong> saat diklik atau diketik. Seperti gerakan dan reaksi tubuh.</p></div>
+    </div>
+    <p class="sub">Untuk membuat web sederhana, <strong>HTML + sedikit CSS sudah lebih dari cukup.</strong> JavaScript baru diperlukan kalau halaman Anda harus "bereaksi" pada pengguna.</p>
+
+    <h3>Anatomi sebuah tag</h3>
+    <p>Semua HTML dibangun dari <strong>tag</strong> — potongan kode di dalam kurung siku <code>&lt; &gt;</code>. Sebagian besar tag berpasangan: satu pembuka, satu penutup.</p>
+
+    <div class="anatomy">
+      <div class="line"><span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="val">"intro"</span><span class="tag">&gt;</span><span class="txt">Halo dunia</span><span class="tag">&lt;/p&gt;</span></div>
+      <div class="lbls">
+        <div class="lb"><b>tag pembuka</b>mulai di sini</div>
+        <div class="lb"><b>atribut</b>info tambahan</div>
+        <div class="lb"><b>isi</b>yang terlihat pengguna</div>
+        <div class="lb"><b>tag penutup</b>ada garis miring /</div>
+      </div>
+    </div>
+
+    <ul>
+      <li><strong>Tag pembuka</strong> — menandai awal, contoh <code>&lt;p&gt;</code></li>
+      <li><strong>Isi</strong> — teks atau elemen lain yang ada di dalamnya</li>
+      <li><strong>Tag penutup</strong> — sama seperti pembuka tapi ada garis miring: <code>&lt;/p&gt;</code></li>
+      <li><strong>Atribut</strong> — informasi tambahan yang ditulis di tag pembuka, misalnya alamat gambar atau tujuan link</li>
+    </ul>
+    <p class="sub">Beberapa tag tidak punya penutup karena tidak punya isi — misalnya <code>&lt;br&gt;</code> (ganti baris) dan <code>&lt;img&gt;</code> (gambar). Ini disebut <em>tag tunggal</em>.</p>
+
+    <h3>Kerangka wajib setiap halaman HTML</h3>
+    <p>Setiap file HTML punya struktur dasar yang selalu sama. Hafalkan bentuknya saja, jangan hafalkan hurufnya:</p>
+
+    <div class="codewrap">
+      <button class="copy" onclick="copyCode(this)">Salin</button>
+<pre><code><span class="cmt">&lt;!-- Memberi tahu browser: ini file HTML modern --&gt;</span>
+<span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="val">"id"</span><span class="tag">&gt;</span>
+
+<span class="tag">&lt;head&gt;</span>
+  <span class="cmt">&lt;!-- Info di balik layar, TIDAK terlihat di halaman --&gt;</span>
+  <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="val">"UTF-8"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;title&gt;</span>Judul di Tab Browser<span class="tag">&lt;/title&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+
+<span class="tag">&lt;body&gt;</span>
+  <span class="cmt">&lt;!-- Semua yang TERLIHAT ditulis di sini --&gt;</span>
+  <span class="tag">&lt;h1&gt;</span>Halo, Dunia!<span class="tag">&lt;/h1&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Ini paragraf pertama saya.<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+
+<span class="tag">&lt;/html&gt;</span></code></pre>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <tr><th>Bagian</th><th>Fungsinya</th><th>Terlihat?</th></tr>
+        <tr><td><code>&lt;!DOCTYPE html&gt;</code></td><td>Pemberitahuan bahwa ini HTML versi modern</td><td>Tidak</td></tr>
+        <tr><td><code>&lt;html&gt;</code></td><td>Pembungkus seluruh halaman</td><td>—</td></tr>
+        <tr><td><code>&lt;head&gt;</code></td><td>Info untuk browser: judul tab, pengaturan huruf, gaya</td><td>Tidak</td></tr>
+        <tr><td><code>&lt;body&gt;</code></td><td>Seluruh isi halaman yang dilihat pengunjung</td><td><strong>Ya</strong></td></tr>
+      </table>
+    </div>
+    <p class="sub">Kalau Anda ingin mengubah <strong>tulisan yang terlihat</strong>, cari di dalam <code>&lt;body&gt;</code>. Itu satu-satunya hal yang perlu Anda ingat dari tabel ini.</p>
+
+    <h3>Cara browser membaca HTML (langkah demi langkah)</h3>
+    <div class="flow">
+      <div class="step"><div class="n">Tahap 1</div><div class="h">Menerima</div><div class="d">Browser mengambil file HTML — dari komputer Anda atau dari server di internet.</div></div>
+      <div class="step"><div class="n">Tahap 2</div><div class="h">Membaca Urut</div><div class="d">Dibaca dari atas ke bawah, seperti membaca buku. Itu sebabnya urutan tag menentukan urutan tampilan.</div></div>
+      <div class="step"><div class="n">Tahap 3</div><div class="h">Menyusun Struktur</div><div class="d">Setiap tag diubah jadi "kotak" yang saling bersarang — membentuk peta isi halaman.</div></div>
+      <div class="step"><div class="n">Tahap 4</div><div class="h">Menerapkan Gaya</div><div class="d">Aturan CSS ditempelkan ke tiap kotak: warna apa, ukuran berapa, di mana posisinya.</div></div>
+      <div class="step"><div class="n">Tahap 5</div><div class="h">Menggambar</div><div class="d">Semuanya digambar ke layar. Inilah halaman yang Anda lihat. Prosesnya di bawah 1 detik.</div></div>
+    </div>
+
+    <div class="note">
+      <span class="t">Konsep bersarang (nesting)</span>
+      Tag bisa berada di dalam tag lain, seperti kotak di dalam kotak. Aturannya: <strong>yang dibuka terakhir harus ditutup lebih dulu.</strong>
+      <p style="margin:10px 0 0"><code>&lt;p&gt;&lt;b&gt;tebal&lt;/b&gt;&lt;/p&gt;</code> ✓ benar &nbsp;·&nbsp; <code>&lt;p&gt;&lt;b&gt;tebal&lt;/p&gt;&lt;/b&gt;</code> ✕ salah</p>
+    </div>
+
+    <h3>Tag yang perlu Anda kenal (cuma 12)</h3>
+    <p>Ada ratusan tag HTML, tapi <strong>90% halaman web hanya memakai belasan ini</strong>:</p>
+    <div class="tablewrap">
+      <table>
+        <tr><th>Tag</th><th>Gunanya</th><th>Contoh penulisan</th></tr>
+        <tr><td><code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code></td><td>Judul, h1 paling besar</td><td><code>&lt;h1&gt;Judul Utama&lt;/h1&gt;</code></td></tr>
+        <tr><td><code>&lt;p&gt;</code></td><td>Paragraf teks</td><td><code>&lt;p&gt;Isi tulisan.&lt;/p&gt;</code></td></tr>
+        <tr><td><code>&lt;a&gt;</code></td><td>Tautan ke halaman lain</td><td><code>&lt;a href="https://google.com"&gt;Google&lt;/a&gt;</code></td></tr>
+        <tr><td><code>&lt;img&gt;</code></td><td>Menampilkan gambar</td><td><code>&lt;img src="foto.jpg" alt="Foto saya"&gt;</code></td></tr>
+        <tr><td><code>&lt;ul&gt;</code> + <code>&lt;li&gt;</code></td><td>Daftar dengan titik</td><td><code>&lt;ul&gt;&lt;li&gt;Item&lt;/li&gt;&lt;/ul&gt;</code></td></tr>
+        <tr><td><code>&lt;ol&gt;</code> + <code>&lt;li&gt;</code></td><td>Daftar bernomor</td><td><code>&lt;ol&gt;&lt;li&gt;Langkah 1&lt;/li&gt;&lt;/ol&gt;</code></td></tr>
+        <tr><td><code>&lt;div&gt;</code></td><td>Kotak pembungkus untuk mengelompokkan</td><td><code>&lt;div&gt;...isi...&lt;/div&gt;</code></td></tr>
+        <tr><td><code>&lt;span&gt;</code></td><td>Menandai sebagian teks dalam kalimat</td><td><code>&lt;span&gt;kata ini&lt;/span&gt;</code></td></tr>
+        <tr><td><code>&lt;strong&gt;</code></td><td>Teks penting (tampil tebal)</td><td><code>&lt;strong&gt;penting&lt;/strong&gt;</code></td></tr>
+        <tr><td><code>&lt;em&gt;</code></td><td>Penekanan (tampil miring)</td><td><code>&lt;em&gt;ditekankan&lt;/em&gt;</code></td></tr>
+        <tr><td><code>&lt;br&gt;</code></td><td>Pindah baris (tanpa penutup)</td><td><code>baris 1&lt;br&gt;baris 2</code></td></tr>
+        <tr><td><code>&lt;button&gt;</code></td><td>Tombol yang bisa diklik</td><td><code>&lt;button&gt;Kirim&lt;/button&gt;</code></td></tr>
+      </table>
+    </div>
+
+    <h3>Atribut: informasi tambahan pada tag</h3>
+    <p>Atribut ditulis di dalam tag pembuka dengan pola <code>nama="nilai"</code>. Empat yang paling sering muncul:</p>
+    <div class="tablewrap">
+      <table>
+        <tr><th>Atribut</th><th>Dipakai di</th><th>Fungsinya</th></tr>
+        <tr><td><code>href</code></td><td><code>&lt;a&gt;</code></td><td>Alamat tujuan tautan</td></tr>
+        <tr><td><code>src</code></td><td><code>&lt;img&gt;</code></td><td>Lokasi berkas gambar</td></tr>
+        <tr><td><code>alt</code></td><td><code>&lt;img&gt;</code></td><td>Teks pengganti bila gambar gagal dimuat — juga dibacakan untuk pengguna tunanetra</td></tr>
+        <tr><td><code>class</code></td><td>tag apa pun</td><td>Label untuk diberi gaya lewat CSS</td></tr>
+      </table>
+    </div>
+
+    <h3>Menambahkan CSS: dari polos jadi menarik</h3>
+    <p>HTML polos tampilannya sangat sederhana. CSS ditambahkan di dalam <code>&lt;head&gt;</code> menggunakan tag <code>&lt;style&gt;</code>:</p>
+
+    <div class="codewrap">
+      <button class="copy" onclick="copyCode(this)">Salin</button>
+<pre><code><span class="tag">&lt;head&gt;</span>
+  <span class="tag">&lt;style&gt;</span>
+    <span class="cmt">/* Aturan untuk seluruh halaman */</span>
+    <span class="attr">body</span> {
+      <span class="attr">font-family</span>: <span class="val">Arial, sans-serif</span>;   <span class="cmt">/* jenis huruf */</span>
+      <span class="attr">background</span>: <span class="val">#f4f6fa</span>;             <span class="cmt">/* warna latar  */</span>
+      <span class="attr">padding</span>: <span class="val">40px</span>;                  <span class="cmt">/* jarak tepi   */</span>
+    }
+
+    <span class="cmt">/* Aturan khusus untuk semua tag h1 */</span>
+    <span class="attr">h1</span> {
+      <span class="attr">color</span>: <span class="val">#1f5fd6</span>;                  <span class="cmt">/* warna teks   */</span>
+      <span class="attr">font-size</span>: <span class="val">32px</span>;                <span class="cmt">/* ukuran huruf */</span>
+    }
+  <span class="tag">&lt;/style&gt;</span>
+<span class="tag">&lt;/head&gt;</span></code></pre>
+    </div>
+
+    <p>Polanya selalu sama: <strong>pilih elemennya</strong> (<code>body</code>, <code>h1</code>) → <strong>buka kurung kurawal</strong> → <strong>tulis daftar aturan</strong> <code>sifat: nilai;</code> → tutup kurawal.</p>
+
+    <div class="note good">
+      <span class="t">Yang cukup Anda ingat dari CSS</span>
+      <code>color</code> = warna teks · <code>background</code> = warna latar · <code>font-size</code> = ukuran huruf · <code>padding</code> = ruang di dalam · <code>margin</code> = jarak di luar · <code>text-align: center</code> = rata tengah. Dengan enam ini saja Anda sudah bisa mengubah tampilan hasil vibe coding tanpa bertanya lagi ke AI.
+    </div>
+
+    <div class="toTop"><a href="#bagian1">↑ kembali ke atas</a></div>
+  </div>
+</section>
+
+<!-- ══════════════════ PRAKTIK ══════════════════ -->
+<section id="praktik">
+  <div class="wrap">
+    <h2><span class="secnum">4</span>Praktik Langsung</h2>
+    <p class="sub">Ubah kode di kotak kiri, hasilnya berubah seketika di kanan. Tidak ada yang bisa rusak — silakan berantakan sepuasnya.</p>
+
+    <div class="play">
+      <div class="bar">
+        <b>Editor HTML</b>
+        <span class="sub" style="font-size:13px">— coba ganti tulisannya, lalu lihat kanan</span>
+        <span class="sp"></span>
+        <button class="btn ghost" onclick="loadDemo('dasar')">Contoh Dasar</button>
+        <button class="btn ghost" onclick="loadDemo('profil')">Halaman Profil</button>
+        <button class="btn" onclick="runCode()">Jalankan</button>
+      </div>
+      <div class="panes">
+        <textarea id="editor" spellcheck="false" oninput="runCode()"></textarea>
+        <iframe id="preview" title="Hasil"></iframe>
+      </div>
+    </div>
+
+    <h3>Tantangan kecil untuk Anda</h3>
+    <ol>
+      <li>Ganti tulisan di dalam <code>&lt;h1&gt;</code> dengan nama Anda sendiri.</li>
+      <li>Ubah nilai <code>color</code> pada <code>h1</code> menjadi <code>green</code> atau <code>#e63946</code>.</li>
+      <li>Tambahkan satu <code>&lt;li&gt;</code> baru ke dalam daftar yang ada.</li>
+      <li>Hapus salah satu tag penutup (misal <code>&lt;/p&gt;</code>) — perhatikan apa yang kacau. Lalu kembalikan.</li>
+      <li>Klik <strong>Halaman Profil</strong> untuk melihat contoh hasil vibe coding yang sudah jadi, lalu bongkar-pasang isinya.</li>
+    </ol>
+
+    <div class="note">
+      <span class="t">Langkah berikutnya</span>
+      Buka AI favorit Anda, salin <a href="#bagian2" style="color:var(--accent)">contoh prompt kuat di Bagian 2</a>, ganti isinya sesuai kebutuhan Anda, lalu tempel hasil kodenya ke editor di atas. Itulah satu siklus vibe coding yang utuh — dan Anda sudah menyelesaikannya.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ CONTEKAN ══════════════════ -->
+<section id="contekan">
+  <div class="wrap">
+    <h2>Contekan Cepat</h2>
+    <p class="sub">Satu halaman untuk diingat-ingat.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h4 style="margin-top:0">Alur vibe coding</h4>
+        <p class="sub" style="margin:0">Niat → Prompt jelas → AI menulis kode → <strong>Jalankan &amp; lihat</strong> → Koreksi → ulangi</p>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0">Resep prompt</h4>
+        <p class="sub" style="margin:0">Apa + Isi + Gaya + Teknis + Data contoh<br>Selalu tutup dengan: <em>"satu file HTML lengkap, kirim kode utuhnya"</em></p>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0">Struktur HTML</h4>
+        <p class="sub" style="margin:0"><code>&lt;!DOCTYPE&gt;</code> → <code>&lt;html&gt;</code> → <code>&lt;head&gt;</code> (tak terlihat) + <code>&lt;body&gt;</code> (terlihat)</p>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0">Bentuk tag</h4>
+        <p class="sub" style="margin:0"><code>&lt;tag atribut="nilai"&gt;isi&lt;/tag&gt;</code><br>Buka terakhir = tutup pertama.</p>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0">Tiga bersaudara</h4>
+        <p class="sub" style="margin:0">HTML = isi · CSS = tampilan · JavaScript = perilaku</p>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0">Satu aturan emas</h4>
+        <p class="sub" style="margin:0">Kode yang belum pernah dijalankan, belum bisa disebut jadi. <strong>Selalu buka dan lihat hasilnya.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Materi Belajar · Vibe Coding &amp; HTML untuk Pemula<br>
+    <span style="font-size:13px">Halaman ini sendiri adalah satu file HTML — bukti bahwa satu berkas saja sudah cukup.</span>
+    <div class="toTop"><a href="#bagian1">↑ kembali ke atas</a></div>
+  </div>
+</footer>
+
+<script>
+/* ===== copy kode ===== */
+function copyCode(btn){
+  var code = btn.parentElement.querySelector('code').innerText;
+  navigator.clipboard.writeText(code).then(function(){
+    var old = btn.textContent; btn.textContent = 'Tersalin ✓';
+    setTimeout(function(){ btn.textContent = old; }, 1600);
+  });
+}
+
+/* ===== playground ===== */
+var DEMOS = {
+  dasar: [
+    '<!DOCTYPE html>',
+    '<html lang="id">',
+    '<head>',
+    '  <meta charset="UTF-8">',
+    '  <title>Halaman Pertama Saya</title>',
+    '  <style>',
+    '    body { font-family: Arial, sans-serif; padding: 30px; background: #f4f6fa; }',
+    '    h1   { color: #1f5fd6; }',
+    '    li   { margin-bottom: 6px; }',
+    '  </style>',
+    '</head>',
+    '<body>',
+    '',
+    '  <h1>Halo, saya Imam!</h1>',
+    '',
+    '  <p>Ini paragraf pertama saya. Coba <strong>ubah tulisan ini</strong>',
+    '     dan lihat hasilnya langsung berubah di sebelah kanan.</p>',
+    '',
+    '  <h2>Tiga hal yang saya suka:</h2>',
+    '  <ul>',
+    '    <li>Belajar hal baru</li>',
+    '    <li>Kopi di pagi hari</li>',
+    '    <li>Membuat website</li>',
+    '  </ul>',
+    '',
+    '  <p><a href="https://www.google.com">Ini contoh tautan</a></p>',
+    '',
+    '  <button>Ini contoh tombol</button>',
+    '',
+    '</body>',
+    '</html>'
+  ].join('\n'),
+
+  profil: [
+    '<!DOCTYPE html>',
+    '<html lang="id">',
+    '<head>',
+    '  <meta charset="UTF-8">',
+    '  <meta name="viewport" content="width=device-width, initial-scale=1">',
+    '  <title>Profil Saya</title>',
+    '  <style>',
+    '    * { box-sizing: border-box; }',
+    '    body {',
+    '      font-family: -apple-system, Segoe UI, Arial, sans-serif;',
+    '      background: #eef2f9; margin: 0; padding: 32px 16px; color: #1b2333;',
+    '    }',
+    '    .kartu {',
+    '      max-width: 460px; margin: 0 auto; background: #fff;',
+    '      border-radius: 18px; padding: 32px; text-align: center;',
+    '      box-shadow: 0 8px 28px rgba(20,30,60,.09);',
+    '    }',
+    '    .foto {',
+    '      width: 96px; height: 96px; border-radius: 50%;',
+    '      background: linear-gradient(135deg,#1f5fd6,#59a6ff);',
+    '      margin: 0 auto 16px; display: flex;',
+    '      align-items: center; justify-content: center;',
+    '      color: #fff; font-size: 38px; font-weight: 700;',
+    '    }',
+    '    h1 { margin: 0 0 4px; font-size: 24px; }',
+    '    .peran { color: #1f5fd6; font-weight: 600; font-size: 14px; margin-bottom: 14px; }',
+    '    p.bio { color: #56617a; font-size: 15px; line-height: 1.65; }',
+    '    .keahlian { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 20px 0 24px; }',
+    '    .keahlian span {',
+    '      background: #eef3fd; color: #1f5fd6; padding: 6px 14px;',
+    '      border-radius: 999px; font-size: 13px; font-weight: 600;',
+    '    }',
+    '    a.tombol {',
+    '      display: inline-block; background: #1f5fd6; color: #fff;',
+    '      text-decoration: none; padding: 12px 28px; border-radius: 10px;',
+    '      font-weight: 600; font-size: 15px;',
+    '    }',
+    '  </style>',
+    '</head>',
+    '<body>',
+    '',
+    '  <div class="kartu">',
+    '    <div class="foto">I</div>',
+    '    <h1>Imam</h1>',
+    '    <div class="peran">Sedang belajar membuat web</div>',
+    '',
+    '    <p class="bio">',
+    '      Halo! Saya baru mulai belajar HTML lewat vibe coding.',
+    '      Halaman ini dibuat hanya dengan menjelaskan keinginan saya ke AI.',
+    '      Silakan bongkar kodenya di sebelah kiri.',
+    '    </p>',
+    '',
+    '    <div class="keahlian">',
+    '      <span>HTML</span>',
+    '      <span>Menulis Prompt</span>',
+    '      <span>Rasa Penasaran</span>',
+    '    </div>',
+    '',
+    '    <a class="tombol" href="mailto:halo@contoh.com">Hubungi Saya</a>',
+    '  </div>',
+    '',
+    '</body>',
+    '</html>'
+  ].join('\n')
+};
+
+function runCode(){
+  document.getElementById('preview').srcdoc = document.getElementById('editor').value;
+}
+function loadDemo(nama){
+  document.getElementById('editor').value = DEMOS[nama];
+  runCode();
+}
+loadDemo('dasar');
+
+/* ===== nav aktif ===== */
+var links = document.querySelectorAll('nav a');
+var secs  = [].map.call(links, function(a){ return document.querySelector(a.getAttribute('href')); });
+window.addEventListener('scroll', function(){
+  var pos = window.scrollY + 120, idx = 0;
+  secs.forEach(function(s,i){ if (s && s.offsetTop <= pos) idx = i; });
+  links.forEach(function(a,i){ a.classList.toggle('active', i === idx); });
+}, {passive:true});
+</script>
+
+</body>
+</html>
