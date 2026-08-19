@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML Live Preview</title>
+<style>
+  * { box-sizing: border-box; }
+  :root{
+    --bg:#0f1117; --panel:#161923; --border:#262b38; --text:#e6e9ef;
+    --muted:#8b93a7; --accent:#7aa2f7;
+    --c-tag:#7aa2f7; --c-attr:#e0af68; --c-str:#9ece6a; --c-com:#565f89; --c-doc:#bb9af7;
+    --editor-font: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --fs: 13.5px; --lh: 21px;
+  }
+  html, body { height:100%; margin:0; }
+  body{
+    background:var(--bg); color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+
+  /* ---------- Top bar ---------- */
+  header{
+    display:flex; align-items:center; gap:12px;
+    padding:10px 14px; background:var(--panel);
+    border-bottom:1px solid var(--border); flex:none;
+  }
+  header .logo{ font-weight:600; font-size:14px; letter-spacing:.2px; }
+  header .logo span{ color:var(--accent); }
+  header .spacer{ flex:1; }
+  button{
+    font:inherit; font-size:12.5px; color:var(--text);
+    background:#1e2230; border:1px solid var(--border);
+    padding:6px 12px; border-radius:6px; cursor:pointer;
+  }
+  button:hover{ background:#252a3a; border-color:#39405a; }
+  button:active{ transform:translateY(1px); }
+  .status{ font-size:12px; color:var(--muted); min-width:110px; text-align:right; }
+
+  /* ---------- Layout ---------- */
+  main{ flex:1; display:flex; min-height:0; }
+  .pane{ flex:1 1 50%; min-width:0; display:flex; flex-direction:column; }
+  .pane + .pane{ border-left:1px solid var(--border); }
+  .pane-head{
+    display:flex; align-items:center; gap:8px;
+    padding:7px 12px; font-size:11px; text-transform:uppercase;
+    letter-spacing:.8px; color:var(--muted);
+    background:var(--panel); border-bottom:1px solid var(--border); flex:none;
+  }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); }
+  .dot.green{ background:#9ece6a; }
+
+  /* ---------- Editor ---------- */
+  .editor-wrap{
+    position:relative; flex:1; min-height:0;
+    display:flex; overflow:hidden; background:#12141c;
+  }
+  .gutter{
+    flex:none; width:52px; padding:12px 10px 12px 0;
+    text-align:right; color:#4a5169; background:#12141c;
+    border-right:1px solid var(--border);
+    font-family:var(--editor-font); font-size:var(--fs); line-height:var(--lh);
+    overflow:hidden; user-select:none; white-space:pre;
+  }
+  .code-area{ position:relative; flex:1; min-width:0; overflow:hidden; }
+  #highlight, #editor{
+    position:absolute; inset:0; margin:0;
+    padding:12px 14px;
+    font-family:var(--editor-font); font-size:var(--fs); line-height:var(--lh);
+    white-space:pre; word-wrap:normal; tab-size:2;
+    border:0; overflow:auto;
+  }
+  #highlight{ pointer-events:none; color:var(--text); z-index:1; }
+  #editor{
+    z-index:2; background:transparent; color:transparent;
+    caret-color:#fff; resize:none; outline:none;
+  }
+  #editor::selection{ background:rgba(122,162,247,.35); }
+  .tok-tag{ color:var(--c-tag); }
+  .tok-attr{ color:var(--c-attr); }
+  .tok-str{ color:var(--c-str); }
+  .tok-com{ color:var(--c-com); font-style:italic; }
+  .tok-doc{ color:var(--c-doc); }
+  .tok-punc{ color:#7f8698; }
+
+  /* ---------- Preview ---------- */
+  #preview{ flex:1; width:100%; border:0; background:#fff; }
+
+  @media (max-width:760px){
+    main{ flex-direction:column; }
+    .pane + .pane{ border-left:0; border-top:1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">HTML <span>Live Preview</span></div>
+  <div class="spacer"></div>
+  <button id="btn-sample">Contoh</button>
+  <button id="btn-clear">Bersihkan</button>
+  <button id="btn-copy">Salin</button>
+  <button id="btn-download">Unduh .html</button>
+  <div class="status" id="status">siap</div>
+</header>
+
+<main>
+  <section class="pane">
+    <div class="pane-head"><span class="dot"></span> Kode HTML — tempel di sini</div>
+    <div class="editor-wrap">
+      <div class="gutter" id="gutter">1</div>
+      <div class="code-area">
+        <pre id="highlight" aria-hidden="true"><code></code></pre>
+        <textarea id="editor" spellcheck="false" autocomplete="off" autocapitalize="off"
+          placeholder="Tempel (Ctrl+V) kode HTML kamu di sini..."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="pane">
+    <div class="pane-head"><span class="dot green"></span> Hasil visual</div>
+    <iframe id="preview" title="Preview" sandbox="allow-scripts allow-modals allow-forms allow-popups"></iframe>
+  </section>
+</main>
+
+<script>
+(function () {
+  var editor   = document.getElementById('editor');
+  var highlight= document.querySelector('#highlight code');
+  var hlPre    = document.getElementById('highlight');
+  var gutter   = document.getElementById('gutter');
+  var preview  = document.getElementById('preview');
+  var status   = document.getElementById('status');
+
+  var SAMPLE = [
+    '<!DOCTYPE html>',
+    '<html>',
+    '<head>',
+    '  <meta charset="UTF-8">',
+    '  <style>',
+    '    body { font-family: sans-serif; padding: 32px; background:#f6f7fb; }',
+    '    h1   { color:#3b5bdb; margin:0 0 8px; }',
+    '    .card{ background:#fff; padding:20px; border-radius:12px;',
+    '           box-shadow:0 2px 12px rgba(0,0,0,.08); max-width:420px; }',
+    '    button{ background:#3b5bdb; color:#fff; border:0;',
+    '            padding:10px 16px; border-radius:8px; cursor:pointer; }',
+    '  </style>',
+    '</head>',
+    '<body>',
+    '  <div class="card">',
+    '    <h1>Halo, dunia!</h1>',
+    '    <p>Edit kode di kiri, hasilnya langsung muncul di kanan.</p>',
+    '    <button onclick="alert(\'Tombol diklik!\')">Klik saya</button>',
+    '  </div>',
+    '</body>',
+    '</html>'
+  ].join('\n');
+
+  /* ---------- Syntax highlighting ---------- */
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function highlightTag(tagSrc) {
+    // tagSrc is already HTML-escaped, e.g. &lt;div class="a"&gt;
+    return tagSrc.replace(
+      /^(&lt;\/?)([a-zA-Z][\w:-]*)([\s\S]*?)(\/?&gt;)$/,
+      function (m, open, name, body, close) {
+        // single pass so injected markup is never re-scanned
+        var attrs = body.replace(
+          /("[^"]*"|'[^']*')|([\w:@.-]+)(?=\s*=)/g,
+          function (mm, str, attr) {
+            return str
+              ? '<span class="tok-str">' + str + '</span>'
+              : '<span class="tok-attr">' + attr + '</span>';
+          }
+        );
+        return '<span class="tok-punc">' + open + '</span>' +
+               '<span class="tok-tag">' + name + '</span>' + attrs +
+               '<span class="tok-punc">' + close + '</span>';
+      }
+    );
+  }
+
+  function paint(src) {
+    var out = esc(src);
+    // comments -> placeholders first so tags inside them aren't touched
+    var stash = [];
+    out = out.replace(/&lt;!--[\s\S]*?--&gt;/g, function (m) {
+      stash.push('<span class="tok-com">' + m + '</span>');
+      return '\u0001' + (stash.length - 1) + '\u0001';
+    });
+    out = out.replace(/&lt;!DOCTYPE[^&]*&gt;/gi, function (m) {
+      return '<span class="tok-doc">' + m + '</span>';
+    });
+    out = out.replace(
+      /&lt;\/?[a-zA-Z][\w:.-]*(?:(?!&lt;)[\s\S])*?&gt;/g,
+      highlightTag
+    );
+    out = out.replace(/\u0001(\d+)\u0001/g, function (m, i) { return stash[i]; });
+    return out;
+  }
+
+  /* ---------- Line numbers ---------- */
+  function updateGutter(src) {
+    var lines = src.split('\n').length;
+    var buf = '';
+    for (var i = 1; i <= lines; i++) buf += i + '\n';
+    gutter.textContent = buf;
+  }
+
+  /* ---------- Live preview ---------- */
+  var timer = null;
+  function render() {
+    preview.srcdoc = editor.value;
+    status.textContent = 'diperbarui ✓';
+    setTimeout(function () { status.textContent = 'siap'; }, 900);
+  }
+
+  function onInput() {
+    var src = editor.value;
+    highlight.innerHTML = paint(src) + '\n';
+    updateGutter(src);
+    syncScroll();
+    status.textContent = 'mengetik...';
+    clearTimeout(timer);
+    timer = setTimeout(render, 350);
+  }
+
+  function syncScroll() {
+    hlPre.scrollTop = editor.scrollTop;
+    hlPre.scrollLeft = editor.scrollLeft;
+    gutter.scrollTop = editor.scrollTop;
+    gutter.style.transform = 'translateY(' + (-editor.scrollTop) + 'px)';
+  }
+
+  editor.addEventListener('input', onInput);
+  editor.addEventListener('scroll', syncScroll);
+
+  // Tab inserts two spaces instead of leaving the field
+  editor.addEventListener('keydown', function (e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      var s = editor.selectionStart, en = editor.selectionEnd;
+      editor.value = editor.value.slice(0, s) + '  ' + editor.value.slice(en);
+      editor.selectionStart = editor.selectionEnd = s + 2;
+      onInput();
+    }
+  });
+
+  /* ---------- Buttons ---------- */
+  document.getElementById('btn-sample').onclick = function () {
+    editor.value = SAMPLE; onInput(); render();
+  };
+  document.getElementById('btn-clear').onclick = function () {
+    editor.value = ''; onInput(); render(); editor.focus();
+  };
+  document.getElementById('btn-copy').onclick = function () {
+    editor.select();
+    try { document.execCommand('copy'); status.textContent = 'kode disalin ✓'; }
+    catch (err) { status.textContent = 'gagal menyalin'; }
+    window.getSelection().removeAllRanges();
+    setTimeout(function () { status.textContent = 'siap'; }, 1200);
+  };
+  document.getElementById('btn-download').onclick = function () {
+    var blob = new Blob([editor.value], { type: 'text/html;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'halaman.html';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  };
+
+  /* ---------- Init ---------- */
+  editor.value = SAMPLE;
+  onInput();
+  render();
+})();
+</script>
+</body>
+</html>
