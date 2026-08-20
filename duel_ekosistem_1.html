@@ -26,7 +26,7 @@
   }
   .subtitle { font-size:15px; opacity:0.7; text-align:center; margin-top:-10px; letter-spacing:0.4px; }
 
-  #menuGrid { display:flex; gap:18px; flex-wrap:wrap; justify-content:center; max-width:1080px; margin-top:6px; }
+  #menuGrid { display:flex; gap:18px; flex-wrap:wrap; justify-content:center; max-width:1260px; margin-top:6px; }
   .menu-card {
     width:290px; background:rgba(255,255,255,0.07); border:2px solid rgba(255,255,255,0.14);
     border-radius:20px; padding:26px 20px; text-align:center; cursor:pointer;
@@ -229,6 +229,43 @@
     100% { opacity:0; transform:translate(-50%,-88%) scale(0.95); }
   }
 
+  /* ---------- MODE TAYANG SOAL ---------- */
+  .show-wrap { max-width:960px; margin:0 auto; min-height:100%; padding:64px 22px 34px; display:flex; flex-direction:column; gap:16px; justify-content:center; }
+  .show-progress { height:8px; border-radius:6px; background:rgba(255,255,255,0.10); overflow:hidden; }
+  .show-progress > div { height:100%; width:0%; border-radius:6px; background:linear-gradient(90deg,#a8ff78,#4fd66f); transition:width 0.3s ease; }
+  .show-meta { display:flex; gap:8px; align-items:center; margin-top:11px; flex-wrap:wrap; }
+  .show-card {
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); border-radius:22px;
+    padding:26px 26px 24px; box-shadow:0 14px 40px rgba(0,0,0,0.3);
+  }
+  .show-q { font-size:clamp(19px,2.6vw,28px); font-weight:800; line-height:1.45; margin-bottom:20px; }
+  .show-opts { display:flex; flex-direction:column; gap:11px; }
+  .show-opt {
+    display:flex; align-items:center; gap:13px; padding:13px 16px; border-radius:14px;
+    background:rgba(255,255,255,0.07); border:2px solid rgba(255,255,255,0.12);
+    font-size:clamp(15px,1.9vw,19px); font-weight:600; line-height:1.35; transition:all 0.22s ease;
+  }
+  .show-opt .lab {
+    flex:none; width:32px; height:32px; border-radius:10px; background:rgba(255,255,255,0.15);
+    display:flex; align-items:center; justify-content:center; font-weight:900; font-size:15px;
+  }
+  .show-opt.benar { background:rgba(34,181,115,0.3); border-color:#3fd894; box-shadow:0 0 26px rgba(63,216,148,0.2); }
+  .show-opt.benar .lab { background:#22b573; color:#fff; }
+  .show-opt.benar::after { content:'✓ KUNCI'; margin-left:auto; font-size:11.5px; font-weight:900; letter-spacing:1.2px; color:#a8ffcf; white-space:nowrap; }
+  .show-nav { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .nav-btn {
+    font-size:16px; font-weight:700; padding:13px 26px; border-radius:50px; cursor:pointer; font-family:inherit;
+    background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.24); color:#fff; transition:all 0.15s ease;
+  }
+  .nav-btn:hover:not(:disabled) { background:rgba(255,255,255,0.18); }
+  .nav-btn:disabled { opacity:0.32; cursor:not-allowed; }
+  .nav-btn.key { background:linear-gradient(135deg,#ffd86f,#f0a92e); color:#3a2600; border:none; box-shadow:0 6px 20px rgba(240,169,46,0.28); }
+  .nav-btn.next { background:linear-gradient(135deg,#2ecc71,#1e9e57); border:none; box-shadow:0 6px 20px rgba(46,204,113,0.28); }
+  .show-done { text-align:center; padding:16px 4px 6px; }
+  .show-done .ic { font-size:56px; margin-bottom:8px; }
+  .show-done .big { font-size:clamp(24px,3.6vw,38px); font-weight:900; color:#ffd86f; margin-bottom:10px; }
+  .show-done p { font-size:16px; opacity:0.8; margin-bottom:18px; }
+
   /* ---------- OVERLAY MENANG ---------- */
   #winOverlay {
     display:none; position:fixed; inset:0; z-index:20; padding:24px; overflow-y:auto;
@@ -295,6 +332,11 @@
         <div class="icon">🤖</div>
         <h3>Siswa vs BOT</h3>
         <p>Latihan mandiri melawan komputer dengan tiga tingkat kecerdasan: Mudah, Sedang, dan Sulit.</p>
+      </div>
+      <div class="menu-card" data-go="show">
+        <div class="icon">📺</div>
+        <h3>Tayang Soal</h3>
+        <p>Menampilkan soal satu per satu tanpa skor dan tanpa batas waktu. Bisa dilewati, diulang, dan kuncinya dimunculkan saat dibahas.</p>
       </div>
     </div>
     <div id="devCredit">Developed by Imam Upayanto</div>
@@ -405,16 +447,18 @@
     </div>
 
     <div class="setup-card">
-      <label>📝 Mode Jumlah Soal</label>
+      <label id="modeLabel">📝 Mode Jumlah Soal</label>
       <div class="setup-row">
         <button class="choice-btn active" data-mode="5">5 Soal</button>
         <button class="choice-btn" data-mode="10">10 Soal</button>
         <button class="choice-btn" data-mode="15">15 Soal</button>
+        <button class="choice-btn show-only" data-mode="25" style="display:none">25 Soal</button>
+        <button class="choice-btn show-only" data-mode="100" style="display:none">Semua (100)</button>
       </div>
       <div class="hint" id="modeHint">Target skor: <b id="targetPreview">10</b> poin. Duel berlanjut sampai ada yang menyentuh garis finish.</div>
     </div>
 
-    <div class="setup-card" style="padding:12px 22px">
+    <div class="setup-card" id="ruleCard" style="padding:12px 22px">
       <div class="hint" style="font-size:13.5px;opacity:0.85">
         ⏱️ Waktu menjawab <b>20 detik</b> per soal &nbsp;•&nbsp; ✅ Benar <b>+2</b> &nbsp;•&nbsp; ❌ Salah / kehabisan waktu <b>−1</b>
       </div>
@@ -425,6 +469,30 @@
 </div>
 
 <!-- ================= GAME ================= -->
+<!-- ================= MODE TAYANG SOAL ================= -->
+<div id="showScreen" class="screen" style="display:none;">
+  <button class="back-floating" data-back="menu">← Kembali ke Menu</button>
+  <div class="show-wrap">
+    <div>
+      <div class="show-progress"><div id="showBar"></div></div>
+      <div class="show-meta">
+        <span class="chip" id="showNum">Soal 1 dari 10</span>
+        <span class="chip" id="showLv">Mudah</span>
+      </div>
+    </div>
+    <div class="show-card" id="showCard">
+      <div class="show-q" id="showQ"></div>
+      <div class="show-opts" id="showOpts"></div>
+    </div>
+    <div class="show-nav" id="showNav">
+      <button class="nav-btn" id="prevBtn">← Sebelumnya</button>
+      <button class="nav-btn key" id="keyBtn">👁 Lihat Kunci Jawaban</button>
+      <button class="nav-btn next" id="nextBtn">Lewati →</button>
+    </div>
+    <div class="hint" id="showHint">Pintasan papan tik: <b>←</b> / <b>→</b> untuk pindah soal &nbsp;•&nbsp; <b>Spasi</b> untuk memunculkan kunci</div>
+  </div>
+</div>
+
 <div id="topbar">
   <div id="infoRow">
     <span class="info-chip">⏱️ <span id="clock">00:00</span></span>
@@ -491,88 +559,88 @@ const BANK = [
 {q:"Hubungan kerbau dengan burung jalak termasuk simbiosis ...", o:["Mutualisme","Parasitisme","Komensalisme","Kompetisi"], l:1},
 {q:"Hubungan tumbuhan anggrek dengan pohon yang ditumpanginya termasuk simbiosis ...", o:["Komensalisme","Parasitisme","Mutualisme","Netralisme"], l:1},
 {q:"Hubungan kutu dengan hewan yang ditumpanginya termasuk simbiosis ...", o:["Parasitisme","Mutualisme","Komensalisme","Predasi"], l:1},
-{q:"Gabungan dari banyak rantai makanan yang saling berhubungan disebut ...", o:["Jaring-jaring makanan","Rantai makanan","Piramida makanan","Habitat"], l:1},
+{q:"Gabungan dari banyak rantai makanan yang saling berhubungan disebut ...", o:["Jaring-jaring makanan","Rantai makanan sederhana","Piramida makanan bertingkat","Habitat makhluk hidup"], l:1},
 {q:"Zat hara hasil kerja pengurai akan dimanfaatkan kembali oleh ...", o:["Tumbuhan","Ular","Elang","Serigala"], l:1},
 {q:"Tempat hidup suatu makhluk hidup disebut ...", o:["Habitat","Ekosistem","Populasi","Komunitas"], l:1},
 {q:"Berikut ini yang BUKAN termasuk komponen abiotik adalah ...", o:["Cacing","Suhu","Air","Batu"], l:1},
-{q:"Sumber energi utama bagi seluruh ekosistem di bumi adalah ...", o:["Cahaya matahari","Air","Tanah","Angin"], l:1},
+{q:"Sumber energi utama bagi seluruh ekosistem di bumi adalah ...", o:["Cahaya matahari","Air hujan yang turun","Kesuburan tanah","Angin kencang"], l:1},
 {q:"Contoh hewan herbivora adalah ...", o:["Kambing","Harimau","Elang","Buaya"], l:1},
 {q:"Contoh hewan karnivora adalah ...", o:["Singa","Sapi","Kelinci","Kerbau"], l:1},
 {q:"Contoh hewan omnivora adalah ...", o:["Ayam","Kucing","Kambing","Ular"], l:1},
 {q:"Akuarium di dalam rumah termasuk contoh ekosistem ...", o:["Buatan","Alami","Liar","Purba"], l:1},
 {q:"Dalam penulisan rantai makanan, tanda panah (→) berarti ...", o:["dimakan oleh","memakan","hidup bersama","bersaing dengan"], l:1},
 {q:"Bakteri pengurai mengubah sisa makhluk hidup yang telah mati menjadi ...", o:["Zat hara","Oksigen","Cahaya","Air garam"], l:1},
-{q:"Ekosistem sawah sengaja dibuat manusia dengan tujuan ...", o:["Menghasilkan bahan pangan","Menjadi hutan lindung","Mencemari air","Menambah hama"], l:1},
+{q:"Ekosistem sawah sengaja dibuat manusia dengan tujuan ...", o:["Menghasilkan bahan pangan","Menjadi kawasan hutan lindung","Mencemari air sungai","Menambah jumlah hama"], l:1},
 {q:"Kumpulan makhluk hidup sejenis yang menempati suatu daerah disebut ...", o:["Populasi","Komunitas","Ekosistem","Individu"], l:1},
 {q:"Contoh ekosistem air asin adalah ...", o:["Laut","Sungai","Danau","Kolam"], l:1},
 {q:"Contoh ekosistem air tawar adalah ...", o:["Sungai","Laut","Pantai berpasir","Terumbu karang"], l:1},
-{q:"Pada rantai makanan rumput → belalang → katak → ular, katak berperan sebagai ...", o:["Konsumen tingkat II","Produsen","Konsumen tingkat I","Pengurai"], l:1},
-{q:"Di dalam rantai makanan, tumbuhan hijau selalu menempati posisi ...", o:["Paling awal sebagai produsen","Paling akhir","Sebagai pengurai","Sebagai konsumen puncak"], l:1},
+{q:"Pada rantai makanan rumput → belalang → katak → ular, katak berperan sebagai ...", o:["Konsumen tingkat II","Produsen utama","Konsumen tingkat I","Pengurai sisa makhluk hidup"], l:1},
+{q:"Di dalam rantai makanan, tumbuhan hijau selalu menempati posisi ...", o:["Paling awal sebagai produsen","Paling akhir setelah pengurai","Sebagai pengurai bangkai","Sebagai konsumen puncak"], l:1},
 {q:"Yang termasuk komponen biotik pada ekosistem sawah adalah ...", o:["Tanaman padi","Air irigasi","Cahaya matahari","Tanah"], l:1},
 
 /* ---------- LEVEL 2 : SEDANG (35 soal) ---------- */
-{q:"Jika ular di sawah diburu manusia sampai habis, hal yang paling mungkin terjadi adalah ...", o:["Populasi tikus meningkat dan padi banyak yang rusak","Populasi tikus ikut menurun","Padi tumbuh makin subur","Elang berkembang biak pesat"], l:2},
+{q:"Jika ular di sawah diburu manusia sampai habis, hal yang paling mungkin terjadi adalah ...", o:["Populasi tikus meningkat dan padi rusak","Populasi tikus ikut menurun drastis","Padi tumbuh makin subur dan lebat","Elang berkembang biak makin pesat"], l:2},
 {q:"Makhluk hidup yang berperan menjaga kesuburan tanah dalam ekosistem adalah ...", o:["Pengurai","Konsumen puncak","Herbivora besar","Karnivora"], l:2},
-{q:"Di dalam jaring-jaring makanan, satu jenis hewan dapat ...", o:["Menempati lebih dari satu rantai makanan","Hanya memakan satu jenis makanan","Berubah menjadi produsen","Berubah menjadi pengurai"], l:2},
+{q:"Di dalam jaring-jaring makanan, satu jenis hewan dapat ...", o:["Menempati lebih dari satu rantai makanan","Hanya memakan satu jenis makanan saja","Berubah peran menjadi produsen utama","Berubah peran menjadi pengurai"], l:2},
 {q:"Hubungan lebah dengan bunga menguntungkan bunga karena lebah ...", o:["Membantu proses penyerbukan","Memberikan madu kepada bunga","Melindungi bunga dari hujan","Menyiram bunga dengan air"], l:2},
-{q:"Cacing tanah bermanfaat bagi ekosistem karena ...", o:["Menggemburkan dan menyuburkan tanah","Memangsa tikus sawah","Membuat makanan sendiri","Menyerbuki bunga"], l:2},
+{q:"Cacing tanah bermanfaat bagi ekosistem karena ...", o:["Menggemburkan tanah","Memangsa tikus sawah","Membuat makanan sendiri","Menyerbuki bunga"], l:2},
 {q:"Yang membedakan parasitisme dari komensalisme adalah ...", o:["Pada parasitisme ada pihak yang dirugikan","Pada parasitisme kedua pihak untung","Pada parasitisme tidak ada yang untung","Pada parasitisme keduanya rugi"], l:2},
 {q:"Di dalam rantai makanan, energi mengalir dari ...", o:["Produsen menuju konsumen","Konsumen menuju produsen","Pengurai menuju matahari","Konsumen III menuju konsumen I"], l:2},
 {q:"Hubungan bunga Rafflesia dengan tumbuhan inangnya termasuk simbiosis ...", o:["Parasitisme","Mutualisme","Komensalisme","Netralisme"], l:2},
 {q:"Bakteri Rhizobium yang hidup pada akar tanaman kacang-kacangan termasuk simbiosis ...", o:["Mutualisme","Parasitisme","Komensalisme","Predasi"], l:2},
-{q:"Contoh interaksi kompetisi dalam ekosistem adalah ...", o:["Dua ekor kambing memperebutkan rumput yang sama","Lebah menghisap nektar bunga","Benalu menempel di pohon mangga","Jamur menguraikan daun kering"], l:2},
-{q:"Suatu ekosistem dikatakan seimbang apabila ...", o:["Jumlah produsen, konsumen, dan pengurai proporsional","Jumlah konsumen jauh melebihi produsen","Tidak terdapat pengurai sama sekali","Hanya ada satu jenis makhluk hidup"], l:2},
+{q:"Contoh interaksi kompetisi dalam ekosistem adalah ...", o:["Dua kambing memperebutkan rumput yang sama","Lebah menghisap nektar bunga sepatu","Benalu menempel pada pohon mangga","Jamur menguraikan tumpukan daun kering"], l:2},
+{q:"Suatu ekosistem dikatakan seimbang apabila ...", o:["Jumlah produsen, konsumen, dan pengurai seimbang","Jumlah konsumen jauh melebihi jumlah produsen","Tidak terdapat pengurai satu pun di dalamnya","Hanya ada satu jenis makhluk hidup saja"], l:2},
 {q:"Penebangan hutan secara liar mengakibatkan ...", o:["Banyak hewan kehilangan habitatnya","Populasi hewan hutan meningkat","Tanah menjadi jauh lebih subur","Rantai makanan bertambah panjang"], l:2},
 {q:"Pada ekosistem kolam, fitoplankton berperan sebagai ...", o:["Produsen","Konsumen tingkat I","Konsumen tingkat II","Pengurai"], l:2},
 {q:"Rantai makanan pada ekosistem laut umumnya diawali oleh ...", o:["Fitoplankton","Ikan kecil","Ikan besar","Hiu"], l:2},
 {q:"Jika seluruh tumbuhan hijau di suatu ekosistem punah, akibatnya adalah ...", o:["Seluruh rantai makanan terputus","Hanya herbivora yang mati","Pengurai menjadi lebih subur","Tidak berpengaruh apa pun"], l:2},
-{q:"Hewan yang menempati puncak rantai makanan umumnya adalah ...", o:["Karnivora yang tidak dimangsa hewan lain","Herbivora bertubuh paling besar","Produsen utama ekosistem","Pengurai berukuran kecil"], l:2},
+{q:"Hewan yang menempati puncak rantai makanan umumnya adalah ...", o:["Karnivora yang tidak dimangsa lagi","Herbivora bertubuh paling besar","Produsen utama dalam ekosistem","Pengurai berukuran sangat kecil"], l:2},
 {q:"Berikut ini yang termasuk usaha pelestarian ekosistem adalah ...", o:["Melakukan reboisasi","Membuang limbah ke sungai","Berburu hewan langka","Membakar hutan untuk ladang"], l:2},
-{q:"Cagar alam dibuat dengan tujuan melindungi ...", o:["Tumbuhan dan hewan beserta habitatnya","Bangunan bersejarah","Hasil pertanian warga","Jalan raya antarkota"], l:2},
-{q:"Suaka margasatwa dibuat khusus untuk melindungi ...", o:["Hewan langka di habitat aslinya","Tumbuhan langka saja","Sumber mata air","Lahan pertanian"], l:2},
+{q:"Cagar alam dibuat dengan tujuan melindungi ...", o:["Tumbuhan, hewan, dan habitatnya","Bangunan bersejarah dan museum","Hasil pertanian milik warga","Jalan raya penghubung kota"], l:2},
+{q:"Suaka margasatwa dibuat khusus untuk melindungi ...", o:["Hewan langka di habitat aslinya","Tumbuhan langka di kebun raya","Sumber mata air pegunungan","Lahan pertanian penduduk"], l:2},
 {q:"Pada simbiosis komensalisme, pihak yang tidak mendapat keuntungan juga tidak ...", o:["Dirugikan","Bergerak","Bernapas","Berkembang biak"], l:2},
-{q:"Penggunaan pestisida berlebihan dapat merusak ekosistem karena ...", o:["Ikut membunuh hewan yang bukan hama","Membuat tanah makin subur","Menambah jumlah predator alami","Mempercepat kerja pengurai"], l:2},
+{q:"Penggunaan pestisida berlebihan dapat merusak ekosistem karena ...", o:["Ikut membunuh hewan bukan hama","Membuat tanah menjadi makin subur","Menambah jumlah predator alami","Mempercepat kerja bakteri pengurai"], l:2},
 {q:"Tumbuhan tali putri yang melilit tanaman lain termasuk simbiosis ...", o:["Parasitisme","Mutualisme","Komensalisme","Kompetisi"], l:2},
-{q:"Pada ekosistem hutan, harimau berperan sebagai ...", o:["Konsumen tingkat tinggi","Produsen","Pengurai","Konsumen tingkat I"], l:2},
+{q:"Pada ekosistem hutan, harimau berperan sebagai ...", o:["Konsumen tingkat tinggi","Konsumen tingkat I","Pengurai bangkai hewan","Produsen hutan hujan"], l:2},
 {q:"Kumpulan berbagai populasi yang hidup bersama di suatu daerah disebut ...", o:["Komunitas","Populasi","Individu","Habitat"], l:2},
-{q:"Perbedaan pokok ekosistem alami dan ekosistem buatan terletak pada ...", o:["Ada tidaknya campur tangan manusia","Jumlah air yang tersedia","Warna tanah di dalamnya","Suhu udara di sekitarnya"], l:2},
+{q:"Perbedaan pokok ekosistem alami dan ekosistem buatan terletak pada ...", o:["Ada tidaknya campur tangan manusia","Jumlah air yang tersedia di dalamnya","Warna tanah di permukaannya","Suhu udara di sekitar wilayahnya"], l:2},
 {q:"Hubungan ikan badut dengan anemon laut termasuk simbiosis ...", o:["Mutualisme","Parasitisme","Komensalisme","Kompetisi"], l:2},
 {q:"Pada rantai makanan, semakin tinggi tingkatannya maka jumlah makhluk hidupnya ...", o:["Semakin sedikit","Semakin banyak","Selalu sama","Berubah-ubah tanpa pola"], l:2},
 {q:"Bila jumlah belalang di sawah meningkat drastis, maka yang terjadi adalah ...", o:["Banyak tanaman padi rusak","Katak langsung punah","Padi tumbuh makin subur","Ular berkembang biak lambat"], l:2},
 {q:"Manfaat tumbuhan bagi komponen abiotik udara adalah ...", o:["Menghasilkan oksigen","Menyerap seluruh oksigen","Menambah karbon dioksida","Menaikkan suhu udara"], l:2},
-{q:"Contoh komponen abiotik yang sangat memengaruhi pertumbuhan tanaman adalah ...", o:["Cahaya matahari","Cacing tanah","Belalang","Burung pipit"], l:2},
-{q:"Hewan yang berjasa membantu penyebaran biji tumbuhan adalah ...", o:["Burung pemakan buah","Ular sawah","Harimau","Ikan hiu"], l:2},
+{q:"Contoh komponen abiotik yang sangat memengaruhi pertumbuhan tanaman adalah ...", o:["Cahaya matahari","Cacing tanah sawah","Belalang hijau","Burung pipit sawah"], l:2},
+{q:"Hewan yang berjasa membantu penyebaran biji tumbuhan adalah ...", o:["Burung pemakan buah","Ular sawah dewasa","Harimau sumatra","Ikan hiu putih"], l:2},
 {q:"Di dalam ekosistem, manusia termasuk komponen ...", o:["Biotik","Abiotik","Pengurai","Produsen"], l:2},
-{q:"Terumbu karang sangat penting bagi ekosistem laut karena ...", o:["Menjadi tempat hidup dan berlindung ikan","Menghasilkan garam laut","Menaikkan suhu air laut","Menguraikan seluruh bangkai"], l:2},
+{q:"Terumbu karang sangat penting bagi ekosistem laut karena ...", o:["Menjadi tempat berlindung ikan","Menghasilkan garam laut alami","Menaikkan suhu air laut dalam","Menguraikan seluruh bangkai ikan"], l:2},
 {q:"Alga yang hidup di dalam tubuh hewan karang termasuk simbiosis ...", o:["Mutualisme","Parasitisme","Komensalisme","Predasi"], l:2},
 {q:"Peristiwa makan dan dimakan dalam ekosistem menyebabkan terjadinya ...", o:["Perpindahan energi","Perpindahan habitat","Berkurangnya cahaya","Bertambahnya air"], l:2},
 
 /* ---------- LEVEL 3 : SULIT (25 soal) ---------- */
 {q:"Perhatikan jaring makanan berikut: rumput dimakan belalang dan tikus; belalang dimakan katak; tikus dan katak dimakan ular; ular dimakan elang. Jika ular memangsa katak, maka ular berperan sebagai ...", o:["Konsumen tingkat III","Konsumen tingkat I","Produsen","Pengurai"], l:3},
-{q:"Pada jaring-jaring makanan di sawah, jika populasi katak menurun drastis, dampak yang paling mungkin adalah ...", o:["Populasi belalang meningkat dan padi rusak","Populasi belalang ikut menurun","Ular berkembang biak makin pesat","Padi tumbuh makin subur"], l:3},
-{q:"Piramida makanan menggambarkan ...", o:["Perbandingan jumlah makhluk hidup pada tiap tingkat trofik","Urutan usia hewan dalam ekosistem","Luas wilayah suatu ekosistem","Jumlah air dalam suatu ekosistem"], l:3},
-{q:"Energi yang berpindah dari satu tingkat trofik ke tingkat berikutnya akan ...", o:["Berkurang karena sebagian terpakai untuk aktivitas hidup","Bertambah dua kali lipat","Tetap sama persis","Hilang seluruhnya seketika"], l:3},
+{q:"Pada jaring-jaring makanan di sawah, jika populasi katak menurun drastis, dampak yang paling mungkin adalah ...", o:["Populasi belalang meningkat pesat","Populasi belalang ikut menurun","Ular berkembang biak makin pesat","Padi tumbuh makin subur dan lebat"], l:3},
+{q:"Piramida makanan menggambarkan ...", o:["Perbandingan jumlah tiap tingkat trofik","Urutan usia hewan dalam suatu ekosistem","Luas wilayah suatu ekosistem darat","Jumlah air dalam suatu ekosistem"], l:3},
+{q:"Energi yang berpindah dari satu tingkat trofik ke tingkat berikutnya akan ...", o:["Berkurang karena terpakai untuk hidup","Bertambah menjadi dua kali lipat semula","Tetap sama persis seperti semula","Hilang seluruhnya dalam seketika"], l:3},
 {q:"Tingkat trofik pertama dalam setiap ekosistem selalu ditempati oleh ...", o:["Produsen","Herbivora","Karnivora","Dekomposer"], l:3},
-{q:"Alasan rantai makanan jarang memiliki lebih dari empat atau lima tingkat adalah ...", o:["Energi makin berkurang pada setiap tingkat","Hewan besar malas mencari makan","Produsen hanya ada satu jenis","Pengurai menghalangi aliran energi"], l:3},
+{q:"Alasan rantai makanan jarang memiliki lebih dari empat atau lima tingkat adalah ...", o:["Energi berkurang pada setiap tingkat","Hewan besar malas mencari makan","Produsen hanya ada satu jenis saja","Pengurai menghalangi aliran energi"], l:3},
 {q:"Interaksi antara sapi dan kambing yang merumput di padang yang sama disebut ...", o:["Kompetisi","Simbiosis mutualisme","Predasi","Komensalisme"], l:3},
 {q:"Hubungan antara harimau dengan rusa yang dimangsanya disebut ...", o:["Predasi","Simbiosis mutualisme","Komensalisme","Kompetisi"], l:3},
-{q:"Perbedaan mendasar antara predasi dan parasitisme adalah ...", o:["Predator membunuh mangsanya, parasit hidup lama pada inangnya","Predator selalu berukuran lebih kecil","Parasit tidak merugikan inangnya","Predasi hanya terjadi pada tumbuhan"], l:3},
-{q:"Bila sampah organik terus menumpuk dan pengurai tidak ada, yang terjadi adalah ...", o:["Sampah tidak terurai dan zat hara tanah berkurang","Tanah menjadi jauh lebih subur","Tumbuhan tumbuh lebih cepat","Air tanah menjadi lebih jernih"], l:3},
-{q:"Eceng gondok yang menutupi seluruh permukaan kolam merugikan karena ...", o:["Menghalangi cahaya sehingga fitoplankton berkurang","Menambah oksigen air secara berlebihan","Membunuh seluruh bakteri pengurai","Menaikkan suhu air laut"], l:3},
+{q:"Perbedaan mendasar antara predasi dan parasitisme adalah ...", o:["Predator membunuh mangsa, parasit tidak","Predator selalu berukuran lebih kecil","Parasit tidak merugikan inangnya sama sekali","Predasi hanya terjadi pada tumbuhan"], l:3},
+{q:"Bila sampah organik terus menumpuk dan pengurai tidak ada, yang terjadi adalah ...", o:["Sampah tidak terurai dan tanah tandus","Tanah menjadi jauh lebih subur dan gembur","Tumbuhan tumbuh jauh lebih cepat","Air tanah menjadi lebih jernih"], l:3},
+{q:"Eceng gondok yang menutupi seluruh permukaan kolam merugikan karena ...", o:["Menghalangi cahaya masuk ke dalam air","Menambah oksigen air secara berlebihan","Membunuh seluruh bakteri pengurai","Menaikkan suhu air kolam secara drastis"], l:3},
 {q:"Peristiwa yang menunjukkan pengaruh komponen biotik terhadap komponen abiotik adalah ...", o:["Akar tumbuhan menahan tanah dari erosi","Cahaya matahari membantu fotosintesis","Air melarutkan zat hara di tanah","Suhu memengaruhi pertumbuhan tanaman"], l:3},
-{q:"Peristiwa yang menunjukkan pengaruh komponen abiotik terhadap komponen biotik adalah ...", o:["Curah hujan memengaruhi pertumbuhan rumput","Cacing menggemburkan tanah","Tumbuhan menghasilkan oksigen","Bakteri menguraikan bangkai hewan"], l:3},
+{q:"Peristiwa yang menunjukkan pengaruh komponen abiotik terhadap komponen biotik adalah ...", o:["Curah hujan memengaruhi rumput","Cacing menggemburkan tanah sawah","Tumbuhan menghasilkan oksigen","Bakteri menguraikan bangkai hewan"], l:3},
 {q:"Penggunaan burung hantu untuk mengendalikan hama tikus di sawah disebut ...", o:["Pengendalian hayati","Pemupukan berimbang","Reboisasi lahan","Rotasi tanaman"], l:3},
 {q:"Rantai makanan yang diawali dari sisa-sisa makhluk hidup yang telah mati disebut rantai ...", o:["Detritus","Perumput","Parasit","Cahaya"], l:3},
 {q:"Cacing tanah dan rayap yang memakan serasah daun disebut ...", o:["Detritivor","Produsen","Karnivora","Parasit"], l:3},
-{q:"Perbedaan detritivor dengan dekomposer adalah ...", o:["Detritivor memakan sisa organik, dekomposer menguraikannya secara kimiawi","Keduanya sama persis perannya","Detritivor membuat makanannya sendiri","Dekomposer memangsa hewan yang masih hidup"], l:3},
-{q:"Bila jumlah konsumen tingkat I meningkat tanpa kendali, dampak jangka panjangnya adalah ...", o:["Produsen berkurang dan ekosistem tidak seimbang","Produsen justru bertambah banyak","Seluruh pengurai punah","Cahaya matahari berkurang"], l:3},
-{q:"Contoh simbiosis mutualisme yang terjadi di dalam tubuh manusia adalah ...", o:["Bakteri Escherichia coli di usus membantu pembentukan vitamin K","Cacing pita yang hidup di usus","Kutu yang hidup di rambut","Benalu yang menempel di pohon"], l:3},
-{q:"Aliran energi di dalam ekosistem bersifat ...", o:["Satu arah, dari matahari ke produsen lalu ke konsumen","Bolak-balik antara konsumen dan produsen","Melingkar sempurna tanpa berkurang","Dari konsumen kembali ke matahari"], l:3},
+{q:"Perbedaan detritivor dengan dekomposer adalah ...", o:["Detritivor memakan, dekomposer menguraikan","Keduanya memiliki peran yang sama persis","Detritivor membuat makanannya sendiri","Dekomposer memangsa hewan yang masih hidup"], l:3},
+{q:"Bila jumlah konsumen tingkat I meningkat tanpa kendali, dampak jangka panjangnya adalah ...", o:["Produsen berkurang dan ekosistem goyah","Produsen justru bertambah makin banyak","Seluruh pengurai ikut punah","Cahaya matahari ikut berkurang"], l:3},
+{q:"Contoh simbiosis mutualisme yang terjadi di dalam tubuh manusia adalah ...", o:["Bakteri di usus membantu membuat vitamin K","Cacing pita yang menyerap sari makanan di usus","Kutu yang hidup di rambut kepala","Benalu yang menempel di pohon mangga"], l:3},
+{q:"Aliran energi di dalam ekosistem bersifat ...", o:["Satu arah dari matahari ke konsumen","Bolak-balik antara konsumen dan produsen","Melingkar sempurna tanpa berkurang","Dari konsumen kembali ke matahari"], l:3},
 {q:"Berbeda dengan energi, zat hara di dalam ekosistem mengalami ...", o:["Daur ulang melalui kerja pengurai","Kehilangan total tanpa kembali","Penambahan langsung dari matahari","Perubahan menjadi cahaya"], l:3},
-{q:"Ekosistem dengan keanekaragaman hayati yang tinggi cenderung ...", o:["Lebih stabil menghadapi gangguan","Lebih mudah rusak total","Tidak memerlukan pengurai","Selalu kekurangan produsen"], l:3},
+{q:"Ekosistem dengan keanekaragaman hayati yang tinggi cenderung ...", o:["Lebih stabil menghadapi gangguan","Lebih mudah rusak secara total","Tidak memerlukan pengurai lagi","Selalu kekurangan produsen utama"], l:3},
 {q:"Pembuangan limbah pabrik ke sungai menyebabkan ...", o:["Ikan mati karena air tercemar","Ikan berkembang biak lebih cepat","Air sungai menjadi makin jernih","Fitoplankton tumbuh makin sehat"], l:3},
 {q:"Tumbuhan kantong semar memperoleh tambahan nitrogen dengan cara ...", o:["Memangsa serangga yang terperangkap","Menyerap nitrogen langsung dari batu","Memarasit pohon di sekitarnya","Bersimbiosis dengan ikan hiu"], l:3},
-{q:"Ekosistem buatan seperti sawah lebih rentan terganggu dibanding hutan karena ...", o:["Jenis makhluk hidupnya sedikit sehingga jaring makanannya sederhana","Tanahnya jauh lebih subur","Airnya selalu berlimpah","Cahaya mataharinya lebih banyak"], l:3}
+{q:"Ekosistem buatan seperti sawah lebih rentan terganggu dibanding hutan karena ...", o:["Jenis makhluk hidupnya sedikit","Tanahnya jauh lebih subur dan gembur","Airnya selalu berlimpah sepanjang tahun","Cahaya mataharinya lebih banyak"], l:3}
 ];
 
 // ================== KONFIGURASI ==================
@@ -617,7 +685,7 @@ function rentang(min,max){ return min + Math.random()*(max-min); }
 function esc(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
 
 function tampilkan(id){
-  ['mainMenu','summaryScreen','setupScreen'].forEach(s => $(s).style.display = 'none');
+  ['mainMenu','summaryScreen','setupScreen','showScreen'].forEach(s => $(s).style.display = 'none');
   $('topbar').style.display     = 'none';
   $('gameArea').style.display   = 'none';
   $('winOverlay').style.display = 'none';
@@ -637,13 +705,38 @@ document.querySelectorAll('.menu-card').forEach(card=>{
 document.querySelectorAll('[data-back]').forEach(b => b.onclick = ()=> tampilkan('mainMenu'));
 
 function bukaSetup(){
-  const bot = mode === 'bot';
-  $('setupTitle').textContent    = bot ? '🤖 Siswa vs BOT' : '👥 Siswa vs Siswa';
-  $('setupSubtitle').textContent = bot ? 'Pilih kecerdasan BOT lalu tekan MULAI'
-                                       : 'Atur pertandingan lalu tekan MULAI';
+  const bot  = mode === 'bot';
+  const show = mode === 'show';
+  $('setupTitle').textContent    = show ? '📺 Tayang Soal' : bot ? '🤖 Siswa vs BOT' : '👥 Siswa vs Siswa';
+  $('setupSubtitle').textContent = show ? 'Pilih soal yang ingin ditayangkan lalu tekan MULAI'
+                                : bot   ? 'Pilih kecerdasan BOT lalu tekan MULAI'
+                                        : 'Atur pertandingan lalu tekan MULAI';
   $('botCard').style.display  = bot ? 'flex' : 'none';
-  $('nameCard').style.display = bot ? 'none' : 'flex';
+  $('nameCard').style.display = (bot || show) ? 'none' : 'flex';
+  $('ruleCard').style.display = show ? 'none' : 'flex';
+  $('modeLabel').textContent  = show ? '📝 Jumlah Soal yang Ditayangkan' : '📝 Mode Jumlah Soal';
+  $('startBtn').textContent   = show ? '▶ MULAI TAYANG' : '▶ MULAI DUEL';
+  document.querySelectorAll('.show-only').forEach(el => el.style.display = show ? 'inline-block' : 'none');
+  if(!show && jumlahSoal > 15){ jumlahSoal = 5; pilihTombol('data-mode','5'); }
+  perbaruiHintMode();
   tampilkan('setupScreen');
+}
+
+function pilihTombol(attr, nilai){
+  document.querySelectorAll('['+attr+']').forEach(b=>{
+    b.classList.toggle('active', b.getAttribute(attr) === nilai);
+  });
+}
+
+function perbaruiHintMode(){
+  if(mode === 'show'){
+    const tersedia = ambilKumpulanSoal().length;
+    const dipakai  = Math.min(jumlahSoal, tersedia);
+    $('modeHint').innerHTML = 'Akan ditayangkan <b>'+dipakai+' soal</b> secara acak. Tanpa skor dan tanpa batas waktu.';
+  }else{
+    target = jumlahSoal*2;
+    $('modeHint').innerHTML = 'Target skor: <b id="targetPreview">'+target+'</b> poin. Duel berlanjut sampai ada yang menyentuh garis finish.';
+  }
 }
 
 function pasangPilihan(attr, cb){
@@ -656,10 +749,10 @@ function pasangPilihan(attr, cb){
   });
 }
 pasangPilihan('data-bot', v=>{ botLevel = +v; $('botHint').textContent = BOT_PROFIL[botLevel].hint; });
-pasangPilihan('data-lvl', v=>{ filterLevel = +v; });
-pasangPilihan('data-mode', v=>{ jumlahSoal = +v; target = jumlahSoal*2; $('targetPreview').textContent = target; });
+pasangPilihan('data-lvl', v=>{ filterLevel = +v; perbaruiHintMode(); });
+pasangPilihan('data-mode', v=>{ jumlahSoal = +v; target = jumlahSoal*2; perbaruiHintMode(); });
 
-$('startBtn').onclick    = mulaiDuel;
+$('startBtn').onclick    = ()=> mode === 'show' ? mulaiTayang() : mulaiDuel();
 $('resetBtn').onclick    = ()=>{ hentikanSemua(); tampilkan('mainMenu'); };
 $('playAgainBtn').onclick= ()=>{ hentikanSemua(); mulaiDuel(); };
 $('toMenuBtn').onclick   = ()=>{ hentikanSemua(); tampilkan('mainMenu'); };
@@ -876,6 +969,97 @@ function geserPelari(i, boost){
   $('laneScore-'+i).textContent = P[i].skor;
   if(boost){ r.classList.remove('dash'); void r.offsetWidth; r.classList.add('dash'); }
 }
+
+// ================== MODE TAYANG SOAL ==================
+let sList = [], sIdx = 0, sBuka = null;
+
+function mulaiTayang(){
+  const pool = ambilKumpulanSoal();
+  BANK.forEach(s => delete s.acak);
+  sList = acak(pool).slice(0, Math.min(jumlahSoal, pool.length));
+  sIdx  = 0;
+  sBuka = new Set();
+  tampilkan('showScreen');
+  $('showScreen').scrollTop = 0;
+  $('showNav').style.display = 'flex';
+  gambarTayang();
+}
+
+function gambarTayang(){
+  const s = sList[sIdx];
+  if(!s) return;
+  $('showBar').style.width  = ((sIdx+1)/sList.length*100) + '%';
+  $('showNum').textContent  = 'Soal ' + (sIdx+1) + ' dari ' + sList.length;
+  $('showLv').textContent   = NAMA_LV[s.l];
+  $('showLv').className     = 'chip lv' + s.l;
+  $('showQ').textContent    = s.q;
+
+  const terbuka = sBuka.has(sIdx);
+  const opsi = s.acak || (s.acak = acak(s.o));   // urutan opsi tetap saat bolak-balik
+  const box = $('showOpts');
+  box.innerHTML = '';
+  opsi.forEach((teks,k)=>{
+    const d = document.createElement('div');
+    d.className = 'show-opt' + (terbuka && teks === s.o[0] ? ' benar' : '');
+    d.innerHTML = '<span class="lab">'+LABEL[k]+'</span><span class="txt"></span>';
+    d.querySelector('.txt').textContent = teks;
+    box.appendChild(d);
+  });
+
+  $('prevBtn').disabled = sIdx === 0;
+  $('keyBtn').textContent = terbuka ? '🙈 Sembunyikan Kunci' : '👁 Lihat Kunci Jawaban';
+  $('nextBtn').textContent = sIdx === sList.length-1 ? 'Selesai ✓' : (terbuka ? 'Berikutnya →' : 'Lewati →');
+}
+
+function pindahTayang(arah){
+  if(arah > 0 && sIdx === sList.length-1) return tayangSelesai();
+  sIdx = Math.min(Math.max(sIdx + arah, 0), sList.length-1);
+  gambarTayang();
+}
+
+function toggleKunci(){
+  if(sBuka.has(sIdx)) sBuka.delete(sIdx); else sBuka.add(sIdx);
+  gambarTayang();
+}
+
+function tayangSelesai(){
+  $('showNav').style.display = 'none';
+  $('showBar').style.width = '100%';
+  $('showNum').textContent = 'Selesai';
+  $('showLv').className = 'chip';
+  $('showLv').textContent = sList.length + ' soal';
+  $('showCard').innerHTML =
+    '<div class="show-done">'+
+      '<div class="ic">🎉</div>'+
+      '<div class="big">Semua Soal Sudah Ditayangkan</div>'+
+      '<p>' + sList.length + ' soal telah dibahas. Mau menayangkan soal acak yang baru?</p>'+
+      '<div class="show-nav">'+
+        '<button class="nav-btn next" id="ulangTayangBtn">🔁 Tayang Soal Baru</button>'+
+        '<button class="nav-btn" id="menuTayangBtn">🏠 Menu Utama</button>'+
+      '</div>'+
+    '</div>';
+  $('ulangTayangBtn').onclick = ()=>{
+    $('showCard').innerHTML = '<div class="show-q" id="showQ"></div><div class="show-opts" id="showOpts"></div>';
+    sList.forEach(s => delete s.acak);
+    mulaiTayang();
+  };
+  $('menuTayangBtn').onclick = ()=>{
+    $('showCard').innerHTML = '<div class="show-q" id="showQ"></div><div class="show-opts" id="showOpts"></div>';
+    tampilkan('mainMenu');
+  };
+}
+
+$('prevBtn').onclick = ()=> pindahTayang(-1);
+$('nextBtn').onclick = ()=> pindahTayang(1);
+$('keyBtn').onclick  = toggleKunci;
+
+document.addEventListener('keydown', e=>{
+  if($('showScreen').style.display === 'none' || !sList.length) return;
+  if($('showNav').style.display === 'none') return;
+  if(e.key === 'ArrowRight'){ e.preventDefault(); pindahTayang(1); }
+  else if(e.key === 'ArrowLeft'){ e.preventDefault(); pindahTayang(-1); }
+  else if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); toggleKunci(); }
+});
 
 // ================== SELESAI ==================
 function hentikanSemua(){
