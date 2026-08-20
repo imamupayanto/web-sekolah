@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Eco Battle - Duel Ekosistem</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; font-family: 'Poppins','Segoe UI',Arial,sans-serif; background: #05140e; }
+  .noselect { user-select: none; }
+
+  .screen {
+    height: 100%; position: relative; color: #fff; overflow-y: auto;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(160,255,190,0.10), transparent 42%),
+      radial-gradient(circle at 85% 80%, rgba(120,220,255,0.08), transparent 42%),
+      linear-gradient(135deg,#06281c,#0d4535,#12695a);
+  }
+  .center-col { min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:28px 20px; }
+
+  h1.title {
+    font-size: clamp(32px,5vw,54px); text-align:center; font-weight:800; letter-spacing:1px;
+    background: linear-gradient(90deg,#a8ff78,#ffd86f);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow: 0 4px 24px rgba(120,255,150,0.18);
+  }
+  .subtitle { font-size:15px; opacity:0.7; text-align:center; margin-top:-10px; letter-spacing:0.4px; }
+
+  #menuGrid { display:flex; gap:18px; flex-wrap:wrap; justify-content:center; max-width:1080px; margin-top:6px; }
+  .menu-card {
+    width:290px; background:rgba(255,255,255,0.07); border:2px solid rgba(255,255,255,0.14);
+    border-radius:20px; padding:26px 20px; text-align:center; cursor:pointer;
+    transition:all 0.18s ease; backdrop-filter:blur(6px);
+  }
+  .menu-card:hover, .menu-card:active { transform:translateY(-4px); border-color:#a8ff78; box-shadow:0 10px 28px rgba(120,255,150,0.22); }
+  .menu-card .icon { font-size:44px; margin-bottom:10px; }
+  .menu-card h3 { font-size:20px; margin-bottom:8px; color:#a8ff78; }
+  .menu-card p { font-size:13.5px; opacity:0.75; line-height:1.45; }
+
+  #devCredit { position:absolute; bottom:10px; right:14px; font-size:12px; opacity:0.42; letter-spacing:0.3px; }
+
+  .back-floating {
+    position:absolute; top:16px; left:16px; background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.2); color:#fff; padding:8px 16px; border-radius:20px;
+    font-size:14px; cursor:pointer; font-weight:600; z-index:5;
+  }
+
+  /* ---------- RANGKUMAN ---------- */
+  .summary-inner { max-width:820px; margin:0 auto; padding:74px 22px 60px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .summary-card {
+    width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+    border-radius:16px; padding:18px 22px; text-align:left;
+  }
+  .summary-card h3 { color:#a8ff78; margin-bottom:8px; font-size:19px; }
+  .summary-card p { font-size:15px; line-height:1.65; opacity:0.92; margin-bottom:7px; }
+  .summary-card b { color:#ffd86f; }
+  .tag-extra {
+    display:inline-block; font-size:11px; font-weight:700; letter-spacing:0.5px; vertical-align:middle;
+    background:rgba(255,216,111,0.16); color:#ffd86f; border:1px solid rgba(255,216,111,0.4);
+    padding:2px 8px; border-radius:20px; margin-left:8px;
+  }
+  .chain { background:rgba(0,0,0,0.22); border-radius:10px; padding:10px 14px; font-size:15px; line-height:1.8; }
+  .big-btn {
+    font-size:19px; padding:15px 38px; border-radius:50px; border:none; cursor:pointer; font-weight:800;
+    background:linear-gradient(135deg,#2ecc71,#1e9e57); color:#fff; box-shadow:0 8px 24px rgba(46,204,113,0.35);
+    margin-top:10px; letter-spacing:0.5px; transition:transform 0.15s ease;
+  }
+  .big-btn:active { transform:scale(0.96); }
+
+  /* ---------- SETUP ---------- */
+  .setup-card {
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+    border-radius:18px; padding:16px 22px; backdrop-filter:blur(6px);
+    display:flex; flex-direction:column; gap:11px; align-items:center; width:min(94%,660px);
+  }
+  .setup-card label { font-size:17px; font-weight:700; opacity:0.9; letter-spacing:0.4px; }
+  .setup-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center; }
+  .choice-btn {
+    font-size:16px; padding:11px 20px; border-radius:12px; border:2px solid rgba(255,255,255,0.24);
+    background:rgba(255,255,255,0.06); color:#fff; cursor:pointer; font-weight:600; transition:all 0.15s ease;
+  }
+  .choice-btn:active { transform:scale(0.95); }
+  .choice-btn.active {
+    background:linear-gradient(135deg,#a8ff78,#4fd66f); color:#042213; border-color:#a8ff78;
+    box-shadow:0 4px 18px rgba(120,255,150,0.35); transform:translateY(-2px);
+  }
+  .hint { font-size:12.5px; opacity:0.6; text-align:center; }
+  .name-input {
+    font-size:16px; padding:10px 14px; border-radius:12px; border:2px solid rgba(255,255,255,0.24);
+    background:rgba(0,0,0,0.25); color:#fff; font-family:inherit; width:190px; text-align:center; font-weight:600;
+  }
+  .name-input:focus { outline:none; border-color:#a8ff78; }
+
+  /* ---------- GAME ---------- */
+  #topbar {
+    position:fixed; top:0; left:0; right:0; background:linear-gradient(180deg,#082a20,#04120c);
+    border-bottom:1px solid rgba(255,255,255,0.08); box-shadow:0 6px 22px rgba(0,0,0,0.45);
+    display:none; flex-direction:column; align-items:center; gap:9px; z-index:10; padding:11px 14px 13px;
+  }
+  #infoRow { display:flex; align-items:center; justify-content:center; gap:9px; font-size:13px; color:#d3e7dc; flex-wrap:wrap; }
+  .info-chip {
+    display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.14); border-radius:20px; padding:5px 15px; font-weight:600; letter-spacing:0.2px;
+  }
+  #clock { font-weight:800; color:#ffd86f; font-variant-numeric:tabular-nums; }
+  #targetInfo b { color:#a8ff78; font-weight:800; }
+  #resetBtn {
+    background:rgba(255,120,110,0.12); border:1px solid rgba(255,120,110,0.35); color:#ffb3ac;
+    padding:5px 15px; border-radius:20px; font-size:13px; cursor:pointer; font-weight:700; font-family:inherit;
+    transition:background 0.15s ease;
+  }
+  #resetBtn:hover { background:rgba(255,120,110,0.22); }
+
+  /* --- LINTASAN LARI --- */
+  #raceWrap { width:min(97%,980px); display:flex; flex-direction:column; gap:9px; }
+  .lane {
+    position:relative; height:42px; border-radius:21px; background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.10); overflow:hidden;
+  }
+  .lane-fill { position:absolute; left:0; top:0; bottom:0; width:0%; opacity:0.32; transition:width 0.55s ease; }
+  .lane-track {
+    position:absolute; left:0; right:38px; top:50%; height:2px; margin-top:-1px;
+    background:repeating-linear-gradient(90deg, rgba(255,255,255,0.18) 0 13px, transparent 13px 28px);
+  }
+  .lane-name {
+    position:absolute; left:15px; top:50%; transform:translateY(-50%); z-index:3;
+    font-size:12.5px; font-weight:800; letter-spacing:0.3px; text-shadow:0 1px 5px rgba(0,0,0,0.7);
+  }
+  .lane-score {
+    position:absolute; right:54px; top:50%; transform:translateY(-50%); z-index:3;
+    font-size:15px; font-weight:900; color:#fff; text-shadow:0 1px 5px rgba(0,0,0,0.7); font-variant-numeric:tabular-nums;
+  }
+  .lane-goal {
+    position:absolute; right:0; top:0; bottom:0; width:38px; z-index:2;
+    display:flex; align-items:center; justify-content:center; font-size:17px;
+    background:repeating-conic-gradient(#f2f2f2 0 25%, #20201f 0 50%) 0 0/11px 11px;
+    opacity:0.9; border-left:2px solid #ffd86f;
+  }
+  .runner {
+    position:absolute; left:0; top:50%; margin-top:-16px; font-size:26px; z-index:4;
+    transition:left 0.55s cubic-bezier(.34,1.4,.5,1); filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+  }
+  .runner.dash { animation:dashPop 0.5s; }
+  @keyframes dashPop { 0%{transform:scale(1);} 45%{transform:scale(1.32) translateY(-5px);} 100%{transform:scale(1);} }
+
+  /* --- AREA DUEL --- */
+  #gameArea { position:absolute; top:150px; left:0; right:0; bottom:0; display:none; }
+  #game { height:100%; display:grid; gap:10px; padding:10px; background:#03100a; grid-template-columns:1fr 1fr; grid-template-rows:1fr; }
+  #game.stacked { grid-template-columns:1fr; grid-template-rows:1fr 1fr; }
+
+  .panel {
+    border-radius:22px; display:flex; flex-direction:column; position:relative; overflow:hidden; padding:14px 16px 16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.42), inset 0 0 0 1px rgba(255,255,255,0.10);
+  }
+  .panel::before { content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(165deg,rgba(255,255,255,0.18),rgba(255,255,255,0) 55%); }
+
+  .panel-top { display:flex; align-items:center; justify-content:space-between; gap:10px; z-index:1; }
+  .panel-name {
+    font-size:clamp(15px,2.4vh,20px); font-weight:800; color:#fff; letter-spacing:0.2px;
+    text-shadow:0 2px 6px rgba(0,0,0,0.4); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .score-box { display:flex; align-items:baseline; gap:7px; background:rgba(0,0,0,0.26); border-radius:14px; padding:5px 13px; }
+  .panel-score { font-size:clamp(21px,4.2vh,34px); font-weight:900; color:#fff; line-height:1; font-variant-numeric:tabular-nums; }
+  .score-label { font-size:10.5px; opacity:0.7; font-weight:800; letter-spacing:1.2px; }
+
+  .timer-ring {
+    width:46px; height:46px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
+    background:conic-gradient(#ffffff var(--p,360deg), rgba(255,255,255,0.16) 0);
+  }
+  .timer-ring i {
+    width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.45);
+    display:flex; align-items:center; justify-content:center; font-style:normal;
+    font-size:14px; font-weight:800; color:#fff; font-variant-numeric:tabular-nums;
+  }
+  .timer-ring.danger { background:conic-gradient(#ff6b5b var(--p,360deg), rgba(255,255,255,0.16) 0); animation:pulseT 0.8s infinite; }
+  @keyframes pulseT { 0%,100%{transform:scale(1);} 50%{transform:scale(1.09);} }
+
+  .chip-row { display:flex; align-items:center; gap:7px; margin-top:11px; z-index:1; flex-wrap:wrap; }
+  .chip {
+    font-size:10.5px; font-weight:800; letter-spacing:0.7px; text-transform:uppercase;
+    background:rgba(0,0,0,0.24); border:1px solid rgba(255,255,255,0.2); color:#fff;
+    padding:4px 11px; border-radius:20px; white-space:nowrap;
+  }
+  .chip.lv1 { background:rgba(168,255,120,0.22); border-color:rgba(168,255,120,0.55); }
+  .chip.lv2 { background:rgba(255,216,111,0.22); border-color:rgba(255,216,111,0.55); }
+  .chip.lv3 { background:rgba(255,120,110,0.26); border-color:rgba(255,120,110,0.55); }
+  .chip.think { background:rgba(255,255,255,0.16); animation:thinkPulse 1.1s infinite; }
+  @keyframes thinkPulse { 0%,100%{opacity:0.45;} 50%{opacity:1;} }
+
+  .panel-question {
+    font-size:clamp(15px,2.7vh,22px); font-weight:700; color:#fff; text-align:left; line-height:1.42;
+    z-index:1; background:rgba(0,0,0,0.24); border:1px solid rgba(255,255,255,0.13);
+    padding:14px 16px; border-radius:16px; margin:11px 0 12px;
+  }
+
+  .answers { display:flex; flex-direction:column; gap:9px; width:100%; z-index:1; flex:1; justify-content:center; }
+  .ans-btn {
+    flex:1 1 auto; min-height:46px; max-height:86px;
+    font-size:clamp(13px,2.1vh,17px); padding:10px 14px; border-radius:14px;
+    border:2px solid rgba(0,0,0,0.05); background:#fbfefc; color:#16281f; font-weight:600; cursor:pointer;
+    text-align:left; box-shadow:0 4px 12px rgba(0,0,0,0.22); transition:all 0.14s ease; line-height:1.32;
+    display:flex; align-items:center; gap:11px; font-family:inherit;
+  }
+  .ans-btn .lab {
+    flex:none; width:29px; height:29px; border-radius:9px; background:#e6f3ec; color:#2b5c45;
+    display:flex; align-items:center; justify-content:center; font-weight:900; font-size:14px;
+  }
+  .ans-btn:hover { transform:translateX(3px); border-color:rgba(255,255,255,0.75); box-shadow:0 6px 18px rgba(0,0,0,0.3); }
+  .ans-btn:active { transform:scale(0.985); }
+  .ans-btn.correct { background:#22b573 !important; color:#fff !important; border-color:#8ff0c0 !important; }
+  .ans-btn.wrong   { background:#e05a4d !important; color:#fff !important; border-color:#ffb3ac !important; }
+  .ans-btn.correct .lab, .ans-btn.wrong .lab { background:rgba(255,255,255,0.3); color:#fff; }
+  .ans-btn.faded { opacity:0.5; }
+  .locked { pointer-events:none; }
+
+  .float-pop {
+    position:absolute; top:50%; left:50%; z-index:6; pointer-events:none;
+    padding:11px 24px; border-radius:18px; white-space:nowrap;
+    font-size:clamp(17px,3.2vh,26px); font-weight:900; letter-spacing:0.4px; color:#fff;
+    box-shadow:0 10px 30px rgba(0,0,0,0.45); animation:popUp 1.15s ease-out forwards;
+  }
+  .float-pop.ok { background:linear-gradient(135deg,#25c47c,#1a8f52); }
+  .float-pop.no { background:linear-gradient(135deg,#e86355,#b93325); }
+  @keyframes popUp {
+    0%   { opacity:0; transform:translate(-50%,-25%) scale(0.6); }
+    18%  { opacity:1; transform:translate(-50%,-50%) scale(1.07); }
+    72%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
+    100% { opacity:0; transform:translate(-50%,-88%) scale(0.95); }
+  }
+
+  /* ---------- OVERLAY MENANG ---------- */
+  #winOverlay {
+    display:none; position:fixed; inset:0; z-index:20; padding:24px; overflow-y:auto;
+    background:radial-gradient(circle at 50% 35%, rgba(10,60,35,0.95), rgba(0,0,0,0.96));
+    color:#fff; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+  }
+  #winOverlay h2 {
+    font-size:clamp(30px,5.5vw,56px); color:#ffd86f; text-align:center; font-weight:900;
+    text-shadow:0 0 30px rgba(255,216,111,0.5); animation:winpop 0.5s ease;
+  }
+  @keyframes winpop { 0%{transform:scale(0.5); opacity:0;} 70%{transform:scale(1.1);} 100%{transform:scale(1); opacity:1;} }
+  #winStats { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+  .stat-box {
+    background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.16); border-radius:16px;
+    padding:14px 22px; text-align:center; min-width:150px;
+  }
+  .stat-box.juara { background:rgba(255,216,111,0.10); box-shadow:0 0 30px rgba(255,216,111,0.22); }
+  .stat-box .nm { font-size:15px; font-weight:800; margin-bottom:6px; }
+  .stat-box .sc { font-size:34px; font-weight:900; color:#a8ff78; line-height:1.1; }
+  .stat-box .dt { font-size:12.5px; opacity:0.75; margin-top:5px; }
+  .win-actions { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .ghost-btn {
+    font-size:16px; padding:13px 28px; border-radius:50px; cursor:pointer; font-weight:700;
+    background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.25); color:#fff;
+  }
+
+  #rotateOverlay {
+    display:none; position:fixed; inset:0; z-index:999; background:#05140e; color:#fff;
+    flex-direction:column; align-items:center; justify-content:center; gap:14px; text-align:center; padding:30px;
+  }
+  #rotateOverlay .icon { font-size:60px; animation:rotateHint 1.6s ease-in-out infinite; }
+  @keyframes rotateHint { 0%,100%{transform:rotate(0deg);} 50%{transform:rotate(90deg);} }
+  @media (orientation:portrait) {
+    body.need-landscape #rotateOverlay { display:flex; }
+    body.need-landscape #topbar, body.need-landscape #gameArea, body.need-landscape #winOverlay { display:none !important; }
+  }
+</style>
+</head>
+<body class="noselect">
+
+<div id="rotateOverlay">
+  <div class="icon">📱</div>
+  <h2>Putar Layar ke Landscape</h2>
+  <p style="font-size:17px;opacity:0.8;max-width:420px">Mode Siswa vs Siswa dimainkan berdampingan, jadi butuh layar mendatar agar kedua pemain nyaman.</p>
+</div>
+
+<!-- ================= MENU UTAMA ================= -->
+<div id="mainMenu" class="screen">
+  <div class="center-col">
+    <h1 class="title">🌿 Eco Battle</h1>
+    <div class="subtitle">Duel Cerdas Materi Ekosistem • 100 Soal Pilihan Ganda</div>
+    <div id="menuGrid">
+      <div class="menu-card" data-go="summary">
+        <div class="icon">📖</div>
+        <h3>Rangkuman Materi</h3>
+        <p>Baca ringkasan lengkap tentang komponen ekosistem, rantai makanan, dan simbiosis sebelum bertanding.</p>
+      </div>
+      <div class="menu-card" data-go="pvp">
+        <div class="icon">👥</div>
+        <h3>Siswa vs Siswa</h3>
+        <p>Dua siswa beradu cepat berdampingan dalam satu layar. Siapa lebih dulu sampai garis finish?</p>
+      </div>
+      <div class="menu-card" data-go="bot">
+        <div class="icon">🤖</div>
+        <h3>Siswa vs BOT</h3>
+        <p>Latihan mandiri melawan komputer dengan tiga tingkat kecerdasan: Mudah, Sedang, dan Sulit.</p>
+      </div>
+    </div>
+    <div id="devCredit">Developed by Imam Upayanto</div>
+  </div>
+</div>
+
+<!-- ================= RANGKUMAN MATERI ================= -->
+<div id="summaryScreen" class="screen" style="display:none;">
+  <button class="back-floating" data-back="menu">← Kembali ke Menu</button>
+  <div class="summary-inner">
+    <h1 class="title">📖 Rangkuman Materi</h1>
+    <div class="subtitle">Ekosistem — Komponen, Rantai Makanan, dan Simbiosis</div>
+
+    <div class="summary-card">
+      <h3>🌱 1. Komponen Ekosistem</h3>
+      <p><b>Ekosistem</b> adalah hubungan timbal balik antara makhluk hidup dengan lingkungannya di suatu tempat.</p>
+      <p><b>Komponen biotik</b> adalah makhluk hidup dalam ekosistem, yaitu tumbuhan, hewan, dan manusia.</p>
+      <p><b>Komponen abiotik</b> adalah benda tak hidup yang mendukung kehidupan, seperti air, tanah, udara, cahaya matahari, dan suhu.</p>
+      <p><b>Saling bergantung:</b> komponen biotik dan abiotik saling memengaruhi agar ekosistem tetap seimbang. Contoh: akar tumbuhan menahan tanah dari erosi (biotik → abiotik), dan curah hujan memengaruhi pertumbuhan rumput (abiotik → biotik).</p>
+      <p><b>Ekosistem alami</b> terbentuk sendiri tanpa campur tangan manusia, contohnya hutan, laut, dan sungai.</p>
+      <p><b>Ekosistem buatan</b> dibuat oleh manusia untuk tujuan tertentu, contohnya sawah, kolam ikan, dan akuarium.</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>🔗 2. Rantai &amp; Jaring-Jaring Makanan</h3>
+      <p><b>Rantai makanan</b> adalah urutan makan dan dimakan antar makhluk hidup. Tanda panah (→) dibaca "dimakan oleh".</p>
+      <div class="chain">🌾 Padi → 🐀 Tikus → 🐍 Ular → 🦅 Elang<br>🌿 Rumput → 🦗 Belalang → 🐸 Katak → 🐍 Ular</div>
+      <p><b>Produsen:</b> makhluk hidup yang membuat makanan sendiri, biasanya tumbuhan hijau lewat fotosintesis.</p>
+      <p><b>Konsumen tingkat I:</b> hewan pemakan tumbuhan (herbivora), contohnya tikus dan belalang.</p>
+      <p><b>Konsumen tingkat II &amp; III:</b> hewan pemakan daging (karnivora) atau pemakan segala (omnivora), contohnya ular dan elang.</p>
+      <p><b>Pengurai (dekomposer):</b> makhluk hidup seperti jamur dan bakteri yang menguraikan sisa makhluk hidup yang telah mati menjadi zat hara.</p>
+      <p><b>Jaring-jaring makanan:</b> gabungan dari banyak rantai makanan yang saling berhubungan dalam satu ekosistem.</p>
+      <p><b>Kalau satu mata rantai hilang:</b> keseimbangan ekosistem bisa terganggu, contohnya populasi hama meningkat jika predatornya berkurang.</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>🤝 3. Simbiosis</h3>
+      <p><b>Simbiosis</b> adalah hubungan atau interaksi erat antara dua makhluk hidup yang berbeda jenis.</p>
+      <p><b>Mutualisme</b> — kedua pihak sama-sama untung. Contoh: lebah dengan bunga, kerbau dengan burung jalak, ikan badut dengan anemon laut.</p>
+      <p><b>Komensalisme</b> — satu pihak untung, pihak lain tidak untung dan tidak rugi. Contoh: ikan remora dengan hiu, anggrek dengan pohon inangnya.</p>
+      <p><b>Parasitisme</b> — satu pihak untung, pihak lain dirugikan. Contoh: benalu dengan pohon inangnya, kutu dengan hewan yang ditumpanginya, tali putri pada tanaman lain.</p>
+      <p><b>Kenapa penting dipelajari:</b> membantu kita memahami bahwa setiap makhluk hidup punya peran dan saling memengaruhi satu sama lain di alam.</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>⚔️ 4. Interaksi Lain Antar Makhluk Hidup <span class="tag-extra">TAMBAHAN</span></h3>
+      <p><b>Predasi</b> — hubungan antara pemangsa (predator) dan yang dimangsa (mangsa). Contoh: harimau dengan rusa, elang dengan ular. Berbeda dengan parasit, predator langsung membunuh mangsanya.</p>
+      <p><b>Kompetisi</b> — persaingan memperebutkan hal yang sama, misalnya makanan atau wilayah. Contoh: sapi dan kambing merumput di padang yang sama.</p>
+      <p><b>Tingkatan makhluk hidup:</b> individu (satu makhluk) → populasi (sekumpulan yang sejenis) → komunitas (banyak populasi di satu daerah) → ekosistem (komunitas + lingkungan abiotiknya).</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>🔺 5. Piramida Makanan &amp; Aliran Energi <span class="tag-extra">TAMBAHAN</span></h3>
+      <p><b>Tingkat trofik</b> adalah kedudukan makhluk hidup dalam rantai makanan. Tingkat pertama selalu produsen.</p>
+      <p><b>Piramida makanan</b> menggambarkan perbandingan jumlah makhluk hidup di tiap tingkat: makin ke atas jumlahnya makin sedikit.</p>
+      <p><b>Aliran energi bersifat satu arah:</b> matahari → produsen → konsumen. Setiap kali berpindah tingkat, sebagian energi terpakai untuk aktivitas hidup, sehingga energinya makin berkurang. Itulah sebabnya rantai makanan jarang lebih dari 4–5 tingkat.</p>
+      <p><b>Zat hara berbeda dengan energi:</b> zat hara didaur ulang kembali oleh pengurai untuk digunakan tumbuhan lagi.</p>
+      <p><b>Rantai detritus</b> adalah rantai makanan yang dimulai dari sisa makhluk hidup yang telah mati. Pemakan serasah seperti cacing tanah dan rayap disebut <b>detritivor</b>.</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>🛡️ 6. Keseimbangan &amp; Pelestarian Ekosistem <span class="tag-extra">TAMBAHAN</span></h3>
+      <p><b>Ekosistem seimbang</b> apabila jumlah produsen, konsumen, dan pengurai proporsional. Ekosistem dengan keanekaragaman hayati tinggi (seperti hutan) lebih stabil dibanding ekosistem buatan (seperti sawah) yang jaring makanannya sederhana.</p>
+      <p><b>Kegiatan yang merusak:</b> penebangan liar, pembakaran hutan, perburuan hewan langka, pembuangan limbah pabrik ke sungai, dan pemakaian pestisida berlebihan.</p>
+      <p><b>Usaha pelestarian:</b> reboisasi, membuat cagar alam (melindungi tumbuhan, hewan, dan habitatnya), suaka margasatwa (melindungi hewan langka), tebang pilih, serta pengendalian hayati — memakai predator alami seperti burung hantu untuk mengendalikan hama tikus.</p>
+    </div>
+
+    <button class="big-btn" data-back="menu">🎮 Siap! Kembali ke Menu</button>
+  </div>
+</div>
+
+<!-- ================= SETUP ================= -->
+<div id="setupScreen" class="screen" style="display:none;">
+  <button class="back-floating" data-back="menu">← Kembali</button>
+  <div class="center-col">
+    <h1 class="title" id="setupTitle">👥 Siswa vs Siswa</h1>
+    <div class="subtitle" id="setupSubtitle">Atur pertandingan lalu tekan MULAI</div>
+
+    <div class="setup-card" id="nameCard">
+      <label>✏️ Nama Pemain</label>
+      <div class="setup-row">
+        <input class="name-input" id="name0" maxlength="12" placeholder="Pemain 1">
+        <span style="font-weight:800;opacity:0.6">VS</span>
+        <input class="name-input" id="name1" maxlength="12" placeholder="Pemain 2">
+      </div>
+      <div class="hint">Boleh dikosongkan — akan memakai nama bawaan.</div>
+    </div>
+
+    <div class="setup-card" id="botCard" style="display:none;">
+      <label>🧠 Tingkat Kecerdasan BOT</label>
+      <div class="setup-row">
+        <button class="choice-btn active" data-bot="1">🙂 Mudah</button>
+        <button class="choice-btn" data-bot="2">😎 Sedang</button>
+        <button class="choice-btn" data-bot="3">🤯 Sulit</button>
+      </div>
+      <div class="hint" id="botHint">BOT sering keliru dan menjawab lambat. Cocok untuk pemanasan.</div>
+    </div>
+
+    <div class="setup-card">
+      <label>🎯 Tingkat Kesulitan Soal</label>
+      <div class="setup-row">
+        <button class="choice-btn" data-lvl="1">Mudah</button>
+        <button class="choice-btn" data-lvl="2">Sedang</button>
+        <button class="choice-btn" data-lvl="3">Sulit</button>
+        <button class="choice-btn active" data-lvl="0">🎲 Campur</button>
+      </div>
+      <div class="hint">Campur = soal diambil acak dari seluruh 100 soal.</div>
+    </div>
+
+    <div class="setup-card">
+      <label>📝 Mode Jumlah Soal</label>
+      <div class="setup-row">
+        <button class="choice-btn active" data-mode="5">5 Soal</button>
+        <button class="choice-btn" data-mode="10">10 Soal</button>
+        <button class="choice-btn" data-mode="15">15 Soal</button>
+      </div>
+      <div class="hint" id="modeHint">Target skor: <b id="targetPreview">10</b> poin. Duel berlanjut sampai ada yang menyentuh garis finish.</div>
+    </div>
+
+    <div class="setup-card" style="padding:12px 22px">
+      <div class="hint" style="font-size:13.5px;opacity:0.85">
+        ⏱️ Waktu menjawab <b>20 detik</b> per soal &nbsp;•&nbsp; ✅ Benar <b>+2</b> &nbsp;•&nbsp; ❌ Salah / kehabisan waktu <b>−1</b>
+      </div>
+    </div>
+
+    <button class="big-btn" id="startBtn" style="font-size:24px;padding:17px 52px">▶ MULAI DUEL</button>
+  </div>
+</div>
+
+<!-- ================= GAME ================= -->
+<div id="topbar">
+  <div id="infoRow">
+    <span class="info-chip">⏱️ <span id="clock">00:00</span></span>
+    <span class="info-chip" id="targetInfo">Target <b>10</b> poin</span>
+    <button id="resetBtn">✕ Keluar</button>
+  </div>
+  <div id="raceWrap">
+    <div class="lane" id="lane-0">
+      <div class="lane-fill" id="fill-0"></div>
+      <div class="lane-track"></div>
+      <div class="lane-name" id="laneName-0"></div>
+      <div class="lane-score" id="laneScore-0">0</div>
+      <div class="lane-goal"></div>
+      <div class="runner" id="runner-0">🏃</div>
+    </div>
+    <div class="lane" id="lane-1">
+      <div class="lane-fill" id="fill-1"></div>
+      <div class="lane-track"></div>
+      <div class="lane-name" id="laneName-1"></div>
+      <div class="lane-score" id="laneScore-1">0</div>
+      <div class="lane-goal"></div>
+      <div class="runner" id="runner-1">🏃</div>
+    </div>
+  </div>
+</div>
+<div id="gameArea"><div id="game"></div></div>
+
+<!-- ================= WIN OVERLAY ================= -->
+<div id="winOverlay">
+  <h2 id="winText">🏆 Pemenang!</h2>
+  <div id="winStats"></div>
+  <div class="win-actions">
+    <button class="big-btn" id="playAgainBtn" style="margin-top:0">🔁 Main Lagi</button>
+    <button class="ghost-btn" id="toMenuBtn">🏠 Menu Utama</button>
+  </div>
+</div>
+
+<script>
+// ================== BANK SOAL EKOSISTEM (100 SOAL) ==================
+// Format: {q: pertanyaan, o: [KUNCI, pengecoh, pengecoh, pengecoh], l: level}
+// l = 1 (Mudah) | 2 (Sedang) | 3 (Sulit). Opsi [0] SELALU kunci jawaban,
+// posisi diacak saat soal ditampilkan.
+const BANK = [
+/* ---------- LEVEL 1 : MUDAH (40 soal) ---------- */
+{q:"Hubungan timbal balik antara makhluk hidup dengan lingkungannya di suatu tempat disebut ...", o:["Ekosistem","Populasi","Komunitas","Habitat"], l:1},
+{q:"Berikut ini yang termasuk komponen biotik adalah ...", o:["Burung","Air","Tanah","Cahaya matahari"], l:1},
+{q:"Berikut ini yang termasuk komponen abiotik adalah ...", o:["Udara","Jamur","Rumput","Semut"], l:1},
+{q:"Makhluk hidup yang dapat membuat makanan sendiri disebut ...", o:["Produsen","Konsumen","Pengurai","Parasit"], l:1},
+{q:"Tumbuhan hijau membuat makanannya sendiri melalui proses ...", o:["Fotosintesis","Respirasi","Penguapan","Pembusukan"], l:1},
+{q:"Contoh ekosistem alami adalah ...", o:["Hutan","Sawah","Akuarium","Kolam ikan"], l:1},
+{q:"Contoh ekosistem buatan adalah ...", o:["Sawah","Laut","Sungai","Gurun"], l:1},
+{q:"Urutan peristiwa makan dan dimakan antar makhluk hidup disebut ...", o:["Rantai makanan","Jaring-jaring makanan","Simbiosis","Habitat"], l:1},
+{q:"Pada rantai makanan padi → tikus → ular → elang, yang berperan sebagai produsen adalah ...", o:["Padi","Tikus","Ular","Elang"], l:1},
+{q:"Pada rantai makanan padi → tikus → ular → elang, yang menjadi konsumen tingkat I adalah ...", o:["Tikus","Padi","Ular","Elang"], l:1},
+{q:"Hewan pemakan tumbuhan disebut ...", o:["Herbivora","Karnivora","Omnivora","Dekomposer"], l:1},
+{q:"Hewan pemakan daging disebut ...", o:["Karnivora","Herbivora","Omnivora","Produsen"], l:1},
+{q:"Hewan pemakan segala (tumbuhan dan daging) disebut ...", o:["Omnivora","Herbivora","Karnivora","Insektivora"], l:1},
+{q:"Jamur dan bakteri di dalam ekosistem berperan sebagai ...", o:["Pengurai","Produsen","Konsumen tingkat I","Konsumen tingkat II"], l:1},
+{q:"Hubungan atau interaksi yang erat antara dua makhluk hidup berbeda jenis disebut ...", o:["Simbiosis","Adaptasi","Kompetisi","Migrasi"], l:1},
+{q:"Simbiosis yang menguntungkan kedua belah pihak disebut ...", o:["Mutualisme","Komensalisme","Parasitisme","Netralisme"], l:1},
+{q:"Hubungan kupu-kupu dengan bunga termasuk simbiosis ...", o:["Mutualisme","Komensalisme","Parasitisme","Kompetisi"], l:1},
+{q:"Hubungan benalu dengan pohon inangnya termasuk simbiosis ...", o:["Parasitisme","Mutualisme","Komensalisme","Netralisme"], l:1},
+{q:"Hubungan ikan remora dengan ikan hiu termasuk simbiosis ...", o:["Komensalisme","Mutualisme","Parasitisme","Predasi"], l:1},
+{q:"Hubungan kerbau dengan burung jalak termasuk simbiosis ...", o:["Mutualisme","Parasitisme","Komensalisme","Kompetisi"], l:1},
+{q:"Hubungan tumbuhan anggrek dengan pohon yang ditumpanginya termasuk simbiosis ...", o:["Komensalisme","Parasitisme","Mutualisme","Netralisme"], l:1},
+{q:"Hubungan kutu dengan hewan yang ditumpanginya termasuk simbiosis ...", o:["Parasitisme","Mutualisme","Komensalisme","Predasi"], l:1},
+{q:"Gabungan dari banyak rantai makanan yang saling berhubungan disebut ...", o:["Jaring-jaring makanan","Rantai makanan","Piramida makanan","Habitat"], l:1},
+{q:"Zat hara hasil kerja pengurai akan dimanfaatkan kembali oleh ...", o:["Tumbuhan","Ular","Elang","Serigala"], l:1},
+{q:"Tempat hidup suatu makhluk hidup disebut ...", o:["Habitat","Ekosistem","Populasi","Komunitas"], l:1},
+{q:"Berikut ini yang BUKAN termasuk komponen abiotik adalah ...", o:["Cacing","Suhu","Air","Batu"], l:1},
+{q:"Sumber energi utama bagi seluruh ekosistem di bumi adalah ...", o:["Cahaya matahari","Air","Tanah","Angin"], l:1},
+{q:"Contoh hewan herbivora adalah ...", o:["Kambing","Harimau","Elang","Buaya"], l:1},
+{q:"Contoh hewan karnivora adalah ...", o:["Singa","Sapi","Kelinci","Kerbau"], l:1},
+{q:"Contoh hewan omnivora adalah ...", o:["Ayam","Kucing","Kambing","Ular"], l:1},
+{q:"Akuarium di dalam rumah termasuk contoh ekosistem ...", o:["Buatan","Alami","Liar","Purba"], l:1},
+{q:"Dalam penulisan rantai makanan, tanda panah (→) berarti ...", o:["dimakan oleh","memakan","hidup bersama","bersaing dengan"], l:1},
+{q:"Bakteri pengurai mengubah sisa makhluk hidup yang telah mati menjadi ...", o:["Zat hara","Oksigen","Cahaya","Air garam"], l:1},
+{q:"Ekosistem sawah sengaja dibuat manusia dengan tujuan ...", o:["Menghasilkan bahan pangan","Menjadi hutan lindung","Mencemari air","Menambah hama"], l:1},
+{q:"Kumpulan makhluk hidup sejenis yang menempati suatu daerah disebut ...", o:["Populasi","Komunitas","Ekosistem","Individu"], l:1},
+{q:"Contoh ekosistem air asin adalah ...", o:["Laut","Sungai","Danau","Kolam"], l:1},
+{q:"Contoh ekosistem air tawar adalah ...", o:["Sungai","Laut","Pantai berpasir","Terumbu karang"], l:1},
+{q:"Pada rantai makanan rumput → belalang → katak → ular, katak berperan sebagai ...", o:["Konsumen tingkat II","Produsen","Konsumen tingkat I","Pengurai"], l:1},
+{q:"Di dalam rantai makanan, tumbuhan hijau selalu menempati posisi ...", o:["Paling awal sebagai produsen","Paling akhir","Sebagai pengurai","Sebagai konsumen puncak"], l:1},
+{q:"Yang termasuk komponen biotik pada ekosistem sawah adalah ...", o:["Tanaman padi","Air irigasi","Cahaya matahari","Tanah"], l:1},
+
+/* ---------- LEVEL 2 : SEDANG (35 soal) ---------- */
+{q:"Jika ular di sawah diburu manusia sampai habis, hal yang paling mungkin terjadi adalah ...", o:["Populasi tikus meningkat dan padi banyak yang rusak","Populasi tikus ikut menurun","Padi tumbuh makin subur","Elang berkembang biak pesat"], l:2},
+{q:"Makhluk hidup yang berperan menjaga kesuburan tanah dalam ekosistem adalah ...", o:["Pengurai","Konsumen puncak","Herbivora besar","Karnivora"], l:2},
+{q:"Di dalam jaring-jaring makanan, satu jenis hewan dapat ...", o:["Menempati lebih dari satu rantai makanan","Hanya memakan satu jenis makanan","Berubah menjadi produsen","Berubah menjadi pengurai"], l:2},
+{q:"Hubungan lebah dengan bunga menguntungkan bunga karena lebah ...", o:["Membantu proses penyerbukan","Memberikan madu kepada bunga","Melindungi bunga dari hujan","Menyiram bunga dengan air"], l:2},
+{q:"Cacing tanah bermanfaat bagi ekosistem karena ...", o:["Menggemburkan dan menyuburkan tanah","Memangsa tikus sawah","Membuat makanan sendiri","Menyerbuki bunga"], l:2},
+{q:"Yang membedakan parasitisme dari komensalisme adalah ...", o:["Pada parasitisme ada pihak yang dirugikan","Pada parasitisme kedua pihak untung","Pada parasitisme tidak ada yang untung","Pada parasitisme keduanya rugi"], l:2},
+{q:"Di dalam rantai makanan, energi mengalir dari ...", o:["Produsen menuju konsumen","Konsumen menuju produsen","Pengurai menuju matahari","Konsumen III menuju konsumen I"], l:2},
+{q:"Hubungan bunga Rafflesia dengan tumbuhan inangnya termasuk simbiosis ...", o:["Parasitisme","Mutualisme","Komensalisme","Netralisme"], l:2},
+{q:"Bakteri Rhizobium yang hidup pada akar tanaman kacang-kacangan termasuk simbiosis ...", o:["Mutualisme","Parasitisme","Komensalisme","Predasi"], l:2},
+{q:"Contoh interaksi kompetisi dalam ekosistem adalah ...", o:["Dua ekor kambing memperebutkan rumput yang sama","Lebah menghisap nektar bunga","Benalu menempel di pohon mangga","Jamur menguraikan daun kering"], l:2},
+{q:"Suatu ekosistem dikatakan seimbang apabila ...", o:["Jumlah produsen, konsumen, dan pengurai proporsional","Jumlah konsumen jauh melebihi produsen","Tidak terdapat pengurai sama sekali","Hanya ada satu jenis makhluk hidup"], l:2},
+{q:"Penebangan hutan secara liar mengakibatkan ...", o:["Banyak hewan kehilangan habitatnya","Populasi hewan hutan meningkat","Tanah menjadi jauh lebih subur","Rantai makanan bertambah panjang"], l:2},
+{q:"Pada ekosistem kolam, fitoplankton berperan sebagai ...", o:["Produsen","Konsumen tingkat I","Konsumen tingkat II","Pengurai"], l:2},
+{q:"Rantai makanan pada ekosistem laut umumnya diawali oleh ...", o:["Fitoplankton","Ikan kecil","Ikan besar","Hiu"], l:2},
+{q:"Jika seluruh tumbuhan hijau di suatu ekosistem punah, akibatnya adalah ...", o:["Seluruh rantai makanan terputus","Hanya herbivora yang mati","Pengurai menjadi lebih subur","Tidak berpengaruh apa pun"], l:2},
+{q:"Hewan yang menempati puncak rantai makanan umumnya adalah ...", o:["Karnivora yang tidak dimangsa hewan lain","Herbivora bertubuh paling besar","Produsen utama ekosistem","Pengurai berukuran kecil"], l:2},
+{q:"Berikut ini yang termasuk usaha pelestarian ekosistem adalah ...", o:["Melakukan reboisasi","Membuang limbah ke sungai","Berburu hewan langka","Membakar hutan untuk ladang"], l:2},
+{q:"Cagar alam dibuat dengan tujuan melindungi ...", o:["Tumbuhan dan hewan beserta habitatnya","Bangunan bersejarah","Hasil pertanian warga","Jalan raya antarkota"], l:2},
+{q:"Suaka margasatwa dibuat khusus untuk melindungi ...", o:["Hewan langka di habitat aslinya","Tumbuhan langka saja","Sumber mata air","Lahan pertanian"], l:2},
+{q:"Pada simbiosis komensalisme, pihak yang tidak mendapat keuntungan juga tidak ...", o:["Dirugikan","Bergerak","Bernapas","Berkembang biak"], l:2},
+{q:"Penggunaan pestisida berlebihan dapat merusak ekosistem karena ...", o:["Ikut membunuh hewan yang bukan hama","Membuat tanah makin subur","Menambah jumlah predator alami","Mempercepat kerja pengurai"], l:2},
+{q:"Tumbuhan tali putri yang melilit tanaman lain termasuk simbiosis ...", o:["Parasitisme","Mutualisme","Komensalisme","Kompetisi"], l:2},
+{q:"Pada ekosistem hutan, harimau berperan sebagai ...", o:["Konsumen tingkat tinggi","Produsen","Pengurai","Konsumen tingkat I"], l:2},
+{q:"Kumpulan berbagai populasi yang hidup bersama di suatu daerah disebut ...", o:["Komunitas","Populasi","Individu","Habitat"], l:2},
+{q:"Perbedaan pokok ekosistem alami dan ekosistem buatan terletak pada ...", o:["Ada tidaknya campur tangan manusia","Jumlah air yang tersedia","Warna tanah di dalamnya","Suhu udara di sekitarnya"], l:2},
+{q:"Hubungan ikan badut dengan anemon laut termasuk simbiosis ...", o:["Mutualisme","Parasitisme","Komensalisme","Kompetisi"], l:2},
+{q:"Pada rantai makanan, semakin tinggi tingkatannya maka jumlah makhluk hidupnya ...", o:["Semakin sedikit","Semakin banyak","Selalu sama","Berubah-ubah tanpa pola"], l:2},
+{q:"Bila jumlah belalang di sawah meningkat drastis, maka yang terjadi adalah ...", o:["Banyak tanaman padi rusak","Katak langsung punah","Padi tumbuh makin subur","Ular berkembang biak lambat"], l:2},
+{q:"Manfaat tumbuhan bagi komponen abiotik udara adalah ...", o:["Menghasilkan oksigen","Menyerap seluruh oksigen","Menambah karbon dioksida","Menaikkan suhu udara"], l:2},
+{q:"Contoh komponen abiotik yang sangat memengaruhi pertumbuhan tanaman adalah ...", o:["Cahaya matahari","Cacing tanah","Belalang","Burung pipit"], l:2},
+{q:"Hewan yang berjasa membantu penyebaran biji tumbuhan adalah ...", o:["Burung pemakan buah","Ular sawah","Harimau","Ikan hiu"], l:2},
+{q:"Di dalam ekosistem, manusia termasuk komponen ...", o:["Biotik","Abiotik","Pengurai","Produsen"], l:2},
+{q:"Terumbu karang sangat penting bagi ekosistem laut karena ...", o:["Menjadi tempat hidup dan berlindung ikan","Menghasilkan garam laut","Menaikkan suhu air laut","Menguraikan seluruh bangkai"], l:2},
+{q:"Alga yang hidup di dalam tubuh hewan karang termasuk simbiosis ...", o:["Mutualisme","Parasitisme","Komensalisme","Predasi"], l:2},
+{q:"Peristiwa makan dan dimakan dalam ekosistem menyebabkan terjadinya ...", o:["Perpindahan energi","Perpindahan habitat","Berkurangnya cahaya","Bertambahnya air"], l:2},
+
+/* ---------- LEVEL 3 : SULIT (25 soal) ---------- */
+{q:"Perhatikan jaring makanan berikut: rumput dimakan belalang dan tikus; belalang dimakan katak; tikus dan katak dimakan ular; ular dimakan elang. Jika ular memangsa katak, maka ular berperan sebagai ...", o:["Konsumen tingkat III","Konsumen tingkat I","Produsen","Pengurai"], l:3},
+{q:"Pada jaring-jaring makanan di sawah, jika populasi katak menurun drastis, dampak yang paling mungkin adalah ...", o:["Populasi belalang meningkat dan padi rusak","Populasi belalang ikut menurun","Ular berkembang biak makin pesat","Padi tumbuh makin subur"], l:3},
+{q:"Piramida makanan menggambarkan ...", o:["Perbandingan jumlah makhluk hidup pada tiap tingkat trofik","Urutan usia hewan dalam ekosistem","Luas wilayah suatu ekosistem","Jumlah air dalam suatu ekosistem"], l:3},
+{q:"Energi yang berpindah dari satu tingkat trofik ke tingkat berikutnya akan ...", o:["Berkurang karena sebagian terpakai untuk aktivitas hidup","Bertambah dua kali lipat","Tetap sama persis","Hilang seluruhnya seketika"], l:3},
+{q:"Tingkat trofik pertama dalam setiap ekosistem selalu ditempati oleh ...", o:["Produsen","Herbivora","Karnivora","Dekomposer"], l:3},
+{q:"Alasan rantai makanan jarang memiliki lebih dari empat atau lima tingkat adalah ...", o:["Energi makin berkurang pada setiap tingkat","Hewan besar malas mencari makan","Produsen hanya ada satu jenis","Pengurai menghalangi aliran energi"], l:3},
+{q:"Interaksi antara sapi dan kambing yang merumput di padang yang sama disebut ...", o:["Kompetisi","Simbiosis mutualisme","Predasi","Komensalisme"], l:3},
+{q:"Hubungan antara harimau dengan rusa yang dimangsanya disebut ...", o:["Predasi","Simbiosis mutualisme","Komensalisme","Kompetisi"], l:3},
+{q:"Perbedaan mendasar antara predasi dan parasitisme adalah ...", o:["Predator membunuh mangsanya, parasit hidup lama pada inangnya","Predator selalu berukuran lebih kecil","Parasit tidak merugikan inangnya","Predasi hanya terjadi pada tumbuhan"], l:3},
+{q:"Bila sampah organik terus menumpuk dan pengurai tidak ada, yang terjadi adalah ...", o:["Sampah tidak terurai dan zat hara tanah berkurang","Tanah menjadi jauh lebih subur","Tumbuhan tumbuh lebih cepat","Air tanah menjadi lebih jernih"], l:3},
+{q:"Eceng gondok yang menutupi seluruh permukaan kolam merugikan karena ...", o:["Menghalangi cahaya sehingga fitoplankton berkurang","Menambah oksigen air secara berlebihan","Membunuh seluruh bakteri pengurai","Menaikkan suhu air laut"], l:3},
+{q:"Peristiwa yang menunjukkan pengaruh komponen biotik terhadap komponen abiotik adalah ...", o:["Akar tumbuhan menahan tanah dari erosi","Cahaya matahari membantu fotosintesis","Air melarutkan zat hara di tanah","Suhu memengaruhi pertumbuhan tanaman"], l:3},
+{q:"Peristiwa yang menunjukkan pengaruh komponen abiotik terhadap komponen biotik adalah ...", o:["Curah hujan memengaruhi pertumbuhan rumput","Cacing menggemburkan tanah","Tumbuhan menghasilkan oksigen","Bakteri menguraikan bangkai hewan"], l:3},
+{q:"Penggunaan burung hantu untuk mengendalikan hama tikus di sawah disebut ...", o:["Pengendalian hayati","Pemupukan berimbang","Reboisasi lahan","Rotasi tanaman"], l:3},
+{q:"Rantai makanan yang diawali dari sisa-sisa makhluk hidup yang telah mati disebut rantai ...", o:["Detritus","Perumput","Parasit","Cahaya"], l:3},
+{q:"Cacing tanah dan rayap yang memakan serasah daun disebut ...", o:["Detritivor","Produsen","Karnivora","Parasit"], l:3},
+{q:"Perbedaan detritivor dengan dekomposer adalah ...", o:["Detritivor memakan sisa organik, dekomposer menguraikannya secara kimiawi","Keduanya sama persis perannya","Detritivor membuat makanannya sendiri","Dekomposer memangsa hewan yang masih hidup"], l:3},
+{q:"Bila jumlah konsumen tingkat I meningkat tanpa kendali, dampak jangka panjangnya adalah ...", o:["Produsen berkurang dan ekosistem tidak seimbang","Produsen justru bertambah banyak","Seluruh pengurai punah","Cahaya matahari berkurang"], l:3},
+{q:"Contoh simbiosis mutualisme yang terjadi di dalam tubuh manusia adalah ...", o:["Bakteri Escherichia coli di usus membantu pembentukan vitamin K","Cacing pita yang hidup di usus","Kutu yang hidup di rambut","Benalu yang menempel di pohon"], l:3},
+{q:"Aliran energi di dalam ekosistem bersifat ...", o:["Satu arah, dari matahari ke produsen lalu ke konsumen","Bolak-balik antara konsumen dan produsen","Melingkar sempurna tanpa berkurang","Dari konsumen kembali ke matahari"], l:3},
+{q:"Berbeda dengan energi, zat hara di dalam ekosistem mengalami ...", o:["Daur ulang melalui kerja pengurai","Kehilangan total tanpa kembali","Penambahan langsung dari matahari","Perubahan menjadi cahaya"], l:3},
+{q:"Ekosistem dengan keanekaragaman hayati yang tinggi cenderung ...", o:["Lebih stabil menghadapi gangguan","Lebih mudah rusak total","Tidak memerlukan pengurai","Selalu kekurangan produsen"], l:3},
+{q:"Pembuangan limbah pabrik ke sungai menyebabkan ...", o:["Ikan mati karena air tercemar","Ikan berkembang biak lebih cepat","Air sungai menjadi makin jernih","Fitoplankton tumbuh makin sehat"], l:3},
+{q:"Tumbuhan kantong semar memperoleh tambahan nitrogen dengan cara ...", o:["Memangsa serangga yang terperangkap","Menyerap nitrogen langsung dari batu","Memarasit pohon di sekitarnya","Bersimbiosis dengan ikan hiu"], l:3},
+{q:"Ekosistem buatan seperti sawah lebih rentan terganggu dibanding hutan karena ...", o:["Jenis makhluk hidupnya sedikit sehingga jaring makanannya sederhana","Tanahnya jauh lebih subur","Airnya selalu berlimpah","Cahaya mataharinya lebih banyak"], l:3}
+];
+
+// ================== KONFIGURASI ==================
+const WAKTU_SOAL   = 20;   // detik per soal
+const SKOR_BENAR   = 2;
+const SKOR_SALAH   = -1;
+const BOT_INDEX    = 0;
+
+const BOT_PROFIL = {
+  1: {nama:'🙂 BOT Mudah',  akurasi:0.55, min:5000, max:9000,
+      hint:'BOT sering keliru dan menjawab lambat. Cocok untuk pemanasan.'},
+  2: {nama:'😎 BOT Sedang', akurasi:0.78, min:3000, max:5500,
+      hint:'BOT cukup teliti dan lumayan cepat. Kamu harus fokus.'},
+  3: {nama:'🤯 BOT Sulit',  akurasi:0.94, min:1500, max:3000,
+      hint:'BOT hampir selalu benar dan menjawab sangat cepat. Tantangan sesungguhnya!'}
+};
+const WARNA     = ['#b93b30','#20618f'];   // warna panel
+const WARNA_LN  = ['#ff6f5e','#5eb4ff'];   // warna lintasan & nama
+const LABEL     = ['A','B','C','D'];
+const NAMA_LV   = {1:'Mudah', 2:'Sedang', 3:'Sulit'};
+const PELARI    = ['🏃', '🏃‍♀️'];
+
+// ================== STATE ==================
+let mode        = 'pvp';   // 'pvp' | 'bot'
+let botLevel    = 1;
+let filterLevel = 0;       // 0 = campur
+let jumlahSoal  = 5;
+let target      = 10;
+let nama        = ['Pemain 1','Pemain 2'];
+let P           = [];      // state tiap pemain
+let panels      = [];
+let jamMulai    = null, jamInterval = null, selesai = false;
+
+// ================== UTIL ==================
+const $ = id => document.getElementById(id);
+function acak(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function rentang(min,max){ return min + Math.random()*(max-min); }
+function esc(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+
+function tampilkan(id){
+  ['mainMenu','summaryScreen','setupScreen'].forEach(s => $(s).style.display = 'none');
+  $('topbar').style.display     = 'none';
+  $('gameArea').style.display   = 'none';
+  $('winOverlay').style.display = 'none';
+  document.body.classList.remove('need-landscape');
+  if(id) $(id).style.display = 'block';
+}
+
+// ================== NAVIGASI MENU ==================
+document.querySelectorAll('.menu-card').forEach(card=>{
+  card.onclick = ()=>{
+    const go = card.dataset.go;
+    if(go === 'summary'){ tampilkan('summaryScreen'); $('summaryScreen').scrollTop = 0; return; }
+    mode = go;
+    bukaSetup();
+  };
+});
+document.querySelectorAll('[data-back]').forEach(b => b.onclick = ()=> tampilkan('mainMenu'));
+
+function bukaSetup(){
+  const bot = mode === 'bot';
+  $('setupTitle').textContent    = bot ? '🤖 Siswa vs BOT' : '👥 Siswa vs Siswa';
+  $('setupSubtitle').textContent = bot ? 'Pilih kecerdasan BOT lalu tekan MULAI'
+                                       : 'Atur pertandingan lalu tekan MULAI';
+  $('botCard').style.display  = bot ? 'flex' : 'none';
+  $('nameCard').style.display = bot ? 'none' : 'flex';
+  tampilkan('setupScreen');
+}
+
+function pasangPilihan(attr, cb){
+  document.querySelectorAll('['+attr+']').forEach(btn=>{
+    btn.onclick = ()=>{
+      document.querySelectorAll('['+attr+']').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      cb(btn.dataset[attr.replace('data-','')]);
+    };
+  });
+}
+pasangPilihan('data-bot', v=>{ botLevel = +v; $('botHint').textContent = BOT_PROFIL[botLevel].hint; });
+pasangPilihan('data-lvl', v=>{ filterLevel = +v; });
+pasangPilihan('data-mode', v=>{ jumlahSoal = +v; target = jumlahSoal*2; $('targetPreview').textContent = target; });
+
+$('startBtn').onclick    = mulaiDuel;
+$('resetBtn').onclick    = ()=>{ hentikanSemua(); tampilkan('mainMenu'); };
+$('playAgainBtn').onclick= ()=>{ hentikanSemua(); mulaiDuel(); };
+$('toMenuBtn').onclick   = ()=>{ hentikanSemua(); tampilkan('mainMenu'); };
+
+// ================== MULAI DUEL ==================
+function ambilKumpulanSoal(){
+  const pool = filterLevel === 0 ? BANK : BANK.filter(s => s.l === filterLevel);
+  return pool.length ? pool : BANK;
+}
+
+function mulaiDuel(){
+  selesai = false;
+  target  = jumlahSoal * 2;
+
+  if(mode === 'bot'){
+    nama = [BOT_PROFIL[botLevel].nama, '🙋 Kamu'];
+  }else{
+    const n0 = $('name0').value.trim(), n1 = $('name1').value.trim();
+    nama = [n0 || 'Pemain 1', n1 || 'Pemain 2'];
+    try{
+      if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+      if(screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
+    }catch(e){}
+  }
+
+  const pool = ambilKumpulanSoal();
+  P = [0,1].map(()=>({ skor:0, benar:0, salah:0, dijawab:0, antrian:acak(pool), ptr:0, kunci:'', tSisa:0, tId:null, botId:null }));
+
+  // ---- lintasan lari ----
+  const namaLevel = filterLevel === 0 ? 'Campur' : NAMA_LV[filterLevel];
+  $('targetInfo').innerHTML = 'Target <b>'+target+'</b> poin &nbsp;•&nbsp; Mode '+jumlahSoal+' soal &nbsp;•&nbsp; Soal '+namaLevel;
+  for(let i=0;i<2;i++){
+    $('lane-'+i).style.borderColor = WARNA_LN[i]+'55';
+    $('fill-'+i).style.background  = WARNA_LN[i];
+    $('fill-'+i).style.width       = '0%';
+    const r = $('runner-'+i);
+    r.textContent = PELARI[i];
+    r.style.left  = '0px';
+    r.style.filter= 'drop-shadow(0 0 5px '+WARNA_LN[i]+') drop-shadow(0 2px 3px rgba(0,0,0,0.6))';
+    const n = $('laneName-'+i);
+    n.textContent = nama[i];
+    n.style.color = WARNA_LN[i];
+    $('laneScore-'+i).textContent = '0';
+  }
+
+  tampilkan(null);
+  if(mode === 'pvp') document.body.classList.add('need-landscape');
+  $('topbar').style.display   = 'flex';
+  $('gameArea').style.display = 'block';
+
+  // ---- panel ----
+  const g = $('game');
+  g.innerHTML = '';
+  panels = [];
+  for(let i=0;i<2;i++){
+    const p = document.createElement('div');
+    p.className = 'panel';
+    p.style.background = 'linear-gradient(150deg,'+WARNA[i]+',' + WARNA[i] + 'd9)';
+    p.innerHTML =
+      '<div class="panel-top">'+
+        '<div class="panel-name">'+esc(nama[i])+'</div>'+
+        '<div style="display:flex;align-items:center;gap:10px">'+
+          '<div class="score-box"><span class="panel-score" id="score-'+i+'">0</span><span class="score-label">POIN</span></div>'+
+          '<div class="timer-ring" id="ring-'+i+'"><i id="timer-'+i+'">'+WAKTU_SOAL+'</i></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="chip-row" id="chips-'+i+'"></div>'+
+      '<div class="panel-question" id="q-'+i+'"></div>'+
+      '<div class="answers" id="ans-'+i+'"></div>';
+    g.appendChild(p);
+    panels.push(p);
+  }
+  aturTataLetak();
+  [0,1].forEach(soalBaru);
+
+  jamMulai = Date.now();
+  clearInterval(jamInterval);
+  jamInterval = setInterval(()=>{
+    const d = Math.floor((Date.now()-jamMulai)/1000);
+    $('clock').textContent = String(Math.floor(d/60)).padStart(2,'0')+':'+String(d%60).padStart(2,'0');
+  },1000);
+  $('clock').textContent = '00:00';
+}
+
+function aturTataLetak(){
+  const portrait = window.matchMedia('(orientation: portrait)').matches;
+  $('game').classList.toggle('stacked', mode === 'bot' && portrait);
+  const tb = $('topbar');
+  if(tb.style.display !== 'none') $('gameArea').style.top = tb.offsetHeight + 'px';
+}
+window.addEventListener('resize', aturTataLetak);
+window.addEventListener('orientationchange', ()=>setTimeout(aturTataLetak,150));
+
+// ================== SOAL ==================
+function soalBaru(i){
+  if(selesai) return;
+  const st = P[i];
+  if(st.ptr >= st.antrian.length){ st.antrian = acak(st.antrian); st.ptr = 0; }
+  const s = st.antrian[st.ptr++];
+  st.kunci = s.o[0];
+
+  $('chips-'+i).innerHTML =
+    '<span class="chip">Soal ke-'+(st.dijawab+1)+'</span>'+
+    '<span class="chip lv'+s.l+'">'+NAMA_LV[s.l]+'</span>'+
+    ((mode==='bot' && i===BOT_INDEX) ? '<span class="chip think">🤔 BOT berpikir…</span>' : '');
+  $('q-'+i).textContent = s.q;
+
+  const opsi = acak(s.o);
+  const box = $('ans-'+i);
+  box.classList.remove('locked');
+  box.innerHTML = '';
+  opsi.forEach((teks,k)=>{
+    const b = document.createElement('button');
+    b.className = 'ans-btn';
+    b.innerHTML = '<span class="lab">'+LABEL[k]+'</span><span class="txt"></span>';
+    b.querySelector('.txt').textContent = teks;
+    b.dataset.val = teks;
+    b.onclick = ()=> jawab(i, teks, b);
+    box.appendChild(b);
+  });
+
+  st.tSisa = WAKTU_SOAL;
+  perbaruiTimer(i);
+  clearInterval(st.tId);
+  st.tId = setInterval(()=>{
+    st.tSisa--;
+    perbaruiTimer(i);
+    if(st.tSisa <= 0){ clearInterval(st.tId); jawab(i, null, null); }
+  },1000);
+
+  if(mode === 'bot' && i === BOT_INDEX){
+    box.classList.add('locked');
+    const pr = BOT_PROFIL[botLevel];
+    clearTimeout(st.botId);
+    st.botId = setTimeout(()=>botJawab(i), rentang(pr.min, pr.max));
+  }
+}
+
+function perbaruiTimer(i){
+  const num = $('timer-'+i), ring = $('ring-'+i);
+  if(!num || !ring) return;
+  const sisa = Math.max(0, P[i].tSisa);
+  num.textContent = sisa;
+  ring.style.setProperty('--p', (sisa/WAKTU_SOAL*360) + 'deg');
+  ring.classList.toggle('danger', sisa <= 5);
+}
+
+function botJawab(i){
+  if(selesai) return;
+  const btns = Array.from(document.querySelectorAll('#ans-'+i+' .ans-btn'));
+  if(!btns.length) return;
+  const kunci = P[i].kunci;
+  const pr = BOT_PROFIL[botLevel];
+  let pilih;
+  if(Math.random() < pr.akurasi){
+    pilih = btns.find(b => b.dataset.val === kunci);
+  }else{
+    const salah = btns.filter(b => b.dataset.val !== kunci);
+    pilih = salah[Math.floor(Math.random()*salah.length)];
+  }
+  if(pilih) jawab(i, pilih.dataset.val, pilih);
+}
+
+function jawab(i, pilihan, tombol){
+  if(selesai) return;
+  const st = P[i];
+  clearInterval(st.tId);
+  clearTimeout(st.botId);
+
+  const box = $('ans-'+i);
+  box.classList.add('locked');
+  const btns = Array.from(box.querySelectorAll('.ans-btn'));
+  const benar = pilihan !== null && pilihan === st.kunci;
+  const chips = $('chips-'+i);
+  const think = chips.querySelector('.chip.think');
+  if(think) think.remove();
+
+  if(benar){
+    if(tombol) tombol.classList.add('correct');
+    btns.forEach(b=>{ if(b !== tombol) b.classList.add('faded'); });
+    st.skor += SKOR_BENAR; st.benar++;
+    pop(i, '✓ Tepat!  +'+SKOR_BENAR, 'ok');
+  }else{
+    if(tombol) tombol.classList.add('wrong');
+    btns.forEach(b=>{
+      if(b.dataset.val === st.kunci) b.classList.add('correct');
+      else if(b !== tombol) b.classList.add('faded');
+    });
+    st.skor += SKOR_SALAH; st.salah++;
+    pop(i, pilihan === null ? '⏰ Waktu habis  −1' : '✗ Kurang tepat  −1', 'no');
+  }
+  st.dijawab++;
+  $('score-'+i).textContent = st.skor;
+  geserPelari(i, benar);
+
+  if(st.skor >= target){ setTimeout(()=>akhiri(i), 900); return; }
+  setTimeout(()=>soalBaru(i), benar ? 1000 : 1700);
+}
+
+function pop(i, teks, jenis){
+  const el = document.createElement('div');
+  el.className = 'float-pop ' + jenis;
+  el.textContent = teks;
+  panels[i].appendChild(el);
+  setTimeout(()=>el.remove(), 1200);
+}
+
+function geserPelari(i, boost){
+  const frac = Math.min(Math.max(P[i].skor,0)/target, 1);
+  const r = $('runner-'+i);
+  if(!r) return;
+  r.style.left = 'calc((100% - 74px) * ' + frac.toFixed(4) + ')';
+  $('fill-'+i).style.width = (frac*100).toFixed(1) + '%';
+  $('laneScore-'+i).textContent = P[i].skor;
+  if(boost){ r.classList.remove('dash'); void r.offsetWidth; r.classList.add('dash'); }
+}
+
+// ================== SELESAI ==================
+function hentikanSemua(){
+  selesai = true;
+  clearInterval(jamInterval);
+  P.forEach(st=>{ clearInterval(st.tId); clearTimeout(st.botId); });
+}
+
+function akhiri(pemenang){
+  hentikanSemua();
+  const d = Math.floor((Date.now()-jamMulai)/1000);
+  const waktu = String(Math.floor(d/60)).padStart(2,'0')+':'+String(d%60).padStart(2,'0');
+
+  $('winText').textContent = '🏆 ' + nama[pemenang] + ' Menang!';
+  $('winStats').innerHTML = [0,1].map(i=>{
+    const st = P[i];
+    const akurasi = st.dijawab ? Math.round(st.benar/st.dijawab*100) : 0;
+    const juara = i === pemenang;
+    return '<div class="stat-box'+(juara?' juara':'')+'" style="border-color:'+WARNA_LN[i]+'">'+
+      '<div class="nm" style="color:'+WARNA_LN[i]+'">'+(juara?'👑 ':'')+esc(nama[i])+'</div>'+
+      '<div class="sc">'+st.skor+'</div>'+
+      '<div class="dt">✅ '+st.benar+' benar &nbsp;•&nbsp; ❌ '+st.salah+' salah</div>'+
+      '<div class="dt">Ketepatan '+akurasi+'% dari '+st.dijawab+' soal</div>'+
+    '</div>';
+  }).join('') +
+  '<div class="stat-box" style="border-color:#ffd86f"><div class="nm" style="color:#ffd86f">⏱ Lama Duel</div>'+
+  '<div class="sc" style="color:#ffd86f">'+waktu+'</div><div class="dt">Target '+target+' poin tercapai</div></div>';
+
+  $('winOverlay').style.display = 'flex';
+}
+
+// ================== INISIALISASI ==================
+$('targetPreview').textContent = target;
+$('botHint').textContent = BOT_PROFIL[botLevel].hint;
+tampilkan('mainMenu');
+</script>
+</body>
+</html>
