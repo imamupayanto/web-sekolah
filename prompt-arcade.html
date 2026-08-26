@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompt Arcade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+  :root {
+    --bg: #EFF1F7;
+    --surface: #FFFFFF;
+    --surface-2: #E6E9F3;
+    --line: #D5D9E8;
+    --line-soft: #E3E6F1;
+    --ink: #151830;
+    --ink-2: #333959;
+    --muted: #5F6480;
+    --accent: #D63A24;
+    --accent-soft: #FBE7E3;
+    --accent-2: #3A40BC;
+    --accent-2-soft: #E4E5F8;
+    --ok: #0F7355;
+    --ok-soft: #DDF1EA;
+    --amber: #8A5A00;
+    --amber-soft: #FBEED2;
+    --shadow: 0 1px 2px rgba(21, 24, 48, .06), 0 8px 24px rgba(21, 24, 48, .06);
+
+    --f-display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+    --f-body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+    --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1120;
+      --surface: #191C2E;
+      --surface-2: #222639;
+      --line: #2F3450;
+      --line-soft: #262B41;
+      --ink: #EAEBF5;
+      --ink-2: #C3C7DC;
+      --muted: #9096B2;
+      --accent: #FF7059;
+      --accent-soft: #33201E;
+      --accent-2: #969BFF;
+      --accent-2-soft: #232647;
+      --ok: #45C79D;
+      --ok-soft: #16342B;
+      --amber: #E7B45C;
+      --amber-soft: #322717;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .28);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0F1120;
+    --surface: #191C2E;
+    --surface-2: #222639;
+    --line: #2F3450;
+    --line-soft: #262B41;
+    --ink: #EAEBF5;
+    --ink-2: #C3C7DC;
+    --muted: #9096B2;
+    --accent: #FF7059;
+    --accent-soft: #33201E;
+    --accent-2: #969BFF;
+    --accent-2-soft: #232647;
+    --ok: #45C79D;
+    --ok-soft: #16342B;
+    --amber: #E7B45C;
+    --amber-soft: #322717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .28);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 20px 96px;
+  }
+
+  /* ---------- header ---------- */
+  .masthead {
+    border-bottom: 1px solid var(--line);
+    padding: 56px 0 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .eyebrow span.dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent); display: inline-block;
+  }
+
+  h1 {
+    font-family: var(--f-display);
+    font-weight: 800;
+    font-size: clamp(38px, 6.5vw, 66px);
+    line-height: .98;
+    letter-spacing: -.025em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .lede {
+    max-width: 62ch;
+    color: var(--ink-2);
+    font-size: 17px;
+    margin: 0;
+  }
+  .lede code { font-family: var(--f-mono); font-size: .9em; }
+
+  /* ---------- rules strip ---------- */
+  .rules {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 40px;
+  }
+  .rule {
+    background: var(--surface);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .rule-k {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+  }
+  .rule-t {
+    font-family: var(--f-display);
+    font-weight: 600;
+    font-size: 15.5px;
+    letter-spacing: -.01em;
+  }
+  .rule-d { font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+
+  /* ---------- toolbar ---------- */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 0;
+    margin-top: 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .searchrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  .search {
+    flex: 1 1 260px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 9px 13px;
+  }
+  .search svg { flex: none; opacity: .55; }
+  .search input {
+    border: 0; outline: 0; background: transparent;
+    font-family: var(--f-body); font-size: 15px; color: var(--ink);
+    width: 100%;
+  }
+  .search input::placeholder { color: var(--muted); }
+  .search:focus-within { border-color: var(--accent-2); box-shadow: 0 0 0 3px var(--accent-2-soft); }
+
+  .count {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill {
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    letter-spacing: .02em;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+  .pill:hover { border-color: var(--accent-2); color: var(--accent-2); }
+  .pill[aria-pressed="true"] {
+    background: var(--ink); border-color: var(--ink); color: var(--bg);
+  }
+  .pill:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+  /* ---------- category ---------- */
+  .cat { padding-top: 56px; }
+  .cat-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .cat-n {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: .06em;
+  }
+  .cat-name {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: clamp(24px, 3.4vw, 33px);
+    letter-spacing: -.02em;
+    margin: 0;
+    line-height: 1.1;
+  }
+  .cat-note {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin: 12px 0 0;
+    max-width: 68ch;
+  }
+
+  /* ---------- banner ---------- */
+  .banner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 18px;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+  .banner-phone { flex: none; }
+  .banner svg { display: block; }
+  .banner-div { flex: none; width: 1px; align-self: stretch; background: var(--line-soft); }
+  .banner-ctrl { display: flex; align-items: center; gap: 13px; flex: 1 1 auto; min-width: 0; }
+  .ctrl-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .ctrl-k {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ctrl-v { font-size: 14.5px; color: var(--ink-2); line-height: 1.42; max-width: 46ch; }
+  .ctrl-o {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--amber);
+    letter-spacing: .02em;
+    margin-top: 2px;
+  }
+
+  .cards { display: flex; flex-direction: column; gap: 14px; margin-top: 22px; }
+
+  /* ---------- card ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-top {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 18px 20px 14px;
+  }
+  .idx {
+    font-family: var(--f-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bg);
+    background: var(--ink);
+    min-width: 30px;
+    height: 30px;
+    border-radius: 3px;
+    display: grid;
+    place-items: center;
+    flex: none;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+  .card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+  .card-title {
+    font-family: var(--f-display);
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: -.015em;
+    margin: 0;
+    line-height: 1.25;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .newtag {
+    font-family: var(--f-mono);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 2px;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    background: var(--surface-2);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .chip.t { background: var(--accent-2-soft); color: var(--accent-2); }
+  .chip.o { background: var(--amber-soft); color: var(--amber); }
+  .chip.d1 { background: var(--ok-soft); color: var(--ok); }
+  .chip.d2 { background: var(--accent-2-soft); color: var(--accent-2); }
+  .chip.d3 { background: var(--accent-soft); color: var(--accent); }
+  .card-desc { font-size: 14.5px; color: var(--ink-2); margin: 0; }
+
+  .prompt-wrap { border-top: 1px solid var(--line-soft); }
+  .prompt-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px 8px 20px;
+    background: var(--surface-2);
+  }
+  .prompt-label {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .btns { display: flex; gap: 6px; }
+  .btn {
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-2);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+  .btn:hover { border-color: var(--accent-2); color: var(--accent-2); }
+  .btn:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+  .btn.copy[data-done="1"] {
+    background: var(--ok); border-color: var(--ok); color: #fff;
+  }
+
+  pre.prompt {
+    margin: 0;
+    padding: 18px 20px 20px;
+    font-family: var(--f-mono);
+    font-size: 12.8px;
+    line-height: 1.72;
+    color: var(--ink-2);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 190px;
+    overflow: hidden;
+    position: relative;
+    transition: max-height .2s ease;
+  }
+  pre.prompt.open { max-height: 4000px; }
+  .fade {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 58px;
+    background: linear-gradient(to bottom, transparent, var(--surface));
+    pointer-events: none;
+  }
+  pre.prompt.open .fade { display: none; }
+
+  /* ---------- footer ---------- */
+  .foot {
+    margin-top: 72px;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+    font-size: 13.5px;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .foot strong { color: var(--ink-2); font-weight: 600; }
+
+  .empty {
+    padding: 60px 0;
+    text-align: center;
+    color: var(--muted);
+    font-family: var(--f-mono);
+    font-size: 13px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  @media (max-width: 560px) {
+    .masthead { padding: 40px 0 28px; }
+    .card-top { padding: 16px 15px 12px; }
+    .prompt-bar { padding-left: 15px; }
+    pre.prompt { padding: 15px; font-size: 12.2px; }
+  }
+</style>
+
+</head><body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">
+      <span class="dot"></span>45 prompt<span class="dot"></span>14 kategori<span class="dot"></span>dirancang untuk layar HP
+    </div>
+    <h1>Prompt Arcade</h1>
+    <p class="lede">Kumpulan prompt siap salin untuk membuat game HTML yang dimainkan di ponsel. Semua kontrolnya sentuhan — tap, swipe, drag, dan tombol di layar — tanpa keyboard dan tanpa mouse. Tempel ke Claude, hasilnya satu file <code>.html</code> yang bisa dibuka langsung di browser HP tanpa server dan tanpa internet.</p>
+  </header>
+
+  <div class="rules">
+    <div class="rule">
+      <div class="rule-k">Aturan 01</div>
+      <div class="rule-t">Jempol dulu</div>
+      <div class="rule-d">Semua tombol minimal 48 piksel dan diletakkan di zona bawah layar yang terjangkau ibu jari.</div>
+    </div>
+    <div class="rule">
+      <div class="rule-k">Aturan 02</div>
+      <div class="rule-t">Tanpa keyboard</div>
+      <div class="rule-d">Tidak ada arrow keys, WASD, atau hover. Setiap kontrol punya padanan sentuh yang jelas.</div>
+    </div>
+    <div class="rule">
+      <div class="rule-k">Aturan 03</div>
+      <div class="rule-t">Layar terkunci</div>
+      <div class="rule-d">Halaman tidak ikut tergeser atau ter-zoom saat dimainkan, dan menghormati area notch.</div>
+    </div>
+    <div class="rule">
+      <div class="rule-k">Aturan 04</div>
+      <div class="rule-t">Orientasi ditentukan</div>
+      <div class="rule-d">Setiap game punya orientasi tetap, dan menampilkan ajakan memutar HP bila salah arah.</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="searchrow">
+      <label class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <input id="q" type="search" placeholder="Cari game, kategori, atau orientasi — misal: snake, potrait, physics" autocomplete="off">
+      </label>
+      <div class="count" id="count"></div>
+    </div>
+    <div class="pills" id="pills"></div>
+  </div>
+
+  <main id="list"></main>
+
+  <footer class="foot">
+    <div><strong>Semua untuk HP.</strong> Setiap prompt sudah memuat syarat mobile secara eksplisit: meta viewport, penguncian scroll dan zoom, ukuran target sentuh, area aman notch, penskalaan canvas mengikuti kerapatan piksel layar, dan orientasi yang dikunci.</div>
+    <div><strong>Empat game diganti.</strong> Typing Race, Catur, Solitaire, dan Jigsaw menuntut keyboard atau presisi mouse yang tidak nyaman di layar kecil. Penggantinya adalah Bubble Shooter, Blackjack, Reversi, dan Tebak Bendera — semuanya cukup dengan satu jempol.</div>
+    <div><strong>Yang tidak termasuk.</strong> Multiplayer online real-time antar perangkat butuh server dan WebSocket, jadi tidak bisa lahir dari satu file statis. Versinya di sini adalah mode hotseat: beberapa pemain bergantian di satu HP.</div>
+    <div><strong>Tips.</strong> Kalau hasil pertama kurang pas, balas dengan permintaan spesifik — misalnya "tombolnya kekecilan di HP saya" atau "pindahkan panel skor ke atas" — jangan mengulang prompt dari awal.</div>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var C = "Canvas 2D";
+  var D = "DOM + CSS";
+  var P = "Potrait";
+  var L = "Landscape";
+
+  var DATA = [
+    {
+      cat: "Puzzle",
+      note: "Logika berbasis grid. Paling nyaman di HP karena cukup tap dan swipe, tanpa perlu presisi tinggi.",
+      games: [
+        {
+          t: "2048", tech: D, diff: 2, or: P,
+          d: "Geser dengan swipe untuk menggabungkan tile bernilai sama.",
+          p: "Buatkan game 2048 untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: papan grid 4x4. Setiap awal permainan muncul dua tile acak bernilai 2 atau 4. Saat pemain menggeser, semua tile bergerak sejauh mungkin ke arah tersebut; dua tile bernilai sama yang bertabrakan bergabung menjadi satu tile bernilai dua kali lipat. Satu tile hanya boleh merge sekali per gerakan. Setelah setiap gerakan yang mengubah papan, muncul satu tile baru di sel kosong acak.\n\nKontrol sentuh: swipe ke atas, bawah, kiri, dan kanan di area papan. Deteksi arah swipe dari selisih titik sentuh awal dan akhir, dengan ambang minimal 25 piksel agar sentuhan kecil tidak terbaca sebagai swipe. Ambil arah dengan selisih terbesar antara sumbu horizontal dan vertikal. Tidak ada kontrol keyboard.\n\nSkor dan aturan: skor bertambah sebesar nilai tile hasil merge. Simpan best score di localStorage. Pemain menang saat membuat tile 2048 tetapi boleh melanjutkan. Game over saat papan penuh dan tidak ada merge yang mungkin.\n\nTampilan: papan mengisi hampir seluruh lebar layar dengan angka berukuran besar dan tebal agar terbaca di layar kecil. Setiap nilai tile punya warna sendiri. Animasi slide saat bergerak dan pop saat merge. Panel skor dan best score di atas papan, tombol Main Baru berukuran lebar di bawah papan dalam jangkauan jempol.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman agar tidak ikut scroll dan tidak bisa di-zoom memakai touch-action none, user-select none, dan preventDefault pada event touchmove. Semua tombol minimal 48 kali 48 piksel. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali. Beri getaran singkat lewat navigator.vibrate saat merge terjadi, bila didukung."
+        },
+        {
+          t: "Match-3", tech: D, diff: 3, or: P,
+          d: "Tukar permata bertetangga dengan swipe pendek.",
+          p: "Buatkan game Match-3 bergaya Candy Crush untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: papan 8x8 berisi permata dari 6 warna acak. Pemain menukar satu permata dengan tetangga horizontal atau vertikal. Swap hanya sah jika membentuk garis 3 permata sejenis atau lebih; jika tidak sah, permata kembali ke posisi semula dengan animasi. Permata yang cocok hilang, permata di atasnya jatuh mengisi celah, dan sel kosong paling atas diisi permata baru. Jika jatuhan itu membentuk match baru, hitung sebagai cascade dan beri bonus berlipat. Pastikan papan awal tidak mengandung match dan selalu punya minimal satu langkah valid.\n\nKontrol sentuh: dua cara yang keduanya harus jalan. Pertama, tap satu permata untuk memilihnya lalu tap permata tetangga untuk menukar. Kedua, tekan satu permata lalu swipe pendek ke arah tetangganya. Permata terpilih diberi lingkaran sorot yang jelas. Tidak ada kontrol keyboard maupun drag panjang.\n\nSkor dan aturan: 3 permata bernilai 30 poin, 4 permata 60, 5 permata 100. Cascade mengalikan skor sesuai tingkat rantai. Batas waktu 60 detik dengan target skor untuk naik level. Sediakan tombol acak ulang papan jika pemain buntu.\n\nTampilan: permata digambar dengan bentuk CSS atau emoji, bukan file gambar, dan berukuran minimal 40 piksel agar mudah disentuh. Papan mengisi lebar layar, panel skor dan timer di atas, tombol aksi di bawah.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman agar tidak ikut scroll dan tidak bisa di-zoom memakai touch-action none, user-select none, dan preventDefault pada event touchmove. Semua tombol minimal 48 kali 48 piksel. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali."
+        },
+        {
+          t: "Sudoku", tech: D, diff: 3, or: P,
+          d: "Papan angka dengan keypad besar di zona jempol.",
+          p: "Buatkan game Sudoku untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: hasilkan papan 9x9 yang valid secara otomatis dengan algoritma backtracking, lalu kosongkan sejumlah sel sesuai tingkat kesulitan. Sediakan tiga level: Mudah sekitar 35 sel kosong, Sedang sekitar 45, dan Sulit sekitar 55. Sel bawaan tidak bisa diubah pemain.\n\nKontrol sentuh: tap sel untuk memilihnya, lalu tap angka pada keypad besar yang menempel di bagian bawah layar. Keypad berisi angka 1 sampai 9 ditambah tombol hapus dan tombol mode catatan. Setiap tombol keypad minimal 44 piksel tingginya dan tersusun dalam grid tiga kolom agar terjangkau satu jempol. Tidak ada input keyboard sama sekali. Sediakan mode catatan untuk menulis beberapa angka kecil di dalam satu sel.\n\nBantuan: saat sebuah sel dipilih, sorot baris, kolom, dan kotak 3x3 yang sama, serta semua sel berisi angka yang sama. Tandai konflik dengan warna merah secara langsung. Angka yang sudah dipakai sembilan kali ditampilkan redup di keypad. Sediakan tombol Cek, tombol Hint maksimal tiga kali, tombol Undo, dan tombol Papan Baru. Tampilkan timer dan jumlah kesalahan.\n\nTampilan: papan mengisi lebar layar penuh dengan angka besar dan garis tebal pemisah kotak 3x3. Angka bawaan lebih gelap daripada angka isian pemain. Beri layar selamat saat papan terisi benar.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman agar tidak ikut scroll dan tidak bisa di-zoom memakai touch-action none, user-select none, dan preventDefault pada event touchmove. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali."
+        },
+        {
+          t: "Bubble Shooter", tech: C, diff: 3, or: P, isNew: true,
+          d: "Bidik dengan menahan jari, lepas untuk menembak gelembung.",
+          p: "Buatkan game Bubble Shooter untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: gelembung berwarna tersusun rapat di bagian atas layar dalam grid heksagonal, di mana baris genap digeser setengah lebar gelembung. Penembak berada di bagian bawah tengah dan memegang satu gelembung berwarna acak, dengan warna gelembung berikutnya diperlihatkan di sampingnya. Gelembung yang ditembakkan memantul pada dinding kiri dan kanan lalu menempel saat menyentuh gelembung lain. Jika gelembung yang menempel membentuk kelompok tiga atau lebih dengan warna sama, seluruh kelompok itu pecah. Gelembung yang kehilangan sambungan ke langit-langit ikut jatuh dan memberi bonus besar.\n\nKontrol sentuh: tekan dan tahan di mana saja pada layar untuk membidik, garis panduan lintasan lengkap dengan pantulan dinding tampil selama jari menempel, lalu lepas jari untuk menembak. Karena jari menutupi layar, tempatkan garis panduan agar tetap terlihat dan jangan letakkan penembak persis di titik sentuh. Sediakan juga tap sekali di titik tujuan sebagai cara membidik cepat. Tidak ada kontrol keyboard.\n\nSkor dan aturan: setiap gelembung pecah bernilai 10 poin, gelembung yang jatuh karena kehilangan sambungan bernilai 30 poin. Setiap 8 tembakan, seluruh susunan turun satu baris dan baris baru muncul di atas. Kalah jika susunan mencapai garis batas di dekat penembak. Simpan best score di localStorage.\n\nTampilan: gambar dengan Canvas 2D, gelembung berukuran cukup besar untuk layar HP, animasi pecah berupa partikel, dan animasi jatuh dengan gravitasi untuk gelembung yang lepas.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time agar kecepatan stabil. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali."
+        }
+      ]
+    },
+    {
+      cat: "Arcade / Casual",
+      note: "Sesi pendek satu tangan. Kontrolnya cukup satu tap atau satu swipe, cocok dimainkan sambil berdiri.",
+      games: [
+        {
+          t: "Flappy Bird clone", tech: C, diff: 1, or: P,
+          d: "Satu tap di mana saja untuk terbang melewati celah pipa.",
+          p: "Buatkan game bergaya Flappy Bird untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: burung berada di posisi horizontal tetap dan terus jatuh karena gravitasi. Setiap tap memberi impuls kecepatan ke atas. Pipa muncul dari sisi kanan dengan tinggi celah acak dan bergerak ke kiri dengan kecepatan konstan. Menyentuh pipa, langit-langit, atau tanah berarti game over.\n\nKontrol sentuh: tap di mana saja pada layar untuk flap, tanpa perlu mengenai tombol tertentu. Gunakan event touchstart agar respons terasa instan, bukan event click yang tertunda sekitar 300 milidetik di sebagian browser HP. Abaikan sentuhan kedua yang terjadi terlalu cepat agar tidak terjadi flap ganda tak sengaja. Tidak ada kontrol keyboard maupun mouse.\n\nSkor dan aturan: skor bertambah 1 setiap melewati sepasang pipa. Simpan best score di localStorage. Sediakan layar start berisi instruksi Tap untuk terbang, dan layar game over berisi skor, best score, serta tombol Main Lagi yang lebar dan berada di bagian bawah layar. Beri jeda setengah detik sebelum tombol Main Lagi bisa ditekan agar pemain tidak tidak sengaja menekannya saat masih menge-tap.\n\nTampilan: gambar semua elemen dengan Canvas 2D memakai bentuk sederhana, bukan file gambar. Rotasi burung mengikuti kecepatan vertikalnya, awan parallax, dan tanah bergulir. Karena layar potrait sempit, atur jarak antar pipa dan lebar celah agar tetap adil di layar tinggi.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time agar kecepatan stabil di HP dengan refresh rate berbeda. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali. Beri getaran singkat lewat navigator.vibrate saat menabrak, bila didukung."
+        },
+        {
+          t: "Snake", tech: C, diff: 1, or: P,
+          d: "Belokkan ular dengan swipe di seluruh area layar.",
+          p: "Buatkan game Snake untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: papan grid berukuran 15 kolom kali 20 baris agar sesuai layar potrait. Ular bergerak terus-menerus satu sel per tick ke arah yang sedang aktif. Apel muncul di sel kosong acak. Memakan apel menambah panjang ular satu segmen dan memunculkan apel baru. Ular tidak boleh berbalik arah 180 derajat secara langsung.\n\nKontrol sentuh: swipe ke atas, bawah, kiri, atau kanan di mana saja pada layar untuk membelokkan ular, dengan ambang minimal 20 piksel. Sediakan juga mode kontrol alternatif yang bisa dipilih di layar start, yaitu tap pada separuh kiri layar untuk belok berlawanan arah jarum jam dan separuh kanan untuk searah jarum jam, karena mode ini lebih nyaman bagi pemain satu tangan. Simpan antrean arah agar dua swipe cepat berturut-turut tetap terbaca dan tidak saling menimpa. Tidak ada kontrol keyboard.\n\nSkor dan aturan: setiap apel bernilai 10 poin. Kecepatan naik sedikit setiap 5 apel. Menabrak tubuh sendiri berarti game over. Sediakan pilihan mode dinding klasik yang mematikan dan mode wrap yang menembus ke sisi seberang. Simpan best score di localStorage.\n\nTampilan: kepala ular dibedakan dari badan, grid tipis sebagai latar, dan animasi singkat saat apel dimakan. Panel skor di atas, tombol jeda berukuran besar di pojok bawah.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event touchmove agar layar tidak ikut tergeser saat swipe. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali."
+        },
+        {
+          t: "Breakout", tech: C, diff: 2, or: L,
+          d: "Geser jari untuk menggerakkan paddle, layar melebar.",
+          p: "Buatkan game Breakout pecah balok untuk dimainkan di ponsel dengan HP dimiringkan, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: paddle di bagian bawah layar, bola memantul pada dinding kiri, kanan, dan atas. Sudut pantul dari paddle ditentukan oleh titik benturan: makin jauh dari tengah paddle, makin tajam sudutnya. Susunan 5 baris balok berwarna di bagian atas, hancur saat terkena bola. Bola yang lolos ke bawah paddle mengurangi nyawa.\n\nKontrol sentuh: geser jari ke kiri dan kanan di mana saja pada layar untuk menggerakkan paddle. Paddle mengikuti posisi horizontal jari dengan offset, artinya paddle bergerak sejauh jari bergerak, bukan melompat ke titik sentuh, sehingga jari tidak perlu menutupi paddle. Tap untuk melepas bola dari paddle saat mulai dan setelah kehilangan nyawa. Tidak ada kontrol keyboard maupun mouse.\n\nSkor dan aturan: nilai balok berbeda per baris, baris paling atas paling tinggi. Pemain punya 3 nyawa. Level berikutnya dimulai saat semua balok habis, dengan kecepatan bola sedikit lebih tinggi. Sesekali balok yang hancur menjatuhkan power-up yang harus ditangkap paddle: paddle melebar, bola melambat, atau multi-ball. Simpan best score di localStorage.\n\nTampilan: gambar dengan Canvas 2D, warna balok bergradasi per baris, jejak tipis di belakang bola, dan kilat singkat saat balok pecah. Letakkan panel skor dan nyawa di tepi atas agar tidak tertutup jari.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time agar kecepatan stabil. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi landscape; jika HP dalam posisi tegak, tampilkan layar ajakan memiringkan HP."
+        },
+        {
+          t: "Whack-a-Mole", tech: D, diff: 1, or: P,
+          d: "Tap tikus yang muncul, hindari bom, sembilan lubang besar.",
+          p: "Buatkan game Whack-a-Mole untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: papan berisi 9 lubang dalam grid 3x3 yang mengisi hampir seluruh layar, sehingga setiap lubang berukuran besar dan mudah ditap. Secara acak muncul karakter dari salah satu lubang selama durasi tertentu lalu menghilang. Ada dua jenis: tikus biasa dan bom. Seiring waktu, durasi kemunculan makin pendek dan frekuensi makin cepat.\n\nKontrol sentuh: tap pada karakter yang sedang muncul, memakai event touchstart agar terasa instan. Dukung multi-touch sehingga dua jari bisa memukul dua lubang sekaligus, dan hitung keduanya terpisah. Area sentuh setiap lubang harus lebih besar daripada gambar karakternya agar tap yang sedikit meleset tetap dihitung. Tidak ada kontrol keyboard maupun mouse.\n\nSkor dan aturan: memukul tikus memberi 10 poin, memukul bom mengurangi 20 poin dan memutus combo. Pukulan berturut-turut tanpa meleset membangun combo yang mengalikan poin sampai maksimal 5 kali. Permainan berlangsung 60 detik, lalu tampilkan skor akhir, combo terpanjang, dan akurasi. Simpan best score di localStorage.\n\nTampilan: gunakan emoji atau bentuk CSS untuk karakter, bukan file gambar. Animasi muncul dari bawah lubang dan animasi terpukul yang cepat. Timer berupa progress bar yang menyusut dan berubah warna saat menipis. Letakkan panel skor di atas agar tidak tertutup tangan.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action manipulation pada tombol, touch-action none pada papan, user-select none, dan preventDefault pada event sentuh agar tidak muncul menu salin teks saat menekan lama. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali. Beri getaran singkat lewat navigator.vibrate saat memukul, bila didukung."
+        }
+      ]
+    },
+    {
+      cat: "Platformer",
+      note: "Perlu tombol virtual yang dirancang serius. Kontrol platformer paling gampang terasa buruk di HP kalau tombolnya asal ditempel.",
+      games: [
+        {
+          t: "Side-scroller ala Mario", tech: C, diff: 3, or: L,
+          d: "Tombol virtual di dua sisi layar, HP dimiringkan.",
+          p: "Buatkan game platformer side-scroller sederhana bergaya Mario untuk dimainkan di ponsel dengan HP dimiringkan, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: karakter berbentuk kotak dengan gravitasi konstan dan collision detection AABB terhadap platform. Lompatan bersifat variable jump height, yaitu makin lama tombol lompat ditahan makin tinggi lompatannya, dengan batas maksimum. Musuh berpatroli di platform; menginjaknya dari atas mengalahkan musuh dan memberi pantulan kecil, sedangkan menyentuhnya dari samping mengurangi nyawa dan memberi kekebalan sesaat.\n\nKontrol sentuh: tombol virtual semi transparan yang menempel di layar. Di sisi kiri bawah, dua tombol arah kiri dan kanan berukuran besar. Di sisi kanan bawah, satu tombol lompat yang lebih besar lagi. Tombol harus merespons multi-touch sehingga pemain bisa berjalan sambil melompat, dan harus tetap aktif selama jari menempel meski jari sedikit bergeser keluar dari tombol. Tambahkan dua fitur yang membuat platformer terasa adil di layar sentuh: coyote time sekitar 100 milidetik yang tetap mengizinkan lompat sesaat setelah karakter meninggalkan tepi platform, dan jump buffer sekitar 120 milidetik yang menyimpan tekanan lompat tepat sebelum mendarat. Tidak ada kontrol keyboard.\n\nSkor dan aturan: koin tersebar di level bernilai 100 poin. Pemain punya 3 nyawa. Level berakhir saat menyentuh bendera finish, lalu tampilkan skor, koin terkumpul, dan waktu tempuh.\n\nTampilan: kamera bergulir horizontal mengikuti pemain dengan sedikit lead di arah gerak, latar berlapis parallax, semua elemen digambar dengan bentuk Canvas 2D tanpa file gambar. Jaga agar area di bawah tombol virtual tidak berisi informasi penting.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, physics ditulis manual tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi landscape; jika HP dalam posisi tegak, tampilkan layar ajakan memiringkan HP."
+        },
+        {
+          t: "Jetpack Joyride clone", tech: C, diff: 2, or: L,
+          d: "Tahan jari untuk naik, lepas untuk turun.",
+          p: "Buatkan game endless runner bergaya Jetpack Joyride untuk dimainkan di ponsel dengan HP dimiringkan, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: karakter berada di posisi horizontal tetap sementara dunia bergerak ke kiri. Menahan jari mengaktifkan jetpack yang mendorong karakter naik; melepas jari membuatnya jatuh karena gravitasi. Karakter tidak boleh menembus langit-langit maupun lantai. Rintangan datang dari kanan: laser horizontal dan vertikal yang berkedip sebelum aktif, serta rudal yang diawali indikator peringatan di tepi layar.\n\nKontrol sentuh: tahan jari di mana saja pada layar untuk terbang, lepas untuk turun. Ini kontrol satu jari tanpa tombol, jadi seluruh layar adalah area kontrol. Gunakan touchstart dan touchend, dan tangani kasus jari terangkat di luar layar agar jetpack tidak macet menyala. Dukung juga dua jari bergantian tanpa jetpack terputus. Tidak ada kontrol keyboard.\n\nSkor dan aturan: skor adalah jarak tempuh dalam meter yang terus bertambah. Koin tersusun dalam pola gelombang atau garis. Kecepatan dunia naik bertahap setiap 500 meter. Menyentuh rintangan berarti game over. Simpan best distance di localStorage.\n\nTampilan: partikel api di bawah jetpack yang menyala saat aktif, latar laboratorium bergulir parallax dua lapis, dan jejak asap pada rudal. Letakkan panel jarak dan koin di tepi atas agar tidak tertutup jari yang menekan layar.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi landscape; jika HP dalam posisi tegak, tampilkan layar ajakan memiringkan HP."
+        },
+        {
+          t: "Doodle Jump clone", tech: C, diff: 2, or: P,
+          d: "Sentuh separuh kiri atau kanan layar untuk bergerak.",
+          p: "Buatkan game bergaya Doodle Jump untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: karakter otomatis melompat setiap kali mendarat di atas platform, tanpa perlu tombol lompat. Collision hanya dihitung saat karakter bergerak turun, sehingga bisa menembus platform dari bawah. Kamera bergeser ke atas mengikuti ketinggian tertinggi yang pernah dicapai. Platform digenerate prosedural di atas layar dengan empat jenis: biasa, bergerak horizontal, rapuh yang hancur setelah sekali dipijak, dan pegas yang memberi lompatan ekstra tinggi.\n\nKontrol sentuh: tahan separuh kiri layar untuk bergerak ke kiri dan separuh kanan untuk ke kanan, dengan percepatan halus bukan gerakan instan. Sediakan juga mode kedua yang bisa dipilih di layar start, yaitu kontrol geser di mana posisi horizontal karakter mengikuti pergeseran jari di mana pun jari menempel. Karakter yang keluar dari tepi kiri muncul kembali di tepi kanan. Tidak ada kontrol keyboard maupun sensor kemiringan, agar tetap bisa dimainkan sambil berbaring.\n\nSkor dan aturan: skor adalah ketinggian tertinggi yang dicapai. Jatuh melewati batas bawah layar berarti game over. Simpan best score di localStorage.\n\nTampilan: latar bergulir mengikuti kamera, warna platform berbeda per jenis, dan animasi tekuk kaki singkat saat mendarat. Beri indikator sentuh semi transparan di sisi kiri dan kanan pada beberapa detik pertama agar pemain paham kontrolnya.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali."
+        }
+      ]
+    },
+    {
+      cat: "Kuis / Trivia",
+      note: "Paling cocok untuk HP: satu soal per layar, opsi berupa tombol lebar penuh yang tidak mungkin salah tap.",
+      games: [
+        {
+          t: "Kuis pengetahuan umum", tech: D, diff: 1, or: P,
+          d: "Dua puluh soal, opsi jawaban selebar layar.",
+          p: "Buatkan game kuis pengetahuan umum untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: sediakan 20 soal pilihan ganda berbahasa Indonesia yang ditulis langsung di dalam JavaScript, masing-masing dengan 4 opsi dan satu jawaban benar. Topik dicampur antara sains, sejarah, geografi, dan budaya populer. Acak urutan soal dan opsi setiap permainan. Tampilkan satu soal per layar tanpa perlu scroll.\n\nKontrol sentuh: tap salah satu opsi. Setiap opsi berbentuk tombol selebar layar dengan tinggi minimal 56 piksel dan jarak antar tombol minimal 10 piksel, sehingga tidak mungkin salah tap. Setelah dipilih, semua opsi terkunci dan langsung muncul umpan balik. Tidak ada kontrol keyboard.\n\nSkor dan aturan: jawaban benar bernilai 10 poin ditambah bonus sisa waktu. Timer 15 detik per soal; jika habis, soal dihitung salah dan lanjut otomatis. Opsi benar disorot hijau dan opsi salah yang dipilih disorot merah selama satu detik sebelum berpindah soal.\n\nTampilan: teks soal berukuran besar dan nyaman dibaca di layar kecil, dengan panjang soal dijaga agar muat tanpa scroll. Progress bar menunjukkan soal ke berapa dari 20, dan timer berupa bar yang menyusut. Layar hasil menampilkan skor akhir, jumlah benar dan salah, predikat berdasarkan skor, daftar review soal yang dijawab salah beserta kunci jawabannya, dan tombol Main Lagi yang lebar di bagian bawah.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Cegah zoom dan seleksi teks dengan user-select none dan touch-action manipulation pada tombol. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tata letak tetap harus rapi tanpa merusak tampilan. Beri getaran singkat lewat navigator.vibrate saat menjawab salah, bila didukung."
+        },
+        {
+          t: "Kuis kepribadian", tech: D, diff: 1, or: P,
+          d: "Dua belas pertanyaan situasional, hasil empat tipe.",
+          p: "Buatkan game kuis kepribadian untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: sediakan 12 pertanyaan bergaya situasional berbahasa Indonesia, masing-masing dengan 4 opsi jawaban. Setiap opsi menambah poin ke salah satu dari empat tipe kepribadian yang sudah ditentukan, misalnya Penjelajah, Penjaga, Penggerak, dan Perancang. Simpan skor keempat tipe sepanjang kuis.\n\nKontrol sentuh: tap opsi untuk menjawab dan langsung lanjut ke pertanyaan berikutnya. Opsi berupa kartu selebar layar dengan tinggi minimal 60 piksel karena teksnya lebih panjang. Sediakan tombol Kembali di pojok atas untuk mengoreksi jawaban sebelumnya, dengan skor yang ikut dikoreksi. Tidak ada kontrol keyboard.\n\nHasil: tipe dengan poin tertinggi menjadi hasil utama. Halaman hasil menampilkan nama tipe, satu paragraf deskripsi karakternya, tiga kekuatan dan dua kelemahan dalam bentuk daftar, serta bar persentase untuk keempat tipe. Halaman hasil boleh lebih panjang dari satu layar dan bisa di-scroll vertikal secara normal. Sediakan tombol Ulangi Kuis di bagian bawah.\n\nTampilan: satu pertanyaan per layar dengan transisi fade halus, progress bar di atas, dan warna aksen berbeda untuk setiap tipe di halaman hasil. Gunakan ukuran teks minimal 16 piksel agar nyaman dibaca di layar kecil.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Cegah zoom dan seleksi teks dengan user-select none dan touch-action manipulation pada tombol, tetapi biarkan halaman hasil tetap bisa di-scroll. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Kuis tebak gambar emoji", tech: D, diff: 2, or: P,
+          d: "Tebak dari emoji besar, ketik lewat keyboard HP.",
+          p: "Buatkan game tebak gambar berbasis emoji untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: sediakan 15 soal yang ditulis langsung di JavaScript, masing-masing berupa rangkaian dua sampai empat emoji yang mewakili judul film, nama hewan, atau benda sehari-hari. Gunakan emoji sebagai teks, bukan file gambar. Acak urutan soal setiap permainan.\n\nKontrol sentuh: pemain mengetik tebakan lewat keyboard bawaan HP pada satu kolom input. Karena keyboard HP menutupi separuh layar, tata letaknya harus tahan terhadap itu: gunakan tinggi berbasis unit dvh, dan saat kolom input mendapat fokus, gulirkan emoji dan kolom input ke bagian atas layar agar tetap terlihat. Set inputmode text, autocapitalize off, autocorrect off, dan spellcheck false agar tidak ada koreksi otomatis yang mengganggu. Tombol Jawab berukuran besar di samping kolom input, dan tombol Enter di keyboard juga mengirim jawaban. Sediakan tiga tombol hint besar yang bisa ditap tanpa membuka keyboard.\n\nSkor dan aturan: pencocokan jawaban harus toleran terhadap huruf besar kecil, spasi berlebih, dan tanda baca. Jawaban benar memberi 100 poin dikurangi 25 poin untuk setiap hint yang dipakai. Hint pertama membuka jumlah huruf, kedua membuka huruf pertama, ketiga membuka kategori. Jawaban benar berturut-turut membangun streak.\n\nTampilan: emoji ditampilkan sangat besar di tengah layar, animasi getar singkat saat salah. Layar akhir menampilkan skor, streak terpanjang, dan daftar soal yang tidak terjawab.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, viewport-fit=cover; jangan pakai maximum-scale di sini agar pemain tetap bisa memperbesar teks bila perlu. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        }
+      ]
+    },
+    {
+      cat: "Kartu",
+      note: "Kartu digambar dengan CSS. Semua interaksi diubah jadi tap, karena drag kartu kecil sangat menyiksa di layar HP.",
+      games: [
+        {
+          t: "Blackjack vs bandar", tech: D, diff: 2, or: P, isNew: true,
+          d: "Dua tombol besar, Hit dan Stand, di zona jempol.",
+          p: "Buatkan game Blackjack melawan bandar untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: dek standar 52 kartu yang diacak dan diisi ulang saat menipis. Pemain dan bandar sama-sama mendapat dua kartu di awal, dengan satu kartu bandar tertutup. Nilai kartu bergambar adalah 10, dan As bernilai 11 atau 1 secara otomatis mengikuti nilai terbaik yang tidak melebihi 21. Pemain memilih Hit untuk menambah kartu atau Stand untuk berhenti. Setelah pemain berhenti, bandar membuka kartunya dan wajib menarik kartu sampai nilainya minimal 17. Nilai melebihi 21 berarti kalah. Blackjack alami, yaitu 21 dari dua kartu pertama, membayar satu setengah kali taruhan.\n\nKontrol sentuh: dua tombol utama berukuran sangat besar di bagian bawah layar, Hit dan Stand, berdampingan dan masing-masing setidaknya setinggi 60 piksel. Tambahkan tombol Double Down dan Split yang muncul hanya saat kondisinya terpenuhi. Taruhan diatur dengan menap chip berbagai nilai, bukan dengan slider yang sulit dipakai satu jempol. Tidak ada drag, tidak ada kontrol keyboard.\n\nSkor dan aturan: pemain mulai dengan saldo 1000. Tampilkan riwayat 10 tangan terakhir berupa deretan ikon menang kalah seri, serta statistik sesi. Simpan saldo di localStorage dengan tombol reset.\n\nTampilan: kartu digambar dengan CSS dan karakter suit unicode, bukan file gambar, dengan ukuran cukup besar untuk layar HP. Kartu bandar di bagian atas, kartu pemain di tengah, kontrol di bawah. Animasi kartu meluncur dari dek dan animasi flip saat kartu bandar dibuka.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action manipulation, user-select none, dan cegah zoom dua ketukan. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali."
+        },
+        {
+          t: "Memory Card Matching", tech: D, diff: 1, or: P,
+          d: "Kartu besar dengan animasi flip, grid menyesuaikan layar.",
+          p: "Buatkan game Memory Card Matching untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: papan berisi kartu tertutup berpasangan dengan simbol emoji, diacak setiap permainan. Pemain membuka dua kartu; jika simbolnya sama, keduanya tetap terbuka dan terkunci, jika berbeda keduanya tertutup lagi setelah jeda 800 milidetik. Selama jeda itu tap pada kartu lain diabaikan agar tidak terjadi bug buka tiga kartu.\n\nKontrol sentuh: tap kartu, memakai event touchstart agar responsif. Ukuran kartu dihitung otomatis dari lebar layar sehingga selalu minimal 60 kali 80 piksel, dan grid menyesuaikan agar seluruh papan muat tanpa scroll di layar potrait. Tidak ada kontrol keyboard maupun hover.\n\nSkor dan aturan: sediakan tiga tingkat kesulitan berupa grid 3x4, 4x4, dan 4x6, disesuaikan agar tetap nyaman di layar HP dan tidak memakai 6x6 yang membuat kartu terlalu kecil. Hitung jumlah langkah dan waktu bermain, lalu beri peringkat bintang satu sampai tiga berdasarkan efisiensi langkah. Simpan rekor waktu terbaik per tingkat di localStorage.\n\nTampilan: animasi flip tiga dimensi dengan CSS transform rotateY dan backface-visibility, kilau singkat pada pasangan yang cocok, dan getaran halus pada pasangan yang meleset. Sisi belakang kartu memakai pola CSS. Simbol emoji berukuran besar agar terbaca di kartu kecil.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action manipulation, user-select none, dan tambahkan -webkit-tap-highlight-color transparan agar tidak muncul kotak biru saat kartu ditap. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait. Beri getaran singkat lewat navigator.vibrate saat pasangan cocok, bila didukung."
+        },
+        {
+          t: "Uno melawan bot", tech: D, diff: 3, or: P,
+          d: "Kartu di tangan bisa di-scroll mendatar dengan jempol.",
+          p: "Buatkan game kartu bergaya Uno melawan bot untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: dek berisi kartu angka 0 sampai 9 dalam empat warna, ditambah kartu aksi Skip, Reverse, dan Plus Dua per warna, serta Wild dan Wild Plus Empat. Satu pemain manusia melawan tiga bot, masing-masing mulai dengan 7 kartu. Kartu boleh dimainkan jika warnanya sama, angkanya sama, atau kartu Wild. Kartu aksi berlaku sesuai aturan standar. Jika tidak punya kartu yang bisa dimainkan, pemain menarik satu kartu.\n\nKontrol sentuh: kartu di tangan disusun mendatar di bagian bawah layar dan bisa digulir ke kiri dan kanan dengan geseran jempol, memakai scroll horizontal dengan scroll-snap agar berhenti rapi di setiap kartu. Tap satu kartu untuk mengangkatnya sedikit sebagai pratinjau, tap kedua kalinya untuk memainkannya, sehingga tidak ada kartu yang termainkan karena salah sentuh. Kartu yang tidak sah dimainkan ditampilkan redup dan tidak bisa diangkat. Tap tumpukan dek untuk menarik kartu. Pemilih warna untuk kartu Wild muncul sebagai empat tombol besar seperempat layar. Tombol UNO berukuran besar dan menyala saat kartu tersisa dua. Tidak ada drag dan tidak ada kontrol keyboard.\n\nBot: logika sederhana, memainkan kartu aksi lebih dulu bila ada, lalu kartu dengan warna terbanyak di tangannya, dengan jeda 700 milidetik agar terlihat berpikir.\n\nTampilan: kartu digambar dengan CSS. Ketiga bot ditampilkan ringkas di bagian atas sebagai avatar dengan jumlah kartu, bukan kartu tertutup satu per satu, agar hemat ruang layar. Tumpukan buangan di tengah, log permainan satu baris di atasnya, dan indikator giliran serta arah putaran yang jelas.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Cegah zoom dan seleksi teks, tetapi izinkan scroll horizontal pada baris kartu dengan touch-action pan-x. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        }
+      ]
+    },
+    {
+      cat: "Board Game",
+      note: "Papan mengisi lebar layar, semua langkah cukup dengan tap. Catur diganti Reversi karena papan 8x8 dengan bidak kecil sulit ditap dengan tepat.",
+      games: [
+        {
+          t: "Tic-Tac-Toe", tech: D, diff: 1, or: P,
+          d: "Sembilan sel raksasa melawan AI minimax.",
+          p: "Buatkan game Tic-Tac-Toe untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: papan 3x3. Sediakan dua mode: melawan komputer dan dua pemain di satu HP. Untuk mode komputer gunakan algoritma minimax penuh sehingga komputer tidak pernah kalah, dengan tiga tingkat kesulitan: Mudah yang memilih langkah acak, Sedang yang memakai minimax dengan peluang 50 persen langkah acak, dan Sulit yang selalu minimax. Pemain bisa memilih bermain sebagai X atau O dan siapa yang jalan duluan.\n\nKontrol sentuh: tap sel kosong. Papan dibuat mengisi hampir seluruh lebar layar sehingga setiap sel berukuran sangat besar dan mustahil salah tap. Sel yang sudah terisi tidak merespons sentuhan. Tidak ada kontrol keyboard maupun hover.\n\nSkor dan aturan: deteksi kemenangan pada tiga baris, tiga kolom, dan dua diagonal, serta seri saat papan penuh. Simpan skor sesi berupa jumlah menang, kalah, dan seri. Papan bisa direset tanpa menghapus skor sesi.\n\nTampilan: garis kemenangan disorot dengan animasi menggambar garis melintasi tiga sel. Tanda X dan O muncul dengan animasi skala singkat dan digambar dengan CSS, bukan teks biasa, agar terlihat rapi. Indikator giliran besar di atas papan, tombol Main Baru lebar di bawah papan dalam jangkauan jempol.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action manipulation, user-select none, dan -webkit-tap-highlight-color transparan. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait. Beri getaran singkat lewat navigator.vibrate saat menang, bila didukung."
+        },
+        {
+          t: "Ular Tangga", tech: D, diff: 2, or: P,
+          d: "Tap dadu besar, bidak berjalan sendiri kotak demi kotak.",
+          p: "Buatkan game Ular Tangga untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: papan 10x10 bernomor 1 sampai 100 dengan penomoran zig-zag boustrophedon, artinya baris ganjil dinomori dari kiri ke kanan dan baris genap dari kanan ke kiri. Tentukan posisi tetap untuk sekitar 8 tangga dan 8 ular. Pemain melempar dadu dan bidaknya bergerak sesuai angka, satu kotak per langkah dengan animasi. Mendarat di kaki tangga menaikkan bidak, mendarat di kepala ular menurunkannya.\n\nKontrol sentuh: satu tombol Lempar Dadu berukuran sangat besar di bagian bawah layar, dalam jangkauan jempol, yang menjadi satu-satunya kontrol selama permainan. Tombol dinonaktifkan dan meredup selama animasi berjalan agar tidak bisa ditap dua kali. Pilih jumlah pemain 2 sampai 4 lewat tombol besar di layar awal, dan tandai pemain mana yang dikendalikan bot. Tidak ada kontrol keyboard.\n\nSkor dan aturan: pemain harus mendarat tepat di kotak 100 untuk menang; jika lemparan melebihi, bidak memantul mundur sejumlah kelebihannya. Lemparan angka 6 memberi giliran tambahan. Tampilkan log giliran satu baris dan urutan pemenang.\n\nTampilan: papan mengisi lebar layar penuh. Karena kotaknya kecil di layar HP, nomor kotak ditulis kecil di pojok dan bidak digambar cukup besar dengan warna kontras; jika dua bidak berada di kotak sama, geser sedikit agar keduanya terlihat. Dadu dengan animasi putar sebelum menampilkan hasil. Ular dan tangga digambar sebagai garis lengkung tebal di atas papan.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action manipulation dan user-select none. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali."
+        },
+        {
+          t: "Connect Four", tech: D, diff: 2, or: P,
+          d: "Tap kolom mana saja, koin jatuh dengan animasi.",
+          p: "Buatkan game Connect Four untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: papan 7 kolom kali 6 baris. Pemain memilih kolom dan koin jatuh ke posisi terendah yang masih kosong di kolom itu. Pemenang adalah yang lebih dulu menyusun empat koin berderet horizontal, vertikal, atau diagonal. Papan penuh tanpa pemenang dihitung seri.\n\nKontrol sentuh: seluruh tinggi kolom menjadi area sentuh, jadi pemain bisa menap di bagian mana pun dari kolom itu, bukan hanya di lubang atasnya. Karena tidak ada hover di HP, ganti pratinjau dengan pola tap dua tahap: tap pertama menyorot kolom dan menampilkan koin melayang di atasnya, tap kedua pada kolom yang sama menjatuhkan koin. Menap kolom lain memindahkan sorotan tanpa menjatuhkan. Tidak ada kontrol keyboard.\n\nMode: dua pemain di satu HP, dan melawan komputer. AI memakai minimax dengan alpha-beta pruning kedalaman 4 dan fungsi evaluasi yang memberi bobot pada rangkaian dua dan tiga koin yang masih bisa berkembang, serta memprioritaskan kolom tengah. Jalankan pencarian AI setelah frame render agar layar tidak terasa membeku.\n\nSkor dan aturan: simpan skor sesi. Deteksi kemenangan segera setelah koin mendarat, sorot empat koin pemenang, dan kunci papan sampai direset.\n\nTampilan: papan mengisi lebar layar dengan lubang bulat besar. Animasi koin jatuh dengan percepatan dan sedikit pantulan saat mendarat. Indikator giliran jelas di atas, tombol Main Baru lebar di bawah.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action manipulation, user-select none, dan -webkit-tap-highlight-color transparan. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Reversi (Othello)", tech: D, diff: 3, or: P, isNew: true,
+          d: "Tap kotak untuk membalik bidak lawan, langkah sah disorot.",
+          p: "Buatkan game Reversi atau Othello untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: papan 8x8 dengan empat bidak awal di tengah dalam susunan silang. Pemain hitam dan putih bergantian meletakkan satu bidak. Sebuah langkah hanya sah jika bidak yang diletakkan mengapit satu atau lebih bidak lawan dalam garis lurus ke delapan arah, dengan bidak sendiri di ujung seberang. Semua bidak lawan yang terapit berubah warna. Jika seorang pemain tidak punya langkah sah, gilirannya dilewati otomatis dengan pemberitahuan. Permainan berakhir saat papan penuh atau kedua pemain tidak punya langkah, dan pemenangnya adalah yang bidaknya lebih banyak.\n\nKontrol sentuh: tap kotak untuk meletakkan bidak. Karena papan 8x8 di layar HP membuat kotak kecil, semua kotak yang merupakan langkah sah diberi titik penanda besar yang jelas sehingga pemain tahu persis ke mana harus menap, dan hanya kotak-kotak itu yang merespons sentuhan. Tambahkan konfirmasi ringan berupa pratinjau: tap pertama menyorot kotak dan menampilkan bidak mana yang akan terbalik, tap kedua di kotak sama mengeksekusi. Tidak ada kontrol keyboard.\n\nMode dan AI: dua pemain di satu HP, dan melawan komputer dengan tiga tingkat. Tingkat Mudah memilih langkah acak dari langkah sah, Sedang memilih langkah yang membalik paling banyak bidak, dan Sulit memakai minimax kedalaman 4 dengan tabel bobot posisi yang menghargai sudut papan dan menghindari kotak di sebelah sudut.\n\nSkor dan tampilan: papan mengisi lebar layar penuh. Tampilkan jumlah bidak kedua pemain secara terus-menerus di atas papan sebagai bar perbandingan, indikator giliran, dan animasi balik bidak yang berurutan dari titik peletakan. Layar akhir menampilkan skor akhir dan pemenang.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action manipulation dan user-select none. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali."
+        }
+      ]
+    },
+    {
+      cat: "Word Game",
+      note: "Semua memakai papan huruf sendiri di layar, bukan keyboard bawaan HP, supaya tata letak tidak terganggu saat keyboard muncul.",
+      games: [
+        {
+          t: "Wordle clone", tech: D, diff: 2, or: P,
+          d: "Keyboard huruf sendiri di layar, muat tanpa scroll.",
+          p: "Buatkan game bergaya Wordle berbahasa Indonesia untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: sistem memilih satu kata rahasia sepanjang 5 huruf secara acak dari daftar minimal 200 kata bahasa Indonesia yang ditulis langsung di JavaScript. Pemain punya 6 percobaan. Setiap tebakan harus berupa kata yang ada di daftar; jika tidak, tolak dengan pesan dan animasi getar tanpa menghabiskan percobaan.\n\nUmpan balik warna: huruf benar di posisi tepat berwarna hijau, huruf yang ada tetapi salah posisi berwarna kuning, huruf yang tidak ada berwarna abu. Tangani huruf ganda dengan benar, yaitu jumlah penanda kuning tidak boleh melebihi kemunculan huruf itu di kata rahasia.\n\nKontrol sentuh: gunakan keyboard huruf buatan sendiri yang selalu tampil di bagian bawah layar, jangan pernah memakai kolom input yang memicu keyboard bawaan HP, karena keyboard bawaan akan menutupi papan tebakan. Susun tombol dalam tiga baris QWERTY dengan tombol Enter dan Hapus di baris terakhir. Setiap tombol huruf minimal 40 piksel lebar dan 46 piksel tinggi, dengan jarak antar tombol yang cukup. Tombol keyboard ikut berubah warna sesuai status huruf yang sudah diketahui, dan status hijau tidak boleh tertimpa kuning atau abu. Hitung tinggi papan dan keyboard dengan unit dvh agar seluruhnya muat tanpa scroll di layar HP mana pun.\n\nTampilan: animasi flip berurutan per huruf saat tebakan dikirim, dan animasi lompat pada baris yang benar seluruhnya. Statistik berupa jumlah main, persentase menang, streak berjalan, dan distribusi jumlah tebakan, disimpan di localStorage. Saat kalah, tampilkan kata rahasianya.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action manipulation, user-select none, dan -webkit-tap-highlight-color transparan. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait; jika HP dimiringkan, tampilkan layar ajakan memutar HP kembali."
+        },
+        {
+          t: "Hangman", tech: C, diff: 1, or: P,
+          d: "Papan huruf A sampai Z besar, gambar digambar bertahap.",
+          p: "Buatkan game Hangman berbahasa Indonesia untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: sistem memilih kata acak dari beberapa kategori yang ditulis di JavaScript, misalnya Hewan, Buah, Kota di Indonesia, dan Profesi, masing-masing minimal 25 kata. Kata ditampilkan sebagai garis kosong sebanyak hurufnya. Pemain menebak satu huruf per giliran. Huruf benar terisi di semua posisi kemunculannya, huruf salah menambah satu bagian gambar.\n\nKontrol sentuh: papan huruf A sampai Z buatan sendiri di bagian bawah layar, disusun dalam grid yang menyesuaikan lebar layar, umumnya 7 kolom untuk potrait. Setiap tombol huruf minimal 40 kali 44 piksel. Jangan memakai kolom input yang memicu keyboard bawaan HP. Huruf yang sudah ditebak langsung dinonaktifkan, diredupkan, dan tidak merespons sentuhan lagi, dengan warna berbeda untuk tebakan benar dan salah. Tidak ada kontrol keyboard fisik.\n\nSkor dan aturan: pemain punya 6 kesempatan salah. Kategori kata selalu ditampilkan sebagai petunjuk. Sediakan satu hint yang membuka satu huruf acak dengan biaya satu kesempatan. Hitung skor berdasarkan sisa kesempatan dan panjang kata, dan simpan rekor di localStorage.\n\nTampilan: gambar tiang gantungan digambar bertahap dengan Canvas 2D, satu bagian per kesalahan, dimulai dari tiang lalu kepala, badan, dua tangan, dan dua kaki. Kata tebakan ditampilkan besar di tengah; jika katanya panjang, kecilkan ukuran huruf secara otomatis agar tetap muat satu baris. Saat kalah tampilkan kata yang benar, saat menang beri animasi perayaan.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D untuk gambar, tanpa library eksternal atau CDN. Skalakan canvas mengikuti devicePixelRatio agar garis tidak buram. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action manipulation dan user-select none. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Word Search", tech: D, diff: 2, or: P,
+          d: "Seret jari melintasi huruf, garis mengunci ke delapan arah.",
+          p: "Buatkan game Word Search cari kata untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: hasilkan kisi huruf 10x10 secara otomatis, ukuran ini dipilih agar huruf tetap besar dan mudah disentuh di layar HP. Tempatkan 8 kata berbahasa Indonesia dari sebuah tema ke dalam kisi dengan arah horizontal, vertikal, dan diagonal, termasuk arah terbalik. Algoritma penempatan mencoba posisi acak berulang dan mengizinkan kata bersilangan pada huruf yang sama. Sel tersisa diisi huruf acak. Sediakan minimal tiga tema kata.\n\nKontrol sentuh: tekan huruf pertama lalu seret jari ke huruf terakhir sebuah kata, dan angkat jari untuk mengonfirmasi. Selama menyeret, kunci garis pilihan ke delapan arah lurus terdekat, dan tentukan sel yang tersentuh dengan document.elementFromPoint pada posisi jari, bukan dengan event mouseover yang tidak berjalan di layar sentuh. Tampilkan garis sorot di belakang huruf yang sedang terpilih, dan tarik garis itu sedikit di atas titik jari agar tidak tertutup tangan. Sediakan juga cara alternatif berupa tap huruf awal lalu tap huruf akhir, untuk pemain yang kesulitan menyeret. Tidak ada kontrol keyboard.\n\nSkor dan aturan: kata yang benar ditemukan disorot permanen dengan warna berbeda dan dicoret dari daftar kata. Daftar kata ditempatkan di bawah kisi sebagai chip yang bisa digulir mendatar agar hemat ruang. Hitung waktu penyelesaian dan simpan rekor per tema di localStorage. Sediakan tombol Menyerah yang menyorot semua kata yang belum ditemukan.\n\nTampilan: kisi mengisi lebar layar penuh dengan huruf monospace berukuran besar, sorotan berbentuk kapsul di belakang huruf.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none pada kisi agar layar tidak ikut tergeser saat menyeret, user-select none agar huruf tidak tersorot sebagai teks, dan preventDefault pada touchmove. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        }
+      ]
+    },
+    {
+      cat: "Idle / Clicker",
+      note: "Genre yang memang lahir di HP. Kuncinya area tap besar dan panel upgrade yang bisa digulir dengan jempol.",
+      games: [
+        {
+          t: "Cookie Clicker style", tech: D, diff: 2, or: P,
+          d: "Objek tap raksasa di tengah, upgrade digulir di bawah.",
+          p: "Buatkan game idle clicker bergaya Cookie Clicker untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: satu objek besar di tengah layar yang menghasilkan satu unit setiap kali ditap. Sediakan minimal 6 jenis upgrade yang bisa dibeli, misalnya Kursor Otomatis, Nenek, Ladang, Pabrik, Tambang, dan Portal, masing-masing dengan harga dasar dan produksi per detik sendiri. Harga naik eksponensial dengan pengali 1,15 setiap pembelian. Sediakan juga upgrade pengali yang melipatgandakan hasil per tap.\n\nKontrol sentuh: objek utama berdiameter minimal 40 persen lebar layar dan ditempatkan di bagian tengah bawah agar terjangkau jempol tanpa memindahkan pegangan HP. Dukung multi-touch sehingga beberapa jari terhitung sebagai beberapa tap terpisah. Gunakan touchstart agar terasa instan. Panel upgrade berada di bawah objek sebagai daftar yang bisa digulir vertikal, dengan setiap kartu upgrade setinggi minimal 64 piksel. Sediakan tombol beli 1, beli 10, dan beli maksimal sebagai tiga tombol besar. Tidak ada kontrol keyboard maupun hover.\n\nAturan dan tampilan angka: hitung total produksi per detik dari semua upgrade dan tambahkan ke saldo secara halus. Format angka besar menjadi ribuan, juta, miliar, dan triliun dengan satu angka desimal agar tidak memenuhi layar sempit.\n\nTampilan: angka melayang naik dan memudar dari titik sentuh setiap tap, objek utama mengecil sedikit lalu memantul kembali, kartu upgrade yang belum terjangkau tampil redup dengan harga merah. Simpan progres ke localStorage secara berkala dan muat kembali saat dibuka lagi, dengan tombol reset yang meminta konfirmasi.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Cegah zoom dua ketukan dengan touch-action manipulation, matikan seleksi teks dengan user-select none, dan hilangkan kotak sorot dengan -webkit-tap-highlight-color transparan, tetapi biarkan panel upgrade tetap bisa digulir. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait. Beri getaran sangat singkat lewat navigator.vibrate setiap 10 tap, bila didukung."
+        },
+        {
+          t: "Idle Miner mini", tech: D, diff: 2, or: P,
+          d: "Tiga tambang bertumpuk vertikal, ada penghasilan offline.",
+          p: "Buatkan game Idle Miner mini untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: tiga tambang dengan komoditas berbeda yaitu batu bara, perak, dan emas, masing-masing dengan nilai jual berbeda. Setiap tambang bisa digali manual dengan tap, atau berjalan otomatis setelah menyewa pekerja. Setiap tambang punya dua jalur upgrade: kecepatan gali dan kapasitas angkut per siklus. Tambang kedua dan ketiga terkunci sampai saldo mencapai ambang tertentu.\n\nKontrol sentuh: ketiga tambang disusun bertumpuk vertikal sebagai tiga kartu setinggi masing-masing sekitar seperempat layar, karena layar potrait tinggi dan sempit. Tap di mana saja pada kartu tambang untuk menggali manual, sehingga seluruh kartu menjadi area sentuh yang besar. Tombol upgrade dan sewa pekerja berada di dalam kartu masing-masing tambang dengan tinggi minimal 44 piksel dan berlabel jelas beserta harganya. Panel keseluruhan bisa digulir vertikal. Tidak ada kontrol keyboard.\n\nAturan: hitung penghasilan saat pemain tidak membuka game dengan menyimpan timestamp terakhir di localStorage dan mengalikan selisih waktu dengan produksi per detik, dibatasi maksimal 8 jam. Tampilkan ringkasan penghasilan offline sebagai kartu sambutan saat game dibuka kembali. Sediakan mekanik prestise: reset seluruh progres untuk mendapat pengali permanen berdasarkan total uang yang pernah dikumpulkan.\n\nTampilan: bar progres siklus gali per tambang yang bergerak, angka melayang saat hasil terkumpul, dan panel saldo yang menempel di bagian atas layar dengan format angka besar.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Cegah zoom dua ketukan dengan touch-action manipulation, matikan seleksi teks dengan user-select none, dan hilangkan kotak sorot sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Tap-to-earn", tech: D, diff: 1, or: P,
+          d: "Seluruh layar jadi area tap, energi terisi ulang sendiri.",
+          p: "Buatkan game tap-to-earn untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: area tap sangat besar yang mengisi bagian tengah layar. Setiap tap menghasilkan koin sebanyak nilai pengali saat ini dan mengurangi 1 energi. Energi punya batas maksimum dan terisi ulang otomatis 3 poin per detik. Saat energi habis, tap tidak menghasilkan apa pun sampai energi terisi lagi.\n\nKontrol sentuh: dukung multi-touch penuh sehingga beberapa jari yang menyentuh bersamaan dihitung sebagai beberapa tap terpisah, karena inilah cara genre ini biasa dimainkan. Gunakan touchstart dan baca event.changedTouches agar setiap titik sentuh terhitung. Angka koin melayang naik dari setiap titik sentuh, bukan dari satu titik tetap. Panel upgrade berupa lembar yang muncul dari bawah layar saat tombol Upgrade ditap, dengan tombol tutup besar. Tidak ada kontrol keyboard.\n\nSkor dan aturan: pemain naik level setiap kali total koin melewati ambang tertentu, dan setiap level menaikkan pengali per tap serta kapasitas energi maksimum. Sediakan tiga upgrade yang dibeli dengan koin: pengali per tap, kapasitas energi, dan kecepatan pengisian energi. Tambahkan daily streak yang mengecek tanggal terakhir bermain dari localStorage dan memberi bonus koin jika pemain kembali di hari berikutnya.\n\nTampilan: area tap mengecil sedikit lalu memantul kembali setiap sentuhan, bar energi menempel di bagian bawah dengan warna berubah saat menipis, dan bar progres level di atas. Jaga agar animasi tetap ringan meski ada banyak angka melayang sekaligus, dengan membatasi jumlah partikel aktif.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none pada area tap, user-select none, preventDefault pada event sentuh, dan -webkit-tap-highlight-color transparan. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait. Beri getaran sangat singkat lewat navigator.vibrate saat naik level, bila didukung."
+        }
+      ]
+    },
+    {
+      cat: "Racing (2D top-down)",
+      note: "Semuanya landscape. Kontrol setir diganti tombol besar atau geser jari, karena arrow keys tidak ada di HP.",
+      games: [
+        {
+          t: "Mini racing sirkuit", tech: C, diff: 3, or: L,
+          d: "Gas otomatis, cukup dua tombol setir kiri dan kanan.",
+          p: "Buatkan game balapan mini bertampilan dari atas untuk dimainkan di ponsel dengan HP dimiringkan, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: mobil dilihat dari atas dengan model gerak sederhana berupa kecepatan maju, gaya gesek yang memperlambat, dan kecepatan belok yang berkurang saat melaju pelan. Sirkuit dibentuk dari rangkaian titik lintasan dengan lebar tertentu; jika mobil keluar dari lintasan, kecepatan maksimumnya turun drastis sampai kembali ke aspal.\n\nKontrol sentuh: sederhanakan menjadi kontrol dua tombol karena setir penuh sulit di layar sentuh. Gas berjalan otomatis sehingga mobil selalu melaju, dan pemain hanya menahan tombol besar di sisi kiri bawah untuk membelok ke kiri dan tombol di sisi kanan bawah untuk ke kanan. Tambahkan tombol rem yang lebih kecil di dekat tombol kanan, opsional untuk tikungan tajam. Tombol harus mendukung multi-touch dan tetap aktif selama jari menempel meski sedikit bergeser. Tidak ada kontrol keyboard maupun sensor kemiringan.\n\nSkor dan aturan: pasang checkpoint di sepanjang sirkuit yang harus dilewati berurutan agar lap dihitung sah. Balapan sepanjang 3 lap. Tampilkan waktu lap berjalan, waktu lap terbaik, dan total waktu. Tambahkan satu mobil bot yang mengikuti waypoint lintasan dengan kecepatan sedikit acak.\n\nTampilan: kamera mengikuti mobil pemain, minimap kecil di pojok atas yang menunjukkan posisi kedua mobil, garis start finish bermotif kotak-kotak, dan jejak ban tipis. Letakkan seluruh informasi di tepi atas layar agar tidak tertutup ibu jari yang memegang tombol di bawah.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset), penting karena tombol berada di tepi layar. Rancang untuk orientasi landscape; jika HP dalam posisi tegak, tampilkan layar ajakan memiringkan HP."
+        },
+        {
+          t: "Traffic dodger", tech: C, diff: 1, or: P,
+          d: "Geser jari untuk pindah lajur, satu tangan cukup.",
+          p: "Buatkan game menghindari lalu lintas untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: jalan dengan 3 lajur bergerak ke bawah, memberi ilusi mobil pemain melaju maju. Jumlah lajur dikurangi dari empat menjadi tiga agar tetap lega di layar potrait yang sempit. Mobil pemain berada di bagian bawah layar dan berpindah lajur secara halus, bukan lompat instan. Mobil lawan muncul dari atas pada lajur acak dengan kecepatan bervariasi, dan sistem harus memastikan selalu ada minimal satu lajur yang bisa dilewati.\n\nKontrol sentuh: dua cara yang keduanya harus jalan. Pertama, swipe pendek ke kiri atau kanan untuk pindah satu lajur. Kedua, tahan dan geser jari sehingga posisi mobil mengikuti pergeseran jari secara langsung, yang terasa lebih presisi. Letakkan area kontrol di seluruh bagian bawah layar agar jari tidak menutupi mobil dan rintangan di depannya. Tidak ada kontrol keyboard.\n\nSkor dan aturan: skor adalah jarak tempuh, ditambah bonus untuk setiap mobil yang dilewati dari jarak dekat. Kecepatan jalan naik bertahap setiap 20 detik. Sesekali muncul pickup nitro yang memberi kecepatan dan kekebalan selama 3 detik. Menabrak berarti game over. Simpan best score di localStorage.\n\nTampilan: marka jalan putus-putus yang beranimasi turun, bahu jalan dengan tiang lampu yang lewat, getar kamera singkat saat menabrak, dan garis kecepatan saat nitro aktif. Panel skor di tepi atas.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait. Beri getaran singkat lewat navigator.vibrate saat menabrak, bila didukung."
+        },
+        {
+          t: "Drift arena", tech: C, diff: 3, or: L,
+          d: "Tahan tombol drift sambil membelok, poin terus mengalir.",
+          p: "Buatkan game drift arena bertampilan dari atas untuk dimainkan di ponsel dengan HP dimiringkan, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: mobil punya vektor kecepatan dan sudut hadap yang terpisah. Selisih antara arah gerak dan arah hadap disebut slip angle. Saat pemain menahan tombol drift sambil membelok, grip ban berkurang sehingga slip angle membesar dan mobil meluncur menyamping. Saat tombol dilepas, grip berangsur kembali dan mobil menyelaraskan arah geraknya.\n\nKontrol sentuh: gas berjalan otomatis agar pemain bisa fokus pada setir dan drift. Dua tombol setir besar di sisi kiri bawah layar untuk belok kiri dan kanan, dan satu tombol drift lebar di sisi kanan bawah yang ditahan dengan ibu jari kanan. Semua tombol harus mendukung multi-touch karena pemain akan menahan dua atau tiga tombol sekaligus, dan tetap aktif selama jari menempel meski bergeser sedikit. Tidak ada kontrol keyboard.\n\nSkor dan aturan: poin drift terakumulasi selama slip angle melebihi ambang tertentu, dengan laju poin sebanding besar slip angle dan kecepatan. Drift yang tidak terputus membangun combo multiplier yang naik setiap 2 detik. Combo hangus jika mobil kembali lurus lebih dari satu detik atau menabrak cone, dan poin baru masuk ke total saat combo selesai. Sediakan timer 90 detik dengan target skor. Simpan best score di localStorage.\n\nTampilan: arena terbuka dengan cone dan penanda, jejak ban gelap yang tertinggal saat drift dan memudar perlahan, asap partikel di ban belakang, dan angka multiplier besar di tengah atas layar agar terlihat tanpa memalingkan pandangan dari mobil.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, physics ditulis manual tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi landscape; jika HP dalam posisi tegak, tampilkan layar ajakan memiringkan HP."
+        }
+      ]
+    },
+    {
+      cat: "Shooter",
+      note: "Tembakan dibuat otomatis supaya pemain cukup mengatur posisi dengan satu jari, bukan menekan tombol tembak terus-menerus.",
+      games: [
+        {
+          t: "Space Invaders", tech: C, diff: 2, or: P,
+          d: "Geser jari untuk bergerak, kapal menembak otomatis.",
+          p: "Buatkan game bergaya Space Invaders untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: formasi alien 5 baris kali 8 kolom, dipersempit dari 11 kolom agar sesuai layar potrait, bergerak menyamping bersama-sama. Saat formasi menyentuh tepi layar, seluruh formasi turun satu tingkat dan berbalik arah. Kecepatan formasi meningkat seiring berkurangnya jumlah alien. Alien di baris terbawah setiap kolom sesekali menembak ke bawah.\n\nKontrol sentuh: kapal bergerak mengikuti geseran jari secara horizontal, dengan offset sehingga kapal berada sedikit di atas titik sentuh dan tidak tertutup jari. Tembakan dilepaskan otomatis dengan interval tetap selama permainan berjalan, sehingga pemain cukup berkonsentrasi pada posisi. Sediakan opsi di layar start untuk mengganti ke mode tombol tembak manual bagi yang lebih suka. Tidak ada kontrol keyboard.\n\nSkor dan aturan: nilai alien berbeda per baris, baris paling atas paling tinggi. Pasang 3 bunker pelindung yang terkikis sedikit demi sedikit saat terkena tembakan dari kedua pihak. Sesekali UFO melintas di bagian paling atas dengan nilai bonus acak. Pemain punya 3 nyawa. Kalah jika nyawa habis atau formasi mencapai garis bawah. Wave baru mulai lebih rendah. Simpan best score di localStorage.\n\nTampilan: semua sprite digambar dengan Canvas 2D memakai bentuk kotak bergaya piksel, tanpa file gambar. Animasi dua frame pada alien dan ledakan partikel singkat. Panel skor dan nyawa di tepi atas.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Galaga-style shooter", tech: C, diff: 3, or: P,
+          d: "Alien masuk dengan lintasan melengkung lalu menyelam.",
+          p: "Buatkan game shooter bergaya Galaga untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: setiap wave dimulai dengan alien memasuki layar mengikuti lintasan melengkung yang dihitung dengan kurva bezier, lalu menempati posisinya dalam formasi grid. Setelah formasi terbentuk, satu atau dua alien berkala keluar untuk menyelam menyerang kapal pemain dengan lintasan melengkung, menembak selama menyelam, lalu kembali ke formasi jika selamat.\n\nKontrol sentuh: kapal mengikuti geseran jari, dan berbeda dari Space Invaders, di sini kapal boleh bergerak dua arah baik horizontal maupun sedikit vertikal di sepertiga bawah layar, karena serangan menyelam datang dari berbagai sudut. Beri offset agar kapal berada di atas titik sentuh dan tidak tertutup jari. Tembakan otomatis dengan rate limit. Tidak ada kontrol keyboard.\n\nSkor dan aturan: alien yang ditembak saat berada di formasi bernilai lebih kecil daripada saat menyelam. Sediakan power-up yang jatuh sesekali berupa dual-shot selama 15 detik dan perisai sekali pakai; power-up diambil dengan menyentuhkan kapal, bukan dengan menap, agar tidak perlu jari kedua. Setiap wave kelima menampilkan alien boss dengan nyawa lebih banyak dan pola tembakan menyebar. Pemain punya 3 nyawa dan combo untuk tembakan beruntun. Simpan best score di localStorage.\n\nTampilan: bintang latar bergulir dengan tiga lapis kecepatan berbeda, jejak peluru, dan ledakan partikel. Semua digambar dengan bentuk Canvas 2D. Jaga jumlah partikel tetap terbatas agar tetap lancar di HP kelas menengah.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Duck Hunt (target tap)", tech: C, diff: 2, or: L,
+          d: "Tap langsung pada sasaran terbang, tanpa crosshair.",
+          p: "Buatkan game menembak sasaran bergaya Duck Hunt untuk dimainkan di ponsel dengan HP dimiringkan, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: setiap ronde melepas satu atau dua sasaran terbang dari bagian bawah layar. Sasaran bergerak dengan lintasan gabungan gerak lurus dan gelombang sinus, sesekali berubah arah secara acak, lalu terbang keluar layar setelah beberapa detik jika tidak tertembak.\n\nKontrol sentuh: tap langsung pada sasaran untuk menembak, hilangkan konsep crosshair yang mengikuti kursor karena tidak ada kursor di layar sentuh. Perbesar area sentuh sasaran sekitar 15 piksel di luar bentuk visualnya agar tap yang sedikit meleset tetap dihitung, karena jari jauh lebih lebar daripada penunjuk mouse. Dukung multi-touch sehingga dua sasaran bisa ditembak bersamaan dengan dua jari. Gunakan touchstart agar tidak ada jeda. Tidak ada kontrol keyboard maupun mouse.\n\nSkor dan aturan: pemain punya 3 peluru per ronde. Sasaran yang lolos mengurangi nyawa. Nilai sasaran naik seiring ronde, dan tembakan beruntun tanpa meleset memberi combo. Tampilkan akurasi berupa persentase tembakan yang mengenai. Kecepatan dan jumlah sasaran naik setiap 3 ronde. Simpan best score di localStorage.\n\nTampilan: latar langit bergradasi, rumput di depan, dan siluet pohon. Kilatan lingkaran singkat di titik yang ditap sebagai umpan balik tembakan, animasi sasaran jatuh berputar saat kena, dan indikator peluru tersisa berupa ikon di tepi atas.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi landscape; jika HP dalam posisi tegak, tampilkan layar ajakan memiringkan HP."
+        }
+      ]
+    },
+    {
+      cat: "Simulasi Ringan",
+      note: "Cocok untuk sesi pendek di HP. Semua aksi berupa tombol besar, dan progres disimpan agar bisa dilanjut kapan saja.",
+      games: [
+        {
+          t: "Tamagotchi-like", tech: D, diff: 2, or: P,
+          d: "Empat tombol aksi besar, stat menurun meski aplikasi ditutup.",
+          p: "Buatkan game peliharaan virtual bergaya Tamagotchi untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: peliharaan punya empat stat yaitu lapar, senang, energi, dan kebersihan, masing-masing bernilai 0 sampai 100 dan menurun perlahan seiring waktu dengan laju berbeda. Empat aksi memulihkan stat terkait: beri makan, ajak main, tidurkan, dan mandikan. Setiap aksi punya cooldown singkat dan efek samping, misalnya bermain menaikkan senang tetapi menurunkan energi dan kebersihan.\n\nKontrol sentuh: empat tombol aksi besar berjajar dua kali dua di bagian bawah layar, masing-masing setinggi minimal 64 piksel dengan ikon dan label teks. Tap peliharaan itu sendiri untuk mengelusnya, yang menaikkan sedikit stat senang dengan cooldown. Tidak ada kontrol keyboard maupun menu bertingkat, semua aksi utama harus tercapai dalam satu tap.\n\nAturan: peliharaan bertambah umur satu hari setiap beberapa menit waktu nyata dan naik tahap dari bayi ke remaja lalu dewasa dengan tampilan yang berubah. Jika ada stat di bawah 10 selama lebih dari satu menit, peliharaan sakit dan butuh aksi obat. Jika dibiarkan, permainan berakhir dengan layar kenangan. Simpan seluruh state dan timestamp terakhir ke localStorage, dan saat game dibuka kembali hitung penurunan stat selama ditinggal, karena di HP pemain akan sering menutup dan membuka lagi. Gunakan event visibilitychange untuk menyimpan state saat aplikasi berpindah ke latar belakang.\n\nTampilan: peliharaan digambar dengan bentuk CSS atau emoji besar di tengah layar, ekspresi wajah berubah mengikuti stat terendah, animasi mengambang naik turun, dan bar stat berwarna di bawahnya yang berubah merah saat kritis.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Cegah zoom dengan touch-action manipulation dan matikan seleksi teks. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Farming sim mini", tech: D, diff: 2, or: P,
+          d: "Petak besar, alat dipilih lewat bar di bawah layar.",
+          p: "Buatkan game simulasi bertani mini untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: lahan berupa grid 4x4 petak, dipersempit dari 5x5 agar setiap petak tetap besar dan mudah ditap di layar HP. Pemain membeli benih, menanamnya di petak kosong, lalu menunggu tanaman tumbuh melewati tiga tahap visual yaitu tunas, tumbuh, dan siap panen. Menyiram mempercepat pertumbuhan 30 persen sampai tahap berikutnya. Tanaman siap panen yang dibiarkan terlalu lama akan layu.\n\nKontrol sentuh: bar alat menempel di bagian bawah layar berisi empat tombol besar yaitu tanam, siram, panen, dan cangkul, dengan alat aktif ditandai jelas. Tap petak untuk menerapkan alat yang sedang dipilih. Tambahkan mode panen cepat, yaitu tahan jari lalu geser melintasi beberapa petak untuk memanen sekaligus, karena memanen satu per satu terasa lambat di layar sentuh. Toko dibuka lewat tombol di pojok atas dan muncul sebagai lembar dari bawah layar dengan tombol tutup besar. Tidak ada kontrol keyboard.\n\nAturan ekonomi: sediakan minimal 4 jenis tanaman dengan harga benih, durasi tumbuh, dan harga jual berbeda sehingga ada trade-off. Sediakan dua upgrade yaitu penyiram otomatis dan perluasan lahan. Tambahkan siklus hari yang berganti setiap 2 menit dengan cuaca acak, di mana hujan menyiram seluruh petak dan kemarau memperlambat pertumbuhan.\n\nTampilan: tanaman digambar dengan emoji atau bentuk CSS per tahap, dompet dan indikator hari serta cuaca menempel di atas, dan bar progres kecil di petak yang sedang tumbuh.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Simpan progres di localStorage termasuk timestamp agar pertumbuhan tetap berjalan saat ditinggal. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Cegah zoom dengan touch-action manipulation dan matikan seleksi teks. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Restaurant sim mini", tech: D, diff: 3, or: P,
+          d: "Tap untuk masak dan sajikan, semua dalam satu layar.",
+          p: "Buatkan game simulasi restoran mini untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: pelanggan datang berkala dan duduk di meja yang tersedia, masing-masing dengan pesanan acak dari daftar menu. Setiap pelanggan punya bar kesabaran yang menyusut; jika habis sebelum dilayani, pelanggan pergi dan reputasi berkurang. Pemain memasak menu tertentu dengan timer sesuai kerumitannya, lalu menyajikannya ke meja. Hidangan matang yang didiamkan terlalu lama menjadi dingin dan nilainya berkurang.\n\nKontrol sentuh: karena layar HP sempit, susun tampilan menjadi dua zona vertikal. Zona atas berisi maksimal 4 meja sebagai kartu besar dengan gelembung pesanan, zona bawah berisi dapur dengan tombol menu dan slot hidangan matang. Alur menyajikan disederhanakan menjadi dua tap: tap hidangan matang untuk mengangkatnya lalu tap meja tujuan untuk menyajikan, tanpa drag sama sekali. Meja yang cocok dengan hidangan yang sedang diangkat disorot agar pemain tidak perlu mengingat pesanan. Tap kedua kalinya pada hidangan yang sama membatalkan pengangkatan. Semua tombol minimal 56 piksel. Tidak ada kontrol keyboard.\n\nAturan ekonomi: setiap hidangan punya harga jual sendiri, dan tip ditentukan sisa kesabaran pelanggan saat dilayani. Sediakan upgrade berupa kompor tambahan untuk memasak paralel, meja tambahan, dan kursi tunggu yang memperlambat penurunan kesabaran. Permainan dibagi menjadi hari berdurasi 90 detik dengan target pendapatan.\n\nTampilan: bar kesabaran berwarna hijau ke merah di atas kepala pelanggan, bar progres masak per stasiun, dan panel pendapatan menempel di atas. Jaga agar tidak ada elemen penting berada di bawah 80 piksel terbawah layar yang tertutup tangan.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Cegah zoom dengan touch-action manipulation dan matikan seleksi teks. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        }
+      ]
+    },
+    {
+      cat: "Edukasi",
+      note: "Typing Race dikeluarkan karena mengetik cepat di layar sentuh bukan ukuran kemampuan yang adil. Penggantinya sama-sama melatih, tapi cukup satu tap.",
+      games: [
+        {
+          t: "Tebak Bendera Negara", tech: D, diff: 1, or: P, isNew: true,
+          d: "Bendera digambar dengan CSS, empat opsi selebar layar.",
+          p: "Buatkan game tebak bendera negara untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: tampilkan satu bendera negara, pemain memilih nama negaranya dari 4 opsi. Sediakan minimal 40 negara. Gambar setiap bendera memakai CSS murni dengan linear-gradient untuk bendera bergaris seperti Indonesia, Prancis, dan Jerman, ditambah bentuk lingkaran atau bintang dengan elemen kecil untuk bendera seperti Jepang, Bangladesh, dan Vietnam. Jangan memuat file gambar atau emoji bendera, karena emoji bendera tidak tampil konsisten di semua HP Android. Acak urutan soal dan opsi setiap permainan, dan pastikan tiga opsi salah diambil dari negara di benua yang sama agar soal tidak terlalu mudah.\n\nKontrol sentuh: tap salah satu dari empat opsi berbentuk tombol selebar layar dengan tinggi minimal 56 piksel. Setelah dipilih, semua opsi terkunci dan umpan balik langsung muncul. Sediakan mode kedua yang bisa dipilih di layar awal, yaitu kebalikannya: nama negara ditampilkan dan pemain memilih benderanya dari empat kartu bendera. Tidak ada kontrol keyboard.\n\nSkor dan aturan: 20 soal per sesi. Jawaban benar bernilai 10 poin ditambah bonus sisa waktu, dengan timer 12 detik per soal. Streak jawaban benar memberi pengali. Layar hasil menampilkan skor, jumlah benar, daftar negara yang salah dijawab beserta jawaban benarnya sebagai bahan belajar, dan tombol Main Lagi.\n\nTampilan: bendera ditampilkan besar dengan rasio 3 banding 2 dan bayangan tipis, progress bar soal di atas, dan timer berupa bar yang menyusut.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Cegah zoom dengan touch-action manipulation dan matikan seleksi teks. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Game matematika", tech: D, diff: 1, or: P,
+          d: "Keypad angka besar, level naik mengikuti kemampuan.",
+          p: "Buatkan game hitung cepat matematika untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: soal aritmetika dihasilkan acak sesuai level. Level 1 sampai 3 memakai penjumlahan dan pengurangan bilangan kecil, level 4 sampai 6 menambahkan perkalian, dan level 7 ke atas menambahkan pembagian yang selalu menghasilkan bilangan bulat. Rentang angka membesar seiring level.\n\nKontrol sentuh: keypad angka buatan sendiri yang selalu tampil di bagian bawah layar, disusun tiga kolom seperti kalkulator dengan angka 0 sampai 9, tombol hapus, dan tombol minus untuk hasil negatif. Setiap tombol minimal 56 piksel tingginya. Jangan pernah memakai kolom input yang memicu keyboard bawaan HP, karena keyboard bawaan akan menutupi soal dan memperlambat permainan. Jawaban dikirim otomatis begitu jumlah digitnya cocok dengan jawaban benar, sehingga tidak perlu tombol Enter dan permainan terasa cepat. Tidak ada kontrol keyboard fisik.\n\nSkor dan aturan: jawaban benar memberi poin sesuai level ditambah bonus sisa waktu. Timer per soal dimulai dari 10 detik dan memendek seiring level. Tiga jawaban benar berturut-turut menaikkan level, dua jawaban salah berturut-turut menurunkannya. Pemain punya 3 nyawa yang berkurang saat salah atau kehabisan waktu.\n\nTampilan: soal berukuran sangat besar di tengah layar, bar timer yang menyusut dan berubah warna, indikator streak dan nyawa di atas, serta kilatan hijau atau merah singkat pada latar saat menjawab. Layar akhir menampilkan skor, level tertinggi, dan rincian akurasi per jenis operasi.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Cegah zoom dengan touch-action manipulation, matikan seleksi teks, dan hilangkan kotak sorot sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Flashcard hafalan", tech: D, diff: 1, or: P,
+          d: "Tap untuk membalik, swipe kiri atau kanan untuk menilai.",
+          p: "Buatkan game flashcard hafalan kosakata untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: sediakan minimal tiga set kartu yang ditulis di JavaScript, misalnya kosakata Inggris Indonesia, ibu kota negara, dan istilah komputer, masing-masing minimal 30 kartu. Sisi depan kartu menampilkan pertanyaan, sisi belakang menampilkan jawaban. Pemain membalik kartu untuk memeriksa jawabannya sendiri, lalu menandai apakah sudah tahu atau belum.\n\nKontrol sentuh: tap kartu untuk membaliknya. Untuk menilai, gunakan gestur swipe seperti aplikasi kartu pada umumnya: swipe ke kiri berarti belum tahu, swipe ke kanan berarti sudah tahu. Kartu harus ikut bergerak dan miring mengikuti jari selama diseret, dengan label Sudah Tahu berwarna hijau muncul di sisi kanan dan Belum Tahu berwarna merah di sisi kiri saat geseran melewati ambang. Jika jari dilepas sebelum ambang, kartu kembali ke tengah dengan animasi. Sediakan juga dua tombol besar di bawah kartu untuk pemain yang lebih suka menap. Tidak ada kontrol keyboard.\n\nAturan pengulangan: gunakan spaced repetition sederhana. Kartu yang ditandai belum tahu dikembalikan ke antrean beberapa posisi di belakang agar muncul lagi dalam sesi yang sama, sementara kartu yang ditandai sudah tahu dua kali berturut-turut dianggap dikuasai dan keluar dari antrean. Sesi selesai saat semua kartu dikuasai.\n\nTampilan: kartu besar mengisi sebagian besar layar dengan animasi flip tiga dimensi memakai CSS transform, teks berukuran besar, progress bar yang menunjukkan berapa kartu sudah dikuasai, dan layar ringkasan akhir. Simpan progres per set di localStorage.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none pada area kartu agar layar tidak ikut tergeser saat swipe, user-select none, dan preventDefault pada touchmove. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        }
+      ]
+    },
+    {
+      cat: "Physics-based",
+      note: "Gravitasi dan pantulan ditulis manual tanpa engine seperti Matter.js, supaya file tetap ringan dan jalan offline di HP.",
+      games: [
+        {
+          t: "Angry Birds sederhana", tech: C, diff: 3, or: L,
+          d: "Tarik ketapel dengan jari, garis prediksi tampil di atas jari.",
+          p: "Buatkan game ketapel bergaya Angry Birds sederhana untuk dimainkan di ponsel dengan HP dimiringkan, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: ketapel di sisi kiri layar. Pemain menarik proyektil ke arah berlawanan untuk mengatur sudut dan kekuatan, lalu melepaskannya. Proyektil bergerak dengan gravitasi dan sedikit hambatan udara. Di sisi kanan berdiri struktur dari balok kayu dan batu yang disusun bertumpuk, dengan musuh di dalam atau di atasnya.\n\nPhysics: tulis sendiri simulasinya tanpa library apa pun. Gunakan collision detection AABB antar balok dan lingkaran ke kotak untuk proyektil. Setiap balok punya massa, kecepatan, dan rotasi sederhana; benturan mentransfer momentum sehingga balok bergeser, terguling, dan tumpukan bisa runtuh. Balok kayu hancur pada energi benturan lebih rendah daripada batu. Musuh kalah jika terkena benturan di atas ambang energi tertentu. Beri damping agar simulasi cepat mencapai keadaan diam, dan batasi jumlah balok sekitar 20 agar tetap lancar di HP kelas menengah.\n\nKontrol sentuh: tekan di sekitar ketapel lalu seret jari untuk menarik. Karena jari menutupi area tarikan, tampilkan titik-titik prediksi lintasan yang jelas dan letakkan indikator sudut serta kekuatan di tepi atas layar, bukan di bawah jari. Perbesar area sentuh awal ketapel menjadi radius sekitar 60 piksel agar mudah ditemukan. Lepas jari untuk menembak, dan sediakan pembatalan dengan menyeret balik ke titik awal. Setelah menembak, kamera otomatis mengikuti proyektil. Tidak ada kontrol keyboard.\n\nSkor dan aturan: tiga proyektil per level, tiga level dengan susunan berbeda. Skor dihitung dari musuh yang kalah, balok yang hancur, dan sisa proyektil. Level selesai saat semua musuh kalah.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time dengan langkah fisika tetap agar simulasi stabil. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi landscape; jika HP dalam posisi tegak, tampilkan layar ajakan memiringkan HP."
+        },
+        {
+          t: "Plinko / Ball drop", tech: C, diff: 2, or: P,
+          d: "Tap di baris atas untuk menjatuhkan bola, layar tinggi ideal.",
+          p: "Buatkan game Plinko jatuh bola untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet. Layar potrait yang tinggi justru ideal untuk genre ini karena bola punya ruang jatuh yang panjang.\n\nMekanik: papan berisi pin bulat disusun dalam baris berselang-seling, dengan setiap baris digeser setengah jarak dari baris di atasnya. Bola dijatuhkan dari posisi horizontal yang dipilih pemain di bagian atas. Bola jatuh dengan gravitasi dan memantul saat mengenai pin.\n\nPhysics: tulis sendiri simulasinya tanpa library. Gunakan collision lingkaran ke lingkaran antara bola dan pin, lalu pantulkan vektor kecepatan terhadap normal titik sentuh dengan koefisien restitusi sekitar 0,6. Tambahkan sedikit keacakan pada sudut pantul, dan batasi kecepatan maksimum agar bola tidak menembus pin di antara dua frame. Dinding kiri dan kanan memantulkan bola.\n\nKontrol sentuh: tap di sepanjang pita atas papan untuk menjatuhkan bola di titik itu. Perbesar tinggi pita sentuh ini menjadi sekitar 80 piksel agar mudah dikenai jempol. Tampilkan penanda posisi jatuh yang mengikuti jari saat ditahan, dan bola dilepas saat jari diangkat. Sediakan tombol besar untuk menjatuhkan 10 bola sekaligus dengan jeda pendek. Batasi jumlah bola aktif sekitar 30 agar tetap lancar. Tidak ada kontrol keyboard.\n\nSkor dan aturan: slot di bagian bawah punya pengali berbeda, paling besar di tepi dan paling kecil di tengah. Pemain punya saldo awal, setiap bola memakan taruhan tetap, dan hasilnya adalah taruhan dikali pengali slot. Tampilkan riwayat 10 hasil terakhir sebagai chip berwarna dan histogram distribusi slot.\n\nTampilan: jejak samar di belakang bola, slot bawah berwarna gradasi sesuai besarnya pengali, dan kilau singkat pada slot yang baru dimasuki.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai langkah fisika tetap. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Basketball shooter", tech: C, diff: 2, or: P,
+          d: "Flick bola ke atas dengan jari, ring bergerak makin sulit.",
+          p: "Buatkan game lempar bola basket untuk dimainkan di ponsel, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: bola berada di bagian bawah layar. Pemain melempar dengan gerakan flick, yaitu menyeret jari ke atas dari bola lalu melepasnya; arah dan kekuatan lemparan diambil dari vektor geseran. Bola bergerak dengan gravitasi dan bisa memantul pada papan pantul, lantai, serta kedua tepi ring.\n\nPhysics: tulis sendiri simulasinya tanpa library. Papan pantul ditangani sebagai collision terhadap bidang datar, sedangkan kedua ujung ring ditangani sebagai collision lingkaran ke titik dengan pantulan berdasarkan normal dari titik sentuh ke pusat bola. Skor sah hanya jika bola melewati bidang ring dari atas ke bawah di antara kedua ujung ring, sehingga bola yang masuk dari bawah tidak dihitung.\n\nKontrol sentuh: flick dari mana saja di separuh bawah layar, tidak harus tepat pada bola, agar mudah dilakukan satu tangan. Hitung kecepatan lemparan dari perpindahan jari dibagi durasi geseran, dengan batas atas agar lemparan tidak liar. Tampilkan panah arah dan bar kekuatan selama menyeret, digambar di atas titik jari agar tidak tertutup tangan. Sediakan lemparan berikutnya segera setelah bola keluar layar atau berhenti. Tidak ada kontrol keyboard.\n\nSkor dan aturan: lemparan masuk bernilai 2 poin, dan yang masuk tanpa menyentuh papan maupun ring bernilai 3 poin sebagai bonus swish. Setelah setiap 3 skor, ring mulai bergerak naik turun lalu menyamping. Timer 60 detik dengan streak yang menambah pengali poin. Simpan best score di localStorage.\n\nTampilan: jaring beranimasi bergoyang saat bola masuk, jejak bola samar, dan angka poin melayang naik. Panel skor dan timer di tepi atas.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D dan requestAnimationFrame, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar tidak buram, dan pakai delta time. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none, user-select none, dan preventDefault pada event sentuh. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        }
+      ]
+    },
+    {
+      cat: "Multiplayer Hotseat",
+      note: "Satu HP dioper bergantian. Layar tirai jadi penting agar pemain berikutnya tidak melihat lebih dulu.",
+      games: [
+        {
+          t: "Tic-Tac-Toe dua pemain", tech: D, diff: 1, or: P,
+          d: "HP dioper bergantian, best of five dengan papan raksasa.",
+          p: "Buatkan game Tic-Tac-Toe untuk dua pemain yang bergantian memakai satu HP, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet. Tidak perlu AI lawan.\n\nMekanik: papan 3x3. Sebelum mulai, kedua pemain memasukkan nama dan memilih warna masing-masing. Pemain bergantian menandai sel kosong dengan mengoper HP.\n\nKontrol sentuh: tap sel kosong. Papan dibuat mengisi hampir seluruh lebar layar sehingga setiap sel sangat besar dan nyaman ditap oleh siapa pun yang sedang memegang HP. Sel yang sudah terisi tidak merespons sentuhan. Pengisian nama memakai kolom input hanya di layar awal, dan setelah permainan dimulai tidak ada lagi input teks sehingga keyboard HP tidak pernah muncul di tengah permainan. Tidak ada kontrol keyboard.\n\nSkor dan aturan: pertandingan berformat best of five, pemenang adalah yang lebih dulu meraih 3 kemenangan babak, dan seri tidak menambah poin. Setelah setiap babak, papan otomatis direset setelah jeda dua detik, dan pemain yang kalah pada babak sebelumnya mendapat giliran pertama di babak berikutnya.\n\nTampilan: indikator giliran sangat mencolok, berupa panel lebar di bagian atas berisi nama pemain aktif dengan latar warnanya, karena dalam permainan oper HP kejelasan giliran adalah hal terpenting. Papan skor dua kolom di atas, riwayat hasil tiap babak berupa deretan ikon, animasi garis melintasi tiga sel pemenang, dan layar juara di akhir dengan tombol Main Lagi yang lebar.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action manipulation, user-select none, dan -webkit-tap-highlight-color transparan. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait. Beri getaran singkat lewat navigator.vibrate saat giliran berpindah, bila didukung."
+        },
+        {
+          t: "Trivia bergiliran", tech: D, diff: 2, or: P,
+          d: "Layar tirai per giliran supaya soal tidak terlihat duluan.",
+          p: "Buatkan game trivia bergiliran untuk 2 sampai 4 pemain yang memakai satu HP bergantian, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet.\n\nMekanik: sebelum mulai, pemain memasukkan 2 sampai 4 nama. Sediakan minimal 40 soal pilihan ganda berbahasa Indonesia yang ditulis di JavaScript, dengan tiga kategori dan dua tingkat kesulitan. Permainan berjalan dalam beberapa ronde; di setiap ronde setiap pemain mendapat giliran menjawab satu soal, dan soal tidak diulang dalam satu permainan.\n\nAlur giliran: sebelum setiap soal, tampilkan layar tirai penuh berisi nama pemain yang mendapat giliran dan tombol Siap berukuran besar di tengah. Ini penting karena HP dioper dari tangan ke tangan; soal baru muncul setelah tombol Siap ditekan, sehingga pemain lain tidak melihat lebih dulu. Beri warna latar khas pemain pada layar tirai agar jelas siapa yang dipanggil.\n\nKontrol sentuh: tap opsi jawaban berupa tombol selebar layar dengan tinggi minimal 56 piksel. Pengisian nama hanya di layar awal, sehingga keyboard HP tidak pernah muncul saat permainan berjalan. Timer 20 detik per soal; habis waktu dihitung salah. Tidak ada kontrol keyboard.\n\nSkor dan aturan: soal mudah bernilai 100 poin dan soal sulit 200 poin, ditambah bonus sisa waktu. Jawaban benar berturut-turut oleh pemain yang sama membangun streak pribadi. Mainkan 5 ronde, lalu tampilkan papan skor akhir berbentuk podium dengan peringkat semua pemain, jumlah benar per pemain, dan tombol main lagi dengan pemain yang sama.\n\nTampilan: warna aksen berbeda per pemain yang konsisten dipakai di layar tirai, badge giliran, dan papan skor.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript, tanpa library eksternal atau CDN. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Cegah zoom dengan touch-action manipulation dan matikan seleksi teks. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi potrait."
+        },
+        {
+          t: "Drawing and guess", tech: C, diff: 3, or: L,
+          d: "Gambar pakai jari di layar lebar, lalu oper HP untuk ditebak.",
+          p: "Buatkan game menggambar dan menebak untuk dua pemain yang memakai satu HP bergantian, dalam satu file HTML tunggal yang siap dibuka langsung di browser HP tanpa server dan tanpa koneksi internet. Rancang dengan HP dimiringkan agar area menggambar lebih lebar.\n\nMekanik: permainan berjalan dalam beberapa ronde bergantian. Di setiap ronde satu pemain menggambar dan satu menebak. Kata rahasia dipilih acak dari daftar yang ditulis di JavaScript dengan tiga tingkat kesulitan, dan hanya ditampilkan kepada penggambar di layar persiapan pribadi.\n\nAlur: mulai dengan layar tirai penuh bertuliskan siapa yang akan menggambar dan permintaan agar pemain lain tidak melihat, lalu layar kata rahasia dengan tombol Mulai Menggambar. Penggambar punya 60 detik. Setelah itu tampilkan layar tirai lagi sebelum HP dioper, lalu penebak melihat gambar dan menebak dengan batas 30 detik dan maksimal tiga percobaan.\n\nKontrol sentuh: menggambar dengan jari langsung di canvas, memakai event touchstart, touchmove, dan touchend dengan preventDefault agar layar tidak ikut tergeser. Gunakan getBoundingClientRect untuk mengubah koordinat sentuh menjadi koordinat canvas dengan benar, dan gambar garis dengan lineJoin dan lineCap round agar goresan jari terlihat halus. Panel alat berupa bar tipis di tepi berisi enam warna, tiga ukuran kuas, penghapus, undo goresan terakhir, dan hapus semua, semuanya sebagai tombol minimal 44 piksel yang tidak memakan area gambar. Untuk menebak, kolom input muncul sebagai bar di tepi bawah dan gambar tetap terlihat penuh di atasnya meski keyboard HP terbuka; gunakan unit dvh dan gulirkan tampilan agar tidak tertutup.\n\nSkor dan aturan: tebakan dicocokkan dengan toleransi huruf besar kecil dan spasi. Tebakan benar memberi poin kepada penebak dan penggambar sekaligus, lebih besar jika benar pada percobaan pertama dan pada kata sulit. Mainkan 6 ronde dengan peran bergantian, lalu tampilkan skor akhir.\n\nTeknis mobile: satu file .html dengan vanilla HTML, CSS, dan JavaScript memakai Canvas 2D, tanpa library eksternal atau CDN. Skalakan canvas mengikuti ukuran layar dan devicePixelRatio agar goresan tidak buram. Sertakan meta viewport width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover. Kunci halaman dengan touch-action none pada canvas dan user-select none. Hormati area notch dengan env(safe-area-inset). Rancang untuk orientasi landscape; jika HP dalam posisi tegak saat menggambar, tampilkan layar ajakan memiringkan HP."
+        }
+      ]
+    }
+  ];
+
+  var DIFF_LABEL = { 1: "Mudah", 2: "Sedang", 3: "Menantang" };
+
+  /* ================= ilustrasi kategori ================= */
+  var kI = "var(--ink)", kA = "var(--accent)", kA2 = "var(--accent-2)",
+      kM = "var(--muted)", kS = "var(--surface)";
+
+  function sR(x, y, w, h, rx, f, o) {
+    return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h +
+      '" rx="' + (rx || 0) + '" fill="' + (f || kI) + '"' + (o ? ' opacity="' + o + '"' : '') + '/>';
+  }
+  function sC(x, y, r, f, o) {
+    return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + (f || kI) + '"' +
+      (o ? ' opacity="' + o + '"' : '') + '/>';
+  }
+  function sCO(x, y, r, s, w, o) {
+    return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="none" stroke="' + (s || kI) +
+      '" stroke-width="' + (w || 1.5) + '"' + (o ? ' opacity="' + o + '"' : '') + '/>';
+  }
+  function sLN(x1, y1, x2, y2, s, w, o) {
+    return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 +
+      '" stroke="' + (s || kI) + '" stroke-width="' + (w || 1.5) + '" stroke-linecap="round"' +
+      (o ? ' opacity="' + o + '"' : '') + '/>';
+  }
+  function sPT(d, s, w, o, dash) {
+    return '<path d="' + d + '" fill="none" stroke="' + (s || kI) + '" stroke-width="' + (w || 1.5) +
+      '" stroke-linecap="round" stroke-linejoin="round"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') +
+      (o ? ' opacity="' + o + '"' : '') + '/>';
+  }
+  function sGR(cols, rows, x, y, cw, ch, gx, gy, f, o) {
+    var s = "", i, j;
+    for (j = 0; j < rows; j++) {
+      for (i = 0; i < cols; i++) {
+        s += sR(x + i * (cw + gx), y + j * (ch + gy), cw, ch, 1.5, f, o);
+      }
+    }
+    return s;
+  }
+
+  function phone(inner, land) {
+    var vb = land ? "0 0 120 68" : "0 0 68 120";
+    var w = land ? 130 : 74, h = land ? 74 : 130;
+    var body = land
+      ? sR(0.9, 0.9, 118.2, 66.2, 9, kS) + sR(5, 5, 110, 58, 5, "var(--surface-2)")
+      : sR(0.9, 0.9, 66.2, 118.2, 9, kS) + sR(5, 5, 58, 110, 5, "var(--surface-2)");
+    var frame = land
+      ? '<rect x="0.9" y="0.9" width="118.2" height="66.2" rx="9" fill="none" stroke="var(--line)" stroke-width="1.8"/>'
+      : '<rect x="0.9" y="0.9" width="66.2" height="118.2" rx="9" fill="none" stroke="var(--line)" stroke-width="1.8"/>';
+    return '<svg viewBox="' + vb + '" width="' + w + '" height="' + h +
+      '" role="img" aria-hidden="true">' + body + inner + frame + '</svg>';
+  }
+
+  /* --- glif kontrol, 40x40 --- */
+  var GLYPH = {
+    swipe4: sC(20, 20, 3.6, kI, .55) +
+      sPT("M20 13.5 L20 6 M16.8 9 L20 5.6 L23.2 9", kA, 1.7) +
+      sPT("M20 26.5 L20 34 M16.8 31 L20 34.4 L23.2 31", kA, 1.7) +
+      sPT("M13.5 20 L6 20 M9 16.8 L5.6 20 L9 23.2", kA, 1.7) +
+      sPT("M26.5 20 L34 20 M31 16.8 L34.4 20 L31 23.2", kA, 1.7),
+    tap: sC(20, 21, 4.2, kA) + sCO(20, 21, 9, kA, 1.6, .5) + sCO(20, 21, 14, kA, 1.3, .22),
+    tapMulti: sC(13, 21, 3.8, kA) + sCO(13, 21, 8, kA, 1.4, .45) +
+      sC(28, 21, 3.8, kA, .75) + sCO(28, 21, 8, kA, 1.4, .3),
+    tapTwice: sC(12, 21, 4, kA, .45) + sCO(12, 21, 8.5, kA, 1.4, .3) +
+      sC(28, 21, 4, kA) + sCO(28, 21, 8.5, kA, 1.6, .6) +
+      sPT("M18 13 L24 13 M22 10.5 L24.6 13 L22 15.5", kI, 1.3, .5),
+    dragH: sC(20, 20, 4.2, kA) + sCO(20, 20, 8.6, kA, 1.4, .35) +
+      sPT("M11 20 L4.6 20 M7.6 17 L4.2 20 L7.6 23", kI, 1.6, .55) +
+      sPT("M29 20 L35.4 20 M32.4 17 L35.8 20 L32.4 23", kI, 1.6, .55),
+    dragFree: sC(10, 28, 4, kA) +
+      sPT("M10 28 Q20 8 32 16", kI, 1.6, .5, "3 3") +
+      sPT("M28.5 14 L32.6 16.3 L30.2 20.2", kI, 1.6, .5),
+    buttons2: sR(1.5, 12.5, 16, 16, 5, kI, .16) +
+      sPT("M12 20.5 L6.5 20.5 M9 18 L6 20.5 L9 23", kI, 1.7, .6) +
+      sR(22.5, 12.5, 16, 16, 5, kA, .45) + sC(30.5, 20.5, 4, kA, .95),
+    pass: sR(4, 8, 13, 24, 3, kI, .3) + sR(23, 8, 13, 24, 3, kA, .6) +
+      sPT("M17 16 Q20 12 23 16", kI, 1.5, .55) +
+      sPT("M21 14 L23.4 15.8 L21.4 18", kI, 1.5, .55)
+  };
+
+  function glyph(name) {
+    return '<svg viewBox="0 0 40 40" width="46" height="46" role="img" aria-hidden="true">' +
+      (GLYPH[name] || "") + '</svg>';
+  }
+
+  /* --- satu layar per kategori --- */
+  var ART = {
+    "Puzzle": {
+      land: false, ctrl: "swipe4", txt: "Swipe empat arah, atau tap dua kali untuk menukar",
+      s: sR(10, 12, 22, 5, 2, kM, .45) + sR(44, 12, 14, 5, 2, kA, .55) +
+         sGR(4, 4, 10, 24, 11, 11, 2, 2, kM, .16) +
+         sR(10, 24, 11, 11, 1.5, kA, .85) + sR(23, 37, 11, 11, 1.5, kA2, .8) +
+         sR(36, 50, 11, 11, 1.5, kI, .45) + sR(49, 63, 11, 11, 1.5, kA, .4) +
+         sR(14, 92, 40, 11, 3, kI, .15)
+    },
+    "Arcade / Casual": {
+      land: false, ctrl: "tap", txt: "Tap di mana saja pada layar, tanpa tombol",
+      s: sR(16, 5, 12, 34, 2, kA2, .65) + sR(16, 58, 12, 45, 2, kA2, .65) +
+         sR(44, 5, 12, 50, 2, kA2, .35) + sR(44, 74, 12, 29, 2, kA2, .35) +
+         sC(24, 48, 4.6, kA) +
+         sR(10, 10, 14, 5, 2, kM, .5) +
+         sR(5, 103, 58, 12, 3, kI, .18)
+    },
+    "Platformer": {
+      land: true, ctrl: "buttons2", txt: "Tombol virtual di dua sisi, mendukung multi-touch",
+      s: sR(5, 52, 110, 11, 3, kI, .18) +
+         sR(24, 38, 20, 4, 2, kI, .32) + sR(56, 28, 20, 4, 2, kI, .32) + sR(86, 40, 18, 4, 2, kI, .32) +
+         sR(14, 44, 7, 8, 1.5, kA) +
+         sLN(104, 24, 104, 40, kI, 1.6, .5) + sR(104, 24, 9, 6, 1, kA, .85) +
+         sCO(14, 51, 6, kI, 1.5, .3) + sCO(29, 51, 6, kI, 1.5, .3) + sCO(103, 51, 7, kA, 1.7, .5)
+    },
+    "Kuis / Trivia": {
+      land: false, ctrl: "tap", txt: "Tap opsi berbentuk tombol selebar layar",
+      s: sR(10, 9, 48, 3, 1.5, kM, .3) + sR(10, 9, 20, 3, 1.5, kA) +
+         sR(12, 18, 44, 16, 3, kI, .13) +
+         sR(10, 44, 48, 11, 3, kI, .12) + sR(10, 58, 48, 11, 3, kA2, .75) +
+         sR(10, 72, 48, 11, 3, kI, .12) + sR(10, 86, 48, 11, 3, kI, .12)
+    },
+    "Kartu": {
+      land: false, ctrl: "tapTwice", txt: "Tap pilih, tap lagi mainkan — tanpa drag sama sekali",
+      s: sR(16, 14, 15, 21, 2, kI, .18) + sR(33, 14, 15, 21, 2, kI, .18) +
+         sR(13, 50, 15, 21, 2, kA2, .7) + sR(29, 50, 15, 21, 2, kA, .75) + sR(45, 50, 15, 21, 2, kI, .28) +
+         sR(9, 92, 23, 13, 3, kI, .16) + sR(36, 92, 23, 13, 3, kA, .7)
+    },
+    "Board Game": {
+      land: false, ctrl: "tap", txt: "Tap kotak, langkah sah selalu ditandai lebih dulu",
+      s: sR(14, 12, 40, 8, 3, kA, .22) +
+         sLN(26.7, 30, 26.7, 74, kI, 1.4, .3) + sLN(41.4, 30, 41.4, 74, kI, 1.4, .3) +
+         sLN(12, 44.7, 56, 44.7, kI, 1.4, .3) + sLN(12, 59.4, 56, 59.4, kI, 1.4, .3) +
+         sLN(16, 34, 23, 41, kA, 2.2) + sLN(23, 34, 16, 41, kA, 2.2) +
+         sCO(34, 52, 4.6, kA2, 2.2) +
+         sC(48, 66, 2.2, kM, .4) +
+         sR(14, 88, 40, 11, 3, kI, .15)
+    },
+    "Word Game": {
+      land: false, ctrl: "tap", txt: "Papan huruf sendiri di layar, bukan keyboard bawaan HP",
+      s: sGR(5, 3, 8, 14, 9, 9, 2, 2, kI, .1) +
+         sR(8, 14, 9, 9, 1.5, kA2, .8) + sR(30, 14, 9, 9, 1.5, kA, .8) +
+         sR(19, 25, 9, 9, 1.5, kA2, .55) +
+         sGR(10, 1, 7, 78, 4.2, 9, 1.3, 0, kI, .16) +
+         sGR(9, 1, 9.7, 89, 4.2, 9, 1.3, 0, kI, .16) +
+         sGR(7, 1, 14, 100, 4.2, 9, 1.3, 0, kI, .16)
+    },
+    "Idle / Clicker": {
+      land: false, ctrl: "tapMulti", txt: "Tap berulang, beberapa jari sekaligus terhitung terpisah",
+      s: sR(18, 10, 32, 6, 3, kI, .22) +
+         sC(34, 42, 19, kA, .8) + sC(34, 42, 11, kA2, .3) +
+         sR(48, 20, 8, 3, 1.5, kA, .6) + sR(19, 25, 6, 3, 1.5, kA, .35) +
+         sR(9, 72, 50, 10, 2, kI, .12) + sR(9, 85, 50, 10, 2, kI, .12) + sR(9, 98, 50, 10, 2, kA, .3)
+    },
+    "Racing (2D top-down)": {
+      land: true, ctrl: "buttons2", txt: "Gas otomatis, cukup dua tombol setir kiri dan kanan",
+      s: sR(30, 5, 60, 58, 0, kI, .1) +
+         sLN(51, 8, 51, 16, kM, 1.6, .5) + sLN(51, 24, 51, 32, kM, 1.6, .5) + sLN(51, 40, 51, 48, kM, 1.6, .5) +
+         sLN(69, 12, 69, 20, kM, 1.6, .5) + sLN(69, 28, 69, 36, kM, 1.6, .5) + sLN(69, 44, 69, 52, kM, 1.6, .5) +
+         sR(34, 16, 15, 13, 2, kA2, .65) + sR(70, 27, 15, 13, 2, kI, .3) +
+         sR(52, 44, 15, 13, 2, kA) +
+         sCO(14, 50, 7, kI, 1.6, .35) + sCO(106, 50, 7, kA, 1.7, .5)
+    },
+    "Shooter": {
+      land: false, ctrl: "dragH", txt: "Geser jari untuk bergerak, tembakan berjalan otomatis",
+      s: sR(10, 9, 16, 4, 2, kM, .5) +
+         sGR(5, 3, 12, 18, 7, 6, 4, 5, kA2, .65) +
+         sR(16, 78, 11, 4, 1, kI, .22) + sR(37, 78, 11, 4, 1, kI, .22) +
+         sR(32, 66, 2.4, 8, 1.2, kA, .9) +
+         sR(28, 92, 12, 8, 2, kA)
+    },
+    "Simulasi Ringan": {
+      land: false, ctrl: "tap", txt: "Empat tombol aksi besar, semua tercapai dalam satu tap",
+      s: sC(34, 32, 14, kA, .8) + sC(29, 30, 1.9, kS) + sC(39, 30, 1.9, kS) +
+         sR(12, 56, 44, 4, 2, kI, .12) + sR(12, 56, 32, 4, 2, kA2, .8) +
+         sR(12, 64, 44, 4, 2, kI, .12) + sR(12, 64, 20, 4, 2, kA2, .8) +
+         sR(12, 72, 44, 4, 2, kI, .12) + sR(12, 72, 38, 4, 2, kA2, .8) +
+         sR(12, 80, 44, 4, 2, kI, .12) + sR(12, 80, 11, 4, 2, kA, .85) +
+         sR(10, 89, 22, 11, 3, kI, .15) + sR(36, 89, 22, 11, 3, kA, .5) +
+         sR(10, 102, 22, 11, 3, kI, .15) + sR(36, 102, 22, 11, 3, kI, .15)
+    },
+    "Edukasi": {
+      land: false, ctrl: "tap", txt: "Tap opsi selebar layar, atau keypad angka buatan sendiri",
+      s: sR(14, 14, 40, 26, 2, kA, .85) + sR(14, 27, 40, 13, 0, kS, .9) +
+         sR(10, 46, 48, 2.5, 1.2, kA, .5) +
+         sR(10, 54, 48, 11, 3, kI, .12) + sR(10, 68, 48, 11, 3, kA2, .7) +
+         sR(10, 82, 48, 11, 3, kI, .12) + sR(10, 96, 48, 11, 3, kI, .12)
+    },
+    "Physics-based": {
+      land: true, ctrl: "dragFree", txt: "Tarik dengan jari lalu lepas, garis prediksi tampil",
+      s: sR(5, 52, 110, 11, 3, kI, .18) +
+         sLN(20, 52, 20, 36, kI, 2.2, .5) + sC(22, 38, 4.4, kA) +
+         sC(32, 31, 1.5, kA, .6) + sC(42, 26, 1.5, kA, .52) + sC(52, 23, 1.5, kA, .46) +
+         sC(62, 23, 1.5, kA, .4) + sC(72, 26, 1.5, kA, .34) + sC(82, 31, 1.5, kA, .28) +
+         sR(86, 38, 6, 14, 1, kA2, .55) + sR(102, 38, 6, 14, 1, kA2, .55) +
+         sR(86, 32, 22, 5, 1, kA2, .75) + sC(97, 28, 4, kI, .45)
+    },
+    "Multiplayer Hotseat": {
+      land: false, ctrl: "pass", txt: "HP dioper bergantian, layar tirai menutup soal berikutnya",
+      s: sR(5, 5, 58, 110, 5, kA2, .16) +
+         sR(20, 32, 28, 5, 2, kM, .45) +
+         sR(14, 44, 40, 11, 3, kA2, .8) +
+         sR(16, 72, 36, 14, 4, kA, .85)
+    }
+  };
+
+  function banner(catName) {
+    var a = ART[catName];
+    if (!a) return null;
+    var el = document.createElement("div");
+    el.className = "banner";
+
+    var ph = document.createElement("div");
+    ph.className = "banner-phone";
+    ph.innerHTML = phone(a.s, a.land);
+
+    var dv = document.createElement("div");
+    dv.className = "banner-div";
+
+    var ct = document.createElement("div");
+    ct.className = "banner-ctrl";
+    ct.innerHTML = glyph(a.ctrl) +
+      '<span class="ctrl-txt"><span class="ctrl-k">Kontrol khas kategori ini</span>' +
+      '<span class="ctrl-v"></span>' +
+      '<span class="ctrl-o"></span></span>';
+    ct.querySelector(".ctrl-v").textContent = a.txt;
+    ct.querySelector(".ctrl-o").textContent = a.land
+      ? "Layar dimiringkan — landscape"
+      : "Layar tegak — potrait";
+
+    el.appendChild(ph);
+    el.appendChild(dv);
+    el.appendChild(ct);
+    return el;
+  }
+
+  var listEl = document.getElementById("list");
+  var pillsEl = document.getElementById("pills");
+  var countEl = document.getElementById("count");
+  var qEl = document.getElementById("q");
+
+  var activeCat = "Semua";
+  var query = "";
+
+  var n = 0;
+  DATA.forEach(function (c) {
+    c.games.forEach(function (g) { n += 1; g.idx = n; });
+  });
+  var TOTAL = n;
+
+  function buildPills() {
+    var cats = ["Semua"].concat(DATA.map(function (c) { return c.cat; }));
+    cats.forEach(function (name) {
+      var b = document.createElement("button");
+      b.className = "pill";
+      b.type = "button";
+      b.textContent = name;
+      b.setAttribute("aria-pressed", name === activeCat ? "true" : "false");
+      b.addEventListener("click", function () {
+        activeCat = name;
+        Array.prototype.forEach.call(pillsEl.children, function (el) {
+          el.setAttribute("aria-pressed", el.textContent === activeCat ? "true" : "false");
+        });
+        render();
+      });
+      pillsEl.appendChild(b);
+    });
+  }
+
+  function copyText(text, btn) {
+    function done() {
+      var old = btn.textContent;
+      btn.textContent = "Tersalin";
+      btn.setAttribute("data-done", "1");
+      setTimeout(function () {
+        btn.textContent = old;
+        btn.removeAttribute("data-done");
+      }, 1600);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); });
+    } else {
+      fallback(text, done);
+    }
+  }
+
+  function fallback(text, cb) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); cb(); } catch (e) { /* ignore */ }
+    document.body.removeChild(ta);
+  }
+
+  function makeCard(g, cat) {
+    var card = document.createElement("article");
+    card.className = "card";
+
+    var top = document.createElement("div");
+    top.className = "card-top";
+
+    var idx = document.createElement("div");
+    idx.className = "idx";
+    idx.textContent = String(g.idx).padStart(2, "0");
+
+    var body = document.createElement("div");
+    body.className = "card-body";
+
+    var h = document.createElement("h3");
+    h.className = "card-title";
+    var tSpan = document.createElement("span");
+    tSpan.textContent = g.t;
+    h.appendChild(tSpan);
+    if (g.isNew) {
+      var nt = document.createElement("span");
+      nt.className = "newtag";
+      nt.textContent = "Pengganti";
+      h.appendChild(nt);
+    }
+
+    var chips = document.createElement("div");
+    chips.className = "chips";
+
+    var c0 = document.createElement("span");
+    c0.className = "chip o";
+    c0.textContent = g.or;
+
+    var c1 = document.createElement("span");
+    c1.className = "chip t";
+    c1.textContent = g.tech;
+
+    var c2 = document.createElement("span");
+    c2.className = "chip d" + g.diff;
+    c2.textContent = DIFF_LABEL[g.diff];
+
+    var c3 = document.createElement("span");
+    c3.className = "chip";
+    c3.textContent = cat;
+
+    chips.appendChild(c0); chips.appendChild(c1); chips.appendChild(c2); chips.appendChild(c3);
+
+    var desc = document.createElement("p");
+    desc.className = "card-desc";
+    desc.textContent = g.d;
+
+    body.appendChild(h);
+    body.appendChild(chips);
+    body.appendChild(desc);
+
+    top.appendChild(idx);
+    top.appendChild(body);
+
+    var pw = document.createElement("div");
+    pw.className = "prompt-wrap";
+
+    var bar = document.createElement("div");
+    bar.className = "prompt-bar";
+
+    var lab = document.createElement("span");
+    lab.className = "prompt-label";
+    lab.textContent = "Prompt";
+
+    var btns = document.createElement("div");
+    btns.className = "btns";
+
+    var expand = document.createElement("button");
+    expand.className = "btn";
+    expand.type = "button";
+    expand.textContent = "Lihat penuh";
+
+    var copy = document.createElement("button");
+    copy.className = "btn copy";
+    copy.type = "button";
+    copy.textContent = "Salin";
+
+    btns.appendChild(expand);
+    btns.appendChild(copy);
+    bar.appendChild(lab);
+    bar.appendChild(btns);
+
+    var pre = document.createElement("pre");
+    pre.className = "prompt";
+    pre.textContent = g.p;
+
+    var fade = document.createElement("span");
+    fade.className = "fade";
+    pre.appendChild(fade);
+
+    expand.addEventListener("click", function () {
+      var open = pre.classList.toggle("open");
+      expand.textContent = open ? "Ringkas" : "Lihat penuh";
+    });
+    copy.addEventListener("click", function () { copyText(g.p, copy); });
+
+    pw.appendChild(bar);
+    pw.appendChild(pre);
+
+    card.appendChild(top);
+    card.appendChild(pw);
+    return card;
+  }
+
+  function matches(g, cat) {
+    if (activeCat !== "Semua" && cat !== activeCat) return false;
+    if (!query) return true;
+    var hay = (g.t + " " + g.d + " " + cat + " " + g.tech + " " + g.or).toLowerCase();
+    return hay.indexOf(query) !== -1;
+  }
+
+  function render() {
+    listEl.textContent = "";
+    var shown = 0;
+    var catNo = 0;
+
+    DATA.forEach(function (c) {
+      var visible = c.games.filter(function (g) { return matches(g, c.cat); });
+      catNo += 1;
+      if (!visible.length) return;
+
+      var sec = document.createElement("section");
+      sec.className = "cat";
+
+      var head = document.createElement("div");
+      head.className = "cat-head";
+
+      var num = document.createElement("span");
+      num.className = "cat-n";
+      num.textContent = String(catNo).padStart(2, "0");
+
+      var name = document.createElement("h2");
+      name.className = "cat-name";
+      name.textContent = c.cat;
+
+      head.appendChild(num);
+      head.appendChild(name);
+
+      var note = document.createElement("p");
+      note.className = "cat-note";
+      note.textContent = c.note;
+
+      var cards = document.createElement("div");
+      cards.className = "cards";
+      visible.forEach(function (g) {
+        cards.appendChild(makeCard(g, c.cat));
+        shown += 1;
+      });
+
+      sec.appendChild(head);
+      sec.appendChild(note);
+      var bn = banner(c.cat);
+      if (bn) sec.appendChild(bn);
+      sec.appendChild(cards);
+      listEl.appendChild(sec);
+    });
+
+    if (!shown) {
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "Tidak ada prompt yang cocok. Coba kata kunci lain.";
+      listEl.appendChild(e);
+    }
+
+    countEl.textContent = shown + " / " + TOTAL + " prompt";
+  }
+
+  qEl.addEventListener("input", function () {
+    query = qEl.value.trim().toLowerCase();
+    render();
+  });
+
+  buildPills();
+  render();
+})();
+</script>
+
+</body></html>
