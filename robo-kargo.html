@@ -33,6 +33,50 @@ body{margin:0;color:var(--ink);font-family:Karla,system-ui,sans-serif;font-size:
 .iconbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .iconbtn.off{color:var(--ink-2)}
 .hide{display:none!important}
+
+/* selalu mendatar: di perangkat sentuh yang dipegang tegak, tampilan diputar 90 derajat */
+#app{min-height:100dvh}
+body.fit #app{height:100dvh}
+@media (orientation:portrait) and (pointer:coarse){
+  html,body{overflow:hidden;height:100%;position:fixed;inset:0;width:100%}
+  #app,body.fit #app{position:fixed;top:0;left:0;min-height:0!important;width:100vh!important;height:100vw!important;
+       transform-origin:top left;transform:rotate(90deg) translate(0,-100%);overflow:hidden}
+  @supports (height:100dvw){#app,body.fit #app{width:100dvh!important;height:100dvw!important}}
+}
+/* papan ketik di layar */
+.kbd{display:flex;flex-direction:column;gap:5px;padding:0 10px 10px;user-select:none}
+.kbdrow{display:flex;gap:5px}
+.key{flex:1 1 0;min-width:0;padding:9px 2px;border-radius:7px;background:var(--surface-2);border:1px solid var(--line);
+     color:var(--ink);font-family:"IBM Plex Mono",monospace;font-size:13px;line-height:1;text-align:center;transition:background .12s,transform .08s}
+.key:hover{background:var(--accent-soft);border-color:var(--accent)}
+.key:active{transform:translateY(1px);background:var(--accent-soft)}
+.key.wide{flex:3 1 0}
+.key.util{font-size:11px;letter-spacing:.04em;color:var(--ink-2)}
+.key.act{background:var(--accent-soft);color:var(--accent);font-weight:600}
+body.fit .key{padding:7px 2px;font-size:12px}
+body.short .wrap{padding:8px 10px;gap:8px}
+body.short .tag,body.short .streak,body.short .refs,body.short .warnline,body.short .sendcol small{display:none}
+body.short h1{font-size:17px}
+body.short .mark{width:30px;height:30px}
+body.short .mark svg{width:18px;height:18px}
+body.short .boardwrap{padding:9px}
+body.short .missionbar{margin-bottom:5px}
+body.short .mission-name{font-size:13.5px}
+body.short .tag-chip{font-size:9.5px;padding:2px 6px}
+body.short .readout{font-size:10px;margin-top:5px;min-height:14px}
+body.short .batt{margin-top:5px}
+body.short .pip{height:10px}
+body.short .batt-label{font-size:9.5px}
+body.short .batt-num{font-size:12px;min-width:48px}
+body.short .log{min-height:44px;padding:9px;gap:6px}
+body.short .msg{font-size:12.5px;padding:6px 9px}
+body.short textarea{min-height:42px;font-size:13px;padding:7px 10px}
+body.short .composer{padding:8px;gap:6px}
+body.short .kbd{padding:0 8px 8px;gap:4px}
+body.short .kbdrow{gap:4px}
+body.short .key{padding:6px 1px;font-size:11px;border-radius:6px}
+body.short .sendcol button{padding:7px 14px;font-size:13px}
+body.short .seg button{padding:5px 10px;font-size:12px}
 .wrap{max-width:1080px;margin:0 auto;padding:18px 16px 40px;display:flex;flex-direction:column;gap:14px}
 header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:11px}
@@ -57,6 +101,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 .stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
 @media (max-width:900px){.stage{grid-template-columns:1fr}}
+body.fit .stage{grid-template-columns:minmax(0,1fr) minmax(250px,330px)}
 .rail{display:flex;flex-direction:column;gap:14px;min-width:0}
 .refs{display:flex;flex-direction:column;gap:14px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
@@ -145,7 +190,7 @@ textarea:disabled{opacity:.5}
 
 .overlay{position:fixed;inset:0;background:color-mix(in srgb,#1B2A4E 42%,transparent);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px;z-index:20;animation:fadein .18s both}
 .overlay[hidden]{display:none}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;max-width:430px;width:100%;box-shadow:0 24px 60px -22px rgba(27,42,78,.45);animation:cardin .3s cubic-bezier(.2,.9,.3,1) both}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;max-width:430px;width:100%;max-height:100%;overflow-y:auto;box-shadow:0 24px 60px -22px rgba(27,42,78,.45);animation:cardin .3s cubic-bezier(.2,.9,.3,1) both}
 @keyframes cardin{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.overlay,.card{animation:none}}
 .verdict{font-family:Archivo,sans-serif;font-weight:800;font-size:34px;letter-spacing:-.02em;line-height:1;margin:0 0 6px}
@@ -158,7 +203,7 @@ footer{text-align:center;color:var(--ink-2);font-size:12.5px}
 
 /* layar mendatar: seluruh permainan muat dalam satu layar tanpa gulir */
 body.fit{overflow:hidden}
-body.fit .wrap{height:100dvh;padding:13px 16px 11px;gap:10px}
+body.fit .wrap{height:100%;padding:13px 16px 11px;gap:10px}
 body.fit header{flex-wrap:nowrap}
 body.fit .stage{flex:1;min-height:0;align-items:stretch;gap:12px}
 body.fit .boardwrap{display:flex;flex-direction:column;min-height:0;height:100%}
@@ -183,8 +228,26 @@ body.fit footer{display:none}
   body.fit .log{min-height:110px}
   body.fit .warnline{display:none}
 }
+
+/* penyesuaian akhir untuk layar mendatar pendek (HP) - ditaruh terakhir agar menang */
+body.short .log{min-height:36px!important;height:auto!important}
+body.short .refs{display:none!important}
+body.short .warnline,body.short .sendcol small{display:none!important}
+body.short .kbd{gap:3px;padding:0 7px 7px}
+body.short .kbdrow{gap:3px}
+body.short .key{padding:5px 1px;font-size:10.5px;border-radius:5px}
+body.short textarea{min-height:36px}
+body.short .composer{padding:7px;gap:5px}
+body.short .sendcol button{padding:6px 12px;font-size:12.5px}
+body.short .chat{flex:1 1 auto;min-height:0}
+body.short .card{padding:15px 16px;border-radius:14px}
+body.short .card h3{font-size:16px}
+body.short .card p,body.short .card .dict{font-size:12.5px}
+body.short .verdict{font-size:26px}
+body.short .overlay{padding:10px}
 </style>
 
+<div id="app">
 <div class="wrap">
   <header>
     <div class="brand">
@@ -201,6 +264,9 @@ body.fit footer{display:none}
         <button data-d="sulit">Sulit</button>
       </div>
       <span class="streak" id="streak">beruntun <b>0</b> · terbaik 0</span>
+      <button class="btn-sm iconbtn" id="btnHelp" aria-label="Kamus perintah" title="Kamus perintah">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.2 2.9c-.5.2-.8.7-.8 1.3v.4"/><path d="M12 17.2h.01"/></svg>
+      </button>
       <button class="btn-sm iconbtn" id="btnSound" aria-label="Matikan atau nyalakan suara" title="Suara">
         <svg id="icSoundOn" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
         <svg id="icSoundOff" viewBox="0 0 24 24" class="hide"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4 5M21 9.5l-4 5"/></svg>
@@ -267,6 +333,7 @@ body.fit footer{display:none}
         <button type="submit" class="btn-primary" id="send">Kirim &amp; jalankan</button>
       </div>
     </form>
+    <div class="kbd" id="kbd"></div>
     <p class="warnline">Periksa lagi arah hadap ROBO dan jumlah petaknya. <b>Perintah yang sudah dikirim tidak bisa ditarik.</b></p>
      </div>
     </div>
@@ -282,6 +349,23 @@ body.fit footer{display:none}
     <div class="note" id="oNote"></div>
     <button class="btn-primary" id="oNext" style="width:100%">Peta baru</button>
   </div>
+</div>
+<div class="overlay" id="help" hidden>
+  <div class="card">
+    <h3 style="font-family:Archivo,sans-serif;font-size:19px;margin:0 0 4px">Kamus perintah</h3>
+    <p style="margin:0 0 14px">Semua perintah yang dimengerti ROBO, beserta biaya baterainya.</p>
+    <ul class="dict">
+      <li><code>maju 3</code><span class="cost">3 baterai</span><span>3 petak ke arah hadap</span></li>
+      <li><code>mundur 2</code><span class="cost">2 baterai</span><span>tanpa berputar</span></li>
+      <li><code>belok kanan</code> / <code>belok kiri</code><span class="cost">1 baterai</span></li>
+      <li><code>putar balik</code><span class="cost">2 baterai</span></li>
+      <li><code>hadap utara</code><span class="cost">1&ndash;2</span><span>juga: selatan, timur, barat</span></li>
+      <li><code>ambil</code> / <code>taruh</code><span class="cost">gratis</span></li>
+    </ul>
+    <p class="rulebox" style="margin:12px 0 16px">Pisahkan langkah dengan <b>lalu</b> atau koma. Contoh: <code style="font-family:'IBM Plex Mono',monospace;font-size:12px">maju 3 lalu belok kanan, maju 2, ambil</code>. Kamu hanya boleh mengirim <b>satu pesan</b> tiap peta.</p>
+    <button class="btn-primary" id="helpClose" style="width:100%">Tutup</button>
+  </div>
+</div>
 </div>
 
 <script>
@@ -301,7 +385,9 @@ const els={cells:$("cells"),board:$("board"),log:$("log"),input:$("input"),form:
  mName:$("mName"),mChips:$("mChips"),mPill:$("mPill"),axisX:$("axisX"),axisY:$("axisY"),
  pips:$("pips"),battNum:$("battNum"),streak:$("streak"),hoverCoord:$("hoverCoord"),roboAt:$("roboAt"),
  gridframe:document.querySelector(".gridframe")};
-const FIT=window.matchMedia("(min-width:940px) and (min-height:430px)");
+const ROT=window.matchMedia("(orientation:portrait) and (pointer:coarse)");
+const COARSE=window.matchMedia("(pointer:coarse)");
+function effSize(){const r=ROT.matches;return{w:r?window.innerHeight:window.innerWidth,h:r?window.innerWidth:window.innerHeight};}
 function fitBoard(){
  const gf=els.gridframe;if(!S||!gf)return;
  if(!document.body.classList.contains("fit")){
@@ -316,10 +402,16 @@ function fitBoard(){
  gf.style.gridTemplateColumns=`22px ${cell*S.W}px`;
  gf.style.gridTemplateRows=`18px ${cell*S.H}px`;
 }
-function applyFit(){document.body.classList.toggle("fit",FIT.matches);fitBoard();}
-FIT.addEventListener("change",applyFit);
+function applyFit(){
+ const e=effSize();
+ document.body.classList.toggle("fit",e.w>=660&&e.h>=320);
+ document.body.classList.toggle("short",e.h<560);
+ fitBoard();
+}
+ROT.addEventListener("change",()=>setTimeout(applyFit,120));
+window.addEventListener("orientationchange",()=>setTimeout(applyFit,180));
 let rafId=0;
-window.addEventListener("resize",()=>{cancelAnimationFrame(rafId);rafId=requestAnimationFrame(fitBoard);});
+window.addEventListener("resize",()=>{cancelAnimationFrame(rafId);rafId=requestAnimationFrame(applyFit);});
 
 /* ---------- tema & efek suara ---------- */
 let theme="light",sfxOn=true,actx=null;
@@ -656,8 +748,62 @@ els.cells.addEventListener("mouseleave",()=>{
 });
 $("btnTheme").onclick=()=>{theme=theme==="dark"?"light":"dark";applyTheme();sfx("send");};
 $("btnSound").onclick=()=>{sfxOn=!sfxOn;applySfx();if(sfxOn)sfx("take");};
+$("btnHelp").onclick=()=>{$("help").hidden=false;};
+$("helpClose").onclick=()=>{$("help").hidden=true;};
+$("help").addEventListener("click",e=>{if(e.target.id==="help")$("help").hidden=true;});
 $("btnNew").onclick=()=>{$("overlay").hidden=true;newMap();};
 $("oNext").onclick=()=>{$("overlay").hidden=true;newMap();};
+
+/* ---------- papan ketik di layar (tanpa keyboard perangkat) ---------- */
+const KEYROWS=[
+ ["1","2","3","4","5","6","7","8","9","0"],
+ ["q","w","e","r","t","y","u","i","o","p"],
+ ["a","s","d","f","g","h","j","k","l",","],
+ ["z","x","c","v","b","n","m"]
+];
+function ins(t){
+ if(sent||busy)return;
+ const el=els.input,a=el.selectionStart,b=el.selectionEnd;
+ const st=(a==null?el.value.length:a),en=(b==null?st:b);
+ el.value=el.value.slice(0,st)+t+el.value.slice(en);
+ const p=st+t.length;
+ try{el.setSelectionRange(p,p);}catch(e){}
+ el.focus({preventScroll:true});
+ if(sfxOn)beep(700+Math.random()*80,.035,"square",.045);
+}
+function delChar(){
+ if(sent||busy)return;
+ const el=els.input,a=el.selectionStart,b=el.selectionEnd;
+ const st=(a==null?el.value.length:a),en=(b==null?st:b);
+ if(en>st)el.value=el.value.slice(0,st)+el.value.slice(en);
+ else if(st>0){el.value=el.value.slice(0,st-1)+el.value.slice(st);}
+ const p=Math.max(0,en>st?st:st-1);
+ try{el.setSelectionRange(p,p);}catch(e){}
+ el.focus({preventScroll:true});
+ if(sfxOn)beep(320,.05,"square",.05);
+}
+function buildKbd(){
+ const box=$("kbd");box.innerHTML="";
+ KEYROWS.forEach(row=>{
+  const r=document.createElement("div");r.className="kbdrow";
+  row.forEach(k=>{
+   const b=document.createElement("button");
+   b.type="button";b.className="key";b.textContent=k;
+   b.addEventListener("click",()=>ins(k));
+   r.appendChild(b);
+  });
+  box.appendChild(r);
+ });
+ const r=document.createElement("div");r.className="kbdrow";
+ const mk=(label,cls,fn)=>{const b=document.createElement("button");b.type="button";b.className="key "+cls;b.textContent=label;b.addEventListener("click",fn);return b;};
+ r.appendChild(mk("bersih","util",()=>{if(sent||busy)return;els.input.value="";els.input.focus({preventScroll:true});}));
+ r.appendChild(mk("spasi","wide",()=>ins(" ")));
+ r.appendChild(mk("hapus","util",delChar));
+ box.appendChild(r);
+ if(COARSE.matches){els.input.setAttribute("readonly","readonly");els.input.setAttribute("inputmode","none");}
+}
+buildKbd();
+
 applyTheme();applySfx();applyFit();updStreak();newMap();
 })();
 </script>
