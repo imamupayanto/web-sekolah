@@ -1,3 +1,13 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme:light)">
+<meta name="theme-color" content="#182034" media="(prefers-color-scheme:dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Robo Kargo — satu perintah, satu kesempatan.">
 <title>Robo Kargo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -205,10 +215,16 @@ body.dock-mode .sheethead{display:none}
 body.dock-mode #btnWrite{display:none}
 body.dock-mode .dock{box-shadow:none;padding-bottom:0;border-bottom:1px solid var(--line)}
 body.dock-mode .sheetbody{padding-top:9px}
-body.dock-mode textarea{height:clamp(54px,8dvh,78px)}
-body.dock-mode .dock{gap:6px;padding:7px 10px 0}
-body.dock-mode .logline{padding:6px 10px;font-size:12.5px}
-body.dock-mode .pip{height:11px}
+body.dock-mode textarea{height:clamp(48px,7dvh,74px)}
+body.dock-mode .dock{gap:5px;padding:6px 10px 0}
+body.dock-mode .logline{padding:5px 9px;font-size:12px}
+body.dock-mode .pip{height:9px}
+body.dock-mode .batt-label{font-size:9.5px}
+body.dock-mode .batt-num{font-size:12px;min-width:48px}
+body.dock-mode .readout{font-size:11.5px;margin-top:6px;min-height:16px}
+body.dock-mode .metabar{padding-top:5px;padding-bottom:5px}
+body.dock-mode .sheetbody{gap:8px}
+body.dock-mode .boardwrap{padding:8px}
 body.dock-mode .play{flex:0 1 auto;overflow:hidden}
 body.dock-mode .boardwrap{flex:0 1 auto}
 body.dock-mode .gridframe{flex:0 1 auto}
@@ -260,7 +276,8 @@ body.dock-mode .kbdrow.num{flex:.85 1 0;max-height:46px}
   #app{visibility:hidden}
 }
 </style>
-
+</head>
+<body>
 <div id="app">
   <header class="topbar">
     <div class="mark"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01M9.5 17.5h5"/></svg></div>
@@ -382,6 +399,13 @@ body.dock-mode .kbdrow.num{flex:.85 1 0;max-height:46px}
 <script>
 (function(){
 "use strict";
+/* Kalau berkas ini di-host sendiri tanpa <head> lengkap, browser HP akan menganggap
+   halaman selebar 980px lalu mengecilkannya. Pasang meta viewport bila belum ada. */
+if(!document.querySelector('meta[name="viewport"]')){
+ const m=document.createElement("meta");
+ m.name="viewport";m.content="width=device-width,initial-scale=1,viewport-fit=cover";
+ (document.head||document.documentElement).appendChild(m);
+}
 const DIRS=[{n:"utara",dx:0,dy:-1},{n:"timur",dx:1,dy:0},{n:"selatan",dx:0,dy:1},{n:"barat",dx:-1,dy:0}];
 const DIFF={
  mudah:{W:7,H:5,dens:.12,packs:0,slack:3,band:[5,13],label:"MUDAH"},
@@ -436,7 +460,7 @@ function chooseMode(){
   if(rowH()>=34){ok=true;break;}
   cell--;
  }
- if(ok){closeSheet();return;}
+ if(ok&&cell>=freeCell*.72){closeSheet();return;}
  body.classList.remove("dock-mode");fitBoard();
 }
 let rafId=0;
@@ -951,3 +975,6 @@ applyTheme();applySfx();updStreak();newMap();
 setTimeout(chooseMode,60);
 })();
 </script>
+
+</body>
+</html>
