@@ -3,46 +3,54 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <style>
+/* Tema terang adalah bawaan; tema gelap dipilih lewat tombol di header. */
 :root{
-  --bg:#EDF0F6; --surface:#FFFFFF; --surface-2:#E3E8F1; --ink:#161A22; --ink-2:#5A6373;
-  --line:#CCD4E2; --accent:#2F53E0; --accent-soft:#DEE4FD; --amber:#C9820F; --amber-soft:#F7E6C4;
-  --moss:#2C7A54; --clay:#BC4B36; --grid-a:#E9EDF5; --grid-b:#E1E7F1; --wall:#98A5BC;
-  --shadow:0 1px 2px rgba(22,26,34,.06),0 8px 24px -12px rgba(22,26,34,.25);
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#11141B; --surface:#191D26; --surface-2:#222836; --ink:#EDF1F8; --ink-2:#98A2B4;
-    --line:#2C3444; --accent:#8AA0FF; --accent-soft:#232C48; --amber:#E5AE5C; --amber-soft:#3A2F1C;
-    --moss:#5DBB8A; --clay:#E58469; --grid-a:#1A1F29; --grid-b:#1E2431; --wall:#39435A;
-    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
-  }
+  color-scheme:light;
+  --bg:#F3F7FF; --bg-2:#E8F0FF; --surface:#FFFFFF; --surface-2:#EAF1FF;
+  --ink:#141D33; --ink-2:#5C6B8A; --line:#D3DEF6;
+  --accent:#2657F0; --accent-soft:#DDE7FF; --amber:#D98200; --amber-soft:#FFEFD1;
+  --moss:#12945C; --clay:#D9402F; --grid-a:#FAFCFF; --grid-b:#EFF4FF; --wall:#AABDE2;
+  --glow-a:#FFFFFF; --glow-b:#E4EDFF; --on-accent:#FFFFFF;
+  --shadow:0 1px 2px rgba(20,29,51,.05),0 10px 26px -14px rgba(38,87,240,.32);
 }
 :root[data-theme="dark"]{
-  --bg:#11141B; --surface:#191D26; --surface-2:#222836; --ink:#EDF1F8; --ink-2:#98A2B4;
-  --line:#2C3444; --accent:#8AA0FF; --accent-soft:#232C48; --amber:#E5AE5C; --amber-soft:#3A2F1C;
-  --moss:#5DBB8A; --clay:#E58469; --grid-a:#1A1F29; --grid-b:#1E2431; --wall:#39435A;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
+  color-scheme:dark;
+  --bg:#0E1424; --bg-2:#131A2E; --surface:#182034; --surface-2:#212B44;
+  --ink:#EAF0FF; --ink-2:#93A2C4; --line:#2C3852;
+  --accent:#7C9BFF; --accent-soft:#233156; --amber:#F0B45C; --amber-soft:#3D2F17;
+  --moss:#4FCB92; --clay:#F0796A; --grid-a:#151D2F; --grid-b:#1A2337; --wall:#3B4867;
+  --glow-a:#1E2942; --glow-b:#16203A; --on-accent:#101A2E;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 12px 30px -16px rgba(0,0,0,.75);
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Karla,system-ui,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body{margin:0;color:var(--ink);font-family:Karla,system-ui,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  background:var(--bg);
+  background-image:radial-gradient(1200px 620px at 12% -10%,var(--glow-a) 0%,transparent 60%),
+                   radial-gradient(900px 520px at 105% 0%,var(--glow-b) 0%,transparent 55%),
+                   linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);
+  background-attachment:fixed;transition:background-color .25s,color .25s}
+.iconbtn{display:grid;place-items:center;width:34px;height:34px;padding:0;border-radius:9px}
+.iconbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.iconbtn.off{color:var(--ink-2)}
+.hide{display:none!important}
 .wrap{max-width:1080px;margin:0 auto;padding:18px 16px 40px;display:flex;flex-direction:column;gap:14px}
 header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:11px}
-.mark{width:38px;height:38px;border-radius:10px;background:var(--accent);display:grid;place-items:center;flex:none}
-.mark svg{width:22px;height:22px}
+.mark{width:38px;height:38px;border-radius:10px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none}
+.mark svg{width:22px;height:22px;stroke:var(--on-accent)}
 h1{font-family:Archivo,system-ui,sans-serif;font-weight:800;font-size:23px;letter-spacing:-.02em;margin:0;line-height:1.1}
 .tag{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);margin:0}
 .hdr-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .seg{display:flex;background:var(--surface-2);border-radius:99px;padding:3px}
 .seg button{border:none;background:transparent;border-radius:99px;padding:6px 13px;font-size:13px;color:var(--ink-2);font-weight:600}
-.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(38,87,240,.18)}
 .streak{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.05em;color:var(--ink-2);background:var(--surface-2);padding:7px 11px;border-radius:99px;white-space:nowrap}
 .streak b{color:var(--moss);font-size:13px}
 button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 13px;transition:background .15s,border-color .15s,transform .1s}
 button:hover{border-color:var(--accent)}
 button:active{transform:translateY(1px)}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
 .btn-primary:hover{filter:brightness(1.08);border-color:var(--accent)}
 .btn-primary:disabled,button:disabled{opacity:.45;cursor:not-allowed;filter:none}
 .btn-sm{padding:6px 11px;font-size:13px}
@@ -63,7 +71,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .axis-y{grid-row:2;display:grid}
 .axis-x div,.axis-y div{display:grid;place-items:center;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-2)}
 .board{grid-column:2;grid-row:2;position:relative;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--grid-a);
-  box-shadow:inset 0 2px 14px -6px rgba(0,0,0,.28)}
+  box-shadow:inset 0 1px 10px -6px rgba(38,87,240,.22)}
 .cells{position:absolute;inset:0;display:grid}
 .cell{border-right:1px solid color-mix(in srgb,var(--line) 45%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 45%,transparent);position:relative;animation:pop .32s both}
 @keyframes pop{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:scale(1)}}
@@ -82,13 +90,13 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .trail::after{content:"";width:20%;height:20%;border-radius:99px;background:color-mix(in srgb,var(--accent) 38%,transparent);animation:fadein .3s both}
 @keyframes fadein{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
 .pack{position:absolute;display:grid;place-items:center;transition:opacity .35s,transform .35s;z-index:2;pointer-events:none}
-.pack svg{width:58%;height:58%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+.pack svg{width:58%;height:58%;filter:drop-shadow(0 2px 3px rgba(217,130,0,.35))}
 .pack.gone{opacity:0;transform:scale(.4)}
 .robot{position:absolute;display:grid;place-items:center;pointer-events:none;transition:left .42s cubic-bezier(.45,.05,.25,1),top .42s cubic-bezier(.45,.05,.25,1),transform .42s cubic-bezier(.45,.05,.25,1);z-index:3}
-.robot svg{width:78%;height:78%;filter:drop-shadow(0 3px 5px rgba(0,0,0,.3))}
+.robot svg{width:78%;height:78%;filter:drop-shadow(0 3px 5px rgba(38,87,240,.3))}
 .robot.bump{animation:bump .45s}
 @keyframes bump{0%,100%{scale:1}35%{scale:.82}60%{scale:1.06}}
-.carry{position:absolute;top:0;right:0;width:30%;height:30%;background:var(--amber);border-radius:3px;border:2px solid var(--surface);display:none;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.carry{position:absolute;top:0;right:0;width:30%;height:30%;background:var(--amber);border-radius:3px;border:2px solid var(--surface);display:none;box-shadow:0 1px 3px rgba(217,130,0,.45)}
 .robot.carrying .carry{display:block}
 @media (prefers-reduced-motion:reduce){.robot{transition:none}.robot.bump,.cell,.cell.front::before{animation:none}}
 
@@ -120,7 +128,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .chat{display:flex;flex-direction:column;overflow:hidden}
 .log{height:200px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth}
 .msg{max-width:84%;padding:8px 12px;border-radius:12px;font-size:14px;white-space:pre-wrap}
-.msg.me{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:4px;font-family:"IBM Plex Mono",monospace;font-size:13px}
 .msg.bot{align-self:flex-start;background:var(--surface-2);border-bottom-left-radius:4px}
 .msg.bot.err{background:color-mix(in srgb,var(--clay) 15%,transparent);color:var(--clay);font-weight:500}
 .msg.bot.ok{background:color-mix(in srgb,var(--moss) 16%,transparent);color:var(--moss);font-weight:500}
@@ -135,9 +143,9 @@ textarea:disabled{opacity:.5}
 .warnline{padding:0 12px 11px;font-size:12.5px;color:var(--ink-2)}
 .warnline b{color:var(--clay)}
 
-.overlay{position:fixed;inset:0;background:color-mix(in srgb,var(--ink) 58%,transparent);backdrop-filter:blur(3px);display:grid;place-items:center;padding:20px;z-index:20;animation:fadein .18s both}
+.overlay{position:fixed;inset:0;background:color-mix(in srgb,#1B2A4E 42%,transparent);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px;z-index:20;animation:fadein .18s both}
 .overlay[hidden]{display:none}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;max-width:430px;width:100%;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);animation:cardin .3s cubic-bezier(.2,.9,.3,1) both}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;max-width:430px;width:100%;box-shadow:0 24px 60px -22px rgba(27,42,78,.45);animation:cardin .3s cubic-bezier(.2,.9,.3,1) both}
 @keyframes cardin{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.overlay,.card{animation:none}}
 .verdict{font-family:Archivo,sans-serif;font-weight:800;font-size:34px;letter-spacing:-.02em;line-height:1;margin:0 0 6px}
@@ -180,7 +188,7 @@ body.fit footer{display:none}
 <div class="wrap">
   <header>
     <div class="brand">
-      <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01M9.5 17.5h5"/></svg></div>
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01M9.5 17.5h5"/></svg></div>
       <div>
         <h1>Robo Kargo</h1>
         <p class="tag">Satu perintah. Satu kesempatan.</p>
@@ -193,6 +201,14 @@ body.fit footer{display:none}
         <button data-d="sulit">Sulit</button>
       </div>
       <span class="streak" id="streak">beruntun <b>0</b> · terbaik 0</span>
+      <button class="btn-sm iconbtn" id="btnSound" aria-label="Matikan atau nyalakan suara" title="Suara">
+        <svg id="icSoundOn" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+        <svg id="icSoundOff" viewBox="0 0 24 24" class="hide"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4 5M21 9.5l-4 5"/></svg>
+      </button>
+      <button class="btn-sm iconbtn" id="btnTheme" aria-label="Ganti tema terang atau gelap" title="Tema">
+        <svg id="icMoon" viewBox="0 0 24 24"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+        <svg id="icSun" viewBox="0 0 24 24" class="hide"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+      </button>
       <button class="btn-sm" id="btnNew">Peta baru</button>
     </div>
   </header>
@@ -304,6 +320,49 @@ function applyFit(){document.body.classList.toggle("fit",FIT.matches);fitBoard()
 FIT.addEventListener("change",applyFit);
 let rafId=0;
 window.addEventListener("resize",()=>{cancelAnimationFrame(rafId);rafId=requestAnimationFrame(fitBoard);});
+
+/* ---------- tema & efek suara ---------- */
+let theme="light",sfxOn=true,actx=null;
+try{theme=localStorage.getItem("robokargo_theme")==="dark"?"dark":"light";sfxOn=localStorage.getItem("robokargo_sfx")!=="off";}catch(e){}
+function applyTheme(){
+ document.documentElement.dataset.theme=theme;
+ $("icMoon").classList.toggle("hide",theme==="dark");$("icSun").classList.toggle("hide",theme!=="dark");
+ try{localStorage.setItem("robokargo_theme",theme);}catch(e){}
+}
+function applySfx(){
+ $("icSoundOn").classList.toggle("hide",!sfxOn);$("icSoundOff").classList.toggle("hide",sfxOn);
+ $("btnSound").classList.toggle("off",!sfxOn);
+ try{localStorage.setItem("robokargo_sfx",sfxOn?"on":"off");}catch(e){}
+}
+function ac(){
+ if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){actx=null;}}
+ if(actx&&actx.state==="suspended")actx.resume();
+ return actx;
+}
+function beep(f,dur,type,vol,at,f2){
+ const c=ac();if(!c)return;
+ const t=c.currentTime+(at||0),o=c.createOscillator(),g=c.createGain();
+ o.type=type||"triangle";o.frequency.setValueAtTime(f,t);
+ if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+ g.gain.setValueAtTime(.0001,t);
+ g.gain.exponentialRampToValueAtTime(vol||.14,t+.012);
+ g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+ o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.03);
+}
+function sfx(n){
+ if(!sfxOn)return;
+ if(n==="step")beep(420+Math.random()*50,.09,"triangle",.11);
+ else if(n==="turn")beep(300,.14,"sine",.12,0,480);
+ else if(n==="take"){beep(660,.1,"triangle",.14);beep(990,.15,"triangle",.12,.09);}
+ else if(n==="bump")beep(160,.24,"sawtooth",.15,0,70);
+ else if(n==="err"){beep(240,.1,"square",.09);beep(185,.13,"square",.09,.1);}
+ else if(n==="send")beep(540,.07,"sine",.09);
+ else if(n==="map"){beep(520,.09,"sine",.08);beep(700,.11,"sine",.07,.08);}
+ else if(n==="low")beep(900,.06,"square",.07);
+ else if(n==="win")[523,659,784,1047].forEach((f,i)=>beep(f,.17,"triangle",.15,i*.11));
+ else if(n==="fail")beep(400,.55,"sawtooth",.12,0,110);
+}
+
 let diff="mudah",S=null,busy=false,sent=false,mapNo=0,streak=0,best=0;
 try{best=parseInt(localStorage.getItem("robokargo_best")||"0",10)||0;}catch(e){}
 
@@ -441,7 +500,7 @@ function say(t,cls,who){
  els.log.appendChild(d);els.log.scrollTop=els.log.scrollHeight;
 }
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-function bump(){const r=$("robo");r.classList.remove("bump");void r.offsetWidth;r.classList.add("bump");}
+function bump(){sfx("bump");const r=$("robo");r.classList.remove("bump");void r.offsetWidth;r.classList.add("bump");}
 
 /* ---------- parser ---------- */
 function num(t){if(/^\d+$/.test(t))return parseInt(t,10);return NUM[t]!==undefined?NUM[t]:null;}
@@ -478,24 +537,24 @@ function parse(raw){
  return full;
 }
 /* ---------- runner ---------- */
-function spend(n){S.batt-=n;batt();return S.batt>=0;}
+function spend(n){S.batt-=n;batt();if(S.batt>0&&S.batt<=2)sfx("low");return S.batt>=0;}
 async function run(cmds){
  for(const c of cmds){
   if(S.over)return;
-  if(c.e){say(c.e,"bot err");await sleep(340);continue;}
+  if(c.e){sfx("err");say(c.e,"bot err");await sleep(340);continue;}
   if(c.t==="turn"||c.t==="face"){
    const nd=c.t==="turn"?(S.dir+c.d)%4:c.d;
    let cost=Math.abs(nd-S.dir);cost=Math.min(cost,4-cost);
    if(cost===0){say("Sudah menghadap "+DIRS[nd].n+".");await sleep(300);continue;}
    if(!spend(cost))return fail("Baterai habis saat berputar.");
-   S.dir=nd;place();say("Menghadap "+DIRS[S.dir].n+".");await sleep(460);
+   S.dir=nd;place();sfx("turn");say("Menghadap "+DIRS[S.dir].n+".");await sleep(460);
   }else if(c.t==="wait"){say("Menunggu.");await sleep(360);}
   else if(c.t==="take"){
    const p=S.packs.find(p=>!p.taken&&p.x===S.x&&p.y===S.y);
    if(p){p.taken=true;S.carry++;place();
     els.board.querySelector('.pack[data-k="'+S.packs.indexOf(p)+'"]').classList.add("gone");
-    say(`Paket diangkat (${S.carry}/${S.packs.length}).`,"bot ok");}
-   else say("Tidak ada paket di petak ini.","bot err");
+    sfx("take");say(`Paket diangkat (${S.carry}/${S.packs.length}).`,"bot ok");}
+   else{sfx("err");say("Tidak ada paket di petak ini.","bot err");}
    await sleep(460);
   }else if(c.t==="drop"){
    if(S.carry>0){S.carry--;place();say("Paket diturunkan.");}else say("ROBO tidak membawa paket.","bot err");
@@ -508,7 +567,7 @@ async function run(cmds){
     if(S.walls.has(nx+","+ny)){bump();say(`Menabrak rak setelah ${i} petak. ROBO berhenti di kolom ${S.x+1}, baris ${S.y+1}.`,"bot err");break;}
     if(!spend(1))return fail("Baterai habis di tengah jalan.");
     trail(S.x,S.y);
-    S.x=nx;S.y=ny;place();await sleep(430);
+    S.x=nx;S.y=ny;place();sfx("step");await sleep(430);
     if(atGoal())return;
    }
    if(!S.over)say(`Posisi sekarang kolom ${S.x+1}, baris ${S.y+1}, menghadap ${DIRS[S.dir].n}.`);
@@ -523,7 +582,7 @@ function atGoal(){
  return false;
 }
 function win(){
- S.over=true;streak++;
+ S.over=true;streak++;sfx("win");
  if(streak>best){best=streak;try{localStorage.setItem("robokargo_best",String(best));}catch(e){}}
  updStreak();
  say("Kargo diterima di dok. Misi berhasil.","bot ok");
@@ -531,7 +590,7 @@ function win(){
   S.batt>=S.battMax-S.opt?"Rencanamu efisien. Naikkan tingkat kesulitan kalau sudah terasa mudah.":"Berhasil, tapi ada langkah yang terbuang. Rencanakan jalur sebelum mengetik.");
 }
 function fail(reason){
- if(S.over)return;S.over=true;streak=0;updStreak();
+ if(S.over)return;S.over=true;streak=0;sfx("fail");updStreak();
  say(reason,"bot err");
  show(false,reason,`Jalur terpendek di peta itu butuh ${S.opt} baterai; kamu diberi ${S.battMax}. Peta berikutnya akan berbeda — baca nomor kolom dan baris dulu, hitung jalurnya, baru ketik.`);
 }
@@ -566,13 +625,13 @@ function newMap(){
  say(`Peta baru. ROBO berada di kolom ${S.x+1}, baris ${S.y+1}, menghadap ${DIRS[S.dir].n}. DOK di kolom ${S.gx+1}, baris ${S.gy+1}.`);
  S.packs.forEach((p,i)=>say(`Paket ${i+1} di kolom ${p.x+1}, baris ${p.y+1}.`));
  say("Kirim satu pesan berisi seluruh rencanamu. Setelah itu tidak ada perintah kedua.");
- sent=false;els.input.disabled=false;els.send.disabled=false;els.input.value="";els.input.focus();
+ sfx("map");sent=false;els.input.disabled=false;els.send.disabled=false;els.input.value="";els.input.focus();
 }
 els.form.addEventListener("submit",async e=>{
  e.preventDefault();
  const v=els.input.value.trim();
  if(!v||busy||sent)return;
- sent=true;busy=true;els.input.disabled=true;els.send.disabled=true;
+ sent=true;busy=true;sfx("send");els.input.disabled=true;els.send.disabled=true;
  say(v,"me");els.input.value="";
  await run(parse(v));
  if(!S.over)finish();
@@ -595,8 +654,10 @@ els.cells.addEventListener("mouseleave",()=>{
  els.cells.querySelectorAll(".cell.hi").forEach(n=>n.classList.remove("hi"));
  els.hoverCoord.textContent="Arahkan kursor ke papan untuk melihat koordinat";
 });
+$("btnTheme").onclick=()=>{theme=theme==="dark"?"light":"dark";applyTheme();sfx("send");};
+$("btnSound").onclick=()=>{sfxOn=!sfxOn;applySfx();if(sfxOn)sfx("take");};
 $("btnNew").onclick=()=>{$("overlay").hidden=true;newMap();};
 $("oNext").onclick=()=>{$("overlay").hidden=true;newMap();};
-applyFit();updStreak();newMap();
+applyTheme();applySfx();applyFit();updStreak();newMap();
 })();
 </script>
