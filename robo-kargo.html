@@ -3,15 +3,29 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <style>
-/* Tema terang adalah bawaan; tema gelap dipilih lewat tombol di header. */
+/* ============ token ============ */
 :root{
   color-scheme:light;
   --bg:#F3F7FF; --bg-2:#E8F0FF; --surface:#FFFFFF; --surface-2:#EAF1FF;
   --ink:#141D33; --ink-2:#5C6B8A; --line:#D3DEF6;
   --accent:#2657F0; --accent-soft:#DDE7FF; --amber:#D98200; --amber-soft:#FFEFD1;
   --moss:#12945C; --clay:#D9402F; --grid-a:#FAFCFF; --grid-b:#EFF4FF; --wall:#AABDE2;
-  --glow-a:#FFFFFF; --glow-b:#E4EDFF; --on-accent:#FFFFFF;
+  --on-accent:#FFFFFF;
   --shadow:0 1px 2px rgba(20,29,51,.05),0 10px 26px -14px rgba(38,87,240,.32);
+  --dock-shadow:0 -8px 24px -18px rgba(20,29,51,.6);
+  --key-pad:8px; --key-fs:13px; --key-gap:5px; --log-h:clamp(74px,16dvh,132px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1424; --bg-2:#131A2E; --surface:#182034; --surface-2:#212B44;
+    --ink:#EAF0FF; --ink-2:#93A2C4; --line:#2C3852;
+    --accent:#7C9BFF; --accent-soft:#233156; --amber:#F0B45C; --amber-soft:#3D2F17;
+    --moss:#4FCB92; --clay:#F0796A; --grid-a:#151D2F; --grid-b:#1A2337; --wall:#3B4867;
+    --on-accent:#101A2E;
+    --shadow:0 1px 2px rgba(0,0,0,.35),0 12px 30px -16px rgba(0,0,0,.75);
+    --dock-shadow:0 -8px 24px -18px rgba(0,0,0,.9);
+  }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
@@ -19,327 +33,302 @@
   --ink:#EAF0FF; --ink-2:#93A2C4; --line:#2C3852;
   --accent:#7C9BFF; --accent-soft:#233156; --amber:#F0B45C; --amber-soft:#3D2F17;
   --moss:#4FCB92; --clay:#F0796A; --grid-a:#151D2F; --grid-b:#1A2337; --wall:#3B4867;
-  --glow-a:#1E2942; --glow-b:#16203A; --on-accent:#101A2E;
+  --on-accent:#101A2E;
   --shadow:0 1px 2px rgba(0,0,0,.35),0 12px 30px -16px rgba(0,0,0,.75);
+  --dock-shadow:0 -8px 24px -18px rgba(0,0,0,.9);
 }
-*{box-sizing:border-box}
-body{margin:0;color:var(--ink);font-family:Karla,system-ui,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
-  background:var(--bg);
-  background-image:radial-gradient(1200px 620px at 12% -10%,var(--glow-a) 0%,transparent 60%),
-                   radial-gradient(900px 520px at 105% 0%,var(--glow-b) 0%,transparent 55%),
-                   linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);
-  background-attachment:fixed;transition:background-color .25s,color .25s}
-.iconbtn{display:grid;place-items:center;width:34px;height:34px;padding:0;border-radius:9px}
-.iconbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.iconbtn.off{color:var(--ink-2)}
-.hide{display:none!important}
+/* layar pendek: rapatkan krom agar papan tetap besar */
+@media (max-height:770px){
+  :root{--key-pad:5px;--key-fs:12px;--key-gap:4px;--log-h:clamp(58px,9dvh,84px)}
+  .topbar{padding-top:max(4px,env(safe-area-inset-top));padding-bottom:4px}
+  .mark{width:28px;height:28px}
+  .metabar{padding:5px 12px}
+  .seg button{padding:3px 11px;font-size:12px}
+  .play{padding:6px 9px;gap:6px}
+  .boardwrap{padding:8px}
+  .readout{margin-top:5px}
+  .batt{margin-top:5px}
+  textarea{height:42px}
+  .dock{padding:6px 8px max(6px,env(safe-area-inset-bottom));gap:5px}
+}
+@media (max-width:385px){
+  .topbar{gap:5px;padding-left:9px;padding-right:9px}
+  .iconbtn{width:29px;height:29px}
+  .metabar{padding-left:9px;padding-right:9px}
+  .seg button{padding:3px 9px;font-size:11.5px}
+  .streak{font-size:9.5px}
+  .streak b{font-size:10.5px}
+}
+@media (max-height:620px){
+  :root{--key-pad:4px;--key-fs:11px;--key-gap:3px;--log-h:50px}
+  h1{font-size:15.5px}
+  .streak{display:none}
+  .pip{height:9px}
+  textarea{height:38px}
+}
 
-/* selalu mendatar: di perangkat sentuh yang dipegang tegak, tampilan diputar 90 derajat */
-#app{min-height:100dvh}
-body.fit #app{height:100dvh}
-@media (orientation:portrait) and (pointer:coarse){
-  html,body{overflow:hidden;height:100%;position:fixed;inset:0;width:100%}
-  #app,body.fit #app{position:fixed;top:0;left:0;min-height:0!important;width:100vh!important;height:100vw!important;
-       transform-origin:top left;transform:rotate(90deg) translate(0,-100%);overflow:hidden}
-  @supports (height:100dvw){#app,body.fit #app{width:100dvh!important;height:100dvw!important}}
-}
-/* papan ketik di layar */
-.kbd{display:flex;flex-direction:column;gap:5px;padding:0 10px 10px;user-select:none}
-.kbdrow{display:flex;gap:5px}
-.key{flex:1 1 0;min-width:0;padding:9px 2px;border-radius:7px;background:var(--surface-2);border:1px solid var(--line);
-     color:var(--ink);font-family:"IBM Plex Mono",monospace;font-size:13px;line-height:1;text-align:center;transition:background .12s,transform .08s}
-.key:hover{background:var(--accent-soft);border-color:var(--accent)}
-.key:active{transform:translateY(1px);background:var(--accent-soft)}
-.key.wide{flex:3 1 0}
-.key.util{font-size:11px;letter-spacing:.04em;color:var(--ink-2)}
-.key.act{background:var(--accent-soft);color:var(--accent);font-weight:600}
-body.fit .key{padding:7px 2px;font-size:12px}
-body.short .wrap{padding:8px 10px;gap:8px}
-body.short .tag,body.short .streak,body.short .refs,body.short .warnline,body.short .sendcol small{display:none}
-body.short h1{font-size:17px}
-body.short .mark{width:30px;height:30px}
-body.short .mark svg{width:18px;height:18px}
-body.short .boardwrap{padding:9px}
-body.short .missionbar{margin-bottom:5px}
-body.short .mission-name{font-size:13.5px}
-body.short .tag-chip{font-size:9.5px;padding:2px 6px}
-body.short .readout{font-size:10px;margin-top:5px;min-height:14px}
-body.short .batt{margin-top:5px}
-body.short .pip{height:10px}
-body.short .batt-label{font-size:9.5px}
-body.short .batt-num{font-size:12px;min-width:48px}
-body.short .log{min-height:44px;padding:9px;gap:6px}
-body.short .msg{font-size:12.5px;padding:6px 9px}
-body.short textarea{min-height:42px;font-size:13px;padding:7px 10px}
-body.short .composer{padding:8px;gap:6px}
-body.short .kbd{padding:0 8px 8px;gap:4px}
-body.short .kbdrow{gap:4px}
-body.short .key{padding:6px 1px;font-size:11px;border-radius:6px}
-body.short .sendcol button{padding:7px 14px;font-size:13px}
-body.short .seg button{padding:5px 10px;font-size:12px}
-.wrap{max-width:1080px;margin:0 auto;padding:18px 16px 40px;display:flex;flex-direction:column;gap:14px}
-header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:11px}
-.mark{width:38px;height:38px;border-radius:10px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none}
-.mark svg{width:22px;height:22px;stroke:var(--on-accent)}
-h1{font-family:Archivo,system-ui,sans-serif;font-weight:800;font-size:23px;letter-spacing:-.02em;margin:0;line-height:1.1}
-.tag{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2);margin:0}
-.hdr-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.seg{display:flex;background:var(--surface-2);border-radius:99px;padding:3px}
-.seg button{border:none;background:transparent;border-radius:99px;padding:6px 13px;font-size:13px;color:var(--ink-2);font-weight:600}
-.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(38,87,240,.18)}
-.streak{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.05em;color:var(--ink-2);background:var(--surface-2);padding:7px 11px;border-radius:99px;white-space:nowrap}
-.streak b{color:var(--moss);font-size:13px}
-button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 13px;transition:background .15s,border-color .15s,transform .1s}
-button:hover{border-color:var(--accent)}
+*{box-sizing:border-box}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{margin:0;color:var(--ink);background:var(--bg);
+  font-family:Karla,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  text-size-adjust:100%;-webkit-text-size-adjust:100%}
+button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);padding:7px 12px;
+  transition:background .15s,border-color .15s,transform .08s;touch-action:manipulation}
 button:active{transform:translateY(1px)}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
 .btn-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
-.btn-primary:hover{filter:brightness(1.08);border-color:var(--accent)}
-.btn-primary:disabled,button:disabled{opacity:.45;cursor:not-allowed;filter:none}
-.btn-sm{padding:6px 11px;font-size:13px}
+.hide{display:none!important}
 
-.stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
-@media (max-width:900px){.stage{grid-template-columns:1fr}}
-body.fit .stage{grid-template-columns:minmax(0,1fr) minmax(250px,330px)}
-.rail{display:flex;flex-direction:column;gap:14px;min-width:0}
-.refs{display:flex;flex-direction:column;gap:14px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
-.boardwrap{padding:14px}
-.missionbar{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:11px;flex-wrap:wrap}
-.mission-name{font-family:Archivo,sans-serif;font-weight:600;font-size:16px;margin:0}
-.mission-brief{color:var(--ink-2);font-size:13.5px;margin:2px 0 0}
-.lvpill{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:4px 9px;border-radius:99px;white-space:nowrap}
+/* ============ kerangka satu layar ============ */
+#app{display:flex;flex-direction:column;height:100dvh;width:100%;max-width:560px;margin:0 auto;
+  background:linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);overflow:hidden}
+@media (min-width:600px){#app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
 
-.gridframe{display:grid;grid-template-columns:22px 1fr;grid-template-rows:18px 1fr;gap:4px}
+/* --- bilah atas --- */
+.topbar{flex:none;display:flex;align-items:center;gap:9px;
+  padding:max(6px,env(safe-area-inset-top)) 12px 6px;border-bottom:1px solid var(--line);
+  background:var(--surface)}
+.mark{width:30px;height:30px;border-radius:9px;background:var(--accent);color:var(--on-accent);
+  display:grid;place-items:center;flex:none}
+.mark svg{width:18px;height:18px;stroke:var(--on-accent);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.title{min-width:0;overflow:hidden}
+h1{font-family:Archivo,system-ui,sans-serif;font-weight:800;font-size:17px;letter-spacing:-.02em;margin:0;line-height:1.1;white-space:nowrap}
+.streak{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.06em;color:var(--ink-2);
+  white-space:nowrap;display:block;margin-top:1px}
+.streak b{color:var(--moss);font-size:11px}
+.spacer{flex:1}
+.iconbtn{display:grid;place-items:center;width:32px;height:32px;padding:0;border-radius:9px;flex:none}
+.iconbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.iconbtn.off{color:var(--ink-2)}
+
+/* --- bilah kesulitan --- */
+.metabar{flex:none;display:flex;align-items:center;gap:8px;padding:7px 12px;
+  border-bottom:1px solid var(--line);background:var(--surface)}
+.seg{display:flex;background:var(--surface-2);border-radius:99px;padding:3px;flex:none}
+.seg button{border:none;background:transparent;border-radius:99px;padding:4px 12px;font-size:12.5px;
+  color:var(--ink-2);font-weight:600}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(38,87,240,.18)}
+.mapno{flex:1;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap;overflow:hidden}
+.mapno b{color:var(--ink);font-weight:600}
+
+/* --- area main: papan + log --- */
+.play{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px 10px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow)}
+.boardwrap{flex:1;min-height:0;display:flex;flex-direction:column;padding:9px}
+
+.gridframe{flex:1;min-height:0;display:grid;grid-template-columns:16px 1fr;grid-template-rows:14px 1fr;
+  gap:3px;align-content:center;justify-content:center}
 .axis-x{grid-column:2;display:grid}
 .axis-y{grid-row:2;display:grid}
-.axis-x div,.axis-y div{display:grid;place-items:center;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-2)}
-.board{grid-column:2;grid-row:2;position:relative;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--grid-a);
-  box-shadow:inset 0 1px 10px -6px rgba(38,87,240,.22)}
+.axis-x div,.axis-y div{display:grid;place-items:center;font-family:"IBM Plex Mono",monospace;
+  font-size:9.5px;color:var(--ink-2)}
+.board{grid-column:2;grid-row:2;position:relative;border:1px solid var(--line);border-radius:10px;
+  overflow:hidden;background:var(--grid-a);box-shadow:inset 0 1px 10px -6px rgba(38,87,240,.22)}
 .cells{position:absolute;inset:0;display:grid}
-.cell{border-right:1px solid color-mix(in srgb,var(--line) 45%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 45%,transparent);position:relative;animation:pop .32s both}
+.cell{border-right:1px solid color-mix(in srgb,var(--line) 45%,transparent);
+  border-bottom:1px solid color-mix(in srgb,var(--line) 45%,transparent);position:relative;animation:pop .32s both}
 @keyframes pop{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:scale(1)}}
 .cell.alt{background:var(--grid-b)}
-.cell.hi{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 45%,transparent)}
-.cell.wall{background:linear-gradient(160deg,color-mix(in srgb,var(--wall) 88%,#fff 12%),var(--wall));border-color:transparent;border-radius:3px}
+.cell.hi{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 55%,transparent)}
+.cell.wall{background:linear-gradient(160deg,color-mix(in srgb,var(--wall) 88%,#fff 12%),var(--wall));
+  border-color:transparent;border-radius:3px}
 .cell.wall::after{content:"";position:absolute;inset:18% 14%;border-radius:2px;
   background:repeating-linear-gradient(0deg,transparent 0 22%,color-mix(in srgb,var(--surface) 38%,transparent) 22% 27%)}
 .cell.goal{background:color-mix(in srgb,var(--accent) 14%,transparent);
   background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--accent) 20%,transparent) 0 6px,transparent 6px 13px)}
-.cell.goal::after{content:"DOK";position:absolute;inset:14%;display:grid;place-items:center;border:1.5px dashed color-mix(in srgb,var(--accent) 60%,transparent);border-radius:5px;
-  font-family:"IBM Plex Mono",monospace;font-size:clamp(8px,1.6vw,11px);letter-spacing:.08em;color:var(--accent);font-weight:600;background:var(--surface)}
-.cell.front::before{content:"";position:absolute;inset:32%;border-radius:99px;background:color-mix(in srgb,var(--accent) 42%,transparent);animation:pulse 1.6s ease-in-out infinite}
+.cell.goal::after{content:"DOK";position:absolute;inset:9%;display:grid;place-items:center;
+  border:1.5px dashed color-mix(in srgb,var(--accent) 60%,transparent);border-radius:5px;
+  font-family:"IBM Plex Mono",monospace;font-size:calc(var(--cellpx,22px)*.34);letter-spacing:0;
+  color:var(--accent);font-weight:600;background:var(--surface);overflow:hidden}
+.cell.front::before{content:"";position:absolute;inset:32%;border-radius:99px;
+  background:color-mix(in srgb,var(--accent) 42%,transparent);animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.35;transform:scale(.7)}50%{opacity:.9;transform:scale(1)}}
 .trail{position:absolute;display:grid;place-items:center;z-index:1;pointer-events:none}
-.trail::after{content:"";width:20%;height:20%;border-radius:99px;background:color-mix(in srgb,var(--accent) 38%,transparent);animation:fadein .3s both}
+.trail::after{content:"";width:20%;height:20%;border-radius:99px;
+  background:color-mix(in srgb,var(--accent) 38%,transparent);animation:fadein .3s both}
 @keyframes fadein{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
 .pack{position:absolute;display:grid;place-items:center;transition:opacity .35s,transform .35s;z-index:2;pointer-events:none}
 .pack svg{width:58%;height:58%;filter:drop-shadow(0 2px 3px rgba(217,130,0,.35))}
 .pack.gone{opacity:0;transform:scale(.4)}
-.robot{position:absolute;display:grid;place-items:center;pointer-events:none;transition:left .42s cubic-bezier(.45,.05,.25,1),top .42s cubic-bezier(.45,.05,.25,1),transform .42s cubic-bezier(.45,.05,.25,1);z-index:3}
+.robot{position:absolute;display:grid;place-items:center;pointer-events:none;z-index:3;
+  transition:left .42s cubic-bezier(.45,.05,.25,1),top .42s cubic-bezier(.45,.05,.25,1),transform .42s cubic-bezier(.45,.05,.25,1)}
 .robot svg{width:78%;height:78%;filter:drop-shadow(0 3px 5px rgba(38,87,240,.3))}
 .robot.bump{animation:bump .45s}
 @keyframes bump{0%,100%{scale:1}35%{scale:.82}60%{scale:1.06}}
-.carry{position:absolute;top:0;right:0;width:30%;height:30%;background:var(--amber);border-radius:3px;border:2px solid var(--surface);display:none;box-shadow:0 1px 3px rgba(217,130,0,.45)}
+.carry{position:absolute;top:0;right:0;width:30%;height:30%;background:var(--amber);border-radius:3px;
+  border:2px solid var(--surface);display:none;box-shadow:0 1px 3px rgba(217,130,0,.45)}
 .robot.carrying .carry{display:block}
 @media (prefers-reduced-motion:reduce){.robot{transition:none}.robot.bump,.cell,.cell.front::before{animation:none}}
 
-.readout{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;
-  font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-2);min-height:18px}
+.readout{flex:none;margin-top:7px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+  color:var(--ink-2);min-height:15px;text-align:center}
 .readout b{color:var(--ink);font-weight:600}
-.batt{margin-top:9px;display:flex;align-items:center;gap:11px;flex-wrap:wrap}
-.batt-label{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
-.pips{flex:1;display:flex;gap:3px;min-width:130px}
-.pip{flex:1;height:14px;border-radius:3px;background:var(--moss);transition:background .35s,opacity .35s,transform .35s}
+.batt{flex:none;margin-top:6px;display:flex;align-items:center;gap:8px}
+.batt-label{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
+.pips{flex:1;display:flex;gap:2px;min-width:0}
+.pip{flex:1;height:11px;border-radius:2px;background:var(--moss);transition:background .35s,opacity .35s,transform .35s}
 .pip.low{background:var(--amber)}
 .pip.crit{background:var(--clay)}
-.pip.used{background:var(--surface-2);transform:scaleY(.55)}
-.batt-num{font-family:"IBM Plex Mono",monospace;font-size:14px;font-variant-numeric:tabular-nums;font-weight:600;min-width:58px;text-align:right}
-.chiprow{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
-.tag-chip{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--surface-2);color:var(--ink-2)}
-.tag-chip.amber{background:var(--amber-soft);color:var(--amber)}
-.tag-chip.acc{background:var(--accent-soft);color:var(--accent)}
+.pip.used{background:var(--surface-2);transform:scaleY(.5)}
+.batt-num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-variant-numeric:tabular-nums;
+  font-weight:600;min-width:46px;text-align:right}
 
-.refs section{padding:13px 14px}
-.refs h2{font-family:Archivo,sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin:0 0 9px}
-.dict{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:13px}
-.dict code{font-family:"IBM Plex Mono",monospace;font-size:12px;background:var(--surface-2);padding:2px 6px;border-radius:5px;color:var(--ink)}
-.dict li span{color:var(--ink-2);display:block;font-size:12px}
-.cost{float:right;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--amber)}
-.rulebox{font-size:13px;color:var(--ink-2);line-height:1.5}
-.rulebox b{color:var(--ink)}
-
-.chat{display:flex;flex-direction:column;overflow:hidden}
-.log{height:200px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth}
-.msg{max-width:84%;padding:8px 12px;border-radius:12px;font-size:14px;white-space:pre-wrap}
-.msg.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:4px;font-family:"IBM Plex Mono",monospace;font-size:13px}
+/* --- log --- */
+.logpanel{flex:none;height:var(--log-h);overflow:hidden;display:flex;position:relative}
+.logpanel::before{content:"";position:absolute;left:1px;right:1px;top:0;height:12px;border-radius:13px 13px 0 0;
+  background:linear-gradient(180deg,var(--surface),transparent);pointer-events:none;z-index:1}
+.log{flex:1;overflow-y:auto;padding:9px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch}
+.msg{max-width:88%;padding:6px 10px;border-radius:11px;font-size:12.5px;white-space:pre-wrap;line-height:1.4}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:4px;
+  font-family:"IBM Plex Mono",monospace;font-size:12px}
 .msg.bot{align-self:flex-start;background:var(--surface-2);border-bottom-left-radius:4px}
 .msg.bot.err{background:color-mix(in srgb,var(--clay) 15%,transparent);color:var(--clay);font-weight:500}
 .msg.bot.ok{background:color-mix(in srgb,var(--moss) 16%,transparent);color:var(--moss);font-weight:500}
-.msg .who{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.65;margin-bottom:2px}
-.composer{display:flex;flex-direction:column;gap:8px;padding:11px;border-top:1px solid var(--line)}
-textarea{flex:1;font-family:"IBM Plex Mono",monospace;font-size:14px;line-height:1.5;padding:10px 13px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);resize:none;min-height:62px}
+.msg .who{display:block;font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.1em;
+  text-transform:uppercase;opacity:.65;margin-bottom:1px}
+
+/* ============ dok bawah: penulis + papan ketik ============ */
+.dock{flex:none;background:var(--surface);border-top:1px solid var(--line);box-shadow:var(--dock-shadow);
+  padding:8px 8px max(8px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px}
+.composer{display:flex;gap:7px;align-items:stretch}
+textarea{flex:1;min-width:0;font-family:"IBM Plex Mono",monospace;font-size:13px;line-height:1.4;
+  padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);
+  resize:none;height:46px}
 textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
 textarea:disabled{opacity:.5}
-.sendcol{display:flex;gap:10px;align-items:center;justify-content:space-between}
-.sendcol small{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-2);white-space:nowrap}
-.sendcol button{padding:9px 18px}
-.warnline{padding:0 12px 11px;font-size:12.5px;color:var(--ink-2)}
-.warnline b{color:var(--clay)}
+.sendbtn{flex:none;width:62px;display:grid;place-items:center;gap:2px;padding:4px;line-height:1.05;
+  font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.sendbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-.overlay{position:fixed;inset:0;background:color-mix(in srgb,#1B2A4E 42%,transparent);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px;z-index:20;animation:fadein .18s both}
+.kbd{display:flex;flex-direction:column;gap:var(--key-gap);user-select:none}
+.kbdrow{display:flex;gap:var(--key-gap)}
+.key{flex:1 1 0;min-width:0;padding:var(--key-pad) 1px;border-radius:6px;background:var(--surface-2);
+  border:1px solid var(--line);color:var(--ink);font-family:"IBM Plex Mono",monospace;
+  font-size:var(--key-fs);line-height:1;text-align:center;overflow:hidden}
+.key:active{background:var(--accent-soft);border-color:var(--accent)}
+.key.wide{flex:3.2 1 0}
+.key.util{font-size:calc(var(--key-fs) - 2px);letter-spacing:.03em;color:var(--ink-2)}
+/* papan ketik kata: kata perintah diberi warna aksen agar terbaca sebagai kosakata ROBO */
+.key.word{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:600;
+  font-size:calc(var(--key-fs) - 1px);letter-spacing:-.01em}
+.key.word:active{background:var(--accent);color:var(--on-accent)}
+.key.two{line-height:1.1;padding-top:calc(var(--key-pad) - 1px);padding-bottom:calc(var(--key-pad) - 1px)}
+.key.two i{display:block;font-style:normal;font-weight:400;opacity:.62;
+  font-size:calc(var(--key-fs) - 3.5px);letter-spacing:.04em}
+.key.sep{background:var(--surface-2);color:var(--ink-2);border-color:var(--line);font-weight:600}
+
+/* ============ lapisan ============ */
+.overlay{position:fixed;inset:0;background:color-mix(in srgb,#1B2A4E 46%,transparent);
+  backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px;z-index:20;animation:fadein .18s both}
 .overlay[hidden]{display:none}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;max-width:430px;width:100%;max-height:100%;overflow-y:auto;box-shadow:0 24px 60px -22px rgba(27,42,78,.45);animation:cardin .3s cubic-bezier(.2,.9,.3,1) both}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;
+  max-width:400px;width:100%;max-height:85dvh;overflow-y:auto;
+  box-shadow:0 24px 60px -22px rgba(27,42,78,.5);animation:cardin .3s cubic-bezier(.2,.9,.3,1) both}
 @keyframes cardin{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.overlay,.card{animation:none}}
-.verdict{font-family:Archivo,sans-serif;font-weight:800;font-size:34px;letter-spacing:-.02em;line-height:1;margin:0 0 6px}
+.verdict{font-family:Archivo,sans-serif;font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1;margin:0 0 6px}
 .verdict.ok{color:var(--moss)}
 .verdict.no{color:var(--clay)}
-.card p{color:var(--ink-2);margin:0 0 16px;font-size:14px}
-.note{font-size:13px;background:var(--accent-soft);color:var(--ink);padding:11px 13px;border-radius:9px;margin-bottom:16px}
-.note code{font-family:"IBM Plex Mono",monospace;font-size:12px}
-footer{text-align:center;color:var(--ink-2);font-size:12.5px}
+.card p{color:var(--ink-2);margin:0 0 14px;font-size:13.5px}
+.card h3{font-family:Archivo,sans-serif;font-size:18px;margin:0 0 4px;color:var(--ink)}
+.note{font-size:12.5px;background:var(--accent-soft);color:var(--ink);padding:10px 12px;border-radius:9px;margin-bottom:14px}
+.dict{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;font-size:13px}
+.dict code{font-family:"IBM Plex Mono",monospace;font-size:12px;background:var(--surface-2);padding:2px 6px;
+  border-radius:5px;color:var(--ink)}
+.dict li span{color:var(--ink-2);display:block;font-size:11.5px}
+.cost{float:right;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--amber)}
+.rulebox{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.rulebox b{color:var(--ink)}
 
-/* layar mendatar: seluruh permainan muat dalam satu layar tanpa gulir */
-body.fit{overflow:hidden}
-body.fit .wrap{height:100%;padding:13px 16px 11px;gap:10px}
-body.fit header{flex-wrap:nowrap}
-body.fit .stage{flex:1;min-height:0;align-items:stretch;gap:12px}
-body.fit .boardwrap{display:flex;flex-direction:column;min-height:0;height:100%}
-body.fit .missionbar{margin-bottom:8px}
-body.fit .gridframe{flex:1;min-height:0;align-content:center;justify-content:center}
-body.fit .readout{margin-top:8px}
-body.fit .batt{margin-top:7px}
-body.fit .rail{height:100%;min-height:0;gap:12px}
-body.fit .refs{flex:0 1 auto;min-height:0;max-height:46%;overflow-y:auto;gap:12px}
-body.fit .refs section{padding:11px 13px}
-body.fit .chat{flex:1 1 260px;min-height:0}
-body.fit .log{height:auto;flex:1;min-height:80px}
-body.fit .warnline{padding:0 12px 9px;font-size:11.5px}
-body.fit footer{display:none}
-@media (max-height:760px){
-  body.fit .refs{max-height:40%}
-  body.fit .refs section:first-child{display:none}
+/* --- kunci potret: minta putar kembali --- */
+.rotate{position:fixed;inset:0;z-index:60;display:none;place-items:center;text-align:center;
+  padding:24px;background:var(--bg);color:var(--ink)}
+.rotate svg{width:46px;height:46px;stroke:var(--accent);fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;margin-bottom:12px}
+.rotate p{margin:0;font-size:14px;color:var(--ink-2)}
+.rotate b{display:block;font-family:Archivo,sans-serif;font-size:18px;color:var(--ink);margin-bottom:4px}
+@media (orientation:landscape) and (pointer:coarse){
+  .rotate{display:grid}
+  #app{visibility:hidden}
 }
-@media (max-height:640px){
-  body.fit .refs{max-height:34%}
-  body.fit .dict{font-size:12px;gap:6px}
-  body.fit .log{min-height:110px}
-  body.fit .warnline{display:none}
-}
-
-/* penyesuaian akhir untuk layar mendatar pendek (HP) - ditaruh terakhir agar menang */
-body.short .log{min-height:36px!important;height:auto!important}
-body.short .refs{display:none!important}
-body.short .warnline,body.short .sendcol small{display:none!important}
-body.short .kbd{gap:3px;padding:0 7px 7px}
-body.short .kbdrow{gap:3px}
-body.short .key{padding:5px 1px;font-size:10.5px;border-radius:5px}
-body.short textarea{min-height:36px}
-body.short .composer{padding:7px;gap:5px}
-body.short .sendcol button{padding:6px 12px;font-size:12.5px}
-body.short .chat{flex:1 1 auto;min-height:0}
-body.short .card{padding:15px 16px;border-radius:14px}
-body.short .card h3{font-size:16px}
-body.short .card p,body.short .card .dict{font-size:12.5px}
-body.short .verdict{font-size:26px}
-body.short .overlay{padding:10px}
 </style>
 
 <div id="app">
-<div class="wrap">
-  <header>
-    <div class="brand">
-      <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01M9.5 17.5h5"/></svg></div>
-      <div>
-        <h1>Robo Kargo</h1>
-        <p class="tag">Satu perintah. Satu kesempatan.</p>
-      </div>
+  <header class="topbar">
+    <div class="mark"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01M9.5 17.5h5"/></svg></div>
+    <div class="title">
+      <h1>Robo Kargo</h1>
+      <span class="streak" id="streak">beruntun <b>0</b> · rekor 0</span>
     </div>
-    <div class="hdr-actions">
-      <div class="seg" id="seg">
-        <button data-d="mudah" class="on">Mudah</button>
-        <button data-d="sedang">Sedang</button>
-        <button data-d="sulit">Sulit</button>
-      </div>
-      <span class="streak" id="streak">beruntun <b>0</b> · terbaik 0</span>
-      <button class="btn-sm iconbtn" id="btnHelp" aria-label="Kamus perintah" title="Kamus perintah">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.2 2.9c-.5.2-.8.7-.8 1.3v.4"/><path d="M12 17.2h.01"/></svg>
-      </button>
-      <button class="btn-sm iconbtn" id="btnSound" aria-label="Matikan atau nyalakan suara" title="Suara">
-        <svg id="icSoundOn" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
-        <svg id="icSoundOff" viewBox="0 0 24 24" class="hide"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4 5M21 9.5l-4 5"/></svg>
-      </button>
-      <button class="btn-sm iconbtn" id="btnTheme" aria-label="Ganti tema terang atau gelap" title="Tema">
-        <svg id="icMoon" viewBox="0 0 24 24"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
-        <svg id="icSun" viewBox="0 0 24 24" class="hide"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
-      </button>
-      <button class="btn-sm" id="btnNew">Peta baru</button>
-    </div>
+    <div class="spacer"></div>
+    <button class="iconbtn" id="btnHelp" aria-label="Kamus perintah" title="Kamus perintah">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.2 2.9c-.5.2-.8.7-.8 1.3v.4"/><path d="M12 17.2h.01"/></svg>
+    </button>
+    <button class="iconbtn" id="btnSound" aria-label="Matikan atau nyalakan suara dan getaran" title="Suara &amp; getar">
+      <svg id="icSoundOn" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+      <svg id="icSoundOff" viewBox="0 0 24 24" class="hide"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4 5M21 9.5l-4 5"/></svg>
+    </button>
+    <button class="iconbtn" id="btnTheme" aria-label="Ganti tema terang atau gelap" title="Tema">
+      <svg id="icMoon" viewBox="0 0 24 24"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+      <svg id="icSun" viewBox="0 0 24 24" class="hide"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    </button>
   </header>
 
-  <div class="stage">
-    <div class="panel boardwrap">
-      <div class="missionbar">
-        <div>
-          <p class="mission-name" id="mName">Peta #1</p>
-          <div class="chiprow" id="mChips"></div>
-        </div>
-        <span class="lvpill" id="mPill">MUDAH</span>
-      </div>
+  <div class="metabar">
+    <div class="seg" id="seg">
+      <button data-d="mudah" class="on">Mudah</button>
+      <button data-d="sedang">Sedang</button>
+      <button data-d="sulit">Sulit</button>
+    </div>
+    <span class="mapno" id="mapNo"></span>
+    <button class="iconbtn" id="btnNew" aria-label="Peta baru" title="Peta baru">
+      <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-.6 4"/><path d="M20 4v6h-6"/></svg>
+    </button>
+  </div>
+
+  <main class="play">
+    <section class="panel boardwrap">
       <div class="gridframe">
         <div class="axis-x" id="axisX"></div>
         <div class="axis-y" id="axisY"></div>
         <div class="board" id="board"><div class="cells" id="cells"></div></div>
       </div>
-      <div class="readout">
-        <span id="hoverCoord">Arahkan kursor ke papan untuk melihat koordinat</span>
-        <span id="roboAt"></span>
-      </div>
+      <div class="readout" id="readout">Ketuk petak untuk melihat koordinatnya</div>
       <div class="batt">
         <span class="batt-label">Baterai</span>
         <div class="pips" id="pips"></div>
         <span class="batt-num" id="battNum">0 / 0</span>
       </div>
-    </div>
+    </section>
 
-    <div class="rail">
-     <div class="refs">
-      <section class="panel">
-        <h2>Aturan main</h2>
-        <p class="rulebox" style="margin:0">Kamu hanya boleh mengirim <b>satu pesan</b>. ROBO menjalankannya sampai habis, lalu misi dinilai: <b>berhasil</b> atau <b>gagal</b>. Gagal berarti peta baru — jalurnya tidak akan sama lagi. Baca papan baik-baik sebelum mengetik.</p>
-      </section>
-      <section class="panel">
-        <h2>Kamus perintah</h2>
-        <ul class="dict">
-          <li><code>maju 3</code><span class="cost">3 baterai</span><span>3 petak ke arah hadap</span></li>
-          <li><code>mundur 2</code><span class="cost">2 baterai</span><span>tanpa berputar</span></li>
-          <li><code>belok kanan</code><span class="cost">1 baterai</span></li>
-          <li><code>belok kiri</code><span class="cost">1 baterai</span></li>
-          <li><code>hadap utara</code><span class="cost">1–2</span><span>juga: selatan, timur, barat</span></li>
-          <li><code>ambil</code><span class="cost">gratis</span><span>angkat paket di petak yang sama</span></li>
-        </ul>
-        <p class="rulebox" style="margin:11px 0 0">Pisahkan langkah dengan <b>lalu</b> atau koma. Contoh: <code style="font-family:'IBM Plex Mono',monospace;font-size:12px">maju 3 lalu belok kanan, maju 2, ambil</code></p>
-      </section>
-     </div>
+    <section class="panel logpanel">
+      <div class="log" id="log" aria-live="polite"></div>
+    </section>
+  </main>
 
-     <div class="panel chat">
-    <div class="log" id="log" aria-live="polite"></div>
+  <div class="dock">
     <form class="composer" id="form">
-      <textarea id="input" rows="2" placeholder="Tulis seluruh rencanamu di sini, sekali kirim…" aria-label="Perintah untuk robot"></textarea>
-      <div class="sendcol">
-        <small>tidak bisa dibatalkan</small>
-        <button type="submit" class="btn-primary" id="send">Kirim &amp; jalankan</button>
-      </div>
+      <textarea id="input" rows="2" placeholder="Satu pesan berisi seluruh rencanamu…" aria-label="Perintah untuk robot"></textarea>
+      <button type="submit" class="btn-primary sendbtn" id="send">
+        <svg viewBox="0 0 24 24"><path d="M4 12h14"/><path d="M12.5 5.5L19 12l-6.5 6.5"/></svg>
+        Kirim
+      </button>
     </form>
     <div class="kbd" id="kbd"></div>
-    <p class="warnline">Periksa lagi arah hadap ROBO dan jumlah petaknya. <b>Perintah yang sudah dikirim tidak bisa ditarik.</b></p>
-     </div>
-    </div>
   </div>
+</div>
 
-  <footer>Robot hanya menjalankan apa yang tertulis — bukan apa yang kamu maksud.</footer>
+<div class="rotate">
+  <div>
+    <svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10.5 18.5h3"/><path d="M3 8a9 9 0 0 1 3-4"/></svg>
+    <p><b>Putar ke posisi tegak</b>Robo Kargo dirancang untuk layar potret.</p>
+  </div>
 </div>
 
 <div class="overlay" id="overlay" hidden>
@@ -347,13 +336,17 @@ body.short .overlay{padding:10px}
     <p class="verdict" id="oV">BERHASIL</p>
     <p id="oSub"></p>
     <div class="note" id="oNote"></div>
-    <button class="btn-primary" id="oNext" style="width:100%">Peta baru</button>
+    <button class="btn-primary" id="oNext" style="width:100%;padding:11px">Peta baru</button>
   </div>
 </div>
+
 <div class="overlay" id="help" hidden>
   <div class="card">
-    <h3 style="font-family:Archivo,sans-serif;font-size:19px;margin:0 0 4px">Kamus perintah</h3>
-    <p style="margin:0 0 14px">Semua perintah yang dimengerti ROBO, beserta biaya baterainya.</p>
+    <h3>Aturan main</h3>
+    <p class="rulebox" style="margin:0 0 14px">Kamu hanya boleh mengirim <b>satu pesan</b>. ROBO menjalankannya sampai habis, lalu misi dinilai: <b>berhasil</b> atau <b>gagal</b>. Gagal berarti peta baru — jalurnya tidak akan sama lagi. Perintah yang sudah dikirim tidak bisa ditarik.</p>
+    <p class="rulebox" style="margin:0 0 14px">ROBO tidak pernah berhenti sendiri. Kata yang tidak ia mengerti tetap membuatnya <b>melangkah satu petak</b> ke arah hadap. Dan kalau perintahmu habis sebelum sampai dok, ia <b>terus melaju</b> ke arah terakhir sampai menabrak rak, menghantam tepi gudang, atau kehabisan daya.</p>
+    <h3>Kamus perintah</h3>
+    <p style="margin:0 0 10px">Semua perintah yang dimengerti ROBO, beserta biaya baterainya.</p>
     <ul class="dict">
       <li><code>maju 3</code><span class="cost">3 baterai</span><span>3 petak ke arah hadap</span></li>
       <li><code>mundur 2</code><span class="cost">2 baterai</span><span>tanpa berputar</span></li>
@@ -362,10 +355,9 @@ body.short .overlay{padding:10px}
       <li><code>hadap utara</code><span class="cost">1&ndash;2</span><span>juga: selatan, timur, barat</span></li>
       <li><code>ambil</code> / <code>taruh</code><span class="cost">gratis</span></li>
     </ul>
-    <p class="rulebox" style="margin:12px 0 16px">Pisahkan langkah dengan <b>lalu</b> atau koma. Contoh: <code style="font-family:'IBM Plex Mono',monospace;font-size:12px">maju 3 lalu belok kanan, maju 2, ambil</code>. Kamu hanya boleh mengirim <b>satu pesan</b> tiap peta.</p>
-    <button class="btn-primary" id="helpClose" style="width:100%">Tutup</button>
+    <p class="rulebox" style="margin:12px 0 16px">Pisahkan langkah dengan <b>lalu</b> atau koma. Contoh: <code style="font-family:'IBM Plex Mono',monospace;font-size:12px">maju 3 lalu belok kanan, maju 2, ambil</code></p>
+    <button class="btn-primary" id="helpClose" style="width:100%;padding:11px">Tutup</button>
   </div>
-</div>
 </div>
 
 <script>
@@ -382,40 +374,35 @@ const VAGUE=["sedikit","agak","dikit","beberapa","sana","situ","dekat","jauh","t
 
 const $=id=>document.getElementById(id);
 const els={cells:$("cells"),board:$("board"),log:$("log"),input:$("input"),form:$("form"),send:$("send"),
- mName:$("mName"),mChips:$("mChips"),mPill:$("mPill"),axisX:$("axisX"),axisY:$("axisY"),
- pips:$("pips"),battNum:$("battNum"),streak:$("streak"),hoverCoord:$("hoverCoord"),roboAt:$("roboAt"),
+ mapNo:$("mapNo"),axisX:$("axisX"),axisY:$("axisY"),
+ pips:$("pips"),battNum:$("battNum"),streak:$("streak"),readout:$("readout"),
  gridframe:document.querySelector(".gridframe")};
-const ROT=window.matchMedia("(orientation:portrait) and (pointer:coarse)");
 const COARSE=window.matchMedia("(pointer:coarse)");
-function effSize(){const r=ROT.matches;return{w:r?window.innerHeight:window.innerWidth,h:r?window.innerWidth:window.innerHeight};}
+
+/* ---------- papan menyesuaikan ruang yang tersisa ---------- */
 function fitBoard(){
  const gf=els.gridframe;if(!S||!gf)return;
- if(!document.body.classList.contains("fit")){
-  gf.style.gridTemplateColumns="";gf.style.gridTemplateRows="";
-  els.board.style.aspectRatio=S.W+"/"+S.H;return;
- }
- els.board.style.aspectRatio="auto";
- gf.style.gridTemplateColumns="22px 1fr";gf.style.gridTemplateRows="18px 1fr";
- const availW=gf.clientWidth-26,availH=gf.clientHeight-22;
+ gf.style.gridTemplateColumns="16px 1fr";gf.style.gridTemplateRows="14px 1fr";
+ const availW=gf.clientWidth-19,availH=gf.clientHeight-17;
  if(availW<40||availH<40)return;
- const cell=Math.max(16,Math.floor(Math.min(availW/S.W,availH/S.H)));
- gf.style.gridTemplateColumns=`22px ${cell*S.W}px`;
- gf.style.gridTemplateRows=`18px ${cell*S.H}px`;
+ const cell=Math.max(15,Math.floor(Math.min(availW/S.W,availH/S.H)));
+ gf.style.gridTemplateColumns=`16px ${cell*S.W}px`;
+ gf.style.gridTemplateRows=`14px ${cell*S.H}px`;
+ els.board.style.setProperty("--cellpx",cell+"px");
 }
-function applyFit(){
- const e=effSize();
- document.body.classList.toggle("fit",e.w>=660&&e.h>=320);
- document.body.classList.toggle("short",e.h<560);
- fitBoard();
-}
-ROT.addEventListener("change",()=>setTimeout(applyFit,120));
-window.addEventListener("orientationchange",()=>setTimeout(applyFit,180));
 let rafId=0;
-window.addEventListener("resize",()=>{cancelAnimationFrame(rafId);rafId=requestAnimationFrame(applyFit);});
+const refit=()=>{cancelAnimationFrame(rafId);rafId=requestAnimationFrame(fitBoard);};
+window.addEventListener("resize",refit);
+window.addEventListener("orientationchange",()=>setTimeout(fitBoard,220));
+if(window.visualViewport)window.visualViewport.addEventListener("resize",refit);
 
 /* ---------- tema & efek suara ---------- */
-let theme="light",sfxOn=true,actx=null;
-try{theme=localStorage.getItem("robokargo_theme")==="dark"?"dark":"light";sfxOn=localStorage.getItem("robokargo_sfx")!=="off";}catch(e){}
+let theme=null,sfxOn=true,actx=null;
+try{
+ const t=localStorage.getItem("robokargo_theme");
+ theme=(t==="dark"||t==="light")?t:(window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");
+ sfxOn=localStorage.getItem("robokargo_sfx")!=="off";
+}catch(e){theme="light";}
 function applyTheme(){
  document.documentElement.dataset.theme=theme;
  $("icMoon").classList.toggle("hide",theme==="dark");$("icSun").classList.toggle("hide",theme!=="dark");
@@ -455,10 +442,14 @@ function sfx(n){
  else if(n==="fail")beep(400,.55,"sawtooth",.12,0,110);
 }
 
+/* getaran halus — ikut tombol suara agar pemain punya satu saklar */
+const CANVIB=typeof navigator!=="undefined"&&typeof navigator.vibrate==="function";
+function haptic(p){if(!sfxOn||!CANVIB)return;try{navigator.vibrate(p);}catch(e){}}
+
 let diff="mudah",S=null,busy=false,sent=false,mapNo=0,streak=0,best=0;
 try{best=parseInt(localStorage.getItem("robokargo_best")||"0",10)||0;}catch(e){}
 
-/* ---------- solver (BFS over x,y,dir; maju/mundur & tiap seperempat putaran = 1) ---------- */
+/* ---------- solver ---------- */
 function bfs(W,H,walls,sx,sy,sdir){
  const N=W*H*4,dist=new Int32Array(N).fill(-1),q=new Int32Array(N);
  let head=0,tail=0;const s=((sy*W+sx)*4)+sdir;dist[s]=0;q[tail++]=s;
@@ -528,7 +519,6 @@ function genMap(){
 }
 /* ---------- render ---------- */
 function render(){
- els.board.style.aspectRatio=S.W+"/"+S.H;
  els.cells.style.gridTemplateColumns=`repeat(${S.W},1fr)`;
  els.cells.style.gridTemplateRows=`repeat(${S.H},1fr)`;
  els.axisX.style.gridTemplateColumns=`repeat(${S.W},1fr)`;
@@ -566,7 +556,19 @@ function place(){
  els.cells.querySelectorAll(".cell.front").forEach(c=>c.classList.remove("front"));
  if(fx>=0&&fy>=0&&fx<S.W&&fy<S.H&&!S.walls.has(fx+","+fy))
   els.cells.children[fy*S.W+fx].classList.add("front");
- els.roboAt.innerHTML=`ROBO <b>kolom ${S.x+1}, baris ${S.y+1}</b> · hadap <b>${DIRS[S.dir].n}</b>`;
+ showRobo();
+}
+let peekT=0;
+function showRobo(){
+ els.readout.innerHTML=`ROBO <b>kolom ${S.x+1}, baris ${S.y+1}</b> · hadap <b>${DIRS[S.dir].n}</b>`;
+}
+function peek(c){
+ const x=+c.dataset.x+1,y=+c.dataset.y+1;
+ els.cells.querySelectorAll(".cell.hi").forEach(n=>n.classList.remove("hi"));
+ c.classList.add("hi");
+ els.readout.innerHTML=`petak <b>kolom ${x}, baris ${y}</b>`+(c.classList.contains("wall")?" · rak":c.classList.contains("goal")?" · dok":"");
+ clearTimeout(peekT);
+ peekT=setTimeout(()=>{c.classList.remove("hi");if(S)showRobo();},1800);
 }
 function trail(x,y){
  const cw=100/S.W,ch=100/S.H,t=document.createElement("div");
@@ -592,7 +594,7 @@ function say(t,cls,who){
  els.log.appendChild(d);els.log.scrollTop=els.log.scrollHeight;
 }
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-function bump(){sfx("bump");const r=$("robo");r.classList.remove("bump");void r.offsetWidth;r.classList.add("bump");}
+function bump(){sfx("bump");haptic(38);const r=$("robo");r.classList.remove("bump");void r.offsetWidth;r.classList.add("bump");}
 
 /* ---------- parser ---------- */
 function num(t){if(/^\d+$/.test(t))return parseInt(t,10);return NUM[t]!==undefined?NUM[t]:null;}
@@ -630,10 +632,49 @@ function parse(raw){
 }
 /* ---------- runner ---------- */
 function spend(n){S.batt-=n;batt();if(S.batt>0&&S.batt<=2)sfx("low");return S.batt>=0;}
+/* satu langkah maju; dipakai saat perintah tak dimengerti dan saat ROBO melaju sendiri */
+async function step(ms){
+ const d=DIRS[S.dir],nx=S.x+d.dx,ny=S.y+d.dy;
+ if(nx<0||ny<0||nx>=S.W||ny>=S.H)return "tepi";
+ if(S.walls.has(nx+","+ny))return "rak";
+ if(!spend(1))return "daya";
+ trail(S.x,S.y);S.x=nx;S.y=ny;place();sfx("step");
+ await sleep(ms||400);
+ return "ok";
+}
+/* perintah tidak dikenali: ROBO tetap melangkah satu petak ke arah hadap */
+async function lurch(){
+ const r=await step(400);
+ if(r==="ok"){say(`ROBO tetap melangkah satu petak ke ${DIRS[S.dir].n}. Kini di kolom ${S.x+1}, baris ${S.y+1}.`,"bot err");await sleep(180);return true;}
+ if(r==="tepi"){bump();say("ROBO tetap melangkah dan tertahan di tepi gudang.","bot err");await sleep(320);return true;}
+ if(r==="rak"){bump();say("ROBO tetap melangkah dan menabrak rak.","bot err");await sleep(320);return true;}
+ fail("Baterai habis saat ROBO melangkah tanpa perintah yang jelas.");
+ return false;
+}
+/* perintah habis sebelum sampai dok: ROBO melaju terus sampai benar-benar berhenti */
+async function drift(){
+ if(S.over)return;
+ const left=S.packs.filter(p=>!p.taken).length;
+ say(left>0?`Perintah habis dan masih ada ${left} paket tertinggal. ROBO melaju terus ke ${DIRS[S.dir].n}.`
+           :`Perintah habis sebelum sampai dok. ROBO melaju terus ke ${DIRS[S.dir].n}.`,"bot err");
+ await sleep(520);
+ while(!S.over){
+  const r=await step(300);
+  if(r==="ok"){if(atGoal())return;continue;}
+  if(r==="tepi"){bump();return fail("ROBO menghantam tepi gudang dan berhenti di sana.");}
+  if(r==="rak"){bump();return fail("ROBO menabrak rak dan berhenti di sana.");}
+  return fail("Baterai ROBO habis di tengah gudang.");
+ }
+}
 async function run(cmds){
  for(const c of cmds){
   if(S.over)return;
-  if(c.e){sfx("err");say(c.e,"bot err");await sleep(340);continue;}
+  if(c.e){
+   sfx("err");haptic(30);say(c.e,"bot err");await sleep(340);
+   if(!await lurch())return;
+   if(atGoal())return;
+   continue;
+  }
   if(c.t==="turn"||c.t==="face"){
    const nd=c.t==="turn"?(S.dir+c.d)%4:c.d;
    let cost=Math.abs(nd-S.dir);cost=Math.min(cost,4-cost);
@@ -645,7 +686,7 @@ async function run(cmds){
    const p=S.packs.find(p=>!p.taken&&p.x===S.x&&p.y===S.y);
    if(p){p.taken=true;S.carry++;place();
     els.board.querySelector('.pack[data-k="'+S.packs.indexOf(p)+'"]').classList.add("gone");
-    sfx("take");say(`Paket diangkat (${S.carry}/${S.packs.length}).`,"bot ok");}
+    sfx("take");haptic(18);say(`Paket diangkat (${S.carry}/${S.packs.length}).`,"bot ok");}
    else{sfx("err");say("Tidak ada paket di petak ini.","bot err");}
    await sleep(460);
   }else if(c.t==="drop"){
@@ -674,7 +715,7 @@ function atGoal(){
  return false;
 }
 function win(){
- S.over=true;streak++;sfx("win");
+ S.over=true;streak++;sfx("win");haptic([25,70,25,70,70]);
  if(streak>best){best=streak;try{localStorage.setItem("robokargo_best",String(best));}catch(e){}}
  updStreak();
  say("Kargo diterima di dok. Misi berhasil.","bot ok");
@@ -682,14 +723,9 @@ function win(){
   S.batt>=S.battMax-S.opt?"Rencanamu efisien. Naikkan tingkat kesulitan kalau sudah terasa mudah.":"Berhasil, tapi ada langkah yang terbuang. Rencanakan jalur sebelum mengetik.");
 }
 function fail(reason){
- if(S.over)return;S.over=true;streak=0;sfx("fail");updStreak();
+ if(S.over)return;S.over=true;streak=0;sfx("fail");haptic(170);updStreak();
  say(reason,"bot err");
  show(false,reason,`Jalur terpendek di peta itu butuh ${S.opt} baterai; kamu diberi ${S.battMax}. Peta berikutnya akan berbeda — baca nomor kolom dan baris dulu, hitung jalurnya, baru ketik.`);
-}
-function finish(){
- if(S.over)return;
- const left=S.packs.filter(p=>!p.taken).length;
- fail(left>0?`Perintah habis. Masih ada ${left} paket yang belum diangkut.`:"Perintah habis sebelum ROBO sampai di dok.");
 }
 function show(ok,sub,note){
  $("oV").textContent=ok?"BERHASIL":"GAGAL";
@@ -698,54 +734,44 @@ function show(ok,sub,note){
  $("oNote").textContent=note;
  $("overlay").hidden=false;
 }
-function updStreak(){els.streak.innerHTML=`beruntun <b>${streak}</b> · terbaik ${best}`;}
-/* ---------- flow ---------- */
+function updStreak(){els.streak.innerHTML=`beruntun <b>${streak}</b> · rekor ${best}`;}
+/* ---------- alur ---------- */
 function newMap(){
  const m=genMap();
  if(!m){say("Gagal menyusun peta, coba lagi.","bot err");return;}
  mapNo++;
  S=Object.assign({},m,{x:m.sx,y:m.sy,dir:m.sdir,carry:0,batt:m.batt,battMax:m.batt,over:false});
  render();
- els.mName.textContent="Peta #"+mapNo;
- els.mPill.textContent=DIFF[diff].label;
- els.mChips.innerHTML=
-  (S.packs.length?`<span class="tag-chip amber">${S.packs.length} paket</span>`:"")+
-  `<span class="tag-chip acc">dok ${S.gx+1},${S.gy+1}</span>`+
-  `<span class="tag-chip">baterai ${S.battMax}</span>`+
-  `<span class="tag-chip">${S.W}×${S.H} petak</span>`;
+ els.mapNo.innerHTML=`peta <b>#${mapNo}</b>`;
  els.log.innerHTML="";
  say(`Peta baru. ROBO berada di kolom ${S.x+1}, baris ${S.y+1}, menghadap ${DIRS[S.dir].n}. DOK di kolom ${S.gx+1}, baris ${S.gy+1}.`);
  S.packs.forEach((p,i)=>say(`Paket ${i+1} di kolom ${p.x+1}, baris ${p.y+1}.`));
  say("Kirim satu pesan berisi seluruh rencanamu. Setelah itu tidak ada perintah kedua.");
- sfx("map");sent=false;els.input.disabled=false;els.send.disabled=false;els.input.value="";els.input.focus();
+ sfx("map");sent=false;els.input.disabled=false;els.send.disabled=false;els.input.value="";
+ if(!COARSE.matches)els.input.focus();
 }
-els.form.addEventListener("submit",async e=>{
- e.preventDefault();
+async function submitPlan(e){
+ if(e)e.preventDefault();
  const v=els.input.value.trim();
- if(!v||busy||sent)return;
- sent=true;busy=true;sfx("send");els.input.disabled=true;els.send.disabled=true;
+ if(busy||sent)return;
+ if(!v){sfx("err");haptic(30);say("Belum ada perintah. Susun rencanamu dulu dengan papan kata di bawah.","bot err");return;}
+ sent=true;busy=true;sfx("send");haptic(14);els.input.disabled=true;els.send.disabled=true;
  say(v,"me");els.input.value="";
  await run(parse(v));
- if(!S.over)finish();
+ if(!S.over)await drift();
  busy=false;
-});
+}
+els.form.addEventListener("submit",submitPlan);
+/* cadangan: sebagian browser seluler tidak selalu memicu submit dari dalam tombol */
+els.send.addEventListener("click",submitPlan);
 els.input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();els.form.requestSubmit();}});
 $("seg").addEventListener("click",e=>{
  const b=e.target.closest("button");if(!b)return;
  [...$("seg").children].forEach(c=>c.classList.toggle("on",c===b));
  diff=b.dataset.d;streak=0;updStreak();$("overlay").hidden=true;newMap();
 });
-els.cells.addEventListener("mousemove",e=>{
- const c=e.target.closest(".cell");if(!c)return;
- els.cells.querySelectorAll(".cell.hi").forEach(n=>n.classList.remove("hi"));
- c.classList.add("hi");
- const x=+c.dataset.x+1,y=+c.dataset.y+1;
- els.hoverCoord.innerHTML=`kursor <b>kolom ${x}, baris ${y}</b>`+(c.classList.contains("wall")?" · rak":"");
-});
-els.cells.addEventListener("mouseleave",()=>{
- els.cells.querySelectorAll(".cell.hi").forEach(n=>n.classList.remove("hi"));
- els.hoverCoord.textContent="Arahkan kursor ke papan untuk melihat koordinat";
-});
+els.cells.addEventListener("click",e=>{const c=e.target.closest(".cell");if(c)peek(c);});
+els.cells.addEventListener("mousemove",e=>{const c=e.target.closest(".cell");if(c&&!COARSE.matches)peek(c);});
 $("btnTheme").onclick=()=>{theme=theme==="dark"?"light":"dark";applyTheme();sfx("send");};
 $("btnSound").onclick=()=>{sfxOn=!sfxOn;applySfx();if(sfxOn)sfx("take");};
 $("btnHelp").onclick=()=>{$("help").hidden=false;};
@@ -754,13 +780,25 @@ $("help").addEventListener("click",e=>{if(e.target.id==="help")$("help").hidden=
 $("btnNew").onclick=()=>{$("overlay").hidden=true;newMap();};
 $("oNext").onclick=()=>{$("overlay").hidden=true;newMap();};
 
-/* ---------- papan ketik di layar (tanpa keyboard perangkat) ---------- */
+/* ---------- dok: papan ketik kata (utama) & huruf ---------- */
+let kbdMode="kata";
+const WORDROWS=[
+ [{c:"1"},{c:"2"},{c:"3"},{c:"4"},{c:"5"},{c:"6"},{c:"7"},{c:"8"},{c:"9"}],
+ [{w:"maju"},{w:"mundur"},{w:"ambil"},{w:"taruh"}],
+ [{w:"belok kiri"},{w:"belok kanan"},{w:"putar balik"}],
+ [{w:"hadap utara",top:"hadap",lab:"utara"},{w:"hadap timur",top:"hadap",lab:"timur"},
+  {w:"hadap selatan",top:"hadap",lab:"selatan"},{w:"hadap barat",top:"hadap",lab:"barat"}],
+ [{sep:"lalu"},{u:"bersih"},{u:"abc"},{u:"hapus"}]
+];
 const KEYROWS=[
  ["1","2","3","4","5","6","7","8","9","0"],
  ["q","w","e","r","t","y","u","i","o","p"],
  ["a","s","d","f","g","h","j","k","l",","],
  ["z","x","c","v","b","n","m"]
 ];
+/* di perangkat sentuh kolom teks sengaja tidak difokuskan: fokus bisa menggeser tampilan
+   dan membuat ketukan pertama pada tombol Kirim tertelan */
+function refocus(el){if(!COARSE.matches)el.focus({preventScroll:true});}
 function ins(t){
  if(sent||busy)return;
  const el=els.input,a=el.selectionStart,b=el.selectionEnd;
@@ -768,8 +806,24 @@ function ins(t){
  el.value=el.value.slice(0,st)+t+el.value.slice(en);
  const p=st+t.length;
  try{el.setSelectionRange(p,p);}catch(e){}
- el.focus({preventScroll:true});
+ refocus(el);
+ el.scrollTop=el.scrollHeight;
  if(sfxOn)beep(700+Math.random()*80,.035,"square",.045);
+ haptic(5);
+}
+/* menyisipkan perintah utuh; pemisah "," ditambahkan sendiri agar rencana selalu terbaca ROBO */
+function insCmd(w,plain){
+ if(sent||busy)return;
+ const el=els.input,v=el.value.replace(/\s+$/,"");
+ let sep="";
+ if(v.length)sep=(plain||/[,;]$/.test(v)||/\b(lalu|kemudian|terus|dan)$/.test(v))?" ":", ";
+ el.value=v+sep+w+" ";
+ const p=el.value.length;
+ try{el.setSelectionRange(p,p);}catch(e){}
+ refocus(el);
+ el.scrollTop=el.scrollHeight;
+ if(sfxOn)beep(620,.045,"square",.05);
+ haptic(7);
 }
 function delChar(){
  if(sent||busy)return;
@@ -779,31 +833,56 @@ function delChar(){
  else if(st>0){el.value=el.value.slice(0,st-1)+el.value.slice(st);}
  const p=Math.max(0,en>st?st:st-1);
  try{el.setSelectionRange(p,p);}catch(e){}
- el.focus({preventScroll:true});
+ refocus(el);
  if(sfxOn)beep(320,.05,"square",.05);
+ haptic(9);
+}
+function clearInput(){if(sent||busy)return;els.input.value="";refocus(els.input);haptic(12);}
+function mkKey(label,cls,fn){
+ const b=document.createElement("button");
+ b.type="button";b.className="key"+(cls?" "+cls:"");b.textContent=label;
+ b.addEventListener("click",fn);return b;
 }
 function buildKbd(){
  const box=$("kbd");box.innerHTML="";
- KEYROWS.forEach(row=>{
-  const r=document.createElement("div");r.className="kbdrow";
-  row.forEach(k=>{
-   const b=document.createElement("button");
-   b.type="button";b.className="key";b.textContent=k;
-   b.addEventListener("click",()=>ins(k));
-   r.appendChild(b);
+ const rows=kbdMode==="kata"?WORDROWS:null;
+ if(rows){
+  rows.forEach(row=>{
+   const r=document.createElement("div");r.className="kbdrow";
+   row.forEach(k=>{
+    let b;
+    if(k.c)b=mkKey(k.c,"",()=>ins(k.c));
+    else if(k.top){
+     b=mkKey("","word two",()=>insCmd(k.w));
+     b.innerHTML='<i>'+k.top+'</i>'+k.lab;
+    }
+    else if(k.w)b=mkKey(k.w,"word",()=>insCmd(k.w));
+    else if(k.sep)b=mkKey(k.sep,"sep",()=>insCmd(k.sep,true));
+    else if(k.u==="bersih")b=mkKey("bersih","util",clearInput);
+    else if(k.u==="hapus")b=mkKey("hapus","util",delChar);
+    else b=mkKey("abc","util",()=>{kbdMode="huruf";buildKbd();haptic(10);});
+    r.appendChild(b);
+   });
+   box.appendChild(r);
   });
+ }else{
+  KEYROWS.forEach(row=>{
+   const r=document.createElement("div");r.className="kbdrow";
+   row.forEach(k=>r.appendChild(mkKey(k,"",()=>ins(k))));
+   box.appendChild(r);
+  });
+  const r=document.createElement("div");r.className="kbdrow";
+  r.appendChild(mkKey("kata","sep",()=>{kbdMode="kata";buildKbd();haptic(10);}));
+  r.appendChild(mkKey("spasi","wide",()=>ins(" ")));
+  r.appendChild(mkKey("bersih","util",clearInput));
+  r.appendChild(mkKey("hapus","util",delChar));
   box.appendChild(r);
- });
- const r=document.createElement("div");r.className="kbdrow";
- const mk=(label,cls,fn)=>{const b=document.createElement("button");b.type="button";b.className="key "+cls;b.textContent=label;b.addEventListener("click",fn);return b;};
- r.appendChild(mk("bersih","util",()=>{if(sent||busy)return;els.input.value="";els.input.focus({preventScroll:true});}));
- r.appendChild(mk("spasi","wide",()=>ins(" ")));
- r.appendChild(mk("hapus","util",delChar));
- box.appendChild(r);
+ }
  if(COARSE.matches){els.input.setAttribute("readonly","readonly");els.input.setAttribute("inputmode","none");}
 }
 buildKbd();
 
-applyTheme();applySfx();applyFit();updStreak();newMap();
+applyTheme();applySfx();updStreak();newMap();
+setTimeout(fitBoard,60);
 })();
 </script>
