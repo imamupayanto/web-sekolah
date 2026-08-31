@@ -197,6 +197,25 @@ textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:
 .key.two i{display:block;font-style:normal;font-weight:400;opacity:.62;font-size:10.5px;letter-spacing:.04em}
 .key.sep{background:var(--surface-2);color:var(--ink-2);font-weight:600}
 
+/* ---------- layar tinggi: papan ketik menetap, tidak ada ruang menganggur ----------
+   Dipilih otomatis hanya bila papan tetap sebesar mungkin. */
+body.dock-mode .sheet{position:static;transform:none;visibility:visible;max-height:none;
+  flex:1 1 auto;min-height:0;border-radius:0;box-shadow:none;transition:none}
+body.dock-mode .sheethead{display:none}
+body.dock-mode #btnWrite{display:none}
+body.dock-mode .dock{box-shadow:none;padding-bottom:0;border-bottom:1px solid var(--line)}
+body.dock-mode .sheetbody{padding-top:9px}
+body.dock-mode textarea{height:clamp(54px,8dvh,78px)}
+body.dock-mode .dock{gap:6px;padding:7px 10px 0}
+body.dock-mode .logline{padding:6px 10px;font-size:12.5px}
+body.dock-mode .pip{height:11px}
+body.dock-mode .play{flex:0 1 auto;overflow:hidden}
+body.dock-mode .boardwrap{flex:0 1 auto}
+body.dock-mode .gridframe{flex:0 1 auto}
+body.dock-mode .kbd{flex:1;min-height:0}
+body.dock-mode .kbdrow{flex:1 1 0;height:auto;min-height:30px;max-height:54px}
+body.dock-mode .kbdrow.num{flex:.85 1 0;max-height:46px}
+
 /* ---------- lapisan ---------- */
 .overlay{position:fixed;inset:0;background:color-mix(in srgb,#1B2A4E 48%,transparent);
   backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px;z-index:30;animation:fadein .18s both}
@@ -381,19 +400,49 @@ const COARSE=window.matchMedia("(pointer:coarse)");
 
 /* ---------- papan mengisi ruang yang tersedia ---------- */
 function fitBoard(){
- const gf=els.gridframe;if(!S||!gf)return;
+ const gf=els.gridframe;if(!S||!gf)return 0;
  gf.style.gridTemplateColumns="18px 1fr";gf.style.gridTemplateRows="16px 1fr";
  const availW=gf.clientWidth-22,availH=gf.clientHeight-20;
- if(availW<40||availH<40)return;
+ if(availW<30||availH<30)return 0;
  const cell=Math.max(16,Math.floor(Math.min(availW/S.W,availH/S.H)));
  gf.style.gridTemplateColumns=`18px ${cell*S.W}px`;
  gf.style.gridTemplateRows=`16px ${cell*S.H}px`;
  els.board.style.setProperty("--cellpx",cell+"px");
+ return cell;
+}
+/* Papan ketik hanya menetap kalau papan tetap lapang.
+   Layar tinggi -> papan ketik menetap, tidak ada ruang menganggur;
+   layar pendek -> kembali ke lembar yang bisa dibuka-tutup. */
+function setCell(cell){
+ const gf=els.gridframe;
+ gf.style.gridTemplateColumns=`18px ${cell*S.W}px`;
+ gf.style.gridTemplateRows=`16px ${cell*S.H}px`;
+ els.board.style.setProperty("--cellpx",cell+"px");
+}
+function rowH(){
+ const r=document.querySelector("#kbd .kbdrow:nth-child(2)");
+ return r?r.getBoundingClientRect().height:0;
+}
+function chooseMode(){
+ if(!S)return;
+ const body=document.body;
+ body.classList.remove("dock-mode");
+ const freeCell=fitBoard();
+ if(!freeCell||freeCell<24)return;
+ body.classList.add("dock-mode");
+ let cell=freeCell,ok=false;
+ for(let i=0;i<26&&cell>=24;i++){
+  setCell(cell);
+  if(rowH()>=34){ok=true;break;}
+  cell--;
+ }
+ if(ok){closeSheet();return;}
+ body.classList.remove("dock-mode");fitBoard();
 }
 let rafId=0;
-const refit=()=>{cancelAnimationFrame(rafId);rafId=requestAnimationFrame(fitBoard);};
+const refit=()=>{cancelAnimationFrame(rafId);rafId=requestAnimationFrame(chooseMode);};
 window.addEventListener("resize",refit);
-window.addEventListener("orientationchange",()=>setTimeout(fitBoard,220));
+window.addEventListener("orientationchange",()=>setTimeout(chooseMode,220));
 if(window.visualViewport)window.visualViewport.addEventListener("resize",refit);
 
 /* ---------- tema, suara, getaran ---------- */
@@ -544,7 +593,7 @@ function render(){
  const r=document.createElement("div");r.className="robot";r.id="robo";
  r.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5l3 4H9z" fill="var(--accent)"/><rect x="4.5" y="7" width="15" height="11" rx="3" fill="var(--surface)"/><path d="M9 12h.01M15 12h.01" stroke-width="2.4"/><path d="M10 15.2h4"/></svg><i class="carry"></i>';
  els.board.appendChild(r);
- place();batt();fitBoard();
+ place();batt();chooseMode();
 }
 function place(){
  const r=$("robo"),cw=100/S.W,ch=100/S.H;
@@ -899,6 +948,6 @@ function buildKbd(){
 buildKbd();
 
 applyTheme();applySfx();updStreak();newMap();
-setTimeout(fitBoard,60);
+setTimeout(chooseMode,60);
 })();
 </script>
