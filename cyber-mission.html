@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cyber Mission</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EAF0EF; --surface:#FFFFFF; --surface-2:#DEE8E6; --ink:#17222B; --ink-soft:#4B5B62;
+  --ink-faint:#7A888E; --accent:#0E7C7B; --accent-strong:#0A5F5E; --accent-tint:#D8ECEA;
+  --gold:#B37B15; --gold-tint:#FAE8C6; --navy:#1B2A41; --danger:#A93E29; --danger-tint:#F6DED8;
+  --success:#33754A; --success-tint:#D9EBE0; --line:#CBD9D6;
+  --shadow:0 1px 2px rgba(23,34,43,.06),0 6px 16px rgba(23,34,43,.08);
+  --term-bg:#0B1119; --term-ink:#DCE7E5; --term-accent:#3FC0B8;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1620; --surface:#16202C; --surface-2:#1E2B39; --ink:#E7EDEE; --ink-soft:#A3B3B9;
+  --ink-faint:#77888F; --accent:#3FC0B8; --accent-strong:#68D6CE; --accent-tint:#17332F;
+  --gold:#E0A83F; --gold-tint:#3A2E15; --navy:#0B1119; --danger:#E4816A; --danger-tint:#3A211C;
+  --success:#6FCB93; --success-tint:#1B3326; --line:#2B3846;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 20px rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  --bg:#0E1620; --surface:#16202C; --surface-2:#1E2B39; --ink:#E7EDEE; --ink-soft:#A3B3B9;
+  --ink-faint:#77888F; --accent:#3FC0B8; --accent-strong:#68D6CE; --accent-tint:#17332F;
+  --gold:#E0A83F; --gold-tint:#3A2E15; --navy:#0B1119; --danger:#E4816A; --danger-tint:#3A211C;
+  --success:#6FCB93; --success-tint:#1B3326; --line:#2B3846;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 20px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Karla',system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+h1,h2,h3,h4{font-family:'Baloo 2',system-ui,sans-serif;margin:0;text-wrap:balance;line-height:1.2}
+.mono{font-family:'IBM Plex Mono',ui-monospace,"Courier New",monospace}
+button{font-family:inherit;font-size:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+
+#shell{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);position:relative}
+header.appbar{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:14px 18px 16px;border-radius:0 0 22px 22px;box-shadow:var(--shadow)}
+header .row{display:flex;align-items:center;gap:13px}
+header h1{font-size:1.3rem;color:#fff}
+header .tagline{font-size:.74rem;color:#A9B6C2;margin-top:2px}
+header .stars{font-size:.72rem;color:var(--gold);font-family:'Baloo 2';font-weight:700;margin-top:3px}
+.ring{--pct:0;width:54px;height:54px;border-radius:50%;flex:none;background:conic-gradient(var(--gold) calc(var(--pct)*1%),rgba(255,255,255,.15) 0);display:flex;align-items:center;justify-content:center;transition:background .4s ease}
+.ring b{width:42px;height:42px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:.78rem;color:#fff}
+
+main{flex:1;padding:18px 16px 100px}
+.view{display:none}
+.view.on{display:block;animation:fade .3s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.lead{color:var(--ink-soft);font-size:.9rem;margin:0 0 16px}
+h2.sec{font-size:1.06rem;margin:22px 0 10px}
+
+.path{position:relative;padding-left:26px}
+.path::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.node{position:relative;display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:12px 14px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;width:100%;text-align:left;color:inherit;transition:transform .14s ease}
+.node:active{transform:scale(.985)}
+.node[data-locked="1"]{opacity:.5;cursor:not-allowed}
+.node::before{content:"";position:absolute;left:-26px;top:50%;transform:translate(-2px,-50%);width:14px;height:14px;border-radius:50%;background:var(--surface);border:2px solid var(--line)}
+.node[data-state="done"]::before{background:var(--success);border-color:var(--success)}
+.node[data-state="open"]::before{background:var(--accent);border-color:var(--accent)}
+.node .ic{width:44px;height:44px;border-radius:13px;flex:none;background:var(--tt);color:var(--tc);display:flex;align-items:center;justify-content:center}
+.node .ic svg{width:23px;height:23px}
+.node .bd{flex:1;min-width:0}
+.node .bd h3{font-family:'Karla';font-size:.95rem;font-weight:700}
+.node .bd p{margin:3px 0 0;font-size:.74rem;color:var(--ink-faint)}
+.node .bd .tag{display:inline-block;font-family:'Baloo 2';font-weight:700;font-size:.62rem;padding:1px 7px;border-radius:99px;background:var(--tt);color:var(--tc);margin-right:4px;vertical-align:1px}
+.node .rt{flex:none;text-align:right}
+.pill{display:inline-block;font-family:'Baloo 2';font-weight:700;font-size:.66rem;padding:4px 9px;border-radius:99px;white-space:nowrap}
+.pill.lock{background:var(--surface-2);color:var(--ink-faint)}
+.pill.open{background:var(--accent-tint);color:var(--accent-strong)}
+.pill.done{background:var(--success-tint);color:var(--success)}
+.starline{font-size:.72rem;color:var(--gold);margin-top:4px;letter-spacing:1px}
+
+.lvl{display:flex;align-items:center;gap:11px;width:100%;text-align:left;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:9px;cursor:pointer}
+.lvl[data-locked="1"]{opacity:.5;cursor:not-allowed}
+.lvl .num{width:34px;height:34px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:.9rem;background:var(--surface-2);color:var(--ink-faint)}
+.lvl[data-done="1"] .num{background:var(--success-tint);color:var(--success)}
+.lvl[data-open="1"] .num{background:var(--accent-tint);color:var(--accent-strong)}
+.lvl .bd{flex:1;min-width:0}
+.lvl .bd h4{font-family:'Karla';font-size:.92rem;font-weight:700}
+.lvl .bd p{margin:2px 0 0;font-size:.73rem;color:var(--ink-faint)}
+.lvl .st{flex:none;font-size:.8rem;color:var(--gold);letter-spacing:1px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:15px;box-shadow:var(--shadow);margin-bottom:11px}
+.card.flat{box-shadow:none;background:var(--surface-2)}
+.card h3{font-size:1rem;margin-bottom:6px}
+.card p{margin:0 0 8px;font-size:.88rem;color:var(--ink-soft)}
+.card p:last-child{margin-bottom:0}
+.card ul{margin:6px 0 0;padding-left:18px;font-size:.87rem;color:var(--ink-soft)}
+.card li{margin-bottom:5px}
+.eyebrow{font-family:'Baloo 2';font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-bottom:3px}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--accent);color:#fff;border:none;font-family:'Baloo 2';font-weight:600;font-size:.95rem;padding:12px 18px;border-radius:99px;cursor:pointer;box-shadow:0 4px 10px rgba(14,124,123,.25)}
+.btn:active{transform:translateY(1px)}
+.btn.sec{background:var(--surface-2);color:var(--ink);box-shadow:none}
+.btn.gold{background:var(--gold);box-shadow:0 4px 10px rgba(179,123,21,.25)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btns{display:flex;gap:9px;margin-top:12px}
+.btns .btn{flex:1}
+
+input[type=text],input[type=password],textarea{width:100%;font-family:'Karla';font-size:.94rem;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+textarea{font-family:'IBM Plex Mono';font-size:.76rem;resize:vertical}
+label{display:block;font-size:.77rem;font-weight:700;color:var(--ink-soft);margin:0 0 6px}
+.field{margin-bottom:12px}
+
+.choice{display:block;width:100%;text-align:left;background:var(--surface-2);border:1.5px solid var(--line);color:var(--ink);border-radius:11px;padding:12px 14px;margin-bottom:8px;font-size:.9rem;cursor:pointer}
+.choice.ok{background:var(--success-tint);border-color:var(--success);color:var(--success);font-weight:700}
+.choice.no{background:var(--danger-tint);border-color:var(--danger);color:var(--danger)}
+.choice.sel{border-color:var(--accent);background:var(--accent-tint)}
+.choice:disabled{cursor:default}
+
+.note{border-radius:11px;padding:11px 13px;font-size:.85rem;margin-top:11px}
+.note.ok{background:var(--success-tint);color:var(--success)}
+.note.no{background:var(--danger-tint);color:var(--danger)}
+.note.hint{background:var(--gold-tint);color:var(--gold)}
+.note.info{background:var(--accent-tint);color:var(--accent-strong)}
+.note b{display:block;font-family:'Baloo 2';margin-bottom:3px}
+.explain{font-size:.83rem;color:var(--ink-soft);margin-top:8px;line-height:1.5}
+.counter{font-family:'Baloo 2';font-size:.78rem;color:var(--ink-faint);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.timer{font-family:'IBM Plex Mono';font-weight:600;font-size:.82rem;color:var(--accent)}
+.timer.low{color:var(--danger)}
+.tbar{height:5px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-bottom:12px}
+.tbar i{display:block;height:100%;background:var(--accent);width:100%}
+.tbar i.low{background:var(--danger)}
+
+.msg{background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:14px}
+.msg .from{font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-faint)}
+.msg .txt{font-size:.93rem;margin-top:6px}
+.msg .txt.mono{font-size:.82rem;word-break:break-all}
+
+.evi{font-size:.93rem;line-height:1.9}
+.evi span.tok{border-radius:6px;padding:2px 3px;cursor:pointer;border-bottom:2px dotted var(--ink-faint)}
+.evi span.tok.picked{background:var(--accent-tint);border-color:var(--accent)}
+.evi span.tok.good{background:var(--success-tint);color:var(--success);font-weight:700;border-color:var(--success)}
+.evi span.tok.bad{background:var(--danger-tint);color:var(--danger);border-color:var(--danger)}
+
+.term{background:var(--term-bg);color:var(--term-ink);border-radius:13px;padding:12px;font-family:'IBM Plex Mono';font-size:.74rem;line-height:1.6;height:250px;overflow-y:auto}
+.term .l{white-space:pre-wrap;word-break:break-word;margin:0}
+.term .c{color:var(--term-accent)}
+.term .w{color:#E8B75C}
+.term .r{color:#F08A6C}
+.termrow{display:flex;gap:8px;margin-top:9px}
+.termrow input{flex:1;font-family:'IBM Plex Mono';font-size:.8rem}
+.termrow button{flex:none;width:auto;padding:11px 16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.chip{font-family:'IBM Plex Mono';font-size:.71rem;background:var(--surface-2);border:1px solid var(--line);color:var(--ink-soft);border-radius:99px;padding:5px 11px;cursor:pointer}
+
+.meter{height:11px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin:11px 0 5px}
+.meter i{display:block;height:100%;width:0;border-radius:99px;transition:width .3s ease,background .3s ease}
+.mlabel{font-family:'Baloo 2';font-weight:700;font-size:.92rem}
+.mtime{font-size:.79rem;color:var(--ink-soft)}
+.crit{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.crit span{font-size:.71rem;padding:4px 9px;border-radius:99px;background:var(--surface-2);color:var(--ink-faint)}
+.crit span.hit{background:var(--success-tint);color:var(--success);font-weight:700}
+
+.exif{font-family:'IBM Plex Mono';font-size:.75rem;background:var(--surface-2);border-radius:11px;padding:11px;margin-top:10px}
+.exif div{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dashed var(--line)}
+.exif div:last-child{border:none}
+.exif b{color:var(--ink-faint);font-weight:500;flex:none}
+.exif span{text-align:right;word-break:break-word}
+
+.ord{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:8px}
+.ord .n{width:26px;height:26px;flex:none;border-radius:8px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:700;font-size:.78rem;color:var(--ink-faint)}
+.ord .t{flex:1;font-size:.85rem}
+.ord .mv{display:flex;flex-direction:column;gap:3px;flex:none}
+.ord .mv button{background:var(--surface);border:1px solid var(--line);color:var(--ink-soft);border-radius:6px;width:26px;height:19px;line-height:1;cursor:pointer;padding:0;font-size:.65rem}
+
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.bg{aspect-ratio:1;border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:5px;background:var(--surface-2);color:var(--ink-faint);border:1px solid var(--line)}
+.bg.got{background:var(--gold-tint);color:var(--gold);border-color:var(--gold)}
+.bg svg{width:21px;height:21px}
+.bg span{font-family:'Baloo 2';font-weight:700;font-size:.58rem;line-height:1.15}
+
+.rank{display:flex;align-items:center;gap:12px}
+.rank .rb{width:52px;height:52px;border-radius:15px;flex:none;background:var(--gold-tint);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-weight:800;font-size:1.2rem}
+.cert{border:2px solid var(--gold);background:var(--gold-tint);border-radius:16px;padding:22px 16px;text-align:center}
+.cert .k{font-family:'Baloo 2';font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.cert h3{font-size:1.5rem;color:var(--gold);margin:6px 0}
+.cert .nm{font-family:'Baloo 2';font-size:1.25rem;color:var(--ink);margin:10px 0 4px}
+.cert p{font-size:.8rem;color:var(--ink-soft);margin:0}
+
+nav.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;width:calc(100% - 28px);max-width:452px;background:var(--surface);border:1px solid var(--line);border-radius:99px;box-shadow:var(--shadow);display:flex;z-index:30}
+nav.tabs button{flex:1;background:none;border:none;padding:11px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink-faint);cursor:pointer;border-radius:99px}
+nav.tabs svg{width:20px;height:20px}
+nav.tabs span{font-family:'Baloo 2';font-weight:700;font-size:.65rem}
+nav.tabs button.on{color:var(--accent)}
+
+.ovl{position:fixed;inset:0;background:rgba(11,17,25,.6);display:flex;align-items:flex-end;justify-content:center;z-index:50;animation:fade .22s ease both}
+.ovl.mid{align-items:center;padding:18px}
+.sheet{background:var(--surface);width:100%;max-width:480px;border-radius:22px 22px 0 0;padding:18px 16px 26px;max-height:92vh;overflow-y:auto}
+.ovl.mid .sheet{border-radius:20px;max-height:84vh}
+.shead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+.shead h2{font-size:1.14rem}
+.tchip{display:inline-block;font-family:'Baloo 2';font-weight:700;font-size:.65rem;padding:3px 10px;border-radius:99px;background:var(--tt);color:var(--tc);margin-bottom:5px}
+.x{background:none;border:none;color:var(--ink-faint);font-size:1.5rem;line-height:1;cursor:pointer;padding:0 4px;flex:none}
+.bigstars{text-align:center;font-size:2.1rem;letter-spacing:6px;color:var(--gold);margin:6px 0 2px}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:var(--navy);color:#fff;font-family:'Baloo 2';font-weight:600;font-size:.85rem;padding:11px 20px;border-radius:99px;z-index:60;box-shadow:var(--shadow);animation:pop .3s ease both;max-width:88%;text-align:center}
+@keyframes pop{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header class="appbar">
+    <div class="row">
+      <div class="ring" id="ring"><b id="ringTxt">0/8</b></div>
+      <div>
+        <h1>Cyber Mission</h1>
+        <div class="tagline" id="tagline">Misi keamanan siber untuk calon jagoan digital</div>
+        <div class="stars" id="hstars"></div>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="view on" id="v-map"></section>
+    <section class="view" id="v-belajar"></section>
+    <section class="view" id="v-profil"></section>
+  </main>
+  <nav class="tabs">
+    <button data-tab="map" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-6-3V4l6 3m0 13l6-3m-6 3V7m6 10l6 3V7l-6-3m0 13V4m0 0L9 7"/></svg><span>Peta Misi</span></button>
+    <button data-tab="belajar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 006.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15z"/></svg><span>Belajar</span></button>
+    <button data-tab="profil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c0-4 3.5-6 7.5-6s7.5 2 7.5 6"/></svg><span>Profil</span></button>
+  </nav>
+  <div id="modal"></div>
+</div>
+<script>
+/* ==================== ICONS ==================== */
+const I = {
+  key:'<path d="M14 7a4 4 0 11-4.9 3.9L4 16v3h3l1-1h2v-2h2l1.1-1.1A4 4 0 0114 7z"/><circle cx="16.5" cy="7.5" r=".8" fill="currentColor"/>',
+  fish:'<path d="M3 12s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/>',
+  term:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/>',
+  lock:'<rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/>',
+  cipher:'<path d="M4 7h16M4 12h10M4 17h7"/><circle cx="18" cy="15" r="3"/>',
+  photo:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-6 6"/>',
+  chat:'<path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.4A8 8 0 1121 12z"/>',
+  flag:'<path d="M5 21V4m0 0l9 3-2 3 2 3-9 3"/>'
+};
+const svg = p => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
+
+/* ==================== TIERS ==================== */
+const TIER = {
+  mudah:{n:'Mudah', c:'#33754A', t:'#D9EBE0', cd:'#6FCB93', td:'#1B3326'},
+  sedang:{n:'Sedang', c:'#0E7C7B', t:'#D8ECEA', cd:'#3FC0B8', td:'#17332F'},
+  sulit:{n:'Sulit', c:'#B37B15', t:'#FAE8C6', cd:'#E0A83F', td:'#3A2E15'},
+  ekstra:{n:'Di Atas Normal', c:'#A93E29', t:'#F6DED8', cd:'#E4816A', td:'#3A211C'}
+};
+const isDark = () => {
+  const t = document.documentElement.getAttribute('data-theme');
+  if(t === 'dark') return true; if(t === 'light') return false;
+  return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+};
+const tierVars = k => { const t = TIER[k]; return '--tc:'+(isDark()?t.cd:t.c)+';--tt:'+(isDark()?t.td:t.t)+';'; };
+
+/* ==================== UTIL ==================== */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s => String(s).toUpperCase().replace(/[\s]+/g,' ').trim();
+const stars = n => '★'.repeat(n) + '☆'.repeat(3-n);
+function shuffle(a){ const b = a.slice(); for(let i=b.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+function caesar(t, s){
+  return String(t).replace(/[A-Za-z]/g, c => {
+    const b = c === c.toUpperCase() ? 65 : 97;
+    return String.fromCharCode((c.charCodeAt(0) - b + s + 26) % 26 + b);
+  });
+}
+const b64 = t => { try{ return btoa(t); }catch(e){ return ''; } };
+function scoreStars(score, total){
+  const p = score/total;
+  if(p >= 0.95) return 3;
+  if(p >= 0.75) return 2;
+  if(p >= 0.55) return 1;
+  return 0;
+}
+
+/* ==================== STATE ==================== */
+const KEY = 'cybermission.v2';
+let S = {nama:'', kode:'', lv:{}};
+function load(){ try{ const r = localStorage.getItem(KEY); if(r) S = Object.assign(S, JSON.parse(r)); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+const lk = (m,n) => m+'.'+n;
+const lvStars = (m,n) => (S.lv[lk(m,n)] && S.lv[lk(m,n)].s) || 0;
+const lvDone  = (m,n) => lvStars(m,n) > 0;
+const lvOpen  = (m,n) => n === 1 || lvDone(m, n-1);
+const misById = id => MISSIONS.find(x => x.id === id);
+const misDoneCount = m => misById(m).levels.filter(l => lvDone(m, l.n)).length;
+const misDone = m => misDoneCount(m) === misById(m).levels.length;
+const misOpen = i => i === 0 || misDone(MISSIONS[i-1].id);
+const misStars = m => misById(m).levels.reduce((a,l) => a + lvStars(m, l.n), 0);
+const totalStars = () => MISSIONS.reduce((a,x) => a + misStars(x.id), 0);
+const maxStars = () => MISSIONS.reduce((a,x) => a + x.levels.length*3, 0);
+const misCleared = () => MISSIONS.filter(x => misDone(x.id)).length;
+function rankOf(){
+  const p = totalStars()/maxStars();
+  if(p >= 0.9) return {t:'Elite', d:'Penjaga siber tingkat tertinggi'};
+  if(p >= 0.7) return {t:'Ahli', d:'Sudah menguasai sebagian besar keterampilan'};
+  if(p >= 0.45) return {t:'Penjaga', d:'Terus berlatih, kamu berkembang pesat'};
+  if(p >= 0.2) return {t:'Kadet', d:'Dasar-dasarnya mulai terbentuk'};
+  return {t:'Rekrut', d:'Perjalananmu baru dimulai'};
+}
+function toast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2800);
+}
+
+/* ==================== SHEET ==================== */
+function openSheet(html, mid){
+  document.getElementById('modal').innerHTML =
+    '<div class="ovl'+(mid?' mid':'')+'" id="ovl"><div class="sheet" id="sheetBox">'+html+'</div></div>';
+  const o = document.getElementById('ovl');
+  o.addEventListener('click', e => { if(e.target.id === 'ovl') closeSheet(); });
+}
+function closeSheet(){ document.getElementById('modal').innerHTML = ''; stopTimer(); }
+function sheetHead(m, sub, backFn){
+  return '<div class="shead" style="'+tierVars(m.tier)+'"><div>'+
+    '<span class="tchip">'+TIER[m.tier].n+' &middot; '+m.sesi+'</span>'+
+    '<h2>'+m.title+'</h2>'+(sub ? '<div style="font-size:.8rem;color:var(--ink-faint);margin-top:3px">'+sub+'</div>' : '')+
+    '</div><button class="x" onclick="'+(backFn||'closeSheet()')+'" aria-label="Tutup">&times;</button></div>';
+}
+
+/* ==================== NAV ==================== */
+function showTab(tab){
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-'+tab));
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+
+/* ==================== RENDER: MAP ==================== */
+function renderMap(){
+  let h = '<p class="lead">Selesaikan misi berurutan dari atas ke bawah. Tiap misi punya beberapa level yang makin sulit. Misi berikutnya terbuka kalau semua level misi ini selesai.</p><div class="path">';
+  MISSIONS.forEach((m, i) => {
+    const dn = misDone(m.id), op = misOpen(i), pr = misDoneCount(m.id), tot = m.levels.length;
+    const state = dn ? 'done' : (op ? 'open' : 'lock');
+    const pill = dn ? '<span class="pill done">Tuntas</span>'
+               : op ? '<span class="pill open">'+pr+'/'+tot+'</span>'
+                    : '<span class="pill lock">Terkunci</span>';
+    const st = misStars(m.id);
+    h += '<button class="node" style="'+tierVars(m.tier)+'" data-state="'+state+'" data-locked="'+(op?0:1)+'" '+
+         'onclick="'+(op ? "openMission('"+m.id+"')" : "toast('Tuntaskan misi sebelumnya dulu')")+'">'+
+         '<span class="ic">'+svg(m.icon)+'</span>'+
+         '<span class="bd"><h3>Misi '+m.no+' &middot; '+m.title+'</h3>'+
+         '<p><span class="tag">'+TIER[m.tier].n+'</span>'+tot+' level &middot; '+m.desc+'</p>'+
+         (st ? '<div class="starline">'+'★'.repeat(Math.min(st,tot*3))+' '+st+'/'+(tot*3)+'</div>' : '')+
+         '</span><span class="rt">'+pill+'</span></button>';
+  });
+  h += '</div>';
+  document.getElementById('v-map').innerHTML = h;
+}
+
+/* ==================== MISSION -> LEVEL SELECT ==================== */
+function openMission(id){
+  const m = misById(id);
+  let h = sheetHead(m, m.desc);
+  h += '<p class="lead">'+m.intro+'</p>';
+  m.levels.forEach(l => {
+    const dn = lvDone(id, l.n), op = lvOpen(id, l.n), st = lvStars(id, l.n);
+    h += '<button class="lvl" data-done="'+(dn?1:0)+'" data-open="'+(op&&!dn?1:0)+'" data-locked="'+(op?0:1)+'" '+
+         'onclick="'+(op ? "playLevel('"+id+"',"+l.n+")" : "toast('Selesaikan level sebelumnya dulu')")+'">'+
+         '<span class="num">'+l.n+'</span>'+
+         '<span class="bd"><h4>'+l.t+'</h4><p>'+l.d+'</p></span>'+
+         '<span class="st">'+(dn ? stars(st) : (op ? '' : '\u{1F512}'))+'</span></button>';
+  });
+  const tot = m.levels.length;
+  h += '<div class="note info" style="margin-top:14px"><b>Progres misi ini</b>'+misDoneCount(id)+' dari '+tot+' level selesai &middot; '+misStars(id)+' dari '+(tot*3)+' bintang.</div>';
+  openSheet(h);
+}
+function playLevel(mid, n){
+  const m = misById(mid), l = m.levels.find(x => x.n === n);
+  CUR = {mid:mid, n:n, m:m, l:l};
+  l.run();
+}
+let CUR = null;
+function lvHead(extra){
+  const m = CUR.m;
+  return sheetHead(m, 'Level '+CUR.n+' &mdash; '+CUR.l.t, "openMission('"+CUR.mid+"')") + (extra||'');
+}
+function finishLevel(st, msg, extra){
+  const {mid, n, m} = CUR;
+  const prev = lvStars(mid, n);
+  if(st > 0 && st >= prev) S.lv[lk(mid,n)] = {s:st};
+  else if(st > 0 && prev === 0) S.lv[lk(mid,n)] = {s:st};
+  save();
+  const nx = m.levels.find(x => x.n === n+1);
+  let h = lvHead();
+  h += '<div class="bigstars">'+(st ? stars(st) : '☆☆☆')+'</div>';
+  h += '<div class="note '+(st?'ok':'no')+'"><b>'+(st ? (st===3?'Sempurna!':'Level selesai!') : 'Belum lulus level ini')+'</b>'+msg+'</div>';
+  if(extra) h += extra;
+  h += '<div class="btns">';
+  if(st && nx) h += '<button class="btn" onclick="playLevel(\''+mid+'\','+(n+1)+')">Level Berikutnya</button>';
+  else if(st) h += '<button class="btn" onclick="openMission(\''+mid+'\')">Kembali ke Misi</button>';
+  else h += '<button class="btn" onclick="playLevel(\''+mid+'\','+n+')">Coba Lagi</button>';
+  h += '<button class="btn sec" onclick="playLevel(\''+mid+'\','+n+')">Ulangi</button>';
+  h += '</div>';
+  h += '<div class="btns"><button class="btn sec" onclick="openMission(\''+mid+'\')">Daftar Level</button></div>';
+  openSheet(h);
+  renderAll();
+  if(st && misDone(mid) && misCleared() === MISSIONS.length) toast('Semua misi tuntas! Kamu LULUS!');
+  else if(st && misDone(mid)) toast('Misi '+m.no+' tuntas! Lencana didapat');
+}
+
+/* ==================== ENGINE: MCQ SEQUENCE ==================== */
+let TIMER = null;
+function stopTimer(){ if(TIMER){ clearInterval(TIMER); TIMER = null; } }
+function seqMCQ(items, opts, onEnd){
+  opts = opts || {};
+  let i = 0, score = 0;
+  const list = opts.shuffle ? shuffle(items) : items;
+  function step(){
+    stopTimer();
+    if(i >= list.length) return onEnd(score, list.length);
+    const q = list[i];
+    const opts2 = q.keepOrder ? q.o.map((t,k) => ({t:t, k:k})) : shuffle(q.o.map((t,k) => ({t:t, k:k})));
+    let h = lvHead();
+    h += '<div class="counter"><span>Soal '+(i+1)+' dari '+list.length+'</span>'+
+         (opts.time ? '<span class="timer" id="tmr">'+opts.time+'s</span>' : '<span>Skor '+score+'</span>')+'</div>';
+    if(opts.time) h += '<div class="tbar"><i id="tbar"></i></div>';
+    if(q.pre) h += q.pre;
+    h += '<p style="font-weight:700;margin:12px 0 10px">'+q.t+'</p>';
+    h += opts2.map((o,k) => '<button class="choice" data-k="'+o.k+'">'+o.t+'</button>').join('');
+    h += '<div id="fb"></div>';
+    openSheet(h);
+    document.querySelectorAll('.choice').forEach(b => b.onclick = () => answer(+b.dataset.k, q, false));
+    if(opts.time) startCountdown(opts.time, () => answer(-1, q, true));
+  }
+  function answer(pick, q, timeout){
+    stopTimer();
+    const ok = pick === q.a;
+    if(ok) score++;
+    document.querySelectorAll('.choice').forEach(b => {
+      const k = +b.dataset.k; b.disabled = true;
+      if(k === q.a) b.classList.add('ok'); else if(k === pick) b.classList.add('no');
+    });
+    document.getElementById('fb').innerHTML =
+      '<div class="note '+(ok?'ok':'no')+'"><b>'+(ok ? 'Benar!' : (timeout ? 'Waktu habis' : 'Belum tepat'))+'</b>'+q.e+'</div>'+
+      '<div class="btns"><button class="btn" id="nx">'+(i === list.length-1 ? 'Lihat Hasil' : 'Lanjut')+'</button></div>';
+    document.getElementById('nx').onclick = () => { i++; step(); };
+  }
+  step();
+}
+function startCountdown(sec, onZero){
+  let left = sec;
+  const el = document.getElementById('tmr'), bar = document.getElementById('tbar');
+  const tick = () => {
+    left -= 0.1;
+    if(el) el.textContent = Math.max(0, left).toFixed(1)+'s';
+    if(bar) bar.style.width = Math.max(0, left/sec*100)+'%';
+    if(el && left <= sec*0.3) el.classList.add('low');
+    if(bar && left <= sec*0.3) bar.classList.add('low');
+    if(left <= 0){ stopTimer(); onZero(); }
+  };
+  stopTimer(); TIMER = setInterval(tick, 100);
+}
+
+/* ==================== ENGINE: TEXT CHALLENGE ==================== */
+function textChain(steps, onEnd){
+  let i = 0, penalty = 0;
+  function step(fb){
+    const s = steps[i];
+    let h = lvHead();
+    h += '<div class="counter"><span>Tahap '+(i+1)+' dari '+steps.length+'</span><span>Petunjuk dipakai: '+penalty+'</span></div>';
+    h += s.body;
+    h += '<div class="field" style="margin-top:12px"><label for="ta">'+s.label+'</label>'+
+         '<input type="text" id="ta" autocomplete="off" spellcheck="false" placeholder="'+(s.ph||'tulis jawabanmu...')+'"></div>';
+    if(fb) h += fb;
+    h += '<button class="btn" id="cek">Periksa</button>';
+    if(s.hints && s.hints.length) h += '<div class="btns"><button class="btn sec" id="hb">Minta Petunjuk (-1 nilai)</button></div><div id="hbox"></div>';
+    openSheet(h);
+    const inp = document.getElementById('ta');
+    document.getElementById('cek').onclick = check;
+    inp.onkeydown = e => { if(e.key === 'Enter') check(); };
+    const hb = document.getElementById('hb');
+    if(hb) hb.onclick = () => {
+      const used = Math.min(penalty, s.hints.length);
+      if(used >= s.hints.length) return toast('Semua petunjuk sudah dipakai');
+      penalty++;
+      document.getElementById('hbox').innerHTML = s.hints.slice(0, penalty).map((x,k) =>
+        '<div class="note hint"><b>Petunjuk '+(k+1)+'</b>'+x+'</div>').join('');
+    };
+    setTimeout(() => { const e2 = document.getElementById('ta'); if(e2) e2.focus(); }, 120);
+  }
+  function check(){
+    const v = norm(document.getElementById('ta').value);
+    const ans = Array.isArray(steps[i].a) ? steps[i].a : [steps[i].a];
+    if(ans.some(x => norm(x) === v)){
+      i++;
+      if(i >= steps.length) return onEnd(penalty);
+      step('<div class="note ok"><b>Tepat!</b>Lanjut ke tahap berikutnya.</div>');
+    } else {
+      step('<div class="note no"><b>Belum tepat</b>'+(steps[i].wrong || 'Periksa lagi jawabanmu.')+'</div>');
+    }
+  }
+  step();
+}
+
+/* ==================== ENGINE: PICK EVIDENCE ==================== */
+function pickEvidence(cases, onEnd){
+  let i = 0, score = 0;
+  function step(){
+    const c = cases[i];
+    let h = lvHead();
+    h += '<div class="counter"><span>Kasus '+(i+1)+' dari '+cases.length+'</span><span>Skor '+score+'</span></div>';
+    h += '<p class="lead">Ketuk bagian yang menurutmu <b>mencurigakan</b> ('+c.need.length+' bagian), lalu tekan Periksa.</p>';
+    h += '<div class="msg"><div class="from">'+c.from+'</div><div class="evi" id="evi">'+
+         c.tokens.map((t,k) => '<span class="tok" data-k="'+k+'">'+t+'</span>').join(' ')+'</div></div>';
+    h += '<div id="fb"></div><button class="btn" id="cek" style="margin-top:12px">Periksa</button>';
+    openSheet(h);
+    const picked = new Set();
+    document.querySelectorAll('#evi .tok').forEach(t => t.onclick = () => {
+      const k = +t.dataset.k;
+      if(picked.has(k)){ picked.delete(k); t.classList.remove('picked'); }
+      else { picked.add(k); t.classList.add('picked'); }
+    });
+    document.getElementById('cek').onclick = () => {
+      const need = new Set(c.need);
+      let right = 0, wrong = 0;
+      document.querySelectorAll('#evi .tok').forEach(t => {
+        const k = +t.dataset.k;
+        t.classList.remove('picked');
+        if(need.has(k)){ t.classList.add('good'); if(picked.has(k)) right++; }
+        else if(picked.has(k)){ t.classList.add('bad'); wrong++; }
+      });
+      const perfect = right === need.size && wrong === 0;
+      if(perfect) score++;
+      document.getElementById('cek').remove();
+      document.getElementById('fb').innerHTML =
+        '<div class="note '+(perfect?'ok':'no')+'"><b>'+(perfect ? 'Tepat semua!' : 'Benar '+right+' dari '+need.size+(wrong?', salah tunjuk '+wrong:'')) +'</b>'+c.e+'</div>'+
+        '<div class="btns"><button class="btn" id="nx">'+(i === cases.length-1 ? 'Lihat Hasil' : 'Kasus Berikutnya')+'</button></div>';
+      document.getElementById('nx').onclick = () => { i++; i < cases.length ? step() : onEnd(score, cases.length); };
+    };
+  }
+  step();
+}
+
+/* ==================== ENGINE: MULTI SELECT ==================== */
+function multiSelect(cases, onEnd){
+  let i = 0, score = 0;
+  function step(){
+    const c = cases[i];
+    let h = lvHead();
+    h += '<div class="counter"><span>Kasus '+(i+1)+' dari '+cases.length+'</span><span>Skor '+score+'</span></div>';
+    if(c.pre) h += c.pre;
+    h += '<p style="font-weight:700;margin:12px 0 10px">'+c.t+'</p>';
+    h += c.o.map((o,k) => '<button class="choice" data-k="'+k+'">'+o+'</button>').join('');
+    h += '<div id="fb"></div><button class="btn" id="cek" style="margin-top:6px">Periksa</button>';
+    openSheet(h);
+    const picked = new Set();
+    document.querySelectorAll('.choice').forEach(b => b.onclick = () => {
+      const k = +b.dataset.k;
+      if(picked.has(k)){ picked.delete(k); b.classList.remove('sel'); }
+      else { picked.add(k); b.classList.add('sel'); }
+    });
+    document.getElementById('cek').onclick = () => {
+      const need = new Set(c.a);
+      let right = 0, wrong = 0;
+      document.querySelectorAll('.choice').forEach(b => {
+        const k = +b.dataset.k; b.disabled = true; b.classList.remove('sel');
+        if(need.has(k)){ b.classList.add('ok'); if(picked.has(k)) right++; }
+        else if(picked.has(k)){ b.classList.add('no'); wrong++; }
+      });
+      const perfect = right === need.size && wrong === 0;
+      if(perfect) score++;
+      document.getElementById('cek').remove();
+      document.getElementById('fb').innerHTML =
+        '<div class="note '+(perfect?'ok':'no')+'"><b>'+(perfect ? 'Tepat semua!' : 'Benar '+right+' dari '+need.size+(wrong?', salah pilih '+wrong:''))+'</b>'+c.e+'</div>'+
+        '<div class="btns"><button class="btn" id="nx">'+(i === cases.length-1 ? 'Lihat Hasil' : 'Lanjut')+'</button></div>';
+      document.getElementById('nx').onclick = () => { i++; i < cases.length ? step() : onEnd(score, cases.length); };
+    };
+  }
+  step();
+}
+
+/* ==================== ENGINE: ORDERING ==================== */
+function ordering(spec, onEnd){
+  let cur = shuffle(spec.items.map((x,k) => k));
+  function step(fb){
+    let h = lvHead();
+    h += '<p class="lead">'+spec.lead+'</p>';
+    if(spec.pre) h += spec.pre;
+    h += '<div id="list">'+cur.map((idx,pos) =>
+      '<div class="ord"><span class="n">'+(pos+1)+'</span><span class="t">'+spec.items[idx]+'</span>'+
+      '<span class="mv"><button data-p="'+pos+'" data-d="-1">&#9650;</button><button data-p="'+pos+'" data-d="1">&#9660;</button></span></div>'
+    ).join('')+'</div>';
+    if(fb) h += fb;
+    h += '<button class="btn" id="cek" style="margin-top:10px">Periksa Urutan</button>';
+    openSheet(h);
+    document.querySelectorAll('.mv button').forEach(b => b.onclick = () => {
+      const p = +b.dataset.p, d = +b.dataset.d, q = p+d;
+      if(q < 0 || q >= cur.length) return;
+      [cur[p], cur[q]] = [cur[q], cur[p]];
+      step();
+    });
+    document.getElementById('cek').onclick = () => {
+      const ok = cur.every((v,k) => v === spec.order[k]);
+      if(ok) onEnd(true);
+      else step('<div class="note no"><b>Belum tepat</b>'+spec.wrong+'</div>');
+    };
+  }
+  step();
+}
+
+/* ==================== ENGINE: BRANCHING STORY ==================== */
+function branchStory(stories, onEnd){
+  let i = 0, safeTotal = 0, maxSafe = 0;
+  function play(){
+    const st = stories[i];
+    let node = 'start', safe = 0, steps = 0;
+    maxSafe += st.maxSafe;
+    function scene(fb){
+      const nd = st.nodes[node];
+      let h = lvHead();
+      h += '<div class="counter"><span>Skenario '+(i+1)+' dari '+stories.length+'</span><span>Langkah '+(steps+1)+'</span></div>';
+      h += '<div class="msg"><div class="from">'+st.n+'</div><div class="txt">'+nd.c+'</div></div>';
+      if(fb) h += fb;
+      h += '<p style="font-weight:700;margin:14px 0 10px">Apa yang kamu lakukan?</p>';
+      h += nd.o.map((o,k) => '<button class="choice" data-k="'+k+'">'+o.t+'</button>').join('');
+      h += '<div id="fb"></div>';
+      openSheet(h);
+      document.querySelectorAll('.choice').forEach(b => b.onclick = () => {
+        const k = +b.dataset.k, o = nd.o[k];
+        document.querySelectorAll('.choice').forEach((x,j) => {
+          x.disabled = true;
+          if(nd.o[j].safe) x.classList.add('ok'); else if(j === k) x.classList.add('no');
+        });
+        if(o.safe) safe++;
+        steps++;
+        document.getElementById('fb').innerHTML =
+          '<div class="note '+(o.safe?'ok':'no')+'"><b>'+(o.safe?'Langkah aman':'Kamu terpancing')+'</b>'+o.e+'</div>'+
+          '<div class="btns"><button class="btn" id="nx">'+(o.next ? 'Lanjut' : (i === stories.length-1 ? 'Lihat Hasil' : 'Skenario Berikutnya'))+'</button></div>';
+        document.getElementById('nx').onclick = () => {
+          if(o.next){ node = o.next; scene(); }
+          else { safeTotal += safe; i++; i < stories.length ? play() : onEnd(safeTotal, maxSafe); }
+        };
+      });
+    }
+    scene();
+  }
+  play();
+}
+/* ==================== ENGINE: TERMINAL ==================== */
+function terminal(cfg){
+  let lines = [];
+  const push = (t,c) => lines.push({t:t, c:c||''});
+  (cfg.intro||[]).forEach(l => push(typeof l === 'string' ? l : l.t, typeof l === 'string' ? '' : l.c));
+  const flags = {};
+  const dev = cfg.devices || [];
+  const findDev = a => dev.find(d => d.ip === a || d.nm.toLowerCase() === String(a).toLowerCase());
+  function scanOne(d){
+    if(!d.up){ push('  '+d.ip+' ('+d.nm+') - tidak merespons', 'w'); return; }
+    if(!d.ports.length){ push('  '+d.ip+' ('+d.nm+') - aktif, tidak ada port terbuka'); return; }
+    push('  '+d.ip+' ('+d.nm+') - aktif'+(d.hidden ? '  [TIDAK TERDAFTAR]' : ''), d.hidden ? 'r' : '');
+    d.ports.forEach(p => push('      port '+p[0]+' TERBUKA : '+p[1], p[2] ? 'w' : ''));
+  }
+
+  function draw(){
+    let h = lvHead();
+    h += '<p class="lead">'+cfg.brief+'</p>';
+    h += '<div class="term" id="term">'+lines.map(l => '<p class="l '+l.c+'">'+l.t+'</p>').join('')+'</div>';
+    h += '<div class="termrow"><input type="text" id="cmd" placeholder="ketik perintah..." autocomplete="off" spellcheck="false"><button class="btn" id="run">Jalan</button></div>';
+    h += '<div class="chips">'+(cfg.chips||[]).map(c => '<button class="chip" data-c="'+c+'">'+c+'</button>').join('')+'</div>';
+    h += '<div id="mission"></div>';
+    openSheet(h);
+    const t = document.getElementById('term'); t.scrollTop = t.scrollHeight;
+    const inp = document.getElementById('cmd');
+    document.getElementById('run').onclick = () => exec(inp.value);
+    inp.onkeydown = e => { if(e.key === 'Enter') exec(inp.value); };
+    document.querySelectorAll('.chip').forEach(c => c.onclick = () => exec(c.dataset.c));
+    if(cfg.mission) cfg.mission(document.getElementById('mission'), flags, draw);
+  }
+  function exec(raw){
+    const s = (raw||'').trim();
+    if(!s) return;
+    push('$ '+esc(s), 'c');
+    const parts = s.split(/\s+/);
+    const cmd = parts[0].toLowerCase();
+    const arg = parts.slice(1).join(' ');
+    const has = c => (cfg.cmds||[]).indexOf(c) >= 0;
+    if(['help','ls','ping','whois','nmap','cat','grep','files','clear'].indexOf(cmd) >= 0) flags['cmd_'+cmd] = true;
+
+    if(cmd === 'help'){
+      push('Perintah yang tersedia:');
+      (cfg.cmds||[]).forEach(c => push('  '+HELP[c]));
+    }
+    else if(cmd === 'clear'){ lines = []; }
+    else if(cmd === 'ls' && has('ls')){
+      push('Perangkat terdaftar di '+cfg.net+':');
+      dev.filter(d => !d.hidden).forEach(d => push('  '+d.ip.padEnd(16)+d.nm));
+      if(cfg.lsNote) push(cfg.lsNote);
+    }
+    else if(cmd === 'ping' && has('ping')){
+      const d = findDev(arg);
+      if(!d){ push('ping: host "'+esc(arg)+'" tidak dikenal', 'w'); }
+      else if(!d.up){ push('Request timeout... (3x)'); push(d.nm+' tidak merespons - kemungkinan sedang mati.', 'w'); }
+      else { for(let i=0;i<3;i++) push('64 bytes dari '+d.ip+' ('+d.nm+'): waktu='+(3+i*2)+'ms'); push(d.nm+' AKTIF.'); flags['ping_'+d.ip] = true; }
+    }
+    else if(cmd === 'whois' && has('whois')){
+      if(new RegExp(cfg.net.split('.')[0], 'i').test(arg) || arg === cfg.net){
+        push('Nama jaringan : '+cfg.net);
+        push('Tipe          : jaringan simulasi (latihan)');
+        push('Gerbang       : '+(dev[0] ? dev[0].ip+' ('+dev[0].nm+')' : '-'));
+        push('Perangkat     : '+dev.filter(d => !d.hidden).length+' terdaftar');
+      } else {
+        const d = findDev(arg);
+        if(!d || d.hidden){ push('whois: data untuk "'+esc(arg)+'" tidak ditemukan', 'w'); }
+        else { push('Perangkat : '+d.nm); push('Alamat IP : '+d.ip); push('Vendor    : '+(d.vendor||'tidak diketahui')); push('Status    : '+(d.up?'aktif':'mati')); }
+      }
+    }
+    else if(cmd === 'nmap' && has('nmap')){
+      const sweep = /^[\d.]+\s*-\s*\d+$/.test(arg) || /^[\d.]+\/\d+$/.test(arg);
+      const range = /^(semua|all)$/i.test(arg);
+      if(sweep){
+        push('Menyapu seluruh rentang alamat '+esc(arg)+' ...');
+        dev.forEach(scanOne);
+        const hid = dev.filter(d => d.hidden).length;
+        push('Sapuan selesai. '+hid+' host TIDAK TERDAFTAR ditemukan.', hid ? 'r' : 'c');
+        flags.swept = true; flags.scanned = true;
+      } else if(range){
+        push('Memindai perangkat terdaftar di '+cfg.net+' ...');
+        dev.filter(d => !d.hidden).forEach(scanOne);
+        push('Pemindaian selesai.', 'c');
+        if(dev.some(d => d.hidden)) push('Catatan: perintah ini hanya memeriksa perangkat yang TERDAFTAR.', 'w');
+        flags.scanned = true;
+      } else {
+        const d = findDev(arg);
+        if(!d){ push('nmap: target "'+esc(arg)+'" tidak dikenal. Coba "nmap semua".', 'w'); }
+        else { push('Memindai '+d.ip+' ('+d.nm+') ...'); scanOne(d); flags['nmap_'+d.ip] = true; }
+      }
+    }
+    else if(cmd === 'cat' && has('cat')){
+      const f = (cfg.files||{})[arg];
+      if(!f){ push('cat: berkas "'+esc(arg)+'" tidak ditemukan', 'w'); }
+      else { f.split('\n').forEach(l => push('  '+esc(l))); flags['cat_'+arg] = true; flags.readlog = true; }
+    }
+    else if(cmd === 'grep' && has('grep')){
+      const m = arg.match(/^"?([^"]+)"?\s+(\S+)$/);
+      if(!m){ push('grep: format -> grep <kata> <berkas>', 'w'); }
+      else {
+        const f = (cfg.files||{})[m[2]];
+        if(!f){ push('grep: berkas "'+esc(m[2])+'" tidak ditemukan', 'w'); }
+        else {
+          const hits = f.split('\n').filter(l => l.toLowerCase().indexOf(m[1].toLowerCase()) >= 0);
+          if(!hits.length) push('  (tidak ada baris yang cocok)');
+          else hits.forEach(l => push('  '+esc(l), 'w'));
+          flags.readlog = true;
+        }
+      }
+    }
+    else if(cmd === 'files' && has('cat')){
+      push('Berkas yang bisa dibaca:');
+      Object.keys(cfg.files||{}).forEach(k => push('  '+k));
+    }
+    else {
+      flags.bad = (flags.bad || 0) + 1;
+      push('Perintah "'+esc(cmd)+'" tidak dikenal atau belum tersedia di level ini. Ketik "help".', 'w');
+    }
+    push('');
+    draw();
+  }
+  const HELP = {
+    ls:'ls                  - lihat perangkat yang terdaftar',
+    ping:'ping <ip>           - cek perangkat hidup atau mati',
+    whois:'whois <nama/ip>     - info jaringan atau perangkat',
+    nmap:'nmap <ip|semua>     - periksa port yang terbuka',
+    cat:'cat <berkas>        - baca isi berkas (lihat: files)',
+    grep:'grep <kata> <berkas>- cari baris yang mengandung kata',
+    clear:'clear               - bersihkan layar'
+  };
+  draw();
+}
+
+/* ==================== PASSWORD UTIL ==================== */
+const COMMON_PW = ['password','123456','12345678','qwerty','abc123','111111','iloveyou','admin','password123','sayang','rahasia','12345','indonesia','qwerty123','aku cinta kamu'];
+const KATA_ID = ['kucing','gajah','sepeda','rendang','matahari','pelangi','gunung','kelapa','samudra','harimau','durian','bintang','jendela','sepatu','mangga','kompor','payung','singa','badak','melati'];
+function pwBits(v){
+  const low = /[a-z]/.test(v), up = /[A-Z]/.test(v), dg = /[0-9]/.test(v), sy = /[^A-Za-z0-9]/.test(v);
+  const set = (low?26:0)+(up?26:0)+(dg?10:0)+(sy?33:0);
+  let bits = v.length && set ? v.length * Math.log2(set) : 0;
+  if(COMMON_PW.indexOf(v.toLowerCase()) >= 0) bits = Math.min(bits, 10);
+  return bits;
+}
+function pwLevel(bits, len){
+  if(!len) return {n:'Belum diisi', c:'var(--line)', s:0};
+  if(bits < 28) return {n:'Sangat Lemah', c:'var(--danger)', s:0};
+  if(bits < 40) return {n:'Lemah', c:'var(--danger)', s:0};
+  if(bits < 60) return {n:'Sedang', c:'var(--gold)', s:1};
+  if(bits < 80) return {n:'Kuat', c:'var(--success)', s:2};
+  return {n:'Sangat Kuat', c:'var(--success)', s:3};
+}
+function crackTime(bits){
+  if(bits <= 0) return '—';
+  const secs = Math.pow(2, bits) / 1e10;
+  if(!isFinite(secs) || secs > 3.15e16) return 'miliaran tahun';
+  if(secs < 1) return 'kurang dari 1 detik';
+  if(secs < 60) return Math.round(secs)+' detik';
+  if(secs < 3600) return Math.round(secs/60)+' menit';
+  if(secs < 86400) return Math.round(secs/3600)+' jam';
+  if(secs < 31536000) return Math.round(secs/86400)+' hari';
+  const y = secs/31536000;
+  if(y < 1000) return Math.round(y)+' tahun';
+  if(y < 1e6) return Math.round(y/1000)+' ribu tahun';
+  return Math.round(y/1e6)+' juta tahun';
+}
+function pwMeterHTML(id){
+  return '<div class="meter"><i id="'+id+'bar"></i></div>'+
+         '<div class="mlabel" id="'+id+'lbl">Belum diisi</div>'+
+         '<div class="mtime" id="'+id+'time">Perkiraan waktu dibobol: —</div>'+
+         '<div class="crit" id="'+id+'crit"></div>';
+}
+function pwPaint(id, v){
+  const bits = pwBits(v), L = pwLevel(bits, v.length);
+  const bar = document.getElementById(id+'bar');
+  if(!bar) return L;
+  bar.style.width = Math.min(100, bits/90*100)+'%';
+  bar.style.background = L.c;
+  const lbl = document.getElementById(id+'lbl'); lbl.textContent = L.n; lbl.style.color = L.c;
+  document.getElementById(id+'time').innerHTML = 'Perkiraan waktu dibobol: <b>'+crackTime(bits)+'</b>';
+  const cr = [['8+ huruf', v.length>=8],['12+ huruf', v.length>=12],['huruf kecil',/[a-z]/.test(v)],['huruf besar',/[A-Z]/.test(v)],['angka',/[0-9]/.test(v)],['simbol',/[^A-Za-z0-9]/.test(v)],['bukan kata umum', v.length>0 && COMMON_PW.indexOf(v.toLowerCase())<0]];
+  document.getElementById(id+'crit').innerHTML = cr.map(c => '<span class="'+(c[1]?'hit':'')+'">'+(c[1]?'✓ ':'')+c[0]+'</span>').join('');
+  return L;
+}
+
+/* ==================== MISI 1: PASSWORD ==================== */
+const M1 = {};
+M1.l1 = () => {
+  let best = 0;
+  openSheet(lvHead()+
+    '<p class="lead">Ketik password <b>percobaan</b> (jangan password aslimu). Capai minimal tingkat <b>Sedang</b> untuk lulus, <b>Sangat Kuat</b> untuk 3 bintang.</p>'+
+    '<div class="field"><input type="text" id="pw" placeholder="ketik password percobaan..." autocomplete="off" spellcheck="false"></div>'+
+    pwMeterHTML('m')+
+    '<div class="note hint" style="margin-top:12px"><b>Tips</b>Password panjang yang mudah diingat (gabungan 4 kata acak) biasanya jauh lebih kuat daripada yang pendek tapi rumit.</div>'+
+    '<div class="btns"><button class="btn" id="sel">Kunci Password Ini</button></div>');
+  const inp = document.getElementById('pw');
+  inp.oninput = () => { const L = pwPaint('m', inp.value); best = Math.max(best, L.s); };
+  pwPaint('m','');
+  document.getElementById('sel').onclick = () => {
+    const L = pwPaint('m', inp.value);
+    if(!L.s) return toast('Masih terlalu lemah, perkuat dulu');
+    finishLevel(L.s, 'Password percobaanmu mencapai tingkat <b>'+L.n+'</b>. Ingat: yang membuat kuat itu terutama PANJANG, bukan cuma simbol aneh.');
+  };
+  setTimeout(() => inp.focus(), 120);
+};
+M1.l2 = () => {
+  const pairs = [
+    ['P@ss1!', 'kucinglompatpagarhijau', 1, 'Yang kedua jauh lebih panjang. Panjang menambah kekuatan jauh lebih cepat daripada sekadar menambah simbol.'],
+    ['password123', 'Xk9#mQ2v', 1, '"password123" ada di daftar password paling umum, jadi dicoba paling awal oleh pembobol.'],
+    ['bunga', 'bunga-mawar-melati-kuning', 1, 'Empat kata digabung membuat kemungkinan tebakan meledak jauh lebih besar.'],
+    ['12345678', 'aQ7!x', 1, 'Angka berurutan adalah pola pertama yang dicoba. Walau lebih pendek, yang kedua jauh lebih sulit ditebak.'],
+    ['sepedaBiru2019', 'Ab1!', 0, 'Yang pertama jauh lebih panjang. Password 4 karakter jebol hampir seketika walau ada simbol.'],
+    ['namaku', 'g4j4h-t3rb4ng-di-langit', 1, 'Kata tunggal apa pun mudah ditebak dengan kamus. Rangkaian kata panjang jauh lebih aman.']
+  ];
+  const items = pairs.map(p => ({
+    keepOrder: true,
+    pre:'<div class="msg"><div class="from">Bandingkan</div><div class="txt mono">A. '+p[0]+'<br>B. '+p[1]+'</div></div>',
+    t:'Mana yang lebih kuat?',
+    o:['A. '+p[0], 'B. '+p[1]],
+    a:p[2], e:p[3]
+  }));
+  seqMCQ(items, {}, (sc, tot) => {
+    const st = scoreStars(sc, tot);
+    finishLevel(st, 'Kamu benar '+sc+' dari '+tot+'. Aturan utamanya: <b>panjang mengalahkan kerumitan</b>, dan kata/pola umum selalu kalah.');
+  });
+};
+M1.l3 = () => {
+  const tasks = [
+    {w:'budi123', h:'Ini nama + angka berurutan. Ganti total, jangan cuma tambah angka.'},
+    {w:'qwerty', h:'Pola keyboard. Coba rangkai 2-3 kata yang tidak berhubungan.'},
+    {w:'sayang', h:'Satu kata umum. Tambahkan kata lain dan variasi huruf.'},
+    {w:'admin2024', h:'Kata umum + tahun. Pembobol selalu mencoba pola ini.'}
+  ];
+  let i = 0, total = 0;
+  function step(fb){
+    const t = tasks[i];
+    openSheet(lvHead()+
+      '<div class="counter"><span>Perbaikan '+(i+1)+' dari '+tasks.length+'</span><span>Maks 16 karakter</span></div>'+
+      '<p class="lead">Password lemah ini harus kamu perbaiki. Aturannya: <b>maksimal 16 karakter</b> dan harus mencapai minimal tingkat <b>Kuat</b>. Karena panjang dibatasi, kamu harus pintar memakai variasi huruf, angka, dan simbol.</p>'+
+      '<div class="msg"><div class="from">Password lemah</div><div class="txt mono">'+t.w+'</div></div>'+
+      '<div class="note hint"><b>Petunjuk</b>'+t.h+'</div>'+
+      '<div class="field" style="margin-top:12px"><label for="pw">Password perbaikanmu (maks 16)</label>'+
+      '<input type="text" id="pw" maxlength="16" autocomplete="off" spellcheck="false"></div>'+
+      pwMeterHTML('m')+(fb||'')+
+      '<button class="btn" id="ok" style="margin-top:12px">Kirim Perbaikan</button>');
+    const inp = document.getElementById('pw');
+    inp.oninput = () => pwPaint('m', inp.value);
+    pwPaint('m','');
+    document.getElementById('ok').onclick = () => {
+      const v = inp.value;
+      const L = pwPaint('m', v);
+      if(v.toLowerCase().indexOf(t.w.toLowerCase()) >= 0)
+        return step('<div class="note no"><b>Belum boleh</b>Password barumu masih mengandung kata lama. Ganti total ya.</div>');
+      if(L.s < 2)
+        return step('<div class="note no"><b>Masih kurang kuat</b>Tingkatkan sampai minimal <b>Kuat</b>. Dengan batas 16 karakter, campurkan huruf besar-kecil, angka, dan simbol.</div>');
+      total += (L.s === 3 ? 1 : 0.6);
+      i++;
+      if(i >= tasks.length){
+        const st = total >= 3.5 ? 3 : total >= 2.4 ? 2 : 1;
+        finishLevel(st, 'Keempat password berhasil diperbaiki. Saat panjang dibatasi, variasi jenis karakter jadi penentu utama kekuatan.');
+      } else step('<div class="note ok"><b>Bagus!</b>Lanjut ke password berikutnya.</div>');
+    };
+    setTimeout(() => inp.focus(), 120);
+  }
+  step();
+};
+M1.l4 = () => {
+  const demo = [['budi','instan'],['budi2010','2 detik'],['Budi2010!','4 jam'],['gajah-terbang-di-kompor','miliaran tahun']];
+  openSheet(lvHead()+
+    '<p class="lead">Lihat dulu berapa lama tiap password bertahan dari komputer pembobol:</p>'+
+    '<div class="exif">'+demo.map(d => '<div><b class="mono">'+d[0]+'</b><span>'+d[1]+'</span></div>').join('')+'</div>'+
+    '<div class="note info" style="margin-top:12px"><b>Tantangan</b>Buat password yang bertahan <b>lebih dari 100 tahun</b>, TAPI harus mengandung minimal satu kata Bahasa Indonesia yang mudah kamu ingat (misal: kucing, sepeda, rendang). Ini disebut <i>passphrase</i>.</div>'+
+    '<div class="field" style="margin-top:12px"><label for="pw">Passphrase-mu</label>'+
+    '<input type="text" id="pw" autocomplete="off" spellcheck="false" placeholder="contoh: sepeda-melompat-7x"></div>'+
+    pwMeterHTML('m')+
+    '<button class="btn" id="ok" style="margin-top:12px">Uji Ketahanan</button>');
+  const inp = document.getElementById('pw');
+  inp.oninput = () => pwPaint('m', inp.value);
+  pwPaint('m','');
+  document.getElementById('ok').onclick = () => {
+    const v = inp.value.toLowerCase();
+    const bits = pwBits(inp.value);
+    const punyaKata = KATA_ID.some(k => v.indexOf(k) >= 0);
+    const yrs = Math.pow(2, bits)/1e10/31536000;
+    if(!punyaKata)
+      return toast('Belum ada kata Indonesia yang dikenali. Coba pakai: '+KATA_ID.slice(0,5).join(', '));
+    if(!(yrs > 100 || !isFinite(yrs)))
+      return toast('Belum sampai 100 tahun. Tambah kata lagi atau variasikan.');
+    const st = (!isFinite(yrs) || yrs > 1e6) ? 3 : yrs > 10000 ? 2 : 1;
+    finishLevel(st, 'Passphrase-mu bertahan <b>'+crackTime(bits)+'</b> dan tetap mudah diingat. Inilah kenapa kalimat pendek lebih baik daripada "P@ssw0rd!".');
+  };
+  setTimeout(() => inp.focus(), 120);
+};
+M1.l5 = () => {
+  const QS = [
+    {t:'Apa fungsi utama 2FA (verifikasi 2 langkah)?', o:['Membuat login lebih ribet','Tetap melindungi akun walau password bocor','Mengganti kebutuhan password','Mempercepat login'], a:1,
+     e:'Penyerang yang tahu passwordmu tetap tidak bisa masuk karena tidak memegang faktor kedua.'},
+    {t:'Kalau satu layanan bocor dan kamu memakai password yang sama di mana-mana, apa yang terjadi?', o:['Tidak apa-apa, tiap situs terpisah','Penyerang akan mencoba password itu ke akun-akunmu yang lain','Password otomatis diganti','Hanya akun itu yang bisa dibuka'], a:1,
+     e:'Teknik ini namanya credential stuffing - password bocor dicoba ke banyak layanan sekaligus.'},
+    {t:'Mana cara menyimpan banyak password yang paling aman?', o:['Ditulis di catatan HP tanpa kunci','Pakai pengelola sandi (password manager)','Dihafal semua dengan pola sama','Disimpan di draf email'], a:1,
+     e:'Pengelola sandi mengenkripsi semuanya di balik satu kunci utama, jadi kamu cukup mengingat satu password kuat.'},
+    {t:'Ada yang mengaku petugas resmi dan meminta kode OTP-mu. Sikap yang benar?', o:['Berikan, karena petugas resmi','Berikan kalau dia tahu namamu','Jangan diberikan ke siapa pun','Berikan setengah kodenya saja'], a:2,
+     e:'Tidak ada petugas resmi mana pun yang berhak meminta OTP. OTP adalah kunci sementara akunmu.'},
+    {t:'Kapan sebaiknya password diganti?', o:['Setiap minggu tanpa alasan','Saat ada tanda kebocoran atau login mencurigakan','Tidak pernah','Setiap ganti HP saja'], a:1,
+     e:'Mengganti terlalu sering justru membuat orang memilih password lemah berpola. Ganti saat ada indikasi masalah.'},
+    {t:'Mana yang BUKAN faktor kedua (2FA) yang baik?', o:['Kode dari aplikasi authenticator','Sidik jari','Nama panggilanmu','Kunci keamanan fisik'], a:2,
+     e:'Nama panggilan adalah sesuatu yang mudah diketahui orang lain, jadi bukan faktor rahasia.'}
+  ];
+  seqMCQ(QS, {shuffle:true}, (sc, tot) => {
+    finishLevel(scoreStars(sc, tot), 'Kamu benar '+sc+' dari '+tot+'. Kunci menjaga akun: password panjang & unik, 2FA aktif, dan OTP tidak pernah dibagikan.');
+  });
+};
+
+/* ==================== MISI 2: PHISHING ==================== */
+const M2 = {};
+M2.l1 = () => {
+  const M = [
+    {f:'SMS &mdash; BANK123', x:'Rekening Anda DIBLOKIR! Verifikasi sekarang di bank123-verifikasi.xyz atau saldo hangus dalam 1x24 jam.', p:true,
+     e:'Mendesak, menakut-nakuti, dan alamat webnya aneh. Bank asli tidak pernah begini.'},
+    {f:'Notifikasi Aplikasi Game', x:'Hadiah harianmu sudah bisa diambil. Buka game untuk klaim.', p:false,
+     e:'Tidak ada tautan mencurigakan dan tidak meminta data apa pun.'},
+    {f:'DM Instagram &mdash; "Admin IG"', x:'Halo, saya admin Instagram. Akunmu akan dihapus. Kirim kode OTP yang barusan masuk untuk membatalkan.', p:true,
+     e:'Tidak ada admin resmi yang meminta OTP. OTP adalah kunci akunmu.'},
+    {f:'Email &mdash; Wali Kelas', x:'Pengumuman: ujian tengah semester diundur ke minggu depan. Jadwal lengkap ada di papan pengumuman sekolah seperti biasa.', p:false,
+     e:'Tidak meminta data pribadi dan mengarahkan ke saluran resmi yang biasa dipakai.'},
+    {f:'SMS &mdash; Nomor Tidak Dikenal', x:'SELAMAT! Anda memenangkan hadiah HP terbaru. Klik bit.ly/hadiah-kamu dan isi data diri untuk klaim.', p:true,
+     e:'Kamu tidak pernah ikut undiannya. Hadiah tak masuk akal + tautan pemendek + minta data diri.'},
+    {f:'Notifikasi Mobile Banking', x:'Transaksi Rp50.000 di Toko Sinar berhasil. Bukan Anda? Laporkan lewat aplikasi mobile banking Anda.', p:false,
+     e:'Mengarahkanmu membuka aplikasi resmi sendiri, bukan mengklik tautan.'},
+    {f:'WhatsApp &mdash; "Bu Guru"', x:'Nak, ini nomor baru ibu. Tolong transfer uang kegiatan ke rekening ini sekarang ya, ibu sedang rapat.', p:true,
+     e:'Nomor baru + permintaan transfer + alasan buru-buru. Konfirmasi lewat nomor lama.'},
+    {f:'SMS &mdash; Operator Seluler', x:'Kuota internet Anda tersisa 1GB. Cek sisa kuota di aplikasi resmi operator Anda.', p:false,
+     e:'Sekadar informasi, tanpa tautan mencurigakan dan tanpa meminta data.'}
+  ];
+  const items = M.map(m => ({
+    keepOrder:true,
+    pre:'<div class="msg"><div class="from">'+m.f+'</div><div class="txt">'+m.x+'</div></div>',
+    t:'Pesan ini aman atau mencurigakan?', o:['Aman','Mencurigakan'], a: m.p ? 1 : 0, e:m.e
+  }));
+  seqMCQ(items, {shuffle:true}, (sc, tot) => {
+    finishLevel(scoreStars(sc, tot), 'Benar '+sc+' dari '+tot+'. Empat tanda utama: mendesak, tautan aneh, minta data/OTP, dan hadiah tak masuk akal.');
+  });
+};
+M2.l2 = () => {
+  const D = [
+    {resmi:'bri.co.id', o:['bri.co.id','bri-co.id','bri.co.id.login-aman.com','bri.secure-id.net'], a:0,
+     e:'Yang menentukan adalah bagian TEPAT SEBELUM garis miring pertama. "bri.co.id.login-aman.com" sebenarnya milik login-aman.com.'},
+    {resmi:'tokopedia.com', o:['tokopedia.com','tokopedla.com','tokopedia.com-promo.net','tokoped1a.com'], a:0,
+     e:'Huruf "i" diganti "l" atau "1" adalah trik klasik yang sangat sulit dilihat sekilas.'},
+    {resmi:'instagram.com', o:['lnstagram.com','instagram.com','instagram-verify.com','instagram.com.secure.io'], a:1,
+     e:'"lnstagram" memakai huruf L kecil yang mirip huruf i besar. Selalu perhatikan huruf demi huruf.'},
+    {resmi:'sekolahku.sch.id', o:['sekolahku.sch.id.masuk.xyz','sekolahku-sch.id','sekolahku.sch.id','sekolahku.sch.id@login.net'], a:2,
+     e:'Tanda "@" di dalam alamat membuat bagian sebelumnya diabaikan browser - tujuan aslinya login.net.'},
+    {resmi:'gopay.co.id', o:['gopay.co.id','g0pay.co.id','gopay.co.id.bonus.link','gopay-official.top'], a:0,
+     e:'Angka 0 menggantikan huruf o. Domain ".top" atau ".link" untuk layanan keuangan patut dicurigai.'},
+    {resmi:'shopee.co.id', o:['shopee.co.id.gratis.win','shopee.co.id','shoppee.co.id','shopee.id-promo.com'], a:1,
+     e:'Huruf ganda (shoppee) dan imbuhan promo adalah pola umum situs palsu.'},
+    {resmi:'kemdikbud.go.id', o:['kemdikbud.go.id','kemdikbud.go.id.info','kemdikbud-go.id','kemdikbud.gov.id.co'], a:0,
+     e:'Domain ".go.id" hanya boleh dipakai lembaga pemerintah resmi Indonesia - tiruannya selalu menambahkan sesuatu.'},
+    {resmi:'youtube.com', o:['youtube.com-watch.net','youtube.com','y0utube.com','youtubee.com'], a:1,
+     e:'Tanda hubung setelah nama domain asli ("youtube.com-watch.net") berarti domainnya bukan youtube.com.'}
+  ];
+  const items = D.map(d => ({
+    keepOrder:true,
+    pre:'<div class="msg"><div class="from">Situs resmi yang benar</div><div class="txt mono">'+d.resmi+'</div></div>',
+    t:'Tautan mana yang benar-benar mengarah ke situs resmi itu?', o:d.o, a:d.a, e:d.e
+  }));
+  seqMCQ(items, {}, (sc, tot) => {
+    finishLevel(scoreStars(sc, tot), 'Benar '+sc+' dari '+tot+'. Cara membaca alamat: lihat bagian tepat sebelum garis miring pertama - itulah pemilik situs sebenarnya.');
+  });
+};
+M2.l3 = () => {
+  const F = [
+    ['Klik link ini sekarang atau akunmu dihapus dalam 1 jam!', true, 'Ancaman + tenggat waktu = pancingan panik.'],
+    ['Paketmu sudah sampai di kantor pos, ambil dengan KTP.', false, 'Informasi wajar tanpa permintaan data digital.'],
+    ['Kirim 6 digit kode yang baru masuk untuk verifikasi hadiah.', true, 'Permintaan OTP = penipuan, tanpa kecuali.'],
+    ['Rapat kelas dipindah ke aula, jam tetap.', false, 'Informasi biasa, tidak meminta apa pun.'],
+    ['Selamat! Anda pemenang undian yang tidak pernah Anda ikuti.', true, 'Hadiah tanpa ikut undian = mustahil.'],
+    ['Tagihan listrik bulan ini sudah terbit, cek di aplikasi resmi.', false, 'Mengarahkan ke aplikasi resmi, bukan tautan.'],
+    ['Akunmu login dari luar negeri, klik di sini untuk amankan.', true, 'Menakut-nakuti lalu mengarahkan ke tautan.'],
+    ['Ibu titip pesan, pulang jangan telat.', false, 'Pesan pribadi biasa.'],
+    ['Transfer dulu Rp200.000 untuk biaya admin hadiahmu.', true, 'Hadiah asli tidak pernah minta bayar di muka.'],
+    ['Nilai ulanganmu sudah bisa dilihat di buku rapor.', false, 'Tidak ada permintaan data atau tautan.']
+  ];
+  const items = F.map(f => ({
+    keepOrder:true,
+    pre:'<div class="msg"><div class="from">Pesan masuk</div><div class="txt">'+f[0]+'</div></div>',
+    t:'Cepat! Aman atau mencurigakan?', o:['Aman','Mencurigakan'], a: f[1] ? 1 : 0, e:f[2]
+  }));
+  seqMCQ(items, {shuffle:true, time:12}, (sc, tot) => {
+    finishLevel(scoreStars(sc, tot), 'Benar '+sc+' dari '+tot+' dengan batas waktu 12 detik. Di dunia nyata penipu memang mengandalkan kamu terburu-buru - tapi refleks yang benar bisa dilatih.');
+  });
+};
+M2.l4 = () => {
+  const C = [
+    {from:'SMS &mdash; "BANK NUSANTARA"',
+     tokens:['Nasabah','yth,','rekening','Anda','DIBLOKIR','SEMENTARA.','Segera','verifikasi','dalam','1x24','jam','di','banknusantara-verifikasi.xyz','agar','saldo','tidak','hangus.'],
+     need:[4,9,12],
+     e:'Tiga tanda: kata menakut-nakuti (DIBLOKIR), tenggat waktu memaksa (1x24), dan domain palsu (banknusantara-verifikasi.xyz).'},
+    {from:'DM &mdash; "Panitia Giveaway"',
+     tokens:['Selamat!','Kamu','MENANG','iPhone','terbaru.','Login','akun','Instagram-mu','di','giveaway-resmi.top','lalu','kirim','kode','OTP','ke','admin','ya.'],
+     need:[9,13],
+     e:'Dua tanda paling fatal: situs pihak ketiga untuk login (giveaway-resmi.top) dan permintaan OTP.'},
+    {from:'Email &mdash; "Tim Sekolah"',
+     tokens:['Halo','siswa,','isi','ulang','data','NISN','dan','password','akun','sekolahmu','di','tautan','berikut','sebelum','hari','ini','berakhir:','data-sekolah.click'],
+     need:[7,16,17],
+     e:'Permintaan password, tenggat mendesak, dan domain aneh ".click". Sekolah tidak pernah meminta password lewat email.'},
+    {from:'WhatsApp &mdash; nomor tak dikenal',
+     tokens:['Nak,','ini','ayah','pakai','nomor','baru.','HP','ayah','hilang.','Tolong','transfer','sekarang','ke','rekening','ini','ya,','jangan','telepon','dulu.'],
+     need:[5,10,17],
+     e:'"Nomor baru", permintaan transfer, dan larangan menelepon - larangan verifikasi adalah tanda paling khas penipuan.'}
+  ];
+  pickEvidence(C, (sc, tot) => {
+    finishLevel(scoreStars(sc, tot), 'Tepat sempurna di '+sc+' dari '+tot+' kasus. Menemukan bukti spesifik jauh lebih berguna daripada sekadar merasa "ada yang aneh".');
+  });
+};
+M2.l5 = () => {
+  const E = [
+    {h:[['Dari','Bank Nusantara <cs@bank-nusantara.co.id>'],['Balas ke','admin9182@mail.ru'],['Subjek','Verifikasi akun Anda'],['Tautan','bank-nusantara.co.id.verify.ru']],
+     t:'Bagian mana yang paling membuktikan email ini palsu?',
+     o:['Subjeknya terlalu pendek','Alamat "Balas ke" berbeda jauh dan berakhiran .ru','Nama pengirim memakai huruf besar','Email tidak ada lampiran'], a:1,
+     e:'Nama pengirim gampang dipalsukan. Yang sulit dipalsukan adalah alamat balasan - dan di sini jelas tidak nyambung.'},
+    {h:[['Dari','Sekolah Digital <info@sekolahdigital.sch.id>'],['Balas ke','info@sekolahdigital.sch.id'],['Subjek','Jadwal ujian semester'],['Tautan','sekolahdigital.sch.id/jadwal']],
+     t:'Apakah email ini mencurigakan?',
+     o:['Ya, karena ada tautan','Ya, karena membahas ujian','Tidak, semua bagian konsisten dan domainnya sama','Tidak bisa dinilai'], a:2,
+     e:'Pengirim, alamat balasan, dan domain tautan semuanya sama. Ini pola email yang sehat.'},
+    {h:[['Dari','Google Security <no-reply@goog1e-security.com>'],['Balas ke','no-reply@goog1e-security.com'],['Subjek','Aktivitas mencurigakan terdeteksi'],['Tautan','goog1e-security.com/reset']],
+     t:'Apa kejanggalannya?',
+     o:['Domain memakai angka 1 menggantikan huruf l','Subjeknya terlalu panjang','Tidak ada nama penerima','Email dikirim malam hari'], a:0,
+     e:'"goog1e" bukan "google". Trik mengganti huruf dengan angka mirip adalah yang paling sering lolos dari mata.'},
+    {h:[['Dari','Admin Kelas <admin@sekolahku.sch.id>'],['Balas ke','admin@sekolahku.sch.id'],['Subjek','Kirim ulang password akun kalian'],['Tautan','(tidak ada)']],
+     t:'Domainnya asli dan tidak ada tautan. Apakah aman?',
+     o:['Aman, domainnya benar','Tidak aman, karena meminta password - lembaga asli tidak pernah begitu','Aman, karena tidak ada tautan','Tidak bisa dinilai'], a:1,
+     e:'Domain asli pun bisa dipakai kalau akun admin diretas. Permintaan password selalu salah, dari siapa pun.'},
+    {h:[['Dari','Panitia Lomba <panitia@lombasains.id>'],['Balas ke','panitia@lombasains.id'],['Subjek','Kamu lolos babak final!'],['Lampiran','daftar_finalis.pdf.exe']],
+     t:'Apa yang paling berbahaya di sini?',
+     o:['Judul terlalu heboh','Lampiran berakhiran .exe yang disamarkan seperti PDF','Nama panitia tidak lengkap','Tidak ada tautan'], a:1,
+     e:'Berkas ".pdf.exe" adalah program, bukan dokumen. Ini cara klasik menyelundupkan malware.'}
+  ];
+  const items = E.map(x => ({
+    pre:'<div class="msg"><div class="from">Bedah email</div><div class="exif">'+
+        x.h.map(r => '<div><b>'+r[0]+'</b><span class="mono">'+r[1]+'</span></div>').join('')+'</div></div>',
+    t:x.t, o:x.o, a:x.a, e:x.e
+  }));
+  seqMCQ(items, {}, (sc, tot) => {
+    finishLevel(scoreStars(sc, tot), 'Benar '+sc+' dari '+tot+'. Selalu periksa tiga hal: alamat pengirim, alamat balasan, dan akhiran berkas lampiran.');
+  });
+};
+/* ==================== INLINE MCQ (untuk panel misi) ==================== */
+function mcqInline(host, q, cb){
+  host.innerHTML = (q.pre||'') +
+    '<p style="font-weight:700;margin:12px 0 10px">'+q.t+'</p>' +
+    q.o.map((o,k) => '<button class="choice" data-k="'+k+'">'+o+'</button>').join('') +
+    '<div id="ifb"></div>';
+  host.querySelectorAll('.choice').forEach(b => b.onclick = () => {
+    const pick = +b.dataset.k, ok = pick === q.a;
+    host.querySelectorAll('.choice').forEach((x,j) => {
+      x.disabled = true;
+      if(j === q.a) x.classList.add('ok'); else if(j === pick) x.classList.add('no');
+    });
+    host.querySelector('#ifb').innerHTML =
+      '<div class="note '+(ok?'ok':'no')+'"><b>'+(ok?'Benar!':'Belum tepat')+'</b>'+q.e+'</div>'+
+      '<div class="btns"><button class="btn" id="inx">Lanjut</button></div>';
+    host.querySelector('#inx').onclick = () => cb(ok);
+  });
+}
+
+/* ==================== MISI 3: TERMINAL ==================== */
+const M3 = {};
+const NET_RUMAH = [
+  {ip:'192.168.1.1',  nm:'Router-Rumah', vendor:'TP-Link', up:true,  ports:[[80,'http (halaman admin, password masih bawaan)',1],[53,'dns',0]]},
+  {ip:'192.168.1.5',  nm:'Laptop-Kakak', vendor:'Asus',    up:true,  ports:[]},
+  {ip:'192.168.1.9',  nm:'Smart-TV',     vendor:'Samsung', up:true,  ports:[[8080,'streaming',0]]},
+  {ip:'192.168.1.12', nm:'Kamera-CCTV',  vendor:'Hikvision', up:true, ports:[[554,'rtsp (siaran kamera, TANPA password)',1]]},
+  {ip:'192.168.1.20', nm:'HP-Adik',      vendor:'Xiaomi',  up:false, ports:[]}
+];
+M3.l1 = () => {
+  const TASKS = [
+    {k:'cmd_help',  t:'Jalankan <span class="mono">help</span> untuk melihat daftar perintah'},
+    {k:'cmd_ls',    t:'Jalankan <span class="mono">ls</span> untuk melihat perangkat'},
+    {k:'ping_192.168.1.5', t:'Ping Laptop-Kakak: <span class="mono">ping 192.168.1.5</span>'},
+    {k:'cmd_whois', t:'Cari info jaringan: <span class="mono">whois rumah-siber.local</span>'},
+    {k:'nmap_192.168.1.1', t:'Periksa port router: <span class="mono">nmap 192.168.1.1</span>'}
+  ];
+  terminal({
+    net:'rumah-siber.local', devices:NET_RUMAH,
+    cmds:['ls','ping','whois','nmap','clear'],
+    chips:['help','ls','ping 192.168.1.5','whois rumah-siber.local','nmap 192.168.1.1'],
+    brief:'Latihan dasar. Selesaikan 5 tugas di bawah untuk mengenal perintah terminal.',
+    intro:[{t:'Cyber Mission Terminal v2.0 (SIMULASI)', c:'c'}, 'Latihan perintah dasar. Ketik "help" untuk mulai.', ''],
+    mission:(host, flags) => {
+      const doneN = TASKS.filter(t => flags[t.k]).length;
+      host.innerHTML = '<div class="card" style="margin-top:14px"><div class="eyebrow">Daftar Tugas &middot; '+doneN+'/'+TASKS.length+'</div>'+
+        TASKS.map(t => '<p style="margin:6px 0;font-size:.86rem;color:'+(flags[t.k]?'var(--success)':'var(--ink-soft)')+'">'+
+          (flags[t.k]?'✓ ':'○ ')+t.t+'</p>').join('')+'</div>';
+      if(doneN === TASKS.length){
+        host.insertAdjacentHTML('beforeend','<div class="note ok"><b>Semua tugas selesai!</b>Kamu sudah mengenal 5 perintah dasar terminal.</div><div class="btns"><button class="btn" id="fin">Selesaikan Level</button></div>');
+        host.querySelector('#fin').onclick = () => {
+          const bad = flags.bad || 0;
+          finishLevel(bad <= 1 ? 3 : bad <= 4 ? 2 : 1, 'Kamu menjalankan 5 perintah dasar dengan benar'+(bad?' ('+bad+' perintah salah ketik)':'')+'. Terminal bukan hal menakutkan - ia hanya menunggu perintah yang tepat.');
+        };
+      }
+    }
+  });
+};
+M3.l2 = () => {
+  let phase = 0;
+  terminal({
+    net:'rumah-siber.local', devices:NET_RUMAH,
+    cmds:['ls','ping','whois','nmap','clear'],
+    chips:['help','ls','nmap semua','ping 192.168.1.20'],
+    brief:'Misi: cari tahu ada berapa perangkat AKTIF, dan mana yang paling berisiko. Mulai dengan <span class="mono">nmap semua</span>.',
+    intro:[{t:'Terhubung ke rumah-siber.local', c:'c'}, 'Ketik "help" untuk daftar perintah.', ''],
+    mission:(host, flags) => {
+      if(!flags.scanned){ host.innerHTML = ''; return; }
+      if(phase === 0){
+        host.innerHTML = '<div class="note ok" style="margin-top:14px"><b>Pemindaian selesai!</b>Sekarang jawab 2 pertanyaan.</div>'+
+          '<div class="field" style="margin-top:12px"><label for="q1">1. Ada berapa perangkat yang AKTIF (merespons)?</label>'+
+          '<input type="text" id="q1" inputmode="numeric" placeholder="tulis angkanya"></div>'+
+          '<button class="btn" id="c1">Cek Jawaban</button><div id="f1"></div>';
+        const go = () => {
+          const v = parseInt(host.querySelector('#q1').value, 10);
+          if(v === 4){ phase = 1; host.innerHTML = ''; q2(host); }
+          else host.querySelector('#f1').innerHTML = '<div class="note no"><b>Belum tepat</b>Perangkat yang "tidak merespons" tidak dihitung aktif.</div>';
+        };
+        host.querySelector('#c1').onclick = go;
+        host.querySelector('#q1').onkeydown = e => { if(e.key === 'Enter') go(); };
+      } else q2(host);
+    }
+  });
+  function q2(host){
+    host.innerHTML = '<div class="note ok" style="margin-top:14px"><b>Benar, 4 perangkat aktif.</b>HP-Adik tidak merespons karena sedang mati.</div><div id="qh"></div>';
+    mcqInline(host.querySelector('#qh'), {
+      t:'Perangkat mana yang paling berisiko, dan kenapa?',
+      o:['Laptop-Kakak, karena tidak punya port terbuka','Smart-TV, karena dipakai menonton','Kamera-CCTV, karena portnya terbuka tanpa password','HP-Adik, karena sedang mati'],
+      a:2,
+      e:'Kamera dengan port terbuka tanpa password bisa diintip orang luar. Router juga berisiko karena password admin-nya masih bawaan pabrik.'
+    }, ok => finishLevel(ok ? 3 : 1, ok
+      ? 'Kamu berhasil membaca hasil pemindaian dan menemukan perangkat paling berisiko.'
+      : 'Misi selesai, tapi jawaban risikonya masih meleset. Port terbuka TANPA password adalah yang paling berbahaya.'));
+  }
+};
+const NET_SEKOLAH = [
+  {ip:'10.10.1.1',  nm:'Router-Sekolah',  vendor:'Cisco',    up:true, ports:[[80,'http (panel admin)',0],[443,'https',0]]},
+  {ip:'10.10.1.4',  nm:'Server-Nilai',    vendor:'Dell',     up:true, ports:[[443,'https (aplikasi nilai)',0]]},
+  {ip:'10.10.1.7',  nm:'Printer-Guru',    vendor:'Epson',    up:true, ports:[[9100,'cetak jaringan',0]]},
+  {ip:'10.10.1.11', nm:'PC-Lab-01',       vendor:'HP',       up:true, ports:[]},
+  {ip:'10.10.1.12', nm:'PC-Lab-02',       vendor:'HP',       up:true, ports:[]},
+  {ip:'10.10.1.13', nm:'PC-Lab-03',       vendor:'HP',       up:false, ports:[]},
+  {ip:'10.10.1.18', nm:'Proyektor-Aula',  vendor:'Epson',    up:true, ports:[[8080,'kontrol proyektor',0]]},
+  {ip:'10.10.1.22', nm:'Laptop-BuAni',    vendor:'Lenovo',   up:true, ports:[]},
+  {ip:'10.10.1.25', nm:'CCTV-Koridor',    vendor:'Hikvision',up:true, ports:[[554,'rtsp (berpassword)',0]]},
+  {ip:'10.10.1.31', nm:'AP-Perpustakaan', vendor:'Ubiquiti', up:true, ports:[[80,'http (panel AP)',0]]},
+  {ip:'10.10.1.40', nm:'Absensi-Sidik',   vendor:'Solution', up:true, ports:[[4370,'mesin absensi',0]]},
+  {ip:'10.10.1.66', nm:'PERANGKAT-TAKDIKENAL', vendor:'tidak diketahui', up:true, ports:[[4444,'shell jarak jauh (backdoor!)',1],[22,'ssh (akses jarak jauh)',1]]}
+];
+M3.l3 = () => {
+  let phase = 0;
+  terminal({
+    net:'sekolah-siber.local', devices:NET_SEKOLAH,
+    cmds:['ls','ping','whois','nmap','clear'],
+    chips:['help','ls','nmap semua','whois 10.10.1.66'],
+    brief:'Jaringan sekolah punya 12 perangkat. Ada 1 yang <b>bukan milik sekolah</b> dan diam-diam menyusup. Temukan yang mana.',
+    intro:[{t:'Terhubung ke sekolah-siber.local', c:'c'}, 'Laporan: koneksi internet sekolah melambat sejak kemarin.', 'Ketik "help" untuk daftar perintah.', ''],
+    mission:(host, flags) => {
+      if(!flags.scanned){ host.innerHTML = ''; return; }
+      if(phase === 0){
+        host.innerHTML = '<div class="note ok" style="margin-top:14px"><b>Pemindaian selesai</b>Perhatikan nama perangkat, vendor, dan port yang tidak wajar.</div>'+
+          '<div class="field" style="margin-top:12px"><label for="q1">Tulis alamat IP perangkat penyusup</label>'+
+          '<input type="text" id="q1" placeholder="contoh: 10.10.1.x" autocomplete="off"></div>'+
+          '<button class="btn" id="c1">Periksa</button><div id="f1"></div>';
+        const go = () => {
+          const v = host.querySelector('#q1').value.trim();
+          if(v === '10.10.1.66'){ phase = 1; q2(host); }
+          else host.querySelector('#f1').innerHTML = '<div class="note no"><b>Bukan itu</b>Cari yang vendornya tidak diketahui DAN portnya tidak wajar untuk alat sekolah. Coba <span class="mono">whois</span> perangkat yang mencurigakan.</div>';
+        };
+        host.querySelector('#c1').onclick = go;
+        host.querySelector('#q1').onkeydown = e => { if(e.key === 'Enter') go(); };
+      } else q2(host);
+    }
+  });
+  function q2(host){
+    host.innerHTML = '<div class="note ok" style="margin-top:14px"><b>Tepat! 10.10.1.66</b>Vendornya tidak diketahui dan namanya tidak mengikuti pola penamaan sekolah.</div><div id="qh"></div>';
+    mcqInline(host.querySelector('#qh'), {
+      t:'Port 4444 yang terbuka di perangkat itu biasanya dipakai untuk apa?',
+      o:['Mencetak dokumen','Akses shell jarak jauh (pintu belakang/backdoor)','Menyalakan proyektor','Menyimpan absensi'],
+      a:1,
+      e:'Port 4444 adalah port yang sangat sering dipakai alat penyerang untuk membuka "pintu belakang" - jalan masuk diam-diam ke jaringan.'
+    }, ok => finishLevel(ok ? 3 : 2, ok
+      ? 'Kamu menemukan penyusup dari 12 perangkat dan tahu kenapa portnya berbahaya. Kunci investigasi: cari yang MENYIMPANG dari pola.'
+      : 'Penyusupnya ketemu, tapi fungsi portnya belum tepat. Port 4444 identik dengan backdoor.'));
+  }
+};
+const LOG_AUTH = [
+ '2026-08-14 06:58 login BERHASIL user=guru_ani ip=10.10.1.22',
+ '2026-08-14 07:15 login BERHASIL user=guru_budi ip=10.10.1.11',
+ '2026-08-14 07:31 login GAGAL   user=guru_budi ip=10.10.1.11 (salah sandi)',
+ '2026-08-14 07:32 login BERHASIL user=guru_budi ip=10.10.1.11',
+ '2026-08-14 09:40 login BERHASIL user=admin_tu ip=10.10.1.4',
+ '2026-08-14 12:05 login BERHASIL user=guru_ani ip=10.10.1.22',
+ '2026-08-14 14:22 logout          user=guru_ani ip=10.10.1.22',
+ '2026-08-14 23:41 login GAGAL   user=admin ip=10.10.1.66',
+ '2026-08-14 23:42 login GAGAL   user=admin ip=10.10.1.66',
+ '2026-08-14 23:43 login GAGAL   user=root ip=10.10.1.66',
+ '2026-08-14 23:44 login GAGAL   user=root ip=10.10.1.66',
+ '2026-08-14 23:47 login BERHASIL user=svc_backup ip=10.10.1.66',
+ '2026-08-14 23:48 perintah        user=svc_backup: unduh daftar_nilai.xlsx',
+ '2026-08-14 23:52 perintah        user=svc_backup: unduh data_siswa.csv',
+ '2026-08-15 05:10 login BERHASIL user=guru_ani ip=10.10.1.22'
+].join('\n');
+M3.l4 = () => {
+  let phase = 0;
+  terminal({
+    net:'sekolah-siber.local', devices:NET_SEKOLAH,
+    cmds:['ls','ping','whois','nmap','cat','grep','clear'],
+    files:{'/log/auth.log': LOG_AUTH},
+    chips:['help','files','cat /log/auth.log','grep BERHASIL /log/auth.log','grep 10.10.1.66 /log/auth.log'],
+    brief:'Perangkat penyusup sudah ditemukan (10.10.1.66). Sekarang baca catatan login untuk tahu <b>akun mana</b> yang dipakai menyusup dan <b>jam berapa</b> ia berhasil masuk. Gunakan <span class="mono">cat</span> dan <span class="mono">grep</span>.',
+    intro:[{t:'Akses berkas log diberikan.', c:'c'}, 'Ketik "files" untuk melihat berkas yang tersedia.', ''],
+    mission:(host, flags) => {
+      if(!flags.readlog){ host.innerHTML = ''; return; }
+      if(phase === 0){
+        host.innerHTML = '<div class="note info" style="margin-top:14px"><b>Log terbaca</b>Cari baris "BERHASIL" yang datang dari IP penyusup.</div>'+
+          '<div class="field" style="margin-top:12px"><label for="q1">Nama akun yang dipakai penyusup</label>'+
+          '<input type="text" id="q1" placeholder="contoh: nama_akun" autocomplete="off" spellcheck="false"></div>'+
+          '<button class="btn" id="c1">Periksa</button><div id="f1"></div>';
+        const go = () => {
+          const v = host.querySelector('#q1').value.trim().toLowerCase();
+          if(v === 'svc_backup'){ phase = 1; q2(host); }
+          else host.querySelector('#f1').innerHTML = '<div class="note no"><b>Belum tepat</b>Coba <span class="mono">grep 10.10.1.66 /log/auth.log</span>, lalu cari yang statusnya BERHASIL (bukan GAGAL).</div>';
+        };
+        host.querySelector('#c1').onclick = go;
+        host.querySelector('#q1').onkeydown = e => { if(e.key === 'Enter') go(); };
+      } else q2(host);
+    }
+  });
+  function q2(host){
+    host.innerHTML = '<div class="note ok" style="margin-top:14px"><b>Tepat: svc_backup</b>Sebelumnya ada 4 percobaan gagal dengan akun admin dan root - itu ciri penebakan sandi.</div><div id="qh"></div>';
+    mcqInline(host.querySelector('#qh'), {
+      t:'Apa yang dilakukan penyusup SETELAH berhasil masuk?',
+      o:['Mematikan router','Mengunduh daftar nilai dan data siswa','Mencetak dokumen','Mengganti nama perangkat'],
+      a:1,
+      e:'Dua baris terakhir menunjukkan pengunduhan daftar_nilai.xlsx dan data_siswa.csv - inilah kebocoran datanya.'
+    }, ok => finishLevel(ok ? 3 : 2, ok
+      ? 'Investigasi lengkap: kamu menemukan akun yang dipakai, jejak percobaan gagal, dan data apa yang dicuri. Log adalah saksi mata terbaik dalam forensik.'
+      : 'Akunnya ketemu, tapi belum menemukan apa yang dicuri. Baca dua baris "perintah" paling bawah.'));
+  }
+};
+const NET_BAYANGAN = [
+  {ip:'172.16.0.1',  nm:'Router-Kantor', vendor:'MikroTik', up:true, ports:[[80,'http (panel)',0]]},
+  {ip:'172.16.0.5',  nm:'PC-Resepsionis',vendor:'Acer',     up:true, ports:[]},
+  {ip:'172.16.0.8',  nm:'NAS-Arsip',     vendor:'Synology', up:true, ports:[[5000,'panel penyimpanan',0]]},
+  {ip:'172.16.0.14', nm:'Printer-Kantor',vendor:'Canon',    up:true, ports:[[9100,'cetak jaringan',0]]},
+  {ip:'172.16.0.19', nm:'Laptop-Manajer',vendor:'Apple',    up:true, ports:[]},
+  {ip:'172.16.0.77', nm:'HOST-TAKTERDAFTAR', vendor:'tidak diketahui', up:true, hidden:true, ports:[[4444,'shell jarak jauh (backdoor!)',1],[8081,'pengirim data keluar',1]]}
+];
+M3.l5 = () => {
+  let phase = 0;
+  terminal({
+    net:'kantor-siber.local', devices:NET_BAYANGAN, sweepMax:80,
+    cmds:['ls','ping','whois','nmap','cat','grep','clear'],
+    files:{'/log/trafik.log':[
+      '2026-08-20 01:12 keluar 4,2 GB tujuan=luar-negeri sumber=172.16.0.77',
+      '2026-08-20 01:40 keluar 3,8 GB tujuan=luar-negeri sumber=172.16.0.77',
+      '2026-08-20 08:03 keluar 12 MB  tujuan=email       sumber=172.16.0.19'
+    ].join('\n')},
+    chips:['help','ls','nmap semua','cat /log/trafik.log','nmap 172.16.0.1-80'],
+    brief:'Ada data besar mengalir keluar tiap malam, tapi <span class="mono">ls</span> dan <span class="mono">nmap semua</span> tidak menunjukkan apa pun yang aneh. Perangkatnya <b>tidak terdaftar</b>. Baca log trafik untuk mencari petunjuk, lalu sapu seluruh rentang alamat dengan <span class="mono">nmap 172.16.0.1-80</span>.',
+    intro:[{t:'Terhubung ke kantor-siber.local', c:'c'}, 'Peringatan: pemakaian internet melonjak tiap tengah malam.', 'Ketik "help" untuk daftar perintah.', ''],
+    mission:(host, flags) => {
+      if(!flags.swept){ host.innerHTML = ''; return; }
+      if(phase === 0){
+        host.innerHTML = '<div class="note ok" style="margin-top:14px"><b>Host bayangan ditemukan!</b>Perangkat ini tidak pernah terdaftar di daftar resmi.</div>'+
+          '<div class="field" style="margin-top:12px"><label for="q1">Alamat IP host bayangan</label>'+
+          '<input type="text" id="q1" placeholder="contoh: 172.16.0.x" autocomplete="off"></div>'+
+          '<button class="btn" id="c1">Periksa</button><div id="f1"></div>';
+        const go = () => {
+          if(host.querySelector('#q1').value.trim() === '172.16.0.77'){ phase = 1; q2(host); }
+          else host.querySelector('#f1').innerHTML = '<div class="note no"><b>Belum tepat</b>Lihat hasil sapuan yang bertanda [TIDAK TERDAFTAR], atau cocokkan dengan sumber di <span class="mono">/log/trafik.log</span>.</div>';
+        };
+        host.querySelector('#c1').onclick = go;
+        host.querySelector('#q1').onkeydown = e => { if(e.key === 'Enter') go(); };
+      } else q2(host);
+    }
+  });
+  function q2(host){
+    host.innerHTML = '<div class="note ok" style="margin-top:14px"><b>Tepat: 172.16.0.77</b>Cocok dengan sumber trafik keluar 8 GB per malam.</div><div id="qh"></div>';
+    mcqInline(host.querySelector('#qh'), {
+      t:'Kenapa perangkat ini tidak muncul di perintah <span class="mono">ls</span>?',
+      o:['Karena sedang mati','Karena ls hanya menampilkan perangkat yang TERDAFTAR, dan penyusup tidak mendaftarkan diri','Karena IP-nya terlalu besar','Karena portnya tertutup'],
+      a:1,
+      e:'Daftar resmi hanya berisi perangkat yang sengaja dicatat pengelola. Penyusup tentu tidak mendaftar - karena itu pemindaian seluruh rentang alamat penting dilakukan.'
+    }, ok => finishLevel(ok ? 3 : 2, ok
+      ? 'Level tersulit terlewati. Pelajaran besarnya: jangan percaya hanya pada daftar - periksa langsung kenyataan di jaringan.'
+      : 'Host-nya ketemu, tapi alasan kenapa ia tak terlihat belum tepat.'));
+  }
+};
+
+/* ==================== MISI 4: SQL INJECTION ==================== */
+const M4 = {};
+function loginLab(cfg){
+  let hintUsed = 0, tries = 0;
+  function draw(fb){
+    let h = lvHead();
+    h += '<p class="lead">'+cfg.brief+'</p>';
+    h += '<div class="card flat"><div class="eyebrow">'+cfg.portal+' (simulasi)</div><h3 style="margin-bottom:12px">'+cfg.sekolah+'</h3>'+
+      '<div class="field"><label for="u">Nama pengguna</label><input type="text" id="u" value="'+(cfg.user||'siswa')+'" autocomplete="off" spellcheck="false"></div>'+
+      '<div class="field"><label for="p">Password</label><input type="text" id="p" placeholder="coba sesuatu..." autocomplete="off" spellcheck="false"></div>'+
+      '<button class="btn" id="login">Masuk</button></div>';
+    h += '<div class="card flat"><div class="eyebrow">Cara server memeriksa</div><div class="mono" style="font-size:.76rem;word-break:break-all">'+cfg.query+'</div></div>';
+    if(fb) h += fb;
+    if(cfg.hints && cfg.hints.length){
+      h += '<div class="btns"><button class="btn sec" id="hb">Minta Petunjuk (kurangi bintang)</button></div><div id="hbox"></div>';
+    }
+    openSheet(h);
+    const go = () => {
+      tries++;
+      const u = document.getElementById('u').value, p = document.getElementById('p').value;
+      const r = cfg.check(u, p);
+      if(r === true) return cfg.win(hintUsed, tries);
+      draw('<div class="note no"><b>Login gagal</b>'+(typeof r === 'string' ? r : 'Nama pengguna atau password salah.')+'</div>');
+    };
+    document.getElementById('login').onclick = go;
+    document.getElementById('p').onkeydown = e => { if(e.key === 'Enter') go(); };
+    document.getElementById('u').onkeydown = e => { if(e.key === 'Enter') go(); };
+    const hb = document.getElementById('hb');
+    if(hb) hb.onclick = () => {
+      if(hintUsed >= cfg.hints.length) return toast('Semua petunjuk sudah dipakai');
+      hintUsed++;
+      document.getElementById('hbox').innerHTML = cfg.hints.slice(0, hintUsed).map((x,k) =>
+        '<div class="note hint"><b>Petunjuk '+(k+1)+'</b>'+x+'</div>').join('');
+    };
+  }
+  draw();
+}
+const starsByHint = h => h === 0 ? 3 : h === 1 ? 2 : 1;
+M4.l1 = () => loginLab({
+  brief:'Portal sekolah <b>tiruan</b> yang sengaja dibuat rapuh. Masuklah tanpa tahu passwordnya.',
+  portal:'Portal Siswa', sekolah:'SMP Digital Nusantara',
+  query:"SELECT * FROM akun WHERE user='siswa' AND sandi='<i>isian kamu</i>'",
+  hints:[
+    'Perhatikan tanda kutip di sekitar isianmu. Kalau kamu <b>menutup kutipnya sendiri</b>, sisa yang kamu ketik akan dianggap perintah, bukan teks biasa.',
+    "Coba ketik persis ini di kolom password: <span class=\"mono\">' OR '1'='1</span>"
+  ],
+  check:(u,p) => /'\s*(or|\|\|)\s*'?1'?\s*=\s*'?1/i.test(p) ? true : 'Nama pengguna atau password salah. Pikirkan: apa yang terjadi kalau kamu mengetik tanda kutip?',
+  win:(h) => {
+    openSheet(lvHead()+
+      '<div class="note ok"><b>Berhasil masuk!</b>Kamu login tanpa tahu password sama sekali.</div>'+
+      '<div class="card"><h3>Apa yang terjadi?</h3>'+
+      '<div class="exif"><div><b>Sebelum</b><span class="mono">sandi=\'rahasia123\'</span></div>'+
+      '<div><b>Setelah isianmu</b><span class="mono">sandi=\'\' OR \'1\'=\'1\'</span></div></div>'+
+      '<p style="margin-top:10px">Karena <span class="mono">\'1\'=\'1\'</span> selalu benar, seluruh syarat menjadi benar. Sistem mengira passwordmu cocok. Inilah <b>SQL Injection</b>.</p></div>'+
+      '<div id="qh"></div>');
+    mcqInline(document.getElementById('qh'), {
+      t:'Kenapa serangan ini bisa terjadi?',
+      o:['Karena servernya lambat','Karena isian pengguna dicampur langsung ke dalam perintah database','Karena passwordnya terlalu pendek','Karena situsnya tidak punya gambar'],
+      a:1,
+      e:'Akar masalahnya: data dari pengguna diperlakukan sebagai bagian dari perintah. Perbaikannya adalah memisahkan keduanya.'
+    }, ok => finishLevel(ok ? starsByHint(h) : 1, ok
+      ? 'Kamu memahami celah injeksi paling dasar'+(h?' (memakai '+h+' petunjuk)':' tanpa petunjuk sama sekali')+'.'
+      : 'Gerbangnya terbuka, tapi alasannya belum tepat. Intinya: isian pengguna tidak boleh menjadi bagian dari perintah.'));
+  }
+});
+M4.l2 = () => loginLab({
+  brief:'Portal sudah diperbaiki sebagian: kata <b>OR</b> sekarang diblokir. Tapi masih ada celah lain. Kali ini kolom <b>nama pengguna</b> yang rapuh.',
+  portal:'Portal Siswa v2', sekolah:'SMP Digital Nusantara', user:'',
+  query:"SELECT * FROM akun WHERE user='<i>isian kamu</i>' AND sandi='<i>isian kamu</i>'",
+  hints:[
+    'Di SQL, tanda <span class="mono">--</span> berarti "abaikan semua sesudah ini" (komentar). Kalau bagian pemeriksaan sandi ikut terabaikan, apa yang terjadi?',
+    "Coba ketik di kolom nama pengguna: <span class=\"mono\">siswa'--</span> lalu kosongkan passwordnya."
+  ],
+  check:(u,p) => {
+    if(/\bor\b|\|\|/i.test(u+p)) return 'Ditolak: kata "OR" diblokir oleh penyaring baru.';
+    return /'\s*(--|#)/.test(u) ? true : 'Nama pengguna atau password salah.';
+  },
+  win:(h) => {
+    openSheet(lvHead()+
+      '<div class="note ok"><b>Berhasil masuk lagi!</b>Kali ini tanpa memakai kata OR sama sekali.</div>'+
+      '<div class="card"><h3>Trik komentar SQL</h3>'+
+      '<div class="exif"><div><b>Perintah asli</b><span class="mono">user=\'siswa\' AND sandi=\'...\'</span></div>'+
+      '<div><b>Setelah isianmu</b><span class="mono">user=\'siswa\'-- AND sandi=\'...\'</span></div></div>'+
+      '<p style="margin-top:10px">Semua yang ada setelah <span class="mono">--</span> dianggap catatan dan diabaikan. Pemeriksaan sandi ikut hilang, jadi sistem hanya mengecek nama penggunanya saja.</p>'+
+      '<p><b>Pelajaran:</b> memblokir satu kata (seperti OR) bukan perbaikan sungguhan - penyerang tinggal memakai cara lain.</p></div>'+
+      '<div id="qh"></div>');
+    mcqInline(document.getElementById('qh'), {
+      t:'Kenapa memblokir kata "OR" bukan solusi yang benar?',
+      o:['Karena OR jarang dipakai','Karena masih banyak cara lain menyerang, seperti komentar --','Karena OR huruf besar saja yang berbahaya','Karena membuat situs lambat'],
+      a:1,
+      e:'Menyaring daftar kata terlarang (blacklist) selalu bisa dilewati. Yang benar adalah memisahkan data dari perintah.'
+    }, ok => finishLevel(ok ? starsByHint(h) : 1, ok
+      ? 'Kamu menemukan teknik kedua: komentar SQL. Penyaring kata bukan pengaman sejati.'
+      : 'Berhasil masuk, tapi kesimpulannya belum tepat.'));
+  }
+});
+M4.l3 = () => loginLab({
+  brief:'Sekarang targetnya berbeda: jangan cuma masuk, tapi masuk <b>sebagai admin</b>. Daftar akun yang diketahui: <span class="mono">siswa</span>, <span class="mono">guru</span>, <span class="mono">admin</span>.',
+  portal:'Portal Sekolah', sekolah:'SMP Digital Nusantara', user:'',
+  query:"SELECT * FROM akun WHERE user='<i>isian kamu</i>' AND sandi='<i>isian kamu</i>'",
+  hints:[
+    'Teknik komentar dari level sebelumnya masih bisa dipakai - tinggal ganti nama penggunanya.',
+    "Ketik di kolom nama pengguna: <span class=\"mono\">admin'--</span>"
+  ],
+  check:(u,p) => {
+    if(!/'\s*(--|#)/.test(u) && !/'\s*(or|\|\|)/i.test(p)) return 'Nama pengguna atau password salah.';
+    if(/^admin\s*'/i.test(u)) return true;
+    return 'Kamu berhasil masuk... tapi sebagai pengguna biasa, bukan admin. Coba tentukan akun mana yang kamu pilih.';
+  },
+  win:(h) => {
+    openSheet(lvHead()+
+      '<div class="note no" style="background:var(--gold-tint);color:var(--gold)"><b>Kamu masuk sebagai ADMIN</b>Sekarang seluruh data sekolah terbuka di depanmu.</div>'+
+      '<div class="card"><h3>Panel Admin (simulasi)</h3>'+
+      '<div class="exif"><div><b>Data siswa</b><span>1.240 baris</span></div>'+
+      '<div><b>Daftar nilai</b><span>bisa diubah</span></div>'+
+      '<div><b>Nomor HP orang tua</b><span>1.240 baris</span></div>'+
+      '<div><b>Akun guru</b><span>48 akun</span></div></div>'+
+      '<p style="margin-top:10px">Inilah kenapa satu celah kecil bisa berakibat sangat besar: penyerang tidak berhenti di "masuk", ia mengejar <b>akun paling berkuasa</b>.</p></div>'+
+      '<div id="qh"></div>');
+    mcqInline(document.getElementById('qh'), {
+      t:'Sebagai peretas beretika, apa yang HARUS kamu lakukan kalau menemukan celah seperti ini di sistem nyata?',
+      o:['Unduh datanya sebagai bukti','Beri tahu teman-teman agar ikut mencoba','Berhenti di situ dan laporkan ke pemilik sistem','Ubah nilai sendiri sedikit saja'],
+      a:2,
+      e:'Namanya responsible disclosure: berhenti begitu celah terbukti ada, jangan menyentuh data, lalu laporkan. Mengunduh data tetap termasuk pelanggaran.'
+    }, ok => finishLevel(ok ? starsByHint(h) : 1, ok
+      ? 'Kamu naik ke akun tertinggi DAN tahu batas etisnya. Keduanya sama pentingnya.'
+      : 'Teknisnya berhasil, tapi bagian etikanya perlu diulang - jangan pernah menyentuh data walau bisa.'));
+  }
+});
+M4.l4 = () => {
+  const QS = [
+    {pre:'<div class="card flat"><div class="eyebrow">Potongan Kode A</div><div class="mono" style="font-size:.74rem">sql = "SELECT * FROM akun WHERE user=\'" + input_user + "\'"</div></div>'+
+         '<div class="card flat"><div class="eyebrow">Potongan Kode B</div><div class="mono" style="font-size:.74rem">sql = "SELECT * FROM akun WHERE user=?"<br>jalankan(sql, [input_user])</div></div>',
+     t:'Kode mana yang aman dari SQL Injection?',
+     o:['Kode A','Kode B','Keduanya aman','Keduanya rapuh'], a:1,
+     e:'Kode B memakai tanda tanya sebagai penampung (prepared statement). Isian pengguna dikirim terpisah, jadi tidak pernah bisa menjadi perintah.'},
+    {t:'Apa nama teknik pengamanan yang dipakai Kode B?',
+     o:['Enkripsi ganda','Prepared statement (kueri berparameter)','Firewall','Kompresi data'], a:1,
+     e:'Prepared statement memisahkan perintah dan data. Ini pertahanan utama melawan injeksi.'},
+    {t:'Selain prepared statement, mana langkah tambahan yang paling berguna?',
+     o:['Memvalidasi bentuk input (misal NISN harus angka saja)','Menyembunyikan tombol login','Memakai warna gelap pada situs','Membatasi panjang halaman'], a:0,
+     e:'Validasi input membatasi bentuk data yang boleh masuk, jadi lapisan pertahanan bertambah. Tapi ia pelengkap, bukan pengganti prepared statement.'},
+    {t:'Sebuah situs menampilkan pesan galat: "SQL error near \'--\'". Apa artinya bagi penyerang?',
+     o:['Situs sedang mati','Petunjuk bahwa isiannya masuk ke perintah database','Situs sudah aman','Server penuh'], a:1,
+     e:'Pesan galat yang bocor memberi tahu penyerang bahwa isiannya berpengaruh. Karena itu pesan galat detail tidak boleh ditampilkan ke pengguna.'}
+  ];
+  seqMCQ(QS, {}, (sc, tot) => {
+    finishLevel(scoreStars(sc, tot), 'Benar '+sc+' dari '+tot+'. Sekarang kamu sudah melihat dari dua sisi: cara celah dipakai, dan cara developer menutupnya.');
+  });
+};
+/* ==================== MISI 5: KRIPTOGRAFI ==================== */
+const M5 = {};
+function cipherLevel(spec){
+  let tries = 0, hint = 0;
+  function draw(fb){
+    let h = lvHead();
+    h += '<p class="lead">'+spec.lead+'</p>';
+    if(spec.tool) h += spec.tool();
+    h += '<div class="msg"><div class="from">'+(spec.from||'Pesan tersandi')+'</div><div class="txt mono">'+spec.enc+'</div></div>';
+    if(spec.aid) h += spec.aid;
+    h += '<div class="field" style="margin-top:12px"><label for="ans">'+(spec.label||'Tulis pesan aslinya')+'</label>'+
+         '<input type="text" id="ans" autocomplete="off" spellcheck="false" placeholder="jawabanmu..."></div>';
+    if(fb) h += fb;
+    h += '<button class="btn" id="cek">Periksa</button>';
+    if(spec.hints) h += '<div class="btns"><button class="btn sec" id="hb">Minta Petunjuk</button></div><div id="hbox"></div>';
+    openSheet(h);
+    if(spec.wire) spec.wire();
+    const inp = document.getElementById('ans');
+    const go = () => {
+      tries++;
+      if(norm(inp.value) === norm(spec.plain)){
+        const st = (hint === 0 && tries <= 2) ? 3 : (hint <= 1 && tries <= 5) ? 2 : 1;
+        finishLevel(st, spec.done);
+      } else draw('<div class="note no"><b>Belum tepat</b>'+spec.wrong+'</div>');
+    };
+    document.getElementById('cek').onclick = go;
+    inp.onkeydown = e => { if(e.key === 'Enter') go(); };
+    const hb = document.getElementById('hb');
+    if(hb) hb.onclick = () => {
+      if(hint >= spec.hints.length) return toast('Semua petunjuk sudah dipakai');
+      hint++;
+      document.getElementById('hbox').innerHTML = spec.hints.slice(0,hint).map((x,k) =>
+        '<div class="note hint"><b>Petunjuk '+(k+1)+'</b>'+x+'</div>').join('');
+    };
+    setTimeout(() => { const e2 = document.getElementById('ans'); if(e2) e2.focus(); }, 120);
+  }
+  draw();
+}
+M5.l1 = () => cipherLevel({
+  lead:'Sandi Caesar menggeser setiap huruf maju sejauh angka tertentu. Di sini geserannya <b>3</b> (A menjadi D).',
+  enc: caesar('AKU ANAK SIBER', 3), plain:'AKU ANAK SIBER',
+  aid:'<div class="note info"><b>Cara membaca</b>Geser mundur 3: D kembali jadi A, E jadi B, dan seterusnya.</div>',
+  hints:['Huruf pertama D. Mundur 3 huruf dari D adalah A.','Tiga kata. Kata pertama: AKU.'],
+  wrong:'Periksa huruf per huruf. Spasi tidak ikut bergeser.',
+  done:'Sandi Caesar pertama terpecahkan. Ini cipher tertua yang tercatat - dipakai Julius Caesar 2000 tahun lalu.'
+});
+M5.l2 = () => cipherLevel({
+  lead:'Sekarang geserannya <b>5</b>. Pesannya lebih panjang.',
+  enc: caesar('JAGA KATA SANDIMU BAIK BAIK', 5), plain:'JAGA KATA SANDIMU BAIK BAIK',
+  aid:'<div class="note info"><b>Ingat</b>Mundur 5 huruf untuk tiap huruf.</div>',
+  hints:['Huruf pertama O. Mundur 5 dari O adalah J.','Kata pertama: JAGA.'],
+  wrong:'Pastikan kamu menggeser mundur 5, bukan 3.',
+  done:'Semakin panjang pesannya, semakin mudah sebenarnya - karena kata yang sudah ketemu membantu menebak sisanya.'
+});
+M5.l3 = () => cipherLevel({
+  lead:'Base64 bukan enkripsi, melainkan <b>encoding</b>: cara menuliskan data agar aman dikirim. Siapa pun bisa membacanya kalau tahu caranya.',
+  enc: b64('SIBER AMAN'), plain:'SIBER AMAN',
+  aid:'<div class="note info"><b>Ciri Base64</b>Campuran huruf besar-kecil dan angka, panjangnya kelipatan 4, sering diakhiri tanda "=".</div>',
+  hints:['Base64 memecah teks jadi kelompok 4 karakter. Dua kata, 10 huruf.','Kata pertama: SIBER.'],
+  wrong:'Coba pecahkan per kelompok 4 karakter, atau bandingkan dengan tabel Base64.',
+  done:'Karena mudah dibalik, Base64 TIDAK BOLEH dipakai menyimpan rahasia - hanya untuk merapikan data.'
+});
+M5.l4 = () => cipherLevel({
+  lead:'Base64 lagi, tapi kali ini kalimat penuh.',
+  enc: b64('JANGAN PERNAH BAGIKAN KODE OTP'), plain:'JANGAN PERNAH BAGIKAN KODE OTP',
+  aid:'<div class="note info"><b>Petunjuk bentuk</b>Kalimat ini terdiri dari 5 kata.</div>',
+  hints:['Kata pertama diawali huruf J.','Kalimatnya adalah nasihat keamanan yang sudah kamu pelajari di Misi 1.'],
+  wrong:'Sabar, kerjakan per potongan. Hasilnya berupa kalimat nasihat keamanan.',
+  done:'Kamu sudah terbiasa membaca Base64. Di dunia nyata, ini sering muncul di dalam token dan lampiran email.'
+});
+M5.l5 = () => {
+  const SHIFT = 11, PLAIN = 'KUNCI ADA DI DALAM LOG';
+  const enc = caesar(PLAIN, SHIFT);
+  let cur = 0;
+  cipherLevel({
+    lead:'Kali ini <b>geserannya tidak diberitahu</b>. Pakai alat geser di bawah: coba satu per satu sampai muncul kalimat yang masuk akal. Teknik ini namanya <i>brute force</i>.',
+    enc: enc, plain: PLAIN,
+    tool: () => '<div class="card flat"><div class="eyebrow">Alat Geser</div>'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'+
+      '<button class="btn sec" id="mn" style="width:auto;padding:8px 14px">&minus;</button>'+
+      '<div style="flex:1;text-align:center;font-family:\'Baloo 2\';font-weight:700">Geser: <span id="sv">0</span></div>'+
+      '<button class="btn sec" id="pl" style="width:auto;padding:8px 14px">+</button></div>'+
+      '<div class="mono" id="prev" style="font-size:.8rem;word-break:break-word;background:var(--surface);padding:10px;border-radius:9px"></div></div>',
+    wire: () => {
+      const upd = () => {
+        document.getElementById('sv').textContent = cur;
+        document.getElementById('prev').textContent = caesar(enc, -cur);
+      };
+      document.getElementById('mn').onclick = () => { cur = (cur+25)%26; upd(); };
+      document.getElementById('pl').onclick = () => { cur = (cur+1)%26; upd(); };
+      upd();
+    },
+    hints:['Coba geser sampai muncul kata Indonesia yang wajar. Ada 25 kemungkinan saja.','Geserannya lebih dari 10.'],
+    wrong:'Terus geser sampai kalimatnya terbaca wajar, lalu salin ke kotak jawaban.',
+    done:'Inilah kelemahan besar Caesar: hanya ada 25 kemungkinan, jadi bisa dicoba semuanya dalam hitungan detik.'
+  });
+};
+M5.l6 = () => {
+  const atbash = t => t.replace(/[A-Z]/g, c => String.fromCharCode(90 - (c.charCodeAt(0) - 65)));
+  const PLAIN = 'CERMIN HURUF';
+  cipherLevel({
+    lead:'Sandi <b>Atbash</b> membalik alfabet: A jadi Z, B jadi Y, C jadi X, dan seterusnya sampai Z jadi A.',
+    enc: atbash(PLAIN), plain: PLAIN,
+    aid:'<div class="card flat"><div class="eyebrow">Tabel Cermin</div><div class="mono" style="font-size:.72rem;line-height:1.8;word-break:break-all">'+
+        'A B C D E F G H I J K L M<br>Z Y X W V U T S R Q P O N</div>'+
+        '<p style="font-size:.8rem;margin-top:8px">Berlaku dua arah: N kembali jadi M, O jadi L, dan seterusnya.</p></div>',
+    hints:['Huruf pertama X. Di tabel, X berpasangan dengan C.','Dua kata. Kata pertama: CERMIN.'],
+    wrong:'Cocokkan tiap huruf dengan pasangannya di tabel cermin.',
+    done:'Atbash tidak butuh kunci angka sama sekali - tapi justru karena itu, ia sangat mudah dipecahkan siapa pun yang mengenalinya.'
+  });
+};
+M5.l7 = () => {
+  const PLAIN = 'BERLAPIS LEBIH SULIT';
+  const enc = b64(caesar(PLAIN, 4));
+  cipherLevel({
+    lead:'Sekarang <b>dua lapis</b>: pesan digeser Caesar <b>4</b> dulu, baru dibungkus Base64. Bongkar dari lapisan terluar.',
+    enc: enc, plain: PLAIN,
+    aid:'<div class="note info"><b>Urutan membongkar</b>Selalu kebalikan dari urutan memasang: buka Base64 dulu, baru geser mundur 4.</div>',
+    hints:['Setelah Base64 dibuka, hasilnya masih terlihat acak - itu normal, karena masih tersandi Caesar.','Hasil setelah Base64 dibuka diawali huruf F. Mundur 4 dari F adalah B.'],
+    wrong:'Pastikan kamu membuka Base64 lebih dulu, baru menggeser mundur 4.',
+    done:'Enkripsi berlapis dipakai di dunia nyata. Kuncinya: kenali tiap lapisan dan bongkar dari luar ke dalam.'
+  });
+};
+M5.l8 = () => {
+  const PLAIN = 'AKU SIAP', SHIFT = 6;
+  const target = caesar(PLAIN, SHIFT);
+  let tries = 0;
+  function draw(fb){
+    openSheet(lvHead()+
+      '<p class="lead">Sekarang kebalikannya: <b>kamu yang mengenkripsi</b>. Ubah pesan di bawah memakai sandi Caesar dengan geseran <b>6 maju</b>, lalu tulis hasilnya.</p>'+
+      '<div class="msg"><div class="from">Pesan asli</div><div class="txt mono">'+PLAIN+'</div></div>'+
+      '<div class="note info"><b>Contoh</b>A digeser 6 maju menjadi G. B menjadi H. Spasi tetap spasi.</div>'+
+      '<div class="field" style="margin-top:12px"><label for="ans">Hasil enkripsimu</label>'+
+      '<input type="text" id="ans" autocomplete="off" spellcheck="false" placeholder="tulis hasil geseran..."></div>'+
+      (fb||'')+'<button class="btn" id="cek">Periksa</button>');
+    const inp = document.getElementById('ans');
+    const go = () => {
+      tries++;
+      if(norm(inp.value) === norm(target)) finishLevel(tries === 1 ? 3 : tries <= 3 ? 2 : 1,
+        'Kamu berhasil <b>membuat</b> sandi, bukan cuma memecahkannya. Memahami dua arah inilah yang membedakan pemakai dari pembuat.');
+      else draw('<div class="note no"><b>Belum tepat</b>Ingat: maju 6, bukan mundur. A jadi G.</div>');
+    };
+    document.getElementById('cek').onclick = go;
+    inp.onkeydown = e => { if(e.key === 'Enter') go(); };
+    setTimeout(() => inp.focus(), 120);
+  }
+  draw();
+};
+
+/* ==================== MISI 6: FORENSIK ==================== */
+const M6 = {};
+const exifBox = (title, rows) => '<div class="msg"><div class="from">'+title+'</div><div class="exif">'+
+  rows.map(r => '<div><b>'+r[0]+'</b><span>'+r[1]+'</span></div>').join('')+'</div></div>';
+M6.l1 = () => {
+  const C = [
+    {pre:exifBox('Foto profil yang diunggah publik', [['Nama berkas','foto_profil.jpg'],['Waktu diambil','14 Agu 2026, 15:42'],['Lokasi GPS','-6.2088, 106.8456 (Jakarta Pusat)'],['Perangkat','Kamera HP Model X12']]),
+     t:'Informasi mana yang paling berisiko diketahui orang asing?',
+     o:['Nama berkasnya','Merek HP yang dipakai','Titik lokasi GPS tempat foto diambil','Ukuran berkas foto'], a:2,
+     e:'Koordinat GPS bisa menunjukkan rumah atau sekolah. Matikan tag lokasi di aplikasi kamera.'},
+    {pre:exifBox('Foto halaman rumah, diunggah tiap hari jam sama', [['Waktu diambil','Setiap hari, 06:30'],['Lokasi GPS','aktif, titik sama'],['Isi foto','pagar rumah & plat nomor motor'],['Keterangan','"berangkat sekolah!"']]),
+     t:'Kenapa kebiasaan ini berbahaya?',
+     o:['Karena foto pagi kurang terang','Karena orang asing bisa tahu rumah dan jam rutinmu','Karena berkasnya besar','Karena plat nomor merusak estetika'], a:1,
+     e:'Lokasi + jadwal rutin + ciri rumah memudahkan orang jahat memperkirakan kapan rumah kosong.'},
+    {pre:exifBox('Tangkapan layar percakapan diteruskan ke grup', [['Isi','chat dengan teman'],['Terlihat','nomor HP teman, foto profil'],['Sensor','tidak ada'],['Izin teman','tidak diminta']]),
+     t:'Apa yang seharusnya dilakukan sebelum membagikannya?',
+     o:['Langsung kirim, kan cuma teman','Sensor data pribadi dan minta izin temannya','Perbesar gambarnya','Kirim ke grup lebih besar'], a:1,
+     e:'Data pribadi orang lain yang kamu sebarkan juga menjadi tanggung jawabmu.'}
+  ];
+  seqMCQ(C, {}, (sc,tot) => finishLevel(scoreStars(sc,tot), 'Benar '+sc+' dari '+tot+'. Metadata adalah "catatan tersembunyi" yang ikut menempel di setiap foto.'));
+};
+M6.l2 = () => {
+  const C = [
+    {pre:exifBox('Foto A', [['Diambil','10 Sep 2026, 08:00'],['Diubah','10 Sep 2026, 08:00'],['Perangkat','Kamera HP'],['Perangkat lunak','-']])+
+         exifBox('Foto B', [['Diambil','10 Sep 2026, 08:00'],['Diubah','12 Sep 2026, 22:14'],['Perangkat','Kamera HP'],['Perangkat lunak','Editor Foto Pro 5.1']]),
+     t:'Foto mana yang kemungkinan besar sudah diedit?',
+     o:['Foto A','Foto B','Keduanya','Tidak bisa ditentukan'], a:1,
+     e:'Waktu "diubah" jauh setelah "diambil", ditambah adanya nama perangkat lunak editor - dua petunjuk kuat.'},
+    {pre:exifBox('Foto "kejadian tadi pagi"', [['Diambil','2 Jan 2024, 19:30'],['Diunggah','11 Sep 2026, 07:10'],['Lokasi','Surabaya'],['Keterangan diunggah','"kejadian pagi ini di Bandung"']]),
+     t:'Apa kejanggalan terbesar antara foto dan keterangannya?',
+     o:['Ukuran fotonya kecil','Tanggal & kota tidak cocok dengan keterangan','Fotonya berwarna','Waktu unggah pagi hari'], a:1,
+     e:'Foto diambil 2 tahun lalu di kota berbeda. Ini pola khas foto lama yang didaur ulang untuk berita bohong.'},
+    {pre:exifBox('Tangkapan layar "bukti transfer"', [['Format','PNG'],['Perangkat lunak','Editor Gambar'],['Lapisan teks','ditemukan 3 lapisan'],['Waktu diubah','5 menit sebelum dikirim']]),
+     t:'Apa yang paling mencurigakan dari bukti transfer ini?',
+     o:['Formatnya PNG','Ada lapisan teks hasil editor dan baru diubah 5 menit lalu','Ukurannya besar','Dikirim lewat chat'], a:1,
+     e:'Tangkapan layar asli tidak punya lapisan teks. Ini tanda kuat angka nominalnya diketik ulang.'}
+  ];
+  seqMCQ(C, {}, (sc,tot) => finishLevel(scoreStars(sc,tot), 'Benar '+sc+' dari '+tot+'. Membandingkan waktu "diambil" dan "diubah" adalah langkah pertama forensik foto.'));
+};
+M6.l3 = () => {
+  const C = [
+    {pre:exifBox('Foto 1', [['Lokasi GPS','-6.9175, 107.6191'],['Kota terdekat','Bandung'],['Waktu','07:05 hari kerja'],['Isi','foto seragam di depan gerbang']]),
+     t:'Apa yang bisa disimpulkan orang asing dari data ini?',
+     o:['Warna favorit pemilik foto','Sekolah dan jam berangkat pemilik foto','Nilai rapornya','Nama orang tuanya'], a:1,
+     e:'Lokasi + jam + seragam = sekolah dan rutinitas harian. Informasi ini cukup untuk menunggu seseorang di tempat.'},
+    {pre:exifBox('Foto 2', [['Lokasi GPS','-6.2000, 106.8167'],['Waktu','23:40'],['Isi','ruang tamu, TV menyala'],['Keterangan','"sendirian di rumah nih"']]),
+     t:'Kombinasi mana yang paling berbahaya di sini?',
+     o:['Ada TV di foto','Lokasi rumah + jam malam + keterangan sendirian','Fotonya gelap','Waktunya hari kerja'], a:1,
+     e:'Menyatakan sedang sendirian sambil membocorkan lokasi rumah dan waktu adalah kombinasi paling berisiko.'},
+    {pre:exifBox('Foto 3', [['Lokasi GPS','dihapus'],['Waktu','dihapus'],['Perangkat','dihapus'],['Isi','foto pemandangan']]),
+     t:'Kenapa foto ini jauh lebih aman dibagikan?',
+     o:['Karena pemandangan selalu aman','Karena metadatanya sudah dibersihkan','Karena ukurannya kecil','Karena tidak ada orang di foto'], a:1,
+     e:'Membersihkan metadata sebelum mengunggah adalah kebiasaan sederhana yang sangat melindungi privasi.'}
+  ];
+  seqMCQ(C, {}, (sc,tot) => finishLevel(scoreStars(sc,tot), 'Benar '+sc+' dari '+tot+'. Koordinat GPS terlihat seperti angka biasa, padahal ia menunjuk titik persis di peta.'));
+};
+M6.l4 = () => {
+  ordering({
+    lead:'Empat bukti ini ditemukan acak. Susun menjadi kronologi kejadian dari yang paling awal ke paling akhir. Gunakan tombol panah.',
+    pre:'<div class="note info"><b>Kasus</b>Akun media sosial seorang siswa diambil alih orang lain. Empat bukti berikut ditemukan.</div>',
+    items:[
+      'Pukul 20:14 - Muncul unggahan aneh dari akun korban',
+      'Pukul 19:55 - Korban menerima pesan "menang giveaway" berisi tautan',
+      'Pukul 20:02 - Korban memasukkan nama pengguna & password di situs tautan itu',
+      'Pukul 20:09 - Login berhasil dari perangkat tak dikenal di kota lain'
+    ],
+    order:[1,2,3,0],
+    wrong:'Pikirkan urutan sebab-akibat: pancingan datang dulu, korban terpancing, penyerang masuk, lalu akibatnya terlihat.'
+  }, () => finishLevel(3, 'Kronologi tersusun benar. Dalam forensik, urutan waktu adalah tulang punggung cerita - ia menunjukkan sebab dan akibat.'));
+};
+M6.l5 = () => {
+  const C = [
+    {pre:exifBox('Kamu akan membagikan tangkapan layar rapor ke grup', [['Terlihat','Nama lengkap'],['Terlihat','NISN'],['Terlihat','Nilai mata pelajaran'],['Terlihat','Alamat rumah'],['Terlihat','Logo sekolah']]),
+     t:'Bagian mana saja yang WAJIB disensor? (boleh pilih lebih dari satu)',
+     o:['Nama lengkap','NISN','Nilai mata pelajaran','Alamat rumah','Logo sekolah'], a:[0,1,3],
+     e:'Nama lengkap, NISN, dan alamat adalah data pribadi yang bisa dipakai menyamar atau mencarimu. Nilai dan logo tidak mengidentifikasi lokasimu.'},
+    {pre:exifBox('Kamu akan membagikan foto kartu pelajar', [['Terlihat','Foto wajah'],['Terlihat','Nomor induk'],['Terlihat','Tanggal lahir'],['Terlihat','Nama sekolah'],['Terlihat','Warna kartu']]),
+     t:'Mana yang sebaiknya disensor?',
+     o:['Foto wajah','Nomor induk','Tanggal lahir','Nama sekolah','Warna kartu'], a:[1,2],
+     e:'Nomor induk dan tanggal lahir sering dipakai sebagai kunci verifikasi identitas - itu yang paling berbahaya bocor.'},
+    {pre:exifBox('Kamu akan membagikan tangkapan layar chat', [['Terlihat','Nomor HP teman'],['Terlihat','Foto profil teman'],['Terlihat','Isi obrolan pribadi'],['Terlihat','Jam pesan'],['Terlihat','Nama grup']]),
+     t:'Mana yang wajib disensor sebelum dibagikan?',
+     o:['Nomor HP teman','Foto profil teman','Isi obrolan pribadi','Jam pesan','Nama grup'], a:[0,1,2],
+     e:'Data dan percakapan pribadi milik orang lain tidak boleh disebar tanpa izin, sekalipun kamu ikut di dalamnya.'}
+  ];
+  multiSelect(C, (sc,tot) => finishLevel(scoreStars(sc,tot), 'Tepat sempurna di '+sc+' dari '+tot+' kasus. Kebiasaan menyensor sebelum membagikan melindungi kamu dan orang lain sekaligus.'));
+};
+
+/* ==================== MISI 7: REKAYASA SOSIAL ==================== */
+const M7 = {};
+M7.l1 = () => {
+  branchStory([
+    {n:'Telepon "Hadiah Undian"', maxSafe:1, nodes:{start:{
+      c:'"Selamat! Nomor Anda menang undian 5 juta. Untuk mencairkan, sebutkan kode 6 digit yang barusan kami kirim ke HP Anda, cepat sebelum hangus!"',
+      o:[{t:'Sebutkan kodenya, takut hadiahnya hangus', safe:false, e:'Kode 6 digit itu OTP - kunci akunmu. Hadiah itu tidak pernah ada.'},
+         {t:'Tutup telepon, cek sendiri ke layanan resmi', safe:true, e:'Tepat. Undian resmi tidak pernah meminta OTP.'}]}}},
+    {n:'Teman Minta Password', maxSafe:1, nodes:{start:{
+      c:'Chat dari akun temanmu: "Aku lupa bawa laptop, pinjam password akun sekolahmu dong buat kumpulin tugas, nanti aku hapus kok."',
+      o:[{t:'Kasih passwordnya, kan teman dekat', safe:false, e:'Akun temanmu bisa saja sedang diretas. Password tidak pernah untuk dipinjamkan.'},
+         {t:'Telepon langsung temannya untuk memastikan', safe:true, e:'Bagus. Verifikasi lewat jalur lain adalah pertahanan terkuat.'}]}}},
+    {n:'Giveaway "Influencer"', maxSafe:1, nodes:{start:{
+      c:'DM masuk: "Kamu terpilih menang giveaway HP gaming! Login pakai akun Instagram-mu di tautan ini untuk verifikasi pemenang."',
+      o:[{t:'Klik tautan dan login, mumpung menang', safe:false, e:'Halaman login palsu mencuri nama pengguna dan passwordmu begitu diketik.'},
+         {t:'Abaikan, cek pengumuman di akun resmi', safe:true, e:'Betul. Pemenang asli diumumkan di akun resmi, bukan lewat DM.'}]}}}
+  ], (safe, max) => finishLevel(scoreStars(safe, max), 'Kamu memilih aman '+safe+' dari '+max+' kali. Tiga senjata penipu: hadiah, rasa takut, dan buru-buru.'));
+};
+M7.l2 = () => {
+  branchStory([
+    {n:'Panggilan "Petugas Bank"', maxSafe:3, nodes:{
+      start:{c:'"Selamat siang, saya dari bank. Ada transaksi mencurigakan Rp3 juta di rekening Anda. Benar ini dengan pemilik rekening?"',
+        o:[{t:'"Iya benar, saya pemiliknya"', safe:false, next:'n2', e:'Membenarkan identitas ke penelepon tak dikenal sudah memberi mereka pijakan pertama.'},
+           {t:'"Maaf, saya tutup dulu dan telepon balik ke nomor resmi bank"', safe:true, next:'aman', e:'Langkah paling benar: putuskan, lalu hubungi nomor resmi sendiri.'}]},
+      n2:{c:'"Baik. Untuk membatalkan transaksi itu, saya perlu memverifikasi. Sebutkan 3 angka di belakang kartu Anda."',
+        o:[{t:'Sebutkan angkanya', safe:false, next:'n3', e:'Tiga angka itu (CVV) adalah kunci pembayaran. Bank asli sudah punya datanya dan tidak akan bertanya.'},
+           {t:'"Tidak, bank tidak pernah menanyakan itu"', safe:true, next:'aman', e:'Benar. Bahkan di tengah panik, aturan ini tidak berubah.'}]},
+      n3:{c:'"Sedikit lagi. Kode SMS baru saja dikirim ke HP Anda, sebutkan kodenya untuk membatalkan transaksi."',
+        o:[{t:'Sebutkan kode SMS', safe:false, e:'Uangmu benar-benar hilang sekarang. Kode itu justru menyetujui transaksi penipu.'},
+           {t:'Berhenti, tutup telepon, dan lapor ke bank sendiri', safe:true, e:'Masih sempat! Menghentikan proses di tengah jalan tetap jauh lebih baik daripada meneruskan.'}]},
+      aman:{c:'Kamu menelepon nomor resmi bank. Petugas asli memastikan tidak ada transaksi mencurigakan apa pun. Panggilan tadi memang penipuan.',
+        o:[{t:'Laporkan nomor penipu dan ceritakan ke keluarga', safe:true, e:'Sempurna. Melaporkan membantu orang lain tidak jadi korban berikutnya.'}]}
+    }},
+    {n:'Pesan "Kurir Paket"', maxSafe:2, nodes:{
+      start:{c:'"Halo, paket Anda gagal dikirim karena alamat kurang lengkap. Silakan perbarui alamat di tautan berikut: cek-paket.online"',
+        o:[{t:'Buka tautannya, siapa tahu memang paketku', safe:false, next:'n2', e:'Kamu membuka halaman tiruan. Sejauh ini belum ada data hilang, tapi kamu sudah selangkah lebih dekat.'},
+           {t:'Cek nomor resi di aplikasi resmi ekspedisi', safe:true, e:'Tepat. Semua ekspedisi asli punya aplikasi atau situs resmi untuk mengecek resi.'}]},
+      n2:{c:'Halaman itu meminta: nama, alamat, nomor HP, DAN nomor kartu untuk "biaya ongkir kurang Rp15.000".',
+        o:[{t:'Isi semuanya, kan cuma Rp15.000', safe:false, e:'Nominal kecil adalah umpan. Yang mereka incar adalah data kartunya, bukan Rp15.000-nya.'},
+           {t:'Tutup halaman, ini pasti palsu', safe:true, e:'Bagus. Permintaan data kartu untuk ongkir kurang adalah tanda penipuan yang sangat khas.'}]}
+    }}
+  ], (safe, max) => finishLevel(scoreStars(safe, max), 'Langkah aman: '+safe+' dari '+max+'. Penipuan nyata jarang satu langkah - ia dibangun bertahap agar kamu tidak sadar.'));
+};
+M7.l3 = () => {
+  branchStory([
+    {n:'Teman Baru di Game (5 langkah)', maxSafe:5, nodes:{
+      start:{c:'Hari 1. Seseorang menambahkanmu di game. "Hai! Kamu jago juga ya. Main bareng yuk?" Ia ramah dan sering membantumu menang.',
+        o:[{t:'Main bareng saja, tapi jangan bagi info pribadi', safe:true, next:'n2', e:'Wajar berteman. Yang penting batas tetap dijaga sejak awal.'},
+           {t:'Langsung cerita nama sekolah dan kelasmu', safe:false, next:'n2', e:'Terlalu cepat membuka identitas ke orang yang belum dikenal di dunia nyata.'}]},
+      n2:{c:'Hari 5. "Kamu kelas berapa sih? Aku juga SMP lho. Sekolah di mana?" Ia bercerita panjang soal sekolahnya sendiri lebih dulu.',
+        o:[{t:'Jawab jujur lengkap, kan dia sudah cerita duluan', safe:false, next:'n3', e:'Ini teknik timbal balik: ia bercerita dulu agar kamu merasa wajib membalas dengan jujur.'},
+           {t:'Jawab umum saja tanpa menyebut nama sekolah', safe:true, next:'n3', e:'Bagus. Ramah tidak harus berarti membuka semua data.'}]},
+      n3:{c:'Hari 12. "Aku mau kasih skin gratis buat kamu. Tapi sistemnya harus lewat akunmu. Kasih tahu email dan passwordmu ya, nanti aku kirim langsung."',
+        o:[{t:'Berikan, dia sudah lama baik ke aku', safe:false, next:'n4', e:'Inilah tujuan sesungguhnya dari 12 hari keramahan itu.'},
+           {t:'Tolak - hadiah tidak pernah butuh password', safe:true, next:'n4', e:'Tepat sekali. Tidak ada hadiah sah yang memerlukan passwordmu.'}]},
+      n4:{c:'Hari 13. Ia mulai berubah: "Kok gitu sih? Aku udah baik selama ini. Kamu nggak percaya sama aku? Yaudah kalau nggak mau temenan lagi."',
+        o:[{t:'Merasa bersalah, akhirnya berikan datanya', safe:false, next:'n5', e:'Rasa bersalah adalah senjata terakhir mereka. Teman sungguhan tidak pernah mengancam pertemanan demi data.'},
+           {t:'Tetap menolak walau merasa tidak enak', safe:true, next:'n5', e:'Kuat sekali. Menolak sambil merasa tidak enak itu wajar - dan tetap keputusan yang benar.'}]},
+      n5:{c:'Hari 14. Ia mengirim tautan: "Yaudah gapapa. Ini aja deh, klik ini buat klaim hadiah ulang tahunku. Gratis kok, nggak perlu login."',
+        o:[{t:'Klik saja, kan katanya tidak perlu login', safe:false, e:'Tautan tetap berbahaya walau tanpa login - bisa memasang program berbahaya atau mencuri data perangkat.'},
+           {t:'Tidak klik, dan ceritakan semuanya ke orang tua', safe:true, e:'Keputusan terbaik. Menceritakan ke orang dewasa memutus rantai manipulasi sepenuhnya.'}]}
+    }}
+  ], (safe, max) => finishLevel(scoreStars(safe, max), 'Langkah aman: '+safe+' dari '+max+'. Penipu paling berbahaya adalah yang <b>sabar</b> - ia membangun kepercayaan berminggu-minggu sebelum meminta apa pun.'));
+};
+M7.l4 = () => {
+  const C = [
+    {c:'"Bro, hp gua ilang. Ini nomor baru. Tolong transfer 500rb dulu ya, besok gua ganti."', hacked:true,
+     e:'Ciri klasik akun dibajak: nomor baru + minta uang + mendesak. Selalu telepon suara untuk memastikan.'},
+    {c:'"Eh besok jadi ngerjain tugas kelompok di rumah lu kan? Gua bawa laptop."', hacked:false,
+     e:'Merujuk rencana yang memang kalian tahu bersama, tidak meminta apa pun. Wajar.'},
+    {c:'"Halo, saya butuh bantuan Anda segera. Mohon kirimkan kode verifikasi yang masuk ke nomor Anda."', hacked:true,
+     e:'Gaya bahasanya tiba-tiba formal dan kaku - tidak seperti teman sebaya. Ditambah minta kode verifikasi.'},
+    {c:'"Anjir tadi ulangan susah banget ya, nomor 7 lu jawab apa?"', hacked:false,
+     e:'Gaya bicara khas teman, konteks nyata, tidak meminta data atau uang.'},
+    {c:'"Kamu lagi di mana? Aku butuh alamat rumahmu sekarang juga, penting banget. Jangan tanya-tanya dulu."', hacked:true,
+     e:'"Jangan tanya-tanya dulu" adalah upaya mematikan pemeriksaan. Teman asli tidak keberatan ditanya balik.'},
+    {c:'"Besok bawa kostum ya, katanya kelas kita tampil pertama."', hacked:false,
+     e:'Informasi biasa yang bisa kamu cek sendiri ke teman lain. Tidak ada permintaan sensitif.'}
+  ];
+  const items = C.map(x => ({
+    keepOrder:true,
+    pre:'<div class="msg"><div class="from">Pesan dari kontak temanmu</div><div class="txt">'+x.c+'</div></div>',
+    t:'Ini teman asli atau akun yang sudah dibajak?',
+    o:['Teman asli','Kemungkinan akun dibajak'], a: x.hacked ? 1 : 0, e:x.e
+  }));
+  seqMCQ(items, {shuffle:true}, (sc,tot) => finishLevel(scoreStars(sc,tot),
+    'Benar '+sc+' dari '+tot+'. Perhatikan tiga hal: perubahan gaya bahasa, permintaan uang/data, dan larangan memverifikasi.'));
+};
+M7.l5 = () => {
+  branchStory([
+    {n:'Serangan Kombinasi', maxSafe:4, nodes:{
+      start:{c:'Pukul 19:00 - Email masuk: "Akun sekolahmu akan dinonaktifkan besok. Konfirmasi sekarang." Pengirimnya: admin@sekolahku-verifikasi.net',
+        o:[{t:'Klik tombol konfirmasi di email', safe:false, next:'n2', e:'Domain pengirim bukan milik sekolah. Kamu masuk ke halaman tiruan.'},
+           {t:'Abaikan dulu, cek langsung ke guru besok', safe:true, next:'n2', e:'Tepat. Email mendesak yang domainnya asing selalu perlu diverifikasi lewat jalur lain.'}]},
+      n2:{c:'Pukul 19:20 - Telepon masuk: "Halo, saya operator IT sekolah. Kami lihat kamu belum konfirmasi email tadi. Saya bantu sekarang ya."',
+        o:[{t:'Ikuti arahannya, kan dia tahu soal email tadi', safe:false, next:'n3', e:'Mereka tahu karena merekalah yang mengirim emailnya. Pengetahuan itu bukan bukti keaslian.'},
+           {t:'Minta nama, lalu bilang akan konfirmasi lewat sekolah', safe:true, next:'n3', e:'Bagus. Penipu paling tidak suka diminta identitas dan diverifikasi.'}]},
+      n3:{c:'Pukul 19:35 - WhatsApp dari "wali kelas": "Nak, tolong dibantu ya prosesnya, ini dari sekolah kok. Kirim kode yang masuk ke HP-mu."',
+        o:[{t:'Kirim kodenya, ini kan wali kelas', safe:false, next:'n4', e:'Nama dan foto profil sangat mudah ditiru. Permintaan kode tetap salah, dari siapa pun.'},
+           {t:'Telepon wali kelas di nomor yang sudah tersimpan', safe:true, next:'n4', e:'Sempurna. Selalu hubungi lewat kontak lama, bukan nomor yang menghubungimu.'}]},
+      n4:{c:'Pukul 19:50 - Pesan terakhir: "Ini kesempatan terakhir. Kalau tidak sekarang, nilai rapormu hilang dan kamu yang tanggung jawab."',
+        o:[{t:'Panik dan menuruti permintaannya', safe:false, e:'Ancaman + tenggat = pemaksaan. Tidak ada lembaga asli yang mengancam murid seperti ini.'},
+           {t:'Berhenti total, simpan buktinya, laporkan ke orang tua & sekolah', safe:true, e:'Keputusan terbaik. Menyimpan bukti membantu sekolah memperingatkan siswa lain.'}]}
+    }}
+  ], (safe, max) => finishLevel(scoreStars(safe, max),
+    'Langkah aman: '+safe+' dari '+max+'. Serangan sungguhan sering datang dari beberapa arah sekaligus agar kamu percaya - email, telepon, lalu chat.'));
+};
+
+/* ==================== MISI 8: MINI-CTF GABUNGAN ==================== */
+const M8 = {};
+M8.l1 = () => {
+  const SCAN = [
+    '$ nmap semua',
+    'Memindai jaringan target ...',
+    '  10.20.0.1  (Router)        - port 80 TERBUKA : http',
+    '  10.20.0.6  (Server-Arsip)  - port 443 TERBUKA : https',
+    '  10.20.0.9  (Printer)       - port 9100 TERBUKA : cetak',
+    '  10.20.0.55 (TAK-DIKENAL)   - port 4444 TERBUKA : shell jarak jauh',
+    'Pemindaian selesai.'
+  ].join('\n');
+  const LOG = [
+    '2026-09-01 22:10 login GAGAL   user=admin ip=10.20.0.55',
+    '2026-09-01 22:11 login GAGAL   user=root  ip=10.20.0.55',
+    '2026-09-01 22:14 login BERHASIL user=bayangan99 ip=10.20.0.55',
+    '2026-09-01 22:16 perintah        user=bayangan99: unduh arsip_rahasia.zip'
+  ].join('\n');
+  const steps = [
+    { body:'<div class="card"><h3>Tahap 1 &mdash; Pesan Tercegat</h3><p>Sebuah pesan tercegat di jaringan. Bentuknya Base64.</p>'+
+        '<div class="msg"><div class="from">Data tercegat</div><div class="txt mono">'+b64('GERBANG TERBUKA')+'</div></div></div>',
+      label:'Isi pesan aslinya', a:'GERBANG TERBUKA',
+      hints:['Ini Base64, seperti Misi 5 Level 3-4.','Dua kata, diawali huruf G.'],
+      wrong:'Buka Base64-nya. Hasilnya dua kata Bahasa Indonesia.' },
+
+    { body:'<div class="card"><h3>Tahap 2 &mdash; Sandi Tanpa Kunci</h3><p>Pesan berikutnya tersandi Caesar, tapi <b>geserannya tidak diketahui</b>. Cari sendiri.</p>'+
+        '<div class="msg"><div class="from">Pesan tersandi</div><div class="txt mono">'+caesar('PERIKSA JARINGAN', 9)+'</div></div></div>',
+      label:'Isi pesan aslinya', a:'PERIKSA JARINGAN',
+      hints:['Coba semua geseran 1-25 sampai muncul kalimat wajar (brute force).','Geserannya di antara 8 dan 10.'],
+      wrong:'Geser mundur satu per satu sampai terbaca kalimat Bahasa Indonesia.' },
+
+    { body:'<div class="card"><h3>Tahap 3 &mdash; Baca Hasil Pemindaian</h3><p>Perintah pemindaian sudah dijalankan. Temukan perangkat penyusupnya.</p>'+
+        '<div class="term" style="height:auto">'+SCAN.split('\n').map(l => '<p class="l '+(l.indexOf('TAK-DIKENAL')>=0?'r':(l[0]==='$'?'c':''))+'">'+esc(l)+'</p>').join('')+'</div></div>',
+      label:'Alamat IP perangkat penyusup', a:['10.20.0.55'],
+      hints:['Cari yang namanya tidak wajar untuk perangkat kantor.','Port 4444 adalah ciri pintu belakang (backdoor).'],
+      wrong:'Perhatikan baris yang berbeda sendiri dari yang lain.' },
+
+    { body:'<div class="card"><h3>Tahap 4 &mdash; Baca Catatan Login</h3><p>Ini catatan login dari perangkat tadi. Siapa akun yang berhasil masuk?</p>'+
+        '<div class="term" style="height:auto">'+LOG.split('\n').map(l => '<p class="l '+(l.indexOf('BERHASIL')>=0?'w':'')+'">'+esc(l)+'</p>').join('')+'</div></div>',
+      label:'Nama akun yang BERHASIL masuk', a:['bayangan99'],
+      hints:['Abaikan baris yang statusnya GAGAL.','Namanya mengandung angka 99.'],
+      wrong:'Cari baris bertuliskan BERHASIL, lalu lihat bagian user=.' },
+
+    { body:'<div class="card"><h3>Tahap 5 &mdash; Jejak Foto</h3><p>Penyusup meninggalkan sebuah foto. Metadatanya masih utuh.</p>'+
+        exifBox('bukti_01.jpg', [['Diambil','1 Sep 2026, 22:05'],['Lokasi GPS','-6.9175, 107.6191'],['Kota terdekat','Bandung'],['Perangkat','Kamera HP']])+'</div>',
+      label:'Nama kota tempat foto diambil', a:['BANDUNG'],
+      hints:['Baris "Kota terdekat" sudah memberitahumu langsung.'],
+      wrong:'Baca ulang baris kota pada metadata.' },
+
+    { body:'<div class="card"><h3>Tahap 6 &mdash; Pesan Asli di Antara Palsu</h3><p>Empat pesan masuk. Hanya SATU yang benar-benar dari tim keamanan. Pesan itu memuat potongan kunci.</p>'+
+        '<div class="msg" style="margin-bottom:8px"><div class="from">Pesan A</div><div class="txt">SEGERA klik keamanan-cek.top dan login untuk mengamankan akunmu. Potongan kunci: RUSAK</div></div>'+
+        '<div class="msg" style="margin-bottom:8px"><div class="from">Pesan B</div><div class="txt">Tim Keamanan: kami tidak pernah meminta password atau OTP. Laporkan pesan mencurigakan ke fasilitator. Potongan kunci: P3CAH</div></div>'+
+        '<div class="msg" style="margin-bottom:8px"><div class="from">Pesan C</div><div class="txt">Selamat! Kamu menang undian. Kirim kode OTP untuk klaim. Potongan kunci: HADIAH</div></div>'+
+        '<div class="msg"><div class="from">Pesan D</div><div class="txt">Akunmu diblokir 1x24 jam! Verifikasi sekarang di sekolah-verif.xyz. Potongan kunci: BLOKIR</div></div></div>',
+      label:'Potongan kunci dari pesan yang ASLI', a:['P3CAH'],
+      hints:['Pesan asli tidak pernah meminta password/OTP dan tidak memakai domain aneh.','Perhatikan pesan yang justru mengingatkanmu agar waspada.'],
+      wrong:'Tiga pesan lain punya ciri phishing. Cari yang tidak meminta apa pun darimu.' },
+
+    { body:'<div class="card"><h3>Tahap 7 &mdash; Kunci yang Disembunyikan</h3>'+
+        '<p>Potongan kunci terakhir <b>tidak ada di sini</b>. Ia disembunyikan di dalam materi tab <b>Belajar</b>, pada pertemuan yang membahas review dan latihan ulang.</p>'+
+        '<div class="note hint"><b>Cara mencarinya</b>Tutup jendela ini, buka tab <b>Belajar</b>, cari Pertemuan 13, lalu baca sampai habis. Progresmu tidak akan hilang.</div></div>',
+      label:'Kata kunci rahasia dari tab Belajar', a:['MERPATI'],
+      hints:['Buka tab Belajar &rarr; Pertemuan 13 &rarr; baris terakhir.'],
+      wrong:'Kata kuncinya ada di Pertemuan 13 pada tab Belajar. Bacalah sampai baris terakhir.' },
+
+    { body:'<div class="card"><h3>Tahap 8 &mdash; Rakit Flag</h3><p>Gabungkan dua potongan kunci yang sudah kamu temukan menjadi flag akhir.</p>'+
+        '<div class="note info"><b>Format flag</b><span class="mono">CTF{POTONGAN_TAHAP6_POTONGAN_TAHAP7}</span><br>Contoh bentuk: <span class="mono">CTF{ABCDE_KENARI}</span></div></div>',
+      label:'Flag akhir', a:['CTF{P3CAH_MERPATI}'],
+      hints:['Potongan tahap 6 adalah P3CAH.','Potongan tahap 7 adalah MERPATI. Gabung: CTF{P3CAH_MERPATI}'],
+      wrong:'Perhatikan formatnya: CTF{ , garis bawah di tengah, lalu tutup }.' }
+  ];
+  textChain(steps, penalty => {
+    const st = penalty === 0 ? 3 : penalty <= 3 ? 2 : 1;
+    finishLevel(st, 'FLAG DITEMUKAN: <span class="mono">CTF{P3CAH_MERPATI}</span><br><br>Kamu menggabungkan encoding, kriptografi, pembacaan pemindaian jaringan, analisis log, forensik metadata, deteksi phishing, dan ketelitian membaca materi &mdash; persis cara kerja CTF sungguhan.'+
+      (penalty ? '<br><br>Petunjuk dipakai: '+penalty+'. Coba ulangi tanpa petunjuk untuk 3 bintang.' : ''));
+  });
+};
+
+/* ==================== REGISTRY ==================== */
+const MISSIONS = [
+  {id:'password', no:1, tier:'mudah', sesi:'Sesi 2', icon:I.key, title:'Lab Kekuatan Password', desc:'Uji & rancang kata sandi', badge:'Kata Sandi',
+   intro:'Lima level tentang apa yang benar-benar membuat sebuah password kuat - dan kenapa yang rumit belum tentu aman.',
+   levels:[
+     {n:1, t:'Meteran Sandi', d:'Uji kekuatan password percobaan', run:M1.l1},
+     {n:2, t:'Adu Kuat', d:'Bandingkan dua password, mana lebih tangguh', run:M1.l2},
+     {n:3, t:'Bengkel Sandi', d:'Perbaiki 4 password lemah, maks 16 karakter', run:M1.l3},
+     {n:4, t:'Ruang Pembobol', d:'Rancang passphrase tahan 100 tahun', run:M1.l4},
+     {n:5, t:'Penjaga Akun', d:'Kuis 2FA & pengelolaan sandi', run:M1.l5}
+   ]},
+  {id:'phishing', no:2, tier:'mudah', sesi:'Sesi 3', icon:I.fish, title:'Deteksi Phishing', desc:'Kenali pesan penipu', badge:'Detektif Phishing',
+   intro:'Dari pesan penipuan yang kasar sampai email palsu yang nyaris sempurna. Lima level, makin lama makin halus.',
+   levels:[
+     {n:1, t:'Pesan Jelas', d:'8 pesan dengan ciri penipuan yang kentara', run:M2.l1},
+     {n:2, t:'Domain Kembar', d:'Bedakan alamat situs asli dan tiruan', run:M2.l2},
+     {n:3, t:'Adu Cepat', d:'10 pesan, hanya 12 detik tiap pesan', run:M2.l3},
+     {n:4, t:'Tunjuk Buktinya', d:'Ketuk bagian pesan yang mencurigakan', run:M2.l4},
+     {n:5, t:'Bedah Email', d:'Periksa pengirim, alamat balasan & lampiran', run:M2.l5}
+   ]},
+  {id:'terminal', no:3, tier:'sulit', sesi:'Sesi 6', icon:I.term, title:'Terminal Palsu', desc:'Pindai & selidiki jaringan tiruan', badge:'Detektif Jaringan',
+   intro:'Terminal simulasi bergaya Termux. Dari perintah dasar sampai memburu perangkat yang sengaja menyembunyikan diri.',
+   levels:[
+     {n:1, t:'Belajar Perintah', d:'Kuasai 5 perintah dasar', run:M3.l1},
+     {n:2, t:'Jaringan Rumah', d:'Pindai 5 perangkat, temukan yang berisiko', run:M3.l2},
+     {n:3, t:'Jaringan Sekolah', d:'12 perangkat, 1 penyusup', run:M3.l3},
+     {n:4, t:'Baca Log', d:'Lacak akun penyusup lewat catatan login', run:M3.l4},
+     {n:5, t:'Host Bayangan', d:'Perangkat tak terdaftar, sapu seluruh rentang', run:M3.l5}
+   ]},
+  {id:'sqli', no:4, tier:'ekstra', sesi:'Sesi 9', icon:I.lock, title:'Form Login Palsu', desc:'Celah input pada aplikasi web', badge:'Pembuka Gerbang',
+   intro:'Empat level tentang satu celah paling terkenal di dunia web - lalu cara developer menutupnya dengan benar.',
+   levels:[
+     {n:1, t:'Gerbang Pertama', d:'Injeksi klasik pada kolom password', run:M4.l1},
+     {n:2, t:'Kata Terlarang', d:'Kata OR diblokir, cari cara lain', run:M4.l2},
+     {n:3, t:'Naik Pangkat', d:'Masuk sebagai admin, lalu berhenti', run:M4.l3},
+     {n:4, t:'Jadi Developer', d:'Temukan kode rapuh & perbaikannya', run:M4.l4}
+   ]},
+  {id:'crypto', no:5, tier:'sedang', sesi:'Sesi 10', icon:I.cipher, title:'Puzzle Kriptografi', desc:'Pecahkan & buat pesan rahasia', badge:'Pemecah Sandi',
+   intro:'Delapan level: dari sandi geser sederhana sampai sandi berlapis - dan terakhir, kamu sendiri yang membuatnya.',
+   levels:[
+     {n:1, t:'Caesar Geser 3', d:'Sandi geser dengan kunci diketahui', run:M5.l1},
+     {n:2, t:'Caesar Geser 5', d:'Kalimat lebih panjang', run:M5.l2},
+     {n:3, t:'Base64 Dasar', d:'Encoding, bukan enkripsi', run:M5.l3},
+     {n:4, t:'Base64 Kalimat', d:'Bongkar kalimat penuh', run:M5.l4},
+     {n:5, t:'Kunci Hilang', d:'Caesar tanpa tahu geserannya', run:M5.l5},
+     {n:6, t:'Cermin Atbash', d:'Alfabet dibalik total', run:M5.l6},
+     {n:7, t:'Sandi Berlapis', d:'Base64 membungkus Caesar', run:M5.l7},
+     {n:8, t:'Giliranmu Menyandi', d:'Enkripsi sendiri, bukan memecahkan', run:M5.l8}
+   ]},
+  {id:'forensik', no:6, tier:'sedang', sesi:'Sesi 11', icon:I.photo, title:'Forensik Mini', desc:'Baca jejak digital tersembunyi', badge:'Detektif Forensik',
+   intro:'Setiap berkas menyimpan cerita. Lima level membaca metadata, membongkar foto palsu, dan menyusun kronologi.',
+   levels:[
+     {n:1, t:'Metadata Dasar', d:'Apa yang menempel di setiap foto', run:M6.l1},
+     {n:2, t:'Foto Mana yang Diedit', d:'Bandingkan jejak waktu & perangkat lunak', run:M6.l2},
+     {n:3, t:'Lacak Koordinat', d:'Apa yang terbongkar dari titik GPS', run:M6.l3},
+     {n:4, t:'Susun Kronologi', d:'Urutkan 4 bukti jadi satu cerita', run:M6.l4},
+     {n:5, t:'Sensor Dulu', d:'Pilih data yang wajib ditutup', run:M6.l5}
+   ]},
+  {id:'sosial', no:7, tier:'sulit', sesi:'Sesi 12', icon:I.chat, title:'Simulasi Rekayasa Sosial', desc:'Hadapi manipulasi percakapan', badge:'Anti Tipu',
+   intro:'Serangan yang menyasar manusia, bukan komputer. Lima level, dari tipuan sekali tembak sampai penipu yang sabar berminggu-minggu.',
+   levels:[
+     {n:1, t:'Tipuan Sekali Tembak', d:'3 skenario sederhana', run:M7.l1},
+     {n:2, t:'Bertahap', d:'Skenario bercabang beberapa langkah', run:M7.l2},
+     {n:3, t:'Penipu Sabar', d:'14 hari membangun kepercayaan', run:M7.l3},
+     {n:4, t:'Asli atau Dibajak', d:'Kenali akun teman yang diambil alih', run:M7.l4},
+     {n:5, t:'Serangan Kombinasi', d:'Email, telepon, dan chat sekaligus', run:M7.l5}
+   ]},
+  {id:'capstone', no:8, tier:'ekstra', sesi:'Sesi 15', icon:I.flag, title:'Mini-CTF Gabungan', desc:'Tantangan akhir 8 tahap', badge:'Lulusan Cyber Mission',
+   intro:'Tantangan pamungkas. Delapan tahap berantai yang memakai SEMUA keterampilan dari misi sebelumnya - termasuk membaca materi di tab Belajar.',
+   levels:[
+     {n:1, t:'Rantai 8 Tahap', d:'Encoding, sandi, jaringan, log, forensik, phishing', run:M8.l1}
+   ]}
+];
+
+/* ==================== LESSONS ==================== */
+const LESSONS = [
+  {s:1, m:'Modul 1', t:'Kenalan Dunia Siber', b:['Hacker bukan selalu penjahat. "Topi putih" (ethical hacker) mencari celah lalu melaporkannya supaya diperbaiki.','"Topi hitam" memakai celah untuk merugikan orang - itu melanggar hukum.','Aturan Emas kita: jangan pernah mencoba teknik apa pun ke akun, HP, atau jaringan orang lain tanpa izin jelas.','Semua latihan di app ini memakai sistem tiruan, jadi aman dan legal.']},
+  {s:2, m:'Modul 1', t:'Password Kuat & 2FA', b:['Panjang lebih penting daripada rumit. "kucingorenlompatpagar" jauh lebih kuat dari "P@ss123".','Jangan pakai password yang sama di banyak akun - satu bocor, semua ikut bahaya.','2FA tetap melindungi akun walau password bocor.','Jangan pernah memberikan kode OTP ke siapa pun, termasuk yang mengaku admin.']},
+  {s:3, m:'Modul 1', t:'Kenali Phishing', b:['Phishing = pesan penipu yang menyamar jadi pihak resmi untuk mencuri data.','Ciri umum: mendesak, tautan aneh, hadiah tak masuk akal, minta OTP atau password.','Cara membaca alamat situs: lihat bagian tepat sebelum garis miring pertama - itulah pemilik aslinya.','Kalau ragu: jangan klik, tanya orang dewasa.']},
+  {s:4, m:'Modul 2', t:'Dasar Command Line', b:['Terminal = cara memberi perintah ke komputer dengan tulisan, bukan klik.','ls = lihat daftar. ping = cek apakah alamat bisa dijangkau. whois = cari info pemilik.','nmap = memeriksa "pintu" (port) yang terbuka di sebuah perangkat.','cat = baca isi berkas. grep = cari baris tertentu di dalam berkas.']},
+  {s:5, m:'Modul 2', t:'Jaringan Dasar', b:['IP address itu seperti alamat rumah - supaya data tahu harus dikirim ke mana.','Port itu seperti pintu di rumah. Satu perangkat punya banyak pintu bernomor.','Port terbuka tidak selalu bahaya; yang bahaya adalah port terbuka TANPA penjagaan.','Port 4444 dan 22 yang terbuka di perangkat asing biasanya tanda pintu belakang (backdoor).']},
+  {s:6, m:'Modul 2', t:'Memindai & Menyelidiki', b:['Memindai = memeriksa perangkat apa saja yang aktif dan pintu mana yang terbuka.','Daftar resmi perangkat tidak selalu lengkap - penyusup tentu tidak mendaftarkan diri.','Karena itu, sapu seluruh rentang alamat, jangan hanya percaya daftar.','Catatan login (log) adalah saksi mata terbaik: ia mencatat siapa masuk, kapan, dan dari mana.']},
+  {s:7, m:'Modul 3', t:'Cara Kerja Website', b:['Browser mengirim permintaan (request), server membalas dengan halaman (response).','Sama seperti mengirim surat lalu menerima balasan.','Kalau server salah mengolah "surat" yang nakal, di situlah celah keamanan muncul.']},
+  {s:8, m:'Modul 3', t:'Celah Umum di Website', b:['Banyak celah muncul karena server percaya begitu saja pada apa yang diketik pengguna.','Injeksi = menyelipkan perintah di kolom isian, seolah menyelundupkan pesan lewat kolom nama.','Menyaring daftar kata terlarang bukan perbaikan sejati - penyerang tinggal memakai cara lain.','Perbaikan sebenarnya: prepared statement, yang memisahkan data dari perintah.']},
+  {s:9, m:'Modul 3', t:'Etika Saat Menemukan Celah', b:['Kalau menemukan celah di sistem nyata: berhenti begitu terbukti ada.','Jangan mengunduh data, jangan mengubah apa pun - itu tetap pelanggaran walau niatnya baik.','Laporkan ke pemilik sistem. Namanya responsible disclosure.','Peretas terbaik bukan yang paling jago masuk, tapi yang paling bisa dipercaya.']},
+  {s:10, m:'Modul 4', t:'Kriptografi Dasar', b:['Encoding = mengubah bentuk data agar rapi dikirim (contoh: Base64). Bukan pengamanan.','Enkripsi = mengunci data dengan kunci rahasia. Tanpa kunci, isi tidak terbaca.','Caesar menggeser huruf; Atbash membalik alfabet (A jadi Z).','Sandi berlapis dibongkar dari lapisan terluar dulu.']},
+  {s:11, m:'Modul 4', t:'Forensik & Jejak Digital', b:['Setiap foto menyimpan metadata: waktu, jenis HP, kadang lokasi GPS.','Bandingkan waktu "diambil" dan "diubah" untuk mengetahui apakah sebuah foto diedit.','Koordinat GPS terlihat seperti angka biasa, padahal menunjuk titik persis di peta.','Bersihkan metadata dan sensor data pribadi sebelum membagikan apa pun.']},
+  {s:12, m:'Modul 5', t:'Rekayasa Sosial & OSINT', b:['Rekayasa sosial menyerang manusianya, bukan komputernya.','Senjatanya: rasa takut, buru-buru, iba, dan iming-iming hadiah.','Penipu paling berbahaya adalah yang sabar - ia membangun kepercayaan dulu.','Pertahanan terkuat: verifikasi lewat jalur lain, dan jangan pernah dilarang bertanya.']},
+  {s:13, m:'Modul 5', t:'Review & Latihan Ulang', b:['Buka kembali level dengan bintang paling sedikit dan mainkan ulang.','Yang sering keliru: mengira Base64 itu enkripsi, dan mengira semua port terbuka pasti berbahaya.','Ceritakan ulang satu konsep ke temanmu - kalau bisa menjelaskan, berarti kamu paham.','Catatan arsip lama: burung pembawa pesan rahasia para peretas muda adalah MERPATI.']},
+  {s:14, m:'Modul 5', t:'Apa Itu Mini-CTF', b:['CTF (Capture The Flag) = lomba memecahkan tantangan keamanan untuk menemukan "flag".','Flag biasanya berbentuk teks khusus seperti CTF{...}.','Kerja tim penting: satu membaca petunjuk, satu mencoba, satu mencatat.','Tantangan CTF jarang satu jenis - biasanya berantai dari beberapa keterampilan sekaligus.']},
+  {s:15, m:'Modul 6', t:'Tantangan Akhir', b:['Tantangan terakhir menggabungkan encoding, sandi, jaringan, log, forensik, dan phishing.','Kerjakan bertahap: hasil satu tahap menjadi kunci tahap berikutnya.','Kalau macet, baca ulang materi sesi sebelumnya - semua kuncinya sudah pernah diajarkan.','Beberapa petunjuk sengaja disembunyikan di dalam materi. Membaca adalah bagian dari keterampilan.']},
+  {s:16, m:'Modul 6', t:'Penutup & Langkah Lanjut', b:['Kamu sudah mengenal dasar dunia keamanan siber. Ini baru pintu masuknya.','Lanjutannya: belajar pemrograman (Python), jaringan lebih dalam, lalu latihan CTF resmi.','Ingat selalu: kemampuan ini dipakai untuk melindungi, bukan merusak.','Peretas terbaik adalah yang paling dipercaya.']}
+];
+/* ==================== RENDER: BELAJAR ==================== */
+function renderBelajar(){
+  let h = '<p class="lead">Materi ringkas untuk tiap pertemuan. Baca sebelum atau sesudah mengerjakan misi &mdash; beberapa petunjuk tantangan akhir tersembunyi di sini.</p>';
+  let last = '';
+  LESSONS.forEach(l => {
+    if(l.m !== last){ h += '<h2 class="sec">'+l.m+'</h2>'; last = l.m; }
+    h += '<div class="card"><div class="eyebrow">Pertemuan '+l.s+'</div><h3>'+l.t+'</h3><ul>'+
+         l.b.map(x => '<li>'+x+'</li>').join('')+'</ul></div>';
+  });
+  document.getElementById('v-belajar').innerHTML = h;
+}
+
+/* ==================== RENDER: PROFIL ==================== */
+function renderProfil(){
+  const cleared = misCleared(), all = cleared === MISSIONS.length;
+  const ts = totalStars(), ms = maxStars(), R = rankOf();
+  let h = '';
+  h += '<div class="card"><div class="eyebrow">Peserta</div><h3>'+(esc(S.nama)||'Belum diisi')+
+       (S.kode ? ' <span style="font-family:Karla;font-size:.78rem;color:var(--ink-faint)">('+esc(S.kode)+')</span>' : '')+'</h3>'+
+       '<p style="margin-top:6px">'+cleared+' dari '+MISSIONS.length+' misi tuntas &middot; '+ts+' dari '+ms+' bintang.</p>'+
+       '<div class="meter"><i style="width:'+(ts/ms*100)+'%;background:var(--gold)"></i></div></div>';
+
+  h += '<div class="card"><div class="rank"><div class="rb">'+R.t.charAt(0)+'</div>'+
+       '<div><div class="eyebrow">Peringkat</div><h3>'+R.t+'</h3>'+
+       '<p style="margin:2px 0 0;font-size:.82rem">'+R.d+'</p></div></div></div>';
+
+  h += '<h2 class="sec">Lencana Misi</h2><div class="badges">';
+  MISSIONS.forEach(m => { h += '<div class="bg'+(misDone(m.id)?' got':'')+'">'+svg(m.icon)+'<span>'+m.badge+'</span></div>'; });
+  h += '</div>';
+
+  h += '<h2 class="sec">Rincian Level</h2>';
+  MISSIONS.forEach(m => {
+    const dn = misDoneCount(m.id), tot = m.levels.length;
+    h += '<div class="card" style="padding:12px 14px"><div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline">'+
+         '<h3 style="font-size:.92rem">Misi '+m.no+' &middot; '+m.title+'</h3>'+
+         '<span style="font-family:\'Baloo 2\';font-size:.78rem;color:var(--ink-faint)">'+dn+'/'+tot+'</span></div>'+
+         '<div style="margin-top:6px;font-size:.78rem;color:var(--gold);letter-spacing:1px">'+
+         m.levels.map(l => lvDone(m.id,l.n) ? '★'.repeat(lvStars(m.id,l.n))+'<span style="color:var(--ink-faint)">'+'☆'.repeat(3-lvStars(m.id,l.n))+'</span>' : '<span style="color:var(--ink-faint)">☆☆☆</span>').join(' &nbsp; ')+
+         '</div></div>';
+  });
+
+  h += '<h2 class="sec">Sertifikat</h2>';
+  if(all){
+    h += '<div class="cert"><div class="k">Sertifikat Kelulusan</div><h3>LULUS</h3>'+
+         '<div class="nm">'+(esc(S.nama)||'Peserta')+'</div>'+
+         '<p>telah menuntaskan seluruh '+MISSIONS.length+' misi Cyber Mission<br>dengan '+ts+' dari '+ms+' bintang &middot; peringkat '+R.t+'</p>'+
+         '<p style="margin-top:10px;font-size:.72rem">'+new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})+'</p></div>';
+  } else {
+    h += '<div class="card"><p>Sertifikat terbuka setelah semua '+MISSIONS.length+' misi tuntas. Tersisa <b>'+(MISSIONS.length-cleared)+' misi</b> lagi.</p></div>';
+  }
+
+  h += '<h2 class="sec">Kode Progres</h2><div class="card">'+
+       '<p>Tunjukkan kode ini ke fasilitator di akhir sesi sebagai cadangan data.</p>'+
+       '<textarea id="expBox" rows="3" readonly>'+esc(exportCode())+'</textarea>'+
+       '<div class="btns"><button class="btn sec" onclick="copyCode()">Salin Kode</button></div>'+
+       '<div style="margin-top:14px"><label for="impBox">Pulihkan dari kode</label>'+
+       '<textarea id="impBox" rows="3" placeholder="Tempel kode progres di sini..."></textarea>'+
+       '<div class="btns"><button class="btn sec" onclick="importCode()">Pulihkan</button></div></div></div>';
+
+  h += '<div class="card"><h3>Data Peserta</h3><div class="field"><input type="text" id="rnName" value="'+esc(S.nama)+'" placeholder="Nama kamu"></div>'+
+       '<div class="field"><input type="text" id="rnKode" value="'+esc(S.kode)+'" placeholder="Kode peserta (opsional)"></div>'+
+       '<button class="btn sec" onclick="renameMe()">Simpan</button></div>';
+  document.getElementById('v-profil').innerHTML = h;
+}
+function exportCode(){ try{ return btoa(unescape(encodeURIComponent(JSON.stringify(S)))); }catch(e){ return ''; } }
+function copyCode(){
+  const t = document.getElementById('expBox');
+  t.select(); t.setSelectionRange(0, 99999);
+  if(navigator.clipboard) navigator.clipboard.writeText(t.value).then(() => toast('Kode disalin'), () => toast('Salin manual ya'));
+  else { try{ document.execCommand('copy'); toast('Kode disalin'); }catch(e){ toast('Salin manual ya'); } }
+}
+function importCode(){
+  const v = document.getElementById('impBox').value.trim();
+  if(!v) return toast('Kode masih kosong');
+  try{
+    const o = JSON.parse(decodeURIComponent(escape(atob(v))));
+    if(!o || typeof o !== 'object') throw 0;
+    S = {nama:o.nama||'', kode:o.kode||'', lv:o.lv||{}};
+    save(); renderAll(); toast('Progres dipulihkan');
+  }catch(e){ toast('Kode tidak valid'); }
+}
+function renameMe(){
+  const n = document.getElementById('rnName').value.trim();
+  if(!n) return toast('Nama tidak boleh kosong');
+  S.nama = n; S.kode = document.getElementById('rnKode').value.trim();
+  save(); renderAll(); toast('Tersimpan');
+}
+
+/* ==================== ONBOARDING ==================== */
+function askName(){
+  openSheet(
+    '<div class="shead" style="--tt:var(--accent-tint);--tc:var(--accent-strong)"><div>'+
+    '<span class="tchip">Selamat datang</span><h2>Halo, calon jagoan siber!</h2></div></div>'+
+    '<p class="lead">Sebelum mulai, tulis namamu dulu. Progres misimu tersimpan di HP ini.</p>'+
+    '<div class="field"><label for="obName">Nama kamu</label><input type="text" id="obName" placeholder="Contoh: Rani"></div>'+
+    '<div class="field"><label for="obKode">Kode peserta (opsional, dari fasilitator)</label><input type="text" id="obKode" placeholder="Contoh: P1"></div>'+
+    '<button class="btn" onclick="startApp()">Mulai Misi</button>', true);
+  setTimeout(() => { const el = document.getElementById('obName'); if(el) el.focus(); }, 120);
+}
+function startApp(){
+  const n = document.getElementById('obName').value.trim();
+  if(!n) return toast('Isi namamu dulu ya');
+  S.nama = n; S.kode = document.getElementById('obKode').value.trim();
+  save(); closeSheet(); renderAll(); toast('Selamat datang, '+S.nama+'!');
+}
+
+/* ==================== HEADER + BOOT ==================== */
+function renderHeader(){
+  const c = misCleared(), pct = Math.round(c/MISSIONS.length*100);
+  document.getElementById('ring').style.setProperty('--pct', pct);
+  document.getElementById('ringTxt').textContent = c+'/'+MISSIONS.length;
+  document.getElementById('tagline').textContent = S.nama
+    ? (c === MISSIONS.length ? 'Selamat, '+S.nama+' - kamu LULUS!' : 'Semangat, '+S.nama+'! '+(MISSIONS.length-c)+' misi lagi')
+    : 'Misi keamanan siber untuk calon jagoan digital';
+  document.getElementById('hstars').textContent = '★ '+totalStars()+'/'+maxStars()+' bintang · '+rankOf().t;
+}
+function renderAll(){ renderHeader(); renderMap(); renderBelajar(); renderProfil(); }
+
+load();
+renderAll();
+if(!S.nama) askName();
+</script>
+</body>
+</html>
