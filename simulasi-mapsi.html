@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Mihrab Ilmu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --ink:#241c12;
+    --ink-soft:#4a3f2e;
+    --parchment:#f7f1e2;
+    --parchment-2:#efe3c6;
+    --parchment-3:#e6d7b3;
+    --teal:#0e5c56;
+    --teal-deep:#093f3b;
+    --teal-soft:#e4efed;
+    --gold:#a97423;
+    --gold-bright:#c98f2c;
+    --line:#d8c69a;
+    --good:#2f7d4f;
+    --bad:#a8402f;
+    --shadow:0 12px 30px -14px rgba(36,28,18,.35);
+    --radius:14px;
+    color-scheme: light;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){}
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#ede4cd;
+      --ink-soft:#c9bc9c;
+      --parchment:#0b1210;
+      --parchment-2:#12201c;
+      --parchment-3:#1b2e28;
+      --teal:#2f9c8f;
+      --teal-deep:#173a35;
+      --teal-soft:#122622;
+      --gold:#dcab48;
+      --gold-bright:#e6bd63;
+      --line:#2a3f38;
+      --good:#5ec98c;
+      --bad:#e0705c;
+      --shadow:0 16px 34px -16px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#ede4cd;
+    --ink-soft:#c9bc9c;
+    --parchment:#0b1210;
+    --parchment-2:#12201c;
+    --parchment-3:#1b2e28;
+    --teal:#2f9c8f;
+    --teal-deep:#173a35;
+    --teal-soft:#122622;
+    --gold:#dcab48;
+    --gold-bright:#e6bd63;
+    --line:#2a3f38;
+    --good:#5ec98c;
+    --bad:#e0705c;
+    --shadow:0 16px 34px -16px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--parchment);
+    color:var(--ink);
+    font-family:"Work Sans", ui-sans-serif, system-ui, sans-serif;
+    line-height:1.5;
+  }
+  h1,h2,h3,.display{
+    font-family:"Amiri", "Noto Naskh Arabic", serif;
+    text-wrap:balance;
+    letter-spacing:.2px;
+  }
+  .arabic{
+    font-family:"Amiri", "Noto Naskh Arabic", serif;
+    direction:rtl;
+    unicode-bidi:isolate;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;}
+
+  /* ---- ornament band ---- */
+  .band{
+    height:14px;
+    width:100%;
+    background:
+      linear-gradient(var(--teal),var(--teal)) ,
+      repeating-linear-gradient(90deg, transparent 0 6px, var(--gold) 6px 7px);
+    background-blend-mode:normal;
+    position:relative;
+    overflow:hidden;
+  }
+  .band svg{display:block;width:100%;height:14px;}
+
+  .shell{
+    max-width:760px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--parchment);
+    display:flex;
+    flex-direction:column;
+  }
+
+  header.top{
+    padding:28px 24px 22px;
+    background:
+      radial-gradient(120% 140% at 50% -20%, var(--teal-soft), transparent 60%),
+      var(--parchment);
+    border-bottom:1px solid var(--line);
+    position:relative;
+  }
+  .brandrow{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .brand-mark{width:40px;height:40px;flex:none;color:var(--teal);}
+  .brand-text h1{
+    margin:0;
+    font-size:1.5rem;
+    color:var(--ink);
+    font-weight:700;
+  }
+  .brand-text p{
+    margin:2px 0 0;
+    font-size:.78rem;
+    color:var(--ink-soft);
+    letter-spacing:.4px;
+    text-transform:uppercase;
+  }
+  .theme-toggle{
+    border:1px solid var(--line);
+    background:var(--parchment-2);
+    color:var(--ink);
+    width:38px;height:38px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    flex:none;
+  }
+  .theme-toggle:focus-visible, button:focus-visible, .opt:focus-visible, .chip:focus-visible{
+    outline:2px solid var(--teal);
+    outline-offset:2px;
+  }
+
+  nav.tabs{
+    display:flex;
+    gap:6px;
+    margin-top:20px;
+  }
+  .tab{
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--ink-soft);
+    padding:9px 16px;
+    border-radius:999px;
+    font-size:.86rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .tab.active{
+    background:var(--teal);
+    border-color:var(--teal);
+    color:#fdf8ea;
+  }
+
+  main{
+    flex:1;
+    padding:26px 24px 60px;
+  }
+
+  /* ---- start screen ---- */
+  .lede{
+    color:var(--ink-soft);
+    max-width:56ch;
+    font-size:.98rem;
+    margin:0 0 22px;
+  }
+  .cats{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:22px;
+  }
+  .chip{
+    border:1px solid var(--line);
+    background:var(--parchment-2);
+    color:var(--ink);
+    padding:9px 15px;
+    border-radius:10px;
+    font-size:.85rem;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .chip .n{color:var(--ink-soft);font-weight:500;}
+  .chip.active{
+    background:var(--teal);
+    border-color:var(--teal);
+    color:#fdf8ea;
+  }
+  .chip.active .n{color:#dff2ee;}
+
+  .startcard{
+    background:var(--parchment-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px;
+    box-shadow:var(--shadow);
+    margin-bottom:18px;
+  }
+  .startcard h2{margin:0 0 6px;font-size:1.15rem;}
+  .startcard p{margin:0 0 16px;color:var(--ink-soft);font-size:.9rem;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+
+  .btn{
+    border:none;
+    border-radius:10px;
+    padding:13px 22px;
+    font-weight:700;
+    font-size:.95rem;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .btn-primary{background:var(--teal);color:#fdf8ea;}
+  .btn-primary:hover{background:var(--teal-deep);}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink);}
+  .btn-ghost:hover{background:var(--parchment-3);}
+  .btn-gold{background:var(--gold);color:#2a1c04;}
+  .btn-gold:hover{background:var(--gold-bright);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+
+  .history{
+    margin-top:8px;
+  }
+  .history h3{font-size:.82rem;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin:0 0 10px;font-family:"Work Sans";font-weight:700;}
+  .hist-item{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px 0;
+    border-bottom:1px dashed var(--line);
+    font-size:.86rem;
+  }
+  .hist-item:last-child{border-bottom:none;}
+  .hist-score{font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums;}
+
+  /* ---- beads progress ---- */
+  .beads-wrap{
+    overflow-x:auto;
+    padding:4px 2px 10px;
+    margin-bottom:6px;
+  }
+  .beads{
+    display:flex;
+    gap:6px;
+    width:max-content;
+  }
+  .bead{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--parchment-3);
+    border:1px solid var(--line);
+    flex:none;
+  }
+  .bead.done{background:var(--gold);border-color:var(--gold);}
+  .bead.flagged{background:var(--bad);border-color:var(--bad);}
+  .bead.current{outline:2px solid var(--teal);outline-offset:2px;}
+
+  .progressline{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:.8rem;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .progressline b{color:var(--ink);font-variant-numeric:tabular-nums;}
+
+  /* ---- question card ---- */
+  .qcat{
+    display:inline-block;
+    font-size:.72rem;
+    font-weight:700;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+    color:var(--teal);
+    background:var(--teal-soft);
+    padding:5px 11px;
+    border-radius:999px;
+    margin-bottom:14px;
+  }
+  .qcard{
+    background:var(--parchment-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px 24px;
+    box-shadow:var(--shadow);
+    position:relative;
+  }
+  .qcard::before{
+    content:"";
+    position:absolute;
+    top:0;left:24px;right:24px;
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+    opacity:.5;
+  }
+  .qtext{
+    font-size:1.05rem;
+    margin:0 0 6px;
+    white-space:pre-line;
+  }
+  .qtext .arabic{
+    display:block;
+    font-size:1.5rem;
+    line-height:2.1;
+    margin:14px 0;
+    color:var(--ink);
+  }
+  .opts{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:18px;
+  }
+  .opt{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    text-align:left;
+    border:1px solid var(--line);
+    background:var(--parchment);
+    color:var(--ink);
+    padding:13px 15px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:.94rem;
+  }
+  .opt .arabic{font-size:1.1rem;}
+  .opt-mark{
+    flex:none;
+    width:24px;height:24px;
+    border-radius:7px;
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.75rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    background:var(--parchment-2);
+  }
+  .opt:hover{border-color:var(--teal);}
+  .opt.selected{
+    border-color:var(--teal);
+    background:var(--teal-soft);
+  }
+  .opt.selected .opt-mark{
+    background:var(--teal);
+    border-color:var(--teal);
+    color:#fdf8ea;
+  }
+
+  .qfooter{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:22px;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .flagbtn{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    padding:9px 14px;
+    border-radius:10px;
+    font-size:.82rem;
+    font-weight:600;
+    cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+  }
+  .flagbtn.on{border-color:var(--bad);color:var(--bad);}
+
+  .navbtns{display:flex;gap:8px;}
+
+  /* ---- results ---- */
+  .scorewrap{
+    display:flex;
+    gap:22px;
+    align-items:center;
+    flex-wrap:wrap;
+    background:var(--parchment-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px;
+    box-shadow:var(--shadow);
+    margin-bottom:20px;
+  }
+  .wheel{flex:none;}
+  .score-meta{flex:1;min-width:180px;}
+  .score-meta h2{margin:0 0 4px;font-size:1.3rem;}
+  .score-meta p{margin:0;color:var(--ink-soft);font-size:.88rem;}
+  .score-big{
+    font-family:"Amiri",serif;
+    font-size:2rem;
+    font-weight:700;
+    color:var(--teal);
+  }
+
+  .catbars{
+    background:var(--parchment-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px 22px;
+    margin-bottom:20px;
+  }
+  .catbars h3{margin:0 0 14px;font-size:.95rem;}
+  .catbar-row{margin-bottom:12px;}
+  .catbar-row:last-child{margin-bottom:0;}
+  .catbar-label{
+    display:flex;justify-content:space-between;
+    font-size:.82rem;color:var(--ink-soft);margin-bottom:5px;
+  }
+  .catbar-label b{color:var(--ink);font-variant-numeric:tabular-nums;}
+  .catbar-track{
+    height:8px;border-radius:999px;background:var(--parchment-3);overflow:hidden;
+  }
+  .catbar-fill{height:100%;background:var(--teal);border-radius:999px;}
+
+  .review-toggle{width:100%;margin-bottom:16px;}
+
+  .review-list{display:flex;flex-direction:column;gap:12px;}
+  .rev-item{
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--parchment-2);
+    overflow:hidden;
+  }
+  .rev-head{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 16px;
+    cursor:pointer;
+  }
+  .rev-badge{
+    flex:none;width:26px;height:26px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.75rem;font-weight:700;color:#fff;
+  }
+  .rev-badge.correct{background:var(--good);}
+  .rev-badge.wrong{background:var(--bad);}
+  .rev-badge.skip{background:var(--ink-soft);}
+  .rev-num{font-size:.8rem;color:var(--ink-soft);font-weight:600;flex:none;}
+  .rev-q{font-size:.9rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .rev-chevron{transition:.15s;flex:none;color:var(--ink-soft);}
+  .rev-item.open .rev-chevron{transform:rotate(90deg);}
+  .rev-body{
+    display:none;
+    padding:0 16px 18px;
+    border-top:1px solid var(--line);
+  }
+  .rev-item.open .rev-body{display:block;padding-top:14px;}
+  .rev-body .opt{cursor:default;}
+  .rev-body .opt:hover{border-color:var(--line);}
+  .rev-body .opt.correct{border-color:var(--good);background:color-mix(in srgb, var(--good) 14%, var(--parchment));}
+  .rev-body .opt.userwrong{border-color:var(--bad);background:color-mix(in srgb, var(--bad) 12%, var(--parchment));}
+  .expl{
+    margin-top:14px;
+    padding:12px 14px;
+    background:var(--teal-soft);
+    border-left:3px solid var(--teal);
+    border-radius:0 8px 8px 0;
+    font-size:.87rem;
+    color:var(--ink);
+  }
+  .expl b{color:var(--teal);}
+  .noimg-note{
+    margin-top:10px;font-size:.82rem;color:var(--gold);font-style:italic;
+  }
+
+  /* ---- materi ---- */
+  .materi-grid{display:flex;flex-direction:column;gap:14px;}
+  .mcard{
+    background:var(--parchment-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 20px;
+  }
+  .mcard h3{margin:0 0 10px;font-size:1.02rem;color:var(--teal);}
+  .mcard .sub{margin:12px 0 4px;font-weight:700;font-size:.88rem;}
+  .mcard p, .mcard li{font-size:.88rem;color:var(--ink-soft);margin:4px 0;}
+  .mcard table{width:100%;border-collapse:collapse;font-size:.83rem;margin-top:8px;}
+  .mcard th,.mcard td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);}
+  .mcard th{color:var(--ink-soft);font-weight:600;}
+  .tablewrap{overflow-x:auto;}
+
+  footer.foot{
+    text-align:center;
+    padding:18px;
+    font-size:.76rem;
+    color:var(--ink-soft);
+  }
+
+  @media (max-width:480px){
+    header.top{padding:22px 16px 18px;}
+    main{padding:20px 16px 48px;}
+    .qcard{padding:20px 16px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="band"></div>
+<div class="shell">
+
+  <header class="top">
+    <div class="brandrow">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 48 48" fill="none">
+          <path d="M24 4 L44 24 L44 44 H4 V24 Z" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="M14 44 V28 A10 10 0 0 1 34 28 V44" stroke="currentColor" stroke-width="2" fill="none"/>
+          <circle cx="24" cy="16" r="3" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <div class="brand-text">
+          <h1>Mihrab Ilmu</h1>
+          <p>Simulasi &amp; Latihan MAPSI &middot; PAI &amp; BTQ</p>
+        </div>
+      </div>
+      <button class="theme-toggle" id="themeBtn" aria-label="Ganti tema" title="Ganti tema">
+        <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36A5.4 5.4 0 0 1 12 3Z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+      </button>
+    </div>
+    <nav class="tabs">
+      <button class="tab" data-tab="home">Beranda</button>
+      <button class="tab" data-tab="materi">Materi</button>
+    </nav>
+  </header>
+
+  <main id="main"></main>
+
+  <footer class="foot">Dibuat dari naskah soal &ldquo;Simulasi Mapel PAI BTQ&rdquo; &middot; jawaban &amp; pembahasan disusun berdasarkan kaidah tajwid, akidah, fikih, dan sirah yang umum diajarkan.</footer>
+</div>
+
+<script>
+/* =========================================================
+   DATA SOAL
+   cat: quran | tajwid | aqidah | akhlak | fiqih | tarikh
+   type: mc (pilihan ganda) | tf (benar/salah)
+   correct: index opsi (0-based). null = tidak dinilai otomatis
+========================================================= */
+const CATS = {
+  quran:  "Al-Qur'an & Hadis",
+  tajwid: "Tajwid",
+  aqidah: "Aqidah & Asmaul Husna",
+  akhlak: "Akhlak & Adab",
+  fiqih:  "Fikih & Ibadah",
+  tarikh: "Tarikh & Sirah"
+};
+
+const QUESTIONS = [
+{cat:"quran",type:"mc",q:`Seorang siswa membaca QS. Al-Isra' ayat 79 tentang salat malam. Ayat itu menyebutkan bahwa salat malam dapat menjadi maqaman mahmuda (kedudukan yang terpuji). Makna yang bisa dipetik adalah &hellip;`,opts:["Salat tahajud sekadar tambahan ibadah tanpa manfaat","Salat tahajud dapat meninggikan derajat seorang hamba di sisi Allah","Salat tahajud diwajibkan bagi orang yang sedang punya masalah","Salat tahajud tidak ada kaitannya dengan kehidupan sehari-hari"],correct:1,expl:`QS Al-Isra':79 menjelaskan bahwa salat malam (tahajud) mengantarkan pelakunya pada maqaman mahmuda, kedudukan terpuji di sisi Allah &mdash; bukan sekadar ibadah tambahan tanpa makna.`},
+{cat:"tarikh",type:"mc",q:`Salah satu khulafaur rasyidin dikenal karena keberhasilannya dalam melakukan ekspansi wilayah dan menata sistem administrasi pemerintahan yang rapi. Ia membentuk departemen-departemen (diwan) seperti Baitul Mal (kas negara), mengatur sistem perpajakan, dan mencetak mata uang. Kepemimpinan yang menonjol dalam hal penataan sistem administrasi negara tersebut adalah...`,opts:["Ali bin Abi Thalib","Abu Bakar Ash-Shiddiq","Utsman bin Affan","Umar bin Khattab"],correct:3,expl:`Umar bin Khattab dikenal sebagai peletak dasar tata administrasi negara Islam: membentuk diwan (departemen), Baitul Mal, sistem pajak, kalender Hijriah, dan mencetak mata uang.`},
+{cat:"tajwid",type:"mc",q:`Izhar terjadi jika nun sukun atau tanwin bertemu&hellip;`,opts:[`ي، ن، م، و`,`ب`,`ه, ع, ح, غ, خ, ء`,`ل atau ر`],correct:2,expl:`Izhar halqi terjadi bila nun sukun/tanwin bertemu salah satu dari 6 huruf halq: ء ه ع ح غ خ, dibaca jelas tanpa dengung.`},
+{cat:"tarikh",type:"mc",q:`Sejak muda, Nabi Muhammad dikenal jujur dan amanah. Saat diutus menjadi rasul, beliau sabar menghadapi penolakan dan tetap menyampaikan wahyu dengan bijak. Beliau juga memaafkan musuh yang pernah menyakitinya. Julukan Al-Amin yang diberikan kepada Nabi Muhammad menunjukkan bahwa beliau&hellip;`,opts:["Pandai berbicara","Dapat dipercaya","Kaya raya","Pintar berdagang"],correct:1,expl:`Gelar Al-Amin (yang dapat dipercaya) diberikan masyarakat Mekah karena kejujuran Nabi Muhammad Saw. jauh sebelum beliau diangkat menjadi rasul.`},
+{cat:"tajwid",type:"tf",q:`Huruf 'Ha' (ح) dan 'Ha' (ه) memiliki bunyi yang sama, sehingga kita bisa menggunakannya secara bergantian dalam membaca Al-Qur'an.`,opts:["BENAR","SALAH"],correct:1,expl:`Ha (ح) dan ha (ه) berbeda makhraj dan sifat hurufnya, sehingga tidak boleh dipertukarkan dalam bacaan Al-Qur'an.`},
+{cat:"tajwid",type:"mc",q:`Perhatikan potongan ayat berikut:\n\n"...فَلاَ تَقُلْ لَهُمَا أُفٍّ وَلاَ تَنْهَرْهُمَا..."\n\nPada penggalan ayat di atas, huruf-huruf yang mengandung hukum bacaan Mad Tabi'i ditunjukkan oleh ....`,opts:[`Huruf lam (ل) yang berharakat fathah diikuti alif (ا) pada kata فَلاَ`,`Huruf nun (ن) yang berharakat fathah diikuti alif (ا) pada kata وَلاَ`,`Huruf mim (م) yang berharakat dammah diikuti alif (ا) pada kata لَهُمَا`,`Huruf ha (ه) yang berharakat dammah diikuti alif (ا) pada kata لَهُمَا`],correct:0,expl:`Mad tabi'i terjadi saat huruf berharakat fathah diikuti alif, kasrah diikuti ya sukun, atau dammah diikuti wau sukun. Pada فَلاَ, huruf lam berharakat fathah diikuti alif memenuhi kaidah itu; opsi lain keliru menyebut huruf atau harakatnya.`},
+{cat:"quran",type:"mc",q:`Seorang anak bernama Budi sering mengejek temannya, Tono, karena Tono berasal dari suku yang berbeda. Budi merasa sukunya lebih baik daripada suku Tono. Jika dikaitkan dengan makna Surah Al-Hujurat ayat 13, apa kesalahan mendasar dalam sikap Budi tersebut?`,opts:["Budi melanggar perintah untuk saling mengenal, karena dia malah mengejek.","Budi tidak memahami bahwa semua manusia diciptakan dari laki-laki dan perempuan yang sama.","Budi menganggap kemuliaan berasal dari suku, bukan dari ketakwaan, sehingga ia tidak menghargai keragaman.","Budi melakukan perbuatan yang dilarang dalam Islam, yaitu mengejek orang lain."],correct:2,expl:`Inti QS Al-Hujurat:13 adalah kemuliaan manusia diukur dari ketakwaan, bukan suku atau golongan; kesalahan Budi adalah menilai sukunya lebih mulia dan tidak menghargai keragaman.`},
+{cat:"quran",type:"tf",q:`Ayat 'Laa ikraaha fid diin' berarti tidak ada paksaan dalam agama. Artinya, kita tidak boleh memaksa orang lain untuk memeluk agama Islam. Namun, kita tetap dianjurkan untuk berdakwah dengan cara yang santun dan bijaksana.`,opts:["BENAR","SALAH"],correct:0,expl:`"Laa ikraaha fid diin" menegaskan tidak ada paksaan memeluk Islam, namun dakwah tetap dianjurkan dengan cara yang santun dan bijaksana (mau'izhah hasanah).`},
+{cat:"aqidah",type:"mc",q:`Dari perspektif refleksi, keberanian Nabi Ibrahim menghancurkan berhala agar manusia menyembah hanya Allah adalah wujud penghayatan terhadap Asmaul Husna &hellip;`,opts:[`Al-Kar&#299;m (&#1649;&#1604;&#1603;&#1614;&#1585;&#1610;&#1605;&#1615;)`,`Al-'Az&#299;z (&#1649;&#1604;&#1593;&#1614;&#1586;&#1610;&#1586;&#1615;)`,`Al-A&#7717;ad (&#1649;&#1604;&#1571;&#1614;&#1581;&#1614;&#1583;&#1615;)`,`Ar-Ra&#7717;m&#257;n (&#1649;&#1604;&#1585;&#1617;&#1614;&#1581;&#1618;&#1605;&#1614;&#1648;&#1606;&#1615;)`],correct:2,expl:`Perjuangan Nabi Ibrahim menghancurkan berhala adalah wujud penghayatan tauhid &mdash; pengakuan bahwa Allah Maha Esa (Al-Ahad), tiada sekutu bagi-Nya.`},
+{cat:"fiqih",type:"mc",q:`Ahmad berpuasa tanggal 10 Muharram dan menambahkan puasa sehari sebelumnya. Ia melakukan ini untuk membedakan dari kebiasaan kaum Yahudi yang hanya puasa pada 10 Muharram. Puasa ini adalah&hellip;`,opts:["Puasa Arafah","Puasa Syawal","Puasa Asyura","Puasa Tarwiyah"],correct:2,expl:`Puasa 9 dan 10 Muharram (Tasu'a dan Asyura) dianjurkan agar berbeda dari kebiasaan kaum Yahudi yang hanya berpuasa pada 10 Muharram.`},
+{cat:"tarikh",type:"mc",q:`Hijrah Nabi Muhammad Saw. bukan sekadar perpindahan fisik dari Makkah ke Madinah, melainkan sebuah strategi dakwah yang revolusioner. Salah satu hikmah terbesar dari hijrah ini adalah...`,opts:["Menghindari peperangan dengan kaum kafir Quraisy.","Membangun fondasi masyarakat Islam yang kuat dan berdaulat.","Menghimpun kekuatan militer yang besar untuk menyerang Makkah.","Mencari tempat yang lebih subur untuk bercocok tanam"],correct:1,expl:`Hijrah bukan sekadar pindah tempat, melainkan strategi membangun fondasi masyarakat Islam yang kuat dan berdaulat di Madinah.`},
+{cat:"tarikh",type:"mc",q:`Fathu Makkah bukan sekadar kemenangan militer, tetapi kemenangan moral. Tindakan Nabi Muhammad Saw. yang memaafkan menunjukkan bahwa&hellip;`,opts:["Kemenangan sejati adalah menguasai seluruh wilayah musuh","Kekuatan terbesar adalah mengalahkan musuh dengan jumlah pasukan","Keagungan akhlak lebih tinggi daripada balas dendam","Setiap kemenangan harus diikuti dengan hukuman"],correct:2,expl:`Sikap memaafkan Nabi Saw. saat Fathu Makkah menunjukkan bahwa akhlak mulia dan pengampunan lebih agung daripada balas dendam terhadap musuh yang kalah.`},
+{cat:"aqidah",type:"mc",q:`Seorang wirausaha sukses selalu bersikap jujur dalam setiap transaksi, tidak pernah menipu timbangannya, dan senantiasa bersedekah. Ia melakukan hal tersebut bukan karena takut pada hukum manusia, melainkan karena keyakinan bahwa segala perbuatannya akan dipertanggungjawabkan kelak di hadapan Allah SWT. Sikap ini menunjukkan hikmah iman kepada Hari Akhir, yaitu...`,opts:["Mendorong manusia untuk menjadi pribadi yang dermawan.","Menumbuhkan rasa syukur atas nikmat yang diberikan.","Mendorong manusia untuk senantiasa meningkatkan ibadah.","Mendorong manusia untuk bertanggungjawab dan berhati-hati dalam setiap perbuatan."],correct:3,expl:`Keyakinan bahwa segala perbuatan akan dipertanggungjawabkan di hari akhir mendorong seseorang untuk senantiasa bertanggung jawab dan berhati-hati dalam bertindak.`},
+{cat:"tajwid",type:"mc",q:`Hukum bacaan Iqlab terjadi apabila nun sukun atau tanwin bertemu dengan huruf ba (ب) Bagaimana cara membaca hukum bacaan Iqlab?`,opts:["Mengganti nun sukun atau tanwin menjadi bunyi mim mati (م) dengan jelas, tanpa dengung.","Mengganti nun sukun atau tanwin menjadi bunyi mim mati (م) dan didengungkan.","Membaca nun sukun atau tanwin secara samar-samar dengan dengung.","Membaca nun sukun atau tanwin secara jelas tanpa dengung."],correct:1,expl:`Iqlab dibaca dengan mengganti bunyi nun sukun/tanwin menjadi mim mati (م) yang disertai dengung (ghunnah) saat bertemu huruf ب.`},
+{cat:"aqidah",type:"tf",q:`Malaikat Jibril dan Mikail adalah malaikat yang memiliki tugas yang paling mulia, karena mereka sering berinteraksi langsung dengan para nabi dan rasul.`,opts:["BENAR","SALAH"],correct:1,expl:`Setiap malaikat memiliki tugas mulia masing-masing sesuai ketetapan Allah. Pernyataan ini kurang tepat karena tugas Mikail (mengatur rezeki dan hujan) tidak identik dengan interaksi langsung bersama para nabi seperti Jibril.`},
+{cat:"fiqih",type:"mc",q:`Seorang muslim secara konsisten dan istiqamah menjalankan salat Rawatib yang sangat dianjurkan (muakkad). Sementara itu, ia juga terkadang menjalankan salat Rawatib yang tidak terlalu ditekankan (ghairu muakkad) sesuai dengan waktu luangnya. Tindakan ini menunjukkan bahwa ia memahami total jumlah rakaat salat Rawatib yang sebaiknya ia jaga adalah...`,opts:["10 rakaat, karena hanya salat Rawatib muakkad yang penting.","12 rakaat, karena ia menjalankan salat Rawatib muakkad.","22 rakaat, karena ia menjalankan salat Rawatib muakkad dan ghairu muakkad.","18 rakaat, karena jumlah salat Rawatib berbeda-beda."],correct:2,expl:`Salat rawatib muakkad berjumlah 12 rakaat, ditambah rawatib ghairu muakkad sekitar 10 rakaat, sehingga totalnya 22 rakaat.`},
+{cat:"akhlak",type:"mc",q:`Meja makan keluarga Bima selalu dibiarkan berantakan setelah makan. Akibatnya, muncul semut dan bau tidak sedap. Kebiasaan ini bertentangan dengan prinsip&hellip;`,opts:["Hemat dan sederhana","Teratur dan cepat","Bersih dan rapi","Ramah lingkungan"],correct:2,expl:`Membiarkan meja makan berantakan hingga mengundang semut dan bau bertentangan dengan prinsip hidup bersih dan rapi yang diajarkan Islam.`},
+{cat:"tarikh",type:"mc",q:`Nabi Ibrahim a.s. hidup di tengah masyarakat yang menyembah berhala. Beliau mengajak mereka menyembah Allah, namun ditolak. Suatu hari, Nabi Ibrahim menghancurkan semua berhala kecuali yang paling besar, agar kaumnya berpikir siapa yang sebenarnya pantas disembah. Ketika Allah memerintahkannya menyembelih Ismail, beliau dan putranya ikhlas menerima. Tindakan Nabi Ibrahim a.s. menghancurkan berhala kecuali yang besar bertujuan untuk&hellip;`,opts:["Membuat kaumnya marah","Menguji kecerdikan kaumnya","Menunjukkan kehebatan senjata","Menghindari hukuman raja"],correct:1,expl:`Nabi Ibrahim sengaja menyisakan berhala terbesar agar kaumnya berpikir dan menyadari sendiri kekeliruan menyembah benda yang tak berdaya.`},
+{cat:"fiqih",type:"tf",q:`Seorang laki-laki dewasa yang sedang dalam perjalanan jauh (musafir) pada hari Jumat merasa tidak perlu melaksanakan salat Jumat. Ia beranggapan bahwa sebagai musafir, ia mendapatkan keringanan untuk tidak shalat Jumat dan cukup menggantinya dengan shalat Zuhur di waktu Zuhur. Sikapnya ini menunjukkan pemahaman yang benar tentang dispensasi dalam Islam.`,opts:["BENAR","SALAH"],correct:0,expl:`Musafir mendapat keringanan (rukhsah) untuk tidak melaksanakan salat Jumat dan cukup menggantinya dengan salat Zuhur.`},
+{cat:"akhlak",type:"mc",q:`Di kelas, Rina mendengarkan pendapat temannya meskipun berbeda dengan pendapatnya sendiri, lalu memberikan tanggapan dengan sopan. Sikap Rina menunjukkan&hellip;`,opts:["Saling menghargai perbedaan","Menghindari perdebatan","Menyembunyikan pendapat","Mencari teman sebanyak-banyaknya"],correct:0,expl:`Mendengarkan pendapat berbeda lalu menanggapi dengan sopan adalah wujud sikap saling menghargai perbedaan.`},
+{cat:"aqidah",type:"tf",q:`Meyakini Allah sebagai Al-Mum&#299;t berarti menyadari bahwa kematian adalah ketetapan Allah, sehingga manusia sebaiknya memanfaatkannya untuk berbuat baik sebelum ajal tiba`,opts:["BENAR","SALAH"],correct:0,expl:`Meyakini Allah sebagai Al-Mumit mengingatkan bahwa kematian pasti datang, sehingga mendorong manusia memperbanyak amal baik sebelum ajal tiba.`},
+{cat:"aqidah",type:"tf",q:`Kitab Zabur diturunkan kepada Nabi Daud AS, isinya tentang kisah-kisah umat terdahulu dan syariat-syariat yang harus dijalankan.`,opts:["BENAR","SALAH"],correct:1,expl:`Kitab Zabur yang diturunkan kepada Nabi Daud a.s. lebih banyak berisi zikir, doa, dan pujian (mazmur) kepada Allah, bukan seperangkat syariat/hukum seperti Taurat.`},
+{cat:"fiqih",type:"mc",q:`Pada 9 Zulhijah, jutaan jamaah haji berkumpul di sebuah padang luas untuk melaksanakan salah satu rukun haji. Tanpa kegiatan ini, haji tidak sah. Kegiatan tersebut adalah&hellip;`,opts:["Tawaf ifadah","Wukuf di Arafah","Sa'i antara Safa dan Marwah","Lempar jumrah"],correct:1,expl:`Wukuf di Arafah pada 9 Zulhijah adalah rukun haji; tanpa wukuf, ibadah haji seseorang tidak sah.`},
+{cat:"quran",type:"mc",q:`Aldi rajin membaca buku setelah salat. Ia selalu memohon agar ilmunya ditambah dan bermanfaat. Doa yang sesuai adalah &hellip;`,opts:[`&#1585;&#1614;&#1576;&#1617;&#1616; &#1575;&#1594;&#1618;&#1601;&#1616;&#1585;&#1618; &#1604;&#1616;&#1610; &#1608;&#1614;&#1604;&#1616;&#1608;&#1614;&#1575;&#1604;&#1616;&#1583;&#1614;&#1610;&#1617;&#1614;`,`&#1585;&#1614;&#1576;&#1617;&#1616; &#1586;&#1616;&#1583;&#1618;&#1606;&#1616;&#1610; &#1593;&#1616;&#1604;&#1618;&#1605;&#1611;&#1575;`,`&#1575;&#1604;&#1604;&#1617;&#1614;&#1607;&#1615;&#1605;&#1617;&#1614; &#1575;&#1594;&#1618;&#1601;&#1616;&#1585;&#1618; &#1604;&#1616;&#1604;&#1618;&#1605;&#1615;&#1587;&#1618;&#1604;&#1616;&#1605;&#1616;&#1610;&#1606;&#1614; &#1608;&#1614;&#1604;&#1616;&#1604;&#1618;&#1605;&#1615;&#1587;&#1618;&#1604;&#1616;&#1605;&#1614;&#1575;&#1578;&#1616;`,`&#1575;&#1604;&#1604;&#1617;&#1614;&#1607;&#1615;&#1605;&#1617;&#1614; &#1575;&#1580;&#1618;&#1593;&#1614;&#1604;&#1618;&#1606;&#1616;&#1610; &#1605;&#1616;&#1606;&#1614; &#1575;&#1604;&#1618;&#1605;&#1615;&#1578;&#1617;&#1614;&#1602;&#1616;&#1610;&#1606;&#1614;`],correct:1,expl:`"Rabbi zidni 'ilma" (Ya Tuhanku, tambahkanlah ilmu kepadaku) adalah doa yang sesuai untuk memohon tambahan ilmu yang bermanfaat.`},
+{cat:"aqidah",type:"tf",q:`Seorang anak bernama Budi sedang berjuang melawan penyakit yang tak kunjung sembuh. Orang tuanya selalu menasihatinya, "Bersabarlah, Nak. Allah sedang mengujimu. Ujian ini adalah bukti kasih sayang-Nya." Nasihat ini sejalan dengan keyakinan pada sifat-sifat Allah, karena makna iman kepada Allah adalah menerima takdir buruk dengan pasrah dan keluh kesah.`,opts:["BENAR","SALAH"],correct:1,expl:`Sabar menghadapi ujian semestinya dijalani dengan ikhlas dan tanpa keluh kesah; menyebut "pasrah dan keluh kesah" sekaligus sebagai makna iman kepada Allah bersifat kontradiktif dan kurang tepat.`},
+{cat:"tarikh",type:"mc",q:`Sejak kecil, Nabi Muhammad Saw. dikenal jujur, amanah, dan rajin membantu orang lain. Saat remaja, beliau bekerja sebagai penggembala kambing lalu menjadi pedagang yang dipercaya membawa barang dagangan milik Khadijah. Kejujuran dan keadilan beliau membuat masyarakat Mekah memberi julukan Al-Am&#299;n Hikmah dari kisah Nabi Muhammad sebelum menjadi Rasul adalah&hellip;`,opts:["Kesuksesan datang tanpa usaha","Kejujuran membawa kepercayaan","Semua orang pasti kaya jika berdagang","Julukan baik pasti diwariskan"],correct:1,expl:`Kisah masa muda Nabi Muhammad Saw. yang jujur dan amanah mengajarkan bahwa kejujuran adalah fondasi utama untuk meraih kepercayaan orang lain.`},
+{cat:"quran",type:"mc",q:`Berdasarkan pengamalan Al-Maidah ayat 2, bentuk tolong-menolong yang dilarang adalah&hellip;`,opts:["Membantu teman mengerjakan PR agar paham caranya","Ikut menyembunyikan barang curian teman","Bergotong royong membersihkan mushala","Menolong orang sakit"],correct:1,expl:`QS Al-Maidah:2 memerintahkan tolong-menolong dalam kebaikan dan takwa, serta melarang tolong-menolong dalam dosa, seperti menyembunyikan barang hasil curian.`},
+{cat:"aqidah",type:"mc",q:`Perhatikan potongan ayat berikut:\n\n&#1649;&#1604;&#1604;&#1617;&#1614;&#1607;&#1615; &#1604;&#1614;&#1622;&#1655;&#1616;&#1604;&#1614;&#1607;&#1614; &#1573;&#1616;&#1604;&#1617;&#1614;&#1575; &#1607;&#1615;&#1608;&#1614; &#1649;&#1604;&#1618;&#1581;&#1614;&#1610;&#1617;&#1615; &#1649;&#1604;&#1602;&#1614;&#1610;&#1617;&#1615;&#1608;&#1605;&#1615;\n\nAyat tersebut menegaskan salah satu sifat Allah yaitu Al-Qay&#7767;&#363;m. Dari perspektif refleksi, makna yang paling tepat dari sifat Allah ini adalah &hellip;.`,opts:["Allah berdiri sendiri, tidak membutuhkan siapa pun, sementara semua makhluk bergantung pada-Nya.","Allah berdiri bersama makhluk-Nya, sehingga saling membutuhkan untuk menjaga keseimbangan alam.","Allah hanya menjaga manusia beriman, sedangkan orang kafir dibiarkan tanpa aturan.","Allah memberi kehidupan hanya kepada malaikat dan nabi, bukan kepada seluruh makhluk."],correct:0,expl:`Al-Qayyum berarti Allah berdiri sendiri, tidak bergantung kepada siapa pun, sementara seluruh makhluk justru bergantung sepenuhnya kepada-Nya.`},
+{cat:"tajwid",type:"tf",q:`Dalam lafaz &#1573;&#1616;&#1606; &#1603;&#1615;&#1606;&#1618;&#1578;&#1615;&#1605;&#1618;, huruf nun sukun bertemu dengan huruf kaf. Pembaca membacanya dengan samar disertai dengung`,opts:["BENAR","SALAH"],correct:0,expl:`Ikhfa haqiqi dibaca samar-samar disertai dengung (ghunnah) ketika nun sukun/tanwin bertemu salah satu dari 15 huruf ikhfa, termasuk huruf kaf.`},
+{cat:"akhlak",type:"mc",q:`Dalam sebuah lomba kelompok, Dito merasa tersinggung karena ucapan temannya, namun ia sadar jika marah akan membuat kerja sama terganggu. Ia memutuskan menahan emosi dan mengajak temannya kembali fokus. Perilaku Dito merupakan pengamalan&hellip;`,opts:["Menghargai pendapat yang berbeda","Bersikap sabar saat kalah lomba","Menghindari masalah tanpa penyelesaian","Maaf dan memaafkan demi menjaga persatuan"],correct:3,expl:`Menahan emosi dan mengajak rekan kembali fokus demi kerja sama tim mencerminkan sikap maaf dan memaafkan demi menjaga persatuan.`},
+{cat:"tajwid",type:"mc",q:`Kata Ghairil maghdzubi jika ditulis dengan huruf Al-Qur'an yang benar adalah &hellip;`,opts:[`&#1594;&#1614;&#1610;&#1618;&#1585;&#1616; &#1575;&#1614;&#1604;&#1618;&#1605;&#1614;&#1594;&#1618;&#1590;&#1615;&#1608;&#1576;&#1616;`,`&#1594;&#1614;&#1610;&#1618;&#1585; &#1575;&#1604;&#1618;&#1605;&#1614;&#1594;&#1618;&#1590;&#1615;&#1608;&#1576;&#1616;`,`&#1594;&#1614;&#1610;&#1618;&#1585;&#1616; &#1575;&#1604;&#1618;&#1605;&#1614;&#1594;&#1618;&#1590;&#1615;&#1608;&#1576;&#1616;`,`&#1594;&#1614;&#1610;&#1618;&#1585;&#1616; &#1575;&#1614;&#1604;&#1618;&#1605;&#1614;&#1594;&#1618;&#1590;&#1615;&#1608; &#1576;&#1616;`],correct:2,expl:`Penulisan yang benar adalah &#1594;&#1614;&#1610;&#1618;&#1585;&#1616; &#1575;&#1604;&#1618;&#1605;&#1614;&#1594;&#1618;&#1590;&#1615;&#1608;&#1576;&#1616;, menyatu sebagai satu rangkaian kata tanpa alif tambahan atau pemisahan huruf yang keliru.`},
+{cat:"tajwid",type:"mc",q:`Hukum bacaan Al-Syamsyiah memiliki 14 huruf. Manakah di antara kelompok huruf berikut yang seluruhnya merupakan huruf Al-Syamsyiah?`,opts:[`&#1576;, &#1580;, &#1581;, &#1582;, &#1593;`,`&#1602;, &#1601;, &#1605;, &#1603;, &#1607;&#1615;`,`&#1578;, &#1579;, &#1583;, &#1584;, &#1585;`,`&#1575;, &#1594;, &#1581;, &#1591;, &#1592;`],correct:2,expl:`Huruf-huruf ت ث د ذ ر seluruhnya termasuk 14 huruf Syamsiyah (lam melebur ke huruf berikutnya); opsi lain mencampur huruf Qamariyah.`},
+{cat:"quran",type:"mc",q:`Teks di berikut menjelaskan tentang tanda-tanda orang yang mendustakan agama. Ayat yang menjelaskan tentang larangan untuk kita menghardik anak yatim dan larangan kita untuk berbuat ria terdapat pada ayat ke ....`,opts:["1 dan 6","2 dan 5","2 dan 6","3 dan 5"],correct:2,expl:`Pada QS Al-Ma'un, larangan menghardik anak yatim terdapat pada ayat ke-2, sedangkan larangan berbuat riya terdapat pada ayat ke-6.`},
+{cat:"fiqih",type:"mc",q:`Bu Ani membantu renovasi masjid dengan menyumbang bahan bangunan meskipun tidak ada kewajiban untuk itu. Perbuatan ini termasuk&hellip;`,opts:["Zakat","Infak","Sedekah","Hadiah"],correct:1,expl:`Menyumbangkan harta (bahan bangunan) untuk kepentingan umum seperti pembangunan masjid tanpa ada kewajiban termasuk kategori infak.`},
+{cat:"aqidah",type:"mc",q:`Ketika tim futsal sekolah hampir kalah, seorang kapten berkata: &ldquo;Kita jangan menyerah, kemenangan sejati adalah tetap berusaha sungguh-sungguh. Kekuatan kita datang dari Allah.&rdquo; Ucapan itu mencerminkan penghayatan terhadap Asmaul Husna &hellip;`,opts:[`Al-'Al&#299;m (&#1649;&#1604;&#1593;&#1614;&#1604;&#1616;&#1610;&#1605;&#1615;)`,`Al-'Az&#299;z (&#1649;&#1604;&#1593;&#1614;&#1586;&#1610;&#1586;&#1615;)`,`Al-Qawiyy (&#1649;&#1604;&#1602;&#1614;&#1608;&#1616;&#1610;&#1615;)`,`Al-Malik (&#1649;&#1604;&#1605;&#1614;&#1604;&#1616;&#1603;)`],correct:2,expl:`Ucapan "kekuatan kita datang dari Allah" mencerminkan penghayatan terhadap Asmaul Husna Al-Qawiyy, Yang Maha Kuat.`},
+{cat:"fiqih",type:"mc",q:`Seorang muslim merasa salatnya terburu-buru dan kurang khusyuk karena kesibukan. Untuk memperbaiki kualitas ibadahnya, ia memutuskan untuk meluangkan waktu sejenak setelah salat fardu untuk berzikir. Tindakan ini paling tepat menunjukkan bahwa zikir setelah salat berfungsi sebagai...`,opts:["Pengganti salat sunah.","Pelengkap dan penyempurna ibadah salat.","Sarana untuk menunda pekerjaan setelah salat.","Ritual wajib yang harus dilakukan setiap kali selesai salat."],correct:1,expl:`Zikir setelah salat fardu berfungsi sebagai pelengkap dan penyempurna ibadah salat, bukan pengganti salat sunah.`},
+{cat:"aqidah",type:"mc",q:`Asmaul Husna Al-'Alim berarti Allah Maha Mengetahui. Dalam surat Al-Baqarah ayat 255 (Ayat Kursi), disebutkan "...dan tidaklah mereka mengetahui sesuatu dari ilmu Allah melainkan apa yang Dia kehendaki." Berdasarkan ayat tersebut, manakah interpretasi yang paling tepat mengenai perbedaan antara pengetahuan manusia dan pengetahuan Allah?`,opts:["Pengetahuan manusia sangat terbatas dan tidak penting, sehingga manusia tidak perlu bersusah payah mencari ilmu.","Pengetahuan Allah mencakup seluruh alam semesta, sementara pengetahuan manusia hanya sebatas yang diizinkan oleh Allah sebagai anugerah.","Allah akan memberikan ilmu kepada manusia sebanyak-banyaknya jika manusia berdoa dan berusaha dengan keras.","Pengetahuan Allah dan manusia pada dasarnya sama, hanya saja Allah lebih cepat dalam menyerap informasi"],correct:1,expl:`Ayat Kursi menegaskan bahwa pengetahuan Allah meliputi seluruh alam semesta, sedangkan manusia hanya diberi pengetahuan sebatas yang Allah kehendaki.`},
+{cat:"akhlak",type:"tf",q:`Disiplin adalah mematuhi aturan yang benar dan tidak bertentangan dengan ajaran agama. Jika aturan itu salah, maka kita tidak boleh mematuhinya.`,opts:["BENAR","SALAH"],correct:0,expl:`Kedisiplinan sejati adalah menaati aturan yang benar dan selaras dengan ajaran agama; aturan yang bertentangan dengan agama tidak wajib dipatuhi.`},
+{cat:"fiqih",type:"mc",q:`Setiap tanggal 10 Dzulhijjah, umat Islam melaksanakan ibadah kurban sebagai wujud ketaatan kepada Allah SWT. Bukan sekadar menyembelih hewan, kurban menjadi simbol keikhlasan seorang hamba yang rela mengorbankan sebagian hartanya untuk mendekatkan diri kepada Allah. Dalam Al-Qur'an, Allah menegaskan bahwa daging dan darah hewan kurban tidaklah sampai kepada-Nya, melainkan ketakwaan dari hamba yang melaksanakannya. Berdasarkan narasi tersebut, tujuan utama kurban adalah &hellip;`,opts:["Melatih keikhlasan dan meningkatkan ketakwaan kepada Allah","Memperlihatkan kemampuan seseorang dalam membeli hewan","Memenuhi tradisi yang diwariskan secara turun-temurun","Membagikan makanan agar semua orang kenyang"],correct:0,expl:`Ibadah kurban bertujuan melatih keikhlasan berkorban dan meningkatkan ketakwaan, karena yang sampai kepada Allah bukan daging atau darahnya, melainkan ketakwaan pelakunya.`},
+{cat:"tajwid",type:"tf",q:`Hukum bacaan Idgam Bigunnah adalah meleburkan nun mati (&#1606;&#1618;) atau tanwin (&#1611;&#1613;&#1615;) ke dalam huruf-huruf tertentu, yaitu ي, ن, م, atau و, sambil mendengungkan (ghunnah) bacaan. Jika ada nun mati bertemu dengan salah satu huruf tersebut, maka bacaannya harus dileburkan tanpa dengung`,opts:["BENAR","SALAH"],correct:1,expl:`Idgham bighunnah justru dibaca dengan melebur disertai dengung (ghunnah), bukan tanpa dengung seperti disebutkan di akhir pernyataan.`},
+{cat:"tajwid",type:"mc",q:`Lafaz dari pilihan berikut yang seluruhnya mengandung hukum bacaan Mad Jaiz Munfasil adalah &hellip;.`,opts:[`&#1610;&#1614;&#1575; &#1571;&#1614;&#1610;&#1617;&#1615;&#1607;&#1614;&#1575;, &#1573;&#1616;&#1606;&#1617;&#1614;&#1575; &#1571;&#1614;&#1606;&#1618;&#1586;&#1614;&#1604;&#1618;&#1606;&#1614;&#1575;&#1607;&#1615;, &#1601;&#1616;&#1610; &#1571;&#1614;&#1610;&#1617;&#1616;`,`&#1587;&#1616;&#1610;&#1574;&#1614;&#1578;&#1618;, &#1576;&#1616;&#1605;&#1614;&#1575; &#1571;&#1615;&#1606;&#1618;&#1586;&#1616;&#1604;, &#1602;&#1614;&#1575;&#1604;&#1615;&#1608;&#1575; &#1570;&#1605;&#1614;&#1606;&#1617;&#1614;&#1575;`,`&#1604;&#1614;&#1607;&#1615; &#1571;&#1614;&#1580;&#1618;&#1585;&#1611;&#1575;, &#1601;&#1616;&#1610; &#1571;&#1615;&#1605;&#1617;&#1616;&#1607;&#1614;&#1575;, &#1580;&#1614;&#1575;&#1569;&#1614;`,`&#1571;&#1615;&#1608;&#1604;&#1614;&#1571;&#1616;&#1603;&#1614;, &#1571;&#1614;&#1606;&#1614;&#1575; &#1571;&#1614;&#1605;&#1618;&#1590;&#1609;, &#1573;&#1616;&#1606;&#1617;&#1614; &#1585;&#1614;&#1576;&#1617;&#1614;&#1603;&#1614;`],correct:0,expl:`Ketiga contoh pada opsi ini menunjukkan huruf mad bertemu hamzah di kata yang berbeda (munfasil), ciri khas Mad Jaiz Munfasil.`},
+{cat:"tajwid",type:"tf",q:`Seorang siswa membaca &#1593;&#1614;&#1584;&#1614;&#1575;&#1576;&#1611; &#1571;&#1614;&#1604;&#1616;&#1610;&#1605;&#1611; dengan mendengungkan nun, karena bertemu hamzah`,opts:["BENAR","SALAH"],correct:1,expl:`Tanwin bertemu huruf hamzah (ء) termasuk huruf izhar halqi sehingga dibaca jelas tanpa dengung, bukan didengungkan.`},
+{cat:"tarikh",type:"tf",q:`Salah satu kebiasaan buruk masyarakat Arab pra-Islam adalah mengubur hidup-hidup anak perempuan, karena mereka menganggap anak perempuan akan membawa kesialan.`,opts:["BENAR","SALAH"],correct:0,expl:`Salah satu kebiasaan buruk masyarakat Arab jahiliah adalah mengubur hidup-hidup bayi perempuan karena dianggap aib dan beban bagi keluarga.`},
+{cat:"akhlak",type:"tf",q:`Seorang siswa yang jujur dalam mengerjakan tugas tidak hanya mengerjakan sendiri, tetapi juga akan menolak ajakan teman untuk mencontek, meskipun ia takut dijauhi. Sikap ini merupakan wujud dari kejujuran yang utuh karena ia jujur kepada dirinya sendiri, kepada guru, dan kepada teman-temannya`,opts:["BENAR","SALAH"],correct:0,expl:`Menolak ajakan mencontek meski berisiko dijauhi teman menunjukkan kejujuran yang utuh: jujur pada diri sendiri, guru, dan teman.`},
+{cat:"fiqih",type:"tf",q:`Mendengar azan tetapi tetap sibuk dengan aktivitas duniawi tanpa ada usaha untuk berhenti dan menanggapi panggilan itu menunjukkan kurangnya penghayatan terhadap makna azan`,opts:["BENAR","SALAH"],correct:0,expl:`Mengabaikan panggilan azan demi kesibukan duniawi menunjukkan kurangnya penghayatan terhadap makna azan sebagai panggilan untuk menghadap Allah.`},
+{cat:"fiqih",type:"mc",noGrade:true,q:`Pasangan yang tepat antara gerakan dan bacaan salat sesuai tabel di bawah ini adalah ....`,opts:["1A, 2B, 3C, 4D","1B, 2C, 3D, 4A","1C, 2D, 3A, 4B","1D, 2C, 3A, 4B"],correct:null,expl:`Soal ini merujuk pada tabel/gambar gerakan dan bacaan salat yang tidak tersedia dalam salinan teks ini, sehingga jawaban tidak dapat dipastikan secara otomatis. Cocokkan langsung dengan gambar pada naskah asli.`},
+{cat:"fiqih",type:"mc",q:`Perhatikan narasi di bawah ini! Zakat berarti mengeluarkan sejumlah harta tertentu sesuai dengan syarat dan ketentuan dan wajib diberikan kepada mustahik zakat yaitu fakir, miskin, amil, gharim, riqab, sabilillah dan ibnu sabil. Selain itu Allah Swt. memerintahkan agar kita berinfak untuk kemaslahatan umum sebagai ungkapan rasa syukur atas nikmat yang sudah diberikan Allah Swt.\n\nDari narasi di atas salah satu mustahiq zakat adalah gharim yang artinya ....`,opts:["orang yang baru masuk islam.","orang yang berjuang di jalan Allah Swt.","orang yang menangani masalah zakat dengan segala persoalannya.","orang yang mempunyai banyak hutang, tetapi untuk kepentingan agama."],correct:3,expl:`Gharim adalah golongan mustahik zakat yang memiliki banyak utang, khususnya untuk kepentingan yang dibenarkan agama, bukan untuk maksiat.`},
+{cat:"tarikh",type:"tf",q:`Nabi Nuh AS adalah nabi yang paling sabar, karena dia berdakwah selama 950 tahun, tetapi hanya sedikit orang yang mengikutinya. Meskipun begitu, dia tidak pernah putus asa`,opts:["BENAR","SALAH"],correct:0,expl:`Nabi Nuh a.s. dikenal sebagai nabi yang paling sabar karena berdakwah selama 950 tahun meski hanya sedikit pengikutnya, tanpa pernah putus asa.`},
+{cat:"tarikh",type:"mc",q:`Setelah tiba di Madinah, tindakan pertama Nabi Muhammad SAW adalah membangun masjid dan mempersaudarakan kaum Muhajirin dan Ansar. Tindakan ini menunjukkan bahwa beliau mengutamakan...`,opts:["Pembangunan ekonomi dan perdagangan","Penaklukan wilayah sekitar Madinah","Kehidupan pribadi yang nyaman","Persatuan umat dan pembinaan iman"],correct:3,expl:`Membangun masjid dan mempersaudarakan Muhajirin-Ansar menunjukkan bahwa Nabi Saw. mengutamakan persatuan umat dan pembinaan iman di Madinah.`},
+{cat:"quran",type:"mc",q:`Ada seorang anak bernama Adi yang selalu merasa sukunya lebih baik dari suku teman-temannya yang lain. Dia sering membanggakan sukunya dan merendahkan suku orang lain. Jika sikap Adi dikaitkan dengan hadis tentang keragaman, apa kesalahan mendasar dalam pemahamannya?`,opts:["Adi tidak memahami bahwa setiap suku memiliki kelebihannya masing-masing.","Adi melakukan perbuatan yang dilarang dalam Islam, yaitu sombong dan merendahkan orang lain.","Adi tidak tahu bahwa semua manusia diciptakan dari satu jiwa yang sama.","Adi menganggap kemuliaan seseorang berasal dari suku, bukan dari ketakwaan kepada Allah SWT."],correct:3,expl:`Kesalahan mendasar sikap merasa suku sendiri lebih baik adalah menilai kemuliaan dari suku, padahal kemuliaan sejati di sisi Allah ditentukan oleh ketakwaan.`},
+{cat:"quran",type:"tf",q:`Surat Al-Fatihah disebut 'Ummul Qur'an' karena isinya secara ringkas memuat seluruh pokok ajaran dalam Al-Qur'an, seperti tauhid, janji, dan ancaman.`,opts:["BENAR","SALAH"],correct:0,expl:`Al-Fatihah disebut Ummul Qur'an karena kandungannya secara ringkas mencakup pokok-pokok ajaran Al-Qur'an: tauhid, janji (kabar gembira), dan ancaman.`},
+{cat:"tajwid",type:"tf",q:`Ketika seorang anak bernama Ali membaca lafaz "Al-Qur'an", ia membaca huruf ل dengan jelas dan terdengar. Ini menunjukkan pemahaman yang benar tentang Al-Qamariyah, karena huruf ق adalah salah satu huruf Qamariyah.`,opts:["BENAR","SALAH"],correct:0,expl:`Huruf qaf (ق) pada kata "Al-Qur'an" termasuk huruf Qamariyah, sehingga lam sukun dibaca jelas (izhar qamariyah), sesuai pernyataan tersebut.`},
+{cat:"quran",type:"mc",q:`&#1608;&#1614;&#1604;&#1614;&#1575; &#1610;&#1614;&#1581;&#1615;&#1590;&#1600;&#1600;&#1615;&#1617; &#1593;&#1614;&#1604;&#1616;&#1609; &#1591;&#1614;&#1593;&#1614;&#1575;&#1605;&#1616; &#1575;&#1604;&#1618;&#1605;&#1616;&#1587;&#1618;&#1603;&#1616;&#1610;&#1618;&#1606;&#1616;&#1618;&#1620; &#1663;\n\nBunyi ayat di atas adalah ....`,opts:["Wa yamna'uunal-maa'un","Fadzaalikalladzi yadu'ul yatim.","A raaitalladzii yukadzibu biddiin.","Wa laa yahuddu &ldquo;alaa ta'aamil-miskiin."],correct:3,expl:`Transliterasi yang tepat untuk ayat tersebut adalah "Wa laa yahuddu 'alaa ta'aamil-miskiin".`},
+{cat:"tajwid",type:"mc",q:`Contoh bacaan ikhfa terdapat pada kata&hellip;`,opts:[`&#1571;&#1614;&#1606;&#1618;&#1601;&#1615;&#1587;&#1616;&#1603;&#1615;&#1605;&#1618;`,`&#1605;&#1616;&#1606;&#1618; &#1607;&#1614;&#1575;&#1583;&#1616;&#1740;`,`&#1571;&#1614;&#1606;&#1618;&#1576;&#1614;&#1571;&#1614;&#1603;&#1615;&#1605;&#1618;`,`&#1594;&#1614;&#1601;&#1615;&#1608;&#1618;&#1585;&#1611; &#1585;&#1617;&#1614;&#1581;&#1616;&#1740;&#1605;&#1611;`],correct:0,expl:`Pada &#1571;&#1614;&#1606;&#1618;&#1601;&#1615;&#1587;&#1616;&#1603;&#1615;&#1605;&#1618;, nun sukun bertemu huruf fa (ف) yang termasuk huruf ikhfa, sehingga dibaca samar dengan dengung.`},
+{cat:"tajwid",type:"mc",q:`Manakah dari kata berikut yang jika diwaqafkan (dihentikan) akan terjadi hukum bacaan qalqalah kubra?`,opts:[`&#1575;&#1604;&#1618;&#1601;&#1614;&#1578;&#1618;&#1581;&#1615;`,`&#1603;&#1615;&#1601;&#1615;&#1608;&#1611;&#1575; &#1571;&#1614;&#1581;&#1614;&#1583;&#1611;`,`&#1610;&#1614;&#1601;&#1618;&#1593;&#1614;&#1604;&#1615;&#1608;&#1606;&#1614;`,`&#1575;&#1616;&#1602;&#1618;&#1585;&#1614;&#1571;&#1618;`],correct:1,expl:`Pada &#1603;&#1615;&#1601;&#1615;&#1608;&#1611;&#1575; &#1571;&#1614;&#1581;&#1614;&#1583;&#1611;, kata &#1571;&#1614;&#1581;&#1614;&#1583;&#1611; berakhiran huruf dal (huruf qalqalah). Saat diwaqafkan, harakatnya berubah menjadi sukun sehingga menghasilkan qalqalah kubra.`},
+{cat:"tajwid",type:"tf",q:`Harakat fathah (&#1614;) dan dammah (&#1615;) adalah harakat yang sama-sama mengubah bunyi huruf menjadi 'a', tetapi dengan cara yang berbeda.`,opts:["BENAR","SALAH"],correct:1,expl:`Fathah mengubah bunyi huruf menjadi 'a', sedangkan dammah mengubah bunyi menjadi 'u', bukan sama-sama 'a'.`},
+{cat:"tarikh",type:"mc",q:`Salah satu kontribusi terbesar Khalifah Utsman bin Affan adalah standardisasi mushaf Al-Qur'an. Tindakan ini dilakukan untuk...`,opts:["Menghapus semua salinan Al-Qur'an yang berbeda.","Mempermudah proses hafalan Al-Qur'an bagi anak-anak.","Menjaga kemurnian Al-Qur'an dari berbagai dialek dan perbedaan bacaan","Mengganti mushaf lama dengan mushaf baru yang lebih modern"],correct:2,expl:`Standardisasi mushaf oleh Utsman bin Affan bertujuan menjaga kemurnian bacaan Al-Qur'an dari perbedaan dialek dan qiraat yang berkembang di berbagai wilayah.`},
+{cat:"quran",type:"mc",q:`Makna yang paling tepat dari &#1603;&#1614;&#1604;&#1616;&#1605;&#1614;&#1577;&#1613; &#1587;&#1614;&#1608;&#1614;&#1575;&#1569;&#1613; adalah &hellip;.`,opts:["Kita harus membaca kitab suci yang sama.","Kita harus mengikuti nabi yang sama.","Kita harus mengakui bahwa semua manusia bersaudara.","Kita harus mengesakan Allah SWT dan tidak menyembah selain-Nya."],correct:3,expl:`"Kalimatun sawa" (kalimat yang sama) dalam QS Ali Imran:64 mengajak untuk mengesakan Allah dan tidak menyekutukan-Nya dengan apa pun.`},
+{cat:"tajwid",type:"tf",q:`Membaca Al-Qur'an dengan tidak memperhatikan makharijul huruf akan mengurangi pahala dan akan membatalkan shalat.`,opts:["BENAR","SALAH"],correct:1,expl:`Kesalahan makharijul huruf dapat mengurangi kesempurnaan bacaan, tetapi tidak serta-merta membatalkan shalat.`},
+{cat:"quran",type:"tf",q:`Interpretasi &ldquo;inna sy&#257;ni'aka huwa al-abtar&rdquo; dapat dimaknai bahwa orang yang membenci kebaikan dan dakwah akan kehilangan keberkahan hidupnya`,opts:["BENAR","SALAH"],correct:0,expl:`"Inna syani'aka huwa al-abtar" menegaskan bahwa pembenci dakwah dan kebaikan-lah yang sesungguhnya terputus dari keberkahan.`},
+{cat:"quran",type:"tf",q:`Surat Al Falaq adalah surat yang tepat dibaca ketika kita sedang berada dalam bahaya nyata yang terlihat, seperti gempa bumi, banjir, atau serangan musuh. Membaca surat ini dalam situasi tersebut akan membuat kita merasa aman dan terlindungi dari segala marabahaya`,opts:["BENAR","SALAH"],correct:1,expl:`Surah Al-Falaq adalah permohonan perlindungan dari berbagai kejahatan (termasuk sihir dan kedengkian), bukan jaminan otomatis aman dari bencana alam yang tampak semata.`},
+{cat:"aqidah",type:"mc",q:`Pernyataan berikut yang paling tepat menggambarkan hubungan antara ikhtiar (usaha) dan takdir adalah...`,opts:["Ikhtiar tidak memiliki pengaruh sama sekali terhadap takdir, karena takdir telah ditetapkan.","Takdir hanya akan berubah jika seseorang berdoa tanpa melakukan usaha.","Ikhtiar adalah bagian dari takdir yang telah ditetapkan, dan hasil dari ikhtiar tersebut juga merupakan takdir Allah SWT.","Seseorang bisa mengubah takdir sepenuhnya dengan ikhtiarnya sendiri, tanpa campur tangan Allah SWT."],correct:2,expl:`Ikhtiar adalah bagian dari proses yang sudah termasuk dalam ketetapan (takdir) Allah; hasil dari ikhtiar tetap merupakan takdir-Nya, tanpa meniadakan pentingnya usaha manusia.`},
+{cat:"fiqih",type:"mc",q:`Seorang penjual bakso menggunakan daging yang tidak disembelih secara syar'i untuk membuat bakso. Ketika ada pembeli yang bertanya, ia berbohong dengan mengatakan bahwa dagingnya halal. Perbuatan penjual ini secara syariat dapat dikategorikan sebagai...`,opts:["Perbuatan yang dibolehkan jika pembeli tidak mengetahuinya.","Perbuatan yang haram, karena mencampurkan yang haram dengan yang halal.","Perbuatan makruh, karena tidak berdampak besar bagi pembeli.","Perbuatan syubhat, karena belum jelas keharamannya."],correct:1,expl:`Mencampur daging yang tidak disembelih secara syar'i lalu berbohong mengaku halal termasuk perbuatan haram karena mencampurkan yang haram dengan yang halal dan menipu pembeli.`},
+{cat:"fiqih",type:"tf",q:`Salat Duha adalah salat sunah yang sangat dianjurkan. Seseorang yang rutin melaksanakan salat Duha akan dijamin rezekinya oleh Allah, sehingga ia tidak perlu bekerja keras untuk mencari nafkah. Salat ini mengajarkan bahwa dengan mendekatkan diri kepada Allah, kebutuhan materi akan terpenuhi secara otomatis tanpa usaha.`,opts:["BENAR","SALAH"],correct:1,expl:`Salat Duha dianjurkan sebagai ikhtiar mendekatkan diri kepada Allah, bukan pengganti usaha mencari nafkah; rezeki tetap harus diupayakan.`},
+{cat:"aqidah",type:"tf",q:`Kisah-kisah para nabi dan rasul adalah cerita fiksi yang tidak benar adanya, hanya untuk memberikan pelajaran kepada umat Islam.`,opts:["BENAR","SALAH"],correct:1,expl:`Kisah para nabi dan rasul dalam Al-Qur'an adalah peristiwa nyata, bukan cerita fiksi, meski mengandung pelajaran (ibrah) bagi umat.`},
+{cat:"akhlak",type:"tf",q:`Orang yang berempati akan mengabaikan penderitaan orang lain karena setiap orang bertanggung jawab atas dirinya sendiri`,opts:["BENAR","SALAH"],correct:1,expl:`Empati justru mendorong seseorang untuk peduli dan turut merasakan penderitaan orang lain, bukan mengabaikannya.`},
+{cat:"tajwid",type:"mc",q:`Perhatikan ayat di bawah ini!\n\n&#1601;&#1616;&#1740; &#1580;&#1616;&#1740;&#1583;&#1616;&#1607;&#1614;&#1575; &#1581;&#1614;&#1576;&#1618;&#1604;&#1615;&#1617; &#1605;&#1616;&#1617;&#1606;&#1618; &#1605;&#1614;&#1617;&#1587;&#1614;&#1583;&#1616;&#1740;\n\nHukum bacaan yang terdapat dalam ayat di atas antara lain ....`,opts:["Idgham Bigunnah dan Idgham Bilagunnah.","Idgham Bigunnah dan Idgham Bigunnah.","Idgham Bigunnah dan Ikhfa.","Ikhfa Haqiqi dan Iqlab."],correct:1,expl:`Pada ayat tersebut, tanwin bertemu mim (&#1581;&#1614;&#1576;&#1618;&#1604;&#1615;&#1617; &#1605;&#1616;&#1617;&#1606;&#1618;) dan nun sukun bertemu mim (&#1605;&#1616;&#1617;&#1606;&#1618; &#1605;&#1614;&#1617;&#1587;&#1614;&#1583;&#1616;&#1740;) sama-sama menghasilkan hukum Idgham Bigunnah.`},
+{cat:"tajwid",type:"mc",q:`Ciri utama yang membedakan Idgham Bilaghunnah dengan Idgham Bighunnah adalah ....`,opts:["Jumlah hurufnya lebih sedikit.","Terjadi pada kata yang sama.","Dibaca tanpa suara dengung (ghunnah).","Hurufnya hanya nun (ن) dan mim (م)."],correct:2,expl:`Idgham Bilaghunnah (huruf ل dan ر) dibaca dengan melebur tanpa dengung, berbeda dari Idgham Bighunnah yang disertai dengung.`},
+{cat:"fiqih",type:"tf",q:`Dari perspektif refleksi, menjaga wudhu bukan sekadar untuk sahnya salat, tetapi juga melatih disiplin menjaga kebersihan diri setiap saat.`,opts:["BENAR","SALAH"],correct:0,expl:`Menjaga wudu tidak hanya untuk sahnya salat, tetapi juga melatih kedisiplinan menjaga kebersihan diri sepanjang waktu.`},
+{cat:"tajwid",type:"tf",q:`Huruf hijaiyah yang tidak dapat disambung dengan huruf lain setelahnya hanya ada enam, yaitu ا د ذ ر ز و.`,opts:["BENAR","SALAH"],correct:0,expl:`Enam huruf hijaiah tersebut (ا د ذ ر ز و) memang tidak dapat disambung dengan huruf sesudahnya dalam penulisan Arab.`},
+{cat:"fiqih",type:"mc",q:`Seorang karyawan yang sedang berpuasa berhasil menyelesaikan pekerjaannya dengan produktif dan tetap ramah, meskipun ia merasa lapar dan haus. Sikapnya ini menunjukkan bahwa puasa bukan hanya menahan diri dari makan dan minum, melainkan juga berfungsi untuk...`,opts:["Mengurangi produktivitas dan fokus kerja.","Melatih kesabaran, pengendalian diri, dan empati terhadap sesama.","Menghindari interaksi sosial dan komunikasi dengan orang lain.","Menghukum diri sendiri karena kesalahan yang pernah dilakukan."],correct:1,expl:`Puasa melatih kesabaran, pengendalian diri, dan menumbuhkan empati terhadap sesama yang kekurangan, bukan menurunkan produktivitas.`},
+{cat:"tarikh",type:"mc",q:`Nabi Nuh a.s. sabar berdakwah meski banyak yang menolak. Atas perintah Allah, beliau membuat kapal untuk menyelamatkan orang beriman dari banjir besar. Banjir besar pada masa Nabi Nuh adalah&hellip;`,opts:["Hukuman bagi yang durhaka","Bencana alam biasa","Tanda akhir zaman","Peristiwa kebetulan"],correct:0,expl:`Banjir besar pada masa Nabi Nuh a.s. merupakan hukuman Allah bagi kaum yang mendustakan dan durhaka kepada dakwahnya.`},
+{cat:"aqidah",type:"mc",q:`Seorang ibu bangga melihat putranya berhasil meraih prestasi gemilang di sekolah. Untuk mengekspresikan rasa bangganya sekaligus menjaga diri dari sifat sombong dan iri, ia mengucapkan "Masyaallah". Namun, ketika putranya berjanji akan meraih prestasi serupa di masa depan, ia menanggapi dengan "Insyaallah". pernyataan berikut yang paling tepat menjelaskan perbedaan penggunaan kedua kalimat tersebut adalah &hellip;`,opts:["Masyaallah untuk menyatakan takdir yang sudah terjadi, sedangkan Insyaallah untuk menyatakan takdir yang akan terjadi.","Masyaallah untuk mengungkapkan kekaguman yang sudah ada, sementara Insyaallah untuk memohon takdir di masa depan.","Masyaallah untuk menunjukkan kebanggaan, dan Insyaallah untuk menunjukkan keraguan.","Keduanya memiliki makna yang sama dan bisa digunakan secara bergantian."],correct:0,expl:`"Masyaallah" diucapkan untuk sesuatu yang telah terjadi atas kehendak Allah, sedangkan "Insyaallah" digunakan untuk menyatakan harapan/rencana yang akan terjadi di masa depan.`},
+{cat:"quran",type:"mc",q:`Surah At-Tin menyebutkan bahwa manusia diciptakan dalam bentuk yang paling sempurna, tetapi kemudian dapat dikembalikan ke tempat yang paling rendah. Yang dapat menyebabkan manusia "dikembalikan ke tempat yang paling rendah" adalah manusia yang &hellip;`,opts:["tidak merawat kesehatan fisiknya.","tidak memiliki pendidikan yang tinggi.","melupakan tujuan hidupnya dan tidak beriman serta beramal saleh.","meninggal dan kembali menjadi tanah."],correct:2,expl:`Manusia "dikembalikan ke tempat paling rendah" (QS At-Tin) adalah mereka yang melupakan tujuan hidupnya serta tidak beriman dan beramal saleh.`},
+{cat:"quran",type:"tf",q:`Pesan pokok surat An-Nas adalah tentang tauhid rububiyah, yaitu keyakinan bahwa Allah adalah satu-satunya Tuhan yang berhak disembah.`,opts:["BENAR","SALAH"],correct:1,expl:`Pesan pokok Surah An-Nas berkaitan dengan permohonan perlindungan kepada Rabb, Malik, dan Ilah manusia dari kejahatan bisikan setan; definisi "satu-satunya Tuhan yang berhak disembah" lebih tepat disebut tauhid uluhiyah, bukan sekadar rububiyah.`},
+{cat:"aqidah",type:"mc",q:`Seorang penemu berhasil menciptakan teknologi yang sangat berguna bagi umat manusia tanpa mengharapkan imbalan finansial yang besar. Ia menyadari bahwa ide, kecerdasan, dan kemampuan untuk mewujudkannya adalah karunia yang tak ternilai. Kesadaran ini merupakan manifestasi dari keyakinan terhadap Asmaul Husna...`,opts:["Al-Kabir","Al-Aziz","Al-Wahab","Al-Ghaffar"],correct:2,expl:`Menyadari bahwa ide dan kemampuan adalah karunia cuma-cuma dari Allah mencerminkan penghayatan Asmaul Husna Al-Wahhab, Yang Maha Pemberi Karunia.`},
+{cat:"aqidah",type:"mc",q:`Seorang kepala sekolah menegaskan aturan secara adil, menjaga keamanan lingkungan belajar, menanamkan kebersihan hati dan lingkungan, menumbuhkan rasa damai, serta mengingatkan bahwa segala kekuasaan hanyalah milik Allah. Perilaku ini mencerminkan&hellip;`,opts:["Al-Malik, Al-Azīz, Al-Quddūs, As-Salām, Al-Mu'min","Al-Mu'min, Al-Malik, Al-Quddūs, As-Salām, Al-Karīm","Al-Azīz, Al-Quddūs, As-Salām, Al-Malik, Al-Wadūd","Al-Quddūs, As-Salām, Al-Mu'min, Al-Hakīm, Al-Malik"],correct:3,expl:`Sikap adil (Al-Hakim), menjaga rasa aman (Al-Mu'min), kebersihan hati (Al-Quddus), kedamaian (As-Salam), dan pengakuan bahwa kekuasaan mutlak milik Allah (Al-Malik) tercakup lengkap pada opsi ini.`},
+{cat:"akhlak",type:"mc",q:`Suatu pagi, ibu meminta Rafi membantunya menjemur pakaian. Rafi menunda karena ingin bermain bola. Sikap Rafi sebaiknya diubah menjadi&hellip;`,opts:["Membantu ibu terlebih dahulu sebelum bermain","Bermain bola lalu meminta maaf","Mengajak teman membantu menjemur","Menunda sampai sore"],correct:0,expl:`Sikap yang tepat adalah mendahulukan membantu ibu sebelum bermain, sebagai wujud bakti kepada orang tua.`},
+{cat:"quran",type:"mc",q:`Berikut ini adalah beberapa pernyataan yang berkaitan dengan Surah Ad-Duha:\n\n1) Allah Swt. bersumpah dengan waktu dhuha dan malam yang terang.\n\n2) Allah SWT tidak meninggalkan Nabi Muhammad SAW dan tidak membencinya.\n\n3) Kehidupan akhirat lebih baik dari kehidupan dunia.\n\n4) Allah SWT memerintahkan Nabi Muhammad SAW untuk memuliakan orang tua dan menghardiknya.\n\nPernyataan yang paling tepat menunjukkan pesan utama dalam Surah Ad-Duha adalah...`,opts:["1 dan 2","2 dan 3","3 dan 4","1 dan 4"],correct:1,expl:`Pesan utama Surah Ad-Duha adalah bahwa Allah tidak meninggalkan/membenci Nabi Saw. (2) dan kehidupan akhirat lebih baik daripada dunia (3); pernyataan 1 hanya sumpah pembuka, dan pernyataan 4 keliru karena surah ini justru melarang menghardik anak yatim.`},
+{cat:"quran",type:"mc",q:`Surah Al-Alaq diawali dengan perintah 'Iqra' (Bacalah). Mengapa perintah membaca menjadi wahyu pertama bagi umat Islam?`,opts:["Karena membaca adalah kunci untuk mendapatkan ilmu, dan ilmu adalah dasar untuk beribadah dan memahami agama","Karena membaca adalah satu-satunya ibadah yang wajib dilakukan oleh setiap muslim.","Karena Nabi Muhammad SAW belum pandai membaca, sehingga Allah SWT mengajarkannya.","Karena dengan membaca, umat Islam akan menjadi cerdas dan maju seperti bangsa lain."],correct:0,expl:`Perintah "Iqra" menjadi wahyu pertama karena membaca adalah kunci membuka ilmu pengetahuan, yang menjadi dasar untuk beribadah dan memahami agama dengan benar.`},
+{cat:"tarikh",type:"tf",q:`Perjalanan Nabi Musa dari Mesir ke Madyan mengajarkan bahwa hijrah bisa menjadi jalan menemukan kebaikan baru dan pertolongan Allah.`,opts:["BENAR","SALAH"],correct:0,expl:`Perjalanan Nabi Musa a.s. dari Mesir ke Madyan menjadi teladan bahwa hijrah dapat membuka jalan kebaikan baru dan pertolongan Allah.`},
+{cat:"akhlak",type:"mc",q:`Seorang tokoh masyarakat selalu terlihat paling aktif dan dermawan dalam setiap acara keagamaan. Ia menyumbangkan dana besar dan secara vokal mendukung setiap inisiatif kebaikan. Namun, di balik itu, ia seringkali meremehkan ajaran agama dan menolak membantu secara diam-diam. Perilaku tokoh ini paling tepat mencerminkan sifat munafik, yaitu...`,opts:["Berkata dusta untuk memperoleh keuntungan.","Mengkhianati amanah yang diberikan kepadanya.","Berpura-pura taat di depan orang lain, namun hati dan perilakunya bertentangan.","Berjanji untuk suatu hal, namun tidak ada niat untuk memenuhinya."],correct:2,expl:`Tampak taat dan dermawan di depan umum namun menolak kebaikan secara diam-diam adalah ciri kemunafikan: berpura-pura taat padahal hati dan perbuatannya bertentangan.`},
+{cat:"fiqih",type:"tf",q:`Seorang siswa yang sedang sakit keras hingga tidak mampu bergerak harus melakukan shalat sambil berbaring. Dalam kondisi ini, ia tidak perlu bersuci karena kondisi sakitnya menjadi pengecualian, dan shalatnya tetap dianggap sah.`,opts:["BENAR","SALAH"],correct:1,expl:`Kewajiban bersuci tetap berlaku semampunya (misalnya dengan tayamum) meski dalam keadaan sakit keras; sakit bukan alasan untuk meninggalkan bersuci sepenuhnya.`},
+{cat:"aqidah",type:"mc",noGrade:true,q:`Pasangan yang tepat antara asmaul husna dan arti berdasarkan tabel di bawah ini adalah ....`,opts:["1C, 2A, 3B, 4D","1B, 2C, 3D, 4A","1C, 2D, 3A, 4B","1A, 2D, 3B, 4C"],correct:null,expl:`Soal ini merujuk pada tabel pasangan Asmaul Husna dan artinya yang tidak tersedia dalam salinan teks ini, sehingga jawaban tidak dapat dipastikan secara otomatis. Cocokkan langsung dengan tabel pada naskah asli.`},
+{cat:"akhlak",type:"mc",q:`Ketika hujan deras, selokan di sekitar rumah Edo meluap karena banyak sampah. Edo mengajak warga kerja bakti membersihkan selokan dan menanam pohon di pinggir jalan. Tindakan Edo mencerminkan pengamalan konsep lingkungan dalam PAI, yaitu&hellip;`,opts:["Menjaga kebersihan dan kelestarian alam sebagai amanah Allah","Menciptakan lingkungan indah untuk menarik wisatawan","Mengurangi biaya perawatan lingkungan","Mencari pengalaman untuk lomba kebersihan"],correct:0,expl:`Mengajak warga kerja bakti membersihkan selokan dan menanam pohon mencerminkan penghayatan bahwa menjaga kebersihan dan kelestarian alam adalah amanah dari Allah.`},
+{cat:"aqidah",type:"tf",q:`Asmaul Husna As-Sami' berarti Allah Maha Mendengar. Aplikasi dari nama ini dalam kehidupan sehari-hari adalah seseorang harus yakin bahwa Allah mendengarkan setiap doanya, dan karena itu, setiap permohonan yang ia panjatkan pasti akan langsung dikabulkan. Jika ia merasa doanya tidak dikabulkan, itu berarti ia kurang ikhlas dalam berdoa.`,opts:["BENAR","SALAH"],correct:1,expl:`Allah senantiasa mendengar doa (As-Sami'), tetapi tidak setiap doa langsung dikabulkan sesuai permintaan; Allah bisa menunda, mengganti dengan yang lebih baik, atau menyimpannya untuk akhirat &mdash; bukan tanda kurang ikhlas.`},
+{cat:"tajwid",type:"tf",q:`Seorang guru tajwid menjelaskan kepada murid-muridnya, "Ketika kalian melihat alif lam bertemu dengan huruf Syamsiyah, bayangkan huruf lam itu 'menghilang' dan huruf setelahnya menjadi ganda. Ini adalah cara yang benar untuk membaca hukum Al-Syamsiyah.`,opts:["BENAR","SALAH"],correct:0,expl:`Cara membaca hukum Al-Syamsiyah memang dengan "menghilangkan" bunyi lam dan menggandakan (mentasydidkan) huruf syamsiyah setelahnya.`},
+{cat:"tajwid",type:"mc",q:`Contoh bacaan gunnah terdapat pada .&hellip;`,opts:[`&#1605;&#1614;&#1606; &#1610;&#1614;&#1593;&#1618;&#1605;&#1614;&#1604;&#1618;`,`&#1573;&#1616;&#1606;&#1617;&#1614;&#1575; &#1571;&#1614;&#1593;&#1618;&#1591;&#1614;&#1610;&#1618;&#1606;&#1614;&#1575;&#1603;&#1614;`,`&#1602;&#1614;&#1583;&#1618; &#1571;&#1614;&#1601;&#1618;&#1604;&#1614;&#1581;&#1614;`,`&#1605;&#1616;&#1606;&#1618;&#1607;&#1615;&#1605;&#1618;`],correct:1,expl:`Nun bertasydid pada kata إِنَّا merupakan contoh bacaan ghunnah (dengung), karena huruf nun/mim yang bertasydid selalu dibaca dengan dengung.`},
+{cat:"quran",type:"tf",q:`Basmalah dan Hamdalah adalah dua kalimat yang memiliki makna yang sama, yaitu memuji Allah SWT dan mensyukuri nikmat-Nya.`,opts:["BENAR","SALAH"],correct:1,expl:`Basmalah adalah kalimat memulai sesuatu dengan menyebut nama Allah, sedangkan Hamdalah adalah ungkapan pujian dan rasa syukur; keduanya memiliki makna dan fungsi yang berbeda.`},
+{cat:"tajwid",type:"tf",q:`Harakat sukun (ْ) adalah harakat yang membuat huruf menjadi mati, dan ia tidak pernah berada di awal kata.`,opts:["BENAR","SALAH"],correct:0,expl:`Harakat sukun membuat huruf menjadi mati (tidak berbunyi) dan memang tidak pernah terletak pada huruf pertama sebuah kata.`},
+{cat:"tajwid",type:"mc",q:`Perhatikan pernyataan berikut!\n\n1) Sukunnya karena waqaf\n\n2) Sukunnya asli\n\n3) Di tengah bacaan\n\n4) Di akhir bacaan\n\nPernyataan yang mendefiniskan qalqalah shughra ditunjukkan oleh nomor ....`,opts:["1) dan 3)","1) dan 4)","2) dan 3)","2) dan 4)"],correct:2,expl:`Qalqalah sughra terjadi ketika huruf qalqalah bersukun asli (bukan karena waqaf) dan berada di tengah kata/bacaan, sesuai pernyataan nomor 2 dan 3.`},
+{cat:"quran",type:"tf",q:`Surat Al-Ikhlas dinamakan Al-Ikhlas karena isinya menegaskan kemurnian tauhid, yang menjadi dasar keikhlasan dalam beribadah hanya kepada Allah tanpa menyekutukan-Nya`,opts:["BENAR","SALAH"],correct:0,expl:`Surah Al-Ikhlas dinamakan demikian karena isinya menegaskan kemurnian tauhid, dasar dari keikhlasan beribadah hanya kepada Allah tanpa menyekutukan-Nya.`},
+{cat:"tarikh",type:"mc",q:`Selama periode Makkah, Nabi Muhammad Saw. berdakwah secara sembunyi-sembunyi selama tiga tahun, kemudian beralih ke dakwah secara terang-terangan. Strategi ini menunjukkan bahwa dalam berdakwah, seseorang harus...`,opts:["Menyampaikan kebenaran sekaligus tanpa perencanaan","Mengikuti cara orang lain dengan melihat situasi","Menggunakan cara yang bijak dan bertahap sesuai kondisi","Menyembunyikan dakwah selamanya agar aman"],correct:2,expl:`Strategi dakwah Nabi Saw. yang bertahap dari sembunyi-sembunyi ke terang-terangan mengajarkan bahwa dakwah harus dilakukan secara bijak dan sesuai kondisi, bukan sekaligus tanpa perencanaan.`},
+{cat:"tajwid",type:"mc",q:`Jika seorang guru meminta muridnya untuk menjelaskan perbedaan antara Mad Wajib Muttasil dan Mad Jaiz Munfasil, manakah dari pernyataan berikut yang paling tepat?`,opts:["Mad Wajib Muttasil adalah mad yang wajib disambung, sedangkan Mad Jaiz Munfasil adalah mad yang boleh dipisah.","Mad Wajib Muttasil memiliki panjang 4-5 harakat, sedangkan Mad Jaiz Munfasil memiliki panjang 2 harakat.","Mad Wajib Muttasil terjadi ketika huruf mad bertemu hamzah dalam satu kata, sedangkan Mad Jaiz Munfasil terjadi ketika huruf mad bertemu hamzah di kata yang berbeda.","Keduanya sama-sama wajib dibaca panjang 4-5 harakat, namun berbeda pada posisi huruf mad dan hamzah."],correct:2,expl:`Perbedaan mendasar keduanya terletak pada posisi hamzah: Mad Wajib Muttasil terjadi saat huruf mad bertemu hamzah dalam satu kata, sedangkan Mad Jaiz Munfasil terjadi saat keduanya berada di kata yang berbeda.`},
+{cat:"quran",type:"mc",q:`Seorang anak bernama Doni sering memaksa temannya, Toni, untuk ikut salat berjamaah, padahal Toni tidak beragama Islam. Doni menganggap perbuatannya benar karena ia ingin Toni masuk surga. Jika sikap Doni dikaitkan dengan Surah Al-Baqarah ayat 256, apa kesalahan mendasar yang ia lakukan?`,opts:["Doni tidak memahami bahwa tugasnya hanya mengajak, bukan memaksa.","Doni menganggap salat berjamaah lebih penting daripada toleransi.","Doni melanggar hak Toni untuk memilih agamanya sendiri.","Doni tidak menyadari bahwa perbuatannya dapat melukai hati Toni"],correct:2,expl:`Memaksa Toni yang bukan muslim untuk ikut salat berjamaah melanggar haknya untuk memilih dan menjalankan agamanya sendiri, sesuai semangat "laa ikraaha fid diin" pada QS Al-Baqarah:256.`},
+{cat:"tajwid",type:"mc",q:`Ahmad sedang membaca Al-Qur'an dan menemukan ayat &#1608;&#1614;&#1575;&#1604;&#1604;&#1617;&#1614;&#1607;&#1615; &#1594;&#1614;&#1601;&#1615;&#1608;&#1585;&#1611; &#1585;&#1617;&#1614;&#1581;&#1616;&#1740;&#1605;&#1611; serta &#1649;&#1604;&#1618;&#1602;&#1614;&#1605;&#1614;&#1585;&#1615; &#1608;&#1614;&#1649;&#1604;&#1618;&#1606;&#1615;&#1580;&#1615;&#1608;&#1605;&#1615;. Guru bertanya, "Ayat mana yang mengandung Alif Lam Qamariyah?"`,opts:["Hanya ayat pertama","Hanya ayat kedua","Kedua ayat mengandung Alif Lam Qamariyah","Tidak ada yang mengandung Alif Lam Qamariyah"],correct:1,expl:`"Al-Qamar" mengandung Alif Lam Qamariyah (bertemu huruf qaf); kata "Allah" pada ayat pertama bukan konstruksi alif lam qamariyah/syamsiyah biasa, sehingga hanya ayat kedua yang dimaksud.`},
+{cat:"tarikh",type:"mc",q:`Haji Wada dilaksanakan oleh Nabi Muhammad Saw. pada tahun 10 H di bulan Dzulhijjah. Dalam pelaksanaannya beliau mengikuti rukun haji seperti thawaf, wukuf di Arafah, dan sa'i. Dalam khutbahnya beliau menyampaikan pesan persamaan derajat, larangan riba, dan berpegang pada Al-Qur'an dan Sunnah. Hikmah terpenting dari Haji Wada adalah&hellip;`,opts:["Menjadi sarana menyebarkan pesan Islam secara luas","Memperlihatkan kekuatan umat Islam di hadapan musuh","Mengajarkan bahwa haji adalah ibadah paling mudah dilaksanakan","Menjadikan haji sebagai ajang perlombaan kebaikan antar suku"],correct:0,expl:`Pesan-pesan universal dalam khotbah Haji Wada (persamaan derajat, larangan riba, berpegang pada Al-Qur'an dan Sunnah) menjadi sarana penting menyebarluaskan ajaran Islam kepada seluruh jamaah yang hadir.`},
+{cat:"aqidah",type:"tf",q:`Nabi Adam AS adalah manusia pertama yang diciptakan oleh Allah SWT. Ia melanggar perintah Allah untuk tidak memakan buah khuldi karena godaan Iblis. Peristiwa ini menunjukkan bahwa Nabi Adam adalah manusia yang lemah dan tidak taat, sehingga semua keturunannya (manusia) mewarisi dosa tersebut dan harus menanggung akibatnya.`,opts:["BENAR","SALAH"],correct:1,expl:`Islam tidak mengenal konsep dosa warisan; setiap manusia terlahir suci (fitrah) dan bertanggung jawab atas perbuatannya sendiri, bukan menanggung dosa Nabi Adam a.s.`},
+{cat:"aqidah",type:"mc",q:`Iman kepada rasul Allah adalah meyakini bahwa mereka adalah manusia pilihan yang diutus oleh Allah untuk menyampaikan wahyu. Salah satu sifat wajib rasul adalah amanah, yang berarti dapat dipercaya. Manakah dari contoh berikut yang paling tepat mencerminkan aplikasi dari sifat amanah Rasul dalam kehidupan kita sebagai seorang siswa?`,opts:["Selalu mengerjakan tugas yang diberikan oleh guru tanpa mengeluh dan meminta imbalan.","Selalu berkata jujur kepada guru dan teman-teman, meskipun kejujuran itu dapat merugikan diri sendiri.","Menjaga rahasia yang diceritakan oleh teman dan tidak menceritakannya kepada orang lain.","Mengelola uang kas kelas dengan baik dan membuat laporan keuangan yang transparan kepada semua anggota."],correct:3,expl:`Mengelola uang kas kelas dengan baik dan membuat laporan keuangan yang transparan adalah wujud nyata sifat amanah, sejalan dengan teladan Nabi Saw. yang dipercaya mengelola dagangan Khadijah.`},
+{cat:"fiqih",type:"mc",q:`Ahmad sudah balig, tetapi ia malas salat karena menganggap kewajiban itu hanya untuk orang dewasa yang sudah bekerja. Pandangan Ahmad&hellip;`,opts:["Salah, karena kewajiban salat berlaku sejak balig","Benar, karena salat wajib hanya untuk orang tua","Salah, karena salat hanya sunnah bagi anak sekolah","Benar, karena kewajiban ibadah dimulai saat menikah"],correct:0,expl:`Kewajiban salat berlaku sejak seseorang balig dan berakal, tanpa syarat harus sudah bekerja atau menikah.`}
+];
+
+/* =========================================================
+   MATERI (ringkasan)
+========================================================= */
+const MATERI = [
+{title:"Hukum Nun Sukun &amp; Tanwin",body:`
+  <table><thead><tr><th>Hukum</th><th>Huruf</th><th>Cara Baca</th></tr></thead><tbody>
+  <tr><td>Izhar Halqi</td><td>ء ه ع ح غ خ</td><td>Jelas, tanpa dengung</td></tr>
+  <tr><td>Idgham Bighunnah</td><td>ي ن م و</td><td>Lebur, disertai dengung</td></tr>
+  <tr><td>Idgham Bilaghunnah</td><td>ل ر</td><td>Lebur, tanpa dengung</td></tr>
+  <tr><td>Iqlab</td><td>ب</td><td>Diganti bunyi mim, berdengung</td></tr>
+  <tr><td>Ikhfa Haqiqi</td><td>15 huruf sisanya</td><td>Samar, disertai dengung</td></tr>
+  </tbody></table>`},
+{title:"Hukum Mad (Panjang Bacaan)",body:`
+  <p><b>Mad Tabi'i</b> (2 harakat): fathah + alif, kasrah + ya sukun, atau dammah + wau sukun, tanpa hamzah/sukun setelahnya.</p>
+  <p><b>Mad Wajib Muttasil</b> (4&ndash;5 harakat): huruf mad bertemu hamzah dalam satu kata yang sama.</p>
+  <p><b>Mad Jaiz Munfasil</b> (2, 4, atau 5 harakat): huruf mad bertemu hamzah, tetapi di kata yang berbeda.</p>`},
+{title:"Qalqalah",body:`
+  <p>Huruf qalqalah: <b>ب ج د ط ق</b> (mudah diingat: "baju di toko"/"qatbu jad").</p>
+  <p><b>Qalqalah Sughra</b>: huruf qalqalah bersukun asli, berada di tengah kata.</p>
+  <p><b>Qalqalah Kubra</b>: huruf qalqalah menjadi sukun karena diwaqafkan, berada di akhir kata.</p>`},
+{title:"Alif Lam Qamariyah &amp; Syamsiyah",body:`
+  <p><b>Al-Qamariyah</b>: lam dibaca jelas. Huruf: ا ب ج ح خ ع غ ف ق ك م و ه ي.</p>
+  <p><b>Al-Syamsiyah</b>: lam melebur (tidak dibaca), huruf setelahnya bertasydid. Huruf: ت ث د ذ ر ز س ش ص ض ط ظ ل ن.</p>
+  <p><b>Ghunnah</b>: dengung pada nun atau mim yang bertasydid, ditahan &plusmn;2 harakat.</p>`},
+{title:"Asmaul Husna Penting",body:`
+  <table><thead><tr><th>Nama</th><th>Makna</th></tr></thead><tbody>
+  <tr><td>Al-Ahad</td><td>Yang Maha Esa</td></tr>
+  <tr><td>Al-Qayyum</td><td>Yang Maha Berdiri Sendiri</td></tr>
+  <tr><td>Al-Qawiyy</td><td>Yang Maha Kuat</td></tr>
+  <tr><td>Al-Wahhab</td><td>Yang Maha Pemberi Karunia</td></tr>
+  <tr><td>Al-Mu'min</td><td>Yang Maha Memberi Rasa Aman</td></tr>
+  <tr><td>Al-Quddus</td><td>Yang Maha Suci</td></tr>
+  <tr><td>As-Salam</td><td>Yang Maha Memberi Kesejahteraan</td></tr>
+  <tr><td>As-Sami'</td><td>Yang Maha Mendengar</td></tr>
+  <tr><td>Al-Mumit</td><td>Yang Maha Mematikan</td></tr>
+  </tbody></table>`},
+{title:"Rukun Iman (ringkas)",body:`
+  <p>Iman kepada Allah, malaikat, kitab-kitab-Nya (Taurat, Zabur, Injil, Al-Qur'an), rasul-rasul-Nya, hari akhir, serta qada &amp; qadar &mdash; termasuk memahami bahwa ikhtiar manusia tetap bagian dari takdir Allah.</p>`},
+{title:"Fikih Ibadah",body:`
+  <p><b>Rukun Haji</b>: ihram, wukuf di Arafah, tawaf ifadah, sa'i, tahalul, tertib.</p>
+  <p><b>8 Mustahik Zakat</b>: fakir, miskin, amil, mualaf, riqab, gharim (berutang), sabilillah, ibnu sabil.</p>
+  <p><b>Salat Rawatib</b>: muakkad 12 rakaat, ditambah ghairu muakkad sehingga totalnya 22 rakaat.</p>
+  <p>Musafir mendapat rukhsah (keringanan), misalnya tidak wajib salat Jumat dan cukup diganti Zuhur.</p>`},
+{title:"Sirah Nabawiyah &amp; Khulafaur Rasyidin",body:`
+  <p>Dakwah periode Makkah dilakukan bertahap: sembunyi-sembunyi lalu terang-terangan. Hijrah ke Madinah membangun fondasi masyarakat Islam. Fathu Makkah dan Haji Wada menegaskan akhlak mulia dan pesan persamaan derajat.</p>
+  <p><b>Abu Bakar</b>: memerangi nabi palsu &amp; pembangkang zakat. <b>Umar bin Khattab</b>: ekspansi wilayah &amp; penataan administrasi negara (diwan, Baitul Mal). <b>Utsman bin Affan</b>: standardisasi mushaf Al-Qur'an. <b>Ali bin Abi Thalib</b>: dikenal karena keadilan dan keluasan ilmunya.</p>`}
+];
+</script>
+<script>
+/* =========================================================
+   STATE & LOGIC
+========================================================= */
+const state = {
+  tab: "home",
+  screen: "start", // start | quiz | result
+  activeCat: "all",
+  order: [],
+  idx: 0,
+  answers: {},
+  flags: {},
+  reviewOpen: {},
+  reviewFilter: "all"
+};
+
+function loadHistory(){
+  try{
+    return JSON.parse(localStorage.getItem("mihrab_history")||"[]");
+  }catch(e){ return []; }
+}
+function saveHistoryEntry(entry){
+  try{
+    const h = loadHistory();
+    h.unshift(entry);
+    localStorage.setItem("mihrab_history", JSON.stringify(h.slice(0,8)));
+  }catch(e){ /* ignore */ }
+}
+
+function catCount(cat){
+  if(cat==="all") return QUESTIONS.length;
+  return QUESTIONS.filter(q=>q.cat===cat).length;
+}
+
+function buildOrder(cat){
+  const idxs = QUESTIONS.map((q,i)=>i).filter(i=> cat==="all" || QUESTIONS[i].cat===cat);
+  return idxs;
+}
+
+function startQuiz(){
+  state.order = buildOrder(state.activeCat);
+  state.idx = 0;
+  state.answers = {};
+  state.flags = {};
+  state.screen = "quiz";
+  render();
+}
+
+function currentQ(){
+  return QUESTIONS[state.order[state.idx]];
+}
+
+function selectOption(oi){
+  const qi = state.order[state.idx];
+  state.answers[qi] = oi;
+  render();
+}
+
+function toggleFlag(){
+  const qi = state.order[state.idx];
+  state.flags[qi] = !state.flags[qi];
+  render();
+}
+
+function goto(delta){
+  state.idx = Math.min(Math.max(0, state.idx+delta), state.order.length-1);
+  render();
+}
+
+function finishQuiz(){
+  state.screen = "result";
+  const graded = state.order.filter(i=>QUESTIONS[i].correct!==null);
+  let correctCount = 0;
+  graded.forEach(i=>{ if(state.answers[i]===QUESTIONS[i].correct) correctCount++; });
+  const pct = graded.length? Math.round(100*correctCount/graded.length) : 0;
+  saveHistoryEntry({
+    date: new Date().toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"}),
+    cat: state.activeCat==="all" ? "Semua Kategori" : CATS[state.activeCat],
+    score: correctCount, total: graded.length, pct: pct
+  });
+  render();
+}
+
+function restart(){
+  state.screen = "start";
+  render();
+}
+
+function fmtCat(c){ return CATS[c] || c; }
+
+/* ---------- rendering ---------- */
+function render(){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===state.tab));
+  const main = document.getElementById("main");
+  if(state.tab==="materi"){ main.innerHTML = renderMateri(); return; }
+  if(state.screen==="start"){ main.innerHTML = renderStart(); attachStartEvents(); return; }
+  if(state.screen==="quiz"){ main.innerHTML = renderQuiz(); attachQuizEvents(); return; }
+  if(state.screen==="result"){ main.innerHTML = renderResult(); attachResultEvents(); }
+}
+
+function renderStart(){
+  const hist = loadHistory();
+  const chips = ["all",...Object.keys(CATS)].map(c=>{
+    const label = c==="all" ? "Semua Soal" : fmtCat(c);
+    return `<button class="chip ${state.activeCat===c?'active':''}" data-cat="${c}">${label} <span class="n">(${catCount(c)})</span></button>`;
+  }).join("");
+
+  const histHtml = hist.length ? `
+    <div class="startcard history">
+      <h3>Riwayat Simulasi Terakhir</h3>
+      ${hist.map(h=>`<div class="hist-item"><span>${h.date} &middot; ${h.cat}</span><span class="hist-score">${h.score}/${h.total} &middot; ${h.pct}%</span></div>`).join("")}
+    </div>` : "";
+
+  return `
+    <p class="lede">Latihan soal simulasi lomba Mata Pelajaran PAI &amp; BTQ (MAPSI). Pilih cakupan materi, lalu kerjakan seperti simulasi ujian: jawaban dan pembahasan baru muncul setelah kamu menyelesaikan seluruh soal.</p>
+    <div class="cats">${chips}</div>
+    <div class="startcard">
+      <h2>Siap memulai?</h2>
+      <p>${catCount(state.activeCat)} soal &middot; kategori: <b>${state.activeCat==="all"?"Semua Soal":fmtCat(state.activeCat)}</b></p>
+      <div class="row">
+        <button class="btn btn-primary" id="startBtn">Mulai Simulasi</button>
+        <button class="btn btn-ghost" id="goMateriBtn">Baca Materi Dulu</button>
+      </div>
+    </div>
+    ${histHtml}
+  `;
+}
+
+function attachStartEvents(){
+  document.querySelectorAll(".chip").forEach(c=>{
+    c.addEventListener("click", ()=>{ state.activeCat = c.dataset.cat; render(); });
+  });
+  const sb = document.getElementById("startBtn");
+  if(sb) sb.addEventListener("click", startQuiz);
+  const gm = document.getElementById("goMateriBtn");
+  if(gm) gm.addEventListener("click", ()=>{ state.tab="materi"; render(); });
+}
+
+function renderBeads(){
+  const beads = state.order.map((qi,i)=>{
+    let cls = "bead";
+    if(i===state.idx) cls += " current";
+    if(state.flags[qi]) cls += " flagged";
+    else if(state.answers[qi]!==undefined) cls += " done";
+    return `<span class="${cls}" title="Soal ${i+1}"></span>`;
+  }).join("");
+  return `<div class="beads-wrap"><div class="beads">${beads}</div></div>`;
+}
+
+function renderQuiz(){
+  const q = currentQ();
+  const qi = state.order[state.idx];
+  const answered = state.answers[qi];
+  const opts = q.opts.map((o,oi)=>{
+    const isArabicOpt = /[؀-ۿ]/.test(o);
+    return `<button class="opt ${answered===oi?'selected':''}" data-oi="${oi}">
+      <span class="opt-mark">${String.fromCharCode(65+oi)}</span>
+      <span class="${isArabicOpt?'arabic':''}">${o}</span>
+    </button>`;
+  }).join("");
+
+  const isLast = state.idx === state.order.length-1;
+  const answeredCount = Object.keys(state.answers).length;
+
+  return `
+    ${renderBeads()}
+    <div class="progressline"><span>Soal <b>${state.idx+1}</b> / ${state.order.length}</span><span>Terjawab: <b>${answeredCount}</b></span></div>
+    <div class="qcard">
+      <span class="qcat">${fmtCat(q.cat)}</span>
+      <p class="qtext">${renderQText(q.q)}</p>
+      <div class="opts">${opts}</div>
+      <div class="qfooter">
+        <button class="flagbtn ${state.flags[qi]?'on':''}" id="flagBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 3v18M6 4h11l-3 4 3 4H6" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>
+          ${state.flags[qi] ? "Ditandai ragu" : "Tandai ragu-ragu"}
+        </button>
+        <div class="navbtns">
+          <button class="btn btn-ghost" id="prevBtn" ${state.idx===0?"disabled":""}>&larr; Sebelumnya</button>
+          ${isLast
+            ? `<button class="btn btn-gold" id="finishBtn">Selesai &amp; Lihat Hasil</button>`
+            : `<button class="btn btn-primary" id="nextBtn">Selanjutnya &rarr;</button>`}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderQText(t){
+  // wrap standalone arabic lines in .arabic span, keep line breaks
+  return t.split("\n").map(line=>{
+    const isArabicLine = /[؀-ۿ]/.test(line) && line.replace(/[؀-ۿ\s]/g,"").length < line.length*0.4;
+    return isArabicLine ? `<span class="arabic">${line}</span>` : line;
+  }).join("\n");
+}
+
+function attachQuizEvents(){
+  document.querySelectorAll(".opt").forEach(b=>{
+    b.addEventListener("click", ()=> selectOption(parseInt(b.dataset.oi,10)));
+  });
+  const fb = document.getElementById("flagBtn");
+  if(fb) fb.addEventListener("click", toggleFlag);
+  const pb = document.getElementById("prevBtn");
+  if(pb) pb.addEventListener("click", ()=>goto(-1));
+  const nb = document.getElementById("nextBtn");
+  if(nb) nb.addEventListener("click", ()=>goto(1));
+  const fin = document.getElementById("finishBtn");
+  if(fin) fin.addEventListener("click", finishQuiz);
+}
+
+function scoreWheel(pct){
+  const r = 46, c = 2*Math.PI*r;
+  const off = c * (1-pct/100);
+  return `<svg class="wheel" width="120" height="120" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--parchment-3)" stroke-width="12"/>
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--teal)" stroke-width="12"
+      stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"
+      transform="rotate(-90 60 60)"/>
+    <text x="60" y="66" text-anchor="middle" font-family="Amiri, serif" font-size="26" font-weight="700" fill="var(--ink)">${pct}%</text>
+  </svg>`;
+}
+
+function renderResult(){
+  const graded = state.order.filter(i=>QUESTIONS[i].correct!==null);
+  const ungraded = state.order.filter(i=>QUESTIONS[i].correct===null);
+  let correctCount = 0;
+  graded.forEach(i=>{ if(state.answers[i]===QUESTIONS[i].correct) correctCount++; });
+  const pct = graded.length? Math.round(100*correctCount/graded.length) : 0;
+
+  const byCat = {};
+  state.order.forEach(i=>{
+    const q = QUESTIONS[i];
+    if(q.correct===null) return;
+    byCat[q.cat] = byCat[q.cat] || {correct:0,total:0};
+    byCat[q.cat].total++;
+    if(state.answers[i]===q.correct) byCat[q.cat].correct++;
+  });
+  const catRows = Object.keys(byCat).map(c=>{
+    const d = byCat[c];
+    const p = Math.round(100*d.correct/d.total);
+    return `<div class="catbar-row">
+      <div class="catbar-label"><span>${fmtCat(c)}</span><b>${d.correct}/${d.total}</b></div>
+      <div class="catbar-track"><div class="catbar-fill" style="width:${p}%"></div></div>
+    </div>`;
+  }).join("");
+
+  const filterChips = ["all","wrong","correct","flagged"].map(f=>{
+    const labels = {all:"Semua",wrong:"Salah",correct:"Benar",flagged:"Ditandai ragu"};
+    return `<button class="chip ${state.reviewFilter===f?'active':''}" data-rf="${f}">${labels[f]}</button>`;
+  }).join("");
+
+  const items = state.order.map((qi,i)=>{
+    const q = QUESTIONS[qi];
+    const ua = state.answers[qi];
+    const ungr = q.correct===null;
+    const isCorrect = !ungr && ua===q.correct;
+    if(state.reviewFilter==="wrong" && (isCorrect||ungr)) return "";
+    if(state.reviewFilter==="correct" && !isCorrect) return "";
+    if(state.reviewFilter==="flagged" && !state.flags[qi]) return "";
+
+    const badgeCls = ungr ? "skip" : (isCorrect ? "correct" : "wrong");
+    const badgeTxt = ungr ? "?" : (isCorrect ? "&#10003;" : "&#10007;");
+    const open = state.reviewOpen[qi] ? "open" : "";
+
+    const optsHtml = q.opts.map((o,oi)=>{
+      let cls = "opt";
+      if(!ungr && oi===q.correct) cls += " correct";
+      if(!ungr && ua===oi && ua!==q.correct) cls += " userwrong";
+      const isArabicOpt = /[؀-ۿ]/.test(o);
+      const mark = ua===oi ? " (jawabanmu)" : (!ungr && oi===q.correct ? " (kunci)" : "");
+      return `<div class="${cls}"><span class="opt-mark">${String.fromCharCode(65+oi)}</span><span class="${isArabicOpt?'arabic':''}">${o}${mark}</span></div>`;
+    }).join("");
+
+    return `<div class="rev-item ${open}" data-qi="${qi}">
+      <div class="rev-head" data-toggle="${qi}">
+        <span class="rev-badge ${badgeCls}">${badgeTxt}</span>
+        <span class="rev-num">#${i+1}</span>
+        <span class="rev-q">${q.q.replace(/\n/g," ").replace(/<[^>]+>/g,"").slice(0,70)}</span>
+        <svg class="rev-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+      </div>
+      <div class="rev-body">
+        <p class="qtext">${renderQText(q.q)}</p>
+        <div class="opts">${optsHtml}</div>
+        <div class="expl"><b>Pembahasan:</b> ${q.expl}</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  return `
+    <div class="scorewrap">
+      ${scoreWheel(pct)}
+      <div class="score-meta">
+        <h2>Hasil Simulasi</h2>
+        <p><span class="score-big">${correctCount}</span> / ${graded.length} benar &middot; kategori: ${state.activeCat==="all"?"Semua Soal":fmtCat(state.activeCat)}</p>
+        ${ungraded.length ? `<p class="noimg-note">${ungraded.length} soal berbasis gambar/tabel tidak disertakan dalam penilaian otomatis.</p>` : ""}
+      </div>
+    </div>
+    <div class="catbars">
+      <h3>Rincian per Kategori</h3>
+      ${catRows}
+    </div>
+    <div class="row" style="margin-bottom:18px;">
+      <button class="btn btn-primary" id="restartBtn">Ulangi / Pilih Kategori Lain</button>
+      <button class="btn btn-ghost" id="materiBtn">Buka Materi</button>
+    </div>
+    <div class="cats">${filterChips}</div>
+    <div class="review-list">${items || '<p class="lede">Tidak ada soal pada filter ini.</p>'}</div>
+  `;
+}
+
+function attachResultEvents(){
+  const rb = document.getElementById("restartBtn");
+  if(rb) rb.addEventListener("click", restart);
+  const mb = document.getElementById("materiBtn");
+  if(mb) mb.addEventListener("click", ()=>{ state.tab="materi"; render(); });
+  document.querySelectorAll("[data-rf]").forEach(c=>{
+    c.addEventListener("click", ()=>{ state.reviewFilter = c.dataset.rf; render(); });
+  });
+  document.querySelectorAll("[data-toggle]").forEach(h=>{
+    h.addEventListener("click", ()=>{
+      const qi = h.dataset.toggle;
+      state.reviewOpen[qi] = !state.reviewOpen[qi];
+      render();
+    });
+  });
+}
+
+function renderMateri(){
+  const cards = MATERI.map(m=>`<div class="mcard"><h3>${m.title}</h3><div class="tablewrap">${m.body}</div></div>`).join("");
+  return `<p class="lede">Ringkasan kaidah tajwid, asmaul husna, fikih ibadah, dan sirah yang paling sering diujikan dalam simulasi MAPSI.</p><div class="materi-grid">${cards}</div>`;
+}
+
+/* ---------- tabs & theme ---------- */
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click", ()=>{ state.tab = t.dataset.tab; render(); });
+});
+
+function applyTheme(t){
+  const root = document.documentElement;
+  if(t){ root.setAttribute("data-theme", t); } else { root.removeAttribute("data-theme"); }
+  try{ localStorage.setItem("mihrab_theme", t||""); }catch(e){}
+}
+(function initTheme(){
+  let saved = "";
+  try{ saved = localStorage.getItem("mihrab_theme")||""; }catch(e){}
+  if(saved) applyTheme(saved);
+})();
+document.getElementById("themeBtn").addEventListener("click", ()=>{
+  const root = document.documentElement;
+  const cur = root.getAttribute("data-theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  let next;
+  if(!cur) next = prefersDark ? "light" : "dark";
+  else if(cur==="dark") next = "light";
+  else next = "dark";
+  applyTheme(next);
+});
+
+render();
+</script>
+</body>
+</html>
