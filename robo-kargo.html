@@ -89,11 +89,32 @@ h1{font-family:Archivo,system-ui,sans-serif;font-weight:800;font-size:18px;lette
 .seg button{border:none;background:transparent;border-radius:99px;padding:5px 13px;font-size:13px;
   color:var(--ink-2);font-weight:600}
 .seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(38,87,240,.2)}
+.metabar{position:relative}
 .mapno{flex:1;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
   letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap;overflow:hidden}
 .mapno b{color:var(--ink);font-weight:600}
 
 /* ---------- panggung papan ---------- */
+/* penghitung waktu menyusun rencana */
+.timer{display:flex;align-items:center;gap:5px;flex:none;font-family:"IBM Plex Mono",monospace;
+  font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+.timer svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.timer.warn{color:var(--amber)}
+.timer.crit{color:var(--clay);animation:tpulse 1s ease-in-out infinite}
+.timer.done{color:var(--ink-2);opacity:.55;animation:none}
+@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.42}}
+@media (prefers-reduced-motion:reduce){.timer.crit{animation:none}}
+.tprog{position:absolute;left:0;bottom:-1px;height:2.5px;width:100%;background:var(--accent);
+  transform-origin:left;transition:transform .22s linear,background .3s;border-radius:0 2px 2px 0}
+.tprog.warn{background:var(--amber)}
+.tprog.crit{background:var(--clay)}
+.tprog.done{opacity:.25}
+/* layar sempit: nomor peta disembunyikan agar penghitung waktu tetap utuh */
+@media (max-width:400px){
+  .mapno{display:none}
+  .timer{margin-left:auto}
+}
+
 .play{flex:1;min-height:96px;display:flex;padding:9px 8px 5px}
 .boardwrap{flex:1;min-height:0;display:flex;flex-direction:column;
   background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:9px}
@@ -265,6 +286,46 @@ body.dock-mode .kbdrow.num{flex:.85 1 0;max-height:46px}
 .msg .who{display:block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.1em;
   text-transform:uppercase;opacity:.65;margin-bottom:1px}
 
+/* ---------- layar menu utama ---------- */
+.screen{position:fixed;inset:0;z-index:40;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:var(--bg);background-image:linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%)}
+.screen[hidden]{display:none}
+.menuin{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:13px;
+  padding:max(20px,env(safe-area-inset-top)) 16px max(26px,env(safe-area-inset-bottom))}
+.mhead{display:flex;align-items:center;gap:13px}
+.mhead .mark{width:46px;height:46px;border-radius:14px}
+.mhead .mark svg{width:27px;height:27px}
+.mhead h2{margin:0;font-family:Archivo,sans-serif;font-weight:800;font-size:25px;letter-spacing:-.025em;line-height:1.05}
+.mhead p{margin:2px 0 0;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink-2)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stats div{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:11px 8px;text-align:center}
+.stats b{display:block;font-family:Archivo,sans-serif;font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
+.stats span{display:block;margin-top:4px;font-family:"IBM Plex Mono",monospace;font-size:9.5px;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2)}
+.stats .win b{color:var(--moss)}
+.mh{margin:6px 0 0;font-family:Archivo,sans-serif;font-size:12px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink-2)}
+.levels{display:flex;flex-direction:column;gap:8px}
+.lv{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:12px 13px;border-radius:13px}
+.lv .lvn{font-family:Archivo,sans-serif;font-weight:600;font-size:16px;flex:none;min-width:66px}
+.lv .lvd{flex:1;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-2);line-height:1.35}
+.lv .tick{flex:none;width:19px;height:19px;border-radius:99px;border:2px solid var(--line)}
+.lv.on{border-color:var(--accent);background:var(--accent-soft)}
+.lv.on .lvd{color:var(--accent)}
+.lv.on .tick{border-color:var(--accent);background:var(--accent);
+  box-shadow:inset 0 0 0 3px var(--accent-soft)}
+.steps{margin:0;padding-left:19px;display:flex;flex-direction:column;gap:9px;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+.steps b{color:var(--ink)}
+.steps code,.mbox code{font-family:"IBM Plex Mono",monospace;font-size:12px;background:var(--surface-2);
+  padding:2px 6px;border-radius:5px;color:var(--ink)}
+.mbox{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:13px}
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
+  padding:11px 13px;border-radius:13px;font-size:14px}
+.setrow span{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--accent);font-weight:600}
+.ghost{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.mfoot{margin:8px 0 0;text-align:center;font-size:12px;color:var(--ink-2);line-height:1.5}
+
 .rotate{position:fixed;inset:0;z-index:60;display:none;place-items:center;text-align:center;
   padding:24px;background:var(--bg);color:var(--ink)}
 .rotate svg{width:46px;height:46px;stroke:var(--accent);fill:none;stroke-width:1.6;
@@ -285,8 +346,8 @@ body.dock-mode .kbdrow.num{flex:.85 1 0;max-height:46px}
       <h1>Robo Kargo</h1>
       <span class="streak" id="streak">beruntun <b>0</b> · rekor 0</span>
     </div>
-    <button class="iconbtn" id="btnHelp" aria-label="Aturan dan kamus perintah" title="Aturan &amp; kamus">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.2 2.9c-.5.2-.8.7-.8 1.3v.4"/><path d="M12 17.2h.01"/></svg>
+    <button class="iconbtn" id="btnMenu" aria-label="Menu utama dan aturan main" title="Menu &amp; aturan">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
     </button>
     <button class="iconbtn" id="btnSound" aria-label="Matikan atau nyalakan suara dan getaran" title="Suara &amp; getar">
       <svg id="icSoundOn" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
@@ -305,9 +366,14 @@ body.dock-mode .kbdrow.num{flex:.85 1 0;max-height:46px}
       <button data-d="sulit">Sulit</button>
     </div>
     <span class="mapno" id="mapNo"></span>
+    <span class="timer" id="timer" aria-label="Sisa waktu menyusun rencana">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9.5V13l2.4 1.6M9.5 2.5h5"/></svg>
+      <b id="timerTxt">0:00</b>
+    </span>
     <button class="iconbtn" id="btnNew" aria-label="Peta baru" title="Peta baru">
       <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-.6 4"/><path d="M20 4v6h-6"/></svg>
     </button>
+    <i class="tprog" id="tprog"></i>
   </div>
 
   <main class="play">
@@ -376,23 +442,67 @@ body.dock-mode .kbdrow.num{flex:.85 1 0;max-height:46px}
   </div>
 </div>
 
-<div class="overlay" id="help" hidden>
-  <div class="card">
-    <h3>Aturan main</h3>
-    <p class="rulebox" style="margin:0 0 12px">Kamu hanya boleh mengirim <b>satu pesan</b>. ROBO menjalankannya sampai habis, lalu misi dinilai: <b>berhasil</b> atau <b>gagal</b>. Gagal berarti peta baru — jalurnya tidak akan sama lagi.</p>
-    <p class="rulebox" style="margin:0 0 16px">ROBO tidak pernah berhenti sendiri. Kata yang tidak ia mengerti tetap membuatnya <b>melangkah satu petak</b> ke arah hadap. Dan kalau perintahmu habis sebelum sampai dok, ia <b>terus melaju</b> ke arah terakhir sampai menabrak rak, menghantam tepi gudang, atau kehabisan daya.</p>
-    <h3>Kamus perintah</h3>
-    <p style="margin:0 0 10px">Semua perintah yang dimengerti ROBO, beserta biaya baterainya.</p>
-    <ul class="dict">
-      <li><code>maju 3</code><span class="cost">3 baterai</span><span>3 petak ke arah hadap</span></li>
-      <li><code>mundur 2</code><span class="cost">2 baterai</span><span>tanpa berputar</span></li>
-      <li><code>belok kanan</code> / <code>belok kiri</code><span class="cost">1 baterai</span></li>
-      <li><code>putar balik</code><span class="cost">2 baterai</span></li>
-      <li><code>hadap utara</code><span class="cost">1&ndash;2</span><span>juga: selatan, timur, barat</span></li>
-      <li><code>ambil</code> / <code>taruh</code><span class="cost">gratis</span></li>
-    </ul>
-    <p class="rulebox" style="margin:12px 0 16px">Pisahkan langkah dengan <b>lalu</b> atau koma. Papan kata sudah menyisipkan koma sendiri.</p>
-    <button class="cta btn-primary" id="helpClose">Tutup</button>
+<div class="screen" id="menu" hidden>
+  <div class="menuin">
+    <div class="mhead">
+      <div class="mark"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01M9.5 17.5h5"/></svg></div>
+      <div>
+        <h2>Robo Kargo</h2>
+        <p>Satu perintah. Satu kesempatan.</p>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div><b id="stMisi">0</b><span>misi</span></div>
+      <div class="win"><b id="stWin">0</b><span>berhasil</span></div>
+      <div><b id="stBest">0</b><span>rekor beruntun</span></div>
+    </div>
+
+    <h3 class="mh">Pilih tingkat</h3>
+    <div class="levels" id="mLevels">
+      <button class="lv" data-d="mudah" type="button">
+        <span class="lvn">Mudah</span><span class="lvd">7×5 petak · tanpa paket · 60 detik menyusun</span><i class="tick"></i>
+      </button>
+      <button class="lv" data-d="sedang" type="button">
+        <span class="lvn">Sedang</span><span class="lvd">8×6 petak · 1 paket · 90 detik menyusun</span><i class="tick"></i>
+      </button>
+      <button class="lv" data-d="sulit" type="button">
+        <span class="lvn">Sulit</span><span class="lvd">9×7 petak · 2 paket · 120 detik menyusun</span><i class="tick"></i>
+      </button>
+    </div>
+
+    <button class="cta btn-primary" id="mStart" type="button">Mulai misi baru</button>
+    <button class="cta ghost" id="mResume" type="button">Lanjutkan peta ini</button>
+
+    <h3 class="mh">Cara main</h3>
+    <ol class="steps">
+      <li><b>Baca papan dulu.</b> Nomor kolom ada di atas, nomor baris di kiri. ROBO menghadap ke arah moncongnya, <b>DOK</b> adalah tujuan, dan kotak jingga adalah paket yang harus diangkut lebih dulu.</li>
+      <li><b>Susun satu pesan utuh.</b> Ketuk kata di papan kata — koma antar langkah disisipkan sendiri. Contoh: <code>maju 3, belok kanan, maju 2, ambil</code></li>
+      <li><b>Kirim sekali saja.</b> Tidak ada perintah kedua dan tidak bisa ditarik. Gagal berarti peta baru dengan jalur yang berbeda.</li>
+      <li><b>Baterai adalah anggaranmu.</b> Satu petak = 1 baterai, satu kali belok = 1, putar balik = 2. Mengangkat dan menurunkan paket gratis.</li>
+      <li><b>ROBO tidak pernah berhenti sendiri.</b> Kata yang tidak ia mengerti tetap membuatnya melangkah satu petak. Kalau perintahmu habis sebelum sampai dok, ia melaju terus sampai menabrak rak, menghantam tepi gudang, atau kehabisan daya.</li>
+      <li><b>Waktu menyusun terbatas.</b> Kalau habis, rencana yang sudah tertulis langsung dijalankan apa adanya. Penghitung berhenti saat menu ini terbuka.</li>
+    </ol>
+
+    <h3 class="mh">Kamus perintah</h3>
+    <div class="mbox">
+      <ul class="dict">
+        <li><code>maju 3</code><span class="cost">3 baterai</span><span>3 petak ke arah hadap</span></li>
+        <li><code>mundur 2</code><span class="cost">2 baterai</span><span>tanpa berputar</span></li>
+        <li><code>belok kanan</code> / <code>belok kiri</code><span class="cost">1 baterai</span></li>
+        <li><code>putar balik</code><span class="cost">2 baterai</span></li>
+        <li><code>hadap utara</code><span class="cost">1&ndash;2</span><span>juga: selatan, timur, barat</span></li>
+        <li><code>ambil</code> / <code>taruh</code><span class="cost">gratis</span></li>
+        <li><code>ulangi 3 kali</code><span class="cost">&mdash;</span><span>mengulang seluruh rencana</span></li>
+      </ul>
+      <p class="rulebox" style="margin:11px 0 0">Butuh kata di luar daftar? Tombol <code>abc</code> membuka papan huruf lengkap.</p>
+    </div>
+
+    <h3 class="mh">Pengaturan</h3>
+    <button class="setrow" id="setTheme" type="button">Tema tampilan <span id="setThemeV">Terang</span></button>
+    <button class="setrow" id="setSfx" type="button">Suara &amp; getar <span id="setSfxV">Nyala</span></button>
+
+    <p class="mfoot">Robot hanya menjalankan apa yang tertulis — bukan apa yang kamu maksud.</p>
   </div>
 </div>
 
@@ -408,9 +518,9 @@ if(!document.querySelector('meta[name="viewport"]')){
 }
 const DIRS=[{n:"utara",dx:0,dy:-1},{n:"timur",dx:1,dy:0},{n:"selatan",dx:0,dy:1},{n:"barat",dx:-1,dy:0}];
 const DIFF={
- mudah:{W:7,H:5,dens:.12,packs:0,slack:3,band:[5,13],label:"MUDAH"},
- sedang:{W:8,H:6,dens:.19,packs:1,slack:2,band:[12,24],label:"SEDANG"},
- sulit:{W:9,H:7,dens:.25,packs:2,slack:2,band:[20,31],label:"SULIT"}
+ mudah:{W:7,H:5,dens:.12,packs:0,slack:3,band:[5,13],label:"MUDAH",time:60},
+ sedang:{W:8,H:6,dens:.19,packs:1,slack:2,band:[12,24],label:"SEDANG",time:90},
+ sulit:{W:9,H:7,dens:.25,packs:2,slack:2,band:[20,31],label:"SULIT",time:120}
 };
 const NUM={satu:1,dua:2,tiga:3,empat:4,lima:5,enam:6,tujuh:7,delapan:8,sembilan:9,sepuluh:10,se:1,selangkah:1,sepetak:1};
 const VAGUE=["sedikit","agak","dikit","beberapa","sana","situ","dekat","jauh","terserah","pokoknya","secukupnya","banyak","seadanya"];
@@ -419,7 +529,7 @@ const $=id=>document.getElementById(id);
 const els={cells:$("cells"),board:$("board"),log:$("log"),input:$("input"),form:$("form"),send:$("send"),
  mapNo:$("mapNo"),axisX:$("axisX"),axisY:$("axisY"),pips:$("pips"),battNum:$("battNum"),
  streak:$("streak"),readout:$("readout"),logline:$("logline"),loglineText:$("loglineText"),
- sheet:$("sheet"),btnWrite:$("btnWrite"),gridframe:document.querySelector(".gridframe")};
+ sheet:$("sheet"),btnWrite:$("btnWrite"),timer:$("timer"),timerTxt:$("timerTxt"),tprog:$("tprog"),gridframe:document.querySelector(".gridframe")};
 const COARSE=window.matchMedia("(pointer:coarse)");
 
 /* ---------- papan mengisi ruang yang tersedia ---------- */
@@ -518,7 +628,16 @@ const CANVIB=typeof navigator!=="undefined"&&typeof navigator.vibrate==="functio
 function haptic(p){if(!sfxOn||!CANVIB)return;try{navigator.vibrate(p);}catch(e){}}
 
 let diff="mudah",S=null,busy=false,sent=false,mapNo=0,streak=0,best=0;
-try{best=parseInt(localStorage.getItem("robokargo_best")||"0",10)||0;}catch(e){}
+let stMisi=0,stWin=0;
+try{
+ best=parseInt(localStorage.getItem("robokargo_best")||"0",10)||0;
+ stMisi=parseInt(localStorage.getItem("robokargo_misi")||"0",10)||0;
+ stWin=parseInt(localStorage.getItem("robokargo_win")||"0",10)||0;
+}catch(e){}
+function saveStats(){
+ try{localStorage.setItem("robokargo_misi",String(stMisi));localStorage.setItem("robokargo_win",String(stWin));}catch(e){}
+ $("stMisi").textContent=stMisi;$("stWin").textContent=stWin;$("stBest").textContent=best;
+}
 
 /* ---------- solver ---------- */
 function bfs(W,H,walls,sx,sy,sdir){
@@ -788,15 +907,15 @@ function atGoal(){
  return false;
 }
 function win(){
- S.over=true;streak++;sfx("win");haptic([25,70,25,70,70]);
+ S.over=true;streak++;stMisi++;stWin++;sfx("win");haptic([25,70,25,70,70]);
  if(streak>best){best=streak;try{localStorage.setItem("robokargo_best",String(best));}catch(e){}}
- updStreak();
+ updStreak();saveStats();
  say("Kargo diterima di dok. Misi berhasil.","bot ok");
  show(true,`Sisa baterai ${S.batt} dari ${S.battMax}. Jalur terpendek butuh ${S.opt}.`,
   S.batt>=S.battMax-S.opt?"Rencanamu efisien. Naikkan tingkat kesulitan kalau sudah terasa mudah.":"Berhasil, tapi ada langkah yang terbuang. Rencanakan jalur sebelum mengetik.");
 }
 function fail(reason){
- if(S.over)return;S.over=true;streak=0;sfx("fail");haptic(170);updStreak();
+ if(S.over)return;S.over=true;streak=0;stMisi++;sfx("fail");haptic(170);updStreak();saveStats();
  say(reason,"bot err");
  show(false,reason,`Jalur terpendek di peta itu butuh ${S.opt} baterai; kamu diberi ${S.battMax}. Peta berikutnya akan berbeda — baca nomor kolom dan baris dulu, hitung jalurnya, baru ketik.`);
 }
@@ -808,6 +927,40 @@ function show(ok,sub,note){
  $("overlay").hidden=false;
 }
 function updStreak(){els.streak.innerHTML=`beruntun <b>${streak}</b> · rekor ${best}`;}
+
+/* ---------- penghitung waktu menyusun ---------- */
+let tLeft=0,tTotal=0,tInt=0,tLast=0,tWarn=0;
+function fmtT(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function tPaint(){
+ const frac=tTotal?Math.max(0,tLeft/tTotal):0;
+ els.timerTxt.textContent=fmtT(tLeft);
+ els.tprog.style.transform="scaleX("+frac+")";
+ const cls=sent?"done":frac<=.12?"crit":frac<=.3?"warn":"";
+ els.timer.className="timer"+(cls?" "+cls:"");
+ els.tprog.className="tprog"+(cls?" "+cls:"");
+}
+function tStop(){if(tInt){clearInterval(tInt);tInt=0;}}
+function tStart(sec){
+ tStop();tTotal=sec*1000;tLeft=tTotal;tWarn=0;tLast=performance.now();tPaint();
+ tInt=setInterval(tick,200);
+}
+function tick(){
+ const now=performance.now();
+ const dt=Math.min(now-tLast,250);   /* dibatasi: pindah tab = waktu ikut berhenti */
+ tLast=now;
+ if(sent||busy||!S||S.over){tStop();tPaint();return;}
+ const pause=document.hidden||!$("menu").hidden||!$("logSheet").hidden||!$("overlay").hidden;
+ if(!pause)tLeft-=dt;
+ if(tLeft<=10000&&tWarn<1&&!pause){tWarn=1;sfx("low");haptic(25);}
+ if(tLeft<=0){tLeft=0;tStop();tPaint();timeUp();return;}
+ tPaint();
+}
+function timeUp(){
+ if(sent||busy||!S||S.over)return;
+ sfx("err");haptic([70,60,70]);
+ say("Waktu habis. ROBO berangkat dengan rencana apa adanya.","bot err");
+ submitPlan(null,true);
+}
 
 /* ---------- lembar perintah ---------- */
 function openSheet(){
@@ -844,16 +997,18 @@ function newMap(){
  sfx("map");
  sent=false;els.input.disabled=false;els.send.disabled=false;els.input.value="";
  setCta("Tulis perintah",false);closeSheet();$("logSheet").hidden=true;
+ tStart(DIFF[diff].time);
 }
-async function submitPlan(e){
+async function submitPlan(e,force){
  if(e)e.preventDefault();
  const v=els.input.value.trim();
  if(busy||sent)return;
- if(!v){sfx("err");haptic(30);say("Belum ada perintah. Susun rencanamu dengan papan kata di bawah.","bot err");return;}
+ if(!v&&!force){sfx("err");haptic(30);say("Belum ada perintah. Susun rencanamu dengan papan kata di bawah.","bot err");return;}
  sent=true;busy=true;sfx("send");haptic(14);
+ tStop();tPaint();
  els.input.disabled=true;els.send.disabled=true;
  closeSheet();setCta("ROBO sedang berjalan…",true);
- say(v,"me");els.input.value="";
+ say(v||"(tidak sempat menulis perintah)","me");els.input.value="";
  await run(parse(v));
  if(!S.over)await drift();
  busy=false;
@@ -870,11 +1025,41 @@ $("seg").addEventListener("click",e=>{
 });
 els.cells.addEventListener("click",e=>{const c=e.target.closest(".cell");if(c)peek(c);});
 els.cells.addEventListener("mousemove",e=>{const c=e.target.closest(".cell");if(c&&!COARSE.matches)peek(c);});
-$("btnTheme").onclick=()=>{theme=theme==="dark"?"light":"dark";applyTheme();sfx("send");};
-$("btnSound").onclick=()=>{sfxOn=!sfxOn;applySfx();if(sfxOn){sfx("take");haptic(15);}};
-$("btnHelp").onclick=()=>{$("help").hidden=false;};
-$("helpClose").onclick=()=>{$("help").hidden=true;};
-$("help").addEventListener("click",e=>{if(e.target.id==="help")$("help").hidden=true;});
+$("btnTheme").onclick=()=>{theme=theme==="dark"?"light":"dark";applyTheme();paintMenu();sfx("send");};
+$("btnSound").onclick=()=>{sfxOn=!sfxOn;applySfx();paintMenu();if(sfxOn){sfx("take");haptic(15);}};
+/* ---------- menu utama ---------- */
+let menuFirst=true;
+function paintMenu(){
+ [...$("mLevels").children].forEach(b=>b.classList.toggle("on",b.dataset.d===diff));
+ $("setThemeV").textContent=theme==="dark"?"Gelap":"Terang";
+ $("setSfxV").textContent=sfxOn?"Nyala":"Mati";
+ const running=!!S&&!S.over;
+ if(menuFirst){
+  $("mStart").textContent="Mulai main";
+  $("mResume").hidden=true;
+ }else{
+  $("mStart").textContent=running?"Ganti peta baru":"Mulai misi baru";
+  $("mResume").hidden=!running;
+ }
+ saveStats();
+}
+function openMenu(){paintMenu();$("menu").hidden=false;$("menu").scrollTop=0;haptic(8);}
+function closeMenu(){$("menu").hidden=true;}
+$("btnMenu").onclick=openMenu;
+$("mResume").onclick=()=>{menuFirst=false;closeMenu();haptic(8);};
+$("mStart").onclick=()=>{
+ const first=menuFirst;menuFirst=false;closeMenu();
+ if(first&&S&&!S.over){tStart(DIFF[diff].time);return;}   /* peta awal dipakai apa adanya */
+ $("overlay").hidden=true;newMap();
+};
+$("mLevels").addEventListener("click",e=>{
+ const b=e.target.closest(".lv");if(!b||busy)return;
+ diff=b.dataset.d;streak=0;updStreak();
+ [...$("seg").children].forEach(c=>c.classList.toggle("on",c.dataset.d===diff));
+ paintMenu();haptic(10);
+});
+$("setTheme").onclick=()=>{theme=theme==="dark"?"light":"dark";applyTheme();paintMenu();sfx("send");haptic(8);};
+$("setSfx").onclick=()=>{sfxOn=!sfxOn;applySfx();paintMenu();if(sfxOn){sfx("take");haptic(15);}};
 $("btnNew").onclick=()=>{if(busy)return;$("overlay").hidden=true;newMap();};
 $("oNext").onclick=()=>{$("overlay").hidden=true;newMap();};
 
@@ -972,6 +1157,7 @@ function buildKbd(){
 buildKbd();
 
 applyTheme();applySfx();updStreak();newMap();
+paintMenu();$("menu").hidden=false;
 setTimeout(chooseMode,60);
 })();
 </script>
