@@ -168,8 +168,15 @@
 
   nav.tabs{
     display:flex;
+    flex-wrap:wrap;
     gap:6px;
     margin-top:20px;
+  }
+  .tj-subnav{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-bottom:22px;
   }
   .tab{
     border:1px solid var(--line);
@@ -213,6 +220,61 @@
     color:var(--ink-soft);
     margin:0 0 22px;
     font-style:italic;
+  }
+  .bankslider{
+    background:var(--parchment-2);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 18px;
+    margin:0 0 22px;
+  }
+  .bankslider label{
+    display:block;
+    font-size:.82rem;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .bankslider label b{
+    color:var(--teal);
+    font-family:Amiri, serif;
+    font-size:1.05rem;
+  }
+  .bankslider input[type="range"]{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:6px;
+    border-radius:99px;
+    background:var(--parchment-3);
+    outline:none;
+    cursor:pointer;
+  }
+  .bankslider input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    appearance:none;
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    background:var(--teal);
+    border:3px solid var(--parchment);
+    box-shadow:0 0 0 1px var(--teal);
+    cursor:pointer;
+  }
+  .bankslider input[type="range"]::-moz-range-thumb{
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    background:var(--teal);
+    border:3px solid var(--parchment);
+    box-shadow:0 0 0 1px var(--teal);
+    cursor:pointer;
+  }
+  .bankslider-minmax{
+    display:flex;
+    justify-content:space-between;
+    font-size:.72rem;
+    color:var(--ink-soft);
+    margin-top:6px;
   }
   .cats{
     display:flex;
@@ -580,6 +642,7 @@
     <nav class="tabs">
       <button class="tab" data-tab="home">Beranda</button>
       <button class="tab" data-tab="materi">Materi</button>
+      <button class="tab" data-tab="tajwid">Khusus Tajwid</button>
     </nav>
   </header>
 
@@ -753,6 +816,349 @@ const HOTS_QUESTIONS = [
 ];
 
 /* =========================================================
+   BANK_QUESTIONS — Bank Soal (Latihan Fleksibel)
+   20 soal per kategori (120 total) — dipakai mode "Latihan Fleksibel"
+   dengan jumlah soal yang bisa dipilih 10-50 lewat slider.
+========================================================= */
+const BANK_QUESTIONS = [
+{cat:"quran",type:"mc",q:`Al-Qur'an memiliki nama lain "Al-Furqan" yang artinya&hellip;`,opts:["Pembeda antara yang hak dan batil","Obat penyembuh hati","Petunjuk bagi manusia","Peringatan bagi orang yang lalai"],correct:0,expl:`Al-Furqan artinya "pembeda", karena Al-Qur'an membedakan antara perkara yang hak (benar) dan yang batil (salah).`},
+{cat:"quran",type:"mc",q:`Wahyu pertama yang diturunkan kepada Nabi Muhammad Saw. adalah lima ayat pertama surah&hellip;`,opts:["Al-Fatihah","Al-'Alaq","Al-Muddassir","An-Nas"],correct:1,expl:`Wahyu pertama turun di Gua Hira berupa QS Al-'Alaq ayat 1&ndash;5, diawali dengan perintah "Iqra" (bacalah).`},
+{cat:"quran",type:"mc",q:`Peringatan turunnya Al-Qur'an (Nuzulul Qur'an) diperingati setiap tanggal&hellip;`,opts:["1 Syawal","10 Zulhijah","17 Ramadan","12 Rabiul Awal"],correct:2,expl:`Nuzulul Qur'an diperingati setiap tanggal 17 Ramadan, memperingati turunnya wahyu pertama kepada Nabi Muhammad Saw.`},
+{cat:"quran",type:"mc",q:`Malaikat yang bertugas menyampaikan wahyu Al-Qur'an kepada para nabi adalah&hellip;`,opts:["Mikail","Israfil","Jibril","Izrail"],correct:2,expl:`Malaikat Jibril bertugas menyampaikan wahyu Allah kepada para nabi dan rasul, termasuk Al-Qur'an kepada Nabi Muhammad Saw.`},
+{cat:"quran",type:"mc",q:`Al-Qur'an terdiri atas&hellip;`,opts:["30 juz dan 114 surah","20 juz dan 100 surah","30 juz dan 100 surah","25 juz dan 114 surah"],correct:0,expl:`Al-Qur'an terdiri atas 30 juz dan 114 surah, mulai dari Al-Fatihah hingga An-Nas.`},
+{cat:"quran",type:"mc",q:`Surah Al-Fatihah disebut juga "Ummul Kitab" (induk Al-Qur'an) karena&hellip;`,opts:["Merupakan surah terpanjang dalam Al-Qur'an","Diturunkan paling akhir","Kandungannya merangkum pokok-pokok isi Al-Qur'an","Hanya dibaca pada bulan Ramadan"],correct:2,expl:`Al-Fatihah disebut Ummul Kitab karena kandungannya merangkum pokok-pokok ajaran Al-Qur'an: tauhid, ibadah, kisah, hukum, dan janji-ancaman.`},
+{cat:"quran",type:"mc",q:`Adab yang dianjurkan sebelum membaca Al-Qur'an adalah&hellip;`,opts:["Membaca dengan suara sekeras mungkin di tempat ramai","Berwudu, menghadap kiblat, dan membaca ta'awuz","Membaca sambil berbicara dengan orang lain","Membaca tanpa memperhatikan tajwid"],correct:1,expl:`Di antara adab membaca Al-Qur'an adalah berada dalam keadaan suci (berwudu), menghadap kiblat jika memungkinkan, dan membaca ta'awuz (isti'adzah) sebelum memulai.`},
+{cat:"quran",type:"mc",q:`Surah Al-Ikhlas dalam Al-Qur'an berisi pokok ajaran tentang&hellip;`,opts:["Kisah para nabi","Ketauhidan/keesaan Allah","Hukum waris","Adab bertetangga"],correct:1,expl:`Surah Al-Ikhlas berisi penegasan tentang keesaan Allah (tauhid), bahwa Allah Maha Esa, tempat bergantung, tidak beranak dan tidak diperanakkan.`},
+{cat:"quran",type:"mc",q:`Rasulullah Saw. menganjurkan umatnya membaca surah tertentu setiap hari Jumat, yaitu&hellip;`,opts:["Surah Yasin","Surah Al-Kahfi","Surah Ar-Rahman","Surah Al-Waqi'ah"],correct:1,expl:`Rasulullah Saw. menganjurkan membaca Surah Al-Kahfi setiap hari Jumat karena keutamaannya sebagai cahaya/penerang bagi pembacanya.`},
+{cat:"quran",type:"mc",q:`Surah Al-Kautsar menjelaskan tentang&hellip;`,opts:["Nikmat yang banyak dari Allah kepada Nabi Muhammad Saw.","Kisah kaum 'Ad yang durhaka","Perintah berpuasa","Kewajiban berzakat"],correct:0,expl:`Surah Al-Kautsar berisi kabar gembira bahwa Allah memberikan nikmat yang sangat banyak (al-kautsar) kepada Nabi Muhammad Saw.`},
+{cat:"quran",type:"mc",q:`Ciri umum surah Makkiyah (diturunkan sebelum hijrah) adalah&hellip;`,opts:["Ayat-ayatnya panjang dan membahas hukum muamalah","Umumnya pendek-pendek dan berisi ajakan tauhid serta akhlak","Selalu diawali dengan kalimat &ldquo;Yaa ayyuhal ladziina aamanu&rdquo;","Hanya diturunkan di Madinah"],correct:1,expl:`Surah Makkiyah umumnya berisi ayat-ayat pendek yang berbicara tentang akidah/tauhid, kisah umat terdahulu, dan akhlak, karena diturunkan pada masa awal dakwah di Mekkah.`},
+{cat:"quran",type:"mc",q:`Salah satu nama lain Al-Qur'an adalah "Asy-Syifa" yang berarti&hellip;`,opts:["Cahaya","Obat/penyembuh","Pembeda","Peringatan"],correct:1,expl:`Asy-Syifa artinya obat atau penyembuh, karena Al-Qur'an menjadi penyembuh bagi penyakit hati dan petunjuk bagi kehidupan manusia.`},
+{cat:"quran",type:"mc",q:`Surah An-Nas mengajarkan umat Islam untuk&hellip;`,opts:["Bersyukur atas nikmat harta","Memohon perlindungan dari bisikan/godaan setan","Bersabar menghadapi ujian","Menjaga silaturahmi"],correct:1,expl:`Surah An-Nas berisi permohonan perlindungan kepada Allah dari kejahatan bisikan setan yang bersembunyi (waswas al-khannas), baik dari golongan jin maupun manusia.`},
+{cat:"quran",type:"mc",q:`Surah Al-Falaq mengajarkan umat Islam memohon perlindungan dari&hellip;`,opts:["Kejahatan makhluk, kegelapan malam, sihir, dan hasad/dengki","Kemiskinan dan kelaparan","Kemalasan dalam beribadah","Kesombongan diri sendiri"],correct:0,expl:`Surah Al-Falaq berisi permohonan perlindungan dari kejahatan makhluk, gelap gulita malam, tukang sihir, dan orang yang dengki.`},
+{cat:"quran",type:"mc",q:`Adab yang dianjurkan setelah selesai membaca Al-Qur'an adalah&hellip;`,opts:["Melempar mushaf sembarangan","Menutup mushaf dengan baik dan menyimpannya di tempat yang layak","Membiarkan mushaf terbuka di lantai","Meletakkan benda lain di atas mushaf"],correct:1,expl:`Setelah membaca Al-Qur'an, dianjurkan menutup mushaf dengan baik dan menyimpannya di tempat yang bersih dan terhormat sebagai bentuk pengagungan terhadap kalam Allah.`},
+{cat:"quran",type:"mc",q:`Orang yang hafal Al-Qur'an disebut&hellip;`,opts:["Muazin","Hafiz/Hafizah","Khatib","Qari saja tanpa hafalan"],correct:1,expl:`Orang yang menghafal Al-Qur'an disebut hafiz (untuk laki-laki) atau hafizah (untuk perempuan), dan mereka mendapat kedudukan mulia sebagai "keluarga Allah" (ahlul Qur'an).`},
+{cat:"quran",type:"mc",q:`Kalimat "Bismillahirrahmanirrahim" dibaca sebelum memulai membaca Al-Qur'an, kecuali pada surah&hellip;`,opts:["Al-Baqarah","At-Taubah","Yasin","Al-Ikhlas"],correct:1,expl:`Surah At-Taubah adalah satu-satunya surah dalam Al-Qur'an yang tidak diawali dengan basmalah, karena disebutkan berisi nuansa peringatan/ancaman yang berbeda dari surah lain.`},
+{cat:"quran",type:"mc",q:`Ilmu yang mempelajari cara membaca Al-Qur'an dengan baik dan benar disebut ilmu&hellip;`,opts:["Fikih","Tajwid","Tafsir","Hadis"],correct:1,expl:`Ilmu tajwid adalah ilmu yang mempelajari cara membaca huruf-huruf Al-Qur'an dengan baik dan benar sesuai kaidah makhraj dan sifat huruf.`},
+{cat:"quran",type:"mc",q:`Hadis yang diriwayatkan dari Nabi Muhammad Saw. menyebutkan bahwa sebaik-baik manusia adalah&hellip;`,opts:["Yang paling banyak hartanya","Yang belajar Al-Qur'an dan mengajarkannya","Yang paling tinggi jabatannya","Yang paling terkenal"],correct:1,expl:`Nabi Muhammad Saw. bersabda, &ldquo;Sebaik-baik kalian adalah yang belajar Al-Qur'an dan mengajarkannya&rdquo; (HR. Bukhari), menunjukkan keutamaan mempelajari dan mengajarkan Al-Qur'an.`},
+{cat:"quran",type:"mc",q:`Surah dalam Al-Qur'an yang menceritakan kisah Nabi Yusuf a.s. secara lengkap dalam satu surah adalah&hellip;`,opts:["Surah Yusuf","Surah Hud","Surah Yunus","Surah Ibrahim"],correct:0,expl:`Surah Yusuf adalah satu-satunya surah dalam Al-Qur'an yang menceritakan kisah seorang nabi (Nabi Yusuf a.s.) secara utuh dan berurutan dalam satu surah.`},
+
+{cat:"tajwid",type:"mc",q:`Apabila nun sukun atau tanwin bertemu dengan huruf ب, maka hukum bacaannya disebut&hellip;`,opts:["Idgham Bigunnah","Iqlab","Ikhfa","Izhar Halqi"],correct:1,expl:`Nun sukun/tanwin yang bertemu huruf ب dibaca Iqlab, yaitu bunyi nun/tanwin diganti menjadi bunyi mim disertai dengung.`},
+{cat:"tajwid",type:"mc",q:`Mim sukun yang bertemu dengan huruf mim disebut hukum bacaan&hellip;`,opts:["Idgham Mimi","Izhar Syafawi","Ikhfa Syafawi","Iqlab"],correct:0,expl:`Mim sukun bertemu huruf mim dibaca Idgham Mimi (Idgham Mitslain), yaitu melebur dengan dengung.`},
+{cat:"tajwid",type:"mc",q:`Mim sukun yang bertemu huruf hijaiah selain mim dan ba dibaca dengan jelas. Hukum bacaan ini disebut&hellip;`,opts:["Ikhfa Syafawi","Izhar Syafawi","Idgham Mimi","Qalqalah"],correct:1,expl:`Mim sukun bertemu huruf hijaiah selain mim (م) dan ba (ب) dibaca jelas tanpa dengung, disebut Izhar Syafawi.`},
+{cat:"tajwid",type:"mc",q:`Huruf-huruf qalqalah ada lima, yaitu&hellip;`,opts:["ق ط ب ج د","ب ت ث ج ح","ء ه ع ح غ","م ن و ي"],correct:0,expl:`Huruf qalqalah ada lima: ق ط ب ج د, biasa dihafalkan dengan lafal &ldquo;Qatbu Jadin&rdquo;.`},
+{cat:"tajwid",type:"mc",q:`Alif lam (ال) yang bertemu huruf-huruf syamsiyah dibaca dengan cara&hellip;`,opts:["Jelas, sesuai bunyi lam","Melebur ke huruf setelahnya (lamnya tidak dibaca)","Berdengung panjang","Dibaca samar-samar"],correct:1,expl:`Alif lam syamsiyah dibaca dengan meleburkan bunyi lam ke huruf setelahnya, sehingga lam tidak berbunyi (idgham), contoh: الشَّمْس.`},
+{cat:"tajwid",type:"mc",q:`Alif lam (ال) yang bertemu huruf-huruf qamariyah dibaca dengan cara&hellip;`,opts:["Dibaca jelas (izhar), lam tetap berbunyi","Melebur ke huruf setelahnya","Dengung panjang 2 harakat","Tidak dibaca sama sekali"],correct:0,expl:`Alif lam qamariyah dibaca jelas (izhar qamariyah), bunyi lam tetap terdengar, contoh: الْقَمَر.`},
+{cat:"tajwid",type:"mc",q:`Mad Tabi'i (mad asli) dibaca panjang&hellip;`,opts:["1 harakat","2 harakat","4 harakat","6 harakat"],correct:1,expl:`Mad Tabi'i dibaca panjang 2 harakat (setara 1 alif), terjadi ketika ada alif, wau sukun, atau ya sukun sesudah harakat yang sesuai.`},
+{cat:"tajwid",type:"mc",q:`Ghunnah dalam ilmu tajwid berarti&hellip;`,opts:["Berhenti sejenak","Dengung","Membaca cepat","Memantulkan bunyi huruf"],correct:1,expl:`Ghunnah artinya dengung, yaitu suara yang keluar dari rongga hidung, terjadi terutama pada huruf nun dan mim bertasydid atau pada bacaan idgham bigunnah.`},
+{cat:"tajwid",type:"mc",q:`Nun sukun atau tanwin yang bertemu salah satu huruf ي ن م و dibaca&hellip;`,opts:["Izhar Halqi","Idgham Bigunnah","Idgham Bilagunnah","Ikhfa"],correct:1,expl:`Nun sukun/tanwin bertemu salah satu huruf ي ن م و dibaca Idgham Bigunnah, yaitu melebur disertai dengung.`},
+{cat:"tajwid",type:"mc",q:`Nun sukun atau tanwin yang bertemu huruf ل atau ر dibaca&hellip;`,opts:["Idgham Bigunnah","Idgham Bilagunnah","Iqlab","Ikhfa"],correct:1,expl:`Nun sukun/tanwin bertemu huruf ل atau ر dibaca Idgham Bilagunnah, yaitu melebur tanpa dengung.`},
+{cat:"tajwid",type:"mc",q:`Huruf-huruf halqi (tempat keluarnya di tenggorokan) yang menyebabkan nun sukun/tanwin dibaca Izhar Halqi berjumlah&hellip;`,opts:["4 huruf","6 huruf","10 huruf","15 huruf"],correct:1,expl:`Huruf halqi ada 6: ء ه ع ح غ خ. Nun sukun/tanwin yang bertemu salah satu huruf ini dibaca jelas (Izhar Halqi).`},
+{cat:"tajwid",type:"mc",q:`Ikhfa secara bahasa artinya&hellip;`,opts:["Jelas","Menyamarkan","Membalik","Melebur"],correct:1,expl:`Ikhfa artinya menyamarkan bunyi nun sukun/tanwin di antara jelas dan lebur, disertai dengung, saat bertemu salah satu dari 15 huruf ikhfa.`},
+{cat:"tajwid",type:"mc",q:`Lafal Allah (lafal jalalah) dibaca tebal (tafkhim) apabila huruf sebelumnya berharakat&hellip;`,opts:["Kasrah","Fathah atau dammah","Sukun","Tasydid"],correct:1,expl:`Lafal Allah dibaca tafkhim (tebal) jika didahului huruf berharakat fathah atau dammah, dan dibaca tarqiq (tipis) jika didahului harakat kasrah.`},
+{cat:"tajwid",type:"mc",q:`Huruf ra (ر) dibaca tarqiq (tipis) apabila berharakat&hellip;`,opts:["Fathah","Dammah","Kasrah","Sukun setelah fathah"],correct:2,expl:`Huruf ra dibaca tarqiq (tipis) ketika berharakat kasrah, dan dibaca tafkhim (tebal) ketika berharakat fathah atau dammah.`},
+{cat:"tajwid",type:"mc",q:`Mad Wajib Muttasil dibaca dengan panjang&hellip;`,opts:["2 harakat","2 atau 4 harakat","4 atau 5 harakat","6 harakat wajib"],correct:2,expl:`Mad Wajib Muttasil (huruf mad bertemu hamzah dalam satu kata) dibaca panjang 4 atau 5 harakat.`},
+{cat:"tajwid",type:"mc",q:`Mad Jaiz Munfasil terjadi ketika&hellip;`,opts:["Huruf mad bertemu hamzah dalam satu kata","Huruf mad bertemu hamzah, tetapi berada pada kata yang berbeda","Huruf mad bertemu huruf bertasydid","Bacaan diwaqafkan pada huruf hidup"],correct:1,expl:`Mad Jaiz Munfasil terjadi ketika huruf mad berada di akhir kata dan hamzah berada di awal kata berikutnya (berbeda kata).`},
+{cat:"tajwid",type:"mc",q:`Waqaf dalam ilmu tajwid artinya&hellip;`,opts:["Menyambung bacaan","Berhenti sejenak dalam membaca Al-Qur'an","Mengulang bacaan","Mempercepat bacaan"],correct:1,expl:`Waqaf artinya berhenti sejenak ketika membaca Al-Qur'an, biasanya pada tanda-tanda waqaf tertentu atau akhir ayat.`},
+{cat:"tajwid",type:"mc",q:`Washal dalam ilmu tajwid artinya&hellip;`,opts:["Berhenti membaca","Menyambung bacaan ke kata/ayat berikutnya","Mengulang huruf","Membaca dengan nada tinggi"],correct:1,expl:`Washal artinya menyambung bacaan, yaitu meneruskan bacaan tanpa berhenti ke kata atau ayat selanjutnya.`},
+{cat:"tajwid",type:"mc",q:`Qalqalah yang terjadi karena huruf qalqalah berharakat sukun asli di tengah kata disebut&hellip;`,opts:["Qalqalah Kubra","Qalqalah Sughra","Qalqalah Wajib","Qalqalah Akbar"],correct:1,expl:`Qalqalah Sughra (kecil) terjadi ketika huruf qalqalah bersukun asli di tengah kata, dipantulkan secara ringan.`},
+{cat:"tajwid",type:"mc",q:`Qalqalah yang terjadi karena huruf qalqalah di akhir kata diwaqafkan (dihentikan) disebut&hellip;`,opts:["Qalqalah Sughra","Qalqalah Kubra","Qalqalah Tabi'i","Qalqalah Ashliyah"],correct:1,expl:`Qalqalah Kubra (besar) terjadi ketika huruf qalqalah berada di akhir kata dan diwaqafkan, sehingga pantulannya lebih jelas/kuat dibanding qalqalah sughra.`},
+
+{cat:"aqidah",type:"mc",q:`Rukun iman dalam Islam berjumlah&hellip;`,opts:["4","5","6","7"],correct:2,expl:`Rukun iman ada 6: iman kepada Allah, malaikat, kitab, rasul, hari akhir, serta qada dan qadar.`},
+{cat:"aqidah",type:"mc",q:`Rukun iman yang pertama adalah&hellip;`,opts:["Iman kepada Allah","Iman kepada malaikat","Iman kepada kitab","Iman kepada rasul"],correct:0,expl:`Rukun iman pertama adalah iman kepada Allah, meyakini keesaan dan keberadaan-Nya sebagai pencipta seluruh alam.`},
+{cat:"aqidah",type:"mc",q:`Meyakini adanya makhluk gaib ciptaan Allah dari cahaya yang selalu taat kepada-Nya termasuk rukun iman kepada&hellip;`,opts:["Kitab","Malaikat","Rasul","Qada dan qadar"],correct:1,expl:`Iman kepada malaikat adalah meyakini keberadaan malaikat sebagai makhluk gaib dari cahaya yang selalu taat menjalankan perintah Allah.`},
+{cat:"aqidah",type:"mc",q:`Salah satu sifat wajib bagi Allah adalah "Wujud" yang artinya&hellip;`,opts:["Kekal","Berbeda dengan makhluk","Ada","Berkuasa"],correct:2,expl:`Sifat wajib Wujud artinya Allah itu ada, keberadaan-Nya adalah wajib/pasti, bukan sesuatu yang mungkin ada atau tidak ada.`},
+{cat:"aqidah",type:"mc",q:`Lawan dari sifat wajib "Wujud" bagi Allah adalah sifat mustahil&hellip;`,opts:["Fana","'Adam","Jahlun","'Ajzun"],correct:1,expl:`Sifat mustahil bagi Allah yang berlawanan dengan Wujud (ada) adalah 'Adam, yang artinya tiada/tidak ada.`},
+{cat:"aqidah",type:"mc",q:`Asmaul husna "Al-Wahhab" memiliki arti&hellip;`,opts:["Maha Pemberi","Maha Pengasih","Maha Penyayang","Maha Adil"],correct:0,expl:`Al-Wahhab artinya Maha Pemberi, yaitu Allah memberikan karunia kepada makhluk-Nya tanpa mengharap balasan apa pun.`},
+{cat:"aqidah",type:"mc",q:`Asmaul husna "Ar-Razzaq" memiliki arti&hellip;`,opts:["Maha Pemberi Rezeki","Maha Pengampun","Maha Melihat","Maha Mendengar"],correct:0,expl:`Ar-Razzaq artinya Maha Pemberi Rezeki, yaitu Allah memberikan rezeki kepada seluruh makhluk-Nya di alam semesta.`},
+{cat:"aqidah",type:"mc",q:`Malaikat yang bertugas membagikan rezeki kepada seluruh makhluk adalah&hellip;`,opts:["Jibril","Mikail","Israfil","Izrail"],correct:1,expl:`Malaikat Mikail bertugas mengatur dan membagikan rezeki kepada seluruh makhluk Allah, termasuk hujan dan tumbuh-tumbuhan.`},
+{cat:"aqidah",type:"mc",q:`Malaikat yang bertugas meniup sangkakala pada hari kiamat adalah&hellip;`,opts:["Israfil","Munkar","Nakir","Malik"],correct:0,expl:`Malaikat Israfil bertugas meniup sangkakala (terompet) yang menandai datangnya hari kiamat dan kebangkitan seluruh manusia.`},
+{cat:"aqidah",type:"mc",q:`Malaikat yang bertugas mencabut nyawa seluruh makhluk hidup adalah&hellip;`,opts:["Jibril","Mikail","Izrail","Raqib"],correct:2,expl:`Malaikat Izrail (Malaikat Maut) bertugas mencabut nyawa seluruh makhluk hidup ketika ajalnya telah tiba.`},
+{cat:"aqidah",type:"mc",q:`Dua malaikat yang bertugas menanyai manusia di dalam kubur adalah&hellip;`,opts:["Raqib dan Atid","Munkar dan Nakir","Malik dan Ridwan","Jibril dan Mikail"],correct:1,expl:`Malaikat Munkar dan Nakir bertugas menanyai manusia di alam kubur tentang keimanannya kepada Allah, Nabi, dan agamanya.`},
+{cat:"aqidah",type:"mc",q:`Dua malaikat yang bertugas mencatat amal baik dan buruk manusia adalah&hellip;`,opts:["Raqib dan Atid","Munkar dan Nakir","Malik dan Ridwan","Jibril dan Israfil"],correct:0,expl:`Malaikat Raqib mencatat amal baik dan Malaikat Atid mencatat amal buruk manusia selama hidup di dunia.`},
+{cat:"aqidah",type:"mc",q:`Malaikat yang bertugas menjaga pintu neraka adalah&hellip;`,opts:["Ridwan","Malik","Mikail","Israfil"],correct:1,expl:`Malaikat Malik bertugas menjaga pintu neraka dan mengatur para penghuninya.`},
+{cat:"aqidah",type:"mc",q:`Malaikat yang bertugas menjaga pintu surga adalah&hellip;`,opts:["Malik","Ridwan","Munkar","Atid"],correct:1,expl:`Malaikat Ridwan bertugas menjaga pintu surga dan menyambut para penghuninya.`},
+{cat:"aqidah",type:"mc",q:`Kitab Al-Qur'an diturunkan Allah kepada nabi&hellip;`,opts:["Nabi Musa a.s.","Nabi Isa a.s.","Nabi Muhammad Saw.","Nabi Daud a.s."],correct:2,expl:`Kitab Al-Qur'an diturunkan Allah kepada Nabi Muhammad Saw. sebagai kitab suci terakhir dan penyempurna kitab-kitab sebelumnya.`},
+{cat:"aqidah",type:"mc",q:`Kitab Taurat diturunkan Allah kepada nabi&hellip;`,opts:["Nabi Musa a.s.","Nabi Muhammad Saw.","Nabi Isa a.s.","Nabi Daud a.s."],correct:0,expl:`Kitab Taurat diturunkan Allah kepada Nabi Musa a.s. sebagai pedoman bagi kaum Bani Israil.`},
+{cat:"aqidah",type:"mc",q:`Kitab Injil diturunkan Allah kepada nabi&hellip;`,opts:["Nabi Musa a.s.","Nabi Isa a.s.","Nabi Daud a.s.","Nabi Muhammad Saw."],correct:1,expl:`Kitab Injil diturunkan Allah kepada Nabi Isa a.s. sebagai pedoman bagi umatnya.`},
+{cat:"aqidah",type:"mc",q:`Kitab Zabur diturunkan Allah kepada nabi&hellip;`,opts:["Nabi Daud a.s.","Nabi Musa a.s.","Nabi Isa a.s.","Nabi Ibrahim a.s."],correct:0,expl:`Kitab Zabur diturunkan Allah kepada Nabi Daud a.s., berisi banyak zikir dan pujian kepada Allah.`},
+{cat:"aqidah",type:"mc",q:`Rasul yang mendapat gelar Ulul Azmi karena kesabaran luar biasa dalam berdakwah berjumlah&hellip;`,opts:["3 rasul","5 rasul","7 rasul","10 rasul"],correct:1,expl:`Rasul Ulul Azmi berjumlah 5, yaitu Nabi Nuh, Ibrahim, Musa, Isa, dan Muhammad Saw., dikenal karena kesabaran luar biasa dalam menghadapi ujian dakwah.`},
+{cat:"aqidah",type:"mc",q:`Meyakini bahwa segala sesuatu yang terjadi di alam semesta sudah ditetapkan Allah, namun manusia tetap wajib berusaha (ikhtiar), termasuk rukun iman kepada&hellip;`,opts:["Kitab-kitab Allah","Hari akhir","Qada dan qadar","Rasul-rasul Allah"],correct:2,expl:`Iman kepada qada dan qadar adalah meyakini ketetapan Allah atas segala sesuatu, sambil tetap wajib berikhtiar karena manusia tidak mengetahui takdirnya sebelum terjadi.`},
+
+{cat:"akhlak",type:"mc",q:`Sikap berbakti kepada orang tua selama tidak diperintah bermaksiat kepada Allah disebut&hellip;`,opts:["Birrul walidain","Silaturahmi","Tawaduk","Amanah"],correct:0,expl:`Birrul walidain adalah sikap berbakti, menghormati, dan menaati orang tua selama tidak diperintahkan untuk bermaksiat kepada Allah.`},
+{cat:"akhlak",type:"mc",q:`Adab yang baik terhadap guru di sekolah adalah&hellip;`,opts:["Membantah pendapat guru di depan kelas","Menghormati, mendengarkan, dan mengamalkan ilmu yang diajarkan","Mengabaikan nasihat guru","Berbicara sendiri saat guru menjelaskan"],correct:1,expl:`Adab kepada guru meliputi menghormati, mendengarkan penjelasan dengan baik, dan mengamalkan ilmu yang telah diajarkan.`},
+{cat:"akhlak",type:"mc",q:`Sikap selalu berkata benar dan sesuai kenyataan disebut sifat&hellip;`,opts:["Sidiq","Kizib","Khianat","Kitman"],correct:0,expl:`Sidiq artinya jujur, yaitu selalu berkata benar sesuai kenyataan dan tidak berdusta.`},
+{cat:"akhlak",type:"mc",q:`Lawan dari sifat jujur (sidiq) adalah sifat&hellip;`,opts:["Amanah","Kizib (dusta)","Tabligh","Fatanah"],correct:1,expl:`Kizib artinya dusta atau bohong, merupakan lawan dari sifat jujur (sidiq) yang harus dijauhi seorang muslim.`},
+{cat:"akhlak",type:"mc",q:`Adab makan yang dianjurkan dalam Islam antara lain&hellip;`,opts:["Makan sambil berdiri dan berjalan-jalan","Membaca basmalah sebelum makan dan hamdalah setelahnya","Makan dengan tergesa-gesa","Mengambil makanan sebanyak-banyaknya walau tidak habis"],correct:1,expl:`Di antara adab makan adalah membaca basmalah sebelum mulai makan dan membaca hamdalah (Alhamdulillah) setelah selesai makan.`},
+{cat:"akhlak",type:"mc",q:`Adab bertamu yang baik menurut ajaran Islam adalah&hellip;`,opts:["Masuk rumah tanpa mengetuk pintu terlebih dahulu","Mengucapkan salam dan meminta izin sebelum masuk","Datang bertamu larut malam tanpa pemberitahuan","Bertamu dalam waktu yang sangat lama tanpa memperhatikan tuan rumah"],correct:1,expl:`Adab bertamu yang baik adalah mengetuk pintu atau memberi salam, serta meminta izin kepada tuan rumah sebelum masuk ke rumahnya.`},
+{cat:"akhlak",type:"mc",q:`Sikap yang baik dalam menyambut tamu yang datang ke rumah adalah&hellip;`,opts:["Membiarkan tamu menunggu lama di luar","Menyambut dengan wajah ramah dan menjamunya sesuai kemampuan","Menampakkan wajah cemberut kepada tamu","Menolak tamu tanpa alasan yang jelas"],correct:1,expl:`Islam mengajarkan untuk menyambut tamu dengan wajah ramah dan menjamunya sesuai kemampuan, sebagai bagian dari akhlak mulia.`},
+{cat:"akhlak",type:"mc",q:`Sifat wajib rasul yang berarti "dapat dipercaya" adalah&hellip;`,opts:["Sidiq","Amanah","Tabligh","Fatanah"],correct:1,expl:`Amanah artinya dapat dipercaya, yaitu seorang rasul selalu menjaga kepercayaan yang diberikan kepadanya, termasuk dalam menyampaikan wahyu.`},
+{cat:"akhlak",type:"mc",q:`Sifat wajib rasul yang berarti "menyampaikan" adalah&hellip;`,opts:["Sidiq","Amanah","Tabligh","Fatanah"],correct:2,expl:`Tabligh artinya menyampaikan, yaitu seorang rasul wajib menyampaikan seluruh wahyu yang diterimanya kepada umat tanpa disembunyikan.`},
+{cat:"akhlak",type:"mc",q:`Sifat wajib rasul yang berarti "cerdas" adalah&hellip;`,opts:["Sidiq","Amanah","Tabligh","Fatanah"],correct:3,expl:`Fatanah artinya cerdas, yaitu seorang rasul memiliki kecerdasan tinggi agar mampu menghadapi berbagai tantangan dalam berdakwah.`},
+{cat:"akhlak",type:"mc",q:`Sikap rendah hati dan tidak merasa lebih tinggi dari orang lain disebut&hellip;`,opts:["Takabur","Tawaduk","Hasad","Riya"],correct:1,expl:`Tawaduk artinya rendah hati, yaitu sikap tidak merasa lebih baik atau lebih tinggi dari orang lain meskipun memiliki banyak kelebihan.`},
+{cat:"akhlak",type:"mc",q:`Sikap merasa lebih tinggi dan meremehkan orang lain disebut&hellip;`,opts:["Tawaduk","Takabur (sombong)","Qanaah","Zuhud"],correct:1,expl:`Takabur artinya sombong, yaitu sikap merasa lebih tinggi dari orang lain dan meremehkan mereka, termasuk akhlak tercela yang harus dijauhi.`},
+{cat:"akhlak",type:"mc",q:`Salah satu adab yang harus dijaga ketika berada di dalam masjid adalah&hellip;`,opts:["Berbicara keras dan bercanda berlebihan","Menjaga kebersihan dan ketenangan","Membawa makanan dan memakannya sembarangan","Bermain-main tanpa memperhatikan orang lain yang beribadah"],correct:1,expl:`Adab di masjid antara lain menjaga kebersihan, ketenangan, serta kekhusyukan, karena masjid adalah tempat suci untuk beribadah.`},
+{cat:"akhlak",type:"mc",q:`Sikap yang dianjurkan terhadap tetangga dalam ajaran Islam adalah&hellip;`,opts:["Bersikap acuh tak acuh","Saling tolong-menolong dan menjaga hubungan baik","Menyebarkan aib tetangga","Mengganggu ketenangan tetangga"],correct:1,expl:`Islam mengajarkan untuk berbuat baik kepada tetangga, saling tolong-menolong, dan menjaga hubungan baik sebagai bagian dari akhlak mulia.`},
+{cat:"akhlak",type:"mc",q:`Sikap yang tepat ketika berbeda pendapat dengan teman adalah&hellip;`,opts:["Memaksakan pendapat sendiri dengan marah","Menghargai pendapat teman dan menyelesaikannya dengan musyawarah","Memutus pertemanan begitu saja","Mengejek pendapat teman yang berbeda"],correct:1,expl:`Perbedaan pendapat sebaiknya disikapi dengan saling menghargai dan diselesaikan melalui musyawarah yang baik, sesuai ajaran Islam.`},
+{cat:"akhlak",type:"mc",q:`Akhlak yang baik terhadap hewan peliharaan menurut ajaran Islam adalah&hellip;`,opts:["Menyayangi dan memberinya makan/minum yang cukup","Menyiksa hewan tanpa alasan","Membiarkan hewan kelaparan","Menelantarkan hewan peliharaan"],correct:0,expl:`Islam mengajarkan untuk menyayangi hewan, memberinya makan dan minum yang cukup, serta tidak menyiksanya tanpa alasan yang dibenarkan.`},
+{cat:"akhlak",type:"mc",q:`Sikap menjaga kebersihan lingkungan merupakan wujud dari&hellip;`,opts:["Sikap boros","Sebagian dari iman","Sikap riya","Sikap takabur"],correct:1,expl:`Menjaga kebersihan lingkungan merupakan wujud akhlak mulia, sebagaimana hadis Nabi Saw. yang menyebutkan bahwa kebersihan adalah sebagian dari iman.`},
+{cat:"akhlak",type:"mc",q:`Sikap suka memaafkan kesalahan orang lain disebut&hellip;`,opts:["Al-'Afw (pemaaf)","Hasad","Ananiyah","Kikir"],correct:0,expl:`Al-'Afw artinya pemaaf, yaitu sikap mudah memaafkan kesalahan orang lain tanpa menyimpan dendam.`},
+{cat:"akhlak",type:"mc",q:`Sikap suka memberi dan tidak kikir terhadap sesama disebut&hellip;`,opts:["Sakha (dermawan)","Bakhil","Hasad","Riya"],correct:0,expl:`Sakha artinya dermawan, yaitu sikap gemar memberi dan berbagi kepada sesama tanpa mengharap imbalan.`},
+{cat:"akhlak",type:"mc",q:`Membicarakan keburukan atau aib orang lain di belakangnya, meskipun hal itu benar, disebut&hellip;`,opts:["Tabayun","Ghibah","Musyawarah","Tasamuh"],correct:1,expl:`Ghibah artinya menggunjing, yaitu membicarakan aib atau keburukan orang lain di belakangnya, dan hal ini dilarang dalam Islam meskipun yang dibicarakan itu benar adanya.`},
+
+{cat:"fiqih",type:"mc",q:`Rukun Islam berjumlah&hellip;`,opts:["4","5","6","7"],correct:1,expl:`Rukun Islam ada 5: syahadat, salat, zakat, puasa Ramadan, dan haji bagi yang mampu.`},
+{cat:"fiqih",type:"mc",q:`Salah satu syarat wajib melaksanakan salat adalah&hellip;`,opts:["Kaya raya","Baligh dan berakal","Sudah menikah","Memiliki jabatan"],correct:1,expl:`Syarat wajib salat di antaranya beragama Islam, baligh, dan berakal sehat, tanpa memandang status ekonomi atau pernikahan.`},
+{cat:"fiqih",type:"mc",q:`Rukun wudu yang benar berjumlah&hellip;`,opts:["4 rukun","5 rukun","6 rukun","7 rukun"],correct:2,expl:`Rukun wudu ada 6: niat, membasuh wajah, membasuh kedua tangan sampai siku, mengusap sebagian kepala, membasuh kedua kaki sampai mata kaki, dan tertib.`},
+{cat:"fiqih",type:"mc",q:`Berikut ini yang termasuk hal yang membatalkan wudu adalah&hellip;`,opts:["Makan dan minum","Buang angin (kentut)","Berbicara dengan orang lain","Berjalan kaki"],correct:1,expl:`Di antara hal yang membatalkan wudu adalah keluarnya sesuatu dari kubul/dubur seperti buang angin, buang air kecil, atau buang air besar.`},
+{cat:"fiqih",type:"mc",q:`Jumlah rakaat salat fardu dalam sehari semalam adalah&hellip;`,opts:["15 rakaat","17 rakaat","19 rakaat","21 rakaat"],correct:1,expl:`Salat fardu lima waktu berjumlah 17 rakaat: Subuh (2), Zuhur (4), Asar (4), Magrib (3), dan Isya (4).`},
+{cat:"fiqih",type:"mc",q:`Sujud yang dilakukan karena lupa dalam salat, misalnya lupa jumlah rakaat, disebut&hellip;`,opts:["Sujud syukur","Sujud tilawah","Sujud sahwi","Sujud rukun"],correct:2,expl:`Sujud sahwi dilakukan ketika seseorang lupa atau ragu dalam salatnya, misalnya lupa jumlah rakaat, dilakukan sebelum atau sesudah salam.`},
+{cat:"fiqih",type:"mc",q:`Tayamum dilakukan sebagai pengganti wudu dalam kondisi&hellip;`,opts:["Saat cuaca sangat panas","Tidak ada air atau berhalangan menggunakan air","Ketika hendak tidur","Setelah selesai salat"],correct:1,expl:`Tayamum adalah bersuci menggunakan debu yang dilakukan sebagai pengganti wudu atau mandi wajib ketika tidak ada air atau ada uzur syar'i untuk menggunakannya.`},
+{cat:"fiqih",type:"mc",q:`Zakat fitrah yang dikeluarkan umat Islam pada bulan Ramadan biasanya berupa&hellip;`,opts:["Uang tunai saja","Makanan pokok seperti beras","Pakaian baru","Perhiasan emas"],correct:1,expl:`Zakat fitrah umumnya dikeluarkan berupa makanan pokok, seperti beras, sesuai kadar yang telah ditentukan (kurang lebih 2,5&ndash;3 kg per jiwa).`},
+{cat:"fiqih",type:"mc",q:`Puasa yang wajib dilaksanakan oleh setiap muslim yang balig dan mampu setiap tahunnya adalah puasa&hellip;`,opts:["Puasa Senin-Kamis","Puasa Ramadan","Puasa Arafah","Puasa Syawal"],correct:1,expl:`Puasa Ramadan adalah puasa wajib yang harus dilaksanakan setiap muslim yang balig, berakal, dan mampu, selama satu bulan penuh di bulan Ramadan.`},
+{cat:"fiqih",type:"mc",q:`Rukun puasa yang utama adalah&hellip;`,opts:["Niat dan menahan diri dari yang membatalkan puasa sejak fajar hingga magrib","Sahur dan berbuka tepat waktu","Membaca doa berbuka dengan keras","Bersedekah setiap hari selama puasa"],correct:0,expl:`Rukun puasa adalah niat (di malam hari atau sebelum fajar) dan menahan diri dari segala yang membatalkan puasa mulai terbit fajar hingga terbenam matahari.`},
+{cat:"fiqih",type:"mc",q:`Berikut ini yang membatalkan puasa adalah&hellip;`,opts:["Tidur di siang hari","Makan dan minum dengan sengaja","Menggosok gigi tanpa pasta","Mandi di siang hari"],correct:1,expl:`Makan dan minum dengan sengaja di siang hari saat berpuasa termasuk hal yang membatalkan puasa.`},
+{cat:"fiqih",type:"mc",q:`Ibadah haji merupakan rukun Islam kelima yang wajib dilaksanakan bagi&hellip;`,opts:["Semua muslim tanpa terkecuali","Muslim yang mampu (istita'ah) secara fisik, ilmu, dan harta","Hanya bagi laki-laki dewasa","Hanya bagi penduduk Mekkah"],correct:1,expl:`Haji wajib dilaksanakan sekali seumur hidup bagi muslim yang mampu (istita'ah), baik secara fisik, ilmu, maupun harta/bekal perjalanan.`},
+{cat:"fiqih",type:"mc",q:`Berikut ini yang termasuk rukun haji adalah&hellip;`,opts:["Ihram, wukuf di Arafah, tawaf ifadah, sa'i, dan tahalul","Membeli oleh-oleh di Mekkah","Mengunjungi Masjid Nabawi","Berfoto di depan Ka'bah"],correct:0,expl:`Rukun haji di antaranya ihram, wukuf di Arafah, tawaf ifadah, sa'i antara Safa dan Marwah, serta tahalul, yang harus dilaksanakan agar hajinya sah.`},
+{cat:"fiqih",type:"mc",q:`Batas atau tempat tertentu yang menjadi awal memulai ihram bagi jamaah haji disebut&hellip;`,opts:["Miqat","Multazam","Sa'i","Mabit"],correct:0,expl:`Miqat adalah batas tempat dan waktu yang ditentukan bagi jamaah haji atau umrah untuk memulai niat ihram.`},
+{cat:"fiqih",type:"mc",q:`Thaharah dalam istilah fikih artinya&hellip;`,opts:["Bersuci dari hadas dan najis","Berpuasa penuh","Salat berjamaah","Bersedekah kepada fakir miskin"],correct:0,expl:`Thaharah artinya bersuci, yaitu menyucikan diri dari hadas (kecil maupun besar) dan najis, sebagai syarat sahnya ibadah seperti salat.`},
+{cat:"fiqih",type:"mc",q:`Najis mutawasitah (najis sedang), seperti air kencing, umumnya disucikan dengan cara&hellip;`,opts:["Cukup diusap dengan tisu kering","Dibasuh dengan air hingga hilang warna, bau, dan rasanya","Dijemur di bawah sinar matahari saja","Ditutup dengan kain tanpa dibasuh"],correct:1,expl:`Najis mutawasitah disucikan dengan membasuhnya menggunakan air hingga hilang warna, bau, dan rasa najis tersebut.`},
+{cat:"fiqih",type:"mc",q:`Melaksanakan salat secara berjamaah di masjid memiliki keutamaan dibandingkan salat sendirian, yaitu&hellip;`,opts:["Pahalanya sama saja dengan salat sendirian","Pahalanya lebih besar dibanding salat sendirian","Hukumnya menjadi tidak sah jika sendirian","Hanya dianjurkan bagi laki-laki lanjut usia"],correct:1,expl:`Salat berjamaah memiliki keutamaan pahala yang lebih besar dibandingkan salat sendirian, sebagaimana disebutkan dalam hadis Nabi Saw.`},
+{cat:"fiqih",type:"mc",q:`Salat sunnah yang dikerjakan mengiringi salat fardu, baik sebelum maupun sesudahnya, disebut salat sunnah&hellip;`,opts:["Rawatib","Tahajud","Duha","Istikharah"],correct:0,expl:`Salat sunnah rawatib adalah salat sunnah yang dikerjakan mengiringi salat fardu, baik qabliyah (sebelum) maupun ba'diyah (sesudah).`},
+{cat:"fiqih",type:"mc",q:`Zakat yang dikenakan atas harta kekayaan seperti emas, perak, dan hasil perniagaan yang telah mencapai nisab dan haul disebut&hellip;`,opts:["Zakat fitrah","Zakat mal","Sedekah wajib","Infak sunnah"],correct:1,expl:`Zakat mal adalah zakat yang dikenakan atas harta kekayaan seperti emas, perak, hasil perniagaan, atau simpanan yang telah mencapai nisab dan haul (satu tahun kepemilikan).`},
+{cat:"fiqih",type:"mc",q:`Salah satu adab yang dianjurkan ketika hendak masuk ke dalam masjid adalah&hellip;`,opts:["Mendahulukan kaki kiri sambil berdoa","Mendahulukan kaki kanan sambil berdoa masuk masjid","Masuk tanpa membaca doa apa pun","Berbicara keras saat masuk"],correct:1,expl:`Adab masuk masjid yang dianjurkan adalah mendahulukan kaki kanan sambil membaca doa masuk masjid, sebagai bentuk penghormatan terhadap tempat ibadah.`},
+
+{cat:"tarikh",type:"mc",q:`Nabi Muhammad Saw. dilahirkan di kota&hellip;`,opts:["Madinah","Mekkah","Thaif","Yerusalem"],correct:1,expl:`Nabi Muhammad Saw. dilahirkan di kota Mekkah, tepatnya pada tahun Gajah (sekitar tahun 570 M).`},
+{cat:"tarikh",type:"mc",q:`Nabi Muhammad Saw. menerima wahyu pertama di Gua Hira pada usia&hellip;`,opts:["25 tahun","30 tahun","40 tahun","50 tahun"],correct:2,expl:`Nabi Muhammad Saw. menerima wahyu pertama di Gua Hira ketika berusia 40 tahun, menandai awal kenabian beliau.`},
+{cat:"tarikh",type:"mc",q:`Peristiwa pindahnya Nabi Muhammad Saw. beserta para sahabat dari Mekkah ke Madinah disebut&hellip;`,opts:["Isra Mikraj","Hijrah","Fathu Makkah","Nuzulul Qur'an"],correct:1,expl:`Hijrah adalah peristiwa pindahnya Nabi Muhammad Saw. dan para sahabat dari Mekkah ke Madinah karena tekanan kaum kafir Quraisy.`},
+{cat:"tarikh",type:"mc",q:`Sahabat yang menemani Nabi Muhammad Saw. saat hijrah ke Madinah, termasuk bersembunyi di Gua Sur, adalah&hellip;`,opts:["Umar bin Khattab","Abu Bakar Ash-Shiddiq","Utsman bin Affan","Ali bin Abi Thalib"],correct:1,expl:`Abu Bakar Ash-Shiddiq menemani Nabi Muhammad Saw. saat hijrah ke Madinah, termasuk bersembunyi bersama di Gua Sur dari kejaran kaum kafir Quraisy.`},
+{cat:"tarikh",type:"mc",q:`Perang pertama yang dimenangkan kaum muslimin melawan kaum kafir Quraisy terjadi di&hellip;`,opts:["Perang Badar","Perang Uhud","Perang Khandaq","Perang Hunain"],correct:0,expl:`Perang Badar terjadi pada tahun ke-2 Hijriah dan menjadi kemenangan besar pertama kaum muslimin melawan kaum kafir Quraisy meski jumlah pasukan lebih sedikit.`},
+{cat:"tarikh",type:"mc",q:`Perang yang terjadi karena sebagian pasukan pemanah muslim turun dari bukit sebelum waktunya sehingga kaum muslimin sempat terdesak adalah&hellip;`,opts:["Perang Badar","Perang Uhud","Perang Khandaq","Fathu Makkah"],correct:1,expl:`Pada Perang Uhud, sebagian pasukan pemanah muslim turun dari bukit sebelum diperintahkan, sehingga kaum muslimin sempat terdesak oleh serangan balik pasukan Quraisy.`},
+{cat:"tarikh",type:"mc",q:`Perang yang menggunakan strategi menggali parit untuk menghadang pasukan musuh yang jauh lebih besar disebut&hellip;`,opts:["Perang Badar","Perang Uhud","Perang Khandaq","Perang Hunain"],correct:2,expl:`Perang Khandaq (perang parit) terjadi ketika kaum muslimin menggali parit di sekeliling Madinah atas usul Salman Al-Farisi untuk menghadang pasukan sekutu Quraisy.`},
+{cat:"tarikh",type:"mc",q:`Peristiwa pembebasan kota Mekkah oleh kaum muslimin tanpa peperangan besar terjadi pada tahun&hellip;`,opts:["2 Hijriah","5 Hijriah","8 Hijriah","10 Hijriah"],correct:2,expl:`Fathu Makkah (pembebasan kota Mekkah) terjadi pada tahun 8 Hijriah, di mana kaum muslimin memasuki Mekkah hampir tanpa perlawanan berarti.`},
+{cat:"tarikh",type:"mc",q:`Khalifah pertama yang menggantikan kepemimpinan setelah Nabi Muhammad Saw. wafat adalah&hellip;`,opts:["Umar bin Khattab","Abu Bakar Ash-Shiddiq","Utsman bin Affan","Ali bin Abi Thalib"],correct:1,expl:`Abu Bakar Ash-Shiddiq menjadi khalifah pertama menggantikan kepemimpinan umat Islam setelah Nabi Muhammad Saw. wafat.`},
+{cat:"tarikh",type:"mc",q:`Khalifah kedua yang dikenal dengan gelar Al-Faruq (pembeda antara hak dan batil) adalah&hellip;`,opts:["Abu Bakar Ash-Shiddiq","Umar bin Khattab","Utsman bin Affan","Ali bin Abi Thalib"],correct:1,expl:`Umar bin Khattab, khalifah kedua, dikenal dengan gelar Al-Faruq karena ketegasannya dalam membedakan perkara yang hak dan batil.`},
+{cat:"tarikh",type:"mc",q:`Khalifah ketiga yang dikenal karena membukukan (menyeragamkan) mushaf Al-Qur'an adalah&hellip;`,opts:["Abu Bakar Ash-Shiddiq","Umar bin Khattab","Utsman bin Affan","Ali bin Abi Thalib"],correct:2,expl:`Utsman bin Affan, khalifah ketiga, dikenal karena inisiatifnya menyeragamkan penulisan mushaf Al-Qur'an menjadi satu standar bacaan (Mushaf Utsmani).`},
+{cat:"tarikh",type:"mc",q:`Khalifah keempat yang merupakan sepupu sekaligus menantu Nabi Muhammad Saw. adalah&hellip;`,opts:["Abu Bakar Ash-Shiddiq","Umar bin Khattab","Utsman bin Affan","Ali bin Abi Thalib"],correct:3,expl:`Ali bin Abi Thalib, khalifah keempat, merupakan sepupu sekaligus menantu Nabi Muhammad Saw. karena menikah dengan putri beliau, Fatimah az-Zahra.`},
+{cat:"tarikh",type:"mc",q:`Naskah Al-Qur'an mulai dikumpulkan menjadi satu mushaf pada masa kekhalifahan&hellip;`,opts:["Abu Bakar Ash-Shiddiq","Umar bin Khattab","Utsman bin Affan","Ali bin Abi Thalib"],correct:0,expl:`Pengumpulan ayat-ayat Al-Qur'an yang tercecer menjadi satu mushaf pertama kali dilakukan pada masa kekhalifahan Abu Bakar Ash-Shiddiq, atas usul Umar bin Khattab.`},
+{cat:"tarikh",type:"mc",q:`Nabi Muhammad Saw. wafat pada usia&hellip;`,opts:["60 tahun","63 tahun","70 tahun","73 tahun"],correct:1,expl:`Nabi Muhammad Saw. wafat pada usia 63 tahun di kota Madinah.`},
+{cat:"tarikh",type:"mc",q:`Wanita yang menyusui Nabi Muhammad Saw. pada masa kecilnya adalah&hellip;`,opts:["Aminah","Halimah Sa'diyah","Khadijah","Fatimah"],correct:1,expl:`Halimah Sa'diyah adalah wanita dari Bani Sa'ad yang menyusui dan mengasuh Nabi Muhammad Saw. pada masa kecilnya di daerah pedalaman.`},
+{cat:"tarikh",type:"mc",q:`Setelah ayah dan ibunya wafat, Nabi Muhammad Saw. kecil diasuh oleh kakeknya yang bernama&hellip;`,opts:["Abu Thalib","Abdul Muthalib","Abu Lahab","Hamzah"],correct:1,expl:`Setelah ibunya, Aminah, wafat, Nabi Muhammad Saw. diasuh oleh kakeknya, Abdul Muthalib, hingga sang kakek wafat pula.`},
+{cat:"tarikh",type:"mc",q:`Setelah Abdul Muthalib wafat, Nabi Muhammad Saw. diasuh oleh pamannya yang bernama&hellip;`,opts:["Abu Thalib","Abu Lahab","Al-Abbas","Hamzah"],correct:0,expl:`Setelah kakeknya, Abdul Muthalib, wafat, Nabi Muhammad Saw. diasuh oleh pamannya, Abu Thalib, yang selalu melindungi beliau dalam berdakwah.`},
+{cat:"tarikh",type:"mc",q:`Istri pertama Nabi Muhammad Saw. yang dikenal sebagai wanita saudagar kaya dan pertama kali beriman kepada risalahnya adalah&hellip;`,opts:["Aisyah","Khadijah binti Khuwailid","Hafsah","Zainab"],correct:1,expl:`Khadijah binti Khuwailid adalah istri pertama Nabi Muhammad Saw., seorang saudagar kaya yang sangat mendukung dakwah beliau dan menjadi orang pertama yang beriman.`},
+{cat:"tarikh",type:"mc",q:`Sebelum diangkat menjadi rasul, Nabi Muhammad Saw. dikenal oleh masyarakat Mekkah dengan gelar "Al-Amin" yang berarti&hellip;`,opts:["Yang dipercaya","Yang kaya raya","Yang pemberani","Yang cerdas"],correct:0,expl:`Al-Amin artinya "yang dapat dipercaya", gelar yang diberikan masyarakat Mekkah kepada Nabi Muhammad Saw. sebelum diangkat menjadi rasul karena kejujuran dan sifat amanahnya.`},
+{cat:"tarikh",type:"mc",q:`Peristiwa perjalanan malam Nabi Muhammad Saw. dari Masjidil Haram ke Masjidil Aqsa kemudian naik ke Sidratul Muntaha disebut&hellip;`,opts:["Hijrah","Isra Mikraj","Fathu Makkah","Nuzulul Qur'an"],correct:1,expl:`Isra Mikraj adalah peristiwa perjalanan malam Nabi Muhammad Saw. dari Masjidil Haram ke Masjidil Aqsa (Isra), kemudian naik ke Sidratul Muntaha (Mikraj), membawa perintah salat lima waktu.`}
+];
+
+/* =========================================================
+   KHUSUS TAJWID — segmen mandiri: materi & bank soal
+   Disusun ulang dari modul tahsin & tajwid, diselaraskan dengan
+   identitas SD Negeri 2 Pesantren.
+========================================================= */
+const TAJWID_TOPIC = {
+  dasar:"Dasar Tajwid",
+  makhraj:"Makhraj",
+  ghunnah:"Ghunnah",
+  mad:"Mad",
+  nun:"Nun Sukun &amp; Tanwin",
+  mim:"Mim Sukun",
+  waqaf:"Waqaf"
+};
+const TJ_LVNAME = {1:"Mudah",2:"Sedang",3:"Sulit",0:"Campur"};
+
+const TAJWID_MATERI = [
+{title:"Pengantar Ilmu Tajwid",body:`
+  <p>Secara bahasa, <b>tajwid</b> berarti memperbaiki (tahsin). Secara istilah, tajwid adalah membaca Al-Qur'an dengan benar sebagaimana bacaan Rasulullah Saw. &mdash; mengeluarkan huruf dari <b>makhraj</b>-nya, memenuhi <b>sifat</b>-nya, dan memperhatikan <b>hukum bacaan</b>. Mempelajari ilmu tajwid hukumnya fardhu kifayah, sedangkan mempraktikkannya saat membaca Al-Qur'an hukumnya <b>fardhu &lsquo;ain</b> bagi setiap pembaca.</p>
+  <p class="sub">Lahn Jali &mdash; kesalahan nyata</p>
+  <p>Salah harakat, salah makhraj, atau salah sifat huruf, yang bisa mengubah makna. Sengaja melakukannya hukumnya <b>haram</b>.</p>
+  <p class="sub">Lahn Khafi &mdash; kesalahan samar</p>
+  <p>Ghunnah kurang dengung, mad kurang panjang, atau mad dipanjangkan melebihi kadarnya. Tidak mengubah makna, tetapi tetap mengurangi kesempurnaan bacaan.</p>
+  <p class="sub">Isti&rsquo;adzah &amp; Basmalah</p>
+  <p>Isti&rsquo;adzah dibaca keras bila tilawah keras dan ada yang mendengarkan, dan dibaca pelan bila sendirian. Basmalah dibaca di awal setiap surat <b>kecuali At-Taubah</b>; bila memulai dari tengah surat, boleh dibaca boleh tidak.</p>`},
+{title:"Makharijul Huruf (Tempat Keluarnya Huruf)",body:`
+  <p>Tempat keluarnya huruf hijaiah. Ada 5 tempat utama:</p>
+  <table><thead><tr><th>Tempat</th><th>Bagian</th><th>Huruf</th></tr></thead><tbody>
+  <tr><td><b>Al-Jauf</b><br><span style="color:var(--ink-soft);font-size:.8em">rongga mulut</span></td><td>1 makhraj</td><td>3 huruf mad: ا و ي</td></tr>
+  <tr><td rowspan="3"><b>Al-Halq</b><br><span style="color:var(--ink-soft);font-size:.8em">tenggorokan</span></td><td>Aqshal halq (bawah)</td><td>ء هـ</td></tr>
+  <tr><td>Wasathul halq (tengah)</td><td>ع ح</td></tr>
+  <tr><td>Adnal halq (atas)</td><td>غ خ</td></tr>
+  <tr><td><b>Al-Lisan</b><br><span style="color:var(--ink-soft);font-size:.8em">lidah</span></td><td>10 makhraj</td><td>Pangkal, tengah, tepi, dan ujung lidah</td></tr>
+  <tr><td><b>Asy-Syafatan</b><br><span style="color:var(--ink-soft);font-size:.8em">dua bibir</span></td><td>2 makhraj</td><td>ف dari perut bibir bawah &amp; ujung gigi seri atas &middot; ب م و dari dua bibir</td></tr>
+  <tr><td><b>Al-Khaisyum</b><br><span style="color:var(--ink-soft);font-size:.8em">rongga hidung</span></td><td>1 makhraj</td><td>Segala bunyi <b>ghunnah</b> (dengung)</td></tr>
+  </tbody></table>`},
+{title:"Ghunnah &mdash; Nun &amp; Mim Bertasydid",body:`
+  <p>Ghunnah = suara dengung dari rongga hidung. Setiap <span class="arabic" style="font-size:1.1em">نّ</span> dan <span class="arabic" style="font-size:1.1em">مّ</span> bertasydid <b>wajib</b> dibaca dengung &plusmn;2 harakat &mdash; inilah tingkat ghunnah yang paling sempurna.</p>
+  <table><thead><tr><th>Huruf</th><th>Contoh Bacaan</th></tr></thead><tbody>
+  <tr><td>Nun bertasydid</td><td>إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ &middot; مِنَ الْجِنَّةِ وَالنَّاسِ</td></tr>
+  <tr><td>Mim bertasydid</td><td>عَمَّ يَتَسَاءَلُونَ &middot; ثُمَّ كَلَّا سَوْفَ تَعْلَمُونَ</td></tr>
+  </tbody></table>`},
+{title:"Mad &mdash; Memanjangkan Bacaan",body:`
+  <p><b>Huruf mad:</b> alif setelah fathah &middot; ya' sukun setelah kasrah &middot; waw sukun setelah dhammah. <b>Huruf lin:</b> ya' atau waw sukun setelah <i>fathah</i> &mdash; contoh بَيْتٍ, خَوْفٍ.</p>
+  <table><thead><tr><th>Jenis</th><th>Panjang &amp; Sebab</th><th>Contoh</th></tr></thead><tbody>
+  <tr><td><b>Mad Asli</b><br><span style="color:var(--ink-soft);font-size:.8em">Thabi'i</span></td><td><b>2 harakat</b><br><span style="color:var(--ink-soft);font-size:.8em">tanpa sebab apa pun</span></td><td>قَالَ &middot; يَقُولُ &middot; قِيلَ &middot; نُوحِيهَا</td></tr>
+  <tr><td rowspan="2"><b>Mad Far'i</b><br><span style="color:var(--ink-soft);font-size:.8em">cabang</span></td><td><b>4&ndash;5 harakat</b><br><span style="color:var(--ink-soft);font-size:.8em">mad bertemu hamzah</span></td><td>جَاءَ &middot; السَّمَاءِ &middot; أُولَٰئِكَ &middot; يَا أَيُّهَا</td></tr>
+  <tr><td><b>6 harakat</b><br><span style="color:var(--ink-soft);font-size:.8em">mad bertemu tasydid / sukun</span></td><td>وَلَا الضَّالِّينَ &middot; الْحَاقَّةُ &middot; الطَّامَّةُ</td></tr>
+  </tbody></table>`},
+{title:"Hukum Nun Sukun &amp; Tanwin (Lengkap)",body:`
+  <p class="sub">a. Idzhar Halqi &mdash; dibaca jelas, tanpa dengung</p>
+  <p>Bila nun sukun/tanwin bertemu 6 huruf tenggorokan: ء هـ ع ح غ خ</p>
+  <table><thead><tr><th>Huruf</th><th>Contoh (nun sukun)</th><th>Contoh (tanwin)</th></tr></thead><tbody>
+  <tr><td>ء</td><td>مَنْ أَنْصَارِي</td><td>رَسُولٌ أَمِينٌ</td></tr>
+  <tr><td>هـ</td><td>مِنْهُمْ</td><td>جُرُفٍ هَارٍ</td></tr>
+  <tr><td>ع</td><td>أَنْعَمْتَ</td><td>سَمِيعٌ عَلِيمٌ</td></tr>
+  <tr><td>ح</td><td>وَانْحَرْ</td><td>عَلِيمٌ حَكِيمٌ</td></tr>
+  <tr><td>غ</td><td>مِنْ غِلٍّ</td><td>عَفُوًّا غَفُورًا</td></tr>
+  <tr><td>خ</td><td>وَالْمُنْخَنِقَةُ</td><td>عَلِيمٌ خَبِيرٌ</td></tr>
+  </tbody></table>
+  <p class="sub">b. Idgham &mdash; dimasukkan ke huruf berikutnya</p>
+  <p><b>Bighunnah</b> (dengan dengung) &mdash; huruf ي ن م و:</p>
+  <table><tbody>
+  <tr><td style="width:30px">ي</td><td>مَنْ يَعْمَلْ</td></tr>
+  <tr><td>ن</td><td>مِنْ نِعْمَةٍ</td></tr>
+  <tr><td>م</td><td>عَذَابٌ مُقِيمٌ</td></tr>
+  <tr><td>و</td><td>مِنْ وَالٍ</td></tr>
+  </tbody></table>
+  <p><b>Bilaghunnah</b> (tanpa dengung) &mdash; huruf ل ر:</p>
+  <table><tbody>
+  <tr><td style="width:30px">ل</td><td>مِنْ لَدُنْهُ &middot; هُدًى لِلْمُتَّقِينَ</td></tr>
+  <tr><td>ر</td><td>مِنْ رَبِّهِمْ &middot; غَفُورٌ رَحِيمٌ</td></tr>
+  </tbody></table>
+  <p><b>Pengecualian:</b> bila nun sukun dan huruf idgham berada dalam <b>satu kata</b>, bacaannya tetap <b>jelas</b> (idzhar mutlak): دُنْيَا &middot; بُنْيَانٌ &middot; صِنْوَانٌ &middot; قِنْوَانٌ</p>
+  <p class="sub">c. Iqlab &mdash; diubah menjadi mim + dengung</p>
+  <p>Hanya 1 huruf: ب. Nun sukun/tanwin diubah menjadi mim samar pada ba, disertai ghunnah. Contoh: مِنْ بَعْدِ &middot; أَنْبِئْهُمْ &middot; سَمِيعٌ بَصِيرٌ &middot; لَيُنْبَذَنَّ</p>
+  <p class="sub">d. Ikhfa Haqiqi &mdash; dibaca samar + dengung</p>
+  <p>15 huruf selain huruf idzhar, idgham, dan iqlab: ت ث ج د ذ ز س ش ص ض ط ظ ف ق ك</p>
+  <table><tbody>
+  <tr><td>ت</td><td>مِنْ تَحْتِهَا</td><td>ث</td><td>مَنْ ثَقُلَتْ</td></tr>
+  <tr><td>ج</td><td>أَنْجَيْنَاكُمْ</td><td>د</td><td>أَنْدَادًا</td></tr>
+  <tr><td>ذ</td><td>مُنْذِرٌ</td><td>ز</td><td>أَنْزَلْنَا</td></tr>
+  <tr><td>س</td><td>الْإِنْسَانُ</td><td>ش</td><td>مَنْ شَاءَ</td></tr>
+  <tr><td>ص</td><td>مَنْصُورًا</td><td>ض</td><td>مَنْضُودٍ</td></tr>
+  <tr><td>ط</td><td>يَنْطِقُونَ</td><td>ظ</td><td>يَنْظُرُونَ</td></tr>
+  <tr><td>ف</td><td>أَنْفُسَهُمْ</td><td>ق</td><td>مِنْ قَبْلُ</td></tr>
+  <tr><td>ك</td><td>مَنْ كَانَ</td><td></td><td></td></tr>
+  </tbody></table>`},
+{title:"Hukum Mim Sukun",body:`
+  <table><thead><tr><th>Hukum</th><th>Huruf</th><th>Cara Baca</th><th>Contoh</th></tr></thead><tbody>
+  <tr><td><b>Ikhfa Syafawi</b></td><td>ب</td><td>Samar di bibir + dengung</td><td>تَرْمِيهِمْ بِحِجَارَةٍ</td></tr>
+  <tr><td><b>Idgham Mitslain</b><br><span style="color:var(--ink-soft);font-size:.8em">mimi</span></td><td>م</td><td>Dimasukkan + dengung</td><td>لَهُمْ مَا يَشَاءُونَ &middot; كَمْ مِنْ فِئَةٍ</td></tr>
+  <tr><td><b>Idzhar Syafawi</b></td><td>26 huruf<br><span style="color:var(--ink-soft);font-size:.8em">selain م dan ب</span></td><td>Jelas, tanpa dengung</td><td>أَنْعَمْتَ عَلَيْهِمْ &middot; أَلَمْ نَشْرَحْ</td></tr>
+  </tbody></table>
+  <p class="sub">Paling sering keliru</p>
+  <p>Mim sukun bertemu و atau ف tetap <b>idzhar syafawi</b> &mdash; dibaca jelas, jangan didengungkan. Contoh: عَلَيْهِمْ وَلَا الضَّالِّينَ &middot; هُمْ فِيهَا</p>`},
+{title:"Tanda Waqaf",body:`
+  <table><thead><tr><th>Tanda</th><th>Nama</th><th>Hukum</th></tr></thead><tbody>
+  <tr><td>لا</td><td>Waqaf La Washal</td><td>Tidak boleh berhenti bila di tengah ayat; boleh berhenti bila di akhir ayat.</td></tr>
+  <tr><td>م</td><td>Waqaf Lazim</td><td>Diutamakan berhenti &mdash; kalimat sudah sempurna.</td></tr>
+  <tr><td>صلى</td><td>Washal Aula</td><td>Lebih baik diteruskan, tetapi boleh berhenti.</td></tr>
+  <tr><td>قلى</td><td>Waqaf Aula</td><td>Lebih baik berhenti, walaupun nafas masih kuat.</td></tr>
+  <tr><td>ج</td><td>Waqaf Jaiz</td><td>Boleh berhenti, boleh lanjut &mdash; sama baiknya.</td></tr>
+  <tr><td>&#8756; &#8756;</td><td>Waqaf Muraqabah / Ta&rsquo;anuq</td><td>Muncul dua kali; harus berhenti di salah satu saja, tidak boleh di keduanya.</td></tr>
+  </tbody></table>`}
+];
+
+const TAJWID_BANK=[
+{l:1,t:"dasar",q:"Secara bahasa, kata \"tajwid\" berarti…",o:["Memperbaiki (tahsin)","Memanjangkan","Mendengungkan","Menyamarkan"],a:0,e:"Tajwid secara bahasa berarti memperbaiki, sepadan dengan kata tahsin. Secara istilah: membaca Al-Qur'an sebagaimana bacaan Rasulullah Saw."},
+{l:1,t:"dasar",q:"Hukum membaca Al-Qur'an dengan tajwid bagi setiap pembacanya adalah…",o:["Fardhu 'ain","Fardhu kifayah","Sunnah muakkad","Mubah"],a:0,e:"Mempelajari ilmu tajwid fardhu kifayah, tetapi mempraktikkannya saat membaca Al-Qur'an hukumnya fardhu 'ain — kewajiban setiap individu."},
+{l:1,t:"dasar",q:"Berikut yang termasuk kesalahan Jali adalah…",o:["Salah membaca harakat","Ghunnah kurang dengung","Mad kurang panjang","Mad melebihi kadar"],a:0,e:"Lahn Jali = kesalahan nyata: salah harakat, salah makhraj, atau salah sifat huruf. Tiga pilihan lainnya termasuk lahn khafi."},
+{l:1,t:"dasar",q:"Kurang mendengungkan ghunnah termasuk kesalahan…",o:["Khafi (samar)","Jali (nyata)","Fahisy","Tidak termasuk kesalahan"],a:0,e:"Lahn Khafi adalah kesalahan yang tidak nyata dan tidak mengubah makna, seperti kurang ghunnah atau kurang panjang mad."},
+{l:1,t:"ghunnah",q:"Ghunnah menurut bahasa berarti…",o:["Dengung atau gema","Jelas","Samar","Memasukkan"],a:0,e:"Ghunnah artinya dengung/gema; secara istilah suara yang keluar dari rongga hidung menyertai nun dan mim."},
+{l:1,t:"ghunnah",q:"Suara ghunnah keluar dari…",o:["Rongga hidung (al-khaisyum)","Tenggorokan (al-halq)","Dua bibir (asy-syafatan)","Rongga mulut (al-jauf)"],a:0,e:"Al-Khaisyum adalah makhraj rongga hidung; dari sinilah keluar segala bunyi ghunnah."},
+{l:1,t:"ghunnah",q:"Huruf yang wajib dibaca ghunnah bila bertasydid adalah…",o:["Nun dan mim","Lam dan ra","Ba dan mim","Ya dan waw"],a:0,e:"Hanya nun (نّ) dan mim (مّ) bertasydid yang wajib dibaca ghunnah, dan inilah ghunnah tingkat paling sempurna."},
+{l:1,t:"ghunnah",q:"Hukum bacaan pada lafaz berikut adalah…",ar:"إِنَّا أَعْطَيْنَاكَ",o:["Ghunnah","Ikhfa","Idgham bilaghunnah","Idzhar halqi"],a:0,e:"Terdapat nun bertasydid pada إِنَّا, sehingga wajib dibaca dengung ±2 harakat."},
+{l:1,t:"ghunnah",q:"Hukum bacaan pada lafaz berikut adalah…",ar:"عَمَّ يَتَسَاءَلُونَ",o:["Ghunnah","Iqlab","Idzhar syafawi","Ikhfa syafawi"],a:0,e:"Pada عَمَّ terdapat mim bertasydid — dibaca ghunnah (dengung) ±2 harakat."},
+{l:1,t:"nun",q:"Jumlah huruf idzhar halqi ada…",o:["6 huruf","4 huruf","2 huruf","15 huruf"],a:0,e:"Huruf idzhar halqi ada 6, semuanya keluar dari tenggorokan: ء هـ ع ح غ خ."},
+{l:1,t:"nun",q:"Huruf berikut yang termasuk huruf idzhar halqi adalah…",o:["غ","ب","ل","ت"],a:0,e:"Ghain (غ) keluar dari adnal halq, termasuk 6 huruf halq. Ba = iqlab, lam = idgham bilaghunnah, ta = ikhfa."},
+{l:1,t:"nun",q:"Huruf idgham bighunnah adalah…",o:["ي ن م و","ل ر","ب","ء هـ ع ح غ خ"],a:0,e:"Dikenal dengan singkatan \"yanmu\": ya, nun, mim, waw."},
+{l:1,t:"nun",q:"Huruf idgham bilaghunnah adalah…",o:["ل dan ر","ي dan و","م dan ن","ب dan م"],a:0,e:"Hanya lam dan ra; nun sukun/tanwin dilebur tanpa dengung."},
+{l:1,t:"nun",q:"Huruf iqlab berjumlah…",o:["1 huruf, yaitu ب","2 huruf","4 huruf","6 huruf"],a:0,e:"Iqlab hanya terjadi bila nun sukun atau tanwin bertemu ba (ب)."},
+{l:1,t:"nun",q:"Jumlah huruf ikhfa haqiqi ada…",o:["15 huruf","6 huruf","4 huruf","10 huruf"],a:0,e:"Ikhfa memiliki 15 huruf, yaitu sisa huruf hijaiyah selain huruf idzhar, idgham, dan iqlab."},
+{l:1,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"أَنْعَمْتَ",o:["Idzhar halqi","Ikhfa haqiqi","Idgham bighunnah","Iqlab"],a:0,e:"Nun sukun bertemu 'ain (ع) — huruf halq — sehingga dibaca jelas tanpa dengung."},
+{l:1,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"مَنْ يَعْمَلْ",o:["Idgham bighunnah","Idgham bilaghunnah","Idzhar halqi","Ikhfa"],a:0,e:"Nun sukun bertemu ya (ي), salah satu huruf \"yanmu\", dilebur dengan dengung."},
+{l:1,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"غَفُورٌ رَحِيمٌ",o:["Idgham bilaghunnah","Idgham bighunnah","Idzhar halqi","Iqlab"],a:0,e:"Tanwin bertemu ra (ر), dilebur tanpa dengung; ra menjadi seolah bertasydid."},
+{l:1,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"مِنْ بَعْدِ",o:["Iqlab","Ikhfa","Idzhar","Idgham bighunnah"],a:0,e:"Nun sukun bertemu ba (ب): bunyi nun diubah menjadi mim samar disertai ghunnah."},
+{l:1,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"مِنْ قَبْلُ",o:["Ikhfa haqiqi","Idzhar halqi","Iqlab","Idgham bilaghunnah"],a:0,e:"Nun sukun bertemu qaf (ق), salah satu dari 15 huruf ikhfa — dibaca samar disertai dengung."},
+{l:1,t:"nun",q:"Idzhar menurut bahasa berarti…",o:["Jelas","Samar","Memasukkan","Mengubah"],a:0,e:"Idzhar = jelas; hurufnya diucapkan dari makhrajnya tanpa tambahan ghunnah."},
+{l:1,t:"nun",q:"Idgham menurut bahasa berarti…",o:["Memasukkan","Menjelaskan","Membalik","Menyamarkan"],a:0,e:"Idgham = memasukkan; huruf sukun digabungkan ke huruf berharakat sesudahnya menjadi satu huruf bertasydid."},
+{l:1,t:"nun",q:"Iqlab menurut bahasa berarti…",o:["Mengubah","Menyamarkan","Menjelaskan","Memanjangkan"],a:0,e:"Qalb/iqlab = mengubah; nun sukun atau tanwin diubah menjadi mim yang tersembunyi pada ba."},
+{l:1,t:"nun",q:"Ikhfa menurut bahasa berarti…",o:["Samar atau tertutup","Jelas","Memasukkan","Berhenti"],a:0,e:"Ikhfa = samar; diucapkan antara idzhar dan idgham, tanpa tasydid, tetap disertai ghunnah."},
+{l:1,t:"mad",q:"Mad menurut bahasa berarti…",o:["Memanjangkan dan menambah","Menyamarkan","Mendengungkan","Menahan"],a:0,e:"Mad artinya memanjangkan; secara istilah memanjangkan suara dengan huruf mad atau huruf lin."},
+{l:1,t:"mad",q:"Panjang bacaan mad asli (thabi'i) adalah…",o:["2 harakat","4 harakat","5 harakat","6 harakat"],a:0,e:"Mad thabi'i tidak dipengaruhi sebab apa pun, dibaca tepat 2 harakat."},
+{l:1,t:"mad",q:"Huruf mad berjumlah…",o:["3: alif, ya sukun, waw sukun","2: alif dan ya","4: alif, ya, waw, nun","6 huruf"],a:0,e:"Alif setelah fathah, ya sukun setelah kasrah, dan waw sukun setelah dhammah."},
+{l:1,t:"mad",q:"Hukum bacaan lafaz berikut adalah…",ar:"قَالَ",o:["Mad thabi'i, 2 harakat","Mad far'i, 4 harakat","Mad far'i, 6 harakat","Bukan bacaan mad"],a:0,e:"Alif jatuh setelah huruf berharakat fathah tanpa sebab lain — mad asli 2 harakat."},
+{l:1,t:"mim",q:"Mim sukun bertemu huruf ba (ب) dibaca…",o:["Ikhfa syafawi","Idzhar syafawi","Idgham mitslain","Iqlab"],a:0,e:"Mim sukun bertemu ba dibaca samar di bibir disertai dengung — ikhfa syafawi."},
+{l:1,t:"mim",q:"Mim sukun bertemu huruf mim berharakat dibaca…",o:["Idgham mitslain","Ikhfa syafawi","Idzhar syafawi","Idzhar halqi"],a:0,e:"Disebut juga idgham mimi/mutamatsilain: dimasukkan ke huruf berikutnya disertai dengung."},
+{l:1,t:"mim",q:"Mim sukun bertemu huruf selain م dan ب dibaca…",o:["Idzhar syafawi","Ikhfa syafawi","Idgham mitslain","Ghunnah"],a:0,e:"Dibaca jelas tanpa dengung; disebut syafawi karena makhraj mim ada di bibir."},
+{l:1,t:"mim",q:"Huruf idzhar syafawi berjumlah…",o:["26 huruf","6 huruf","15 huruf","2 huruf"],a:0,e:"28 huruf hijaiyah dikurangi mim dan ba = 26 huruf."},
+{l:1,t:"waqaf",q:"Waqaf secara bahasa berarti…",o:["Menahan (berhenti)","Menyambung","Mengulang","Memanjangkan"],a:0,e:"Waqaf artinya menahan, yakni menghentikan bacaan pada tempat tertentu."},
+{l:1,t:"waqaf",q:"Tanda waqaf ﺝ (jim) bermakna…",o:["Boleh berhenti, boleh lanjut","Wajib berhenti","Dilarang berhenti","Harus mengulang"],a:0,e:"Tanda jim = waqaf jaiz: berhenti dan meneruskan sama-sama diperbolehkan."},
+{l:1,t:"waqaf",q:"Tanda waqaf لا yang berada di tengah ayat bermakna…",o:["Tidak boleh berhenti","Wajib berhenti","Lebih baik berhenti","Harus mengulang dari awal"],a:0,e:"Waqaf La Washal: tidak boleh berhenti bila di tengah ayat; bila berada di akhir ayat, boleh berhenti."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"وَانْحَرْ",o:["Idzhar halqi","Ikhfa haqiqi","Iqlab","Idgham bighunnah"],a:0,e:"Nun sukun bertemu ha (ح) dari wasathul halq — dibaca jelas tanpa dengung."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"عَلِيمٌ حَكِيمٌ",o:["Idzhar halqi","Idgham bighunnah","Ikhfa","Iqlab"],a:0,e:"Tanwin bertemu ha (ح), termasuk 6 huruf halq — dibaca jelas."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"رَسُولٌ أَمِينٌ",o:["Idzhar halqi","Ikhfa haqiqi","Idgham bighunnah","Idgham bilaghunnah"],a:0,e:"Tanwin bertemu hamzah (ء) — huruf halq paling bawah — dibaca jelas."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"مِنْ نِعْمَةٍ",o:["Idgham bighunnah","Idzhar halqi","Ghunnah musyaddadah","Ikhfa"],a:0,e:"Nun sukun bertemu nun berharakat: dilebur menjadi nun bertasydid disertai dengung."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"عَذَابٌ مُقِيمٌ",o:["Idgham bighunnah","Ikhfa syafawi","Idzhar halqi","Iqlab"],a:0,e:"Tanwin bertemu mim — termasuk huruf \"yanmu\" — dilebur dengan dengung."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"مِنْ وَالٍ",o:["Idgham bighunnah","Idzhar syafawi","Idgham bilaghunnah","Ikhfa"],a:0,e:"Nun sukun bertemu waw (و), salah satu huruf idgham bighunnah."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"مِنْ لَدُنْهُ",o:["Idgham bilaghunnah","Idgham bighunnah","Idzhar halqi","Ikhfa"],a:0,e:"Nun sukun bertemu lam — dilebur tanpa dengung sama sekali."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"هُدًى لِلْمُتَّقِينَ",o:["Idgham bilaghunnah","Idgham bighunnah","Idzhar halqi","Iqlab"],a:0,e:"Tanwin bertemu lam: bunyi tanwin hilang, dilebur ke lam tanpa dengung."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"سَمِيعٌ بَصِيرٌ",o:["Iqlab","Ikhfa syafawi","Idgham bighunnah","Idzhar halqi"],a:0,e:"Tanwin bertemu ba: tanwin diubah menjadi mim samar disertai ghunnah 2 harakat."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"أَنْبِئْهُمْ",o:["Iqlab","Ikhfa haqiqi","Idzhar halqi","Idgham bighunnah"],a:0,e:"Nun sukun bertemu ba dalam satu kata — tetap iqlab, dibaca \"ambi'hum\" dengan dengung."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"يَنْظُرُونَ",o:["Ikhfa haqiqi","Idzhar halqi","Idgham bighunnah","Iqlab"],a:0,e:"Nun sukun bertemu zha (ظ), salah satu dari 15 huruf ikhfa."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"الْإِنْسَانُ",o:["Ikhfa haqiqi","Idzhar halqi","Idgham bilaghunnah","Ghunnah"],a:0,e:"Nun sukun bertemu sin (س) — dibaca samar disertai dengung."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"أَنْدَادًا",o:["Ikhfa haqiqi","Iqlab","Idzhar halqi","Idgham bighunnah"],a:0,e:"Nun sukun bertemu dal (د), termasuk huruf ikhfa."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"مَنْ شَاءَ",o:["Ikhfa haqiqi","Idzhar halqi","Idgham bighunnah","Idgham bilaghunnah"],a:0,e:"Nun sukun bertemu syin (ش) — ikhfa, dibaca samar dengan dengung."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"مَنْصُورًا",o:["Ikhfa haqiqi","Idzhar halqi","Iqlab","Ghunnah"],a:0,e:"Nun sukun bertemu shad (ص), salah satu huruf ikhfa."},
+{l:2,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"مُنْذِرٌ",o:["Ikhfa haqiqi","Idgham bighunnah","Idzhar halqi","Iqlab"],a:0,e:"Nun sukun bertemu dzal (ذ) — termasuk 15 huruf ikhfa."},
+{l:2,t:"mim",q:"Hukum bacaan lafaz berikut adalah…",ar:"تَرْمِيهِمْ بِحِجَارَةٍ",o:["Ikhfa syafawi","Idzhar syafawi","Idgham mitslain","Iqlab"],a:0,e:"Mim sukun bertemu ba: dibaca samar dengan merapatkan dua bibir disertai dengung."},
+{l:2,t:"mim",q:"Hukum bacaan lafaz berikut adalah…",ar:"لَهُمْ مَا يَشَاءُونَ",o:["Idgham mitslain","Ikhfa syafawi","Idzhar syafawi","Idgham bighunnah"],a:0,e:"Mim sukun bertemu mim berharakat — dilebur menjadi satu mim bertasydid dengan dengung."},
+{l:2,t:"mim",q:"Hukum bacaan lafaz berikut adalah…",ar:"كَمْ مِنْ فِئَةٍ",o:["Idgham mitslain","Idzhar syafawi","Ikhfa syafawi","Iqlab"],a:0,e:"Pada كَمْ مِنْ, mim sukun bertemu mim — idgham mitslain (mimi) disertai dengung."},
+{l:2,t:"mim",q:"Hukum bacaan lafaz berikut adalah…",ar:"أَلَمْ نَشْرَحْ",o:["Idzhar syafawi","Idgham mitslain","Ikhfa syafawi","Ikhfa haqiqi"],a:0,e:"Mim sukun bertemu nun — bukan mim dan bukan ba — sehingga dibaca jelas."},
+{l:2,t:"mim",q:"Hukum mim sukun pada lafaz berikut adalah…",ar:"عَلَيْهِمْ وَلَا الضَّالِّينَ",o:["Idzhar syafawi","Ikhfa syafawi","Idgham mitslain","Ghunnah"],a:0,e:"Mim sukun bertemu waw tetap dibaca JELAS. Justru di sinilah banyak orang keliru mendengungkannya."},
+{l:2,t:"mim",q:"Hukum mim sukun pada lafaz berikut adalah…",ar:"هُمْ فِيهَا",o:["Idzhar syafawi","Ikhfa syafawi","Idgham mitslain","Iqlab"],a:0,e:"Mim sukun bertemu fa dibaca jelas tanpa dengung, meski makhrajnya berdekatan."},
+{l:2,t:"mad",q:"Sebab bacaan mad pada lafaz berikut adalah…",ar:"يَقُولُ",o:["Waw sukun setelah dhammah","Alif setelah fathah","Ya sukun setelah kasrah","Bertemu hamzah"],a:0,e:"Mad thabi'i: waw sukun jatuh setelah huruf berharakat dhammah, dibaca 2 harakat."},
+{l:2,t:"mad",q:"Panjang bacaan pada lafaz berikut adalah…",ar:"جَاءَ",o:["4–5 harakat","2 harakat","6 harakat","1 harakat"],a:0,e:"Huruf mad bertemu hamzah, sehingga menjadi mad far'i yang dibaca 4 atau 5 harakat."},
+{l:2,t:"mad",q:"Panjang bacaan pada lafaz berikut adalah…",ar:"وَلَا الضَّالِّينَ",o:["6 harakat","2 harakat","4 harakat","3 harakat"],a:0,e:"Huruf mad bertemu huruf bertasydid, dibaca panjang 6 harakat."},
+{l:2,t:"mad",q:"Panjang bacaan pada lafaz berikut adalah…",ar:"الطَّامَّةُ",o:["6 harakat","2 harakat","4 harakat","5 harakat"],a:0,e:"Alif mad bertemu mim bertasydid — dibaca 6 harakat."},
+{l:2,t:"mad",q:"Mad far'i dibaca 4 atau 5 harakat apabila tanda mad bertemu…",o:["Hamzah","Tasydid","Sukun","Tanwin"],a:0,e:"Bertemu hamzah = 4–5 harakat; bertemu tasydid atau sukun = 6 harakat."},
+{l:2,t:"mad",q:"Yang dimaksud huruf lin adalah…",o:["Ya atau waw sukun setelah fathah","Ya sukun setelah kasrah","Waw sukun setelah dhammah","Alif setelah fathah"],a:0,e:"Huruf lin contohnya pada بَيْتٍ dan خَوْفٍ — dibaca lunak, bukan mad thabi'i."},
+{l:2,t:"makhraj",q:"Huruf ب م و keluar dari makhraj…",o:["Asy-syafatan (dua bibir)","Al-halq (tenggorokan)","Al-lisan (lidah)","Al-jauf (rongga mulut)"],a:0,e:"Ba dan mim dari dua bibir tertutup; waw dari dua bibir yang dimoncongkan sehingga ada celah suara."},
+{l:2,t:"makhraj",q:"Huruf ف keluar dari…",o:["Perut bibir bawah bertemu ujung dua gigi seri atas","Dua bibir tertutup rapat","Ujung lidah dan gigi atas","Tenggorokan bagian tengah"],a:0,e:"Inilah yang membedakan makhraj fa dari ba dan mim, meski sama-sama pada kelompok asy-syafatan."},
+{l:2,t:"makhraj",q:"Huruf ء dan هـ keluar dari…",o:["Aqshal halq (tenggorokan bawah)","Wasathul halq (tengah)","Adnal halq (atas)","Al-jauf"],a:0,e:"Aqshal halq adalah bagian tenggorokan yang paling jauh/bawah."},
+{l:2,t:"makhraj",q:"Huruf ع dan ح keluar dari…",o:["Wasathul halq (tenggorokan tengah)","Aqshal halq","Adnal halq","Asy-syafatan"],a:0,e:"'Ain dan ha berada di pertengahan tenggorokan."},
+{l:2,t:"makhraj",q:"Huruf غ dan خ keluar dari…",o:["Adnal halq (tenggorokan atas)","Wasathul halq","Aqshal halq","Al-lisan"],a:0,e:"Adnal halq adalah bagian tenggorokan yang paling dekat dengan mulut."},
+{l:2,t:"makhraj",q:"Dari makhraj Al-Jauf keluar…",o:["Tiga huruf mad","Enam huruf halq","Bunyi ghunnah","Huruf qalqalah"],a:0,e:"Al-Jauf (rongga mulut) memiliki satu makhraj dan darinya keluar alif, waw sukun, dan ya sukun."},
+{l:2,t:"makhraj",q:"Dari makhraj Al-Khaisyum keluar…",o:["Segala bunyi ghunnah","Huruf mad","Huruf halq","Huruf qalqalah"],a:0,e:"Al-Khaisyum adalah rongga hidung, sumber seluruh dengung dalam bacaan."},
+{l:2,t:"makhraj",q:"Al-Lisan (lidah) memiliki jumlah makhraj sebanyak…",o:["10 makhraj","4 makhraj","2 makhraj","1 makhraj"],a:0,e:"Al-Lisan terbagi menjadi empat bagian (pangkal, tengah, tepi, ujung lidah) yang seluruhnya memuat 10 makhraj."},
+{l:2,t:"waqaf",q:"Tanda waqaf ﺻﻠﻰ bermakna…",o:["Meneruskan bacaan lebih baik","Wajib berhenti","Dilarang berhenti","Harus mengulang"],a:0,e:"Washal aula: washal (meneruskan) lebih utama, meski berhenti tetap boleh."},
+{l:2,t:"waqaf",q:"Tanda waqaf ﻗﻠﻰ bermakna…",o:["Lebih baik berhenti","Lebih baik lanjut","Dilarang berhenti","Wajib berhenti"],a:0,e:"Waqaf aula: berhenti lebih utama walaupun nafas masih kuat."},
+{l:2,t:"waqaf",q:"Tanda titik tiga yang muncul dua kali (∴ ∴) disebut…",o:["Waqaf muraqabah — berhenti di salah satunya","Waqaf lazim — wajib berhenti di keduanya","Waqaf jaiz — bebas","Waqaf la washal"],a:0,e:"Disebut juga waqaf ta'anuq (terikat): harus berhenti pada salah satu tanda saja, tidak boleh keduanya."},
+{l:2,t:"waqaf",q:"Tanda waqaf م (mim) disebut waqaf lazim, artinya…",o:["Diutamakan berhenti karena kalimat sudah sempurna","Boleh berhenti boleh lanjut","Dilarang berhenti","Meneruskan lebih baik"],a:0,e:"Waqaf lazim menandai akhir kalimat yang sempurna sehingga berhenti lebih diutamakan."},
+{l:3,t:"nun",q:"Mengapa nun sukun dibaca idzhar ketika bertemu huruf halq?",o:["Karena makhraj huruf halq jauh dari makhraj nun sehingga sulit didengungkan","Karena huruf halq bertasydid","Karena huruf halq termasuk huruf mad","Karena huruf halq keluar dari hidung"],a:0,e:"Idzhar berarti mengeluarkan huruf dari makhrajnya tanpa tambahan ghunnah; jauhnya makhraj halq dari nun membuat peleburan tidak mungkin."},
+{l:3,t:"nun",q:"Lafaz دُنْيَا, بُنْيَانٌ, صِنْوَانٌ, قِنْوَانٌ dibaca…",o:["Idzhar, karena nun dan huruf idgham berada dalam satu kata","Idgham bighunnah seperti biasa","Iqlab","Ikhfa haqiqi"],a:0,e:"Ini pengecualian yang disebut idzhar mutlak: idgham hanya berlaku bila nun sukun dan hurufnya berada di dua kata berbeda."},
+{l:3,t:"nun",q:"Pada bacaan iqlab, bunyi nun sukun berubah menjadi…",o:["Mim yang tersembunyi pada ba, disertai ghunnah","Ba bertasydid tanpa dengung","Nun bertasydid","Hilang sama sekali"],a:0,e:"Karena itu مِنْ بَعْدِ dibaca \"mimba'di\" dengan dengung ±2 harakat, bukan \"minba'di\"."},
+{l:3,t:"nun",q:"Jumlah 15 huruf ikhfa diperoleh dari perhitungan…",o:["28 huruf − 6 idzhar − 6 idgham − 1 iqlab","28 huruf − 10 idzhar − 3 idgham","29 huruf − 14 lainnya","28 huruf − 6 idzhar − 7 idgham"],a:0,e:"Huruf ikhfa adalah sisa huruf hijaiyah setelah dikurangi huruf idzhar (6), idgham bighunnah dan bilaghunnah (4+2=6), serta iqlab (1)."},
+{l:3,t:"nun",q:"Pada lafaz berikut, yang terjadi pada nun sukun adalah…",ar:"مِنْ رَبِّهِمْ",o:["Dilebur ke ra tanpa dengung, ra menjadi bertasydid","Dilebur disertai dengung","Diubah menjadi mim","Dibaca samar"],a:0,e:"Idgham bilaghunnah: bunyi nun hilang seluruhnya, tidak boleh ada sisa dengung."},
+{l:3,t:"nun",q:"Hukum bacaan yang terdapat pada lafaz berikut adalah…",ar:"كُنْتُمْ",o:["Ikhfa haqiqi (nun sukun bertemu ta)","Idzhar halqi","Iqlab","Idgham mitslain"],a:0,e:"Ta (ت) termasuk 15 huruf ikhfa, sehingga nun sukun dibaca samar disertai dengung dalam satu kata."},
+{l:3,t:"nun",q:"Lafaz berikut mengandung DUA hukum bacaan sekaligus, yaitu…",ar:"أَنْعَمْتَ",o:["Idzhar halqi dan idzhar syafawi","Ikhfa haqiqi dan ikhfa syafawi","Idgham bighunnah dan iqlab","Iqlab dan idzhar syafawi"],a:0,e:"Nun sukun bertemu 'ain = idzhar halqi; lalu mim sukun bertemu ta = idzhar syafawi. Keduanya dibaca jelas."},
+{l:3,t:"mim",q:"Mengapa mim sukun yang bertemu و dan ف wajib dibaca idzhar syafawi dengan sempurna?",o:["Karena makhrajnya berdekatan dengan mim sehingga rawan tertukar menjadi dengung","Karena keduanya huruf halq","Karena keduanya huruf mad","Karena keduanya tidak boleh disambung"],a:0,e:"Waw sama-sama dari dua bibir dan fa dari bibir bawah, sehingga pembaca mudah keliru mendengungkannya; justru harus dijelaskan."},
+{l:3,t:"mim",q:"Perbedaan pokok idgham mitslain dan ikhfa syafawi adalah…",o:["Mitslain: mim bertemu mim lalu dilebur; ikhfa syafawi: mim bertemu ba lalu disamarkan","Mitslain tanpa dengung, ikhfa syafawi dengan dengung","Mitslain terjadi pada nun, ikhfa syafawi pada mim","Keduanya sama, hanya beda istilah"],a:0,e:"Keduanya sama-sama berdengung, tetapi berbeda huruf pemicu dan cara pengucapannya."},
+{l:3,t:"ghunnah",q:"Tingkatan ghunnah yang paling sempurna terdapat pada…",o:["Nun dan mim bertasydid","Ikhfa haqiqi","Idgham bighunnah","Idzhar halqi"],a:0,e:"Ghunnah musyaddadah adalah tingkat dengung paling sempurna, dan membacanya hukumnya wajib."},
+{l:3,t:"ghunnah",q:"Ukuran panjang dengung ghunnah yang umum dipakai adalah…",o:["Sekitar 2 harakat","Sekitar 6 harakat","Tidak ada ukuran","Sekitar 4–5 harakat"],a:0,e:"Kurang dari kadar tersebut termasuk lahn khafi — kesalahan samar yang tidak mengubah makna."},
+{l:3,t:"mad",q:"Panjang bacaan pada lafaz berikut dan sebabnya adalah…",ar:"يَا أَيُّهَا",o:["4–5 harakat, karena huruf mad bertemu hamzah","2 harakat, mad thabi'i","6 harakat, bertemu tasydid","2 harakat, huruf lin"],a:0,e:"Alif mad pada يَا langsung bertemu hamzah pada أَيُّهَا sehingga menjadi mad far'i."},
+{l:3,t:"mad",q:"Yang membedakan mad far'i dari mad asli adalah…",o:["Mad far'i dipengaruhi sebab berupa hamzah, sukun, atau tasydid","Mad far'i selalu 2 harakat","Mad asli selalu dibaca 6 harakat","Mad far'i tidak memakai huruf mad"],a:0,e:"Mad asli murni 2 harakat tanpa sebab; adanya sebab itulah yang menambah panjangnya menjadi 4, 5, atau 6 harakat."},
+{l:3,t:"mad",q:"Lafaz بَيْتٍ dan خَوْفٍ mengandung…",o:["Huruf lin, yaitu ya/waw sukun setelah fathah","Mad thabi'i 2 harakat","Mad far'i 6 harakat","Ghunnah"],a:0,e:"Huruf lin berbeda dari huruf mad karena huruf sebelumnya berharakat fathah, bukan kasrah atau dhammah."},
+{l:3,t:"dasar",q:"Sengaja melakukan kesalahan Jali dalam membaca Al-Qur'an hukumnya…",o:["Haram","Makruh","Mubah","Sunnah dihindari saja"],a:0,e:"Karena lahn jali dapat mengubah bacaan dan bahkan maknanya, melakukannya dengan sengaja hukumnya haram."},
+{l:3,t:"dasar",q:"Memanjangkan mad melebihi kadar yang seharusnya termasuk…",o:["Lahn khafi","Lahn jali","Bukan kesalahan","Sunnah qiraah"],a:0,e:"Bersama kurangnya ghunnah dan kurangnya mad, ini termasuk kesalahan samar yang tidak mengubah makna."},
+{l:3,t:"dasar",q:"Isti'adzah dibaca dengan suara keras apabila…",o:["Tilawah dengan suara keras dan ada orang lain yang mendengarkan","Sedang membaca sendirian","Selalu, dalam keadaan apa pun","Hanya saat shalat"],a:0,e:"Bila tilawah pelan atau sendirian, isti'adzah dibaca pelan. Saat bergantian membaca, boleh dibaca oleh pembaca pertama saja."},
+{l:3,t:"dasar",q:"Surat dalam Al-Qur'an yang tidak diawali basmalah adalah…",o:["At-Taubah","Al-Fatihah","An-Nas","Al-Ikhlas"],a:0,e:"Basmalah dibaca ketika memulai awal setiap surat kecuali surat At-Taubah."},
+{l:3,t:"dasar",q:"Bila tilawah dimulai dari pertengahan surat, membaca basmalah hukumnya…",o:["Boleh dibaca, boleh tidak","Wajib dibaca","Dilarang dibaca","Wajib diganti isti'adzah"],a:0,e:"Ketentuan ini berbeda dengan awal surat, yang basmalahnya dibaca (kecuali At-Taubah)."},
+{l:3,t:"waqaf",q:"Waqaf muraqabah disebut juga…",o:["Waqaf ta'anuq (terikat)","Waqaf lazim","Waqaf jaiz","Waqaf la washal"],a:0,e:"Disebut terikat karena kedua tandanya saling berkaitan: berhenti di salah satu berarti tidak berhenti di yang lain."},
+{l:3,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"وَيْلٌ لِكُلِّ",o:["Idgham bilaghunnah","Idgham bighunnah","Ikhfa haqiqi","Idzhar halqi"],a:0,e:"Tanwin bertemu lam, dilebur tanpa dengung — bunyi tanwin hilang sepenuhnya."},
+{l:3,t:"nun",q:"Hukum bacaan lafaz berikut adalah…",ar:"فَأَمَّا مَنْ ثَقُلَتْ",o:["Ikhfa haqiqi","Idzhar halqi","Idgham bighunnah","Iqlab"],a:0,e:"Nun sukun bertemu tsa (ث), termasuk 15 huruf ikhfa. Perhatikan pula مَّا yang berghunnah."},
+{l:3,t:"nun",q:"Hukum nun sukun pada lafaz berikut adalah…",ar:"أَنْجَيْنَاكُمْ",o:["Ikhfa haqiqi","Idgham bighunnah","Idzhar halqi","Iqlab"],a:0,e:"Nun sukun bertemu jim (ج) di dalam satu kata — tetap dibaca ikhfa disertai dengung."},
+{l:3,t:"mim",q:"Hukum bacaan lafaz berikut adalah…",ar:"أَمْ مَنْ",o:["Idgham mitslain","Idzhar syafawi","Ikhfa syafawi","Iqlab"],a:0,e:"Mim sukun bertemu mim berharakat: dilebur menjadi mim bertasydid dengan dengung."},
+{l:3,t:"mad",q:"Lafaz الْحَاقَّةُ dibaca 6 harakat karena…",o:["Huruf mad bertemu huruf bertasydid","Huruf mad bertemu hamzah","Termasuk mad asli","Terdapat huruf lin"],a:0,e:"Mad yang bertemu tasydid atau sukun dipanjangkan 6 harakat — lebih panjang daripada mad yang bertemu hamzah."}
+];
+
+/* =========================================================
    MATERI (ringkasan)
 ========================================================= */
 const MATERI = [
@@ -860,12 +1266,15 @@ const VERSIONS = [
   {key:"acak", label:"Acak (Latihan)", desc:"Urutan soal &amp; posisi jawaban diacak ulang setiap kali mulai &mdash; cocok untuk latihan mandiri."},
   {key:"a", label:"Paket A", desc:"Urutan soal &amp; posisi jawaban tetap (tidak berubah setiap dibuka) &mdash; cocok untuk ujian tatap muka."},
   {key:"b", label:"Paket B", desc:"Susunan berbeda dari Paket A, juga tetap &mdash; berikan ke sebagian siswa agar posisi duduk berdekatan tidak dapat saling mencontek."},
-  {key:"c", label:"Paket C (Level Lanjutan)", desc:"Soal HOTS (Higher Order Thinking Skills) &mdash; level di atas Paket A &amp; B: analisis, perbandingan dalil, dan sintesis, bukan sekadar hafalan."}
+  {key:"c", label:"Paket C (Level Lanjutan)", desc:"Soal HOTS (Higher Order Thinking Skills) &mdash; level di atas Paket A &amp; B: analisis, perbandingan dalil, dan sintesis, bukan sekadar hafalan."},
+  {key:"bank", label:"Latihan Fleksibel (Bank Soal)", desc:"Bank soal baru berisi 120 soal (20 per kategori) &mdash; pilih sendiri jumlah soal 10&ndash;50 lewat slider, diacak setiap kali mulai."}
 ];
 
 // which question bank a version draws from
 function pool(version){
-  return version==="c" ? HOTS_QUESTIONS : QUESTIONS;
+  if(version==="c") return HOTS_QUESTIONS;
+  if(version==="bank") return BANK_QUESTIONS;
+  return QUESTIONS;
 }
 
 const state = {
@@ -874,14 +1283,31 @@ const state = {
   activeCat: "all",
   activeVersion: "acak",
   activePool: QUESTIONS,
+  bankCount: 20,
   order: [],
   idx: 0,
   answers: {},
   flags: {},
   optionOrder: {},
   reviewOpen: {},
-  reviewFilter: "all"
+  reviewFilter: "all",
+  // -- Khusus Tajwid: segmen mandiri, state terpisah dari simulasi utama --
+  tjView: "materi", // materi | latihan
+  tjScreen: "setup", // setup | quiz | result
+  tjLv: 1,
+  tjNum: 10,
+  tjQuiz: [],
+  tjIdx: 0,
+  tjReviewOpen: {},
+  tjReviewFilter: "all"
 };
+
+// keep the "jumlah soal" slider within [10, jumlah tersedia di kategori terpilih] (maks 50)
+function clampBankCount(){
+  const max = Math.min(50, catCount(state.activeCat, "bank"));
+  const min = Math.min(10, max);
+  state.bankCount = Math.max(min, Math.min(state.bankCount, max));
+}
 
 function shuffle(arr){
   const a = arr.slice();
@@ -943,12 +1369,18 @@ function catCount(cat, version){
 function buildOrder(cat, version){
   const p = pool(version);
   const idxs = p.map((q,i)=>i).filter(i=> cat==="all" || p[i].cat===cat);
+  if(version==="bank"){
+    const shuffled = shuffle(idxs);
+    const n = Math.min(state.bankCount, shuffled.length);
+    return shuffled.slice(0, n);
+  }
   if(version==="acak") return shuffle(idxs);
   return seededShuffle(idxs, hashStr("order|"+version+"|"+cat));
 }
 
 function startQuiz(){
   const v = state.activeVersion;
+  if(v==="bank") clampBankCount();
   state.activePool = pool(v);
   state.order = buildOrder(state.activeCat, v);
   state.idx = 0;
@@ -958,7 +1390,7 @@ function startQuiz(){
   state.order.forEach(qi=>{
     const n = state.activePool[qi].opts.length;
     const base = Array.from({length:n},(_,k)=>k);
-    state.optionOrder[qi] = v==="acak" ? shuffle(base) : seededShuffle(base, hashStr("opt|"+v+"|"+qi));
+    state.optionOrder[qi] = (v==="acak"||v==="bank") ? shuffle(base) : seededShuffle(base, hashStr("opt|"+v+"|"+qi));
   });
   state.screen = "quiz";
   render();
@@ -1018,6 +1450,7 @@ function render(){
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===state.tab));
   const main = document.getElementById("main");
   if(state.tab==="materi"){ main.innerHTML = renderMateri(); return; }
+  if(state.tab==="tajwid"){ renderTajwid(main); return; }
   if(state.screen==="start"){ main.innerHTML = renderStart(); attachStartEvents(); return; }
   if(state.screen==="quiz"){ main.innerHTML = renderQuiz(); attachQuizEvents(); return; }
   if(state.screen==="result"){ main.innerHTML = renderResult(); attachResultEvents(); }
@@ -1036,12 +1469,29 @@ function renderStart(){
     return `<button class="chip ${state.activeVersion===v.key?'active':''}" data-version="${v.key}">${v.label}</button>`;
   }).join("");
   const activeVersion = VERSIONS.find(v=>v.key===state.activeVersion);
+  const isBank = state.activeVersion==="bank";
 
   const histHtml = hist.length ? `
     <div class="startcard history">
       <h3>Riwayat Simulasi Terakhir</h3>
       ${hist.map(h=>`<div class="hist-item"><span>${h.date} &middot; ${h.cat}${h.version?` &middot; ${h.version}`:""}</span><span class="hist-score">${h.score}/${h.total} &middot; ${h.pct}%</span></div>`).join("")}
     </div>` : "";
+
+  let bankMax = 50, bankMin = 10;
+  if(isBank){
+    clampBankCount();
+    bankMax = Math.min(50, catCount(state.activeCat, "bank"));
+    bankMin = Math.min(10, bankMax);
+  }
+
+  const sliderHtml = isBank ? `
+    <div class="bankslider">
+      <label for="bankCountRange">Jumlah Soal: <b id="bankCountVal">${state.bankCount}</b> soal</label>
+      <input type="range" id="bankCountRange" min="${bankMin}" max="${bankMax}" step="1" value="${state.bankCount}">
+      <div class="bankslider-minmax"><span>${bankMin}</span><span>${bankMax}</span></div>
+    </div>` : "";
+
+  const displayCount = isBank ? state.bankCount : catCount(state.activeCat);
 
   return `
     <p class="lede">Latihan soal simulasi lomba Mata Pelajaran PAI &amp; BTQ (MAPSI). Pilih cakupan materi &amp; versi soal, lalu kerjakan seperti simulasi ujian: jawaban dan pembahasan baru muncul setelah kamu menyelesaikan seluruh soal.</p>
@@ -1050,9 +1500,10 @@ function renderStart(){
     <p class="section-label">Versi Soal</p>
     <div class="cats">${versionChips}</div>
     <p class="version-desc">${activeVersion ? activeVersion.desc : ""}</p>
+    ${sliderHtml}
     <div class="startcard">
       <h2>Siap memulai?</h2>
-      <p>${catCount(state.activeCat)} soal &middot; kategori: <b>${state.activeCat==="all"?"Semua Soal":fmtCat(state.activeCat)}</b> &middot; versi: <b>${fmtVersion(state.activeVersion)}</b></p>
+      <p><span id="startSoalCount">${displayCount}</span> soal &middot; kategori: <b>${state.activeCat==="all"?"Semua Soal":fmtCat(state.activeCat)}</b> &middot; versi: <b>${fmtVersion(state.activeVersion)}</b></p>
       <div class="row">
         <button class="btn btn-primary" id="startBtn">Mulai Simulasi</button>
         <button class="btn btn-ghost" id="goMateriBtn">Baca Materi Dulu</button>
@@ -1069,6 +1520,16 @@ function attachStartEvents(){
   document.querySelectorAll(".chip[data-version]").forEach(c=>{
     c.addEventListener("click", ()=>{ state.activeVersion = c.dataset.version; render(); });
   });
+  const bankRange = document.getElementById("bankCountRange");
+  if(bankRange){
+    bankRange.addEventListener("input", ()=>{
+      state.bankCount = parseInt(bankRange.value, 10);
+      const label = document.getElementById("bankCountVal");
+      if(label) label.textContent = state.bankCount;
+      const startCountEl = document.getElementById("startSoalCount");
+      if(startCountEl) startCountEl.textContent = state.bankCount;
+    });
+  }
   const sb = document.getElementById("startBtn");
   if(sb) sb.addEventListener("click", startQuiz);
   const gm = document.getElementById("goMateriBtn");
@@ -1270,6 +1731,281 @@ function attachResultEvents(){
 function renderMateri(){
   const cards = MATERI.map(m=>`<div class="mcard"><h3>${m.title}</h3><div class="tablewrap">${m.body}</div></div>`).join("");
   return `<p class="lede">Ringkasan kaidah tajwid, asmaul husna, fikih ibadah, dan sirah yang paling sering diujikan dalam simulasi MAPSI.</p><div class="materi-grid">${cards}</div>`;
+}
+
+/* =========================================================
+   KHUSUS TAJWID — render & logic (segmen mandiri)
+========================================================= */
+function tjCount(lv){
+  return lv===0 ? TAJWID_BANK.length : TAJWID_BANK.filter(q=>q.l===lv).length;
+}
+function tjFmtTopic(t){ return TAJWID_TOPIC[t] || t; }
+
+function renderTajwid(main){
+  const subnav = `
+    <div class="tj-subnav">
+      <button class="tab ${state.tjView==='materi'?'active':''}" id="tjSubMateri">Materi Tajwid</button>
+      <button class="tab ${state.tjView==='latihan'?'active':''}" id="tjSubLatihan">Latihan Soal</button>
+    </div>`;
+  let body;
+  if(state.tjView==="materi"){
+    body = renderTajwidMateri();
+  } else if(state.tjScreen==="setup"){
+    body = renderTajwidSetup();
+  } else if(state.tjScreen==="quiz"){
+    body = renderTajwidQuiz();
+  } else {
+    body = renderTajwidResult();
+  }
+  main.innerHTML = subnav + body;
+
+  document.getElementById("tjSubMateri").addEventListener("click", ()=>{ state.tjView="materi"; render(); });
+  document.getElementById("tjSubLatihan").addEventListener("click", ()=>{ state.tjView="latihan"; render(); });
+
+  if(state.tjView==="materi") return;
+  if(state.tjScreen==="setup") attachTajwidSetupEvents();
+  else if(state.tjScreen==="quiz") attachTajwidQuizEvents();
+  else attachTajwidResultEvents();
+}
+
+function renderTajwidMateri(){
+  const cards = TAJWID_MATERI.map(m=>`<div class="mcard"><h3>${m.title}</h3><div class="tablewrap">${m.body}</div></div>`).join("");
+  return `<p class="lede">Segmen khusus pendalaman ilmu tajwid SD Negeri 2 Pesantren: 7 bab materi dan 100 soal latihan tersendiri, dari dasar tajwid hingga tanda waqaf.</p><div class="materi-grid">${cards}</div>`;
+}
+
+function renderTajwidSetup(){
+  const levels = [{key:1,label:"Mudah"},{key:2,label:"Sedang"},{key:3,label:"Sulit"},{key:0,label:"Campur"}];
+  const lvChips = levels.map(lv=>`<button class="chip ${state.tjLv===lv.key?'active':''}" data-tjlv="${lv.key}">${lv.label} <span class="n">(${tjCount(lv.key)})</span></button>`).join("");
+
+  const max = tjCount(state.tjLv);
+  let numOpts = [5,10,20,50].filter(n=>n<max);
+  numOpts.push(max);
+  if(!numOpts.includes(state.tjNum)) state.tjNum = numOpts.includes(10) ? 10 : numOpts[0];
+  const numChips = numOpts.map(n=>`<button class="chip ${state.tjNum===n?'active':''}" data-tjnum="${n}">${n===max?'Semua':n+' soal'} ${n===max?`<span class="n">(${n})</span>`:''}</button>`).join("");
+
+  const topicRows = Object.keys(TAJWID_TOPIC).map(k=>{
+    const c1=TAJWID_BANK.filter(q=>q.t===k&&q.l===1).length;
+    const c2=TAJWID_BANK.filter(q=>q.t===k&&q.l===2).length;
+    const c3=TAJWID_BANK.filter(q=>q.t===k&&q.l===3).length;
+    return `<tr><td>${tjFmtTopic(k)}</td><td>${c1}</td><td>${c2}</td><td>${c3}</td><td><b>${c1+c2+c3}</b></td></tr>`;
+  }).join("");
+
+  return `
+    <p class="lede">Latihan khusus hukum bacaan tajwid: ${TAJWID_BANK.length} soal mencakup 7 bab. Pilih tingkat kesulitan dan jumlah soal, lalu kerjakan seperti biasa &mdash; skor dan pembahasan muncul di akhir latihan.</p>
+    <p class="section-label">Tingkat Kesulitan</p>
+    <div class="cats">${lvChips}</div>
+    <p class="section-label">Jumlah Soal</p>
+    <div class="cats">${numChips}</div>
+    <div class="startcard">
+      <h2>Siap latihan tajwid?</h2>
+      <p>${state.tjNum} soal &middot; tingkat: <b>${TJ_LVNAME[state.tjLv]}</b></p>
+      <div class="row">
+        <button class="btn btn-primary" id="tjStartBtn">Mulai Latihan</button>
+        <button class="btn btn-ghost" id="tjMateriBtn">Baca Materi Tajwid</button>
+      </div>
+    </div>
+    <div class="mcard" style="margin-top:22px">
+      <h3>Isi Bank Soal Tajwid</h3>
+      <div class="tablewrap"><table><thead><tr><th>Bab</th><th>Mudah</th><th>Sedang</th><th>Sulit</th><th>Total</th></tr></thead><tbody>${topicRows}</tbody></table></div>
+    </div>
+  `;
+}
+
+function attachTajwidSetupEvents(){
+  document.querySelectorAll("[data-tjlv]").forEach(c=>{
+    c.addEventListener("click", ()=>{ state.tjLv = parseInt(c.dataset.tjlv,10); render(); });
+  });
+  document.querySelectorAll("[data-tjnum]").forEach(c=>{
+    c.addEventListener("click", ()=>{ state.tjNum = parseInt(c.dataset.tjnum,10); render(); });
+  });
+  const sb = document.getElementById("tjStartBtn");
+  if(sb) sb.addEventListener("click", tjStartQuiz);
+  const mb = document.getElementById("tjMateriBtn");
+  if(mb) mb.addEventListener("click", ()=>{ state.tjView="materi"; render(); });
+}
+
+function tjStartQuiz(){
+  const pool = state.tjLv===0 ? TAJWID_BANK.slice() : TAJWID_BANK.filter(q=>q.l===state.tjLv);
+  const picked = shuffle(pool.slice()).slice(0, Math.min(state.tjNum, pool.length));
+  state.tjQuiz = picked.map(q=>{
+    const optIdx = shuffle(q.o.map((_,i)=>i));
+    return {q, optIdx, pick:null, flagged:false};
+  });
+  state.tjIdx = 0;
+  state.tjReviewOpen = {};
+  state.tjReviewFilter = "all";
+  state.tjScreen = "quiz";
+  render();
+}
+
+function tjCurrent(){ return state.tjQuiz[state.tjIdx]; }
+
+function tjSelect(displayPos){
+  const it = tjCurrent();
+  it.pick = it.optIdx[displayPos];
+  render();
+}
+
+function tjGoto(delta){
+  state.tjIdx = Math.min(Math.max(0, state.tjIdx+delta), state.tjQuiz.length-1);
+  render();
+}
+
+function renderTajwidBeads(){
+  const beads = state.tjQuiz.map((it,i)=>{
+    let cls = "bead";
+    if(i===state.tjIdx) cls += " current";
+    if(it.pick!==null) cls += " done";
+    return `<span class="${cls}" title="Soal ${i+1}"></span>`;
+  }).join("");
+  return `<div class="beads-wrap"><div class="beads">${beads}</div></div>`;
+}
+
+function renderTajwidQuiz(){
+  const it = tjCurrent();
+  const q = it.q;
+  const opts = it.optIdx.map((oi,displayPos)=>{
+    const o = q.o[oi];
+    const isArabicOpt = /[؀-ۿ]/.test(o);
+    return `<button class="opt ${it.pick===oi?'selected':''}" data-oi="${displayPos}">
+      <span class="opt-mark">${String.fromCharCode(65+displayPos)}</span>
+      <span class="${isArabicOpt?'arabic':''}">${o}</span>
+    </button>`;
+  }).join("");
+  const isLast = state.tjIdx === state.tjQuiz.length-1;
+  const answeredCount = state.tjQuiz.filter(x=>x.pick!==null).length;
+  const qFull = q.q + (q.ar ? "\n"+q.ar : "");
+
+  return `
+    ${renderTajwidBeads()}
+    <div class="progressline"><span>Soal <b>${state.tjIdx+1}</b> / ${state.tjQuiz.length} &middot; ${TJ_LVNAME[q.l]}</span><span>Terjawab: <b>${answeredCount}</b></span></div>
+    <div class="qcard">
+      <span class="qcat">${tjFmtTopic(q.t)}</span>
+      <p class="qtext">${renderQText(qFull)}</p>
+      <div class="opts">${opts}</div>
+      <div class="qfooter" style="justify-content:flex-end">
+        <div class="navbtns">
+          <button class="btn btn-ghost" id="tjPrevBtn" ${state.tjIdx===0?"disabled":""}>&larr; Sebelumnya</button>
+          ${isLast
+            ? `<button class="btn btn-gold" id="tjFinishBtn">Selesai &amp; Lihat Hasil</button>`
+            : `<button class="btn btn-primary" id="tjNextBtn">Selanjutnya &rarr;</button>`}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function attachTajwidQuizEvents(){
+  document.querySelectorAll(".opt").forEach(b=>{
+    b.addEventListener("click", ()=> tjSelect(parseInt(b.dataset.oi,10)));
+  });
+  const pb = document.getElementById("tjPrevBtn");
+  if(pb) pb.addEventListener("click", ()=>tjGoto(-1));
+  const nb = document.getElementById("tjNextBtn");
+  if(nb) nb.addEventListener("click", ()=>tjGoto(1));
+  const fin = document.getElementById("tjFinishBtn");
+  if(fin) fin.addEventListener("click", ()=>{ state.tjScreen="result"; render(); });
+}
+
+function renderTajwidResult(){
+  const total = state.tjQuiz.length;
+  let correctCount = 0;
+  state.tjQuiz.forEach(it=>{ if(it.pick===it.q.a) correctCount++; });
+  const pct = total ? Math.round(100*correctCount/total) : 0;
+
+  const byTopic = {};
+  state.tjQuiz.forEach(it=>{
+    const t = it.q.t;
+    byTopic[t] = byTopic[t] || {correct:0,total:0};
+    byTopic[t].total++;
+    if(it.pick===it.q.a) byTopic[t].correct++;
+  });
+  const topicRows = Object.keys(byTopic).map(t=>{
+    const d = byTopic[t];
+    const p = Math.round(100*d.correct/d.total);
+    return `<div class="catbar-row">
+      <div class="catbar-label"><span>${tjFmtTopic(t)}</span><b>${d.correct}/${d.total}</b></div>
+      <div class="catbar-track"><div class="catbar-fill" style="width:${p}%"></div></div>
+    </div>`;
+  }).join("");
+
+  const filterChips = ["all","wrong","correct"].map(f=>{
+    const labels = {all:"Semua",wrong:"Salah",correct:"Benar"};
+    return `<button class="chip ${state.tjReviewFilter===f?'active':''}" data-tjrf="${f}">${labels[f]}</button>`;
+  }).join("");
+
+  const items = state.tjQuiz.map((it,i)=>{
+    const q = it.q;
+    const isCorrect = it.pick===q.a;
+    if(state.tjReviewFilter==="wrong" && isCorrect) return "";
+    if(state.tjReviewFilter==="correct" && !isCorrect) return "";
+
+    const badgeCls = isCorrect ? "correct" : "wrong";
+    const badgeTxt = isCorrect ? "&#10003;" : "&#10007;";
+    const open = state.tjReviewOpen[i] ? "open" : "";
+
+    const optsHtml = it.optIdx.map((oi,displayPos)=>{
+      const o = q.o[oi];
+      let cls = "opt";
+      if(oi===q.a) cls += " correct";
+      if(it.pick===oi && it.pick!==q.a) cls += " userwrong";
+      const isArabicOpt = /[؀-ۿ]/.test(o);
+      const mark = it.pick===oi ? " (jawabanmu)" : (oi===q.a ? " (kunci)" : "");
+      return `<div class="${cls}"><span class="opt-mark">${String.fromCharCode(65+displayPos)}</span><span class="${isArabicOpt?'arabic':''}">${o}${mark}</span></div>`;
+    }).join("");
+
+    const qFull = q.q + (q.ar ? "\n"+q.ar : "");
+    return `<div class="rev-item ${open}" data-tji="${i}">
+      <div class="rev-head" data-tjtoggle="${i}">
+        <span class="rev-badge ${badgeCls}">${badgeTxt}</span>
+        <span class="rev-num">#${i+1}</span>
+        <span class="rev-q">${q.q.replace(/\n/g," ").slice(0,70)}</span>
+        <svg class="rev-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+      </div>
+      <div class="rev-body">
+        <p class="qtext">${renderQText(qFull)}</p>
+        <div class="opts">${optsHtml}</div>
+        <div class="expl"><b>Pembahasan:</b> ${q.e}</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  return `
+    <div class="scorewrap">
+      ${scoreWheel(pct)}
+      <div class="score-meta">
+        <h2>Hasil Latihan Tajwid</h2>
+        <p><span class="score-big">${correctCount}</span> / ${total} benar &middot; tingkat: ${TJ_LVNAME[state.tjLv]}</p>
+      </div>
+    </div>
+    <div class="catbars">
+      <h3>Rincian per Bab</h3>
+      ${topicRows}
+    </div>
+    <div class="row" style="margin-bottom:18px;">
+      <button class="btn btn-primary" id="tjRestartBtn">Ulangi / Pilih Tingkat Lain</button>
+      <button class="btn btn-ghost" id="tjMateriBtn2">Buka Materi Tajwid</button>
+    </div>
+    <div class="cats">${filterChips}</div>
+    <div class="review-list">${items || '<p class="lede">Tidak ada soal pada filter ini.</p>'}</div>
+  `;
+}
+
+function attachTajwidResultEvents(){
+  const rb = document.getElementById("tjRestartBtn");
+  if(rb) rb.addEventListener("click", ()=>{ state.tjScreen="setup"; render(); });
+  const mb = document.getElementById("tjMateriBtn2");
+  if(mb) mb.addEventListener("click", ()=>{ state.tjView="materi"; render(); });
+  document.querySelectorAll("[data-tjrf]").forEach(c=>{
+    c.addEventListener("click", ()=>{ state.tjReviewFilter = c.dataset.tjrf; render(); });
+  });
+  document.querySelectorAll("[data-tjtoggle]").forEach(h=>{
+    h.addEventListener("click", ()=>{
+      const i = h.dataset.tjtoggle;
+      state.tjReviewOpen[i] = !state.tjReviewOpen[i];
+      render();
+    });
+  });
 }
 
 /* ---------- tabs & theme ---------- */
