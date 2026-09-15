@@ -1,0 +1,814 @@
+<title>Detektif Majas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,500&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  :root{
+    --paper:#e9f1e6;
+    --surface:#f7fbf3;
+    --surface-2:#dde9d7;
+    --line:#c4d6bd;
+    --ink:#1c2a1f;
+    --ink-soft:#4a5c4c;
+    --accent:#2f6f4e;
+    --accent-strong:#1f5539;
+    --accent-ink:#f4fbf0;
+    --good:#2f6f4e;
+    --warn:#a9791c;
+    --critical:#b23a35;
+    --cat-personifikasi:#9c6414;
+    --cat-personifikasi-bg:#f1e3c6;
+    --cat-simile:#1d7a98;
+    --cat-simile-bg:#d9edf3;
+    --cat-hiperbola:#a63762;
+    --cat-hiperbola-bg:#f3dde7;
+    --shadow: 0 1px 2px rgba(20,30,20,.06), 0 8px 24px -12px rgba(20,30,20,.22);
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 9px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0e1512;
+      --surface:#161f1a;
+      --surface-2:#1f2b22;
+      --line:#2c3b30;
+      --ink:#e7efe2;
+      --ink-soft:#a9bbac;
+      --accent:#6fcf97;
+      --accent-strong:#8fe0ae;
+      --accent-ink:#0a1710;
+      --good:#6fcf97;
+      --warn:#f2c464;
+      --critical:#ff6b62;
+      --cat-personifikasi:#e3a93f;
+      --cat-personifikasi-bg:#3a3016;
+      --cat-simile:#5fb8de;
+      --cat-simile-bg:#122e37;
+      --cat-hiperbola:#f07aa0;
+      --cat-hiperbola-bg:#3a1c28;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.6);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0e1512;
+    --surface:#161f1a;
+    --surface-2:#1f2b22;
+    --line:#2c3b30;
+    --ink:#e7efe2;
+    --ink-soft:#a9bbac;
+    --accent:#6fcf97;
+    --accent-strong:#8fe0ae;
+    --accent-ink:#0a1710;
+    --good:#6fcf97;
+    --warn:#f2c464;
+    --critical:#ff6b62;
+    --cat-personifikasi:#e3a93f;
+    --cat-personifikasi-bg:#3a3016;
+    --cat-simile:#5fb8de;
+    --cat-simile-bg:#122e37;
+    --cat-hiperbola:#f07aa0;
+    --cat-hiperbola-bg:#3a1c28;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(120,140,110,.14) 1px, transparent 0);
+    background-size: 22px 22px;
+    color:var(--ink);
+    font-family:"Work Sans", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-inline: 16px;
+  }
+  :root[data-theme="dark"] body{
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,.05) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+
+  h1,h2,h3, .display{
+    font-family:"Fraunces", Georgia, "Times New Roman", serif;
+    text-wrap: balance;
+  }
+
+  .wrap{
+    max-width: 720px;
+    margin: 0 auto;
+    padding-block: 28px 56px;
+  }
+
+  .masthead{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom: 22px;
+  }
+  .badge{
+    width:52px; height:52px; flex:none;
+    border-radius:50%;
+    background:var(--accent);
+    color:var(--accent-ink);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: var(--shadow);
+  }
+  .badge svg{ width:26px; height:26px; }
+  .masthead .title{
+    font-size: 1.5rem;
+    font-weight:700;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .masthead .sub{
+    margin:2px 0 0;
+    color:var(--ink-soft);
+    font-size:.92rem;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 24px;
+  }
+
+  [hidden]{ display:none !important; }
+
+  /* ---------- START SCREEN ---------- */
+  .section-label{
+    font-family:"JetBrains Mono", ui-monospace, monospace;
+    text-transform:uppercase;
+    font-size:.72rem;
+    letter-spacing:.09em;
+    color:var(--ink-soft);
+    margin: 0 0 10px;
+  }
+
+  .tier-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:10px;
+    margin-bottom: 22px;
+  }
+  @media (max-width:520px){
+    .tier-grid{ grid-template-columns: 1fr; }
+  }
+  .tier-card{
+    text-align:left;
+    cursor:pointer;
+    background:var(--surface-2);
+    border:1.5px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 14px 14px 12px;
+    color:var(--ink);
+    font-family:inherit;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    transition: border-color .15s ease, transform .1s ease, background .15s ease;
+  }
+  .tier-card:hover{ border-color: var(--accent); }
+  .tier-card:active{ transform: translateY(1px); }
+  .tier-card[aria-pressed="true"]{
+    border-color: var(--accent);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1.5px var(--accent);
+  }
+  .tier-card .name{ font-weight:700; font-size:1rem; }
+  .tier-card .stars{ color: var(--accent); letter-spacing:2px; font-size:.85rem; }
+  .tier-card .time{
+    font-family:"JetBrains Mono", monospace;
+    font-size:.78rem;
+    color:var(--ink-soft);
+  }
+
+  .count-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom: 24px;
+  }
+  .count-row input[type="range"]{
+    flex:1;
+    accent-color: var(--accent);
+    height: 22px;
+  }
+  .count-value{
+    font-family:"JetBrains Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    font-weight:700;
+    font-size:1.1rem;
+    min-width: 3.4ch;
+    text-align:right;
+  }
+
+  .btn{
+    font-family:"Work Sans", sans-serif;
+    font-weight:600;
+    font-size:1rem;
+    border-radius: var(--radius-md);
+    border:1.5px solid transparent;
+    padding: 13px 20px;
+    cursor:pointer;
+    transition: filter .12s ease, transform .08s ease, background .15s ease;
+  }
+  .btn:active{ transform: translateY(1px); }
+  .btn-primary{
+    background: var(--accent);
+    color: var(--accent-ink);
+    width:100%;
+  }
+  .btn-primary:hover{ filter: brightness(1.06); }
+  .btn-primary:disabled{ opacity:.5; cursor:not-allowed; filter:none; }
+  .btn-ghost{
+    background: transparent;
+    border-color: var(--line);
+    color: var(--ink);
+  }
+  .btn-ghost:hover{ border-color: var(--accent); color: var(--accent); }
+
+  :focus-visible{ outline: 2.5px solid var(--accent); outline-offset: 2px; }
+
+  .info-line{
+    color:var(--ink-soft);
+    font-size:.88rem;
+    margin-top:14px;
+    text-align:center;
+  }
+
+  /* ---------- QUIZ SCREEN ---------- */
+  .quiz-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:18px;
+  }
+  .progress-text{
+    font-family:"JetBrains Mono", monospace;
+    font-size:.85rem;
+    color:var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .progress-track{
+    flex:1;
+    height:6px;
+    background:var(--surface-2);
+    border-radius:999px;
+    overflow:hidden;
+    margin: 0 14px;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--accent);
+    border-radius:999px;
+    transition: width .25s ease;
+  }
+
+  .timer{
+    position:relative;
+    width:54px; height:54px; flex:none;
+  }
+  .timer svg{ width:100%; height:100%; transform: rotate(-90deg); }
+  .timer circle{ fill:none; stroke-width:5; }
+  .timer .track{ stroke: var(--surface-2); }
+  .timer .fill{
+    stroke: var(--good);
+    stroke-linecap:round;
+    transition: stroke-dashoffset 1s linear, stroke .3s ease;
+  }
+  .timer .num{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:"JetBrains Mono", monospace;
+    font-weight:700;
+    font-size:1rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .clue-card{
+    background:var(--surface);
+    border:1.5px dashed var(--line);
+    border-radius: var(--radius-lg);
+    padding: 32px 26px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    min-height: 132px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+  .clue-card p{
+    font-family:"Fraunces", Georgia, serif;
+    font-style:italic;
+    font-size: clamp(1.15rem, 1rem + 1vw, 1.5rem);
+    line-height:1.45;
+    margin:0;
+    text-wrap: balance;
+  }
+
+  .answers{
+    display:grid;
+    gap:10px;
+  }
+  .answer-btn{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-align:left;
+    padding: 15px 16px;
+    border-radius: var(--radius-md);
+    border:1.5px solid var(--line);
+    background:var(--surface);
+    color:var(--ink);
+    font-family:"Work Sans", sans-serif;
+    font-weight:600;
+    font-size:1rem;
+    cursor:pointer;
+    transition: border-color .12s ease, background .12s ease, transform .08s ease;
+  }
+  .answer-btn:hover:not(:disabled){ border-color: var(--dot-color, var(--accent)); }
+  .answer-btn:active:not(:disabled){ transform: translateY(1px); }
+  .answer-btn:disabled{ cursor:default; }
+  .answer-dot{
+    width:12px; height:12px; border-radius:50%; flex:none;
+    background: var(--dot-color);
+  }
+  .answer-btn[data-cat="personifikasi"]{ --dot-color: var(--cat-personifikasi); }
+  .answer-btn[data-cat="simile"]{ --dot-color: var(--cat-simile); }
+  .answer-btn[data-cat="hiperbola"]{ --dot-color: var(--cat-hiperbola); }
+
+  .answer-btn.is-correct{
+    border-color: var(--good);
+    background: color-mix(in srgb, var(--good) 16%, var(--surface));
+  }
+  .answer-btn.is-wrong{
+    border-color: var(--critical);
+    background: color-mix(in srgb, var(--critical) 14%, var(--surface));
+  }
+
+  /* ---------- END SCREEN ---------- */
+  .report-head{
+    text-align:center;
+    margin-bottom: 22px;
+  }
+  .score-num{
+    font-family:"JetBrains Mono", monospace;
+    font-weight:700;
+    font-size: 4rem;
+    line-height:1;
+    font-variant-numeric: tabular-nums;
+    color:var(--accent);
+    margin: 6px 0 4px;
+  }
+  .verdict{
+    font-family:"Fraunces", serif;
+    font-size:1.3rem;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .verdict-sub{
+    color:var(--ink-soft);
+    font-size:.92rem;
+    margin:0;
+  }
+
+  .stat-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:10px;
+    margin: 22px 0;
+  }
+  @media (max-width:520px){
+    .stat-grid{ grid-template-columns: 1fr; }
+  }
+  .stat-tile{
+    border-radius: var(--radius-md);
+    padding: 14px;
+    text-align:center;
+    background: var(--tile-bg);
+    border: 1px solid var(--line);
+  }
+  .stat-tile[data-cat="personifikasi"]{ --tile-bg: var(--cat-personifikasi-bg); }
+  .stat-tile[data-cat="simile"]{ --tile-bg: var(--cat-simile-bg); }
+  .stat-tile[data-cat="hiperbola"]{ --tile-bg: var(--cat-hiperbola-bg); }
+  .stat-tile .label{
+    font-size:.78rem;
+    font-weight:600;
+    text-transform:capitalize;
+    margin-bottom:6px;
+  }
+  .stat-tile[data-cat="personifikasi"] .label{ color: var(--cat-personifikasi); }
+  .stat-tile[data-cat="simile"] .label{ color: var(--cat-simile); }
+  .stat-tile[data-cat="hiperbola"] .label{ color: var(--cat-hiperbola); }
+  .stat-tile .value{
+    font-family:"JetBrains Mono", monospace;
+    font-weight:700;
+    font-size:1.3rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .end-actions{
+    display:flex;
+    gap:10px;
+  }
+  .end-actions .btn{ flex:1; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+
+<div class="wrap">
+  <div class="masthead">
+    <div class="badge" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="10.5" cy="10.5" r="6.5"></circle>
+        <line x1="15.3" y1="15.3" x2="21" y2="21"></line>
+      </svg>
+    </div>
+    <div>
+      <h1 class="title">Detektif Majas</h1>
+      <p class="sub">Selidiki tiap kalimat: personifikasi, simile, atau hiperbola?</p>
+    </div>
+  </div>
+
+  <!-- START SCREEN -->
+  <section id="screen-start" class="card">
+    <p class="section-label">Pilih Tingkat Kasus</p>
+    <div class="tier-grid" id="tier-grid" role="group" aria-label="Tingkat kesulitan">
+      <button type="button" class="tier-card" data-tier="mudah" aria-pressed="false">
+        <span class="name">Mudah</span>
+        <span class="stars">★☆☆</span>
+        <span class="time">30 detik / soal</span>
+      </button>
+      <button type="button" class="tier-card" data-tier="sedang" aria-pressed="false">
+        <span class="name">Sedang</span>
+        <span class="stars">★★☆</span>
+        <span class="time">20 detik / soal</span>
+      </button>
+      <button type="button" class="tier-card" data-tier="sulit" aria-pressed="false">
+        <span class="name">Sulit</span>
+        <span class="stars">★★★</span>
+        <span class="time">15 detik / soal</span>
+      </button>
+    </div>
+
+    <p class="section-label">Jumlah Soal</p>
+    <div class="count-row">
+      <input type="range" id="count-range" min="10" max="30" step="1" value="15" aria-describedby="count-value">
+      <span class="count-value" id="count-value">15</span>
+    </div>
+
+    <button type="button" class="btn btn-primary" id="start-btn" disabled>Mulai Investigasi</button>
+    <p class="info-line" id="start-hint">Pilih tingkat kesulitan dahulu untuk memulai.</p>
+  </section>
+
+  <!-- QUIZ SCREEN -->
+  <section id="screen-quiz" class="card" hidden>
+    <div class="quiz-top">
+      <span class="progress-text" id="progress-text">Kasus 1 / 15</span>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="timer">
+        <svg viewBox="0 0 54 54">
+          <circle class="track" cx="27" cy="27" r="23"></circle>
+          <circle class="fill" id="timer-ring" cx="27" cy="27" r="23"></circle>
+        </svg>
+        <span class="num" id="timer-num">30</span>
+      </div>
+    </div>
+
+    <div class="clue-card">
+      <p id="clue-text">Memuat kalimat…</p>
+    </div>
+
+    <div class="answers">
+      <button type="button" class="answer-btn" data-cat="personifikasi">
+        <span class="answer-dot"></span> Personifikasi
+      </button>
+      <button type="button" class="answer-btn" data-cat="simile">
+        <span class="answer-dot"></span> Simile
+      </button>
+      <button type="button" class="answer-btn" data-cat="hiperbola">
+        <span class="answer-dot"></span> Hiperbola
+      </button>
+    </div>
+  </section>
+
+  <!-- END SCREEN -->
+  <section id="screen-end" class="card" hidden>
+    <div class="report-head">
+      <p class="section-label" style="text-align:center;">Laporan Kasus</p>
+      <div class="score-num" id="final-score">0</div>
+      <p class="verdict" id="final-verdict">—</p>
+      <p class="verdict-sub" id="final-detail">0 dari 0 kalimat terpecahkan benar.</p>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-tile" data-cat="personifikasi">
+        <div class="label">Personifikasi</div>
+        <div class="value" id="stat-personifikasi">0/0</div>
+      </div>
+      <div class="stat-tile" data-cat="simile">
+        <div class="label">Simile</div>
+        <div class="value" id="stat-simile">0/0</div>
+      </div>
+      <div class="stat-tile" data-cat="hiperbola">
+        <div class="label">Hiperbola</div>
+        <div class="value" id="stat-hiperbola">0/0</div>
+      </div>
+    </div>
+
+    <div class="end-actions">
+      <button type="button" class="btn btn-ghost" id="change-tier-btn">Ganti Tingkat</button>
+      <button type="button" class="btn btn-primary" id="replay-btn">Main Lagi</button>
+    </div>
+  </section>
+</div>
+
+<script id="soal-data" type="application/json">[{"id":1,"majas":"personifikasi","tier":"mudah","text":"Bulan bermain kejar-kejaran di halaman rumah."},{"id":2,"majas":"personifikasi","tier":"mudah","text":"Ayam jago bermain kejar-kejaran di halaman rumah."},{"id":3,"majas":"personifikasi","tier":"mudah","text":"Hujan menari riang tertiup angin sepoi."},{"id":4,"majas":"personifikasi","tier":"mudah","text":"Awan putih berbisik lembut di telinga anak-anak."},{"id":5,"majas":"personifikasi","tier":"mudah","text":"Ayam jago tersenyum menyambut pagi yang cerah."},{"id":6,"majas":"personifikasi","tier":"mudah","text":"Air sungai berbisik selamat pagi kepada bumi."},{"id":7,"majas":"personifikasi","tier":"mudah","text":"Burung kecil menyapa setiap orang yang lewat."},{"id":8,"majas":"personifikasi","tier":"mudah","text":"Ayam jago mengantuk lalu tertidur pulas."},{"id":9,"majas":"personifikasi","tier":"mudah","text":"Kupu-kupu tersenyum menyambut pagi yang cerah."},{"id":10,"majas":"personifikasi","tier":"mudah","text":"Daun kering mengedipkan mata kepada bumi."},{"id":11,"majas":"personifikasi","tier":"mudah","text":"Angin bernyanyi merdu setiap pagi."},{"id":12,"majas":"personifikasi","tier":"mudah","text":"Hujan mengantuk lalu tertidur pulas."},{"id":13,"majas":"personifikasi","tier":"mudah","text":"Bunga mawar tersenyum menyambut pagi yang cerah."},{"id":14,"majas":"personifikasi","tier":"mudah","text":"Angin berbisik selamat pagi kepada bumi."},{"id":15,"majas":"personifikasi","tier":"mudah","text":"Burung kecil tertawa lepas melihat anak-anak bermain."},{"id":16,"majas":"personifikasi","tier":"mudah","text":"Daun kering bernyanyi merdu setiap pagi."},{"id":17,"majas":"personifikasi","tier":"mudah","text":"Angin tertawa lepas melihat anak-anak bermain."},{"id":18,"majas":"personifikasi","tier":"mudah","text":"Matahari bercerita tentang petualangannya semalam."},{"id":19,"majas":"personifikasi","tier":"mudah","text":"Ayam jago berbisik selamat pagi kepada bumi."},{"id":20,"majas":"personifikasi","tier":"mudah","text":"Bulan menyapa setiap orang yang lewat."},{"id":21,"majas":"personifikasi","tier":"mudah","text":"Hujan berbisik selamat pagi kepada bumi."},{"id":22,"majas":"personifikasi","tier":"mudah","text":"Pohon kelapa tersenyum menyambut pagi yang cerah."},{"id":23,"majas":"personifikasi","tier":"mudah","text":"Pohon kelapa melambaikan tangan kepada awan."},{"id":24,"majas":"personifikasi","tier":"mudah","text":"Matahari berbisik lembut di telinga anak-anak."},{"id":25,"majas":"personifikasi","tier":"mudah","text":"Bunga mawar bernyanyi merdu setiap pagi."},{"id":26,"majas":"personifikasi","tier":"mudah","text":"Kucing di jalan tersenyum menyambut pagi yang cerah."},{"id":27,"majas":"personifikasi","tier":"mudah","text":"Angin menari riang tertiup angin sepoi."},{"id":28,"majas":"personifikasi","tier":"mudah","text":"Ayam jago tertawa lepas melihat anak-anak bermain."},{"id":29,"majas":"personifikasi","tier":"mudah","text":"Bulan menari riang tertiup angin sepoi."},{"id":30,"majas":"personifikasi","tier":"mudah","text":"Kupu-kupu berbisik lembut di telinga anak-anak."},{"id":31,"majas":"personifikasi","tier":"mudah","text":"Bunga mawar menari riang tertiup angin sepoi."},{"id":32,"majas":"personifikasi","tier":"mudah","text":"Bunga mawar tertawa lepas melihat anak-anak bermain."},{"id":33,"majas":"personifikasi","tier":"mudah","text":"Ombak melambaikan tangan kepada awan."},{"id":34,"majas":"personifikasi","tier":"mudah","text":"Kupu-kupu bermain kejar-kejaran di halaman rumah."},{"id":35,"majas":"personifikasi","tier":"sedang","text":"Kereta malam marah dan menggeram karena diganggu."},{"id":36,"majas":"personifikasi","tier":"sedang","text":"Gitar tua mengeluh kelelahan setelah seharian bekerja."},{"id":37,"majas":"personifikasi","tier":"sedang","text":"Pohon beringin menunggu dengan sabar kedatangan pemiliknya."},{"id":38,"majas":"personifikasi","tier":"sedang","text":"Petir menguap panjang di tengah kesunyian malam."},{"id":39,"majas":"personifikasi","tier":"sedang","text":"Pohon beringin bergumam pelan seolah menyimpan rahasia."},{"id":40,"majas":"personifikasi","tier":"sedang","text":"Pohon beringin marah dan menggeram karena diganggu."},{"id":41,"majas":"personifikasi","tier":"sedang","text":"Gitar tua menari gemulai mengikuti irama angin."},{"id":42,"majas":"personifikasi","tier":"sedang","text":"Pohon beringin menggerutu setiap kali dibangunkan paksa."},{"id":43,"majas":"personifikasi","tier":"sedang","text":"Ombak laut berbaring lelah setelah perjalanan jauh."},{"id":44,"majas":"personifikasi","tier":"sedang","text":"Pintu kayu tersenyum getir mengenang masa lalu."},{"id":45,"majas":"personifikasi","tier":"sedang","text":"Gitar tua menggerutu setiap kali dibangunkan paksa."},{"id":46,"majas":"personifikasi","tier":"sedang","text":"Kipas angin marah dan menggeram karena diganggu."},{"id":47,"majas":"personifikasi","tier":"sedang","text":"Gitar tua menyimpan cerita panjang yang tak terucap."},{"id":48,"majas":"personifikasi","tier":"sedang","text":"Rel kereta mengeluh kelelahan setelah seharian bekerja."},{"id":49,"majas":"personifikasi","tier":"sedang","text":"Gitar tua berbisik penuh rahasia kepada malam."},{"id":50,"majas":"personifikasi","tier":"sedang","text":"Jam dinding tua merenung sendirian di sudut ruangan."},{"id":51,"majas":"personifikasi","tier":"sedang","text":"Kipas angin berbaring lelah setelah perjalanan jauh."},{"id":52,"majas":"personifikasi","tier":"sedang","text":"Ombak laut bergumam pelan seolah menyimpan rahasia."},{"id":53,"majas":"personifikasi","tier":"sedang","text":"Kabut pagi menguap panjang di tengah kesunyian malam."},{"id":54,"majas":"personifikasi","tier":"sedang","text":"Payung merah berbaring lelah setelah perjalanan jauh."},{"id":55,"majas":"personifikasi","tier":"sedang","text":"Kereta malam bergumam pelan seolah menyimpan rahasia."},{"id":56,"majas":"personifikasi","tier":"sedang","text":"Pintu kayu merenung sendirian di sudut ruangan."},{"id":57,"majas":"personifikasi","tier":"sedang","text":"Sungai kecil menari gemulai mengikuti irama angin."},{"id":58,"majas":"personifikasi","tier":"sedang","text":"Sungai kecil menguap panjang di tengah kesunyian malam."},{"id":59,"majas":"personifikasi","tier":"sedang","text":"Rel kereta berbisik penuh rahasia kepada malam."},{"id":60,"majas":"personifikasi","tier":"sedang","text":"Pintu kayu menunggu dengan sabar kedatangan pemiliknya."},{"id":61,"majas":"personifikasi","tier":"sedang","text":"Kereta malam menguap panjang di tengah kesunyian malam."},{"id":62,"majas":"personifikasi","tier":"sedang","text":"Gitar tua tersenyum getir mengenang masa lalu."},{"id":63,"majas":"personifikasi","tier":"sedang","text":"Sungai kecil mengintip malu-malu dari balik tirai."},{"id":64,"majas":"personifikasi","tier":"sedang","text":"Lampu jalan menggerutu setiap kali dibangunkan paksa."},{"id":65,"majas":"personifikasi","tier":"sedang","text":"Kipas angin menguap panjang di tengah kesunyian malam."},{"id":66,"majas":"personifikasi","tier":"sedang","text":"Jendela kamar tersenyum getir mengenang masa lalu."},{"id":67,"majas":"personifikasi","tier":"sedang","text":"Jendela kamar mengintip malu-malu dari balik tirai."},{"id":68,"majas":"personifikasi","tier":"sulit","text":"Kemarau panjang menyimpan dendam yang tak pernah ia lupakan."},{"id":69,"majas":"personifikasi","tier":"sulit","text":"Kenangan mengetuk pintu hati yang telah lama tertutup."},{"id":70,"majas":"personifikasi","tier":"sulit","text":"Kabut senja berbaring lelah menunggu kabar yang tak kunjung datang."},{"id":71,"majas":"personifikasi","tier":"sulit","text":"Kota tua terus berlari tanpa pernah menoleh ke belakang."},{"id":72,"majas":"personifikasi","tier":"sulit","text":"Waktu duduk termenung menatap jalan yang sepi."},{"id":73,"majas":"personifikasi","tier":"sulit","text":"Kemarau panjang menyusup pelan ke dalam mimpi yang paling sunyi."},{"id":74,"majas":"personifikasi","tier":"sulit","text":"Kota tua berbaring lelah menunggu kabar yang tak kunjung datang."},{"id":75,"majas":"personifikasi","tier":"sulit","text":"Kota tua mengendap-endap masuk lewat celah jendela yang lupa ditutup."},{"id":76,"majas":"personifikasi","tier":"sulit","text":"Bayangan enggan pergi walau fajar telah lama menjemput."},{"id":77,"majas":"personifikasi","tier":"sulit","text":"Kemarau panjang mengetuk pintu hati yang telah lama tertutup."},{"id":78,"majas":"personifikasi","tier":"sulit","text":"Kabut senja berbisik pelan mengingatkan luka yang belum sembuh."},{"id":79,"majas":"personifikasi","tier":"sulit","text":"Kemarau panjang berbisik pelan mengingatkan luka yang belum sembuh."},{"id":80,"majas":"personifikasi","tier":"sulit","text":"Sunyi malam berbaring lelah menunggu kabar yang tak kunjung datang."},{"id":81,"majas":"personifikasi","tier":"sulit","text":"Deru mesin meniup padam setiap harapan yang tersisa."},{"id":82,"majas":"personifikasi","tier":"sulit","text":"Kerinduan diam-diam mencatat setiap kesalahan yang pernah terjadi."},{"id":83,"majas":"personifikasi","tier":"sulit","text":"Deru mesin berbisik pelan mengingatkan luka yang belum sembuh."},{"id":84,"majas":"personifikasi","tier":"sulit","text":"Kemarau panjang mengendap-endap masuk lewat celah jendela yang lupa ditutup."},{"id":85,"majas":"personifikasi","tier":"sulit","text":"Waktu berbaring lelah menunggu kabar yang tak kunjung datang."},{"id":86,"majas":"personifikasi","tier":"sulit","text":"Kesunyian meniup padam setiap harapan yang tersisa."},{"id":87,"majas":"personifikasi","tier":"sulit","text":"Sunyi malam enggan pergi walau fajar telah lama menjemput."},{"id":88,"majas":"personifikasi","tier":"sulit","text":"Kenangan menyusup pelan ke dalam mimpi yang paling sunyi."},{"id":89,"majas":"personifikasi","tier":"sulit","text":"Kota tua menari liar di antara reruntuhan kota."},{"id":90,"majas":"personifikasi","tier":"sulit","text":"Sunyi malam meniup padam setiap harapan yang tersisa."},{"id":91,"majas":"personifikasi","tier":"sulit","text":"Kota tua mengetuk pintu hati yang telah lama tertutup."},{"id":92,"majas":"personifikasi","tier":"sulit","text":"Deru mesin berbaring lelah menunggu kabar yang tak kunjung datang."},{"id":93,"majas":"personifikasi","tier":"sulit","text":"Nasib diam-diam mencatat setiap kesalahan yang pernah terjadi."},{"id":94,"majas":"personifikasi","tier":"sulit","text":"Nasib meniup padam setiap harapan yang tersisa."},{"id":95,"majas":"personifikasi","tier":"sulit","text":"Sunyi malam mengetuk pintu hati yang telah lama tertutup."},{"id":96,"majas":"personifikasi","tier":"sulit","text":"Sunyi malam diam-diam mencatat setiap kesalahan yang pernah terjadi."},{"id":97,"majas":"personifikasi","tier":"sulit","text":"Kabut senja menyusup pelan ke dalam mimpi yang paling sunyi."},{"id":98,"majas":"personifikasi","tier":"sulit","text":"Kenangan menggenggam erat setiap kenangan yang tersisa."},{"id":99,"majas":"personifikasi","tier":"sulit","text":"Api unggun diam-diam mencatat setiap kesalahan yang pernah terjadi."},{"id":100,"majas":"personifikasi","tier":"sulit","text":"Waktu berbisik pelan mengingatkan luka yang belum sembuh."},{"id":101,"majas":"simile","tier":"mudah","text":"Suaranya berkilau seperti salju yang putih."},{"id":102,"majas":"simile","tier":"mudah","text":"Suaranya hangat bagai madu yang manis."},{"id":103,"majas":"simile","tier":"mudah","text":"Giginya putih laksana bintang di malam hari."},{"id":104,"majas":"simile","tier":"mudah","text":"Matanya semerdu laksana kupu-kupu yang lincah."},{"id":105,"majas":"simile","tier":"mudah","text":"Hatinya jernih bak air yang jernih."},{"id":106,"majas":"simile","tier":"mudah","text":"Langkahnya jernih seperti permata yang berkilau."},{"id":107,"majas":"simile","tier":"mudah","text":"Suaranya manis bagai salju yang putih."},{"id":108,"majas":"simile","tier":"mudah","text":"Langkahnya hangat bak matahari pagi."},{"id":109,"majas":"simile","tier":"mudah","text":"Senyumnya baik hati laksana matahari pagi."},{"id":110,"majas":"simile","tier":"mudah","text":"Giginya hangat laksana malaikat yang baik."},{"id":111,"majas":"simile","tier":"mudah","text":"Pipinya jernih bak kapas putih."},{"id":112,"majas":"simile","tier":"mudah","text":"Rambutnya putih seperti bintang di malam hari."},{"id":113,"majas":"simile","tier":"mudah","text":"Suaranya semerdu bagai malaikat yang baik."},{"id":114,"majas":"simile","tier":"mudah","text":"Pipinya berkilau laksana air yang jernih."},{"id":115,"majas":"simile","tier":"mudah","text":"Hatinya putih bak kicauan burung."},{"id":116,"majas":"simile","tier":"mudah","text":"Giginya manis laksana kapas putih."},{"id":117,"majas":"simile","tier":"mudah","text":"Suaranya jernih laksana air yang jernih."},{"id":118,"majas":"simile","tier":"mudah","text":"Senyumnya lembut bagai madu yang manis."},{"id":119,"majas":"simile","tier":"mudah","text":"Langkahnya berkilau seperti bunga yang mekar."},{"id":120,"majas":"simile","tier":"mudah","text":"Langkahnya cerah seperti kupu-kupu yang lincah."},{"id":121,"majas":"simile","tier":"mudah","text":"Rambutnya hangat bagai bunga yang mekar."},{"id":122,"majas":"simile","tier":"mudah","text":"Rambutnya cantik bak kupu-kupu yang lincah."},{"id":123,"majas":"simile","tier":"mudah","text":"Senyumnya berkilau bak kicauan burung."},{"id":124,"majas":"simile","tier":"mudah","text":"Matanya semerdu seperti permata yang berkilau."},{"id":125,"majas":"simile","tier":"mudah","text":"Hatinya berkilau laksana madu yang manis."},{"id":126,"majas":"simile","tier":"mudah","text":"Kulitnya cerah laksana matahari pagi."},{"id":127,"majas":"simile","tier":"mudah","text":"Wajahnya jernih bak kapas putih."},{"id":128,"majas":"simile","tier":"mudah","text":"Suaranya bersinar bagai madu yang manis."},{"id":129,"majas":"simile","tier":"mudah","text":"Matanya cerah laksana matahari pagi."},{"id":130,"majas":"simile","tier":"mudah","text":"Suaranya semerdu bak madu yang manis."},{"id":131,"majas":"simile","tier":"mudah","text":"Senyumnya cantik bagai bunga yang mekar."},{"id":132,"majas":"simile","tier":"mudah","text":"Giginya berkilau seperti kapas putih."},{"id":133,"majas":"simile","tier":"mudah","text":"Senyumnya lembut bagai air yang jernih."},{"id":134,"majas":"simile","tier":"mudah","text":"Wajahnya lembut seperti air yang jernih."},{"id":135,"majas":"simile","tier":"sedang","text":"Keberaniannya tenang seperti sungai yang mengalir tenang."},{"id":136,"majas":"simile","tier":"sedang","text":"Pandangannya ulet laksana sutra yang halus."},{"id":137,"majas":"simile","tier":"sedang","text":"Keberaniannya segagah seperti karang yang kokoh."},{"id":138,"majas":"simile","tier":"sedang","text":"Kesetiaannya teguh laksana elang yang tajam."},{"id":139,"majas":"simile","tier":"sedang","text":"Semangatnya segagah bak elang yang tajam."},{"id":140,"majas":"simile","tier":"sedang","text":"Semangatnya sekuat seperti elang yang tajam."},{"id":141,"majas":"simile","tier":"sedang","text":"Ambisinya sekuat laksana singa yang gagah."},{"id":142,"majas":"simile","tier":"sedang","text":"Ambisinya sehalus bak sutra yang halus."},{"id":143,"majas":"simile","tier":"sedang","text":"Perjuangannya setajam bak badai yang mengamuk."},{"id":144,"majas":"simile","tier":"sedang","text":"Semangatnya gigih seperti api yang berkobar."},{"id":145,"majas":"simile","tier":"sedang","text":"Pendiriannya setajam bagai badai yang mengamuk."},{"id":146,"majas":"simile","tier":"sedang","text":"Pendiriannya membara bagai elang yang tajam."},{"id":147,"majas":"simile","tier":"sedang","text":"Semangatnya segagah bak karang yang kokoh."},{"id":148,"majas":"simile","tier":"sedang","text":"Amarahnya membara bagai gunung yang menjulang."},{"id":149,"majas":"simile","tier":"sedang","text":"Tekadnya membara bagai baja yang kuat."},{"id":150,"majas":"simile","tier":"sedang","text":"Kesetiaannya setajam laksana gunung yang menjulang."},{"id":151,"majas":"simile","tier":"sedang","text":"Keberaniannya membara laksana baja yang kuat."},{"id":152,"majas":"simile","tier":"sedang","text":"Semangatnya membara laksana baja yang kuat."},{"id":153,"majas":"simile","tier":"sedang","text":"Pendiriannya setajam bak sutra yang halus."},{"id":154,"majas":"simile","tier":"sedang","text":"Amarahnya ulet bagai baja yang kuat."},{"id":155,"majas":"simile","tier":"sedang","text":"Pendiriannya sehalus seperti badai yang mengamuk."},{"id":156,"majas":"simile","tier":"sedang","text":"Perjuangannya sehalus bagai sungai yang mengalir tenang."},{"id":157,"majas":"simile","tier":"sedang","text":"Ambisinya teguh bak singa yang gagah."},{"id":158,"majas":"simile","tier":"sedang","text":"Kesetiaannya segagah laksana singa yang gagah."},{"id":159,"majas":"simile","tier":"sedang","text":"Perjuangannya sehalus bak baja yang kuat."},{"id":160,"majas":"simile","tier":"sedang","text":"Kesetiaannya sehalus laksana ombak yang menggulung."},{"id":161,"majas":"simile","tier":"sedang","text":"Pendiriannya sekuat bak sungai yang mengalir tenang."},{"id":162,"majas":"simile","tier":"sedang","text":"Ambisinya sekuat seperti api yang berkobar."},{"id":163,"majas":"simile","tier":"sedang","text":"Amarahnya teguh laksana sungai yang mengalir tenang."},{"id":164,"majas":"simile","tier":"sedang","text":"Ambisinya sekokoh laksana gunung yang menjulang."},{"id":165,"majas":"simile","tier":"sedang","text":"Ambisinya sehalus bagai karang yang kokoh."},{"id":166,"majas":"simile","tier":"sedang","text":"Kesetiaannya tenang bak sutra yang halus."},{"id":167,"majas":"simile","tier":"sedang","text":"Pandangannya sekuat bagai badai yang mengamuk."},{"id":168,"majas":"simile","tier":"sulit","text":"Ketabahannya terus bertumbuh meski terluka bagai akar yang menghunjam dalam meski diterpa badai."},{"id":169,"majas":"simile","tier":"sulit","text":"Kesabarannya tabah menghadapi cobaan bagaikan lilin yang rela habis demi menerangi sekitarnya."},{"id":170,"majas":"simile","tier":"sulit","text":"Jiwanya tabah menghadapi cobaan bagaikan akar yang menghunjam dalam meski diterpa badai."},{"id":171,"majas":"simile","tier":"sulit","text":"Pengorbanannya kokoh tak tergoyahkan laksana sungai yang terus mengalir meski dihalangi bebatuan."},{"id":172,"majas":"simile","tier":"sulit","text":"Harapannya teguh pendiriannya bagaikan bintang yang tetap bersinar meski sendirian di langit gelap."},{"id":173,"majas":"simile","tier":"sulit","text":"Keikhlasannya gigih memperjuangkan mimpi seperti bintang yang tetap bersinar meski sendirian di langit gelap."},{"id":174,"majas":"simile","tier":"sulit","text":"Cintanya terus bertumbuh meski terluka bagai kupu-kupu yang keluar dari kepompong yang gelap."},{"id":175,"majas":"simile","tier":"sulit","text":"Kesabarannya kokoh tak tergoyahkan laksana sungai yang terus mengalir meski dihalangi bebatuan."},{"id":176,"majas":"simile","tier":"sulit","text":"Mimpinya teguh pendiriannya bagaikan bintang yang tetap bersinar meski sendirian di langit gelap."},{"id":177,"majas":"simile","tier":"sulit","text":"Cintanya gigih memperjuangkan mimpi seperti bintang yang tetap bersinar meski sendirian di langit gelap."},{"id":178,"majas":"simile","tier":"sulit","text":"Ketabahannya ikhlas menerima keadaan bak ombak yang tak pernah lelah memecah karang."},{"id":179,"majas":"simile","tier":"sulit","text":"Harapannya gigih memperjuangkan mimpi seperti akar yang menghunjam dalam meski diterpa badai."},{"id":180,"majas":"simile","tier":"sulit","text":"Pengorbanannya gigih memperjuangkan mimpi seperti lilin yang rela habis demi menerangi sekitarnya."},{"id":181,"majas":"simile","tier":"sulit","text":"Kesabarannya teguh pendiriannya bagaikan sungai yang terus mengalir meski dihalangi bebatuan."},{"id":182,"majas":"simile","tier":"sulit","text":"Jiwanya teguh pendiriannya bagaikan akar yang menghunjam dalam meski diterpa badai."},{"id":183,"majas":"simile","tier":"sulit","text":"Cintanya tabah menghadapi cobaan bagaikan kupu-kupu yang keluar dari kepompong yang gelap."},{"id":184,"majas":"simile","tier":"sulit","text":"Mimpinya teguh pendiriannya bagaikan lilin yang rela habis demi menerangi sekitarnya."},{"id":185,"majas":"simile","tier":"sulit","text":"Mimpinya kokoh tak tergoyahkan laksana sungai yang terus mengalir meski dihalangi bebatuan."},{"id":186,"majas":"simile","tier":"sulit","text":"Cintanya teguh pendiriannya bagaikan bintang yang tetap bersinar meski sendirian di langit gelap."},{"id":187,"majas":"simile","tier":"sulit","text":"Pengorbanannya gigih memperjuangkan mimpi seperti akar yang menghunjam dalam meski diterpa badai."},{"id":188,"majas":"simile","tier":"sulit","text":"Ketabahannya kokoh tak tergoyahkan laksana kupu-kupu yang keluar dari kepompong yang gelap."},{"id":189,"majas":"simile","tier":"sulit","text":"Cintanya gigih memperjuangkan mimpi seperti sungai yang terus mengalir meski dihalangi bebatuan."},{"id":190,"majas":"simile","tier":"sulit","text":"Pengorbanannya ikhlas menerima keadaan bak sungai yang terus mengalir meski dihalangi bebatuan."},{"id":191,"majas":"simile","tier":"sulit","text":"Pengorbanannya tabah menghadapi cobaan bagaikan lilin yang rela habis demi menerangi sekitarnya."},{"id":192,"majas":"simile","tier":"sulit","text":"Kesetiaan hatinya rela berkorban laksana ombak yang tak pernah lelah memecah karang."},{"id":193,"majas":"simile","tier":"sulit","text":"Keikhlasannya bebas melepaskan beban masa lalu seperti senja yang perlahan menghilang namun selalu kembali esok hari."},{"id":194,"majas":"simile","tier":"sulit","text":"Mimpinya ikhlas menerima keadaan bak kupu-kupu yang keluar dari kepompong yang gelap."},{"id":195,"majas":"simile","tier":"sulit","text":"Mimpinya rela berkorban laksana sungai yang terus mengalir meski dihalangi bebatuan."},{"id":196,"majas":"simile","tier":"sulit","text":"Keikhlasannya tabah menghadapi cobaan bagaikan kupu-kupu yang keluar dari kepompong yang gelap."},{"id":197,"majas":"simile","tier":"sulit","text":"Mimpinya rela berkorban laksana akar yang menghunjam dalam meski diterpa badai."},{"id":198,"majas":"simile","tier":"sulit","text":"Kesabarannya terus bertumbuh meski terluka bagai senja yang perlahan menghilang namun selalu kembali esok hari."},{"id":199,"majas":"simile","tier":"sulit","text":"Cintanya teguh pendiriannya bagaikan sungai yang terus mengalir meski dihalangi bebatuan."},{"id":200,"majas":"simile","tier":"sulit","text":"Kesabarannya tabah menghadapi cobaan bagaikan ombak yang tak pernah lelah memecah karang."},{"id":201,"majas":"hiperbola","tier":"mudah","text":"Keringatnya terdengar sampai ke ujung lorong sekolah."},{"id":202,"majas":"hiperbola","tier":"mudah","text":"Kabar itu terdengar sampai ke ujung lorong sekolah."},{"id":203,"majas":"hiperbola","tier":"mudah","text":"Tumpukan tugasnya menyebar secepat kilat ke seluruh sekolah."},{"id":204,"majas":"hiperbola","tier":"mudah","text":"Aku tertidur sambil berdiri saking mengantuknya."},{"id":205,"majas":"hiperbola","tier":"mudah","text":"Kakakku tertidur sambil berdiri saking mengantuknya."},{"id":206,"majas":"hiperbola","tier":"mudah","text":"Dia berlari secepat kilat mengejar bus yang hampir berangkat."},{"id":207,"majas":"hiperbola","tier":"mudah","text":"Adikku sudah bilang jangan terlambat lagi entah sudah kesekian ratus kalinya."},{"id":208,"majas":"hiperbola","tier":"mudah","text":"Ia menunggumu dari pagi sampai matahari terbenam tanpa henti."},{"id":209,"majas":"hiperbola","tier":"mudah","text":"Antreannya terdengar sampai ke ujung lorong sekolah."},{"id":210,"majas":"hiperbola","tier":"mudah","text":"Ia bisa menghabiskan sepanci nasi sendirian saking laparnya."},{"id":211,"majas":"hiperbola","tier":"mudah","text":"Teriakannya memekakkan telinga seisi kampung."},{"id":212,"majas":"hiperbola","tier":"mudah","text":"Antreannya bercucuran membasahi seluruh bajunya."},{"id":213,"majas":"hiperbola","tier":"mudah","text":"Tumpukan tugasnya terdengar sampai ke ujung lorong sekolah."},{"id":214,"majas":"hiperbola","tier":"mudah","text":"Antreannya sudah mengular sepanjang jalan sejak subuh."},{"id":215,"majas":"hiperbola","tier":"mudah","text":"Kakakku sudah bilang jangan terlambat lagi entah sudah kesekian ratus kalinya."},{"id":216,"majas":"hiperbola","tier":"mudah","text":"Kabar itu sudah mengular sepanjang jalan sejak subuh."},{"id":217,"majas":"hiperbola","tier":"mudah","text":"Aku bisa menghabiskan sepanci nasi sendirian saking laparnya."},{"id":218,"majas":"hiperbola","tier":"mudah","text":"Teriakannya bercucuran membasahi seluruh bajunya."},{"id":219,"majas":"hiperbola","tier":"mudah","text":"Adikku sudah memanggilnya beribu-ribu kali tapi tak ada jawaban."},{"id":220,"majas":"hiperbola","tier":"mudah","text":"Ia berlari secepat kilat mengejar bus yang hampir berangkat."},{"id":221,"majas":"hiperbola","tier":"mudah","text":"Kakakku bisa menghabiskan sepanci nasi sendirian saking laparnya."},{"id":222,"majas":"hiperbola","tier":"mudah","text":"Teriakannya terdengar sampai ke ujung lorong sekolah."},{"id":223,"majas":"hiperbola","tier":"mudah","text":"Antreannya menyebar secepat kilat ke seluruh sekolah."},{"id":224,"majas":"hiperbola","tier":"mudah","text":"Kakakku sudah menjelaskan hal itu beribu-ribu kali namun tetap saja lupa."},{"id":225,"majas":"hiperbola","tier":"mudah","text":"Keringatnya bercucuran membasahi seluruh bajunya."},{"id":226,"majas":"hiperbola","tier":"mudah","text":"Ia sudah memanggilnya beribu-ribu kali tapi tak ada jawaban."},{"id":227,"majas":"hiperbola","tier":"mudah","text":"Aku berteriak sekencang-kencangnya sampai kehabisan suara seharian."},{"id":228,"majas":"hiperbola","tier":"mudah","text":"Kabar itu menyebar secepat kilat ke seluruh sekolah."},{"id":229,"majas":"hiperbola","tier":"mudah","text":"Aku berlari secepat kilat mengejar bus yang hampir berangkat."},{"id":230,"majas":"hiperbola","tier":"mudah","text":"Dia sudah memanggilnya beribu-ribu kali tapi tak ada jawaban."},{"id":231,"majas":"hiperbola","tier":"mudah","text":"Tumpukan tugasnya sudah mengular sepanjang jalan sejak subuh."},{"id":232,"majas":"hiperbola","tier":"mudah","text":"Suara petir itu sudah mengular sepanjang jalan sejak subuh."},{"id":233,"majas":"hiperbola","tier":"mudah","text":"Aku sudah bilang jangan terlambat lagi entah sudah kesekian ratus kalinya."},{"id":234,"majas":"hiperbola","tier":"mudah","text":"Keringatnya menyebar secepat kilat ke seluruh sekolah."},{"id":235,"majas":"hiperbola","tier":"sedang","text":"Dia menangis sampai air mata mengalir membanjiri seisi ruangan."},{"id":236,"majas":"hiperbola","tier":"sedang","text":"Jarak antara mereka terasa seluas samudra yang tak bertepi."},{"id":237,"majas":"hiperbola","tier":"sedang","text":"Bebannya terasa berhenti selama berabad-abad lamanya."},{"id":238,"majas":"hiperbola","tier":"sedang","text":"Rindunya membakar seisi ruangan hingga semua orang terdiam."},{"id":239,"majas":"hiperbola","tier":"sedang","text":"Kemarahannya seberat gunung yang harus dipikul sendirian setiap hari."},{"id":240,"majas":"hiperbola","tier":"sedang","text":"Semangatnya seberat gunung yang harus dipikul sendirian setiap hari."},{"id":241,"majas":"hiperbola","tier":"sedang","text":"Guru itu tertawa sampai menggetarkan seisi kelas."},{"id":242,"majas":"hiperbola","tier":"sedang","text":"Rindunya meledak hingga memenuhi seisi kota."},{"id":243,"majas":"hiperbola","tier":"sedang","text":"Kegembiraannya meledak hingga memenuhi seisi kota."},{"id":244,"majas":"hiperbola","tier":"sedang","text":"Kegembiraannya membakar seisi ruangan hingga semua orang terdiam."},{"id":245,"majas":"hiperbola","tier":"sedang","text":"Jarak antara mereka membumbung tinggi menembus atap sekolah."},{"id":246,"majas":"hiperbola","tier":"sedang","text":"Rindunya seberat gunung yang harus dipikul sendirian setiap hari."},{"id":247,"majas":"hiperbola","tier":"sedang","text":"Dia rela berjalan kaki mengelilingi dunia demi menemuinya."},{"id":248,"majas":"hiperbola","tier":"sedang","text":"Ayahku menangis sampai air mata mengalir membanjiri seisi ruangan."},{"id":249,"majas":"hiperbola","tier":"sedang","text":"Kemarahannya sudah menumpuk setinggi langit selama bertahun-tahun berpisah."},{"id":250,"majas":"hiperbola","tier":"sedang","text":"Kegembiraannya membumbung tinggi menembus atap sekolah."},{"id":251,"majas":"hiperbola","tier":"sedang","text":"Aku rela berjalan kaki mengelilingi dunia demi menemuinya."},{"id":252,"majas":"hiperbola","tier":"sedang","text":"Bebannya terasa seluas samudra yang tak bertepi."},{"id":253,"majas":"hiperbola","tier":"sedang","text":"Rindunya sudah menumpuk setinggi langit selama bertahun-tahun berpisah."},{"id":254,"majas":"hiperbola","tier":"sedang","text":"Aku tertawa sampai menggetarkan seisi kelas."},{"id":255,"majas":"hiperbola","tier":"sedang","text":"Kegembiraannya terasa seluas samudra yang tak bertepi."},{"id":256,"majas":"hiperbola","tier":"sedang","text":"Semangatnya sudah menumpuk setinggi langit selama bertahun-tahun berpisah."},{"id":257,"majas":"hiperbola","tier":"sedang","text":"Jarak antara mereka membakar seisi ruangan hingga semua orang terdiam."},{"id":258,"majas":"hiperbola","tier":"sedang","text":"Kemarahannya terasa seluas samudra yang tak bertepi."},{"id":259,"majas":"hiperbola","tier":"sedang","text":"Jarak antara mereka meledak hingga memenuhi seisi kota."},{"id":260,"majas":"hiperbola","tier":"sedang","text":"Guru itu menangis sampai air mata mengalir membanjiri seisi ruangan."},{"id":261,"majas":"hiperbola","tier":"sedang","text":"Waktu penantian itu sudah menumpuk setinggi langit selama bertahun-tahun berpisah."},{"id":262,"majas":"hiperbola","tier":"sedang","text":"Kami berdua tertawa sampai menggetarkan seisi kelas."},{"id":263,"majas":"hiperbola","tier":"sedang","text":"Bebannya sudah menumpuk setinggi langit selama bertahun-tahun berpisah."},{"id":264,"majas":"hiperbola","tier":"sedang","text":"Kami berdua sudah mengulang cerita itu beribu-ribu kali di seluruh penjuru negeri."},{"id":265,"majas":"hiperbola","tier":"sedang","text":"Aku sudah menjelaskan hal itu beribu-ribu kali namun tetap saja dilupakan."},{"id":266,"majas":"hiperbola","tier":"sedang","text":"Kami berdua rela berjalan kaki mengelilingi dunia demi menemuinya."},{"id":267,"majas":"hiperbola","tier":"sedang","text":"Kemarahannya terasa berhenti selama berabad-abad lamanya."},{"id":268,"majas":"hiperbola","tier":"sulit","text":"Hatinya menyimpan sesal yang menumpuk bertahun-tahun hingga membentuk gunung di dalam dada."},{"id":269,"majas":"hiperbola","tier":"sulit","text":"Api amarah dalam dadanya telah berlalu, namun penantiannya tak juga menemui ujung."},{"id":270,"majas":"hiperbola","tier":"sulit","text":"Sepinya rumah itu telah berlalu, namun penantiannya tak juga menemui ujung."},{"id":271,"majas":"hiperbola","tier":"sulit","text":"Sunyi itu menciptakan sungai yang mengalir tak henti sepanjang malam."},{"id":272,"majas":"hiperbola","tier":"sulit","text":"Luka itu begitu pekat hingga terasa mampu menelan seluruh isi ruangan."},{"id":273,"majas":"hiperbola","tier":"sulit","text":"Tangisnya terasa mampu menelan seluruh suara yang pernah ada di dalamnya."},{"id":274,"majas":"hiperbola","tier":"sulit","text":"Impian yang ia kejar terasa sejauh galaksi yang tak akan pernah terjangkau oleh tangannya."},{"id":275,"majas":"hiperbola","tier":"sulit","text":"Sepinya rumah itu terasa berlangsung selama berabad-abad lamanya."},{"id":276,"majas":"hiperbola","tier":"sulit","text":"Sepinya rumah itu begitu dalam hingga terasa mampu membelah bumi menjadi dua."},{"id":277,"majas":"hiperbola","tier":"sulit","text":"Api amarah dalam dadanya terasa berlangsung selama berabad-abad lamanya."},{"id":278,"majas":"hiperbola","tier":"sulit","text":"Ribuan purnama itu begitu pekat hingga terasa mampu menelan seluruh isi ruangan."},{"id":279,"majas":"hiperbola","tier":"sulit","text":"Api amarah dalam dadanya begitu dalam hingga terasa mampu membelah bumi menjadi dua."},{"id":280,"majas":"hiperbola","tier":"sulit","text":"Hatinya sudah ribuan kali mengucap maaf namun luka itu seolah tak pernah benar-benar sembuh."},{"id":281,"majas":"hiperbola","tier":"sulit","text":"Tangisnya menciptakan sungai yang mengalir tak henti sepanjang malam."},{"id":282,"majas":"hiperbola","tier":"sulit","text":"Sesal itu menyimpan sesal yang menumpuk bertahun-tahun hingga membentuk gunung di dalam dada."},{"id":283,"majas":"hiperbola","tier":"sulit","text":"Detik-detik penantian itu terasa mampu menelan seluruh suara yang pernah ada di dalamnya."},{"id":284,"majas":"hiperbola","tier":"sulit","text":"Ribuan purnama itu membakar habis segala kesabaran yang tersisa selama bertahun-tahun."},{"id":285,"majas":"hiperbola","tier":"sulit","text":"Detik-detik penantian itu telah berlalu, namun penantiannya tak juga menemui ujung."},{"id":286,"majas":"hiperbola","tier":"sulit","text":"Sepinya rumah itu begitu pekat hingga terasa mampu menelan seluruh isi ruangan."},{"id":287,"majas":"hiperbola","tier":"sulit","text":"Detik-detik penantian itu begitu pekat hingga terasa mampu menelan seluruh isi ruangan."},{"id":288,"majas":"hiperbola","tier":"sulit","text":"Aku sudah ribuan kali mengucap maaf namun luka itu seolah tak pernah benar-benar sembuh."},{"id":289,"majas":"hiperbola","tier":"sulit","text":"Detik-detik penantian itu menciptakan sungai yang mengalir tak henti sepanjang malam."},{"id":290,"majas":"hiperbola","tier":"sulit","text":"Luka itu telah berlalu, namun penantiannya tak juga menemui ujung."},{"id":291,"majas":"hiperbola","tier":"sulit","text":"Ia terasa sejauh galaksi yang tak akan pernah terjangkau oleh tangannya."},{"id":292,"majas":"hiperbola","tier":"sulit","text":"Impian yang ia kejar sudah ribuan kali mengucap maaf namun luka itu seolah tak pernah benar-benar sembuh."},{"id":293,"majas":"hiperbola","tier":"sulit","text":"Luka itu terasa berlangsung selama berabad-abad lamanya."},{"id":294,"majas":"hiperbola","tier":"sulit","text":"Sunyi itu begitu pekat hingga terasa mampu menelan seluruh isi ruangan."},{"id":295,"majas":"hiperbola","tier":"sulit","text":"Ribuan purnama itu terasa berlangsung selama berabad-abad lamanya."},{"id":296,"majas":"hiperbola","tier":"sulit","text":"Sepinya rumah itu membakar habis segala kesabaran yang tersisa selama bertahun-tahun."},{"id":297,"majas":"hiperbola","tier":"sulit","text":"Ia sudah ribuan kali mengucap maaf namun luka itu seolah tak pernah benar-benar sembuh."},{"id":298,"majas":"hiperbola","tier":"sulit","text":"Sesal itu sudah ribuan kali mengucap maaf namun luka itu seolah tak pernah benar-benar sembuh."},{"id":299,"majas":"hiperbola","tier":"sulit","text":"Luka itu menciptakan sungai yang mengalir tak henti sepanjang malam."},{"id":300,"majas":"hiperbola","tier":"sulit","text":"Ribuan purnama itu terasa mampu menelan seluruh suara yang pernah ada di dalamnya."}]</script>
+
+<script>
+(function(){
+  "use strict";
+
+  var BANK = JSON.parse(document.getElementById('soal-data').textContent);
+  var TIME_MAP = { mudah: 30, sedang: 20, sulit: 15 };
+  var CIRC = 2 * Math.PI * 23;
+
+  var els = {
+    tierGrid: document.getElementById('tier-grid'),
+    countRange: document.getElementById('count-range'),
+    countValue: document.getElementById('count-value'),
+    startBtn: document.getElementById('start-btn'),
+    startHint: document.getElementById('start-hint'),
+    screenStart: document.getElementById('screen-start'),
+    screenQuiz: document.getElementById('screen-quiz'),
+    screenEnd: document.getElementById('screen-end'),
+    progressText: document.getElementById('progress-text'),
+    progressFill: document.getElementById('progress-fill'),
+    timerRing: document.getElementById('timer-ring'),
+    timerNum: document.getElementById('timer-num'),
+    clueText: document.getElementById('clue-text'),
+    answerBtns: Array.prototype.slice.call(document.querySelectorAll('.answer-btn')),
+    finalScore: document.getElementById('final-score'),
+    finalVerdict: document.getElementById('final-verdict'),
+    finalDetail: document.getElementById('final-detail'),
+    statP: document.getElementById('stat-personifikasi'),
+    statS: document.getElementById('stat-simile'),
+    statH: document.getElementById('stat-hiperbola'),
+    replayBtn: document.getElementById('replay-btn'),
+    changeTierBtn: document.getElementById('change-tier-btn')
+  };
+
+  els.timerRing.style.strokeDasharray = CIRC.toFixed(2);
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function makeTally(){
+    return {
+      personifikasi: { correct: 0, total: 0 },
+      simile: { correct: 0, total: 0 },
+      hiperbola: { correct: 0, total: 0 }
+    };
+  }
+
+  var state = {
+    screen: 'start',
+    tier: null,
+    jumlah: 15,
+    questions: [],
+    index: 0,
+    correctCount: 0,
+    tally: makeTally(),
+    timeLeft: 0,
+    timerId: null,
+    answered: false
+  };
+
+  function showScreen(name){
+    state.screen = name;
+    els.screenStart.hidden = name !== 'start';
+    els.screenQuiz.hidden = name !== 'quiz';
+    els.screenEnd.hidden = name !== 'end';
+  }
+
+  // ---------- START SCREEN ----------
+  els.tierGrid.addEventListener('click', function(e){
+    var card = e.target.closest('.tier-card');
+    if (!card) return;
+    Array.prototype.forEach.call(els.tierGrid.children, function(c){
+      c.setAttribute('aria-pressed', String(c === card));
+    });
+    state.tier = card.getAttribute('data-tier');
+    els.startBtn.disabled = false;
+    els.startHint.textContent = 'Siap? ' + state.jumlah + ' kalimat, ' + TIME_MAP[state.tier] + ' detik tiap soal.';
+  });
+
+  els.countRange.addEventListener('input', function(){
+    state.jumlah = parseInt(els.countRange.value, 10);
+    els.countValue.textContent = String(state.jumlah);
+    if (state.tier){
+      els.startHint.textContent = 'Siap? ' + state.jumlah + ' kalimat, ' + TIME_MAP[state.tier] + ' detik tiap soal.';
+    }
+  });
+
+  els.startBtn.addEventListener('click', function(){
+    startQuiz();
+  });
+
+  els.changeTierBtn.addEventListener('click', function(){
+    showScreen('start');
+  });
+
+  els.replayBtn.addEventListener('click', function(){
+    startQuiz();
+  });
+
+  // ---------- QUIZ ----------
+  function startQuiz(){
+    var pool = BANK.filter(function(q){ return q.tier === state.tier; });
+    state.questions = shuffle(pool).slice(0, state.jumlah);
+    state.index = 0;
+    state.correctCount = 0;
+    state.tally = makeTally();
+    showScreen('quiz');
+    loadQuestion();
+  }
+
+  function loadQuestion(){
+    state.answered = false;
+    var q = state.questions[state.index];
+    els.clueText.textContent = q.text;
+    els.progressText.textContent = 'Kasus ' + (state.index + 1) + ' / ' + state.questions.length;
+    els.progressFill.style.width = (100 * state.index / state.questions.length).toFixed(1) + '%';
+
+    var order = shuffle(els.answerBtns);
+    order.forEach(function(btn, i){
+      els.screenQuiz.querySelector('.answers').appendChild(btn);
+      btn.disabled = false;
+      btn.classList.remove('is-correct', 'is-wrong');
+    });
+
+    els.answerBtns.forEach(function(btn){
+      btn.onclick = function(){ handleAnswer(btn.getAttribute('data-cat')); };
+    });
+
+    startTimer(TIME_MAP[state.tier]);
+  }
+
+  function startTimer(seconds){
+    clearInterval(state.timerId);
+    state.timeLeft = seconds;
+    updateTimerVisual(seconds, seconds);
+    state.timerId = setInterval(function(){
+      state.timeLeft -= 1;
+      updateTimerVisual(state.timeLeft, seconds);
+      if (state.timeLeft <= 0){
+        clearInterval(state.timerId);
+        handleAnswer(null);
+      }
+    }, 1000);
+  }
+
+  function updateTimerVisual(left, total){
+    els.timerNum.textContent = String(Math.max(left, 0));
+    var frac = Math.max(left, 0) / total;
+    els.timerRing.style.strokeDashoffset = (CIRC * (1 - frac)).toFixed(2);
+    var color = 'var(--good)';
+    if (frac <= 0.33) color = 'var(--critical)';
+    else if (frac <= 0.6) color = 'var(--warn)';
+    els.timerRing.style.stroke = color;
+  }
+
+  function handleAnswer(chosenCat){
+    if (state.answered) return;
+    state.answered = true;
+    clearInterval(state.timerId);
+
+    var q = state.questions[state.index];
+    var isCorrect = chosenCat === q.majas;
+
+    state.tally[q.majas].total += 1;
+    if (isCorrect){
+      state.tally[q.majas].correct += 1;
+      state.correctCount += 1;
+    }
+
+    els.answerBtns.forEach(function(btn){
+      btn.disabled = true;
+      var cat = btn.getAttribute('data-cat');
+      if (cat === q.majas) btn.classList.add('is-correct');
+      else if (cat === chosenCat) btn.classList.add('is-wrong');
+    });
+
+    setTimeout(function(){
+      state.index += 1;
+      if (state.index >= state.questions.length){
+        finishQuiz();
+      } else {
+        loadQuestion();
+      }
+    }, 900);
+  }
+
+  function finishQuiz(){
+    els.progressFill.style.width = '100%';
+    var total = state.questions.length;
+    var score = total > 0 ? Math.round((state.correctCount / total) * 100) : 0;
+
+    var verdict, sub;
+    if (score >= 90){ verdict = 'Detektif Utama'; sub = 'Ketajaman analisismu luar biasa!'; }
+    else if (score >= 75){ verdict = 'Detektif Handal'; sub = 'Hampir semua kasus terpecahkan dengan baik.'; }
+    else if (score >= 50){ verdict = 'Detektif Magang'; sub = 'Lumayan! Latihan sedikit lagi pasti makin tajam.'; }
+    else { verdict = 'Detektif Pemula'; sub = 'Yuk pelajari lagi ciri-ciri tiap majas, lalu coba lagi.'; }
+
+    els.finalScore.textContent = String(score);
+    els.finalVerdict.textContent = verdict;
+    els.finalDetail.textContent = state.correctCount + ' dari ' + total + ' kalimat terpecahkan benar. ' + sub;
+
+    setStatTile(els.statP, state.tally.personifikasi);
+    setStatTile(els.statS, state.tally.simile);
+    setStatTile(els.statH, state.tally.hiperbola);
+
+    showScreen('end');
+  }
+
+  function setStatTile(el, tallyEntry){
+    if (tallyEntry.total === 0){
+      el.textContent = '–';
+    } else {
+      el.textContent = tallyEntry.correct + '/' + tallyEntry.total;
+    }
+  }
+
+  // ---------- Hot reload (keep game state for open viewers) ----------
+  function restoreFromSnapshot(data){
+    try{
+      if (!data || !data.screen) return;
+      state = Object.assign(state, data);
+      if (state.screen === 'quiz' && state.questions && state.questions.length){
+        showScreen('quiz');
+        var q = state.questions[state.index];
+        if (q){
+          els.clueText.textContent = q.text;
+          els.progressText.textContent = 'Kasus ' + (state.index + 1) + ' / ' + state.questions.length;
+          els.progressFill.style.width = (100 * state.index / state.questions.length).toFixed(1) + '%';
+          startTimer(TIME_MAP[state.tier] || 20);
+          els.answerBtns.forEach(function(btn){
+            btn.disabled = false;
+            btn.classList.remove('is-correct', 'is-wrong');
+            btn.onclick = function(){ handleAnswer(btn.getAttribute('data-cat')); };
+          });
+        }
+      } else if (state.screen === 'end'){
+        finishQuiz();
+      } else {
+        showScreen('start');
+      }
+    } catch (err){ showScreen('start'); }
+  }
+
+  function boot(initialData){
+    restoreFromSnapshot(initialData);
+  }
+
+  try{
+    if (window.claude && window.claude.hot){
+      window.claude.hot.snapshot(function(){
+        return {
+          screen: state.screen,
+          tier: state.tier,
+          jumlah: state.jumlah,
+          questions: state.questions,
+          index: state.index,
+          correctCount: state.correctCount,
+          tally: state.tally
+        };
+      });
+      if (window.claude.hot.ready){
+        window.claude.hot.ready(boot);
+      } else {
+        boot(window.claude.hot.data || {});
+      }
+    } else {
+      showScreen('start');
+    }
+  } catch(err){
+    showScreen('start');
+  }
+})();
+</script>
