@@ -241,6 +241,101 @@
     text-align:center;
   }
 
+  /* ---------- MENU & MATERI ---------- */
+  .menu-actions{
+    display:grid;
+    gap:12px;
+  }
+  .menu-btn{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    text-align:left;
+    padding: 18px;
+    border-radius: var(--radius-lg);
+    border:1.5px solid var(--line);
+    background:var(--surface-2);
+    color:var(--ink);
+    font-family:inherit;
+    cursor:pointer;
+    transition: border-color .15s ease, transform .08s ease, background .15s ease;
+  }
+  .menu-btn:hover{ border-color: var(--accent); background:var(--surface); }
+  .menu-btn:active{ transform: translateY(1px); }
+  .menu-btn .icon{
+    width:44px; height:44px; flex:none;
+    border-radius:50%;
+    background:var(--accent);
+    color:var(--accent-ink);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .menu-btn .icon svg{ width:22px; height:22px; }
+  .menu-btn .text{ display:flex; flex-direction:column; gap:2px; }
+  .menu-btn .text .name{ font-weight:700; font-size:1.05rem; font-family:"Fraunces", serif; }
+  .menu-btn .text .desc{ font-size:.85rem; color:var(--ink-soft); }
+
+  .back-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    font-family:"Work Sans", sans-serif;
+    font-weight:600;
+    font-size:.85rem;
+    cursor:pointer;
+    padding:4px 0;
+    margin-bottom:14px;
+  }
+  .back-link:hover{ color:var(--accent); }
+
+  .materi-card{
+    border-radius: var(--radius-md);
+    border:1.5px solid var(--line);
+    padding:16px 16px 14px;
+    margin-bottom:12px;
+    background: var(--tile-bg);
+  }
+  .materi-card[data-cat="personifikasi"]{ --tile-bg: var(--cat-personifikasi-bg); }
+  .materi-card[data-cat="simile"]{ --tile-bg: var(--cat-simile-bg); }
+  .materi-card[data-cat="hiperbola"]{ --tile-bg: var(--cat-hiperbola-bg); }
+  .materi-card .head{
+    font-family:"Fraunces", serif;
+    font-weight:700;
+    font-size:1.1rem;
+    margin-bottom:6px;
+  }
+  .materi-card[data-cat="personifikasi"] .head{ color: var(--cat-personifikasi); }
+  .materi-card[data-cat="simile"] .head{ color: var(--cat-simile); }
+  .materi-card[data-cat="hiperbola"] .head{ color: var(--cat-hiperbola); }
+  .materi-card .def{
+    font-size:.92rem;
+    line-height:1.5;
+    margin:0 0 8px;
+    color:var(--ink);
+  }
+  .materi-card .ex{
+    font-family:"Fraunces", serif;
+    font-style:italic;
+    font-size:.92rem;
+    line-height:1.5;
+    margin:2px 0;
+    color:var(--ink);
+  }
+  .materi-card .ex::before{ content:"\201C"; }
+  .materi-card .ex::after{ content:"\201D"; }
+  .materi-tip{
+    border-radius: var(--radius-md);
+    border:1.5px dashed var(--line);
+    padding:14px 16px;
+    font-size:.88rem;
+    line-height:1.55;
+    color:var(--ink-soft);
+    margin: 6px 0 18px;
+  }
+  .materi-tip strong{ color:var(--ink); }
+
   /* ---------- QUIZ SCREEN ---------- */
   .quiz-top{
     display:flex;
@@ -416,9 +511,10 @@
 
   .end-actions{
     display:flex;
+    flex-wrap: wrap;
     gap:10px;
   }
-  .end-actions .btn{ flex:1; }
+  .end-actions .btn{ flex:1; min-width: 120px; }
 
   @media (prefers-reduced-motion: reduce){
     *{ transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
@@ -439,8 +535,71 @@
     </div>
   </div>
 
+  <!-- MAIN MENU -->
+  <section id="screen-menu" class="card">
+    <p class="section-label">Menu Utama</p>
+    <div class="menu-actions">
+      <button type="button" class="menu-btn" id="goto-materi-btn">
+        <span class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+        </span>
+        <span class="text">
+          <span class="name">Pelajari Materi</span>
+          <span class="desc">Ringkasan personifikasi, simile &amp; hiperbola</span>
+        </span>
+      </button>
+      <button type="button" class="menu-btn" id="goto-latihan-btn">
+        <span class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10.5" cy="10.5" r="6.5"></circle>
+            <line x1="15.3" y1="15.3" x2="21" y2="21"></line>
+          </svg>
+        </span>
+        <span class="text">
+          <span class="name">Mulai Latihan</span>
+          <span class="desc">Kuis tebak majas dengan skor &amp; timer</span>
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <!-- MATERI SCREEN -->
+  <section id="screen-materi" class="card" hidden>
+    <button type="button" class="back-link" data-goto="menu">&larr; Menu Utama</button>
+    <p class="section-label">Ringkasan Majas</p>
+
+    <div class="materi-card" data-cat="personifikasi">
+      <div class="head">Personifikasi</div>
+      <p class="def">Menggambarkan benda mati, hewan, atau tumbuhan seolah-olah bisa bertindak, berpikir, atau merasa seperti manusia.</p>
+      <p class="ex">Angin berbisik lembut di telingaku.</p>
+      <p class="ex">Matahari tersenyum menyambut pagi.</p>
+    </div>
+
+    <div class="materi-card" data-cat="simile">
+      <div class="head">Simile</div>
+      <p class="def">Membandingkan dua hal berbeda memakai kata penghubung &ldquo;seperti&rdquo;, &ldquo;bagai&rdquo;, &ldquo;laksana&rdquo;, atau &ldquo;bak&rdquo;.</p>
+      <p class="ex">Wajahnya bersinar bagai matahari.</p>
+      <p class="ex">Semangatnya membara seperti api.</p>
+    </div>
+
+    <div class="materi-card" data-cat="hiperbola">
+      <div class="head">Hiperbola</div>
+      <p class="def">Melebih-lebihkan suatu keadaan tanpa kata pembanding, untuk memberi efek dramatis.</p>
+      <p class="ex">Aku menunggumu sampai berabad-abad lamanya.</p>
+      <p class="ex">Suara petir itu memekakkan telinga seisi kampung.</p>
+    </div>
+
+    <p class="materi-tip"><strong>Tips membedakan:</strong> ada kata &ldquo;seperti/bagai/laksana/bak&rdquo; &rarr; simile. Subjeknya bukan manusia tapi berbuat seperti manusia &rarr; personifikasi. Pernyataannya berlebihan/mustahil tanpa kata pembanding &rarr; hiperbola.</p>
+
+    <button type="button" class="btn btn-primary" id="materi-to-latihan-btn">Lanjut ke Latihan</button>
+  </section>
+
   <!-- START SCREEN -->
-  <section id="screen-start" class="card">
+  <section id="screen-start" class="card" hidden>
+    <button type="button" class="back-link" data-goto="menu">&larr; Menu Utama</button>
     <p class="section-label">Pilih Tingkat Kasus</p>
     <div class="tier-grid" id="tier-grid" role="group" aria-label="Tingkat kesulitan">
       <button type="button" class="tier-card" data-tier="mudah" aria-pressed="false">
@@ -472,6 +631,7 @@
 
   <!-- QUIZ SCREEN -->
   <section id="screen-quiz" class="card" hidden>
+    <button type="button" class="back-link" data-goto="menu" style="margin-bottom:10px;">&larr; Menu Utama</button>
     <div class="quiz-top">
       <span class="progress-text" id="progress-text">Kasus 1 / 15</span>
       <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
@@ -526,6 +686,7 @@
     </div>
 
     <div class="end-actions">
+      <button type="button" class="btn btn-ghost" id="menu-from-end-btn">Menu Utama</button>
       <button type="button" class="btn btn-ghost" id="change-tier-btn">Ganti Tingkat</button>
       <button type="button" class="btn btn-primary" id="replay-btn">Main Lagi</button>
     </div>
@@ -548,9 +709,15 @@
     countValue: document.getElementById('count-value'),
     startBtn: document.getElementById('start-btn'),
     startHint: document.getElementById('start-hint'),
+    screenMenu: document.getElementById('screen-menu'),
+    screenMateri: document.getElementById('screen-materi'),
     screenStart: document.getElementById('screen-start'),
     screenQuiz: document.getElementById('screen-quiz'),
     screenEnd: document.getElementById('screen-end'),
+    gotoMateriBtn: document.getElementById('goto-materi-btn'),
+    gotoLatihanBtn: document.getElementById('goto-latihan-btn'),
+    materiToLatihanBtn: document.getElementById('materi-to-latihan-btn'),
+    menuFromEndBtn: document.getElementById('menu-from-end-btn'),
     progressText: document.getElementById('progress-text'),
     progressFill: document.getElementById('progress-fill'),
     timerRing: document.getElementById('timer-ring'),
@@ -601,10 +768,24 @@
 
   function showScreen(name){
     state.screen = name;
+    els.screenMenu.hidden = name !== 'menu';
+    els.screenMateri.hidden = name !== 'materi';
     els.screenStart.hidden = name !== 'start';
     els.screenQuiz.hidden = name !== 'quiz';
     els.screenEnd.hidden = name !== 'end';
   }
+
+  // ---------- MAIN MENU & MATERI ----------
+  els.gotoMateriBtn.addEventListener('click', function(){ showScreen('materi'); });
+  els.gotoLatihanBtn.addEventListener('click', function(){ showScreen('start'); });
+  els.materiToLatihanBtn.addEventListener('click', function(){ showScreen('start'); });
+  els.menuFromEndBtn.addEventListener('click', function(){ showScreen('menu'); });
+  Array.prototype.forEach.call(document.querySelectorAll('.back-link'), function(btn){
+    btn.addEventListener('click', function(){
+      clearInterval(state.timerId);
+      showScreen(btn.getAttribute('data-goto') || 'menu');
+    });
+  });
 
   // ---------- START SCREEN ----------
   els.tierGrid.addEventListener('click', function(e){
@@ -758,7 +939,7 @@
   // ---------- Hot reload (keep game state for open viewers) ----------
   function restoreFromSnapshot(data){
     try{
-      if (!data || !data.screen) return;
+      if (!data || !data.screen){ showScreen('menu'); return; }
       state = Object.assign(state, data);
       if (state.screen === 'quiz' && state.questions && state.questions.length){
         showScreen('quiz');
@@ -777,9 +958,9 @@
       } else if (state.screen === 'end'){
         finishQuiz();
       } else {
-        showScreen('start');
+        showScreen(state.screen === 'materi' || state.screen === 'start' ? state.screen : 'menu');
       }
-    } catch (err){ showScreen('start'); }
+    } catch (err){ showScreen('menu'); }
   }
 
   function boot(initialData){
@@ -805,10 +986,10 @@
         boot(window.claude.hot.data || {});
       }
     } else {
-      showScreen('start');
+      showScreen('menu');
     }
   } catch(err){
-    showScreen('start');
+    showScreen('menu');
   }
 })();
 </script>
