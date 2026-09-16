@@ -98,6 +98,11 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .win{text-align:center}
 .win .big{font-size:clamp(60px,10vh,110px);line-height:1}
 .rank{display:grid;gap:6px;text-align:left}
+.hist{max-height:55vh;overflow:auto;border-radius:12px}
+.hist table{border-collapse:collapse;width:100%;font-size:15px}
+.hist th,.hist td{padding:7px 9px;text-align:left;border-bottom:1px solid #E1D8CC;vertical-align:top}
+.hist th{position:sticky;top:0;background:var(--paper);font-weight:800}
+.hist .ok{color:var(--ok);font-weight:800}.hist .no{color:var(--bad);font-weight:800}
 .rank div{display:flex;justify-content:space-between;gap:10px;font-weight:800;font-size:19px;padding:8px 12px;border-radius:10px;background:var(--paper)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .panel.needed{animation:need 1s ease-in-out infinite}
@@ -114,6 +119,7 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
     <span class="meta" id="gMeta"></span>
     <span class="sp"></span>
     <button class="tbtn" id="btnSound" type="button" aria-pressed="true">Suara: nyala</button>
+    <button class="tbtn" id="btnHist" type="button">Riwayat</button>
     <button class="tbtn" id="btnSetup" type="button">Pengaturan</button>
     <button class="tbtn" id="btnFull" type="button">Layar penuh</button>
   </header>
@@ -761,10 +767,22 @@ const GAME = {
 const $=s=>document.querySelector(s);
 const DEF_NAMES=["Merah","Biru","Kuning"];
 const cfg={count:3, names:[...DEF_NAMES], ...GAME.defaults};
-let players=[], panels=[], running=false;
+let players=[], panels=[], running=false, startedAt=0;
+/* ---------- Riwayat (tersimpan di perangkat) ---------- */
+const HKEY="jgr-riwayat";
+const Hist={
+  all(){ try{ return JSON.parse(localStorage.getItem(HKEY))||[] }catch(e){ return [] } },
+  add(res){
+    const list=this.all();
+    list.unshift({t:Date.now(), dur:Math.round((Date.now()-startedAt)/1000),
+      materi:cfg.materi, level:cfg.level, win:res.icon==="🏁",
+      players:players.map(p=>({name:p.name,color:p.color,ok:p.score,miss:p.miss}))});
+    try{ localStorage.setItem(HKEY,JSON.stringify(list.slice(0,500))) }catch(e){}
+  }
+};
 
 const ctx={
-  end(res){ if(!running) return; running=false; GAME.stop(); Sound.stopMusic(); res.icon==="🏁"?Sound.win():Sound.lose(); setTimeout(()=>showResult(res),1300) },
+  end(res){ if(!running) return; running=false; Hist.add(res); GAME.stop(); Sound.stopMusic(); res.icon==="🏁"?Sound.win():Sound.lose(); setTimeout(()=>showResult(res),1300) },
   setWaiting(i,on,msg=""){
     const el=panels[i]; if(!el) return;
     const key=on?msg:""; if((el.dataset.wait||"")===key) return;
@@ -830,6 +848,7 @@ function showSetup(){
         <input id="nm${i}" maxlength="14" value="${esc(cfg.names[i]===DEF_NAMES[i]?"":cfg.names[i])}" placeholder="${DEF_NAMES[i]}" aria-label="Nama pemain ${i+1}"></label>`).join("")}
     </div></div>
     <button class="go" id="btnGo" type="button">Mulai menyeberang!</button>
+    <div class="seg" style="justify-content:center"><button type="button" id="btnHist2">Lihat riwayat permainan</button></div>
   </div>`;
   const saveNames=()=>[0,1,2].forEach(i=>{const n=$("#nm"+i); if(n) cfg.names[i]=n.value.trim()||DEF_NAMES[i]});
   ov.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{
@@ -838,6 +857,7 @@ function showSetup(){
     if(k==="count") build();
     showSetup();
   });
+  $("#btnHist2").onclick=()=>{ saveNames(); showHistory() };
   $("#btnGo").onclick=()=>{ Sound.init(); saveNames(); build(); countdown() };
 }
 
@@ -845,7 +865,7 @@ function countdown(){
   const ov=$("#overlay"); ov.hidden=false; let n=3;
   const tick=()=>{
     if(n===0){ ov.innerHTML=`<div class="count">Ayo!</div>`;
-      Sound.go(); setTimeout(()=>{ ov.hidden=true; running=true; GAME.start(ctx); Sound.startMusic() },600); return }
+      Sound.go(); setTimeout(()=>{ ov.hidden=true; running=true; startedAt=Date.now(); GAME.start(ctx); Sound.startMusic() },600); return }
     Sound.beep(); ov.innerHTML=`<div class="count">${n}</div>`; n--; setTimeout(tick,900);
   };
   tick();
@@ -861,11 +881,34 @@ function showResult(res){
     <div class="seg" style="justify-content:center">
       <button type="button" id="again" aria-pressed="true">Main lagi</button>
       <button type="button" id="toSetup">Pengaturan</button>
+      <button type="button" id="toHist">Riwayat</button>
     </div></div>`;
   $("#again").onclick=()=>{ Sound.init(); build(); countdown() };
   $("#toSetup").onclick=showSetup;
+  $("#toHist").onclick=showHistory;
 }
 
+function showHistory(){
+  GAME.stop(); running=false; Sound.stopMusic();
+  const ov=$("#overlay"); ov.hidden=false;
+  const list=Hist.all();
+  const lab=(arr,id)=>(arr.find(x=>x.id===id)||{}).label||"-";
+  const tgl=t=>new Date(t).toLocaleString("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+  const dur=s=>`${Math.floor(s/60)}m ${s%60}d`;
+  ov.innerHTML=`<div class="card" style="width:min(900px,100%)">
+    <h2>Riwayat permainan</h2>
+    <p>${list.length} permainan tersimpan di perangkat ini.</p>
+    <div class="hist">${list.length?`<table><thead><tr><th>Waktu</th><th>Pemain (benar / salah)</th><th>Materi</th><th>Tingkat</th><th>Hasil</th><th>Lama</th></tr></thead><tbody>
+      ${list.map(h=>`<tr><td>${tgl(h.t)}</td>
+        <td>${h.players.map(p=>`<div><span style="color:${p.color};font-weight:800">${esc(p.name)}</span> ${p.ok} / ${p.miss}</div>`).join("")}</td>
+        <td>${lab(Pecahan.materi,h.materi)}</td><td>${lab(Pecahan.levels,h.level)}</td>
+        <td class="${h.win?"ok":"no"}">${h.win?"Berhasil":"Runtuh"}</td><td>${dur(h.dur)}</td></tr>`).join("")}
+      </tbody></table>`:`<p>Belum ada permainan yang selesai.</p>`}</div>
+    <div class="seg" style="justify-content:center"><button type="button" id="histBack" aria-pressed="true">Kembali ke pengaturan</button></div>
+  </div>`;
+  $("#histBack").onclick=showSetup;
+}
+$("#btnHist").onclick=showHistory;
 $("#btnSetup").onclick=showSetup;
 (()=>{ const b=$("#btnSound");
   const set=v=>{ Sound.setOn(v); b.setAttribute("aria-pressed",v); b.textContent=v?"Suara: nyala":"Suara: mati";
