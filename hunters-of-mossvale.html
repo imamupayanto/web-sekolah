@@ -214,6 +214,19 @@ body.mobile #dialog .who{font-size:14px;margin-bottom:2px}
 body.mobile #toast{font-size:14px;white-space:normal;max-width:86%;text-align:center}
 .txt{display:block;width:100%;margin:.3em 0;font:14px/1.3 ui-monospace,Menlo,monospace;padding:6px 8px;border:2px solid var(--ink);background:#fff8e4;color:var(--ink);resize:vertical;word-break:break-all}
 .txt:focus{outline:2px solid var(--ember)}
+#menu{z-index:5}#dialog{z-index:6}
+.tuthead{display:flex;justify-content:space-between;align-items:baseline;padding:.2em .45em}.tuthead b{font-size:1.15em}
+.tutimg{width:100%;max-width:400px;align-self:center;image-rendering:pixelated;border:3px solid var(--ink);display:block}
+.tuttext{margin:.3em .45em;line-height:1.4}
+.tutnav{display:grid;grid-template-columns:1fr 1fr;gap:.4em}.tutnav .opt{justify-content:center;border:2px solid var(--ink);background:var(--parch2)}.tutnav .opt::before{content:none!important}
+.skipb{position:absolute;right:.5em;top:-1.9em;font:600 13px "Pixelify Sans",system-ui,sans-serif;background:var(--ink);color:var(--parch);border:0;padding:.25em .8em;cursor:pointer}
+#bcmds.wait .opt:not(.hot){opacity:.62}
+.bar.atb{height:.5em;margin-top:2px}.bar.atb>i{background:#5fa8e0;transition:none}.bar.atb.rdy>i{background:var(--gold)}
+.bar.atb.e>i{background:#c86a4a}.bar.atb.t>i{background:var(--blood)}
+.tellbar{margin-top:3px}.tellbar .small{font-weight:700}
+#bcmds .sec.q{color:#3a6ec4}
+.opt.hot{background:#f4c27a!important;animation:hotp .5s steps(2) infinite}
+@keyframes hotp{50%{background:#ffe2a8}}
 @media (prefers-reduced-motion:reduce){.num{animation-duration:.01s}#dialog .more{animation:none}}
 </style>
 </head>
@@ -297,6 +310,7 @@ const ITEMS={
   trout:{name:'Moss Trout',sell:15},eel:{name:'Gloom Eel',sell:30},pike:{name:'Scaled Pike',sell:70},
   guppy:{name:'Ember Guppy',sell:30},gar:{name:'Magma Gar',sell:60},cinderfin:{name:'Cinderfin',sell:160},
   egg:{name:'Monster Egg',sell:350},
+  seedV:{name:'Verdant Seed'},seedC:{name:'Ember Seed'},seedF:{name:'Frost Seed'},
   hotdrink:{name:'Hot Drink',use:1,price:40,hr:3,desc:'Keeps you warm in blizzards'},
   frostcod:{name:'Frost Cod',sell:40},salmon:{name:'Glacier Salmon',sell:80},aurorakoi:{name:'Aurora Koi',sell:260},
   frostfur:{name:'Frost Fur',sell:60},wolffang:{name:'Icefang',sell:80},feather:{name:'Sneakbeak Feather',sell:40},golemcore:{name:'Golem Core',sell:90},
@@ -508,7 +522,7 @@ const SAVE_KEY='mossvale-save-v1';
 let S, E=null, B=null, busy=false, T0=0;
 function freshState(){return{v:1,scene:'title',map:'village',hr:1,zenny:300,inv:{potion:5,antidote:2,paintball:2,capture:0},
   weapons:['gs1','tb1','bw1'],armors:['ar0'],wep:'gs1',arm:'ar0',done:{},accepted:null,meal:null,
-  P:{x:9,y:27,dir:'down'},hp:100,focus:0,pst:null,Q:null,intro:false}}
+  story:{},P:{x:9,y:27,dir:'down'},hp:100,focus:0,pst:null,Q:null,intro:false}}
 const WEP=()=>WEAPONS[S.wep], ARM=()=>ARMORS[S.arm];
 const MEAL=()=>S.Q&&S.Q.meal?MEALS.find(m=>m.id===S.Q.meal):null;
 const maxHP=()=>100+ARM().hp+(MEAL()?.hp||0);
@@ -951,7 +965,8 @@ function portrait(k){if(PORTRAITS[k])return PORTRAITS[k];
     cook:()=>face('skin','hair',{hat:'chef',body:'white',apron:'red',blush:1}),
     guild:()=>face('skin','red',{body:'cloth',blush:1,eye:'cloth'}),
     gate:()=>face('skin','hair',{helm:'steel',body:'steel',beard:'hair',beardL:1}),
-    hunter:()=>face('skin','hair',{body:ARMRAMP[S.arm],blush:1})};
+    hunter:()=>face('skin','hair',{body:ARMRAMP[S.arm],blush:1}),
+    stranger:()=>{face('skin','purple',{body:'purple'});p.disc(18,11,13,10,'purple',2);p.rect(5,11,5,20,'purple',1);p.rect(26,11,5,20,'purple',1);p.rect(10,14,16,7,'purple',0,true);p.rect(12,17,3,1,'gold',4,true);p.rect(21,17,3,1,'gold',4,true)}};
   (P[k]||P.guild)();return PORTRAITS[k]=p.render().toDataURL()}
 
 /* ---- monsters (1x, facing left) ---- */
@@ -1417,7 +1432,7 @@ function hud(){
 }
 /* dialog */
 const D={open:false,q:[],res:null,who:''};
-const WHO={'Village Elder':'elder','Guild':'guild','Quest start':'guild','Quest':'guild','Gatekeeper':'gate','Smith':'smith','Merchant':'merchant','Cook':'cook','Hunter':'hunter'};
+const WHO={'Traveling Merchant':'stranger','Village Elder':'elder','Guild':'guild','Quest start':'guild','Quest':'guild','Gatekeeper':'gate','Smith':'smith','Merchant':'merchant','Cook':'cook','Hunter':'hunter'};
 function say(lines,who=''){return new Promise(res=>{D.q=[].concat(lines);D.who=who;D.res=res;D.open=true;nextLine()})}
 function nextLine(){
   if(D.typing){D.typing=0;clearInterval(D.iv);D.txt.textContent=D.full;return}
@@ -1426,19 +1441,20 @@ function nextLine(){
   if(pk){const im=h('img',{src:portrait(pk),alt:'',cls:'por'});dlg.append(im)}
   const body=h('div',{cls:'dtx'});if(D.who)body.append(h('span',{cls:'who'},tr(D.who)));
   D.full=tr(D.q.shift());D.txt=h('span',{});body.append(D.txt);dlg.append(body,h('span',{cls:'more'},'▼'));
+  if(typeof SCENE!=='undefined'&&SCENE){const sk=h('button',{type:'button',cls:'skipb'},'Skip');sk.onclick=e=>{e.stopPropagation();SCENE.skip=true;D.q=[];D.typing=0;clearInterval(D.iv);nextLine()};dlg.append(sk)}
   let i=0;D.typing=1;clearInterval(D.iv);
   if(RM){D.txt.textContent=D.full;D.typing=0;return}
   D.iv=setInterval(()=>{i+=2;D.txt.textContent=D.full.slice(0,i);if(i%4===0)sfx('text');if(i>=D.full.length){clearInterval(D.iv);D.typing=0}},18)}
 dlg.onclick=()=>D.open&&nextLine();
 /* menus */
 let MENU=null;
-const POR={'Bag':'hunter','Traveling Merchant':'merchant','Name your buddy':'hunter','Save code':'hunter','Quest Board':'guild','Smithy':'smith','General Store':'merchant','Canteen':'cook','Item Chest':'hunter','Base Camp':'hunter','Field Pouch':'hunter','Pouch':'hunter'};
+const POR={'Tutorial':'elder','Bag':'hunter','Traveling Merchant':'stranger','Name your buddy':'hunter','Save code':'hunter','Quest Board':'guild','Smithy':'smith','General Store':'merchant','Canteen':'cook','Item Chest':'hunter','Base Camp':'hunter','Field Pouch':'hunter','Pouch':'hunter'};
 const GREET={'Quest Board':'"Pick a job that suits your blade, hunter."','Smithy':'"Bring me parts and I\'ll hammer out something fierce."','General Store':'"Potions, paint, traps — all fresh!"','Canteen':'"Nothing beats a hot meal before a hunt!"','Base Camp':'The campfire crackles softly.'};
 function openMenu(title,render,tabs){MENU={title,render,tabs,tab:0};drawMenu(0)}
 function drawMenu(fi){
   menuEl.hidden=false;menuEl.innerHTML='';
   const pk=MENU.title.startsWith('Depart')?'gate':POR[MENU.title];
-  const head=h('div',{cls:'mh'},pk?h('img',{src:portrait(pk),alt:'',cls:'mpor'}):null,h('div',{cls:'mt'},h('b',{},MENU.title),GREET[MENU.title]?h('span',{cls:'small'},GREET[MENU.title]):null),h('span',{cls:'small zen'},`${S.zenny}z · HR ${S.hr}`));menuEl.append(head);
+  const head=h('div',{cls:'mh'},pk?h('img',{src:portrait(pk),alt:'',cls:'mpor'}):null,h('div',{cls:'mt'},h('b',{},MENU.title),greetFor(MENU.title)?h('span',{cls:'small'},greetFor(MENU.title)):null),h('span',{cls:'small zen'},S.scene==='title'?'':`${S.zenny}z · HR ${S.hr}`));menuEl.append(head);
   if(MENU.tabs){const tb=h('div',{cls:'tabs'});MENU.tabs.forEach((t,i)=>tb.append(h('button',{cls:'tab'+(i===MENU.tab?' on':''),type:'button',on:()=>{MENU.tab=i;drawMenu(0)}},t)));menuEl.append(tb)}
   const body=h('div',{cls:'mbody'});menuEl.append(body);
   MENU.render(body,MENU.tab);
@@ -1605,7 +1621,7 @@ async function gate(){if(!S.accepted){await say('Pick a quest at the Quest Board
   const q=quest(S.accepted);openMenu(`Depart: ${q.name}?`,body=>{
     body.append(h('div',{cls:'note'},`${ZONES[q.zone].name} · ${q.desc} · Time limit 50:00 · 3 faints and the quest fails.`));
     body.append(h('div',{cls:'note'},`Weapon: ${WEP().name} · Armor: ${ARM().name} · Potions ${have('potion')} · Meal: ${S.meal?MEALS.find(m=>m.id===S.meal).name:'none'}`));
-    body.append(opt('Depart now','',()=>{closeMenu();startQuest()}))})}
+    body.append(opt('Depart now','',async()=>{closeMenu();await storyBefore(S.accepted);startQuest()}))})}
 
 /* ================= quests ================= */
 function startQuest(){const q=quest(S.accepted),Z=ZONES[q.zone],m=MAPS[q.zone];
@@ -1632,7 +1648,7 @@ async function completeQuest(){busy=true;const Q=S.Q,q=quest(Q.id);const first=!
     if(S.hr===2)lines.push('The Ember Cave, Mega Potions and a free forest expedition are now open.')}
   if(q.id==='q5'&&first)lines.push('The Cinder Drake is down! The path to Frostpeak has opened — new quests await at the board.');
   if(q.id==='q7'&&first)lines.push('The Rimeback Tusker falls. You are a true Hunter of Mossvale! Forge the glacial arsenal and keep hunting.');
-  jingle('quest');banner('QUEST COMPLETE',q.name);await sleep(1600);if(lines.some(l=>l.startsWith('Hunter Rank')))jingle('rank');await say(lines,'Guild');returnVillage();busy=false}
+  jingle('quest');banner('QUEST COMPLETE',q.name);await sleep(1600);if(lines.some(l=>l.startsWith('Hunter Rank')))jingle('rank');await say(lines,'Guild');returnVillage();await storyAfter(q.id);busy=false}
 async function failQuest(reason){busy=true;jingle('fail');banner('QUEST FAILED',reason);await sleep(1400);await say(['QUEST FAILED',reason+' The guild pays nothing, but you keep what you gathered.'],'Guild');returnVillage();busy=false}
 function returnVillage(){S.Q=null;S.accepted=null;S.map='village';P.x=9;P.y=32;P.path=[];P.after=null;catSnap();checkCatReturn();if(merchantHere())setTimeout(()=>toast('A traveling merchant is in town tonight!'),1800);P.dir='up';P.mv=null;S.hp=maxHP();S.pst=null;S.scene='world';music('village');startFade();hud();updHint();save()}
 function campMenu(){const Q=S.Q,q=quest(Q.id);openMenu('Base Camp',body=>{
@@ -1655,6 +1671,7 @@ function bagMenu(){openMenu('Bag',(body,tab)=>{
       const why=k==='bait'?'Used when fishing in lava':k==='capture'?'Use it in battle':k==='paintball'&&!Q?'Use it during a hunt':'';
       body.append(opt(h('span',{},it.name,h('span',{cls:'sub'},why||it.desc)),'×'+have(k),()=>{fieldUse(k);redraw()},!have(k)||!!why))}
     body.append(opt(`Sound: ${AU.muted?'off':'on'}`,'',()=>{toggleMute();redraw()}));
+    body.append(opt(`Battle speed: ${SPDN[S.bspd]||'Normal'}`,'',()=>{const o=['slow','normal','fast'];S.bspd=o[(o.indexOf(S.bspd||'normal')+1)%3];save();redraw()}));
     body.append(opt(LANG==='id'?'Bahasa: Indonesia':'Language: English',LANG==='id'?'ID':'EN',()=>{setLang(LANG==='id'?'en':'id');redraw();hud()}));
     if(!Q)body.append(opt('Save game','',()=>{save();sfx('save');toast('Game saved')}));
     if(!Q)body.append(opt('Save code (backup)','',()=>{closeMenu();codeMenu()}));
@@ -1664,12 +1681,13 @@ function bagMenu(){openMenu('Bag',(body,tab)=>{
       for(const k of ks){const nw=Q&&Q.gathered[k]?Q.gathered[k]:0;
         body.append(h('div',{cls:'mat'},h('span',{},ITEMS[k].name),h('span',{cls:'r'},nw?h('span',{cls:'ok'},`+${nw} new  `):null,'×'+have(k))))}}
     if(!any)body.append(h('div',{cls:'note'},'No materials yet. Gather sparkling spots and hunt monsters to collect them.'))}
+  else if(tab===3)storyTab(body);
   else{const list=nextForge();
     body.append(h('div',{cls:'note'},'Your next upgrades at the Smithy and what they still need.'));
     if(!list.length)body.append(h('div',{cls:'note'},'Everything is forged. Impressive!'));
     for(const[id,it]of list){const ready=canPay(it.cost,it.z);
       body.append(h('div',{cls:'mat'},h('span',{},it.name+(it.atk?`  ATK ${it.atk}`:`  DEF ${it.def}`),h('span',{cls:'sub'},reqLine(it.cost,it.z))),h('span',{cls:'r '+(ready?'ok':'')},ready?'Ready':'')))}}
-},['Items','Materials','Forge list'])}
+},['Items','Materials','Forge list','Story'])}
 function fieldUse(k){const it=ITEMS[k];if(k==='hotdrink'){if(!S.Q)return toast('Drink it during a hunt.');if(S.Q.warm)return toast('You are already warm.');S.inv[k]--;S.Q.warm=true;sfx('heal');toast('You feel warm. The cold no longer hurts.');hud();return}if(k==='capture'||k==='bait'||(k==='paintball'&&!S.Q))return;
   if(it.heal){if(S.hp>=maxHP())return toast('HP is already full.');S.inv[k]--;S.hp=Math.min(maxHP(),S.hp+it.heal);sfx('heal');toast(`Recovered ${it.heal} HP`)}
   else if(it.cure){if(!S.pst)return toast('Nothing to cure.');S.inv[k]--;S.pst=null;sfx('heal');toast('Ailment cured')}
@@ -1743,6 +1761,7 @@ async function rescueCat(){const Q=S.Q;if(busy||Q.rescued)return;busy=true;sfx('
   const name=await askName('Tofu');
   S.cat={name,lv:1,xp:0,wep:'cw1',arm:'ca0',weps:['cw1'],arms:['ca0'],exp:null};Q.rescued=true;catSnap();busy=false;
   await say([`${name} joined you as your hunting buddy!`,`${name} fights beside you, and can go on gathering trips from the Item Chest.`],'Guild');
+  await playScene('kitten');
   await checkQuest()}
 function askName(def){return new Promise(res=>{let done=false;const fin=v=>{if(done)return;done=true;res(String(v||'').trim().slice(0,10)||def)};
   openMenu('Name your buddy',body=>{const inp=h('input',{id:'catName',type:'text',maxlength:'10',value:def,autocomplete:'off',cls:'txt'});
@@ -1768,7 +1787,8 @@ function catForgeTab(body){const c=S.cat;if(!c){body.append(h('div',{cls:'note'}
   body.append(h('div',{cls:'note'},`Gear for ${c.name}. Weapons raise its attacks, armor improves its healing.`));
   for(const[set,own,key]of[[CWEP,c.weps,'wep'],[CARM,c.arms,'arm']])for(const[id,it]of Object.entries(set)){if(!it.cost)continue;const hasIt=own.includes(id);
     body.append(opt(h('span',{},`${it.name}  ${key==='wep'?'ATK '+it.atk:'Heal +'+it.heal}`,hasIt?h('span',{cls:'sub'},'Owned'):reqLine(it.cost,it.z)),hasIt?'✓':'Forge',()=>{pay(it.cost,it.z);own.push(id);c[key]=id;sfx('forge');save();toast(`Forged ${it.name}!`);redraw()},hasIt||!canPay(it.cost,it.z)))}}
-function merchantMenu(){const st=merchStock();if(!S.merchant||S.merchant.day!==todayKey())S.merchant={day:todayKey(),bought:{}};const md=S.merchant;
+async function merchantMenu(){if(!S.story||!S.story.merchant)await playScene('merchant');merchantShop()}
+function merchantShop(){const st=merchStock();if(!S.merchant||S.merchant.day!==todayKey())S.merchant={day:todayKey(),bought:{}};const md=S.merchant;
   openMenu('Traveling Merchant',(body,tab)=>{
     if(tab===0){body.append(h('div',{cls:'note'},'"Rare goods, tonight only! One of each."'));
       st.sell.forEach(([k,price],i)=>{const got=md.bought['s'+i];body.append(opt(h('span',{},ITEMS[k].name,h('span',{cls:'sub'},got?'Sold out':`You have ${have(k)}`)),got?'—':price+'z',()=>{S.zenny-=price;gain(k);md.bought['s'+i]=1;sfx('coin');save();toast(`Bought ${ITEMS[k].name}`);redraw()},!!got||S.zenny<price))})}
@@ -1815,6 +1835,182 @@ function mobTick(dt){const Q=S.Q;if(!Q||!Q.mobs||S.scene!=='world')return;
       if(mobFree(nx,ny)){m.dir=d;if(d==='left'||d==='right')m.face=d;m.fx=m.x;m.fy=m.y;m.x=nx;m.y=ny;m.mt=0;break}}}}
 function mobEngage(m,first){if(busy||S.scene!=='world')return;P.path=[];P.after=null;P.mv=null;dirStack.length=0;startBattle(m.key,false,{mob:m,first})}
 
+/* ================= story: The Heartroot ================= */
+const SEEDS={q3:'seedV',q5:'seedC',q7:'seedF'};
+function chapter(){return S.done.q7?3:S.done.q5?2:S.done.q3?1:0}
+const SCENES={
+  prologue:[
+    ['Village Elder','You came at a strange time, hunter. Mossvale has not been quiet for many seasons.'],
+    ['Village Elder','Beneath this village sleeps the Heartroot — an ancient root that has kept the wild calm for a thousand years.'],
+    ['Village Elder','Lately it has begun to wither. And the monsters... they have begun to change.'],
+    ['Village Elder','Start small. The Quest Board will show you the way. If you are lost, the Tutorial on the title screen explains the basics.']],
+  c1_start:[
+    ['Village Elder','The Verdant Wyrm was once the gentle guardian of the forest.'],
+    ['Village Elder','Those who saw it last say its scales have turned black at the edges, like rot.'],
+    ['Village Elder','Whatever you find in its nest... bring it to me.']],
+  c1_end:[
+    ['Hunter','Among the Wyrm\'s scales, something pulses with a faint green light — a seed, warm as a heartbeat.'],
+    ['Village Elder','A Heartroot seed... So it is true. Someone tore the seeds from the root and fed them to the great beasts.'],
+    ['Village Elder','There were three seeds. The Ember Cave, I fear, holds the next.']],
+  merchant:[
+    ['Traveling Merchant','Ah. You carry the smell of old roots, hunter.'],
+    ['Traveling Merchant','Don\'t look so surprised. Things buried long enough always find their way back to the surface.'],
+    ['Traveling Merchant','Buy what you need. Questions cost extra.']],
+  kitten:[
+    ['Hunter','The kitten wears a worn collar. Scratched into the leather: "R. — Heartroot Watch".'],
+    ['Hunter','Whoever R. was, they never came back for it.']],
+  c2_start:[
+    ['Village Elder','The Cinder Drake has not left its roost in years. Now it burns the cave from within.'],
+    ['Village Elder','Be careful. A seed of ember does not sleep quietly.']],
+  c2_end:[
+    ['Hunter','In the ash of the roost lies a second seed, glowing like a coal that refuses to die.'],
+    ['Hunter','Beside it: boot prints pressed into the cooled lava. Human. Recent.'],
+    ['Village Elder','Then someone walked into that fire willingly... and walked out again.'],
+    ['Village Elder','The last seed went north, to Frostpeak. Whoever carries them is always one step ahead of you.']],
+  c3_start:[
+    ['Village Elder','Frostpeak. The Heartroot Watch kept a post there, long ago.'],
+    ['Village Elder','No one has returned from that post. Mind the cold — and mind who you trust.']],
+  c3_end:[
+    ['Hunter','Frozen inside the Tusker\'s crystals is the third seed, pale and still.'],
+    ['Hunter','Beneath the ice lies a torn page: "The root was never meant to sleep. Wake the Hollow, and the wild will kneel." — R.'],
+    ['Village Elder','Three seeds. Planted again, the Heartroot will breathe.'],
+    ['???','...Breathe, yes. For now.'],
+    ['Village Elder','Did you hear that? ...No matter. The wild will calm, for a time.'],
+    ['Village Elder','But R. is still out there, and the Hollow is something even I have only read about.'],
+    ['Village Elder','Rest, hunter. When the ground shakes again, it will shake for you.'],
+    ['','— To be continued —']],
+};
+const BEFORE={q3:'c1_start',q5:'c2_start',q7:'c3_start'},AFTER={q3:'c1_end',q5:'c2_end',q7:'c3_end'};
+let SCENE=null;
+async function playScene(id){if(!S.story)S.story={};if(S.story[id]||!SCENES[id])return;S.story[id]=1;
+  const was=busy;busy=true;SCENE={skip:false};music(S.Q?S.Q.zone:'cave');
+  for(const[who,text]of SCENES[id]){if(SCENE.skip)break;await say([text],who)}
+  SCENE=null;busy=was;music(S.Q?S.Q.zone:'village');save()}
+async function storyBefore(qid){if(BEFORE[qid])await playScene(BEFORE[qid])}
+async function storyAfter(qid){const k=SEEDS[qid];if(!k)return;if(!have(k)){gain(k);toast(`Obtained the ${ITEMS[k].name}`);sfx('forge')}await playScene(AFTER[qid]);save()}
+function syncStory(){if(!S.story)S.story={};for(const[q,k]of Object.entries(SEEDS))if(S.done[q]&&!have(k))gain(k)}
+const JOURNAL=[
+  {t:'Prologue · The Withering Root',d:'The Heartroot beneath Mossvale is withering, and the monsters are changing.'},
+  {t:'Chapter 1 · The Rotting Guardian',q:'q3',d:'The Verdant Wyrm carried a Heartroot seed. Someone fed it to the beast on purpose.'},
+  {t:'Chapter 2 · The Ember That Would Not Die',q:'q5',d:'A second seed in the Drake\'s roost — and human boot prints in the cooled lava.'},
+  {t:'Chapter 3 · The Frozen Page',q:'q7',d:'The third seed, and a torn note signed "R." about waking the Hollow.'},
+  {t:'Epilogue · Breath of the Root',q:'q7',d:'The Heartroot breathes again. But R. and the Hollow remain a mystery.'},
+];
+function storyTab(body){const n=Object.values(SEEDS).filter(k=>have(k)).length;
+  body.append(h('div',{cls:'note'},`Heartroot seeds: ${n}/3`));
+  if(S.cat)body.append(h('div',{cls:'note'},`${S.cat.name}'s collar reads: "R. — Heartroot Watch".`));
+  JOURNAL.forEach((j,i)=>{const open=!j.q||S.done[j.q];
+    body.append(h('div',{cls:'mat'},h('span',{},open?j.t:'???',h('span',{cls:'sub'},open?j.d:'Keep hunting to uncover this chapter.'))))});
+  if(S.done.q7)body.append(h('div',{cls:'note'},'— To be continued —'))}
+const GREET_CH={
+  'Quest Board':[null,'"Word travels fast — the Wyrm is gone. The cave folk are asking for help now."','"The snow-hunters of Frostpeak have gone silent. Care to find out why?"','"Quiet days at last. Or so they say."'],
+  'Smithy':[null,'"That green seed of yours hums when I work the anvil. Keep it away from my forge."','"Boot prints in lava? No hunter I know is that foolish. Or that tough."','"R.? There was a Watch captain called Rhoswen. Vanished before I was born."'],
+  'General Store':[null,'"Strange times. Someone bought every lantern in town last night."','"A hooded buyer paid me in coins I have never seen before."','"A map of the Hollow? Nobody has one. Nobody wants one."'],
+  'Canteen':[null,'"Eat up. The forest feels different since the Wyrm fell."','"My stew keeps boiling over at night. The ground is warm, hunter."','"A feast for the hero! ...Though the Elder hasn\'t smiled once."'],
+};
+function greetFor(t){const c=chapter();return (GREET_CH[t]&&GREET_CH[t][c])||GREET[t]}
+
+/* ---- tutorial ---- */
+const TUT=[
+  {t:'Moving',d:'Tap anywhere to walk there. Tap a person, a board or a sparkling spot to walk over and use it. On a computer, use the arrow keys and Z.'},
+  {t:'Mossvale',d:'Quest Board: take jobs. Smithy: forge gear from monster parts. General Store: buy supplies. Canteen: meals that boost your next hunt. Item Chest: change gear and save.'},
+  {t:'The hunt',d:'Leave through the south gate. You have 50 minutes, and fainting 3 times fails the quest. Follow footprints to find the big monster, and mark it with a Paintball.'},
+  {t:'Monsters on the map',d:'Small monsters roam each area and chase you when they notice you (!). Hit them from behind for an ambush. If they touch you first, they strike first.'},
+  {t:'Battle',d:'Battles run in real time: act when your ATB bar is full, and monsters attack on their own bar. Aim at weak parts (★) for rare materials. When a red GUARD! bar appears, tap Guard before it runs out.'},
+  {t:'Grow stronger',d:'Carve materials, forge better weapons and armor, and raise your Hunter Rank to open new lands.'},
+];
+const TUTIMG={};
+function tutArt(i){if(TUTIMG[i])return TUTIMG[i];const c=document.createElement('canvas');c.width=160;c.height=96;const x=c.getContext('2d');x.imageSmoothingEnabled=false;
+  const ground=r=>{for(let ty=0;ty<6;ty++)for(let tx=0;tx<10;tx++)grassTile(x,tx*16,ty*16,tx+i*7,ty,r)};
+  const path=(x0,w)=>{x.fillStyle=col('dirt',2);x.fillRect(x0,0,w,96)};
+  const draw=(img,px,py,s=1)=>x.drawImage(img,Math.round(px),Math.round(py),Math.round(img.width*s),Math.round(img.height*s));
+  const keep={arm:S.arm,wep:S.wep};S.arm='ar1';S.wep='gs2';
+  if(i===0){ground('grass');path(64,32);draw(hunterOW('down',0),69,34);x.strokeStyle='#ffffff';x.lineWidth=1;x.strokeRect(112.5,56.5,15,15);x.strokeRect(114.5,58.5,11,11);
+    x.fillStyle='#ffffff';x.fillRect(119,40,2,8);x.fillRect(116,45,8,2);draw(treeSpr(0,false),12,20)}
+  else if(i===1){ground('grass');path(0,160);x.fillStyle=col('grass',2);x.fillRect(0,0,160,40);draw(houseSpr(1),4,-4);draw(boardSpr(),76,40);draw(npcSpr('B',0),118,44);draw(anvilSpr(1),134,58);draw(hunterOW('up',0),96,58)}
+  else if(i===2){ground('leaf');draw(tentSpr(),10,56);draw(trackSpr(),56,60);draw(trackSpr(),76,46);draw(trackSpr(),96,34);draw(miniBoss('wyrm',0),116,8,1.6);draw(hunterOW('right',1),36,58)}
+  else if(i===3){ground('leaf');const m=mobSpr('mossling',0);draw(m,90,40,1.4);draw(hunterOW('right',0),58,44);x.fillStyle=col('red',3);x.fillRect(103,18,3,7);x.fillRect(103,27,3,3);
+    x.fillStyle='rgba(255,255,255,.9)';x.fillRect(20,14,34,9);x.fillStyle=INK;x.font='bold 7px monospace';x.fillText('AMBUSH!',22,21)}
+  else if(i===4){x.drawImage(battleBg('forest'),0,20,320,200,0,0,160,100);draw(monSpr('wyrm',0,{broken:{}}),64,-2,.55);draw(hunterBT('idle',0),-6,34,.8);
+    x.fillStyle=col('gold',3);const hx=58,hy=20;for(const[a,b]of[[-1,-1],[1,-1],[-1,1],[1,1]]){x.fillRect(hx+a*8-(a>0?3:0),hy+b*8,4,1);x.fillRect(hx+a*8,hy+b*8-(b>0?3:0),1,4)}}
+  else{x.fillStyle=col('cave',2);x.fillRect(0,0,160,96);for(let t=1;t<=4;t++){const p=new Pt(40,48);const w=WEAPONS['gs'+t];gsBlade(p,8,42,Math.cos(-.9),Math.sin(-.9),t,elRamp(w));draw(p.render(),4+(t-1)*39,20)}
+    x.fillStyle=col('gold',3);for(let t=0;t<3;t++){x.fillRect(38+t*39,80,6,2);x.fillRect(42+t*39,78,2,6)}}
+  S.arm=keep.arm;S.wep=keep.wep;SPR.forEach((v,k)=>{if(k.startsWith('how'))SPR.delete(k)});
+  return TUTIMG[i]=c.toDataURL()}
+function tutorialMenu(){openMenu('Tutorial',body=>{const i=MENU.page||0,T=TUT[i];
+  body.append(h('div',{cls:'tuthead'},h('b',{},T.t),h('span',{cls:'small'},`${i+1}/${TUT.length}`)),
+    h('img',{src:tutArt(i),alt:'',cls:'tutimg'}),h('p',{cls:'tuttext'},T.d));
+  const nav=h('div',{cls:'tutnav'});
+  nav.append(opt('Previous','',()=>{MENU.page=i-1;drawMenu(0)},i===0));
+  nav.append(opt(i===TUT.length-1?'Done':'Next','',()=>{if(i===TUT.length-1)closeMenu();else{MENU.page=i+1;drawMenu(1)}}));
+  body.append(nav)})}
+
+/* ---- translations for story & tutorial ---- */
+const STORY_ID={
+  'You came at a strange time, hunter. Mossvale has not been quiet for many seasons.':'Kau datang di saat yang ganjil, pemburu. Sudah lama Mossvale tidak tenang.',
+  'Beneath this village sleeps the Heartroot — an ancient root that has kept the wild calm for a thousand years.':'Di bawah desa ini tertidur Heartroot — akar purba yang menjaga alam liar tetap tenang selama seribu tahun.',
+  'Lately it has begun to wither. And the monsters... they have begun to change.':'Belakangan akar itu mulai layu. Dan para monster... mulai berubah.',
+  'Start small. The Quest Board will show you the way. If you are lost, the Tutorial on the title screen explains the basics.':'Mulailah dari yang kecil. Papan Quest akan menunjukkan jalannya. Kalau bingung, Tutorial di layar judul menjelaskan dasarnya.',
+  'The Verdant Wyrm was once the gentle guardian of the forest.':'Verdant Wyrm dulunya penjaga hutan yang lembut.',
+  'Those who saw it last say its scales have turned black at the edges, like rot.':'Mereka yang terakhir melihatnya bilang sisiknya menghitam di tepi, seperti membusuk.',
+  'Whatever you find in its nest... bring it to me.':'Apa pun yang kau temukan di sarangnya... bawa kepadaku.',
+  "Among the Wyrm's scales, something pulses with a faint green light — a seed, warm as a heartbeat.":'Di antara sisik Wyrm, sesuatu berdenyut dengan cahaya hijau redup — sebutir benih, hangat seperti detak jantung.',
+  'A Heartroot seed... So it is true. Someone tore the seeds from the root and fed them to the great beasts.':'Benih Heartroot... Jadi benar. Seseorang mencabut benih-benih itu dari akarnya dan memberikannya kepada monster-monster besar.',
+  'There were three seeds. The Ember Cave, I fear, holds the next.':'Ada tiga benih. Aku khawatir Ember Cave menyimpan yang berikutnya.',
+  'Ah. You carry the smell of old roots, hunter.':'Ah. Kau membawa bau akar tua, pemburu.',
+  "Don't look so surprised. Things buried long enough always find their way back to the surface.":'Jangan terkejut begitu. Yang terkubur cukup lama selalu menemukan jalan kembali ke permukaan.',
+  'Buy what you need. Questions cost extra.':'Beli yang kau perlukan. Pertanyaan dikenai biaya tambahan.',
+  'The kitten wears a worn collar. Scratched into the leather: "R. — Heartroot Watch".':'Anak kucing itu memakai kalung usang. Tergores di kulitnya: "R. — Heartroot Watch".',
+  'Whoever R. was, they never came back for it.':'Siapa pun R., ia tak pernah kembali untuk menjemputnya.',
+  'The Cinder Drake has not left its roost in years. Now it burns the cave from within.':'Cinder Drake tak pernah meninggalkan sarangnya bertahun-tahun. Kini ia membakar gua dari dalam.',
+  'Be careful. A seed of ember does not sleep quietly.':'Hati-hati. Benih bara tidak tidur dengan tenang.',
+  'In the ash of the roost lies a second seed, glowing like a coal that refuses to die.':'Di abu sarangnya tergeletak benih kedua, menyala seperti bara yang menolak padam.',
+  'Beside it: boot prints pressed into the cooled lava. Human. Recent.':'Di sampingnya: jejak sepatu tercetak di lava yang mengeras. Manusia. Masih baru.',
+  'Then someone walked into that fire willingly... and walked out again.':'Berarti ada yang masuk ke api itu dengan sengaja... dan keluar lagi.',
+  'The last seed went north, to Frostpeak. Whoever carries them is always one step ahead of you.':'Benih terakhir dibawa ke utara, ke Frostpeak. Siapa pun pembawanya, ia selalu selangkah di depanmu.',
+  'Frostpeak. The Heartroot Watch kept a post there, long ago.':'Frostpeak. Dulu, Heartroot Watch punya pos di sana.',
+  'No one has returned from that post. Mind the cold — and mind who you trust.':'Tak ada yang kembali dari pos itu. Waspadai dinginnya — dan waspadai siapa yang kau percaya.',
+  "Frozen inside the Tusker's crystals is the third seed, pale and still.":'Membeku di dalam kristal Tusker, benih ketiga — pucat dan diam.',
+  'Beneath the ice lies a torn page: "The root was never meant to sleep. Wake the Hollow, and the wild will kneel." — R.':'Di bawah es tergeletak sobekan halaman: "Akar itu tak pernah ditakdirkan tidur. Bangunkan Hollow, dan alam liar akan berlutut." — R.',
+  'Three seeds. Planted again, the Heartroot will breathe.':'Tiga benih. Setelah ditanam kembali, Heartroot akan bernapas.',
+  '...Breathe, yes. For now.':'...Bernapas, ya. Untuk sementara.',
+  'Did you hear that? ...No matter. The wild will calm, for a time.':'Kau dengar itu? ...Sudahlah. Alam liar akan tenang, untuk sementara.',
+  'But R. is still out there, and the Hollow is something even I have only read about.':'Tapi R. masih di luar sana, dan Hollow adalah sesuatu yang bahkan hanya pernah kubaca.',
+  'Rest, hunter. When the ground shakes again, it will shake for you.':'Beristirahatlah, pemburu. Saat tanah bergetar lagi, getarannya akan memanggilmu.',
+  '— To be continued —':'— Bersambung —',
+  'Prologue · The Withering Root':'Prolog · Akar yang Layu','Chapter 1 · The Rotting Guardian':'Bab 1 · Penjaga yang Membusuk',
+  'Chapter 2 · The Ember That Would Not Die':'Bab 2 · Bara yang Tak Mau Padam','Chapter 3 · The Frozen Page':'Bab 3 · Halaman yang Membeku','Epilogue · Breath of the Root':'Epilog · Napas Sang Akar',
+  'The Heartroot beneath Mossvale is withering, and the monsters are changing.':'Heartroot di bawah Mossvale mulai layu, dan para monster berubah.',
+  'The Verdant Wyrm carried a Heartroot seed. Someone fed it to the beast on purpose.':'Verdant Wyrm membawa benih Heartroot. Seseorang sengaja memberikannya kepada monster itu.',
+  "A second seed in the Drake's roost — and human boot prints in the cooled lava.":'Benih kedua di sarang Drake — dan jejak sepatu manusia di lava yang mengeras.',
+  'The third seed, and a torn note signed "R." about waking the Hollow.':'Benih ketiga, dan sobekan catatan bertanda "R." tentang membangunkan Hollow.',
+  'The Heartroot breathes again. But R. and the Hollow remain a mystery.':'Heartroot bernapas kembali. Tapi R. dan Hollow masih menjadi misteri.',
+  'Keep hunting to uncover this chapter.':'Teruslah berburu untuk membuka bab ini.','Story':'Cerita',
+  '"Word travels fast — the Wyrm is gone. The cave folk are asking for help now."':'"Kabar cepat menyebar — Wyrm sudah tumbang. Warga gua kini minta bantuan."',
+  '"The snow-hunters of Frostpeak have gone silent. Care to find out why?"':'"Para pemburu salju di Frostpeak tak lagi terdengar. Mau cari tahu kenapa?"',
+  '"Quiet days at last. Or so they say."':'"Akhirnya hari-hari tenang. Katanya begitu."',
+  '"That green seed of yours hums when I work the anvil. Keep it away from my forge."':'"Benih hijaumu berdengung saat aku menempa. Jauhkan dari tungkuku."',
+  '"Boot prints in lava? No hunter I know is that foolish. Or that tough."':'"Jejak sepatu di lava? Tak ada pemburu yang kukenal sebodoh itu. Atau setangguh itu."',
+  '"R.? There was a Watch captain called Rhoswen. Vanished before I was born."':'"R.? Dulu ada kapten Watch bernama Rhoswen. Hilang sebelum aku lahir."',
+  '"Strange times. Someone bought every lantern in town last night."':'"Masa yang aneh. Semalam ada yang memborong semua lentera di desa."',
+  '"A hooded buyer paid me in coins I have never seen before."':'"Pembeli bertudung membayarku dengan koin yang belum pernah kulihat."',
+  '"A map of the Hollow? Nobody has one. Nobody wants one."':'"Peta Hollow? Tak ada yang punya. Tak ada yang mau."',
+  '"Eat up. The forest feels different since the Wyrm fell."':'"Makanlah. Hutan terasa berbeda sejak Wyrm tumbang."',
+  '"My stew keeps boiling over at night. The ground is warm, hunter."':'"Supku terus meluap di malam hari. Tanahnya hangat, pemburu."',
+  '"A feast for the hero! ...Though the Elder hasn\'t smiled once."':'"Pesta untuk sang pahlawan! ...Meski Tetua belum sekali pun tersenyum."',
+  'READY':'SIAP','GUARD!':'TAHAN!','Slow':'Lambat','Fast':'Cepat','Tutorial':'Tutorial','Next':'Lanjut','Previous':'Sebelumnya','Done':'Selesai','Skip':'Lewati',
+  'Moving':'Bergerak','The hunt':'Berburu','Monsters on the map':'Monster di peta','Battle':'Bertarung','Grow stronger':'Menjadi lebih kuat',
+  'Tap anywhere to walk there. Tap a person, a board or a sparkling spot to walk over and use it. On a computer, use the arrow keys and Z.':'Ketuk mana saja untuk berjalan ke sana. Ketuk orang, papan, atau titik berkilau untuk mendatangi dan memakainya. Di komputer, gunakan tombol panah dan Z.',
+  'Quest Board: take jobs. Smithy: forge gear from monster parts. General Store: buy supplies. Canteen: meals that boost your next hunt. Item Chest: change gear and save.':'Papan Quest: ambil tugas. Pandai Besi: tempa gear dari bagian monster. Toko: beli perbekalan. Kantin: makanan penambah kekuatan untuk perburuan berikutnya. Peti Barang: ganti gear dan simpan game.',
+  'Leave through the south gate. You have 50 minutes, and fainting 3 times fails the quest. Follow footprints to find the big monster, and mark it with a Paintball.':'Berangkat lewat gerbang selatan. Waktumu 50 menit, dan pingsan 3 kali membuat quest gagal. Ikuti jejak kaki untuk menemukan monster besar, lalu tandai dengan Paintball.',
+  'Small monsters roam each area and chase you when they notice you (!). Hit them from behind for an ambush. If they touch you first, they strike first.':'Monster kecil berkeliaran di setiap area dan mengejarmu saat melihatmu (!). Serang dari belakang untuk menyergap. Kalau mereka menyentuhmu duluan, mereka menyerang duluan.',
+  'Battles run in real time: act when your ATB bar is full, and monsters attack on their own bar. Aim at weak parts (★) for rare materials. When a red GUARD! bar appears, tap Guard before it runs out.':'Pertarungan berjalan real time: beraksi saat bar ATB penuh, dan monster menyerang sesuai bar-nya sendiri. Incar bagian lemah (★) untuk material langka. Saat bar merah TAHAN! muncul, ketuk Tahan sebelum habis.',
+  'Carve materials, forge better weapons and armor, and raise your Hunter Rank to open new lands.':'Kumpulkan material, tempa senjata dan zirah yang lebih baik, lalu naikkan Hunter Rank untuk membuka wilayah baru.',
+};
+for(const[k,v]of Object.entries(STORY_ID))IDD.set(k,v);
+for(const[en,id]of[['Queued: {0}','Antrean: {0}'],['Battle speed: {0}','Kecepatan tarung: {0}'],['Obtained the {0}','Mendapat {0}'],['Heartroot seeds: {0}/3','Benih Heartroot: {0}/3'],['{0}\'s collar reads: "R. — Heartroot Watch".','Kalung {0} bertuliskan: "R. — Heartroot Watch".']]){
+  const ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),id,ord])}
+
 /* ================= battle ================= */
 const blog=$('#blog'),bcmds=$('#bcmds'),bstatEl=$('#bstat'),bpl=$('#bpl');
 const MTITLE={tusker:'Glacial Tusked Beast',wyrm:'Venomous Serpent Wyvern',drake:'Flame-Crowned Sky Tyrant'};
@@ -1828,9 +2024,9 @@ function bstat(){if(!E)return;bstatEl.hidden=false;
   const broken=E.parts.filter(p=>p.broken).map(p=>p.name).join(', ');
   bstatEl.innerHTML=`<div class="panel"><b>${E.M.name}</b>${E.M.boss?'':` <span class="small">HP ${Math.max(0,E.hp)}/${E.max}</span>`}
     ${E.M.boss?`<div class="small">${cond()}${E.pst?' · <span class="ok">Poisoned</span>':''}</div>`:bar(E.hp,E.max)}
-    ${E.enraged?'<div class="rage">ENRAGED</div>':''}${broken?`<div class="small">Broken: ${broken}</div>`:''}</div>`;
+    <div class="bar atb e"><i id="atbE"></i></div><div class="tellbar" ${E.charging?'':'hidden'}><span class="small no">GUARD!</span><div class="bar atb t"><i id="atbT"></i></div></div>${E.enraged?'<div class="rage">ENRAGED</div>':''}${broken?`<div class="small">Broken: ${broken}</div>`:''}</div>`;
   const st=[stName(S.pst),B.charged?'Charged!':'',B.stun?'Stunned':''].filter(Boolean).join(' · ');
-  bpl.innerHTML=`<div class="bpr"><b>Hunter</b><span class="small">HP ${S.hp}/${maxHP()}</span></div>${bar(S.hp,maxHP())}<div class="bpr"><span class="small">Focus</span><span class="small">${S.focus}/100</span></div>${bar(S.focus,100,'f')}${st?`<div class="small no">${st}</div>`:''}`}
+  bpl.innerHTML=`<div class="bpr"><b>Hunter</b><span class="small">HP ${S.hp}/${maxHP()}</span></div>${bar(S.hp,maxHP())}<div class="bpr"><span class="small">Focus</span><span class="small">${S.focus}/100</span></div>${bar(S.focus,100,'f')}<div class="bpr"><span class="small">${B.ready?'READY':'ATB'}</span></div><div class="bar atb ${B.ready?'rdy':''}"><i id="atbP"></i></div>${st?`<div class="small no">${st}</div>`:''}`}
 async function startBattle(key,boss,o={}){
   if(S.scene!=='world'||busy)return;busy=true;dirStack.length=0;P.path=[];P.after=null;hintEl.hidden=true;
   const M=MON[key];sfx('encounter');music(boss?'boss':'battle');
@@ -1838,17 +2034,19 @@ async function startBattle(key,boss,o={}){
   if(boss){const b=S.Q.boss;E={key,M,hp:b.hp,max:Math.round(M.hp*DF().hp),parts:b.parts,boss:true,enraged:b.enraged,pst:b.pst}}
   else E={key,M,hp:Math.round(M.hp*DF().hp*NM()),max:Math.round(M.hp*DF().hp*NM()),parts:M.parts.map(p=>({...p,broken:false})),boss:false,enraged:false,pst:null};
   Object.assign(E,{charging:null,flash:0,dead:0,deadT:0,lastTell:false,lastRoar:false,lx:0,lxT:0,air:0});
-  B={busy:true,sub:null,charged:false,guard:false,stun:false,loot:[],pose:'idle',pdx:-60,pdxT:0,shake:0,pflash:0,fx:[],hover:null,hitstop:0,catT:0,mob:o.mob||null};
+  B={busy:true,sub:null,charged:false,guard:false,stun:false,loot:[],pose:'idle',pdx:-60,pdxT:0,shake:0,pflash:0,fx:[],hover:null,hitstop:0,catT:0,mob:o.mob||null,pg:.55,eg:.05+Math.random()*.3,cg:.3,ready:false,over:false,queued:null,guardT:0};
   S.scene='battle';blog.innerHTML='';PT.length=0;
   hud();await unwipe();
   $('#battle').hidden=false;bstat();
   if(boss){banner(M.name,MTITLE[key]);sfx('roar',key);B.shake=.6;log(`The ${M.name} turns to face you!`,'tell');await sleep(1000);if(!S.Q.boss.painted)log('Tip: a Paintball keeps it marked on your map.')}
   else log(`A wild ${M.name} attacks!`,'tell');
-  if(o.first==='ambush'){E.skip=1;banner('AMBUSH!','',1);log('You caught it from behind — it is still reeling!','good')}
-  if(o.first==='enemy'){banner('AMBUSHED!','',1);log(`The ${M.name} jumps you first!`,'bad');busy=false;await sleep(700);await enemyPhase();return}
+  if(o.first==='ambush'){B.eg=-.9;B.pg=1;banner('AMBUSH!','',1);log('You caught it from behind — it is still reeling!','good')}
+  if(o.first==='enemy'){banner('AMBUSHED!','',1);log(`The ${M.name} jumps you first!`,'bad');B.eg=1;B.pg=0}
   busy=false;B.busy=false;renderCmds()}
-function renderCmds(){bcmds.innerHTML='';bstat();if(B.busy){bcmds.append(h('div',{cls:'small wait'},'…'));return}
+function renderCmds(){bcmds.innerHTML='';bstat();if(!B||B.over)return;
   const w=WEP(),wt=WTYPE[w.t];
+  bcmds.classList.toggle('wait',!B.ready||B.busy);
+  if(B.queued){const[qk,qa]=B.queued;const nm={attack:w.t==='gs'&&B.charged?'Release!':'Attack',skill:wt.skill,guard:'Guard',run:E.boss?'Retreat':'Run',item:qa&&ITEMS[qa]?ITEMS[qa].name:'Items'}[qk];bcmds.append(h('div',{cls:'sec q'},'Queued: '+nm))}
   const hov=(b,i)=>{b.addEventListener('focus',()=>B.hover=i);b.addEventListener('mouseenter',()=>B.hover=i);return b};
   if(B.sub==='attack'||B.sub==='skill'){
     bcmds.append(h('div',{cls:'sec'},B.sub==='skill'?wt.skill+' — target':'Choose a target'));
@@ -1864,7 +2062,7 @@ function renderCmds(){bcmds.innerHTML='';bstat();if(B.busy){bcmds.append(h('div'
     const cant=S.focus<wt.cost||(w.t==='gs'&&B.charged);
     bcmds.append(opt(wt.skill,`${wt.cost}F`,w.t==='gs'?()=>act('skill',0):choose('skill'),cant));
     bcmds.append(opt('Items',null,()=>{B.sub='item';renderCmds()}));
-    bcmds.append(opt('Guard',null,()=>act('guard')));
+    const gb=opt('Guard',null,()=>act('guard'),B.guard);if(E.charging&&!B.guard)gb.classList.add('hot');bcmds.append(gb);
     bcmds.append(opt(E.boss?'Retreat':'Run',null,()=>act('run')))}
   const os=[...bcmds.querySelectorAll('.opt')];if(os.length%2)os[os.length-1].classList.add('wide');
   const f=bcmds.querySelector('button:not([disabled])');if(f)f.focus()}
@@ -1900,7 +2098,10 @@ async function strike(mot,pi,o={}){
   B.pose='recover';await sleep(o.quick?40:110);
   if(!o.keep){B.pdxT=0;B.pose='idle'}}
 async function act(kind,arg){
-  if(B.busy)return;B.busy=true;B.sub=null;B.hover=null;B.guard=false;renderCmds();
+  if(!B||B.over)return;
+  const early=kind==='guard'&&B.pg>=.5&&!B.guard&&!B.busy;
+  if(B.busy||(!B.ready&&!early)){if(kind==='guard'&&B.guard)return;B.queued=[kind,arg];B.sub=null;B.hover=null;sfx('move');renderCmds();return}
+  B.busy=true;B.ready=false;B.pg=0;B.queued=null;B.sub=null;B.hover=null;if(kind!=='guard'){B.guard=false;B.guardT=0}renderCmds();
   const w=WEP(),wt=WTYPE[w.t];
   if(kind==='attack'){
     if(w.t==='gs'){if(B.charged){B.charged=false;log('You unleash the charged slash!','good');await strike(3.5,arg,{cont:1})}else{log(`You swing at the ${E.parts[arg].name}.`);await strike(1,arg)}}
@@ -1910,7 +2111,7 @@ async function act(kind,arg){
     if(w.t==='gs'){B.charged=true;B.pose='charge';sfx('charge');burst(PFEET[0],PFEET[1]-24,'gold',14,{spd:40,up:1});log('You heave your greatsword back and build power...','good');await sleep(600)}
     else if(w.t==='tb'){log('Demon Dance!','good');banner('DEMON DANCE','',1);for(let i=0;i<5&&E.hp>0;i++)await strike(.5,arg,{quick:1,keep:i<4,cont:i>0,flip:i%2})}
     else{log('Dragon Piercer! The arrow tears through every part.','good');banner('DRAGON PIERCER','',1);B.pose='windup';await sleep(450);await strike(1.7,arg,{sure:1,pierce:1,cont:1})}}
-  else if(kind==='guard'){B.guard=true;B.pose='guard';sfx('guard');gainFocus(6);log('You raise your guard.');await sleep(350)}
+  else if(kind==='guard'){B.guard=true;B.guardT=3.2;B.pose='guard';sfx('guard');gainFocus(6);log('You raise your guard.');await sleep(350)}
   else if(kind==='item'){B.pose='item';if(await battleItem(arg))return;B.pose='idle'}
   else if(kind==='run'){
     if(E.boss){log('You fall back to regroup.');sfx('flee');B.pdxT=-120;await sleep(600);S.Q.boss.cool=4;stepBack();return endBattle()}
@@ -1921,8 +2122,7 @@ async function act(kind,arg){
   if(E.hp<=0)return win(false);
   if(E.boss){if(!E.enraged&&E.hp<E.max*.5){E.enraged=true;log(`The ${E.M.name} flies into a rage!`,'tell');sfx('roar',E.key);B.shake=.5;burst(...partXY(0),'red',16,{spd:50,up:1});await sleep(800)}
     if(!S.Q.boss.limp&&E.hp<=E.max*.2){S.Q.boss.limp=true;log(`The ${E.M.name} is limping — capture it now!`,'good');await sleep(500)}}
-  if(S.cat&&!S.cat.exp&&E.hp>0){await catTurn();if(E.hp<=0)return win(false)}
-  await enemyPhase()}
+  unlock()}
 async function battleItem(k){const it=ITEMS[k];S.inv[k]--;
   if(it.heal){S.hp=Math.min(maxHP(),S.hp+it.heal);sfx('heal');burst(PFEET[0],PFEET[1]-20,'leaf',16,{up:1,spd:30});popNum(PFEET[0],PFEET[1]-40,'+'+it.heal,'heal');log(`You drink a ${it.name}.`,'good')}
   else if(it.cure){S.pst=null;sfx('heal');burst(PFEET[0],PFEET[1]-20,'white',12,{up:1});log('Your ailment is cured.','good')}
@@ -1936,13 +2136,13 @@ function pickMove(){let ms=E.M.moves.filter(m=>(!m.rage||E.enraged)&&(!m.wings||
   const tot=ms.reduce((a,m)=>a+m.w,0);let r=Math.random()*tot;for(const m of ms)if((r-=m.w)<0)return m;return ms[0]}
 async function enemyPhase(){
   const nm=E.M.name;
-  if(E.skip){E.skip=0;log(`The ${nm} is still reeling!`,'good');await sleep(450);B.busy=false;renderCmds();return}
+  if(E.skip){E.skip=0;log(`The ${nm} is still reeling!`,'good');await sleep(450);unlock();return}
   if(S.Q.weather==='quake'&&Math.random()<.15){log('Embers rain down on the battlefield!','tell');sfx('quake');B.shake=.5;E.hp-=6;S.hp=Math.max(0,S.hp-6);popNum(PFEET[0],PFEET[1]-40,6,'hurt');const[qx,qy]=partXY(0);popNum(qx,qy,6,'');burst(W/2,BOY?40:60,'lava',20,{spd:80});bstat();await sleep(700);if(S.hp<=0)return faint();if(E.hp<=0)return win(false)}
   if(E.pst){const d=E.boss?22:6;E.hp-=d;const[x,y]=partXY(E.parts.length>2?2:0);popNum(x,y-10,d,'psn');burst(x,y,'wyrm',8,{up:1,spd:25});sfx('poison');log(`Poison eats at the ${nm}. (${d})`);E.pst.t--;if(E.pst.t<=0)E.pst=null;bstat();await sleep(450);if(E.hp<=0)return win(false)}
   let m;
   if(E.charging){m=E.M.moves.find(x=>x.n===E.charging);E.lastTell=true}
   else{m=pickMove();E.lastTell=false;if(m.tell){E.charging=m.n;sfx('tell');if(m.n==='Sky Dive'){sfx('flee');E.airT=-110}
-    log(`The ${nm} ${m.tell}`,'tell');log('Guard now to soften the blow!','tell');m=null;bstat();await sleep(800)}}
+    log(`The ${nm} ${m.tell}`,'tell');log('Guard now to soften the blow!','tell');E.tellT=TELLW;m=null;renderCmds();await sleep(300)}}
   if(m){E.lastRoar=!!m.rage;await enemyAct(m);E.charging=null}
   if(S.hp<=0)return faint();
   if(E.stolen&&E.stolen.length&&!E.boss&&Math.random()<.35){log(`The ${nm} flies off with your items!`,'bad');sfx('flee');E.lxT=260;await sleep(900);await endBattle();return}
@@ -1956,8 +2156,8 @@ async function enemyPhase(){
         await say([`The ${nm} got away!`,b.painted?'Your paint mark shows where it went — chase it down.':'Track it down — a Paintball would help.'],'Hunter');return}}}
   if(S.arm==='ar1'&&S.hp<maxHP()){S.hp=Math.min(maxHP(),S.hp+3);popNum(PFEET[0],PFEET[1]-44,'+3','heal');bstat()}
   S.Q.time-=10;if(S.Q.time<=0){syncBoss();await endBattle();return failQuest('Time ran out.')}
-  if(B.stun){B.stun=false;bstat();log('You are stunned and cannot act!','bad');B.pose='hurt';await sleep(800);B.pose='idle';return enemyPhase()}
-  B.busy=false;renderCmds()}
+  if(B.stun){B.stun=false;B.pg=-.45;B.ready=false;log('You are stunned and cannot act!','bad');B.pose='hurt';setTimeout(()=>{if(B&&B.pose==='hurt')B.pose='idle'},800)}
+  unlock()}
 async function enemyAct(m){const nm=E.M.name;let pow=m.p,sc=m.sc||0;
   if(m.weakBy&&brk(m.weakBy)){pow*=.65;sc*=.5}
   const fire=/Fire|Inferno|Magma/.test(m.n),ven=/Venom|Spore/.test(m.n),ice=/Frost|Crystal/.test(m.n)&&m.p>0,big=m.p>=2;
@@ -1980,12 +2180,13 @@ async function enemyAct(m){const nm=E.M.name;let pow=m.p,sc=m.sc||0;
     if(m.st==='stun'){if(B.guard)log('You brace yourself and hold firm.');else{B.stun=true;sfx('stun');log('You are stunned!','bad')}}
     else if(!S.pst){S.pst={k:m.st,t:3};log(m.st==='poison'?'You are poisoned!':m.st==='frost'?'You are frostbitten!':'You catch fire!','bad')}}
   else if(m.st&&ARM().res===m.st&&sc>0)log('Your armor resists the ailment.');
+  if(pow>0&&B.guard){B.guard=false;B.guardT=0}
   bstat();await sleep(250);E.lxT=0;E.airT=0;await sleep(380);if(B.pose==='hurt'&&!B.stun)B.pose=B.guard?'guard':B.charged?'charge':'idle'}
 function syncBoss(){if(E&&E.boss){const b=S.Q.boss;b.hp=Math.max(0,E.hp);b.enraged=E.enraged;b.pst=E.pst}}
-async function endBattle(){syncBoss();B.busy=true;busy=true;$('#battle').hidden=true;bstatEl.hidden=true;
+async function endBattle(){syncBoss();B.busy=true;B.over=true;busy=true;$('#battle').hidden=true;bstatEl.hidden=true;
   await wipe(false);setView('world');S.scene='world';E=null;fxEl.innerHTML='';PT.length=0;if(S.Q)S.Q.safe=4;S.focus=Math.floor(S.focus/2);dirStack.length=0;MOBG=1.4;
   music(S.Q?S.Q.zone:'village');hud();updHint();await unwipe();busy=false}
-async function win(captured){const M=E.M;E.dead=1;E.deadT=0;
+async function win(captured){const M=E.M;E.dead=1;B.over=true;E.deadT=0;
   log(captured?`You captured the ${M.name}!`:`The ${M.name} has been ${M.boss?'slain':'defeated'}!`,'good');bstat();
   sfx(captured?'trap':'die');const[fx,fy]=FOOT[E.key];burst(fx,fy-30,MRAMP[E.key],M.boss?60:24,{spd:90,big:1});B.shake=M.boss?.6:.2;B.pose='idle';B.pdxT=0;
   await sleep(M.boss?1500:900);jingle('win');banner(captured?'CAPTURED!':'VICTORY!','',1);await sleep(900);
@@ -1997,7 +2198,7 @@ async function win(captured){const M=E.M;E.dead=1;E.deadT=0;
   const boss=E.boss;await endBattle();
   await say([`${boss?(captured?'Capture rewards':'Carved'):'Obtained'}: ${group(loot)}${z?` · +${z}z`:''}`],'Hunter');
   await checkQuest()}
-async function faint(){log('You collapse...','bad');B.pose='down';sfx('faint');B.pflash=0;await sleep(1300);syncBoss();if(S.Q.boss)S.Q.boss.cool=3;
+async function faint(){B.over=true;log('You collapse...','bad');B.pose='down';sfx('faint');B.pflash=0;await sleep(1300);syncBoss();if(S.Q.boss)S.Q.boss.cool=3;
   const Q=S.Q;Q.carts++;S.hp=maxHP();S.pst=null;S.map=ZONES[Q.zone].camp;P.x=9;P.y=MAPS[S.map].length-2;catSnap();P.dir='up';Q.time-=60;await endBattle();hud();
   if(Q.carts>=3)return failQuest('You fainted three times.');
   await say(['The rescue cart hauls you back to camp.',`Faints: ${Q.carts}/3. Guard against the big tells!`],'Guild')}
@@ -2009,6 +2210,24 @@ async function catTurn(){const c=S.cat,nm=c.name,r=Math.random(),low=S.hp<maxHP(
     E.hp-=dmg;if(!p.broken&&p.hp<9999)p.hp-=dmg;B.catT=.4;await sleep(150);const[x,y]=partXY(pi);E.flash=.1;sfx('hit');popNum(x,y,dmg,'');burst(x,y,'white',6,{spd:40});log(`${nm} bonks the ${p.name}! (${dmg})`)}
   else log(`${nm} watches the ${E.M.name} carefully.`);
   bstat();await sleep(500)}
+
+/* ================= Active Time Battle ================= */
+const TELLW=3.2,SPDV={slow:.7,normal:1,fast:1.35},SPDN={slow:'Slow',normal:'Normal',fast:'Fast'};
+const bspd=()=>SPDV[S.bspd]||1;
+function unlock(){if(!B||B.over)return;B.busy=false;renderCmds();if(B.queued&&B.ready){const q=B.queued;B.queued=null;act(...q)}}
+function lockRun(fn){B.busy=true;renderCmds();fn()}
+function atbDraw(){const a=document.getElementById('atbP'),e=document.getElementById('atbE'),t=document.getElementById('atbT');
+  if(a)a.style.width=clamp(B.pg,0,1)*100+'%';if(e)e.style.width=(E.charging?0:clamp(B.eg,0,1)*100)+'%';
+  if(t){t.parentElement.parentElement.hidden=!E.charging;if(E.charging)t.style.width=clamp(E.tellT/TELLW,0,1)*100+'%'}}
+function battleTick(dt){if(!E||!B||B.over||busy||D.open||document.hidden)return;const k=Math.min(dt,.05)*bspd();
+  if(B.guard&&!B.busy){B.guardT-=k;if(B.guardT<=0){B.guard=false;B.guardT=0;if(B.pose==='guard')B.pose=B.charged?'charge':'idle';renderCmds()}}
+  if(B.busy){atbDraw();return}
+  if(!B.ready){const was=B.pg;B.pg=Math.min(1,B.pg+k/2.4);if(was<.5&&B.pg>=.5&&E.charging)renderCmds();
+    if(B.pg>=1){B.ready=true;sfx('move');if(B.queued){const q=B.queued;B.queued=null;act(...q);return}renderCmds()}}
+  if(E.charging){E.tellT-=k;if(E.tellT<=0){lockRun(enemyPhase);return}}
+  else{B.eg+=k/(E.boss?4:3.6)*(E.enraged?1.25:1);if(B.eg>=1){B.eg=0;lockRun(enemyPhase);return}}
+  if(S.cat&&!S.cat.exp){B.cg+=k/4.2;if(B.cg>=1){B.cg=0;lockRun(async()=>{await catTurn();if(E.hp<=0)return win(false);unlock()});return}}
+  atbDraw()}
 
 /* ================= effects, transitions, render loop ================= */
 const PT=[];
@@ -2178,7 +2397,7 @@ function loop(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;T0+=dt;
   rainAmb(!!(S.Q&&S.Q.weather==='rain'&&S.scene!=='title'));
   if(S.scene==='world'){updateWorld(dt);fishTick(dt);if(S.Q&&S.pst&&!busy&&!uiBlocking()){S.pstT=(S.pstT||0)+dt;if(S.pstT>2){S.pstT=0;S.hp=Math.max(1,S.hp-2);hud()}}}
   g.setTransform(1,0,0,1,0,0);
-  if(S.scene==='battle')drawBattle(dt);else drawWorld(dt);
+  if(S.scene==='battle'){battleTick(dt);drawBattle(dt)}else drawWorld(dt);
   stepWipe(dt);drawWipe();
   requestAnimationFrame(loop)}
 
@@ -2264,6 +2483,7 @@ function toTitle(){S.scene='title';S.map='village';$('#title').hidden=false;hud(
   const m=$('#titleMenu');m.innerHTML='';const sv=loadSave();
   if(sv)m.append(opt('Continue',`HR ${sv.hr} · ${sv.zenny}z`,()=>{S=Object.assign(freshState(),sv);S.Q=null;beginWorld()}));
   m.append(opt('New hunt',null,diffMenu));
+  m.append(opt('Tutorial',null,()=>tutorialMenu()));
   m.append(h('div',{cls:'small',style:'padding:.3em .4em'},'Press any key or tap to enable sound'));
   m.querySelector('button').focus()}
 function diffMenu(){const m=$('#titleMenu');m.innerHTML='';
@@ -2272,12 +2492,8 @@ function diffMenu(){const m=$('#titleMenu');m.innerHTML='';
   m.append(opt('Back',null,toTitle));m.querySelectorAll('button')[1].focus()}
 async function beginWorld(){$('#title').hidden=true;S.scene='world';S.map='village';Object.assign(P,S.P||{x:9,y:27,dir:'down'});P.path=[];P.after=null;if(tile(P.x,P.y)!=='.'&&tile(P.x,P.y)!=='='){P.x=9;P.y=27}P.mv=null;
   if(!S.Q)S.hp=maxHP();catSnap();checkCatReturn();if(merchantHere())setTimeout(()=>toast('A traveling merchant is in town tonight!'),1500);auInit();music('village');startFade();hud();updHint();
-  if(!S.intro){S.intro=true;busy=true;
-    await say(['Welcome to Mossvale, young hunter.','A Verdant Wyrm has been sighted in the Misty Forest. Prove yourself on smaller jobs first.',
-      'The Quest Board is up north. The Smithy forges gear from monster parts, and the General Store sells supplies and combines materials.',
-      'The Canteen cooks meals that power up your next hunt. Your Item Chest changes gear and saves your progress.',
-      'Forests and caves are split into several connected areas — walk off the edge of a path to move on.','In battle, strike weak parts (★) to break them for rare materials. When a monster shows a tell, GUARD.','When you are ready, leave through the south gate. Good hunting!'],'Village Elder');
-    busy=false;save()}}
+  if(!S.intro){S.intro=true;await playScene('prologue')}
+  syncStory();save()}
 function start(data){
   layout();S=data&&data.S?data.S:freshState();if(!MAPS[S.map]){S.map='village';S.Q=null;S.scene='title'}
   if(data&&data.S&&S.scene!=='title'){if(S.scene==='battle')S.scene='world';$('#title').hidden=true;Object.assign(P,S.P||{});P.mv=null;music(S.Q?S.Q.zone:'village');hud();updHint()}
