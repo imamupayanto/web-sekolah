@@ -340,6 +340,7 @@ const WEAPONS={
   bw3:{name:'Wyrmstring',t:'bw',atk:40,el:'venom',from:'bw2',cost:{vscale:3,vtail:1},z:600},
   rb3:{name:'Riptide Bow',t:'bw',atk:44,from:'bw2',cost:{pike:2,eel:1,iron:2},z:450},
   bw4:{name:'Drakefire Bow',t:'bw',atk:56,el:'fire',from:'bw3',cost:{cwing:1,cscale:2,batwing:3},z:1200},
+  lz5:{name:'Lazarus Blade',t:'gs',atk:112,leg:1},
   bw5:{name:'Aurora Bow',t:'bw',atk:74,el:'ice',from:'bw4',cost:{icecrystal:2,tuskhide:1,feather:4},z:2200},
 };
 const ARMORS={
@@ -348,6 +349,7 @@ const ARMORS={
   ar2:{name:'Verdant Set',def:20,hp:30,res:'poison',bonus:'Immune to poison; venom weapons poison more often',cost:{vscale:4,vtail:1,mosspelt:2},z:600,col:['#3fae7a','#237052','#2f8c62']},
   ar3:{name:'Cinder Set',def:30,hp:50,res:'burn',bonus:'Immune to burns; +10% damage below half HP',cost:{cscale:4,cwing:1,crabshell:3},z:1200,col:['#c8502e','#7e2c1c','#9a3a22']},
   ar5:{name:'Rimeback Set',def:42,hr:3,hp:70,res:'frost',bonus:'Immune to frostbite and cold; +10% critical chance',cost:{tuskhide:3,golemcore:2,frostfur:3},z:2500,col:['#6ab8d8','#2a6a8c','#6ab8d8']},
+  ar6:{name:'Lazarus Regalia',def:58,hp:110,res:'all',leg:1,bonus:'Immune to all ailments and cold; +20% crit; recover 3 HP per turn',col:['#3a3450','#1c1826','#f0b030']},
   ar4:{name:'Angler Set',def:16,hp:20,bonus:'Wider reel zone and more rare fish',cost:{koi:1,pike:1,eel:2,mosspelt:2},z:300,col:['#3a6ec4','#1c2e5c','#3a6ec4']},
 };
 const DIFF={easy:{name:'Easy',hp:.8,dmg:.7,z:1,desc:'Monsters have less HP and hit softer.'},
@@ -524,6 +526,10 @@ function freshState(){return{v:1,scene:'title',map:'village',hr:1,zenny:300,inv:
   weapons:['gs1','tb1','bw1'],armors:['ar0'],wep:'gs1',arm:'ar0',done:{},accepted:null,meal:null,
   story:{},P:{x:9,y:27,dir:'down'},hp:100,focus:0,pst:null,Q:null,intro:false}}
 const WEP=()=>WEAPONS[S.wep], ARM=()=>ARMORS[S.arm];
+const LZ=()=>S.arm==='ar6';const resists=st=>ARM().res==='all'||ARM().res===st;const HNAME=()=>S.lz?'Lazarus':'Hunter';
+const LZCODE='L4ZARUS';
+function toggleLazarus(){if(S.lz){const pv=S.lz;S.lz=null;S.weapons=S.weapons.filter(x=>x!=='lz5');S.armors=S.armors.filter(x=>x!=='ar6');S.wep=S.weapons.includes(pv.wep)?pv.wep:S.weapons[0];S.arm=S.armors.includes(pv.arm)?pv.arm:S.armors[0];S.hp=Math.min(S.hp,maxHP());return false}
+  S.lz={wep:S.wep,arm:S.arm};if(!S.weapons.includes('lz5'))S.weapons.push('lz5');if(!S.armors.includes('ar6'))S.armors.push('ar6');S.wep='lz5';S.arm='ar6';S.hp=maxHP();return true}
 const MEAL=()=>S.Q&&S.Q.meal?MEALS.find(m=>m.id===S.Q.meal):null;
 const maxHP=()=>100+ARM().hp+(MEAL()?.hp||0);
 const atk=()=>Math.round(WEP().atk*(MEAL()?.atk||1));
@@ -742,6 +748,7 @@ const RAMPS={
   snow:['#5a6a8a','#a4b4cc','#e6eef8','#e6eef8','#ffffff'],
   fur:['#2e2636','#5e5066','#9e90a6','#9e90a6','#d8ccdc'],
   pine:['#0a2020','#163c38','#2a5c50','#2a5c50','#4a8a70'],
+  onyx:['#0a0810','#1c1826','#3a3450','#3a3450','#6a6090'],
   pink:['#6a1a4a','#a83070','#f06aa8','#f06aa8','#ffc0e0'],
 };
 
@@ -786,13 +793,13 @@ const dith=(x,y,t)=>BAYER[(y&3)*4+(x&3)]/16<t;
 function F(c,x,y,w,h,r,l){c.fillStyle=col(r,l);c.fillRect(x,y,w,h)}
 
 /* ---- hunters & villagers ---- */
-const ARMRAMP={ar0:'leather',ar1:'grass',ar2:'wyrm',ar3:'drake',ar4:'water',ar5:'ice'};
-const elRamp=w=>w.el==='venom'?'wyrm':w.el==='fire'?'drake':w.el==='ice'?'ice':'steel';
+const ARMRAMP={ar0:'leather',ar1:'grass',ar2:'wyrm',ar3:'drake',ar4:'water',ar5:'ice',ar6:'onyx'};
+const elRamp=w=>w.leg?'gold':w.el==='venom'?'wyrm':w.el==='fire'?'drake':w.el==='ice'?'ice':'steel';
 const tierOf=id=>+String(id).slice(-1);
 function owWeapon(p,w,t,side){const er=elRamp(w);
   if(w.t==='gs'){const wd=[0,1.4,1.8,2.1,2.6,2.9][t];const gr=t===2?'leaf':'leather';
-    if(side){p.quad(2,3,12,17,wd,wd+.4,er,3);if(t>=3)for(let k=0;k<4;k++)p.px(3+k*2,4+k*3,'bone',4,true);if(t===4)p.line(4,6,10,15,'lava',4,1,true);if(t===5)p.line(4,6,10,15,'ice',4,1,true);p.line(11,16,13,19,gr,3,2)}
-    else{p.quad(14,0,4,15,wd,wd+.4,er,3);if(t>=3)for(let k=0;k<4;k++)p.px(16-k*2,k*3,'bone',4,true);if(t===4)p.line(12,3,6,12,'lava',4,1,true);if(t===5)p.line(12,3,6,12,'ice',4,1,true);
+    if(side){p.quad(2,3,12,17,wd,wd+.4,er,3);if(t>=3)for(let k=0;k<4;k++)p.px(3+k*2,4+k*3,'bone',4,true);if(t===4)p.line(4,6,10,15,'lava',4,1,true);if(t===5)p.line(4,6,10,15,w.leg?'lava':'ice',4,1,true);p.line(11,16,13,19,gr,3,2)}
+    else{p.quad(14,0,4,15,wd,wd+.4,er,3);if(t>=3)for(let k=0;k<4;k++)p.px(16-k*2,k*3,'bone',4,true);if(t===4)p.line(12,3,6,12,'lava',4,1,true);if(t===5)p.line(12,3,6,12,w.leg?'lava':'ice',4,1,true);
       p.line(14,0,16,-2,gr,3,2);p.line(11,-1,16,3,t===3?'bone':'gold',3,2)}}
   else if(w.t==='tb'){const L=t>=3?7:6;p.quad(2,13,0,13+L,1,t>=2?1.3:1,er,3);p.quad(14,13,16,13+L,1,t>=2?1.3:1,er,3);
     if(t>=3){const tc=t===4?'lava':t===5?'ice':'bone';p.px(0,14+L,tc,4,true);p.px(16,14+L,tc,4,true)}}
@@ -802,6 +809,7 @@ function chibi(dir,frame,o){
   const p=new Pt(22,30);p.ox=3;p.oy=5;const side=dir==='left'||dir==='right';const bob=(frame===1||frame===3)?1:0;const A=o.body,T=o.tier||0;
   const wep=()=>{if(o.wep)owWeapon(p,o.wep,o.wt,side)};
   if(dir!=='up')wep();
+  if(T===6&&dir!=='down')p.poly([[3,10+bob],[13,10+bob],[15,22],[1,22]],'red',dir==='up'?3:1);
   if(T===1&&dir!=='down')p.poly([[4,10+bob],[12,10+bob],[13,19],[3,19]],'grass',1);
   const boot=T===3?'stone':'leather';
   if(!side){const lu=frame===1?1:0,ru=frame===3?1:0;
@@ -826,6 +834,8 @@ function chibi(dir,frame,o){
   if(T===1){p.px(9,-1+y,'leaf',4,true);p.px(10,-2+y,'leaf',4,true);p.px(8,-2+y,'leaf',3,true)}
   if(T===2)p.poly([[6,0+y],[8,-5+y],[10,0+y]],'wyrm',4);
   if(T===3){p.line(3,2+y,1,-3+y,'bone',3,2);p.line(13,2+y,15,-3+y,'bone',3,2);p.rect(7,-3+y,3,3,'lava',3,true);p.px(8,-4+y,'lava',4,true)}
+  if(T===6){p.poly([[4,1+y],[5,-4+y],[7,0+y],[8,-5+y],[9,0+y],[11,-4+y],[12,1+y]],'gold',4);p.px(8,-2+y,'red',4,true);if(dir!=='up'){p.rect(4,10+y,8,1,'gold',4,true);p.rect(7,11+y,2,5,'gold',3,true)}
+    if(dir==='down'){p.px(6,8+y,'lava',4,true);p.px(10,8+y,'lava',4,true)}}
   if(T===5){p.line(4,1+y,2,-3+y,'ice',4,1);p.line(12,1+y,14,-3+y,'ice',4,1);if(dir!=='up')p.rect(4,10+y,8,2,'fur',4)}
   if(dir==='up')wep();
   if(dir==='left')p.mirror();
@@ -846,7 +856,7 @@ function gsBlade(p,hx,hy,dx,dy,t,er){const nx=-dy,ny=dx;const L=[0,30,31,32,34,3
   if(t>=3)for(let k=8;k<L-2;k+=4)p.px(hx+dx*k-nx*(w0+.8),hy+dy*k-ny*(w0+.8),'bone',4,true);
   if(t===3)p.poly([[hx+dx*L+nx*2,hy+dy*L+ny*2],[hx+dx*(L+6),hy+dy*(L+6)],[hx+dx*L-nx*2,hy+dy*L-ny*2]],'bone',3);
   if(t===4){p.line(hx+dx*7,hy+dy*7,hx+dx*(L-4),hy+dy*(L-4),'lava',4,1,true);p.poly([[hx+dx*L+nx*3,hy+dy*L+ny*3],[hx+dx*(L+7),hy+dy*(L+7)],[hx+dx*L-nx*3,hy+dy*L-ny*3]],'drake',3)}
-  if(t===5){p.line(hx+dx*7,hy+dy*7,hx+dx*(L-4),hy+dy*(L-4),'ice',4,1,true);p.poly([[hx+dx*L+nx*3,hy+dy*L+ny*3],[hx+dx*(L+8),hy+dy*(L+8)],[hx+dx*L-nx*3,hy+dy*L-ny*3]],'ice',4)}
+  if(t===5){const ac=er==='gold'?'lava':'ice';p.line(hx+dx*7,hy+dy*7,hx+dx*(L-4),hy+dy*(L-4),ac,4,1,true);p.poly([[hx+dx*L+nx*3,hy+dy*L+ny*3],[hx+dx*(L+8),hy+dy*(L+8)],[hx+dx*L-nx*3,hy+dy*L-ny*3]],er==='gold'?'white':'ice',4)}
   const gw=t>=4?7:5,gc=t===1?'steel':t===2?'leaf':t===3?'bone':'gold';
   p.line(hx-nx*gw+dx*2,hy-ny*gw+dy*2,hx+nx*gw+dx*2,hy+ny*gw+dy*2,gc,3,2);
   if(t>=3)p.px(hx+dx*2,hy+dy*2,t===4?'lava':t===5?'ice':'wyrm',4,true)}
@@ -871,6 +881,7 @@ function hunterBT(pose,fr){const w=WEP();
       const sx=drawn?bx-9:bx;p.line(bx,by-H2,sx,by,'bone',4,1,true);p.line(sx,by,bx,by+H2,'bone',4,1,true);
       if(drawn||pose==='idle'){p.line(sx,by,bx+10,by,'leather',3,1);p.px(bx+11,by,er,4,true);p.px(bx+11,by-1,er,3,true);p.px(bx+11,by+1,er,3,true)}};
     blade2();
+    if(T===6)p.poly([[14+lean,19+br],[20+lean,19+br],[16,47+(fr%2)],[4,45]],'red',1);
     if(T===1)p.poly([[13+lean,20+br],[20+lean,20+br],[15,41],[8,39]],'grass',1);
     const boot=T===3?'stone':'leather';
     p.rect(14,33,5,12,'cloth',1);p.rect(12,44,8,4,boot,1);
@@ -896,6 +907,8 @@ function hunterBT(pose,fr){const w=WEP();
       if(T===2){p.rect(cx+5,cy+2,1,2,'wyrm',4,true);p.poly([[cx-8,cy-6],[cx-2,cy-19],[cx+3,cy-8]],'wyrm',4);p.line(cx-5,cy-7,cx-2,cy-16,'wyrm',1,1,true)}
       else if(T===3){p.rect(cx+4,cy+2,2,1,'lava',4,true);p.poly([[cx-3,cy-8],[cx-8,cy-21],[cx-10,cy-20],[cx-6,cy-7]],'bone',3);p.poly([[cx+2,cy-8],[cx+4,cy-19],[cx+6,cy-18],[cx+5,cy-7]],'bone',3);
         p.poly([[cx-6,cy-8],[cx-15,cy-12+(fr%2)],[cx-12,cy-5]],'lava',3,true);p.px(cx-13,cy-10+(fr%2),'lava',4,true)}}
+    if(T===6){p.poly([[cx-8,cy-6],[cx-7,cy-15],[cx-4,cy-9],[cx-1,cy-17],[cx+2,cy-9],[cx+5,cy-15],[cx+6,cy-6]],'gold',4);p.px(cx-1,cy-11,'red',4,true);p.rect(cx+4,cy+1,3,1,'lava',4,true);
+      p.rect(14+lean,21+br,15,1,'gold',4,true);p.line(21+lean,22+br,21+lean,31+br,'gold',3,2,true);p.disc(sx0,sy0,6,4,'gold',3);p.line(sx0-6,sy0+2,sx0+6,sy0+2,'onyx',2,1,true)}
     if(T===5){p.poly([[cx-4,cy-8],[cx-12,cy-20],[cx-15,cy-18],[cx-8,cy-6]],'ice',4);p.poly([[cx+2,cy-8],[cx+6,cy-18],[cx+9,cy-16],[cx+5,cy-6]],'ice',4);p.disc(sx0,sy0+2,7,3,'fur',4);p.rect(cx+4,cy+2,2,1,'ice',4,true)}
     if(!(w.t==='gs'&&pose==='guard'))blade();else blade();
     const shx=24+lean,shy=23+br;
@@ -1541,7 +1554,7 @@ function updHint(){let t='';const[fx,fy]=facing();
 async function onStep(){updHint();P.steps=(P.steps||0)+1;if(P.steps%2===0){sfx('step',zoneOf(S.map));dust(P.x*16+8,P.y*16+15)}const Q=S.Q;if(!Q)return;
   collectHere();
   Q.time-=5;Q.steps++;if(Q.safe>0)Q.safe--;if(Q.weather==='quake'&&Q.steps%28===0)quake();
-  if(Q.weather==='blizzard'&&!Q.warm&&S.arm!=='ar5'&&Q.steps%4===0){S.hp=Math.max(1,S.hp-1);if(Q.steps%40===0)toast('Freezing! A Hot Drink keeps you warm.')}
+  if(Q.weather==='blizzard'&&!Q.warm&&S.arm!=='ar5'&&!LZ()&&Q.steps%4===0){S.hp=Math.max(1,S.hp-1);if(Q.steps%40===0)toast('Freezing! A Hot Drink keeps you warm.')}
   const b=Q.boss;
   if(b&&b.alive){if(b.cool>0)b.cool--;
     if(Q.steps%45===0&&!(b.room===S.map&&Math.max(Math.abs(b.x-P.x),Math.abs(b.y-P.y))<=3)){const opts=zoneSpawns(Q.zone).filter(s=>!(s[0]===S.map&&Math.abs(s[1]-P.x)+Math.abs(s[2]-P.y)<4)&&!(s[0]===b.room&&s[1]===b.x&&s[2]===b.y));const s=opts[ri(0,opts.length-1)];[b.room,b.x,b.y]=s;toast(b.painted?`The ${MON[b.key].name} moved to ${ROOMS[b.room].name}.`:'A distant roar echoes...')}}
@@ -1576,7 +1589,7 @@ function boardMenu(){openMenu('Quest Board',body=>{
 function smithMenu(){openMenu('Smithy',(body,tab)=>{
   if(tab===0){body.append(h('div',{cls:'note'},'Forge upgrades from monster parts. Upgrading keeps the old weapon.'));
     for(const t of['gs','tb','bw']){body.append(h('div',{cls:'sec'},WTYPE[t].name+' — '+WTYPE[t].tip));
-      for(const[id,w]of Object.entries(WEAPONS)){if(w.t!==t)continue;const own=S.weapons.includes(id);
+      for(const[id,w]of Object.entries(WEAPONS)){if(w.t!==t||w.leg)continue;const own=S.weapons.includes(id);
         const el=w.el?` · ${w.el==='venom'?'Venom':w.el==='ice'?'Ice':'Fire'}`:'';
         const lab=h('span',{},`${w.name}  ATK ${w.atk}${el}`,own?h('span',{cls:'sub'},S.wep===id?'Equipped':'Owned'):
           h('span',{cls:'sub'},w.from&&!S.weapons.includes(w.from)?`Needs ${WEAPONS[w.from].name}`:'',w.from&&!S.weapons.includes(w.from)?null:reqLine(w.cost,w.z)));
@@ -1584,7 +1597,7 @@ function smithMenu(){openMenu('Smithy',(body,tab)=>{
         body.append(opt(lab,own?'✓':'Forge',()=>{pay(w.cost,w.z);S.weapons.push(id);S.wep=id;sfx('forge');toast(`Forged ${w.name}! (equipped)`);save();redraw()},!ok))}}}
   else if(tab===2)catForgeTab(body);
   else{body.append(h('div',{cls:'note'},'Armor raises defense and max HP. Some sets resist ailments.'));
-    for(const[id,a]of Object.entries(ARMORS)){const own=S.armors.includes(id);const res='';
+    for(const[id,a]of Object.entries(ARMORS)){if(a.leg)continue;const own=S.armors.includes(id);const res='';
       const lab=h('span',{},`${a.name}  DEF ${a.def} · +${a.hp} HP${res}`,h('span',{cls:'sub ok'},'Set bonus: '+a.bonus),own?h('span',{cls:'sub'},S.arm===id?'Equipped':'Owned'):reqLine(a.cost,a.z));
       body.append(opt(lab,own?'✓':a.hr&&S.hr<a.hr?`HR ${a.hr}`:'Forge',()=>{pay(a.cost,a.z);S.armors.push(id);S.arm=id;sfx('forge');toast(`Forged ${a.name}! (equipped)`);save();redraw()},own||(a.hr&&S.hr<a.hr)||!canPay(a.cost,a.z)))}}
 },['Weapons','Armor','Buddy gear'])}
@@ -1661,7 +1674,7 @@ const MATGROUPS=[['Fish',['minnow','carp','koi','trout','eel','pike','guppy','ga
   ['Verdant Wyrm',['vscale','vfang','vtail','vgem']],['Cinder Drake',['cscale','chorn','cwing','ctail','cheart']],['Rimeback Tusker',['tuskhide','icecrystal','tusk','pfheart']]];
 function nextForge(){const out=[];
   for(const t of['gs','tb','bw']){const nx=Object.entries(WEAPONS).find(([id,w])=>w.t===t&&!S.weapons.includes(id)&&w.from&&S.weapons.includes(w.from));if(nx)out.push(nx)}
-  const na=Object.entries(ARMORS).find(([id,a])=>!S.armors.includes(id)&&a.cost);if(na)out.push(na);return out}
+  const na=Object.entries(ARMORS).find(([id,a])=>!S.armors.includes(id)&&a.cost&&!a.leg);if(na)out.push(na);return out}
 function fieldMenu(){bagMenu()}
 function bagMenu(){openMenu('Bag',(body,tab)=>{
   const Q=S.Q;
@@ -1796,13 +1809,14 @@ function merchantShop(){const st=merchStock();if(!S.merchant||S.merchant.day!==t
       st.trade.forEach((tr,i)=>{const got=md.bought['t'+i];body.append(opt(h('span',{},`Get ${ITEMS[tr.get].name}`,got?h('span',{cls:'sub'},'Traded'):reqLine(tr.give)),got?'—':'Trade',()=>{pay(tr.give);gain(tr.get);md.bought['t'+i]=1;sfx('coin');save();toast(`Traded for ${ITEMS[tr.get].name}`);redraw()},!!got||!canPay(tr.give)))})}
   },['Buy','Trade'])}
 function saveCode(){const js=JSON.stringify({...S,Q:null,scene:'world',map:'village'});return 'MV1.'+btoa(unescape(encodeURIComponent(js)))}
+function B0flash(){try{burst(P.x*16+8,P.y*16+8,'gold',30,{spd:90,big:1});banner('LAZARUS','The Undying Hunter',1)}catch(e){}}
 function codeMenu(){openMenu('Save code',(body,tab)=>{
   if(tab===0){const code=saveCode();const ta=h('textarea',{id:'codeOut',cls:'txt',rows:'4',readonly:true},code);
     body.append(h('div',{cls:'note'},'Copy this code and keep it somewhere safe (notes, chat). Load it on another phone or browser to continue.'),ta,
       opt('Copy code','',async()=>{let ok=false;try{await navigator.clipboard.writeText(code);ok=true}catch(e){}if(!ok){try{ta.focus();ta.select();ok=document.execCommand('copy')}catch(e){}}toast(ok?'Code copied':'Select the code and copy it manually')}))}
   else{const ta=h('textarea',{id:'codeIn',cls:'txt',rows:'4',placeholder:tr('Paste a save code (MV1.…)')});
     body.append(h('div',{cls:'note'},'Loading replaces your current progress on this device.'),ta,opt('Load this code','',()=>{
-      try{const t=ta.value.trim();if(!t.startsWith('MV1.'))throw 0;const d=JSON.parse(decodeURIComponent(escape(atob(t.slice(4)))));if(!Array.isArray(d.weapons)||!d.inv||typeof d.inv!=='object')throw 0;
+      try{const t=ta.value.trim();if(t.toUpperCase()===LZCODE){const on=toggleLazarus();save();closeMenu();hud();sfx(on?'roar':'save');if(on){B0flash()}toast(on?'Secret unlocked: Lazarus awakens!':'Lazarus returns to slumber');return}if(!t.startsWith('MV1.'))throw 0;const d=JSON.parse(decodeURIComponent(escape(atob(t.slice(4)))));if(!Array.isArray(d.weapons)||!d.inv||typeof d.inv!=='object')throw 0;
         S=Object.assign(freshState(),d);S.Q=null;S.scene='world';S.map='village';P.x=9;P.y=27;P.path=[];P.after=null;catSnap();save();closeMenu();hud();updHint();sfx('save');toast('Save loaded')}
       catch(e){sfx('deny');toast('That code is not valid')}}))}
 },['Copy','Load'])}
@@ -2007,6 +2021,7 @@ const STORY_ID={
   'Battles run in real time: act when your ATB bar is full, and monsters attack on their own bar. Aim at weak parts (★) for rare materials. When a red GUARD! bar appears, tap Guard before it runs out.':'Pertarungan berjalan real time: beraksi saat bar ATB penuh, dan monster menyerang sesuai bar-nya sendiri. Incar bagian lemah (★) untuk material langka. Saat bar merah TAHAN! muncul, ketuk Tahan sebelum habis.',
   'Carve materials, forge better weapons and armor, and raise your Hunter Rank to open new lands.':'Kumpulkan material, tempa senjata dan zirah yang lebih baik, lalu naikkan Hunter Rank untuk membuka wilayah baru.',
 };
+Object.assign(STORY_ID,{'Secret unlocked: Lazarus awakens!':'Rahasia terbuka: Lazarus bangkit!','Lazarus returns to slumber':'Lazarus kembali tertidur','The Undying Hunter':'Sang Pemburu Abadi','Immune to all ailments and cold; +20% crit; recover 3 HP per turn':'Kebal semua status dan dingin; kritis +20%; pulih 3 HP tiap giliran','Lazarus':'Lazarus'});
 for(const[k,v]of Object.entries(STORY_ID))IDD.set(k,v);
 for(const[en,id]of[['Queued: {0}','Antrean: {0}'],['Battle speed: {0}','Kecepatan tarung: {0}'],['Obtained the {0}','Mendapat {0}'],['Heartroot seeds: {0}/3','Benih Heartroot: {0}/3'],['{0}\'s collar reads: "R. — Heartroot Watch".','Kalung {0} bertuliskan: "R. — Heartroot Watch".']]){
   const ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),id,ord])}
@@ -2026,7 +2041,7 @@ function bstat(){if(!E)return;bstatEl.hidden=false;
     ${E.M.boss?`<div class="small">${cond()}${E.pst?' · <span class="ok">Poisoned</span>':''}</div>`:bar(E.hp,E.max)}
     <div class="bar atb e"><i id="atbE"></i></div><div class="tellbar" ${E.charging?'':'hidden'}><span class="small no">GUARD!</span><div class="bar atb t"><i id="atbT"></i></div></div>${E.enraged?'<div class="rage">ENRAGED</div>':''}${broken?`<div class="small">Broken: ${broken}</div>`:''}</div>`;
   const st=[stName(S.pst),B.charged?'Charged!':'',B.stun?'Stunned':''].filter(Boolean).join(' · ');
-  bpl.innerHTML=`<div class="bpr"><b>Hunter</b><span class="small">HP ${S.hp}/${maxHP()}</span></div>${bar(S.hp,maxHP())}<div class="bpr"><span class="small">Focus</span><span class="small">${S.focus}/100</span></div>${bar(S.focus,100,'f')}<div class="bpr"><span class="small">${B.ready?'READY':'ATB'}</span></div><div class="bar atb ${B.ready?'rdy':''}"><i id="atbP"></i></div>${st?`<div class="small no">${st}</div>`:''}`}
+  bpl.innerHTML=`<div class="bpr"><b>${HNAME()}</b><span class="small">HP ${S.hp}/${maxHP()}</span></div>${bar(S.hp,maxHP())}<div class="bpr"><span class="small">Focus</span><span class="small">${S.focus}/100</span></div>${bar(S.focus,100,'f')}<div class="bpr"><span class="small">${B.ready?'READY':'ATB'}</span></div><div class="bar atb ${B.ready?'rdy':''}"><i id="atbP"></i></div>${st?`<div class="small no">${st}</div>`:''}`}
 async function startBattle(key,boss,o={}){
   if(S.scene!=='world'||busy)return;busy=true;dirStack.length=0;P.path=[];P.after=null;hintEl.hidden=true;
   const M=MON[key];sfx('encounter');music(boss?'boss':'battle');
@@ -2082,7 +2097,7 @@ async function strike(mot,pi,o={}){
   if(Math.random()>acc){popNum(x,y,'MISS','miss');sfx('miss');log(`You miss the ${p.name}.`)}
   else{
     let el=1;if(w.el&&(E.M.weak===w.el||E.M.weak2===w.el))el=1.35;else if(w.el&&E.M.res===w.el)el=.75;if(S.Q.weather==='rain'&&w.el)el*=w.el==='fire'?.8:1.15;
-    const crit=Math.random()<(S.arm==='ar5'?.2:.1);
+    const crit=Math.random()<(S.arm==='ar5'||LZ()?.2:.1);
     let dmg=Math.max(1,Math.round(atk()*mot*p.mult*el*(crit?1.5:1)*(S.arm==='ar3'&&S.hp<maxHP()*.5?1.1:1)*rnd(.9,1.1)-E.M.def));
     if(E.M.hard){if(w.t==='tb'){dmg=Math.max(1,Math.round(dmg*.5));if(!E.hardNote){E.hardNote=1;log('Your blades glance off its rocky skin!','tell')}}else if(w.t==='gs')dmg=Math.round(dmg*1.2)}
     E.hp-=dmg;E.flash=.14;gainFocus(o.quick?5:9);
@@ -2154,7 +2169,7 @@ async function enemyPhase(){
       else{b.fled=true;log(`The ${nm} is fleeing to another area!`,'tell');sfx('flee');E.lxT=260;await sleep(1100);syncBoss();
         const opts=zoneSpawns(S.Q.zone).filter(s=>s[0]!==S.map);const far=opts[ri(0,opts.length-1)];[b.room,b.x,b.y]=far;await endBattle();
         await say([`The ${nm} got away!`,b.painted?'Your paint mark shows where it went — chase it down.':'Track it down — a Paintball would help.'],'Hunter');return}}}
-  if(S.arm==='ar1'&&S.hp<maxHP()){S.hp=Math.min(maxHP(),S.hp+3);popNum(PFEET[0],PFEET[1]-44,'+3','heal');bstat()}
+  if((S.arm==='ar1'||LZ())&&S.hp<maxHP()){S.hp=Math.min(maxHP(),S.hp+3);popNum(PFEET[0],PFEET[1]-44,'+3','heal');bstat()}
   S.Q.time-=10;if(S.Q.time<=0){syncBoss();await endBattle();return failQuest('Time ran out.')}
   if(B.stun){B.stun=false;B.pg=-.45;B.ready=false;log('You are stunned and cannot act!','bad');B.pose='hurt';setTimeout(()=>{if(B&&B.pose==='hurt')B.pose='idle'},800)}
   unlock()}
@@ -2176,10 +2191,10 @@ async function enemyAct(m){const nm=E.M.name;let pow=m.p,sc=m.sc||0;
     popNum(PFEET[0],PFEET[1]-40,dmg,'hurt');gainFocus(5);
     log(`${nm} uses ${m.n}! ${B.guard?'Blocked — ':''}${dmg} damage.`,'bad')}
   else log(`${nm} uses ${m.n}!`,'tell');
-  if(m.st&&Math.random()<sc*(ARM().res===m.st?0:1)){
+  if(m.st&&Math.random()<sc*(resists(m.st)?0:1)){
     if(m.st==='stun'){if(B.guard)log('You brace yourself and hold firm.');else{B.stun=true;sfx('stun');log('You are stunned!','bad')}}
     else if(!S.pst){S.pst={k:m.st,t:3};log(m.st==='poison'?'You are poisoned!':m.st==='frost'?'You are frostbitten!':'You catch fire!','bad')}}
-  else if(m.st&&ARM().res===m.st&&sc>0)log('Your armor resists the ailment.');
+  else if(m.st&&resists(m.st)&&sc>0)log('Your armor resists the ailment.');
   if(pow>0&&B.guard){B.guard=false;B.guardT=0}
   bstat();await sleep(250);E.lxT=0;E.airT=0;await sleep(380);if(B.pose==='hurt'&&!B.stun)B.pose=B.guard?'guard':B.charged?'charge':'idle'}
 function syncBoss(){if(E&&E.boss){const b=S.Q.boss;b.hp=Math.max(0,E.hp);b.enraged=E.enraged;b.pst=E.pst}}
