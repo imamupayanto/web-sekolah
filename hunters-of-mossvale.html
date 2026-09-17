@@ -350,7 +350,7 @@ const WEATHER={clear:{name:'Clear',d:''},rain:{name:'Rain',d:'Rain: fire weapons
   snow:{name:'Snowfall',d:''},blizzard:{name:'Blizzard',d:'Blizzard: poor visibility, and the cold drains HP unless you stay warm.'},quake:{name:'Ember quakes',d:'Ember quakes: the ground shakes and embers fall now and then.'}};
 const pickWeather=z=>z==='snow'?roll([['clear',40],['snow',40],['blizzard',20]]):z==='cave'?roll([['calm',60],['quake',40]]):roll([['clear',50],['rain',35],['fog',15]]);
 const condShort=()=>`${PHASEN[dayPhase()]} · ${WEATHER[(S.Q&&S.Q.weather)||'clear'].name}`;
-function conditionsLine(){const w=WEATHER[S.Q.weather||'clear'];return `${PHASEN[dayPhase()]}, ${w.name.toLowerCase()}. `+(isNight()?'Night: monsters are 10% stronger, rare materials drop more often. ':'')+w.d}
+function conditionsLine(){const w=WEATHER[S.Q.weather||'clear'];return `${tr(PHASEN[dayPhase()])}, ${tr(w.name).toLowerCase()}. `+(isNight()?tr(NIGHT_TXT)+' ':'')+tr(w.d)}
 function lroll(tbl){let k=roll(tbl);if(isNight()&&Math.random()<.4){const k2=roll(tbl);const wt=x=>tbl.find(e=>e[0]===x)[1];if(wt(k2)<wt(k))k=k2}return k}
 const CWEP={cw1:{name:'Acorn Mallet',atk:6},cw2:{name:'Bone Hammer',atk:10,cost:{mosspelt:2,iron:1},z:100},cw3:{name:'Verdant Claw',atk:16,cost:{vscale:1,thornhide:2},z:250},cw4:{name:'Ember Pick',atk:22,cost:{cscale:1,firestone:2},z:450}};
 const CARM={ca0:{name:'Red Scarf',heal:0,r:'red'},ca1:{name:'Moss Cloak',heal:5,r:'grass',cost:{mosspelt:2},z:80},ca2:{name:'Scale Vest',heal:10,r:'wyrm',cost:{vscale:1,batwing:1},z:200},ca3:{name:'Cinder Mail',heal:15,r:'drake',cost:{cscale:1,crabshell:2},z:400}};
@@ -377,9 +377,9 @@ const MON={
   thiefbird:{name:'Sneakbeak',hp:46,atk:16,def:1,weak:'fire',s:2,parts:BODY,moves:[{n:'Peck',p:1,w:3},{n:'Snatch',p:.4,steal:1,w:2}],drops:[['feather',70],['honey',30]],zenny:20},
   golem:{name:'Pebble Golem',hp:108,atk:25,def:14,weak:'venom',hard:1,s:2,parts:BODY,moves:[{n:'Rock Punch',p:1.1,w:3},{n:'Magma Spark',p:.8,st:'burn',sc:.35,w:1}],drops:[['golemcore',55],['iron',45]],zenny:30},
   tusker:{name:'Rimeback Tusker',hp:510,atk:58,def:12,weak:'fire',res:'ice',boss:1,anchor:'Legs',s:1,
-    parts:[{name:'Tusks',mult:1.3,acc:.72,hp:200,brk:'tusk'},{name:'Back',mult:1.1,acc:.78,hp:200,brk:'icecrystal'},{name:'Body',mult:1,acc:.95,hp:99999},{name:'Legs',mult:1,acc:.88,hp:230,brk:'tuskhide'}],
+    parts:[{name:'Tusks',mult:1.3,acc:.72,hp:200,brk:'tusk'},{name:'Spine',mult:1.1,acc:.78,hp:200,brk:'icecrystal'},{name:'Body',mult:1,acc:.95,hp:99999},{name:'Legs',mult:1,acc:.88,hp:230,brk:'tuskhide'}],
     moves:[{n:'Tusk Swing',p:1.1,w:3,weakBy:'Tusks'},{n:'Stomp',p:1,st:'stun',sc:.3,w:3,weakBy:'Legs'},{n:'Frost Breath',p:1.1,st:'frost',sc:.55,w:2},
-      {n:'Avalanche Charge',p:2.4,w:2,legs:1,tell:'lowers its tusks and paws at the snow...'},{n:'Crystal Rain',p:2,st:'frost',sc:.5,w:1,weakBy:'Back',tell:'raises its back crystals — they glow blue!'},{n:'Roar',p:0,st:'stun',sc:1,w:1,rage:1}],
+      {n:'Avalanche Charge',p:2.4,w:2,legs:1,tell:'lowers its tusks and paws at the snow...'},{n:'Crystal Rain',p:2,st:'frost',sc:.5,w:1,weakBy:'Spine',tell:'raises its back crystals — they glow blue!'},{n:'Roar',p:0,st:'stun',sc:1,w:1,rage:1}],
     carve:[['tuskhide',50],['frostfur',20],['icecrystal',15],['tusk',8],['pfheart',4]],capture:[['tuskhide',35],['icecrystal',25],['tusk',20],['pfheart',10],['frostfur',10]]},
   wyrm:{name:'Verdant Wyrm',hp:210,atk:37,def:4,weak:'fire',boss:1,s:1.35,
     parts:[{name:'Head',mult:1.3,acc:.72,hp:100,brk:'vfang'},{name:'Body',mult:1,acc:.95,hp:99999},{name:'Tail',mult:1.1,acc:.8,hp:110,brk:'vtail'}],
@@ -1036,13 +1036,13 @@ golem:{w:68,h:60,ox:34,oy:30,parts:{Body:[0,0]},fn(p,f,st){const b=f%4<2?0:1;
   p.line(-6,-10+b,-2,4+b,'lava',3,1,true);p.line(4,-6+b,8,6+b,'lava',3,1,true);
   p.disc(-19,4+b,6,7,'stone',2);p.disc(19,6-b,6,7,'stone',2);
   p.disc(0,-17+b,7,6,'stone',3);p.rect(-4,-18+b,3,2,'lava',4,true);p.rect(2,-18+b,3,2,'lava',4,true)}},
-tusker:{w:232,h:172,ox:120,oy:104,parts:{Tusks:[-64,16],Back:[18,-48],Body:[22,-2],Legs:[8,34]},fn(p,f,st){const F2='fur';const b=Math.round(Math.sin(f/8*6.28)*1.5);
+tusker:{w:232,h:172,ox:120,oy:104,parts:{Tusks:[-64,16],Spine:[18,-48],Body:[22,-2],Legs:[8,34]},fn(p,f,st){const F2='fur';const b=Math.round(Math.sin(f/8*6.28)*1.5);
   const legs=(dx,l)=>{p.rect(dx,20,14,26,F2,l);p.rect(dx-2,42,18,6,F2,l);for(let i=0;i<3;i++)p.px(dx+i*5,47,'bone',4,true)};
   legs(44,2);legs(-2,2);
   p.line(66,-6,74,14,F2,2,3);p.disc(74,16,3,4,F2,4);
   p.disc(22,-2+b,52,36,F2,3);
   for(let i=0;i<12;i++)p.poly([[-26+i*8,26+b],[-22+i*8,37+b],[-18+i*8,26+b]],F2,2);
-  if(!st.Back){for(let i=0;i<5;i++){const x=-4+i*12,hh=18+(i%2)*10;p.poly([[x,-30+b],[x+4,-30-hh+b],[x+9,-30+b]],'ice',3);p.line(x+4,-30-hh+b,x+4,-32+b,'ice',4,1,true)}}
+  if(!st.Spine){for(let i=0;i<5;i++){const x=-4+i*12,hh=18+(i%2)*10;p.poly([[x,-30+b],[x+4,-30-hh+b],[x+9,-30+b]],'ice',3);p.line(x+4,-30-hh+b,x+4,-32+b,'ice',4,1,true)}}
   else for(let i=0;i<5;i++)p.rect(-2+i*12,-36+b,6,5,'ice',1);
   if(!st.Legs){legs(28,3);legs(-16,3)}else{legs(28,1);legs(-16,1);p.line(-14,30,-2,26,'red',2,1,true);p.line(30,30,40,26,'red',2,1,true)}
   const hx=-40,hy=-8+b;
@@ -1209,6 +1209,175 @@ function battleBg(zone){const W=320;if(bgCache[zone])return bgCache[zone];const 
     for(let i=0;i<14;i++)tuft(x2,i*23+5,132+(i%3)*28,'grass',1)}
   return bgCache[zone]=c}
 
+/* ================= i18n (English → Bahasa Indonesia) ================= */
+let LANG=(()=>{try{return localStorage.getItem('mossvale-lang')||'en'}catch(e){return 'en'}})();
+const NIGHT_TXT='Night: monsters are 10% stronger, rare materials drop more often.';
+const ID_WORDS={
+// core words
+'Attack':'Serang','Items':'Item','Guard':'Tahan','Run':'Lari','Retreat':'Mundur','Back':'Kembali','Close':'Tutup','Release!':'Lepaskan!','Charged!':'Terisi!','Stunned':'Pusing',
+'Choose a target':'Pilih sasaran','Your pouch is empty.':'Kantongmu kosong.','ENRAGED':'MENGAMUK','Healthy':'Sehat','Wounded':'Terluka','Battered':'Babak belur','Limping':'Pincang',
+'Hunter':'Pemburu','Focus':'Fokus','Faints':'Pingsan','Poisoned':'Teracun','Burning':'Terbakar','Frostbitten':'Membeku',
+'broken':'patah','severed':'putus','slain':'dibunuh','defeated':'dikalahkan','wings':'sayap','legs':'kaki','poison':'racun','frost':'es','burn':'bakar',
+'Head':'Kepala','Body':'Badan','Tail':'Ekor','Wings':'Sayap','Legs':'Kaki','Tusks':'Gading','Spine':'Punggung',
+'MISS':'MELESET','BREAK!':'PATAH!','AMBUSH!':'SERGAP!','AMBUSHED!':'DISERGAP!','VICTORY!':'MENANG!','CAPTURED!':'TERTANGKAP!',
+'Guild':'Serikat','Quest start':'Quest dimulai','Gatekeeper':'Penjaga Gerbang','Village Elder':'Tetua Desa',
+'Flame-Crowned Sky Tyrant':'Tiran Langit Bermahkota Api','Glacial Tusked Beast':'Binatang Bergading Es','Venomous Serpent Wyvern':'Wyvern Ular Berbisa',
+'Capture Kits only work on large monsters.':'Capture Kit hanya bekerja pada monster besar.',"Couldn't get away!":'Gagal kabur!','Critical hit!':'Serangan kritis!',
+'Dragon Piercer! The arrow tears through every part.':'Dragon Piercer! Panah menembus semua bagian.','Embers rain down on the battlefield!':'Bara berjatuhan di medan tempur!',
+'Guard now to soften the blow!':'Tahan sekarang untuk meredam serangan!','The ailment wears off.':'Efek statusnya hilang.','The paint splats harmlessly.':'Catnya terciprat tanpa efek.',
+'The rescue cart hauls you back to camp.':'Kereta penyelamat membawamu kembali ke kemah.','Time ran out.':'Waktu habis.','Tip: a Paintball keeps it marked on your map.':'Tips: Paintball membuatnya tetap tertanda di peta.',
+'Track it down — a Paintball would help.':'Lacak dia — Paintball akan membantu.','You are frostbitten!':'Kamu membeku!','You are poisoned!':'Kamu teracun!',
+'You are stunned and cannot act!':'Kamu pusing dan tidak bisa bergerak!','You are stunned!':'Kamu pusing!','You brace yourself and hold firm.':'Kamu bertahan dengan kokoh.',
+'You catch fire!':'Kamu terbakar!','You caught it from behind — it is still reeling!':'Kamu menyergapnya dari belakang — ia masih limbung!','You collapse...':'Kamu roboh...',
+'You fainted three times.':'Kamu pingsan tiga kali.','You fall back to regroup.':'Kamu mundur untuk menyusun ulang.','You got away safely.':'Kamu berhasil kabur.',
+'You heave your greatsword back and build power...':'Kamu mengangkat greatsword dan mengumpulkan tenaga...','You raise your guard.':'Kamu bersiap bertahan.',
+'You set the trap and throw tranq bombs!':'Kamu memasang jebakan dan melempar bom bius!','You unleash the charged slash!':'Kamu melepaskan tebasan penuh tenaga!',
+'Your ailment is cured.':'Efek statusmu sembuh.','Your armor resists the ailment.':'Zirahmu menahan efek status.','Your blades glance off its rocky skin!':'Bilahmu terpental dari kulit batunya!',
+'Your paint mark shows where it went — chase it down.':'Tanda catmu menunjukkan ke mana ia pergi — kejar dia.',
+'coils its body, muscles tensing...':'melingkarkan tubuhnya, ototnya menegang...','draws a deep breath — embers glow in its throat!':'menarik napas dalam — bara menyala di tenggorokannya!',
+'beats its wings and climbs into the sky!':'mengepakkan sayap dan terbang tinggi!','lowers its tusks and paws at the snow...':'menurunkan gadingnya dan mengais salju...',
+'raises its back crystals — they glow blue!':'mengangkat kristal punggungnya — bersinar biru!',
+// title / boot / shell
+'A turn-based hunt':'Perburuan berbasis giliran','Continue':'Lanjutkan','New hunt':'Perburuan baru','Press any key or tap to enable sound':'Tekan tombol atau ketuk layar untuk menyalakan suara',
+'Choose a difficulty. It cannot be changed later.':'Pilih tingkat kesulitan. Tidak bisa diubah nanti.','Easy':'Mudah','Hard':'Sulit',
+'Monsters have less HP and hit softer.':'Monster ber-HP lebih rendah dan serangannya lebih lemah.','The intended balance.':'Keseimbangan standar.','Tougher, harder-hitting monsters. +25% quest zenny.':'Monster lebih tangguh dan kuat. Zenny quest +25%.',
+'Sound: on':'Suara: nyala','Sound: off':'Suara: mati','Please rotate your phone':'Putar HP Anda','Hunters of Mossvale is played in portrait.':'Hunters of Mossvale dimainkan dalam posisi potrait.',
+'move':'jalan','choose':'pilih','act':'aksi','confirm':'konfirmasi','bag':'tas','back':'kembali','mute':'bisukan','Watch for monster tells — then':'Perhatikan tanda serangan monster, lalu',
+'Welcome to Mossvale, young hunter.':'Selamat datang di Mossvale, pemburu muda.',
+'A Verdant Wyrm has been sighted in the Misty Forest. Prove yourself on smaller jobs first.':'Seekor Verdant Wyrm terlihat di Misty Forest. Buktikan dirimu dulu lewat tugas-tugas kecil.',
+'The Quest Board is up north. The Smithy forges gear from monster parts, and the General Store sells supplies and combines materials.':'Papan Quest ada di utara. Pandai Besi menempa gear dari bagian monster, dan Toko menjual perbekalan serta menggabungkan material.',
+'The Canteen cooks meals that power up your next hunt. Your Item Chest changes gear and saves your progress.':'Kantin memasak makanan yang memperkuat perburuan berikutnya. Peti Barang dipakai untuk mengganti gear dan menyimpan progres.',
+'Forests and caves are split into several connected areas — walk off the edge of a path to move on.':'Hutan dan gua terbagi menjadi beberapa area yang terhubung — jalan terus sampai ujung jalan setapak untuk pindah area.',
+'In battle, strike weak parts (★) to break them for rare materials. When a monster shows a tell, GUARD.':'Saat bertarung, serang bagian lemah (★) untuk mematahkannya dan mendapat material langka. Saat monster memberi tanda serangan, TAHAN.',
+'When you are ready, leave through the south gate. Good hunting!':'Kalau sudah siap, berangkat lewat gerbang selatan. Selamat berburu!',
+'A traveling merchant is in town tonight!':'Pedagang keliling sedang di desa malam ini!',
+// core data
+'Restores 40 HP':'Memulihkan 40 HP','Restores 90 HP':'Memulihkan 90 HP','Cures poison and burns':'Menyembuhkan racun dan luka bakar','Marks a large monster on your map':'Menandai monster besar di peta',
+'Captures a limping large monster':'Menangkap monster besar yang pincang','Lets you fish in lava':'Untuk memancing di lava','Keeps you warm in blizzards':'Menghangatkan saat badai salju',
+'Charge one turn, then Release for 3.5× damage':'Isi tenaga satu giliran, lalu lepaskan untuk damage 3,5×','Attack hits twice; skill hits five times':'Serangan kena dua kali; skill lima kali',
+'Accurate shots; skill damages every part':'Tembakan akurat; skill mengenai semua bagian',
+'+10% zenny from quests and monsters':'+10% zenny dari quest dan monster','Recover 3 HP every battle turn':'Pulih 3 HP setiap giliran bertarung',
+'Immune to poison; venom weapons poison more often':'Kebal racun; senjata racun lebih sering meracuni','Immune to burns; +10% damage below half HP':'Kebal luka bakar; damage +10% saat HP di bawah setengah',
+'Immune to frostbite and cold; +10% critical chance':'Kebal beku dan dingin; peluang kritis +10%','Wider reel zone and more rare fish':'Zona pancing lebih lebar dan ikan langka lebih sering',
+'+30 max HP':'+30 HP maks','+15% attack':'+15% serangan','+30 HP, +15% attack, +10 defense':'+30 HP, +15% serangan, +10 pertahanan','+20 HP, +8 defense':'+20 HP, +8 pertahanan',
+'+25 HP, +10% attack':'+25 HP, +10% serangan','+15% attack, start hunts with 40 Focus':'+15% serangan, mulai berburu dengan 40 Fokus',
+'+40 HP, +20% attack, +10 defense, 30 Focus':'+40 HP, +20% serangan, +10 pertahanan, 30 Fokus','+50 HP, +20% attack, +15 defense, 40 Focus, keeps you warm':'+50 HP, +20% serangan, +15 pertahanan, 40 Fokus, menghangatkan',
+'Gather 5 Herbs in the Misty Forest.':'Kumpulkan 5 Herb di Misty Forest.','Slay 4 Mosslings in the tall grass.':'Kalahkan 4 Mossling di rumput tinggi.',
+'A young cat hunter went missing in the Misty Forest. Find it.':'Seekor kucing pemburu muda hilang di Misty Forest. Temukan dia.','Hunt the Verdant Wyrm stalking the forest.':'Buru Verdant Wyrm yang berkeliaran di hutan.',
+'Slay 3 Ember Crabs in the Ember Cave.':'Kalahkan 3 Ember Crab di Ember Cave.','Hunt the Cinder Drake nesting in the cave.':'Buru Cinder Drake yang bersarang di gua.',
+'Slay 3 Icefang Wolves on Frostpeak.':'Kalahkan 3 Icefang Wolf di Frostpeak.','Hunt the Rimeback Tusker roaming the glacier.':'Buru Rimeback Tusker yang berkeliaran di gletser.',
+'Free roam. Gather and hunt at your own pace.':'Jelajah bebas. Kumpulkan bahan dan berburu sesukamu.','Free roam on the snowy peaks. Bring a Hot Drink.':'Jelajah bebas di puncak bersalju. Bawa Hot Drink.',
+'Day':'Siang','Night':'Malam','Dusk':'Senja','Dawn':'Fajar','Clear':'Cerah','Rain':'Hujan','Fog':'Kabut','Calm':'Tenang','Ember quakes':'Gempa bara','Snowfall':'Salju turun','Blizzard':'Badai salju',
+[NIGHT_TXT]:'Malam: monster 10% lebih kuat, material langka lebih sering didapat.',
+'Rain: fire weapons are weaker, venom is stronger.':'Hujan: senjata api melemah, racun menguat.','Fog: large monsters are hard to spot.':'Kabut: monster besar sulit terlihat.',
+'Ember quakes: the ground shakes and embers fall now and then.':'Gempa bara: tanah bergetar dan bara sesekali berjatuhan.','Blizzard: poor visibility, and the cold drains HP unless you stay warm.':'Badai salju: jarak pandang pendek, dan dingin menguras HP kecuali tubuhmu hangat.',
+// stations & menus
+'Quest Board':'Papan Quest','Smithy':'Pandai Besi','General Store':'Toko','Canteen':'Kantin','Item Chest':'Peti Barang','Bag':'Tas','Base Camp':'Kemah','South Gate':'Gerbang Selatan',
+'Traveling Merchant':'Pedagang Keliling','Name your buddy':'Beri nama teman','Save code':'Kode simpan',
+'Weapons':'Senjata','Armor':'Zirah','Buddy gear':'Gear teman','Buy':'Beli','Sell':'Jual','Combine':'Gabung','Equipment':'Perlengkapan','Materials':'Material','Buddy':'Teman','Forge list':'Daftar tempa',
+'Copy':'Salin','Load':'Muat','Trade':'Tukar','Traded':'Ditukar','Forge':'Tempa','Owned':'Dimiliki','Equipped':'Dipakai','Ready':'Siap','locked':'terkunci','accepted':'diambil','Sold out':'Habis',
+'Weapon':'Senjata','Gathered':'Hasil kumpul','Small monsters':'Monster kecil','Fish':'Ikan','Treasure':'Harta','none':'tidak ada','broken ':'patah',
+'Talk':'Bicara','Gather':'Kumpulkan','Camp':'Kemah','Depart':'Berangkat','Open':'Buka',
+'A: Fish':'A: Mancing','A: Lava fishing':'A: Mancing di lava','A: Rescue kitten':'A: Selamatkan anak kucing','Lava fishing needs Magma Bait':'Mancing di lava butuh Magma Bait',
+'"Pick a job that suits your blade, hunter."':'"Pilih tugas yang cocok dengan senjatamu, pemburu."',"\"Bring me parts and I'll hammer out something fierce.\"":'"Bawakan bahan, akan kutempa sesuatu yang ganas."',
+'"Potions, paint, traps — all fresh!"':'"Potion, cat, jebakan — semua baru!"','"Nothing beats a hot meal before a hunt!"':'"Tak ada yang mengalahkan makanan hangat sebelum berburu!"',
+'The campfire crackles softly.':'Api unggun berderak pelan.','"Rare goods, tonight only! One of each."':'"Barang langka, khusus malam ini! Masing-masing satu."','"Fish for treasure — a fair trade!"':'"Ikan ditukar harta — adil, kan!"',
+'Pick a job, then leave through the south gate.':'Ambil tugas, lalu berangkat lewat gerbang selatan.','Quest cancelled':'Quest dibatalkan',
+'Forge upgrades from monster parts. Upgrading keeps the old weapon.':'Tempa upgrade dari bagian monster. Senjata lama tetap disimpan.','Venom':'Racun','Fire':'Api','Ice':'Es',
+'Armor raises defense and max HP. Some sets resist ailments.':'Zirah menaikkan pertahanan dan HP maks. Beberapa set kebal status.',
+'No materials to sell.':'Tidak ada material untuk dijual.','Combine gathered materials into supplies — free of charge.':'Gabungkan material menjadi perbekalan — gratis.',
+'A good meal lasts for your whole next hunt.':'Makanan enak bertahan sepanjang perburuan berikutnya.','Empty.':'Kosong.',
+'Save game':'Simpan game','Game saved':'Game tersimpan','Save code (backup)':'Kode simpan (cadangan)','Return to title':'Kembali ke judul',
+'Pick a quest at the Quest Board before heading out.':'Ambil quest di Papan Quest sebelum berangkat.','3 faints and the quest fails.':'Pingsan 3 kali, quest gagal.','Depart now':'Berangkat sekarang',
+'QUEST COMPLETE':'QUEST SELESAI','QUEST FAILED':'QUEST GAGAL','The guild adds 2 Potions. The Verdant Wyrm hunt is now open!':'Serikat menambahkan 2 Potion. Perburuan Verdant Wyrm kini terbuka!',
+'The Ember Cave, Mega Potions and a free forest expedition are now open.':'Ember Cave, Mega Potion, dan ekspedisi hutan kini terbuka.',
+'The Cinder Drake is down! The path to Frostpeak has opened — new quests await at the board.':'Cinder Drake tumbang! Jalan ke Frostpeak terbuka — quest baru menunggu di papan.',
+'The Rimeback Tusker falls. You are a true Hunter of Mossvale! Forge the glacial arsenal and keep hunting.':'Rimeback Tusker tumbang. Kamu Pemburu Mossvale sejati! Tempa senjata es dan teruslah berburu.',
+'You abandoned the quest.':'Kamu meninggalkan quest.','Rest in the tent':'Istirahat di tenda','Restore HP and cure ailments. Takes 5 minutes.':'Pulihkan HP dan sembuhkan status. Butuh 5 menit.',
+'You feel refreshed.':'Tubuhmu segar kembali.','Return to Mossvale':'Kembali ke Mossvale','Expedition over. Your materials are safe in your pouch.':'Ekspedisi selesai. Material aman di tasmu.',
+'Abandon quest':'Tinggalkan quest','Return home with no reward.':'Pulang tanpa hadiah.','Expedition — return at camp':'Ekspedisi — kembali ke kemah',
+'HP is already full.':'HP sudah penuh.','Nothing to cure.':'Tidak ada yang perlu disembuhkan.','Ailment cured':'Status sembuh','No large monster here.':'Tidak ada monster besar di sini.',
+'No large monster in sight.':'Tidak ada monster besar yang terlihat.','Already marked.':'Sudah ditandai.','Drink it during a hunt.':'Minum saat berburu.','You are already warm.':'Kamu sudah hangat.',
+'You feel warm. The cold no longer hurts.':'Badanmu hangat. Dingin tak lagi menyakitkan.','Use it in battle':'Pakai saat bertarung','Use it during a hunt':'Pakai saat berburu',
+'Used when fishing in lava':'Dipakai saat memancing di lava','Quest info':'Info quest',
+'No materials yet. Gather sparkling spots and hunt monsters to collect them.':'Belum ada material. Kumpulkan dari titik berkilau dan buru monster.',
+'Your next upgrades at the Smithy and what they still need.':'Upgrade berikutnya di Pandai Besi dan bahan yang masih kurang.','Everything is forged. Impressive!':'Semua sudah ditempa. Hebat!',
+'Scorched by falling embers! −8 HP':'Tersengat bara jatuh! −8 HP','The ground trembles — embers rain down!':'Tanah bergetar — bara berjatuhan!',
+'The lava is far too hot for normal bait. Buy Magma Bait at the General Store, or combine Firestone + Bitterbug.':'Lava terlalu panas untuk umpan biasa. Beli Magma Bait di Toko, atau gabungkan Firestone + Bitterbug.',
+'You cast into the lava...':'Kamu melempar kail ke lava...','You cast your line...':'Kamu melempar kail...','Wait for a bite, then press A.':'Tunggu ikan menggigit, lalu tekan A.',
+'Pull!':'Tarik!','Reel!':'Gulung!','! Something bit !':'! Ada yang menggigit !','Press A now!':'Tekan A sekarang!','Too slow — the fish got away.':'Terlambat — ikannya lepas.',
+'A big one is fighting back!':'Ikan besar melawan!','Reel it in!':'Gulung talinya!','Press A while the marker is in the green zone (0/3).':'Tekan A saat penanda di zona hijau (0/3).',
+'A rare catch!':'Tangkapan langka!','Into the bag it goes.':'Masuk ke tas.','The line snapped!':'Talinya putus!','Too early — you scared the fish away.':'Terlalu cepat — ikannya kabur.','You reel in your line.':'Kamu menggulung kail.',
+"It's someone's house. Best not barge in.":'Ini rumah orang. Jangan asal masuk.','A distant roar echoes...':'Raungan terdengar dari kejauhan...','Freezing! A Hot Drink keeps you warm.':'Kedinginan! Hot Drink bisa menghangatkan.',
+'Mew? A tiny cat hunter was hiding in the bushes!':'Meong? Seekor kucing pemburu kecil bersembunyi di semak!','It sniffs your boots... and decides you are its new partner.':'Ia mengendus sepatumu... dan memilihmu sebagai partner barunya.',
+'Up to 10 letters.':'Maksimal 10 huruf.','Confirm name':'Simpan nama','No buddy yet. Take the quest "The Lost Kitten" from the Quest Board.':'Belum punya teman. Ambil quest "The Lost Kitten" di Papan Quest.',
+'Collect the haul':'Ambil hasil','brings back gathering materials':'membawa pulang material','Rename buddy':'Ganti nama teman','Rescue a buddy first ("The Lost Kitten" quest).':'Selamatkan teman dulu (quest "The Lost Kitten").',
+'Copy this code and keep it somewhere safe (notes, chat). Load it on another phone or browser to continue.':'Salin kode ini dan simpan di tempat aman (catatan, chat). Muat di HP atau browser lain untuk melanjutkan.',
+'Copy code':'Salin kode','Code copied':'Kode tersalin','Select the code and copy it manually':'Pilih kodenya dan salin manual','Loading replaces your current progress on this device.':'Memuat akan mengganti progres di perangkat ini.',
+'Load this code':'Muat kode ini','Save loaded':'Progres dimuat','That code is not valid':'Kode tidak valid','Paste a save code (MV1.…)':'Tempel kode simpan (MV1.…)',
+'Old tracks... the monster is gone.':'Jejak lama... monsternya sudah tiada.','this area':'area ini','Find the lost kitten':'Temukan anak kucing yang hilang','Kitten found!':'Anak kucing ditemukan!',
+};
+const ID_PATTERNS=[
+['{0} bonks the {1}! ({2})','{0} memukul {1}! ({2})'],['{0} marks the {1} with paint!','{0} menandai {1} dengan cat!'],['{0} snatched your {1}!','{0} merebut {1} milikmu!'],
+['{0} tosses you a herb pouch! +{1} HP','{0} melempar kantong herbal! +{1} HP'],['{0} uses {1}! Blocked — {2} damage.','{0} memakai {1}! Ditahan — {2} damage.'],
+['{0} uses {1}! {2} damage.','{0} memakai {1}! {2} damage.'],['{0} uses {1}!','{0} memakai {1}!'],['{0} watches the {1} carefully.','{0} mengamati {1} dengan waspada.'],
+['A wild {0} attacks!','{0} liar menyerang!'],['Faints: {0}/3. Guard against the big tells!','Pingsan: {0}/3. Tahan saat ada tanda serangan besar!'],
+['Poison eats at the {0}. ({1})','Racun menggerogoti {0}. ({1})'],['The {0} flies into a rage!','{0} mengamuk!'],['The {0} is limping — capture it now!','{0} pincang — tangkap sekarang!'],
+['The {0} is poisoned!','{0} teracun!'],['The {0} is still too strong to capture.','{0} masih terlalu kuat untuk ditangkap.'],['The {0} has been {1}!','{0} telah {1}!'],
+['The {0} jumps you first!','{0} menyerangmu lebih dulu!'],['The {0} turns to face you!','{0} berbalik menghadapmu!'],['The {0} flies off with your items!','{0} kabur membawa item-mu!'],
+['The {0} got away!','{0} berhasil kabur!'],['The {0} is fleeing to another area!','{0} kabur ke area lain!'],['The {0} is still reeling!','{0} masih limbung!'],
+['The {0} tries to escape, but its broken {1} fail it!','{0} mencoba kabur, tapi {1}-nya yang patah menghalanginya!'],['The {0} was {1}!','{0} {1}!'],
+['The {0} moved to {1}.','{0} pindah ke {1}.'],
+['You captured the {0}!','Kamu menangkap {0}!'],['You drink a {0}.','Kamu meminum {0}.'],['You loose an arrow at the {0}.','Kamu melepas panah ke {0}.'],
+['You mark the {0} with paint.','Kamu menandai {0} dengan cat.'],['You miss the {0}.','Seranganmu meleset dari {0}.'],['You slash at the {0}.','Kamu menebas {0}.'],
+['You swing at the {0}.','Kamu mengayun ke {0}.'],['You take {0} {1} damage.','Kamu terkena {0} damage {1}.'],
+['Carved: {0}','Hasil potong: {0}'],['Obtained: {0}','Didapat: {0}'],['Capture rewards: {0}','Hadiah tangkapan: {0}'],['Broken: {0}','Patah: {0}'],['{0} — target','{0} — sasaran'],
+['{0} ★','{0} ★'],['{0}: unmarked','{0}: belum ditandai'],['A: Gather {0}','A: Kumpulkan {0}'],['A: Attack {0}','A: Serang {0}'],['A: {0}','A: {0}'],
+['Depart: {0}?','Berangkat: {0}?'],['Time limit {0}','Batas waktu {0}'],['Weapon: {0}','Senjata: {0}'],['Armor: {0}','Zirah: {0}'],['Potions {0}','Potion {0}'],['Meal: {0}','Makanan: {0}'],
+['Accepted: {0}','Diambil: {0}'],['Complete “{0}” first','Selesaikan “{0}” dulu'],['Requires HR {0}','Butuh HR {0}'],['Sold from HR {0}','Dijual mulai HR {0}'],['{0} is already your buddy','{0} sudah jadi temanmu'],
+['Needs {0}','Butuh {0}'],['Set bonus: {0}','Bonus set: {0}'],['{0} (have {1})','{0} (punya {1})'],['Bought {0}','Membeli {0}'],['Made {0}','Membuat {0}'],
+["Today's order: {0}. It lasts for your next hunt.",'Pesanan hari ini: {0}. Berlaku untuk perburuan berikutnya.'],['Ordered {0}!','Memesan {0}!'],
+['Forged {0}! (equipped)','Berhasil menempa {0}! (dipakai)'],['Forged {0}!','Berhasil menempa {0}!'],
+['{0}/{1} quests cleared','{0}/{1} quest selesai'],['Difficulty: {0}','Kesulitan: {0}'],['Quest: {0}','Quest: {0}'],['Target: {0}','Target: {0}'],
+['QUEST COMPLETE — {0}','QUEST SELESAI — {0}'],['Reward: {0}','Hadiah: {0}'],['Bonus rewards: {0}','Hadiah bonus: {0}'],['Hunter Rank up! You are now HR {0}.','Hunter Rank naik! Sekarang kamu HR {0}.'],
+['{0} The guild pays nothing, but you keep what you gathered.','{0} Serikat tidak membayar, tapi hasil kumpulanmu tetap milikmu.'],
+['{0} Paintballs keep it marked on your map.','{0} Paintball membuatnya tetap tertanda di peta.'],
+['{0} left.','sisa {0}.'],['{0} left','sisa {0}'],['Faints {0}/3','Pingsan {0}/3'],['Recovered {0} HP','Pulih {0} HP'],['{0} marked!','{0} ditandai!'],['+{0} new','+{0} baru'],
+['Caught a {0}!','Dapat {0}!'],['Nice! Keep going ({0}/3).','Bagus! Lanjutkan ({0}/3).'],['Missed! The line is straining ({0}/3).','Meleset! Tali menegang ({0}/3).'],
+['{0} joined you as your hunting buddy!','{0} bergabung sebagai teman berburumu!'],['{0} fights beside you, and can go on gathering trips from the Item Chest.','{0} bertarung di sampingmu, dan bisa dikirim ekspedisi dari Peti Barang.'],
+['{0} reached Lv {1}!','{0} naik ke Lv {1}!'],['{0} is back! Collect the haul at the Item Chest.','{0} sudah pulang! Ambil hasilnya di Peti Barang.'],
+['Lv {0} (max)','Lv {0} (maks)'],['{0}  Heal +{1}','{0}  Sembuh +{1}'],['Heal +{0}','Sembuh +{0}'],['Back from {0}','Pulang dari {0}'],['Haul: {0}','Hasil: {0}'],
+["On a gathering trip to {0}. Back in {1}. {2} won't join hunts until then.",'Sedang ekspedisi ke {0}. Kembali dalam {1}. {2} tidak ikut berburu sampai saat itu.'],
+['Send to {0}','Kirim ke {0}'],['{0} min (real time)','{0} menit (waktu nyata)'],['{0} set off to {1}!','{0} berangkat ke {1}!'],
+['Gear for {0}. Weapons raise its attacks, armor improves its healing.','Gear untuk {0}. Senjata menaikkan serangan, zirah meningkatkan penyembuhan.'],
+['You have {0}','Kamu punya {0}'],['Get {0}','Dapatkan {0}'],['Traded for {0}','Ditukar dengan {0}'],
+["You've pinpointed the {0} in {1}!",'Kamu menemukan lokasi {0} di {1}!'],['Tracks lead toward {0} ({1}/3)','Jejak mengarah ke {0} ({1}/3)'],
+['Hidden treasure! +{0}z','Harta tersembunyi! +{0}z'],['Hidden treasure! Found a {0}','Harta tersembunyi! Dapat {0}'],['Hunt the {0}','Buru {0}'],
+];
+for(const t of ['coils its body, muscles tensing...','draws a deep breath — embers glow in its throat!','beats its wings and climbs into the sky!','lowers its tusks and paws at the snow...','raises its back crystals — they glow blue!'])
+  ID_PATTERNS.unshift(['The {0} '+t,'{0} '+ID_WORDS[t]]);
+const IDD=new Map(Object.entries(ID_WORDS));
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const IDR=ID_PATTERNS.map(([en,id])=>{const ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';return[new RegExp(src),id,ord]});
+function trCap(s){const o=trK(s);if(o!=null)return o;if(s.includes(', ')){const p=s.split(', ');return p.map(x=>tr1(x)??x).join(', ')}return s}
+function tr1(k){const d=IDD.get(k);if(d!=null)return d;
+  for(const[re,id,ord]of IDR){const m=k.match(re);if(m)return id.replace(/\{(\d)\}/g,(_,n)=>trCap(m[ord.indexOf(+n)+1]))}
+  return null}
+function seg(k,sep){if(!k.includes(sep))return null;const p=k.split(sep);const q=p.map(x=>tr1(x.trim())??x);return q.some((v,i)=>v!==p[i])?q.join(sep):null}
+function trK(k){const d=IDD.get(k);if(d!=null)return d;return seg(k,' · ')??tr1(k)??seg(k,' — ')}
+function tr(s){if(LANG!=='id'||!s||typeof s!=='string')return s;const k=s.trim();if(!k)return s;
+  const o=trK(k);
+  if(o==null)return s;const lead=s.match(/^\s*/)[0],trail=s.match(/\s*$/)[0];return lead+o+trail}
+const TRS=new WeakMap();
+function trNode(n){const pe=n.parentElement;if(!pe||pe.closest('.dtx,textarea,script,style'))return;const v=n.nodeValue;
+  const rec=TRS.get(n);if(rec&&rec.out===v)return;const out=tr(v);if(out!==v){TRS.set(n,{src:v,out});n.nodeValue=out}}
+function trTree(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode()))trNode(n)}
+function untrTree(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode())){const r=TRS.get(n);if(r&&r.out===n.nodeValue){n.nodeValue=r.src;TRS.delete(n)}}}
+new MutationObserver(ms=>{if(LANG!=='id')return;for(const m of ms){if(m.type==='characterData')trNode(m.target);else for(const a of m.addedNodes){if(a.nodeType===3)trNode(a);else if(a.nodeType===1)trTree(a)}}})
+  .observe(document.body,{subtree:true,childList:true,characterData:true});
+function setLang(v){LANG=v;try{localStorage.setItem('mossvale-lang',v)}catch(e){}document.documentElement.lang=v;if(v==='id')trTree(document.body);else untrTree(document.body)}
+document.documentElement.lang=LANG;if(LANG==='id')trTree(document.body);
+
 /* ================= UI ================= */
 const hudEl=$('#hud'),hudR=$('#hudR'),hintEl=$('#hint'),toastEl=$('#toast'),menuEl=$('#menu'),dlg=$('#dialog'),fxEl=$('#fx');
 let toastT=0;
@@ -1216,8 +1385,8 @@ function toast(t){toastEl.textContent=t;toastEl.hidden=false;toastEl.style.anima
 function bar(v,m,cls=''){const p=clamp(v/m,0,1)*100;return`<div class="bar ${cls} ${cls?'':p<30?'low':''}"><i style="width:${p}%"></i></div>`}
 function stName(p){return p?({poison:'Poisoned',burn:'Burning',frost:'Frostbitten'}[p.k]||''):''}
 function objText(){const Q=S.Q,q=quest(Q.id);
-  if(q.type==='deliver')return`${ITEMS[q.item].name}s ${Math.min(Q.gathered[q.item]||0,q.n)}/${q.n}`;
-  if(q.type==='slay')return`${MON[q.mon].name}s ${Math.min(Q.kills[q.mon]||0,q.n)}/${q.n}`;
+  if(q.type==='deliver')return`${ITEMS[q.item].name}${LANG==='id'?'':'s'} ${Math.min(Q.gathered[q.item]||0,q.n)}/${q.n}`;
+  if(q.type==='slay')return`${MON[q.mon].name}${LANG==='id'?'':'s'} ${Math.min(Q.kills[q.mon]||0,q.n)}/${q.n}`;
   if(q.type==='rescue')return Q.rescued?'Kitten found!':'Find the lost kitten';
   if(q.type==='hunt')return`Hunt the ${MON[q.mon].name}`;
   return'Expedition — return at camp'}
@@ -1255,8 +1424,8 @@ function nextLine(){
   if(!D.q.length){D.open=false;dlg.hidden=true;const r=D.res;D.res=null;r&&r();return}
   dlg.hidden=false;dlg.innerHTML='';const pk=WHO[D.who];
   if(pk){const im=h('img',{src:portrait(pk),alt:'',cls:'por'});dlg.append(im)}
-  const body=h('div',{cls:'dtx'});if(D.who)body.append(h('span',{cls:'who'},D.who));
-  D.full=D.q.shift();D.txt=h('span',{});body.append(D.txt);dlg.append(body,h('span',{cls:'more'},'▼'));
+  const body=h('div',{cls:'dtx'});if(D.who)body.append(h('span',{cls:'who'},tr(D.who)));
+  D.full=tr(D.q.shift());D.txt=h('span',{});body.append(D.txt);dlg.append(body,h('span',{cls:'more'},'▼'));
   let i=0;D.typing=1;clearInterval(D.iv);
   if(RM){D.txt.textContent=D.full;D.typing=0;return}
   D.iv=setInterval(()=>{i+=2;D.txt.textContent=D.full.slice(0,i);if(i%4===0)sfx('text');if(i>=D.full.length){clearInterval(D.iv);D.typing=0}},18)}
@@ -1392,7 +1561,7 @@ function smithMenu(){openMenu('Smithy',(body,tab)=>{
   if(tab===0){body.append(h('div',{cls:'note'},'Forge upgrades from monster parts. Upgrading keeps the old weapon.'));
     for(const t of['gs','tb','bw']){body.append(h('div',{cls:'sec'},WTYPE[t].name+' — '+WTYPE[t].tip));
       for(const[id,w]of Object.entries(WEAPONS)){if(w.t!==t)continue;const own=S.weapons.includes(id);
-        const el=w.el?` · ${w.el==='venom'?'Venom':'Fire'}`:'';
+        const el=w.el?` · ${w.el==='venom'?'Venom':w.el==='ice'?'Ice':'Fire'}`:'';
         const lab=h('span',{},`${w.name}  ATK ${w.atk}${el}`,own?h('span',{cls:'sub'},S.wep===id?'Equipped':'Owned'):
           h('span',{cls:'sub'},w.from&&!S.weapons.includes(w.from)?`Needs ${WEAPONS[w.from].name}`:'',w.from&&!S.weapons.includes(w.from)?null:reqLine(w.cost,w.z)));
         const ok=!own&&(!w.from||S.weapons.includes(w.from))&&canPay(w.cost,w.z);
@@ -1486,6 +1655,7 @@ function bagMenu(){openMenu('Bag',(body,tab)=>{
       const why=k==='bait'?'Used when fishing in lava':k==='capture'?'Use it in battle':k==='paintball'&&!Q?'Use it during a hunt':'';
       body.append(opt(h('span',{},it.name,h('span',{cls:'sub'},why||it.desc)),'×'+have(k),()=>{fieldUse(k);redraw()},!have(k)||!!why))}
     body.append(opt(`Sound: ${AU.muted?'off':'on'}`,'',()=>{toggleMute();redraw()}));
+    body.append(opt(LANG==='id'?'Bahasa: Indonesia':'Language: English',LANG==='id'?'ID':'EN',()=>{setLang(LANG==='id'?'en':'id');redraw();hud()}));
     if(!Q)body.append(opt('Save game','',()=>{save();sfx('save');toast('Game saved')}));
     if(!Q)body.append(opt('Save code (backup)','',()=>{closeMenu();codeMenu()}));
     if(Q)body.append(opt(h('span',{},'Quest info',h('span',{cls:'sub'},objText())),'',async()=>{closeMenu();const q=quest(Q.id);await say([q.name,q.desc,`Faints ${Q.carts}/3 · ${fmtT(Q.time)} left.`],'Quest')}))}
@@ -1610,7 +1780,7 @@ function codeMenu(){openMenu('Save code',(body,tab)=>{
   if(tab===0){const code=saveCode();const ta=h('textarea',{id:'codeOut',cls:'txt',rows:'4',readonly:true},code);
     body.append(h('div',{cls:'note'},'Copy this code and keep it somewhere safe (notes, chat). Load it on another phone or browser to continue.'),ta,
       opt('Copy code','',async()=>{let ok=false;try{await navigator.clipboard.writeText(code);ok=true}catch(e){}if(!ok){try{ta.focus();ta.select();ok=document.execCommand('copy')}catch(e){}}toast(ok?'Code copied':'Select the code and copy it manually')}))}
-  else{const ta=h('textarea',{id:'codeIn',cls:'txt',rows:'4',placeholder:'Paste a save code (MV1.…)'});
+  else{const ta=h('textarea',{id:'codeIn',cls:'txt',rows:'4',placeholder:tr('Paste a save code (MV1.…)')});
     body.append(h('div',{cls:'note'},'Loading replaces your current progress on this device.'),ta,opt('Load this code','',()=>{
       try{const t=ta.value.trim();if(!t.startsWith('MV1.'))throw 0;const d=JSON.parse(decodeURIComponent(escape(atob(t.slice(4)))));if(!Array.isArray(d.weapons)||!d.inv||typeof d.inv!=='object')throw 0;
         S=Object.assign(freshState(),d);S.Q=null;S.scene='world';S.map='village';P.x=9;P.y=27;P.path=[];P.after=null;catSnap();save();closeMenu();hud();updHint();sfx('save');toast('Save loaded')}
