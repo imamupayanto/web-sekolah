@@ -384,7 +384,7 @@ const ARMORS={
 const DIFF={easy:{name:'Easy',hp:.8,dmg:.7,z:1,desc:'Monsters have less HP and hit softer.'},
   normal:{name:'Normal',hp:1,dmg:1,z:1,desc:'The intended balance.'},
   hard:{name:'Hard',hp:1.3,dmg:1.35,z:1.25,desc:'Tougher, harder-hitting monsters. +25% quest zenny.'}};
-const DF=()=>DIFF[S.diff]||DIFF.normal;
+const DF=()=>DIFF.hard;
 const zMul=()=>DF().z*(S.arm==='ar0'?1.1:1);
 function dayPhase(){if(window.TIME_OVERRIDE)return window.TIME_OVERRIDE;const h=new Date().getHours();return h>=19||h<5?'night':h<7?'dawn':h>=17?'dusk':'day'}
 const isNight=()=>dayPhase()==='night';
@@ -467,13 +467,13 @@ const QUESTS=[
   {id:'q2',name:'Moss Menace',zone:'forest',type:'slay',mon:'mossling',n:4,z:250,hr:1,desc:'Slay 4 Mosslings in the tall grass.'},
   {id:'c1',name:'The Lost Kitten',zone:'forest',type:'rescue',z:100,hr:1,req:'q1',desc:'A young cat hunter went missing in the Misty Forest. Find it.'},
   {id:'q3',name:'The Verdant Wyrm',zone:'forest',type:'hunt',mon:'wyrm',z:800,hr:1,req:'q2',hrUp:2,desc:'Hunt the Verdant Wyrm stalking the forest.'},
-  {id:'q6',name:'Frost Hounds',zone:'snow',type:'slay',mon:'icewolf',n:3,z:1200,hr:2,req:'q3',desc:'Slay 3 Icefang Wolves on Frostpeak.'},
-  {id:'q7',name:'The Rimeback Tusker',zone:'snow',type:'hunt',mon:'tusker',z:3000,hr:2,req:'q6',hrUp:3,desc:'Hunt the Rimeback Tusker roaming the glacier.'},
-  {id:'q4',name:'Crabs in the Deep',zone:'cave',type:'slay',mon:'embercrab',n:3,z:450,hr:3,req:'q7',desc:'Slay 3 Ember Crabs in the Ember Cave.'},
-  {id:'q5',name:'Cinder Drake Descends',zone:'cave',type:'hunt',mon:'drake',z:1500,hr:3,req:'q4',hrUp:4,desc:'Hunt the Cinder Drake nesting in the cave.'},
+  {id:'q6',name:'Frost Hounds',zone:'snow',type:'slay',mon:'icewolf',n:3,z:450,hr:2,req:'q3',desc:'Slay 3 Icefang Wolves on Frostpeak.'},
+  {id:'q7',name:'The Rimeback Tusker',zone:'snow',type:'hunt',mon:'tusker',z:1500,hr:2,req:'q6',hrUp:3,desc:'Hunt the Rimeback Tusker roaming the glacier.'},
+  {id:'q4',name:'Crabs in the Deep',zone:'cave',type:'slay',mon:'embercrab',n:3,z:1200,hr:3,req:'q7',desc:'Slay 3 Ember Crabs in the Ember Cave.'},
+  {id:'q5',name:'Cinder Drake Descends',zone:'cave',type:'hunt',mon:'drake',z:3000,hr:3,req:'q4',hrUp:4,desc:'Hunt the Cinder Drake nesting in the cave.'},
   {id:'b1',name:'Bramble Trouble',zone:'forest',type:'slay',mon:'bramboar',n:3,z:320,hr:1,req:'q2',desc:'Slay 3 Bramble Boars tearing up the forest.'},
-  {id:'b3',name:'Owls of Frostpeak',zone:'snow',type:'slay',mon:'snowowl',n:3,z:1300,hr:2,req:'q6',desc:'Slay 3 Snow Owls hunting on Frostpeak.'},
-  {id:'b2',name:'Molten Slugs',zone:'cave',type:'slay',mon:'magslug',n:3,z:650,hr:3,req:'q4',desc:'Slay 3 Magma Slugs clogging the cave tunnels.'},
+  {id:'b3',name:'Owls of Frostpeak',zone:'snow',type:'slay',mon:'snowowl',n:3,z:650,hr:2,req:'q6',desc:'Slay 3 Snow Owls hunting on Frostpeak.'},
+  {id:'b2',name:'Molten Slugs',zone:'cave',type:'slay',mon:'magslug',n:3,z:1300,hr:3,req:'q4',desc:'Slay 3 Magma Slugs clogging the cave tunnels.'},
   {id:'s1',name:'Crimson Menace',zone:'forest',type:'hunt',mon:'wyrmC',z:3500,hr:4,req:'q5',desc:'A red-scaled Wyrm scorches the forest. Hunt the Crimson Wyrm.'},
   {id:'s2',name:'Shadow over the Cave',zone:'cave',type:'hunt',mon:'drakeS',z:4200,hr:4,req:'s1',desc:'A drake black as night haunts the Ember Cave. Hunt the Shadow Drake.'},
   {id:'s3',name:'Eye of the Storm',zone:'snow',type:'hunt',mon:'tuskerS',z:5000,hr:4,req:'s2',hrUp:5,desc:'Lightning strikes Frostpeak without clouds. Hunt the Storm Tusker.'},
@@ -1755,7 +1755,7 @@ function chestMenu(){openMenu('Item Chest',(body,tab)=>{
     for(const k of ks)body.append(h('div',{cls:'note'},`${ITEMS[k].name} ×${have(k)}`))}
   else if(tab===3)catTab(body);
   else{const done=QUESTS.filter(q=>S.done[q.id]).length;
-    body.append(h('div',{cls:'note'},`Hunter Rank ${S.hr} · ${S.zenny}z · ${done}/${QUESTS.length} quests cleared · Difficulty: ${DF().name}`),
+    body.append(h('div',{cls:'note'},`Hunter Rank ${S.hr} · ${S.zenny}z · ${done}/${QUESTS.length} quests cleared`),
       h('div',{cls:'note'},`${wName(S.wep)} (ATK ${atk()}) · ${aName(S.arm)} (DEF ${def()}, HP ${maxHP()})`));
     body.append(opt('Save game','',()=>{save();sfx('save');toast('Game saved')}));
     body.append(opt('Save code (backup)','',()=>{MENU.onClose=null;closeMenu();codeMenu()}));
@@ -2682,14 +2682,10 @@ updAudioUI();
 function toTitle(){S.scene='title';S.map='village';$('#title').hidden=false;hud();hintEl.hidden=true;music('title');
   const m=$('#titleMenu');m.innerHTML='';const sv=loadSave();
   if(sv)m.append(opt('Continue',`HR ${sv.hr} · ${sv.zenny}z`,()=>{S=Object.assign(freshState(),sv);S.Q=null;beginWorld()}));
-  m.append(opt('New hunt',null,diffMenu));
+  m.append(opt('New hunt',null,()=>{S=freshState();S.diff='hard';beginWorld()}));
   m.append(opt('Tutorial',null,()=>tutorialMenu()));
   m.append(h('div',{cls:'small',style:'padding:.3em .4em'},'Press any key or tap to enable sound'));
   m.querySelector('button').focus()}
-function diffMenu(){const m=$('#titleMenu');m.innerHTML='';
-  m.append(h('div',{cls:'small',style:'padding:.2em .4em'},'Choose a difficulty. It cannot be changed later.'));
-  for(const k of['easy','normal','hard'])m.append(opt(h('span',{},DIFF[k].name,h('span',{cls:'sub'},DIFF[k].desc)),null,()=>{S=freshState();S.diff=k;beginWorld()}));
-  m.append(opt('Back',null,toTitle));m.querySelectorAll('button')[1].focus()}
 async function beginWorld(){$('#title').hidden=true;S.scene='world';S.map='village';Object.assign(P,S.P||{x:9,y:27,dir:'down'});P.path=[];P.after=null;if(tile(P.x,P.y)!=='.'&&tile(P.x,P.y)!=='='){P.x=9;P.y=27}P.mv=null;
   if(!S.Q)S.hp=maxHP();catSnap();checkCatReturn();if(merchantHere())setTimeout(()=>toast('A traveling merchant is in town tonight!'),1500);auInit();music('village');startFade();hud();updHint();
   if(!S.intro){S.intro=true;await playScene('prologue')}
