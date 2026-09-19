@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>GeoTag Foto</title>
+<style>
+:root{--bg:#f3f4f6;--card:#fff;--line:#e2e5ea;--text:#14171c;--muted:#6b7280;--acc:#0f766e;--acc2:#115e59;--soft:#e6f4f2}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+header{padding:14px 16px;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+header h1{margin:0;font-size:18px}
+header span{color:var(--muted);font-size:13px}
+.layout{display:grid;gap:16px;padding:16px 16px 96px;max-width:1400px;margin:0 auto}
+@media(min-width:960px){.layout{grid-template-columns:minmax(0,1fr) 400px;align-items:start}.left{position:sticky;top:16px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px}
+.drop{display:grid;place-items:center;text-align:center;padding:48px 20px;border:2px dashed #c9ced6;border-radius:14px;background:var(--card);color:var(--muted);min-height:280px}
+.drop.over{border-color:var(--acc);background:var(--soft)}
+.drop b{display:block;color:var(--text);font-size:16px;margin:10px 0 4px}
+.pvwrap{background:#1b1e24;border-radius:14px;padding:10px;display:grid;place-items:center}
+#pv{max-width:100%;max-height:70vh;display:block;border-radius:6px}
+.strip{display:flex;gap:8px;overflow-x:auto;padding:10px 2px 4px}
+.th{position:relative;flex:none;width:76px;height:76px;border-radius:10px;border:2px solid transparent;padding:0;background:#ddd center/cover no-repeat}
+.th.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--soft)}
+.th .x{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:0;background:#111;color:#fff;font-size:13px;line-height:22px;padding:0}
+.th .gps{position:absolute;left:4px;bottom:4px;font-size:10px;font-weight:700;background:var(--acc);color:#fff;border-radius:5px;padding:1px 5px}
+.th.add{background:var(--card);border:2px dashed #c9ced6;color:var(--muted);font-size:26px}
+.panel{padding:4px 16px 16px}
+.panel h3{margin:18px 0 10px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+label.f{display:block;font-weight:600;font-size:13px;margin:10px 0 4px}
+input[type=text],input[type=number],input[type=datetime-local],select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff}
+textarea{resize:vertical;min-height:62px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:-1px;border-color:transparent}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{min-width:0}
+.grow{flex:1}
+.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 12px;font-weight:600;white-space:nowrap}
+.btn:hover{border-color:#b8bec8}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.pri:hover{background:var(--acc2)}
+.btn:disabled{opacity:.45;cursor:default}
+.results{list-style:none;margin:6px 0 0;padding:0;border:1px solid var(--line);border-radius:9px;max-height:200px;overflow:auto}
+.results li{padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13px}
+.results li:last-child{border-bottom:0}
+.results li:hover{background:var(--soft)}
+.map{position:relative;height:240px;border-radius:10px;overflow:hidden;margin-top:10px;background:#e5e7eb;border:1px solid var(--line)}
+.map canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.map canvas:active{cursor:grabbing}
+.pin{position:absolute;left:50%;top:50%;width:30px;height:40px;transform:translate(-50%,-100%);pointer-events:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.mapbtns{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px}
+.mapbtns button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:18px;font-weight:700;padding:0}
+.attr{position:absolute;right:0;bottom:0;background:rgba(255,255,255,.8);font-size:10px;padding:1px 5px;color:#333}
+.maphint{position:absolute;left:8px;bottom:6px;font-size:11px;background:rgba(255,255,255,.85);border-radius:6px;padding:2px 6px;color:#374151}
+.chk{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:13px}
+.chk input{width:17px;height:17px;accent-color:var(--acc)}
+.muted{color:var(--muted);font-size:12px}
+.posgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.posgrid button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 4px;font-size:12px;font-weight:600}
+.posgrid button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.apply{margin-top:14px;padding:12px;border-radius:10px;background:var(--soft)}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding:10px 16px calc(env(safe-area-inset-bottom) + 10px);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.bar .btn{padding:11px 14px}
+@media(max-width:560px){.bar .btn{flex:1}}
+#toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:30;max-width:calc(100% - 32px);background:#111827;color:#fff;padding:10px 16px;border-radius:10px;font-size:13.5px;text-align:center}
+#busy{position:fixed;inset:0;z-index:25;background:rgba(0,0,0,.45);display:grid;place-items:center}
+#busy div{background:#fff;padding:18px 24px;border-radius:12px;font-weight:600}
+</style>
+</head>
+<body>
+<header><h1>GeoTag Foto</h1><span>Upload foto → atur lokasi & keterangan → download dengan geotag</span></header>
+
+<main class="layout">
+  <section class="left">
+    <label class="drop" id="drop" for="file">
+      <div>
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+        <b>Pilih foto</b>
+        <div>atau seret foto ke sini — bisa banyak sekaligus (JPG/PNG/WebP)</div>
+      </div>
+    </label>
+    <div id="work" hidden>
+      <div class="pvwrap"><canvas id="pv"></canvas></div>
+      <div class="strip" id="strip"></div>
+    </div>
+    <input type="file" id="file" accept="image/*" multiple hidden>
+  </section>
+
+  <aside class="card panel">
+    <h3>Lokasi</h3>
+    <div class="row">
+      <input type="text" id="q" class="grow" placeholder="Cari tempat, alamat, atau -6.1754, 106.8272">
+      <button class="btn" id="qBtn">Cari</button>
+    </div>
+    <ul class="results" id="results" hidden></ul>
+    <div class="map" id="map">
+      <canvas></canvas>
+      <svg class="pin" viewBox="0 0 30 40"><path d="M15 39C15 39 3 23.5 3 14.5a12 12 0 0 1 24 0C27 23.5 15 39 15 39z" fill="#e11d48" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14.5" r="4.5" fill="#fff"/></svg>
+      <div class="mapbtns"><button id="zIn" aria-label="Perbesar">+</button><button id="zOut" aria-label="Perkecil">−</button><button id="myLoc" aria-label="Lokasi saya" title="Lokasi saya"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button></div>
+      <div class="maphint">Geser peta — pin = lokasi</div>
+      <div class="attr" id="attr"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div class="grow"><label class="f" for="fTiles">Sumber peta</label><select id="fTiles"></select></div>
+    </div>
+    <div class="row">
+      <div class="grow"><label class="f" for="fLat">Latitude</label><input type="number" id="fLat" step="any" placeholder="-6.175392"></div>
+      <div class="grow"><label class="f" for="fLon">Longitude</label><input type="number" id="fLon" step="any" placeholder="106.827153"></div>
+    </div>
+    <label class="chk"><input type="checkbox" id="fAuto"> Isi judul & alamat otomatis dari lokasi <span class="muted" id="geoStatus"></span></label>
+
+    <h3>Keterangan</h3>
+    <label class="f" for="fTitle">Judul</label>
+    <input type="text" id="fTitle" placeholder="Kota Jakarta Pusat, DKI Jakarta, Indonesia">
+    <label class="f" for="fAddr">Alamat</label>
+    <textarea id="fAddr" rows="2" placeholder="Jl. Medan Merdeka, Gambir, ..."></textarea>
+    <label class="f" for="fCoord">Baris koordinat</label>
+    <div class="row">
+      <input type="text" id="fCoord" class="grow" placeholder="Lat -6.175392° Long 106.827153°">
+      <select id="fFmt" style="width:auto"><option value="dec">Desimal</option><option value="dms">DMS</option></select>
+    </div>
+    <label class="f" for="fDate">Tanggal & jam</label>
+    <div class="row">
+      <input type="datetime-local" id="fDate" step="1" class="grow">
+      <select id="fTz" style="width:auto"></select>
+    </div>
+    <label class="chk"><input type="checkbox" id="fShowDate"> Tampilkan tanggal di stempel</label>
+    <label class="f" for="fNote">Catatan</label>
+    <input type="text" id="fNote" placeholder="mis. Proyek Jembatan — Tim A">
+    <div class="muted" style="margin-top:6px">Kosongkan field untuk menyembunyikan barisnya.</div>
+
+    <div class="apply">
+      <button class="btn pri" id="applyAll" style="width:100%">Terapkan ke semua foto</button>
+      <label class="chk"><input type="checkbox" id="applyDate"> termasuk tanggal & jam</label>
+    </div>
+
+    <h3>Tampilan stempel</h3>
+    <div class="posgrid" id="posgrid">
+      <button data-p="tl">↖ Kiri atas</button><button data-p="top">Atas penuh</button><button data-p="tr">Kanan atas ↗</button>
+      <button data-p="bl">↙ Kiri bawah</button><button data-p="bottom">Bawah penuh</button><button data-p="br">Kanan bawah ↘</button>
+    </div>
+    <label class="f" for="sSize">Ukuran teks <span class="muted" id="sSizeV"></span></label>
+    <input type="range" id="sSize" min="0.5" max="1.8" step="0.05">
+    <label class="f" for="sBg">Gelap latar <span class="muted" id="sBgV"></span></label>
+    <input type="range" id="sBg" min="0" max="0.9" step="0.05">
+    <label class="chk"><input type="checkbox" id="sMap"> Tampilkan peta mini</label>
+    <div class="muted" style="margin-top:12px;line-height:1.6">Koordinat, tanggal & alamat juga disematkan ke metadata EXIF (GPS) file JPG hasil download. Alamat & peta memakai OpenStreetMap (butuh internet).</div>
+  </aside>
+</main>
+
+<div class="bar">
+  <button class="btn" id="bShare" hidden>Bagikan</button>
+  <button class="btn" id="bZip" disabled>Download ZIP</button>
+  <button class="btn" id="bAll" disabled>Download semua</button>
+  <button class="btn pri" id="bOne" disabled>Download foto ini</button>
+</div>
+<div id="toast" hidden></div>
+<div id="busy" hidden><div id="busyText">Memproses…</div></div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const pad2 = n => String(n).padStart(2, '0');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const withTimeout = (p, ms) => Promise.race([p, sleep(ms).then(() => null)]);
+let toastT;
+function toast(m, ms = 2800) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, ms); }
+function busy(txt) { $('#busy').hidden = !txt; if (txt) $('#busyText').textContent = txt; }
+const store = { get(k, d) { try { const v = localStorage.getItem('gtf_' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('gtf_' + k, JSON.stringify(v)); } catch (e) {} } };
+
+/* ---------- Waktu ---------- */
+function tzStr(d) { const o = -d.getTimezoneOffset(), a = Math.abs(o); return `${o >= 0 ? '+' : '-'}${pad2(Math.floor(a / 60))}:${pad2(a % 60)}`; }
+const DEV_TZ = tzStr(new Date());
+const TZ_NAMES = { '+07:00': 'WIB', '+08:00': 'WITA', '+09:00': 'WIT' };
+const toWall = dt => `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}T${pad2(dt.getHours())}:${pad2(dt.getMinutes())}:${pad2(dt.getSeconds())}`;
+const normWall = w => !w ? '' : (w.length === 16 ? w + ':00' : w.slice(0, 19));
+function fmtDate(wall, tz) {
+  const w = normWall(wall), m = w.match(/^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)$/);
+  if (!m) return '';
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const wd = new Date(Date.UTC(+m[1], m[2] - 1, +m[3])).getUTCDay();
+  const lbl = TZ_NAMES[tz] || (tz ? 'GMT' + tz : '');
+  return `${days[wd]}, ${m[3]}/${m[2]}/${m[1]} ${m[4]}:${m[5]}:${m[6]} ${lbl}`.trim();
+}
+function fmtCoord(lat, lon, f) {
+  if (lat == null) return '';
+  if (f === 'dms') {
+    const one = (v, p, n) => { const a = Math.abs(v), d = Math.floor(a), mf = (a - d) * 60, mi = Math.floor(mf); return `${d}°${mi}'${((mf - mi) * 60).toFixed(1)}"${v >= 0 ? p : n}`; };
+    return `${one(lat, 'N', 'S')}  ${one(lon, 'E', 'W')}`;
+  }
+  return `Lat ${lat.toFixed(6)}°  Long ${lon.toFixed(6)}°`;
+}
+
+/* ---------- State ---------- */
+const style = Object.assign({ pos: 'bottom', size: 1, bg: 0.55, map: true, fmt: 'dec', tiles: 'voyager' }, store.get('style', {}));
+const mem = store.get('mem', {});
+const draft = { lat: mem.lat ?? null, lon: mem.lon ?? null, title: mem.title || '', address: mem.address || '', coord: '', date: toWall(new Date()),
+  tz: mem.tz ?? (TZ_NAMES[DEV_TZ] ? DEV_TZ : '+07:00'), showDate: true, note: mem.note || '', auto: mem.auto ?? true };
+draft.coord = fmtCoord(draft.lat, draft.lon, style.fmt);
+const photos = []; let sel = -1;
+const cur = () => (photos[sel] ? photos[sel].data : draft);
+const saveStyle = () => store.set('style', style);
+const remember = d => store.set('mem', { lat: d.lat, lon: d.lon, title: d.title, address: d.address, note: d.note, tz: d.tz, auto: d.auto });
+
+/* ---------- Geocoding (Nominatim, maks 1 req/detik) ---------- */
+const geoCache = new Map(); let geoChain = Promise.resolve();
+function geocode(lat, lon) {
+  const key = lat.toFixed(5) + ',' + lon.toFixed(5);
+  if (geoCache.has(key)) return Promise.resolve(geoCache.get(key));
+  const p = geoChain.then(async () => {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&accept-language=id&lat=${lat}&lon=${lon}`);
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json(), a = j.address || {};
+    const title = [a.city || a.town || a.municipality || a.county || a.regency || a.village || a.suburb, a.state || a.region, a.country].filter(Boolean).join(', ');
+    const pl = { title: title || '', full: j.display_name || '' };
+    geoCache.set(key, pl); return pl;
+  });
+  geoChain = p.catch(() => {}).then(() => sleep(1100));
+  return p;
+}
+function queueReverse(d) {
+  clearTimeout(d._t);
+  if (d.lat == null || !d.auto) return;
+  d._t = setTimeout(async () => {
+    const { lat, lon } = d;
+    if (d === cur()) $('#geoStatus').textContent = 'mencari alamat…';
+    try {
+      const pl = await geocode(lat, lon);
+      if (d.lat !== lat || d.lon !== lon || !d.auto) return;
+      d.title = pl.title; d.address = pl.full;
+      if (d === cur()) { $('#fTitle').value = d.title; $('#fAddr').value = d.address; $('#geoStatus').textContent = ''; remember(d); }
+      schedule();
+    } catch (e) { if (d === cur()) $('#geoStatus').textContent = '(alamat gagal dimuat — isi manual)'; }
+  }, 700);
+}
+async function search(q) {
+  const m = q.match(/^\s*(-?\d+(?:\.\d+)?)\s*[,; ]\s*(-?\d+(?:\.\d+)?)\s*$/);
+  if (m && Math.abs(+m[1]) <= 90 && Math.abs(+m[2]) <= 180) { setLocation(+m[1], +m[2]); $('#results').hidden = true; return; }
+  const ul = $('#results'); ul.hidden = false; ul.innerHTML = '<li>Mencari…</li>';
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=id&q=${encodeURIComponent(q)}`);
+    const j = await r.json();
+    ul.innerHTML = '';
+    if (!j.length) { ul.innerHTML = '<li>Tidak ditemukan</li>'; return; }
+    j.forEach(x => { const li = document.createElement('li'); li.textContent = x.display_name; li.onclick = () => { ul.hidden = true; setLocation(+x.lat, +x.lon); }; ul.appendChild(li); });
+  } catch (e) { ul.innerHTML = '<li>Pencarian gagal (butuh internet). Anda tetap bisa geser peta / ketik koordinat.</li>'; }
+}
+
+/* ---------- Sumber peta ---------- */
+const TILES = [
+  { id: 'voyager', n: 'CARTO Voyager', a: '© OpenStreetMap, © CARTO', u: (z, x, y) => `https://basemaps.cartocdn.com/rastertiles/voyager/${z}/${x}/${y}.png` },
+  { id: 'light', n: 'CARTO Light', a: '© OpenStreetMap, © CARTO', u: (z, x, y) => `https://basemaps.cartocdn.com/light_all/${z}/${x}/${y}.png` },
+  { id: 'esri', n: 'Esri Street', a: '© Esri', u: (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${z}/${y}/${x}` },
+  { id: 'sat', n: 'Esri Satelit', a: '© Esri, Maxar', u: (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}` },
+  { id: 'osm', n: 'OpenStreetMap (sering diblokir)', a: '© OpenStreetMap', u: (z, x, y) => `https://tile.openstreetmap.org/${z}/${x}/${y}.png` }
+];
+const FALLBACK = ['voyager', 'light', 'esri'];
+let tileSrc = TILES.find(t => t.id === style.tiles) || TILES[0], tileOK = 0, tileFail = 0;
+const tileCache = new Map();
+function tileImg(z, x, y, onload) {
+  const n = 2 ** z, url = tileSrc.u(z, ((x % n) + n) % n, y);
+  let t = tileCache.get(url);
+  if (!t) {
+    const im = new Image(); im.crossOrigin = 'anonymous';
+    t = { im, ok: false, cbs: [] };
+    t.p = new Promise((res, rej) => {
+      im.onload = () => { tileOK++; t.ok = true; t.cbs.forEach(f => f()); res(im); };
+      im.onerror = () => { tileCache.delete(url); tileFail++; autoFallback(); rej(new Error('tile')); };
+    });
+    t.p.catch(() => {});
+    im.src = url; tileCache.set(url, t);
+    if (tileCache.size > 600) tileCache.delete(tileCache.keys().next().value);
+  }
+  if (onload && !t.ok) t.cbs.push(onload);
+  return t;
+}
+function setTiles(id, quiet) {
+  const s = TILES.find(t => t.id === id);
+  if (!s || s === tileSrc) return;
+  tileSrc = s; style.tiles = id; saveStyle();
+  tileOK = tileFail = 0; tileCache.clear(); mini.clear();
+  $('#attr').textContent = s.a; $('#fTiles').value = id;
+  picker.redraw(); schedule();
+  if (!quiet) toast('Sumber peta: ' + s.n);
+}
+function autoFallback() {
+  if (tileOK || tileFail < 4) return;
+  const i = FALLBACK.indexOf(tileSrc.id);
+  if (i < 0 || i + 1 >= FALLBACK.length) return;
+  const nx = TILES.find(t => t.id === FALLBACK[i + 1]);
+  toast('Peta tidak bisa dimuat — dialihkan ke ' + nx.n, 4000);
+  setTiles(nx.id, true);
+}
+const TS = 256;
+const proj = (lat, lon, z) => { const n = TS * 2 ** z, r = lat * Math.PI / 180; return [(lon + 180) / 360 * n, (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n]; };
+const unproj = (x, y, z) => { const n = TS * 2 ** z; return [Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180 / Math.PI, x / n * 360 - 180]; };
+
+/* ---------- Peta pemilih (geser, pin di tengah) ---------- */
+const picker = (() => {
+  const el = $('#map'), cv = el.querySelector('canvas'), g = cv.getContext('2d');
+  let lat = draft.lat ?? -2.5, lon = draft.lon ?? 118, z = draft.lat != null ? 16 : 4, W = 0, H = 0, dpr = 1, raf = 0, drag = null;
+  const redraw = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); };
+  function draw() {
+    g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = '#e5e7eb'; g.fillRect(0, 0, W, H);
+    const [cx, cy] = proj(lat, lon, z), x0 = cx - W / 2, y0 = cy - H / 2, n = 2 ** z;
+    for (let tx = Math.floor(x0 / TS); tx <= Math.floor((x0 + W) / TS); tx++)
+      for (let ty = Math.floor(y0 / TS); ty <= Math.floor((y0 + H) / TS); ty++) {
+        if (ty < 0 || ty >= n) continue;
+        const t = tileImg(z, tx, ty, redraw);
+        if (t.ok) g.drawImage(t.im, tx * TS - x0, ty * TS - y0, TS, TS);
+      }
+  }
+  function resize() { dpr = devicePixelRatio || 1; W = el.clientWidth; H = el.clientHeight; cv.width = W * dpr; cv.height = H * dpr; draw(); }
+  new ResizeObserver(resize).observe(el);
+  cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, c: proj(lat, lon, z), moved: false }; cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
+    [lat, lon] = unproj(drag.c[0] - dx, drag.c[1] - dy, z);
+    lat = Math.max(-85, Math.min(85, lat)); lon = ((lon + 540) % 360) - 180;
+    redraw();
+  });
+  const end = () => { if (drag && drag.moved) setLocation(+lat.toFixed(6), +lon.toFixed(6), true); drag = null; };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.addEventListener('wheel', e => { e.preventDefault(); zoom(e.deltaY < 0 ? 1 : -1); }, { passive: false });
+  cv.addEventListener('dblclick', () => zoom(1));
+  function zoom(dz) { z = Math.max(3, Math.min(19, z + dz)); redraw(); }
+  return { setView(a, b, zz) { lat = a; lon = b; if (zz) z = zz; redraw(); }, zoom, redraw, get z() { return z; } };
+})();
+TILES.forEach(t => $('#fTiles').add(new Option(t.n, t.id)));
+$('#fTiles').value = tileSrc.id; $('#attr').textContent = tileSrc.a;
+$('#fTiles').onchange = e => setTiles(e.target.value);
+$('#zIn').onclick = () => picker.zoom(1);
+$('#zOut').onclick = () => picker.zoom(-1);
+$('#myLoc').onclick = () => {
+  if (!navigator.geolocation) return toast('GPS tidak didukung browser ini');
+  toast('Mengambil lokasi Anda…');
+  navigator.geolocation.getCurrentPosition(p => setLocation(+p.coords.latitude.toFixed(6), +p.coords.longitude.toFixed(6)),
+    e => toast(window.isSecureContext ? 'Lokasi tidak didapat (izin ditolak / GPS mati)' : 'Lokasi butuh HTTPS'), { enableHighAccuracy: true, timeout: 15000 });
+};
+
+/* ---------- Peta mini untuk stempel ---------- */
+const mini = new Map();
+function miniMap(lat, lon) {
+  const key = lat.toFixed(5) + ',' + lon.toFixed(5);
+  let e = mini.get(key);
+  if (!e) {
+    e = { canvas: null };
+    e.promise = (async () => {
+      const size = 512, z = 16, [xt, yt] = proj(lat, lon, z).map(v => v / TS), tp = TS * size / 320, half = size / 2 / tp, jobs = [];
+      for (let x = Math.floor(xt - half); x <= Math.floor(xt + half); x++)
+        for (let y = Math.floor(yt - half); y <= Math.floor(yt + half); y++) jobs.push(tileImg(z, x, y).p.then(im => ({ im, x, y })));
+      const tiles = await Promise.all(jobs);
+      const c = document.createElement('canvas'); c.width = c.height = size;
+      const g = c.getContext('2d');
+      tiles.forEach(t => g.drawImage(t.im, size / 2 + (t.x - xt) * tp, size / 2 + (t.y - yt) * tp, tp, tp));
+      const cx = size / 2, cy = size / 2, r = size * 0.055;
+      g.fillStyle = '#e11d48'; g.strokeStyle = '#fff'; g.lineWidth = size * 0.012;
+      g.beginPath(); g.moveTo(cx, cy); g.arc(cx, cy - r * 2, r, Math.PI * 0.75, Math.PI * 0.25); g.closePath(); g.fill(); g.stroke();
+      g.fillStyle = '#fff'; g.beginPath(); g.arc(cx, cy - r * 2, r * 0.38, 0, 7); g.fill();
+      const attr = tileSrc.a;
+      g.font = `${Math.round(size * 0.038)}px sans-serif`; g.textAlign = 'right'; g.textBaseline = 'bottom';
+      const tw = g.measureText(attr).width;
+      g.fillStyle = 'rgba(255,255,255,.8)'; g.fillRect(size - tw - size * 0.03, size - size * 0.058, tw + size * 0.03, size * 0.058);
+      g.fillStyle = '#333'; g.fillText(attr, size - size * 0.015, size - size * 0.01);
+      e.canvas = c; schedule(); return c;
+    })().catch(() => { setTimeout(() => mini.delete(key), 15000); return null; });
+    mini.set(key, e);
+  }
+  return e;
+}
+
+/* ---------- Stempel ---------- */
+function rr(g, x, y, w, h, r) { g.beginPath(); if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h); }
+function wrap(g, text, maxW, maxLines) {
+  const out = [];
+  for (const para of String(text).split('\n')) {
+    let line = '';
+    for (const w of para.split(/\s+/).filter(Boolean)) {
+      const t = line ? line + ' ' + w : w;
+      if (g.measureText(t).width <= maxW || !line) line = t; else { out.push(line); line = w; }
+    }
+    if (line) out.push(line);
+  }
+  const cut = out.length > maxLines, res = out.slice(0, maxLines);
+  return res.map((l, i) => {
+    let s = l + (cut && i === res.length - 1 ? '…' : '');
+    if (g.measureText(s).width <= maxW) return s;
+    while (s.length > 1 && g.measureText(s + '…').width > maxW) s = s.slice(0, -1);
+    return s + '…';
+  });
+}
+function drawStamp(g, W, H, d, mc) {
+  const s = Math.min(W, H) / 1000 * style.size, m = Math.round(22 * s), pd = Math.round(22 * s);
+  const font = (sz, b) => `${b ? '700 ' : ''}${sz}px system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif`;
+  const fT = Math.round(36 * s), fB = Math.round(27 * s), lh = sz => sz * 1.38;
+  const full = style.pos === 'top' || style.pos === 'bottom';
+  const mapSz = mc ? Math.round(230 * s) : 0, mapW = mapSz ? mapSz + pd : 0;
+  const maxBoxW = full ? W - 2 * m : Math.min(W - 2 * m, Math.max(W * 0.55, 720 * s));
+  const maxTW = Math.max(40, maxBoxW - 2 * pd - mapW);
+  const L = [], add = (arr, sz, b, c) => arr.forEach(t => L.push({ t, sz, b, c }));
+  g.font = font(fT, 1); if (d.title.trim()) add(wrap(g, d.title.trim(), maxTW, 2), fT, 1);
+  g.font = font(fB); if (d.address.trim()) add(wrap(g, d.address.trim(), maxTW, 3), fB);
+  if (d.coord.trim()) add(wrap(g, d.coord.trim(), maxTW, 1), fB);
+  if (d.showDate) { const ds = fmtDate(d.date, d.tz); if (ds) add(wrap(g, ds, maxTW, 1), fB); }
+  g.font = font(fB, 1); if (d.note.trim()) add(wrap(g, d.note.trim(), maxTW, 2), fB, 1, '#fde047');
+  if (!L.length && !mapSz) return;
+  let textW = 0; L.forEach(l => { g.font = font(l.sz, l.b); textW = Math.max(textW, g.measureText(l.t).width); });
+  const textH = L.reduce((a, l) => a + lh(l.sz), 0);
+  const bw = full ? maxBoxW : 2 * pd + mapW + Math.ceil(textW) - (L.length ? 0 : pd);
+  const bh = Math.max(mapSz, textH) + 2 * pd;
+  const bx = style.pos === 'tr' || style.pos === 'br' ? W - m - bw : m;
+  const by = style.pos[0] === 't' ? m : H - m - bh;
+  g.save();
+  if (style.bg > 0) { g.fillStyle = `rgba(0,0,0,${style.bg})`; rr(g, bx, by, bw, bh, 16 * s); g.fill(); }
+  if (mapSz) { const my = by + (bh - mapSz) / 2; g.save(); rr(g, bx + pd, my, mapSz, mapSz, 10 * s); g.clip(); g.drawImage(mc, bx + pd, my, mapSz, mapSz); g.restore(); }
+  const tx = bx + pd + mapW; let y = by + (bh - textH) / 2;
+  g.textBaseline = 'middle'; g.shadowColor = 'rgba(0,0,0,.75)'; g.shadowBlur = 5 * s;
+  L.forEach(l => { g.font = font(l.sz, l.b); g.fillStyle = l.c || '#fff'; g.fillText(l.t, tx, y + lh(l.sz) / 2); y += lh(l.sz); });
+  g.restore();
+}
+
+/* ---------- EXIF tulis ---------- */
+function tiffBytes(ifd0, exif, gps) {
+  const te = new TextEncoder();
+  const enc = (type, v) => {
+    const o = [], u16 = n => o.push(n & 255, (n >>> 8) & 255), u32 = n => o.push(n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255);
+    if (type === 2) { o.push(...te.encode(v), 0); return { o, cnt: o.length }; }
+    if (type === 1 || type === 7) v.forEach(b => o.push(b & 255)); else if (type === 3) v.forEach(u16); else v.forEach(u32);
+    return { o, cnt: type === 5 ? v.length / 2 : v.length };
+  };
+  const block = (entries, base) => {
+    entries.sort((a, b) => a[0] - b[0]);
+    const head = [], data = [], h16 = n => head.push(n & 255, (n >>> 8) & 255), h32 = n => head.push(n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255);
+    const ds = base + 2 + 12 * entries.length + 4;
+    h16(entries.length);
+    for (const [tag, type, v] of entries) {
+      const { o, cnt } = enc(type, v);
+      h16(tag); h16(type); h32(cnt);
+      if (o.length <= 4) { while (o.length < 4) o.push(0); head.push(...o); }
+      else { h32(ds + data.length); data.push(...o); if (data.length % 2) data.push(0); }
+    }
+    h32(0);
+    return head.concat(data);
+  };
+  const exP = [0x8769, 4, [0]], gpP = [0x8825, 4, [0]], i0 = [...ifd0, exP];
+  if (gps) i0.push(gpP);
+  const exOff = 8 + block(i0.slice(), 8).length; exP[2] = [exOff];
+  const bEx = block(exif, exOff); gpP[2] = [exOff + bEx.length];
+  const b0 = block(i0, 8);
+  return [0x49, 0x49, 0x2A, 0, 8, 0, 0, 0, ...b0, ...bEx, ...(gps ? block(gps, exOff + bEx.length) : [])];
+}
+function buildTiff(d, W, H) {
+  const ifd0 = [[0x0112, 3, [1]], [0x0131, 2, 'GeoTag Foto Web']], exif = [[0x9000, 7, [0x30, 0x32, 0x33, 0x32]], [0xA002, 4, [W]], [0xA003, 4, [H]]];
+  const wall = normWall(d.date); let utc = null;
+  if (/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/.test(wall)) {
+    const dt = wall.replace(/-/g, ':').replace('T', ' ');
+    ifd0.push([0x0132, 2, dt]); exif.push([0x9003, 2, dt], [0x9004, 2, dt]);
+    if (d.tz) { exif.push([0x9011, 2, d.tz]); utc = new Date(wall + d.tz); if (isNaN(utc)) utc = null; }
+  }
+  const desc = [d.title, d.address, d.note].map(s => s.trim()).filter(Boolean).join(' | ').replace(/\s*\n\s*/g, ', ');
+  if (desc) ifd0.push([0x010E, 2, desc.slice(0, 1500)]);
+  let gps = null;
+  if (d.lat != null) {
+    const dms = v => { const t = Math.round(Math.abs(v) * 36e6); return [Math.floor(t / 36e6), 1, Math.floor(t % 36e6 / 6e5), 1, t % 6e5, 10000]; };
+    gps = [[0x0000, 1, [2, 3, 0, 0]], [0x0001, 2, d.lat >= 0 ? 'N' : 'S'], [0x0002, 5, dms(d.lat)],
+      [0x0003, 2, d.lon >= 0 ? 'E' : 'W'], [0x0004, 5, dms(d.lon)], [0x0012, 2, 'WGS-84']];
+    if (utc) gps.push([0x0007, 5, [utc.getUTCHours(), 1, utc.getUTCMinutes(), 1, utc.getUTCSeconds(), 1]],
+      [0x001D, 2, `${utc.getUTCFullYear()}:${pad2(utc.getUTCMonth() + 1)}:${pad2(utc.getUTCDate())}`]);
+  }
+  return tiffBytes(ifd0, exif, gps);
+}
+async function addExif(blob, d, W, H) {
+  const jpg = new Uint8Array(await blob.arrayBuffer());
+  if (jpg[0] !== 0xFF || jpg[1] !== 0xD8) return blob;
+  const tiff = new Uint8Array(buildTiff(d, W, H)), len = 8 + tiff.length;
+  if (len > 65535) return blob;
+  let off = 2;
+  while (jpg[off] === 0xFF && (jpg[off + 1] === 0xE0 || jpg[off + 1] === 0xE1)) off += 2 + (jpg[off + 2] << 8 | jpg[off + 3]);
+  return new Blob([new Uint8Array([0xFF, 0xD8, 0xFF, 0xE1, len >> 8, len & 255, 0x45, 0x78, 0x69, 0x66, 0, 0]), tiff, jpg.subarray(off)], { type: 'image/jpeg' });
+}
+
+/* ---------- EXIF baca ---------- */
+function readExif(buf) {
+  const v = new DataView(buf);
+  if (v.byteLength < 4 || v.getUint16(0) !== 0xFFD8) return null;
+  let off = 2;
+  while (off + 10 < v.byteLength) {
+    const mk = v.getUint16(off);
+    if ((mk & 0xFF00) !== 0xFF00 || mk === 0xFFDA) break;
+    if (mk === 0xFFE1 && v.getUint32(off + 4) === 0x45786966) return parseTiff(v, off + 10);
+    off += 2 + v.getUint16(off + 2);
+  }
+  return null;
+}
+function parseTiff(v, t) {
+  const le = v.getUint16(t) === 0x4949, u16 = o => v.getUint16(t + o, le), u32 = o => v.getUint32(t + o, le);
+  const SZ = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 };
+  const ifd = o => { const r = {}, n = u16(o); for (let i = 0; i < n; i++) { const e = o + 2 + i * 12; r[u16(e)] = { type: u16(e + 2), cnt: u32(e + 4), vo: e + 8 }; } return r; };
+  const val = en => {
+    const o = (SZ[en.type] || 1) * en.cnt > 4 ? u32(en.vo) : en.vo;
+    if (en.type === 2) { let s = ''; for (let i = 0; i < en.cnt; i++) { const c = v.getUint8(t + o + i); if (!c) break; s += String.fromCharCode(c); } return s; }
+    const a = [];
+    for (let i = 0; i < en.cnt; i++) {
+      if (en.type === 5) a.push(u32(o + i * 8) / u32(o + i * 8 + 4));
+      else if (en.type === 10) a.push(v.getInt32(t + o + i * 8, le) / v.getInt32(t + o + i * 8 + 4, le));
+      else if (en.type === 3) a.push(u16(o + i * 2)); else if (en.type === 4) a.push(u32(o + i * 4)); else a.push(v.getUint8(t + o + i));
+    }
+    return a;
+  };
+  const out = {}, i0 = ifd(u32(4));
+  if (i0[0x8769]) {
+    const ex = ifd(val(i0[0x8769])[0]), s = ex[0x9003] && val(ex[0x9003]);
+    const m = s && s.match(/^(\d{4}):(\d\d):(\d\d) (\d\d):(\d\d):(\d\d)/);
+    if (m) out.wall = `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`;
+    if (ex[0x9011]) { const z = val(ex[0x9011]); if (/^[+-]\d\d:\d\d$/.test(z)) out.tz = z; }
+  }
+  if (i0[0x8825]) {
+    const gp = ifd(val(i0[0x8825])[0]);
+    if (gp[2] && gp[4]) {
+      const dms = a => a[0] + a[1] / 60 + a[2] / 3600;
+      let lat = dms(val(gp[2])), lon = dms(val(gp[4]));
+      if (gp[1] && val(gp[1]) === 'S') lat = -lat;
+      if (gp[3] && val(gp[3]) === 'W') lon = -lon;
+      if (isFinite(lat) && isFinite(lon) && (lat || lon)) { out.lat = +lat.toFixed(6); out.lon = +lon.toFixed(6); }
+    }
+  }
+  return out;
+}
+
+/* ---------- Form ---------- */
+const F = { lat: $('#fLat'), lon: $('#fLon'), auto: $('#fAuto'), title: $('#fTitle'), address: $('#fAddr'), coord: $('#fCoord'),
+  fmt: $('#fFmt'), date: $('#fDate'), tz: $('#fTz'), showDate: $('#fShowDate'), note: $('#fNote') };
+[['+07:00', 'WIB'], ['+08:00', 'WITA'], ['+09:00', 'WIT']].concat(TZ_NAMES[DEV_TZ] ? [] : [[DEV_TZ, 'GMT' + DEV_TZ]]).concat([['', 'Tanpa zona']])
+  .forEach(([v, t]) => F.tz.add(new Option(t, v)));
+function fillForm() {
+  const d = cur();
+  F.lat.value = d.lat ?? ''; F.lon.value = d.lon ?? ''; F.auto.checked = d.auto;
+  F.title.value = d.title; F.address.value = d.address; F.coord.value = d.coord;
+  F.date.value = normWall(d.date); F.tz.value = d.tz; F.showDate.checked = d.showDate; F.note.value = d.note;
+  $('#geoStatus').textContent = '';
+  if (d.lat != null) picker.setView(d.lat, d.lon, Math.max(picker.z, 14));
+}
+function setLocation(lat, lon, fromMap) {
+  const d = cur();
+  d.lat = lat; d.lon = lon; d.coord = fmtCoord(lat, lon, style.fmt);
+  F.lat.value = lat; F.lon.value = lon; F.coord.value = d.coord;
+  if (!fromMap) picker.setView(lat, lon, Math.max(picker.z, 15));
+  queueReverse(d); remember(d); schedule(); renderStrip();
+}
+function onLatLon() {
+  const la = parseFloat(F.lat.value), lo = parseFloat(F.lon.value);
+  if (F.lat.value === '' && F.lon.value === '') { const d = cur(); d.lat = d.lon = null; d.coord = ''; F.coord.value = ''; schedule(); renderStrip(); return; }
+  if (isFinite(la) && isFinite(lo) && Math.abs(la) <= 90 && Math.abs(lo) <= 180) setLocation(la, lo);
+  else toast('Koordinat tidak valid (lat −90…90, long −180…180)');
+}
+F.lat.onchange = onLatLon; F.lon.onchange = onLatLon;
+F.auto.onchange = () => { const d = cur(); d.auto = F.auto.checked; remember(d); queueReverse(d); };
+const manualText = k => () => { const d = cur(); d[k] = F[k].value; if ((k === 'title' || k === 'address') && d.auto) { d.auto = false; F.auto.checked = false; clearTimeout(d._t); } remember(d); schedule(); };
+['title', 'address', 'coord', 'note'].forEach(k => F[k].oninput = manualText(k));
+F.fmt.value = style.fmt;
+F.fmt.onchange = () => { style.fmt = F.fmt.value; saveStyle(); const d = cur(); if (d.lat != null) { d.coord = fmtCoord(d.lat, d.lon, style.fmt); F.coord.value = d.coord; schedule(); } };
+F.date.oninput = () => { cur().date = F.date.value; schedule(); };
+F.tz.onchange = () => { cur().tz = F.tz.value; remember(cur()); schedule(); };
+F.showDate.onchange = () => { cur().showDate = F.showDate.checked; schedule(); };
+$('#qBtn').onclick = () => { const q = $('#q').value.trim(); if (q) search(q); };
+$('#q').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); $('#qBtn').click(); } };
+$('#applyAll').onclick = () => {
+  if (photos.length < 2) return toast('Upload lebih dari 1 foto untuk memakai fitur ini');
+  const s = cur(), inc = $('#applyDate').checked;
+  photos.forEach(p => { if (p.data === s) return; clearTimeout(p.data._t);
+    Object.assign(p.data, { lat: s.lat, lon: s.lon, title: s.title, address: s.address, coord: s.coord, note: s.note, auto: s.auto, showDate: s.showDate });
+    if (inc) Object.assign(p.data, { date: s.date, tz: s.tz }); });
+  renderStrip(); toast(`Diterapkan ke ${photos.length} foto`);
+};
+
+/* ---------- Tampilan ---------- */
+function syncStyleUI() {
+  document.querySelectorAll('#posgrid button').forEach(b => b.classList.toggle('on', b.dataset.p === style.pos));
+  $('#sSize').value = style.size; $('#sSizeV').textContent = Math.round(style.size * 100) + '%';
+  $('#sBg').value = style.bg; $('#sBgV').textContent = Math.round(style.bg * 100) + '%';
+  $('#sMap').checked = style.map;
+}
+document.querySelectorAll('#posgrid button').forEach(b => b.onclick = () => { style.pos = b.dataset.p; saveStyle(); syncStyleUI(); schedule(); });
+$('#sSize').oninput = e => { style.size = +e.target.value; saveStyle(); syncStyleUI(); schedule(); };
+$('#sBg').oninput = e => { style.bg = +e.target.value; saveStyle(); syncStyleUI(); schedule(); };
+$('#sMap').onchange = e => { style.map = e.target.checked; saveStyle(); schedule(); };
+
+/* ---------- Foto ---------- */
+const loadImg = url => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = url; });
+async function addFiles(files) {
+  const list = [...files].filter(f => f.type.startsWith('image/') || /\.(jpe?g|png|webp|heic)$/i.test(f.name));
+  if (!list.length) return;
+  let fail = 0, gpsN = 0;
+  busy('Membuka foto…');
+  for (const f of list) {
+    try {
+      const url = URL.createObjectURL(f);
+      const img = await loadImg(url).catch(() => { URL.revokeObjectURL(url); throw 0; });
+      let meta = null; try { meta = readExif(await f.arrayBuffer()); } catch (e) {}
+      const base = cur();
+      const data = { lat: base.lat, lon: base.lon, title: base.title, address: base.address, coord: base.coord, note: base.note, auto: base.auto,
+        showDate: base.showDate, tz: base.tz, date: meta && meta.wall ? meta.wall : toWall(new Date(f.lastModified || Date.now())) };
+      if (meta && meta.tz) data.tz = meta.tz;
+      if (meta && meta.lat != null) { gpsN++; Object.assign(data, { lat: meta.lat, lon: meta.lon, coord: fmtCoord(meta.lat, meta.lon, style.fmt), auto: true }); }
+      photos.push({ name: f.name.replace(/\.[^.]+$/, ''), url, img, W: img.naturalWidth, H: img.naturalHeight, data });
+      if (meta && meta.lat != null) queueReverse(data);
+    } catch (e) { fail++; }
+  }
+  busy(false);
+  if (sel < 0 && photos.length) sel = 0;
+  $('#drop').hidden = photos.length > 0; $('#work').hidden = !photos.length;
+  renderStrip(); fillForm(); schedule(); updateBar();
+  const msg = [];
+  if (gpsN) msg.push(`${gpsN} foto memakai GPS dari metadata`);
+  if (fail) msg.push(`${fail} file gagal dibuka (HEIC? ubah ke JPG dulu)`);
+  if (msg.length) toast(msg.join(' • '), 4000);
+}
+function renderStrip() {
+  const st = $('#strip'); st.innerHTML = '';
+  photos.forEach((p, i) => {
+    const b = document.createElement('button'); b.className = 'th' + (i === sel ? ' sel' : ''); b.style.backgroundImage = `url("${p.url}")`; b.title = p.name;
+    b.onclick = () => { sel = i; renderStrip(); fillForm(); schedule(); };
+    if (p.data.lat != null) b.insertAdjacentHTML('beforeend', '<span class="gps">GPS</span>');
+    const x = document.createElement('button'); x.className = 'x'; x.textContent = '×'; x.setAttribute('aria-label', 'Hapus');
+    x.onclick = e => { e.stopPropagation(); URL.revokeObjectURL(p.url); photos.splice(i, 1); sel = Math.min(sel, photos.length - 1);
+      $('#drop').hidden = photos.length > 0; $('#work').hidden = !photos.length; renderStrip(); fillForm(); schedule(); updateBar(); };
+    b.appendChild(x); st.appendChild(b);
+  });
+  const a = document.createElement('button'); a.className = 'th add'; a.textContent = '+'; a.title = 'Tambah foto'; a.onclick = () => $('#file').click(); st.appendChild(a);
+}
+let rq = 0;
+function schedule() { if (!rq) rq = requestAnimationFrame(() => { rq = 0; renderPreview(); }); }
+function renderPreview() {
+  const p = photos[sel]; if (!p) return;
+  const k = Math.min(1, 1600 / Math.max(p.W, p.H)), W = Math.round(p.W * k), H = Math.round(p.H * k), cv = $('#pv');
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d'); g.drawImage(p.img, 0, 0, W, H);
+  const mc = style.map && p.data.lat != null ? miniMap(p.data.lat, p.data.lon).canvas : null;
+  drawStamp(g, W, H, p.data, mc);
+}
+async function exportPhoto(p) {
+  let W = p.W, H = p.H; const MAX = 16e6;
+  if (W * H > MAX) { const k = Math.sqrt(MAX / (W * H)); W = Math.round(W * k); H = Math.round(H * k); }
+  let mc = null;
+  if (style.map && p.data.lat != null) { const e = miniMap(p.data.lat, p.data.lon); mc = e.canvas || await withTimeout(e.promise, 6000); }
+  const render = m => { const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.drawImage(p.img, 0, 0, W, H); drawStamp(g, W, H, p.data, m); return c; };
+  let c = render(mc), blob;
+  try { blob = await new Promise((r, j) => { try { c.toBlob(b => b ? r(b) : j(new Error('toBlob')), 'image/jpeg', 0.92); } catch (e) { j(e); } }); }
+  catch (e) { c = render(null); blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.92)); }
+  return { blob: await addExif(blob, p.data, W, H), name: p.name + '_geotag.jpg' };
+}
+
+/* ---------- Download / ZIP / Share ---------- */
+function save(blob, name) { const u = URL.createObjectURL(blob), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 30000); }
+async function exportAll() {
+  const out = [], used = new Set();
+  for (let i = 0; i < photos.length; i++) {
+    busy(`Memproses ${i + 1}/${photos.length}…`);
+    const r = await exportPhoto(photos[i]);
+    let n = r.name, k = 2; while (used.has(n)) n = r.name.replace(/\.jpg$/, `_${k++}.jpg`); used.add(n); r.name = n;
+    out.push(r);
+  }
+  return out;
+}
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u) { let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+async function makeZip(items) {
+  const te = new TextEncoder(), parts = [], cen = [], now = new Date(); let off = 0;
+  const tm = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1), dt = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+  for (const it of items) {
+    const data = new Uint8Array(await it.blob.arrayBuffer()), nm = te.encode(it.name), crc = crc32(data);
+    const h = new DataView(new ArrayBuffer(30));
+    [[0, 0x04034b50, 4], [4, 20, 2], [6, 0x0800, 2], [8, 0, 2], [10, tm, 2], [12, dt, 2], [14, crc, 4], [18, data.length, 4], [22, data.length, 4], [26, nm.length, 2], [28, 0, 2]]
+      .forEach(([o, v, s]) => s === 4 ? h.setUint32(o, v, true) : h.setUint16(o, v, true));
+    const c = new DataView(new ArrayBuffer(46));
+    [[0, 0x02014b50, 4], [4, 20, 2], [6, 20, 2], [8, 0x0800, 2], [10, 0, 2], [12, tm, 2], [14, dt, 2], [16, crc, 4], [20, data.length, 4], [24, data.length, 4], [28, nm.length, 2], [42, off, 4]]
+      .forEach(([o, v, s]) => s === 4 ? c.setUint32(o, v, true) : c.setUint16(o, v, true));
+    parts.push(h, nm, data); cen.push(c, nm); off += 30 + nm.length + data.length;
+  }
+  const size = cen.reduce((a, x) => a + x.byteLength, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, items.length, true); e.setUint16(10, items.length, true); e.setUint32(12, size, true); e.setUint32(16, off, true);
+  return new Blob([...parts, ...cen, e], { type: 'application/zip' });
+}
+function updateBar() {
+  const n = photos.length;
+  $('#bOne').disabled = !n; $('#bAll').disabled = n < 2; $('#bZip').disabled = n < 2;
+  $('#bAll').textContent = n > 1 ? `Download semua (${n})` : 'Download semua';
+  $('#bShare').hidden = !(navigator.canShare && navigator.canShare({ files: [new File([''], 'a.jpg', { type: 'image/jpeg' })] })) || !n;
+}
+async function run(fn) { try { await fn(); } catch (e) { toast('Gagal: ' + (e.message || e)); } finally { busy(false); } }
+$('#bOne').onclick = () => run(async () => { busy('Memproses…'); const r = await exportPhoto(photos[sel]); save(r.blob, r.name); toast('Foto diunduh: ' + r.name); });
+$('#bAll').onclick = () => run(async () => { const rs = await exportAll(); busy('Mengunduh…'); for (const r of rs) { save(r.blob, r.name); await sleep(450); } toast(`${rs.length} foto diunduh`); });
+$('#bZip').onclick = () => run(async () => { const rs = await exportAll(); busy('Membuat ZIP…'); const z = await makeZip(rs); const d = new Date(); save(z, `geotag_${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}.zip`); toast('ZIP diunduh'); });
+$('#bShare').onclick = () => run(async () => { const rs = await exportAll(); busy(false); const files = rs.map(r => new File([r.blob], r.name, { type: 'image/jpeg' })); try { await navigator.share({ files }); } catch (e) {} });
+
+/* ---------- Upload & drag-drop ---------- */
+$('#file').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+['dragenter', 'dragover'].forEach(t => window.addEventListener(t, e => { e.preventDefault(); $('#drop').classList.add('over'); }));
+['dragleave', 'drop'].forEach(t => window.addEventListener(t, e => { e.preventDefault(); $('#drop').classList.remove('over'); }));
+window.addEventListener('drop', e => { if (e.dataTransfer && e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+
+syncStyleUI(); fillForm(); updateBar();
+</script>
+</body>
+</html>
