@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Potong Pecahan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+  /* Kitchen-counter world, single committed light look (bright kids' game, not theme-switched) */
+  :root{
+    --cream:#FBF1DE;
+    --board:#D9A066;
+    --board-dark:#B97A42;
+    --tomato:#D6472B;
+    --tomato-dark:#A8331C;
+    --crust:#E8A33D;
+    --crust-dark:#B9761E;
+    --cheese:#F4C443;
+    --choco:#6B4226;
+    --choco-light:#8C5A34;
+    --choco-dark:#4A2C17;
+    --ink:#3B2A1F;
+    --ink-soft:#8a7360;
+    --card:#FFFDF8;
+    --success:#3E8E52;
+    --success-bg:#E3F3E6;
+    --miss:#A8331C;
+    --miss-bg:#FBE7E1;
+    --shadow: rgba(59,42,31,.20);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 78px, rgba(185,122,66,.08) 78px, rgba(185,122,66,.08) 80px),
+      var(--cream);
+    color:var(--ink);
+    font-family:'Nunito', ui-sans-serif, system-ui, sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  #app{
+    width:100%;
+    max-width:440px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--cream);
+    box-shadow:0 0 40px rgba(59,42,31,.10);
+    position:relative;
+  }
+  .display{font-family:'Baloo 2', ui-rounded, sans-serif;}
+  [hidden]{display:none !important;}
+
+  /* ---------- Header ---------- */
+  header.bar{
+    background:var(--tomato);
+    color:#fff;
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    border-bottom:4px solid var(--tomato-dark);
+  }
+  header.bar .title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:1.15rem;
+    letter-spacing:.2px;
+  }
+  .stat{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-weight:800;
+    font-variant-numeric: tabular-nums;
+    font-size:.95rem;
+  }
+  .stat-row{display:flex; gap:10px; align-items:center;}
+  .badge{
+    background:rgba(255,255,255,.18);
+    border-radius:999px;
+    padding:4px 10px;
+  }
+  .menu-btn{
+    border:none;
+    background:rgba(255,255,255,.18);
+    color:#fff;
+    width:32px;
+    height:32px;
+    border-radius:999px;
+    font-size:1.1rem;
+    line-height:1;
+    cursor:pointer;
+    touch-action:manipulation;
+  }
+  .menu-btn:active{ background:rgba(255,255,255,.32); }
+
+  /* ---------- Timer ---------- */
+  .timer-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:12px 16px 0;
+  }
+  .timer-track{
+    flex:1;
+    height:10px;
+    border-radius:6px;
+    background:#EBD9B8;
+    overflow:hidden;
+  }
+  .timer-bar{
+    height:100%;
+    width:100%;
+    background:var(--success);
+    border-radius:6px;
+    transition:width .1s linear, background-color .3s ease;
+  }
+  .timer-num{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    color:var(--ink);
+    min-width:2.4em;
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* ---------- Pause overlay ---------- */
+  .overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(59,42,31,.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:50;
+  }
+  .overlay-card{
+    background:var(--card);
+    border-radius:20px;
+    padding:28px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    align-items:stretch;
+    text-align:center;
+    max-width:280px;
+    width:100%;
+    box-shadow:0 10px 30px var(--shadow);
+  }
+  .overlay-card h2{
+    font-family:'Baloo 2', sans-serif;
+    color:var(--tomato-dark);
+    margin:0 0 4px;
+    font-size:1.4rem;
+  }
+
+  /* ---------- Start screen ---------- */
+  #screen-start{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:32px 24px;
+    gap:18px;
+  }
+  .hero-plate{
+    width:180px; height:180px;
+  }
+  #screen-start h1{
+    font-family:'Baloo 2', sans-serif;
+    font-size:2rem;
+    font-weight:800;
+    margin:0;
+    color:var(--tomato-dark);
+    text-wrap:balance;
+  }
+  #screen-start p{
+    margin:0;
+    max-width:32ch;
+    color:var(--ink-soft);
+    font-weight:600;
+    line-height:1.5;
+  }
+  .btn{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    border:none;
+    border-radius:999px;
+    padding:14px 30px;
+    background:var(--tomato);
+    color:#fff;
+    box-shadow:0 4px 0 var(--tomato-dark);
+    cursor:pointer;
+    touch-action:manipulation;
+  }
+  .btn:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--tomato-dark); }
+  .btn.secondary{
+    background:var(--card);
+    color:var(--tomato-dark);
+    box-shadow:0 4px 0 #e3d3b0;
+    border:2px solid #e3d3b0;
+  }
+
+  /* ---------- Game screen ---------- */
+  #screen-game{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .question-card{
+    background:var(--card);
+    margin:14px 16px 8px;
+    border-radius:20px;
+    padding:16px 18px;
+    box-shadow:0 6px 16px var(--shadow);
+    text-align:center;
+  }
+  .question-card .prompt{
+    font-weight:700;
+    color:var(--ink-soft);
+    font-size:.92rem;
+    margin-bottom:6px;
+  }
+  .fraction-wrap{
+    display:inline-flex;
+    align-items:center;
+    gap:14px;
+    justify-content:center;
+  }
+  .fraction{
+    display:inline-flex;
+    flex-direction:column;
+    align-items:center;
+    line-height:1;
+  }
+  .fraction .num, .fraction .den{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:2.3rem;
+    color:var(--tomato-dark);
+  }
+  .fraction .bar{
+    width:100%;
+    height:4px;
+    background:var(--tomato-dark);
+    border-radius:2px;
+    margin:2px 0;
+  }
+  .food-name{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:1.3rem;
+    color:var(--ink);
+    margin-top:6px;
+  }
+  .question-card .word{
+    margin-top:6px;
+    font-weight:700;
+    color:var(--ink-soft);
+    font-size:.9rem;
+  }
+  .equation-wrap{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    row-gap:4px;
+  }
+  .fraction.small .num, .fraction.small .den{ font-size:1.55rem; }
+  .op-symbol{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:1.5rem;
+    color:var(--ink);
+  }
+  .qmark{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:1.7rem;
+    color:var(--tomato-dark);
+  }
+  .mode-buttons{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    width:100%;
+    max-width:280px;
+  }
+  .percent-wrap{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .percent-value{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:2.3rem;
+    color:var(--tomato-dark);
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    color:var(--tomato-dark);
+    font-family:'Nunito', sans-serif;
+    font-weight:800;
+    font-size:.82rem;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:6px 4px;
+    touch-action:manipulation;
+  }
+  .inactive-operand{ opacity:.28; }
+  .tap-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    margin-top:4px;
+  }
+  .tap-counter{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    color:var(--ink);
+    font-size:1rem;
+  }
+
+  .stage-wrap{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:6px 20px;
+    gap:8px;
+  }
+  .board{
+    width:100%;
+    max-width:340px;
+    aspect-ratio:1/1;
+    position:relative;
+  }
+  .board.rect{ aspect-ratio: 300/220; }
+  .board svg{
+    width:100%;
+    height:100%;
+    display:block;
+    touch-action:none;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  .hint-text{
+    font-weight:700;
+    color:var(--ink-soft);
+    font-size:.88rem;
+    text-align:center;
+    min-height:1.4em;
+  }
+
+  .feedback{
+    margin:0 16px 10px;
+    border-radius:16px;
+    padding:12px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    animation: pop-in .25s ease-out;
+  }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.wrong{ background:var(--miss-bg); color:var(--miss); }
+  .feedback .headline{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:1.15rem;
+  }
+  .feedback .detail{ font-weight:700; font-size:.9rem; opacity:.9; }
+  @keyframes pop-in{ from{ transform:scale(.9); opacity:0;} to{ transform:scale(1); opacity:1;} }
+
+  .controls{
+    padding:10px 16px 20px;
+    display:flex;
+    justify-content:center;
+  }
+
+  /* ---------- End screen ---------- */
+  #screen-end{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap:14px;
+    padding:32px 24px;
+  }
+  #screen-end h2{
+    font-family:'Baloo 2', sans-serif;
+    font-size:1.7rem;
+    margin:0;
+    color:var(--tomato-dark);
+  }
+  .stars{ font-size:2.4rem; letter-spacing:6px; }
+  .score-line{ font-weight:800; font-size:1.05rem; }
+
+  @media (prefers-reduced-motion: reduce){
+    .feedback{ animation:none; }
+    * { animation-duration:0.001ms !important; }
+  }
+
+  /* ---------- Multiplayer ---------- */
+  .hero-plate{ width:130px; height:130px; }
+  .player-pick{ display:flex; flex-direction:column; gap:10px; align-items:center; width:100%; max-width:300px; }
+  .pick-label{ font-weight:800; color:var(--ink); font-size:.95rem; }
+  .seg{ display:flex; background:#EBD9B8; border-radius:999px; padding:4px; gap:4px; width:100%; }
+  .seg-btn{
+    flex:1; border:none; background:transparent; border-radius:999px; padding:9px 6px;
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:.95rem; color:var(--ink-soft);
+    cursor:pointer; touch-action:manipulation;
+  }
+  .seg-btn.active{ background:var(--card); color:var(--tomato-dark); box-shadow:0 2px 6px var(--shadow); }
+  .name-inputs{ display:flex; flex-direction:column; gap:8px; width:100%; }
+  .name-row{ display:flex; align-items:center; gap:8px; }
+  .name-dot{ width:14px; height:14px; border-radius:50%; flex:none; }
+  .name-in{
+    flex:1; min-width:0; font:inherit; font-weight:700; font-size:16px; color:var(--ink);
+    border:2px solid #e3d3b0; background:var(--card); border-radius:12px; padding:8px 12px;
+  }
+  .name-in:focus{ outline:none; border-color:var(--tomato); }
+  #screen-start .tip{ font-size:.82rem; }
+
+  #app.wide{ max-width:none; height:100vh; height:100dvh; min-height:0; }
+  #screen-game{ min-height:0; }
+  .panels{
+    flex:1; min-height:0; display:grid; gap:10px; padding:10px;
+    grid-template-columns:repeat(var(--n,1), minmax(0,1fr));
+  }
+  .panels.n1{ padding:0; gap:0; }
+  .panel{
+    --pc:var(--tomato);
+    background:var(--cream); border:3px solid var(--pc); border-radius:18px;
+    display:flex; flex-direction:column; position:relative; overflow:hidden; min-width:0; min-height:0;
+  }
+  .n1 .panel{ border:none; border-radius:0; overflow:visible; }
+  .p-head{
+    background:var(--pc); color:#fff; display:flex; align-items:center; justify-content:space-between;
+    gap:8px; padding:7px 12px;
+  }
+  .p-name{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:1.05rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .p-head .stat-row{ flex:none; }
+  .p-body{
+    flex:1; min-height:0; overflow:auto; display:grid;
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:auto auto 1fr auto auto;
+    grid-template-areas:"timer" "question" "stage" "feedback" "controls";
+  }
+  .n1 .p-body{ overflow:visible; }
+  .p-body .timer-wrap{ grid-area:timer; }
+  .p-body .question-card{ grid-area:question; }
+  .p-body .stage-wrap{ grid-area:stage; min-width:0; }
+  .p-body .feedback{ grid-area:feedback; }
+  .p-body .controls{ grid-area:controls; }
+  .panel .btn:not(.secondary){ background:var(--pc); box-shadow:0 4px 0 rgba(0,0,0,.28); }
+  .panel .btn:not(.secondary):active{ box-shadow:0 1px 0 rgba(0,0,0,.28); }
+  .p-done{
+    position:absolute; inset:0; background:rgba(251,241,222,.93); z-index:5;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center; padding:16px;
+  }
+  .p-done .big{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:1.5rem; color:var(--pc); }
+  .p-done .small{ font-weight:700; color:var(--ink-soft); }
+
+  /* compact look when several players share the screen */
+  .multi .timer-wrap{ margin:8px 10px 0; }
+  .multi .question-card{ margin:8px 10px 6px; padding:10px 12px; border-radius:16px; }
+  .multi .question-card .prompt, .multi .question-card .word{ font-size:.8rem; }
+  .multi .fraction .num, .multi .fraction .den, .multi .percent-value{ font-size:1.8rem; }
+  .multi .fraction.small .num, .multi .fraction.small .den{ font-size:1.35rem; }
+  .multi .food-name{ font-size:1.05rem; margin-top:2px; }
+  .multi .stage-wrap{ padding:4px 10px; gap:4px; }
+  .multi .board{ max-width:clamp(130px, calc(100dvh - 430px), 320px); }
+  .multi .hint-text{ font-size:.78rem; }
+  .multi .feedback{ margin:0 10px 6px; padding:8px 12px; }
+  .multi .feedback .headline{ font-size:1rem; }
+  .multi .feedback .detail{ font-size:.8rem; }
+  .multi .controls{ padding:4px 10px 10px; }
+  .multi .btn{ font-size:.95rem; padding:10px 22px; }
+
+  /* portrait (phone/tablet upright): stack players, each panel split info | board */
+  @media (orientation:portrait){
+    .panels.multi{ grid-template-columns:minmax(0,1fr); grid-template-rows:repeat(var(--n,1), minmax(0,1fr)); gap:8px; padding:8px; }
+    .multi .p-body{
+      grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+      grid-template-rows:auto auto auto 1fr;
+      grid-template-areas:"timer stage" "question stage" "feedback stage" "controls stage";
+    }
+    .multi .board{ max-width:clamp(110px, calc((100dvh - 80px) / var(--n,1) - 90px), 320px); }
+    .multi .controls{ align-items:flex-start; }
+  }
+
+  .rank{ list-style:none; margin:0; padding:0; width:100%; max-width:320px; display:flex; flex-direction:column; gap:8px; }
+  .rank li{
+    display:flex; align-items:center; gap:10px; background:var(--card); border-radius:14px; padding:10px 14px;
+    box-shadow:0 3px 10px var(--shadow); border-left:6px solid var(--pc); font-weight:800;
+  }
+  .rank .medal{ font-size:1.4rem; width:1.6em; text-align:center; }
+  .rank .rname{ flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rank .rscore{ font-variant-numeric:tabular-nums; color:var(--ink-soft); font-size:.9rem; text-align:right; }
+  /* ---------- History ---------- */
+  .btn.small{ font-size:.92rem; padding:10px 20px; }
+  #screen-history{ flex:1; display:flex; flex-direction:column; gap:12px; padding:18px 16px 24px; }
+  #screen-history h2{ font-family:'Baloo 2', sans-serif; margin:0; color:var(--tomato-dark); font-size:1.5rem; text-align:center; }
+  .chips{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+  .chip{
+    border:2px solid #e3d3b0; background:var(--card); color:var(--ink-soft); border-radius:999px;
+    padding:5px 12px; font:inherit; font-weight:800; font-size:.8rem; cursor:pointer; touch-action:manipulation;
+  }
+  .chip.active{ background:var(--tomato); border-color:var(--tomato); color:#fff; }
+  .h-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .h-item{ background:var(--card); border-radius:14px; padding:10px 12px; box-shadow:0 3px 10px var(--shadow); }
+  .h-top{ display:flex; align-items:center; gap:10px; }
+  .h-rank{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:1.1rem; width:2em; text-align:center; flex:none; color:var(--ink-soft); }
+  .h-main{ flex:1; min-width:0; }
+  .h-name{ font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .h-meta{ font-size:.76rem; color:var(--ink-soft); font-weight:700; }
+  .h-pct{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:1.25rem; color:var(--success); text-align:right; line-height:1.1; font-variant-numeric:tabular-nums; }
+  .h-pct small{ display:block; font-family:'Nunito', sans-serif; font-size:.72rem; color:var(--ink-soft); }
+  .h-players{ display:flex; flex-direction:column; gap:4px; margin-top:6px; }
+  .h-player{ display:flex; align-items:center; gap:8px; font-weight:700; font-size:.88rem; }
+  .h-player .dot{ width:10px; height:10px; border-radius:50%; flex:none; }
+  .h-player .nm{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .h-player .rs{ font-variant-numeric:tabular-nums; color:var(--ink-soft); }
+  .h-empty{ text-align:center; color:var(--ink-soft); font-weight:700; padding:24px 8px; }
+  .h-actions{ display:flex; flex-direction:column; gap:10px; align-items:center; margin-top:auto; padding-top:8px; }
+  .danger-link{ background:none; border:none; color:var(--miss); font:inherit; font-weight:800; font-size:.85rem; text-decoration:underline; cursor:pointer; padding:6px; }
+  .record-line{ font-weight:800; color:var(--success); background:var(--success-bg); border-radius:999px; padding:6px 14px; }
+</style>
+
+</head>
+<body>
+<div id="app">
+
+  <header class="bar">
+    <span class="title display">🔪 Potong Pecahan</span>
+    <button class="menu-btn" id="btn-menu" aria-label="Menu jeda" hidden>☰</button>
+  </header>
+
+  <section id="screen-start">
+    <svg class="hero-plate" viewBox="0 0 200 200" aria-hidden="true">
+      <circle cx="100" cy="100" r="92" fill="#E8A33D"/>
+      <circle cx="100" cy="100" r="80" fill="#F4C443"/>
+      <path d="M100 100 L100 20 A80 80 0 0 1 168 140 Z" fill="#D6472B" opacity=".85"/>
+      <circle cx="80" cy="70" r="9" fill="#A8331C"/>
+      <circle cx="120" cy="90" r="9" fill="#A8331C"/>
+      <circle cx="95" cy="120" r="9" fill="#A8331C"/>
+      <circle cx="60" cy="110" r="7" fill="#3E8E52"/>
+      <circle cx="130" cy="60" r="7" fill="#3E8E52"/>
+    </svg>
+    <h1>Potong Pecahan!</h1>
+    <p>Baca soalnya, lalu geser pisau untuk memotong pizza atau cokelat sesuai pecahan yang diminta. Pilih jumlah pemain dan mode latihannya dulu, yuk!</p>
+
+    <div class="player-pick">
+      <div class="pick-label">Jumlah pemain</div>
+      <div class="seg" role="radiogroup" aria-label="Jumlah pemain">
+        <button class="seg-btn player-btn active" data-n="1" role="radio" aria-checked="true">1 Pemain</button>
+        <button class="seg-btn player-btn" data-n="2" role="radio" aria-checked="false">2 Pemain</button>
+        <button class="seg-btn player-btn" data-n="3" role="radio" aria-checked="false">3 Pemain</button>
+      </div>
+      <div class="name-inputs" id="name-inputs" hidden>
+        <div class="name-row"><span class="name-dot" style="background:#D6472B"></span><input class="name-in" maxlength="12" placeholder="Pemain 1" aria-label="Nama pemain 1"></div>
+        <div class="name-row"><span class="name-dot" style="background:#2F6FB5"></span><input class="name-in" maxlength="12" placeholder="Pemain 2" aria-label="Nama pemain 2"></div>
+        <div class="name-row"><span class="name-dot" style="background:#7B4BB7"></span><input class="name-in" maxlength="12" placeholder="Pemain 3" aria-label="Nama pemain 3"></div>
+      </div>
+      <div class="pick-label">Jumlah soal</div>
+      <div class="seg" role="radiogroup" aria-label="Jumlah soal">
+        <button class="seg-btn count-btn active" data-count="10" role="radio" aria-checked="true">10</button>
+        <button class="seg-btn count-btn" data-count="15" role="radio" aria-checked="false">15</button>
+        <button class="seg-btn count-btn" data-count="20" role="radio" aria-checked="false">20</button>
+        <button class="seg-btn count-btn" data-count="25" role="radio" aria-checked="false">25</button>
+        <button class="seg-btn count-btn" data-count="30" role="radio" aria-checked="false">30</button>
+      </div>
+      <p class="tip" id="multi-tip" hidden>Semua pemain main bersamaan di areanya masing-masing, soalnya berbeda tiap pemain tapi tingkat kesulitannya setara. Paling pas di tablet atau laptop layar sentuh.</p>
+    </div>
+
+    <button class="btn secondary small" id="btn-history">🏆 Riwayat & Skor</button>
+    <div class="mode-buttons">
+      <button class="btn" data-mode="dasar">🍕 Mode Bagian Pecahan</button>
+      <button class="btn secondary" data-mode="operasi">➕➖ Mode Operasi Pecahan</button>
+      <button class="btn secondary" data-mode="persen">💯 Mode Desimal & Persen</button>
+      <button class="btn secondary" data-mode="kali">✖️ Mode Perkalian Pecahan</button>
+      <button class="btn secondary" data-mode="bagi">➗ Mode Pembagian Pecahan</button>
+    </div>
+  </section>
+
+  <section id="screen-history" hidden>
+    <h2>🏆 Riwayat & Skor</h2>
+    <div class="chips" id="h-tabs">
+      <button class="chip active" data-tab="best">Skor Terbaik</button>
+      <button class="chip" data-tab="log">Semua Riwayat</button>
+    </div>
+    <div class="chips" id="h-modes"></div>
+    <ol class="h-list" id="h-list"></ol>
+    <div class="h-actions">
+      <button class="btn small" id="btn-h-back">⬅ Kembali</button>
+      <button class="danger-link" id="btn-h-clear">Hapus semua riwayat</button>
+    </div>
+  </section>
+
+  <section id="screen-game" hidden>
+    <div class="panels" id="panels"></div>
+  </section>
+
+  <section id="screen-end" hidden>
+    <div class="stars" id="end-stars">⭐⭐⭐</div>
+    <h2 id="end-title">Selesai!</h2>
+    <div class="score-line" id="end-score">Benar 8 dari 9 soal</div>
+    <ol class="rank" id="end-rank" hidden></ol>
+    <div class="record-line" id="end-record" hidden></div>
+    <p id="end-msg" style="max-width:30ch;color:var(--ink-soft);font-weight:600;margin:0;">Hebat sekali potongannya!</p>
+    <button class="btn" id="btn-again">Main Lagi 🔄</button>
+    <button class="btn secondary" id="btn-change-mode">Ganti Mode</button>
+    <button class="btn secondary small" id="btn-end-history">🏆 Lihat Riwayat</button>
+  </section>
+
+  <div class="overlay" id="pause-overlay" hidden>
+    <div class="overlay-card">
+      <h2>⏸ Jeda</h2>
+      <button class="btn" id="btn-resume">▶ Lanjut Main</button>
+      <button class="btn secondary" id="btn-quit-menu">🏠 Kembali ke Menu Utama</button>
+    </div>
+  </div>
+
+</div>
+
+<template id="tpl-panel">
+  <div class="panel">
+    <div class="p-head">
+      <span class="p-name">Pemain</span>
+      <div class="stat-row">
+        <span class="stat badge p-prog">1/9</span>
+        <span class="stat badge">⭐ <span class="p-score">0</span></span>
+      </div>
+    </div>
+    <div class="p-body">
+      <div class="timer-wrap">
+        <span aria-hidden="true">⏱</span>
+        <div class="timer-track"><div class="timer-bar"></div></div>
+        <span class="timer-num">20</span>
+      </div>
+      <div class="question-card">
+        <div class="prompt q-prompt">Potong sebesar</div>
+        <div class="fraction-wrap q-fraction-wrap">
+          <div class="fraction">
+            <span class="num q-num">3</span>
+            <span class="bar"></span>
+            <span class="den q-den">4</span>
+          </div>
+        </div>
+        <div class="equation-wrap q-equation-wrap" hidden>
+          <div class="fraction small eq-frac-a">
+            <span class="num eq-a">1</span>
+            <span class="bar"></span>
+            <span class="den eq-den1">4</span>
+          </div>
+          <span class="op-symbol eq-op">+</span>
+          <div class="fraction small eq-frac-b">
+            <span class="num eq-b">2</span>
+            <span class="bar"></span>
+            <span class="den eq-den2">4</span>
+          </div>
+          <span class="op-symbol">=</span>
+          <span class="qmark">?</span>
+        </div>
+        <div class="percent-wrap q-percent-wrap" hidden>
+          <span class="percent-value q-percent-value">50%</span>
+        </div>
+        <div class="food-name q-food">bagian pizza</div>
+        <div class="word q-word">(tiga per empat)</div>
+        <button class="link-btn btn-grid-help" hidden>💡 Tampilkan bantuan KPK</button>
+      </div>
+      <div class="stage-wrap">
+        <div class="board board-pizza"><svg viewBox="0 0 300 300" class="svg-pizza"></svg></div>
+        <div class="board rect board-coklat" hidden><svg viewBox="0 0 300 220" class="svg-coklat"></svg></div>
+        <div class="hint-text">Sentuh papan lalu geser untuk memotong</div>
+        <div class="tap-wrap" hidden>
+          <div class="tap-counter">Terpilih: 0 potongan</div>
+          <button class="btn btn-check-tap">Cek Jawaban ✅</button>
+        </div>
+      </div>
+      <div class="feedback" hidden>
+        <div class="headline fb-headline">Tepat sekali! 🎉</div>
+        <div class="detail fb-detail"></div>
+      </div>
+      <div class="controls">
+        <button class="btn btn-next" hidden>Lanjut ➜</button>
+      </div>
+    </div>
+    <div class="p-done" hidden>
+      <div class="big">Selesai! 🎉</div>
+      <div class="small p-done-score"></div>
+      <div class="small">Menunggu pemain lain…</div>
+    </div>
+  </div>
+</template>
+
+<script>
+(function(){
+  "use strict";
+
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- Fraction word helper (Indonesian) ----------
+  var NUM_WORDS = ['', 'satu','dua','tiga','empat','lima','enam','tujuh'];
+  var DEN_WORDS = {2:'dua',3:'tiga',4:'empat',5:'lima',6:'enam',7:'tujuh',8:'delapan'};
+  var DEN_SE = {3:'sepertiga',4:'seperempat',5:'seperlima',6:'seperenam',7:'sepertujuh',8:'seperdelapan'};
+  function fractionWord(n,d){
+    if(n===1 && d===2) return 'setengah';
+    if(n===1 && DEN_SE[d]) return DEN_SE[d];
+    return NUM_WORDS[n] + ' per ' + DEN_WORDS[d];
+  }
+
+  // ---------- Difficulty tiers ----------
+  var TIERS = [
+    { label:'Mudah',      tolDeg:16, pool:[[1,2],[1,4],[3,4]] },
+    { label:'Sedang',     tolDeg:13, pool:[[1,3],[2,3],[1,5],[2,5],[3,5],[4,5]] },
+    { label:'Menantang',  tolDeg:10, pool:[[1,6],[5,6],[1,8],[3,8],[5,8],[7,8]] }
+  ];
+  // Operasi mode: penjumlahan/pengurangan, dibangkitkan (bukan pool tetap)
+  var OP_TIERS = [
+    { label:'Mudah',         tolDeg:16, dens:[4] },
+    { label:'Sedang',        tolDeg:13, dens:[3,5] },
+    { label:'Menantang',     tolDeg:10, dens:[6,8] },
+    { label:'Penyebut Beda', tolDeg:10, unlike:true, pairs:[[2,3],[3,4],[4,6],[2,5],[3,5]] }
+  ];
+  // Mode desimal & persen: nilai yang punya padanan pecahan sederhana & bersih
+  var PERSEN_TIERS = [
+    { tolDeg:16, pool:[[1,2,'50%','0,5'],[1,4,'25%','0,25'],[3,4,'75%','0,75']] },
+    { tolDeg:13, pool:[[1,5,'20%','0,2'],[2,5,'40%','0,4'],[3,5,'60%','0,6'],[4,5,'80%','0,8']] },
+    { tolDeg:10, pool:[[1,10,'10%','0,1'],[3,10,'30%','0,3'],[7,10,'70%','0,7'],[9,10,'90%','0,9']] }
+  ];
+  // Mode pembagian: a/aDen : 1/bDen (pembagi selalu pecahan satuan), hasil selalu bilangan bulat bersih
+  var BAGI_TIERS = [
+    { tolDeg:16, pool:[[1,2,4],[3,4,4],[1,4,4]] },
+    { tolDeg:13, pool:[[1,3,6],[2,3,6],[1,2,6]] },
+    { tolDeg:10, pool:[[3,4,8],[1,2,8],[2,5,10],[3,5,10]] }
+  ];
+  var PER_TIER = 3;
+  var FOODS = ['pizza','coklat'];
+  var TIER_TIME = [25, 20, 15, 25]; // detik per soal per tier (tier 3 "Penyebut Beda" diberi waktu lebih karena butuh hitung KPK dulu)
+
+  function gcd(x,y){ return y ? gcd(y, x % y) : x; }
+  function lcmOf(x,y){ return (x / gcd(x,y)) * y; }
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    return a;
+  }
+
+  function avoidFoodStreak(qs){
+    for(var i=2;i<qs.length;i++){
+      if(qs[i].food===qs[i-1].food && qs[i-1].food===qs[i-2].food){
+        qs[i].food = qs[i].food==='pizza' ? 'coklat' : 'pizza';
+      }
+    }
+    return qs;
+  }
+
+  // a/den {op} b/den, penyebut sama, hasil selalu pecahan biasa proper (0 < hasil < 1)
+  function genSameDenomQuestion(tierConf, tierIndex){
+    var dens = tierConf.dens;
+    var den = dens[Math.floor(Math.random()*dens.length)];
+    var op = Math.random() < 0.5 ? '+' : '-';
+    var a, b;
+    if(op==='+'){
+      a = 1 + Math.floor(Math.random()*(den-2));     // 1..den-2
+      b = 1 + Math.floor(Math.random()*(den-1-a));   // a+b <= den-1
+    } else {
+      a = 2 + Math.floor(Math.random()*(den-2));     // 2..den-1
+      b = 1 + Math.floor(Math.random()*(a-1));        // b < a
+    }
+    var result = op==='+' ? a+b : a-b;
+    return {
+      mode:'operasi',
+      tier: tierIndex,
+      tolDeg: tierConf.tolDeg,
+      a:a, aDen:den, b:b, bDen:den, den:den, op:op,
+      num:result,
+      beda:false,
+      food: FOODS[Math.floor(Math.random()*FOODS.length)]
+    };
+  }
+
+  // a/d1 {op} b/d2, penyebut beda: samakan pakai KPK dulu
+  function genUnlikeDenomQuestion(tierConf, tierIndex){
+    var pair = tierConf.pairs[Math.floor(Math.random()*tierConf.pairs.length)];
+    var d1 = pair[0], d2 = pair[1];
+    var L = lcmOf(d1, d2);
+    var m1 = L/d1, m2 = L/d2;
+    var op = Math.random() < 0.5 ? '+' : '-';
+    var a = 1 + Math.floor(Math.random()*(d1-1));   // 1..d1-1
+    var b = 1 + Math.floor(Math.random()*(d2-1));   // 1..d2-1
+    var ca = a*m1, cb = b*m2;
+    var result, tries;
+    if(op==='+'){
+      tries = 0;
+      while(ca+cb >= L && tries < 25){
+        a = 1 + Math.floor(Math.random()*(d1-1));
+        b = 1 + Math.floor(Math.random()*(d2-1));
+        ca = a*m1; cb = b*m2;
+        tries++;
+      }
+      if(ca+cb >= L){ a=1; b=1; ca=a*m1; cb=b*m2; }
+      result = ca+cb;
+    } else {
+      if(ca===cb){ b = (b < d2-1) ? b+1 : Math.max(1,b-1); cb = b*m2; }
+      if(ca < cb){
+        // tukar supaya hasil (nilai lebih besar) - (nilai lebih kecil)
+        var ta=a, td=d1, tm=m1, tc=ca;
+        a=b; d1=d2; m1=m2; ca=cb;
+        b=ta; d2=td; m2=tm; cb=tc;
+      }
+      result = ca - cb;
+      if(result <= 0) result = 1;
+    }
+    return {
+      mode:'operasi',
+      tier: tierIndex,
+      tolDeg: tierConf.tolDeg,
+      a:a, aDen:d1, b:b, bDen:d2, op:op,
+      num:result, den:L,
+      beda:true,
+      food: FOODS[Math.floor(Math.random()*FOODS.length)]
+    };
+  }
+
+  function genOperationQuestion(tierConf, tierIndex){
+    return tierConf.unlike ? genUnlikeDenomQuestion(tierConf, tierIndex) : genSameDenomQuestion(tierConf, tierIndex);
+  }
+
+  // a/aDen x b/bDen -- dua tahap potong: tahap 1 ambil b/bDen dari makanan utuh,
+  // tahap 2 anggap potongan tadi sebagai satu utuh baru, ambil a/aDen darinya.
+  function genKaliProblemData(tierConf, tierIndex){
+    var picks = shuffle(tierConf.pool).slice(0, 2);
+    var a = picks[0], b = picks[1] || picks[0];
+    var resultNumRaw = a[0]*b[0], resultDenRaw = a[1]*b[1];
+    var g = gcd(resultNumRaw, resultDenRaw);
+    return {
+      tier: tierIndex,
+      tolDeg: tierConf.tolDeg,
+      a:a[0], aDen:a[1], b:b[0], bDen:b[1],
+      resultNumRaw:resultNumRaw, resultDenRaw:resultDenRaw,
+      simpNum: resultNumRaw/g, simpDen: resultDenRaw/g,
+      food: FOODS[Math.floor(Math.random()*FOODS.length)]
+    };
+  }
+
+  // ---------- Session builder: N soal, dibagi rata per tier, beda antar pemain tiap ronde ----------
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function tierCounts(count, nTiers){
+    var base = Math.floor(count/nTiers), rem = count % nTiers, out = [];
+    for(var i=0;i<nTiers;i++) out.push(base + (i < rem ? 1 : 0));
+    return out;
+  }
+  var MODE_GEN = {
+    dasar: { tiers:TIERS, gen:function(ti){
+      var t = TIERS[ti], fr = pick(t.pool);
+      return { mode:'dasar', tier:ti, tolDeg:t.tolDeg, num:fr[0], den:fr[1], key:fr[0]+'/'+fr[1] };
+    }},
+    operasi: { tiers:OP_TIERS, gen:function(ti){
+      var q = genOperationQuestion(OP_TIERS[ti], ti);
+      q.key = q.a+'/'+q.aDen+q.op+q.b+'/'+q.bDen;
+      return q;
+    }},
+    persen: { tiers:PERSEN_TIERS, gen:function(ti){
+      var t = PERSEN_TIERS[ti], it = pick(t.pool);
+      return { mode:'persen', tier:ti, tolDeg:t.tolDeg, num:it[0], den:it[1], percentStr:it[2], decimalStr:it[3],
+               showAs: Math.random() < 0.5 ? 'percent' : 'decimal', key:it[0]+'/'+it[1] };
+    }},
+    kali: { tiers:TIERS, gen:function(ti){
+      var q = genKaliProblemData(TIERS[ti], ti);
+      q.key = q.a+'/'+q.aDen+'x'+q.b+'/'+q.bDen;
+      return q;
+    }},
+    bagi: { tiers:BAGI_TIERS, gen:function(ti){
+      var t = BAGI_TIERS[ti], it = pick(t.pool);
+      return { mode:'bagi', tier:ti, tolDeg:t.tolDeg, a:it[0], aDen:it[1], bDen:it[2], resultCount:it[0]*it[2]/it[1], key:it.join('/') };
+    }}
+  };
+
+  // Returns one question list per player. At the same question number, players get
+  // different questions of the same difficulty; each player also avoids repeating
+  // their own questions until that tier's pool is used up.
+  function buildSessions(mode, count, nPlayers){
+    var M = MODE_GEN[mode] || MODE_GEN.dasar;
+    var lists = [], used = [];
+    for(var p=0;p<nPlayers;p++){ lists.push([]); used.push({}); }
+
+    function attempt(p, ti, taken){
+      var fresh = null, distinct = null, any = null;
+      for(var t=0;t<80;t++){
+        var c = M.gen(ti);
+        if(!any) any = c;
+        if(taken[c.key]) continue;
+        if(!distinct) distinct = c;
+        if(!used[p][c.key]){ fresh = c; break; }
+      }
+      return { fresh:fresh, q: fresh || distinct || any };
+    }
+
+    tierCounts(count, M.tiers.length).forEach(function(c, ti){
+      used.forEach(function(u, p){ used[p] = {}; });
+      for(var k=0;k<c;k++){
+        var taken = {};
+        for(var p=0;p<nPlayers;p++){
+          var r = attempt(p, ti, taken);
+          if(!r.fresh){
+            // pool for this tier used up: start a new cycle, but never repeat the previous question
+            var prev = lists[p].length ? lists[p][lists[p].length-1].key : null;
+            used[p] = {};
+            if(prev) used[p][prev] = true;
+            r = attempt(p, ti, taken);
+          }
+          var q = r.q;
+          q.food = FOODS[Math.floor(Math.random()*FOODS.length)];
+          used[p][q.key] = true;
+          taken[q.key] = true;
+          lists[p].push(q);
+        }
+      }
+    });
+
+    return lists.map(function(list){
+      list = avoidFoodStreak(list);
+      var out = [];
+      list.forEach(function(q, i){
+        var meta = { pno:i+1, ptotal:list.length };
+        if(mode === 'kali'){
+          out.push(Object.assign({}, q, meta, { mode:'kali', stagePart:1, num:q.b, den:q.bDen }));
+          out.push(Object.assign({}, q, meta, { mode:'kali', stagePart:2, num:q.a, den:q.aDen }));
+        } else {
+          out.push(Object.assign({}, q, meta));
+        }
+      });
+      return out;
+    });
+  }
+
+  // ---------- SVG helpers ----------
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function svgEl(tag, attrs){
+    var e = document.createElementNS(SVGNS, tag);
+    for(var k in attrs){ e.setAttribute(k, attrs[k]); }
+    return e;
+  }
+  function clearSvg(svg){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+
+  function pizzaPoint(cx,cy,r,angleDeg){
+    var rad = angleDeg * Math.PI/180;
+    return [cx + r*Math.sin(rad), cy - r*Math.cos(rad)];
+  }
+  function wedgePath(cx,cy,r,angleDeg){
+    angleDeg = Math.max(0.5, Math.min(359.5, angleDeg));
+    var p0 = pizzaPoint(cx,cy,r,0);
+    var p1 = pizzaPoint(cx,cy,r,angleDeg);
+    var largeArc = angleDeg>180 ? 1 : 0;
+    return 'M '+cx+' '+cy+' L '+p0[0]+' '+p0[1]+' A '+r+' '+r+' 0 '+largeArc+' 1 '+p1[0]+' '+p1[1]+' Z';
+  }
+  function pointerAngleFromTop(dx,dy){
+    var deg = Math.atan2(dx, -dy) * 180/Math.PI;
+    if(deg<0) deg += 360;
+    return deg;
+  }
+
+  function knifeGroup(id){
+    var g = svgEl('g', {opacity:'0'});
+    g.appendChild(svgEl('rect', {x:'-38', y:'-6', width:'26', height:'12', rx:'4', fill:'#7A2E22', stroke:'#4A1C14', 'stroke-width':'1.5'}));
+    g.appendChild(svgEl('polygon', {points:'-12,-7 26,-1.5 26,1.5 -12,7', fill:'#E4E4E4', stroke:'#9a9a9a', 'stroke-width':'1'}));
+    return g;
+  }
+
+  // ---------- Input helpers (multi-touch safe) ----------
+  // Tap that works per-finger, so several players can press buttons at the same time.
+  function onTap(node, fn){
+    var pid = null;
+    node.addEventListener('pointerdown', function(e){ if(e.button > 0) return; pid = e.pointerId; });
+    node.addEventListener('pointerup', function(e){ if(e.pointerId === pid){ pid = null; fn(e); } });
+    node.addEventListener('pointercancel', function(e){ if(e.pointerId === pid) pid = null; });
+    node.addEventListener('click', function(e){ if(e.detail === 0) fn(e); }); // keyboard
+  }
+
+  // Drag bound to a single pointer on one board.
+  function makeDrag(svg, overlay, isAnswered, onUpdate, onRelease){
+    var pid = null;
+    function pt(evt){
+      var p = svg.createSVGPoint();
+      p.x = evt.clientX; p.y = evt.clientY;
+      return p.matrixTransform(svg.getScreenCTM().inverse());
+    }
+    function down(e){
+      if(isAnswered() || pid !== null) return;
+      pid = e.pointerId;
+      try{ overlay.setPointerCapture(pid); }catch(_){}
+      onUpdate(pt(e));
+      e.preventDefault();
+    }
+    function move(e){
+      if(e.pointerId !== pid || isAnswered()) return;
+      onUpdate(pt(e));
+      e.preventDefault();
+    }
+    function up(e){
+      if(e.pointerId !== pid || isAnswered()) return;
+      pid = null;
+      detach();
+      onRelease();
+    }
+    function detach(){
+      overlay.removeEventListener('pointerdown', down);
+      overlay.removeEventListener('pointermove', move);
+      overlay.removeEventListener('pointerup', up);
+      overlay.removeEventListener('pointercancel', up);
+    }
+    overlay.addEventListener('pointerdown', down);
+    overlay.addEventListener('pointermove', move);
+    overlay.addEventListener('pointerup', up);
+    overlay.addEventListener('pointercancel', up);
+    return detach;
+  }
+
+  // ================= PIZZA STAGE =================
+  var pizzaCX=150, pizzaCY=150, pizzaR=120;
+  var PEPPERONI = [[150,88],[192,106],[204,150],[184,196],[148,206],[112,194],[96,150],[110,104],[150,138],[168,162]];
+  var BASIL = [[128,120],[176,134],[140,176],[168,182]];
+
+  function buildPizzaSvg(svg, gridN){
+    clearSvg(svg);
+    svg.appendChild(svgEl('circle', {cx:pizzaCX, cy:pizzaCY, r:pizzaR, fill:'var(--crust)', stroke:'var(--crust-dark)', 'stroke-width':'6'}));
+    svg.appendChild(svgEl('circle', {cx:pizzaCX, cy:pizzaCY, r:pizzaR-13, fill:'var(--cheese)'}));
+    var grid = null;
+    if(gridN){
+      grid = svgEl('g', {opacity:'0'});
+      for(var gk=0; gk<gridN; gk++){
+        var gp = pizzaPoint(pizzaCX,pizzaCY,pizzaR-13,gk*(360/gridN));
+        grid.appendChild(svgEl('line', {x1:pizzaCX,y1:pizzaCY,x2:gp[0],y2:gp[1], stroke:'var(--tomato-dark)', 'stroke-width':'1.8', 'stroke-dasharray':'3,3', opacity:'.85'}));
+      }
+      svg.appendChild(grid);
+    }
+    PEPPERONI.forEach(function(p){
+      svg.appendChild(svgEl('circle', {cx:p[0], cy:p[1], r:9, fill:'#B23A2E', stroke:'#7A2418', 'stroke-width':'1'}));
+    });
+    BASIL.forEach(function(p){
+      svg.appendChild(svgEl('ellipse', {cx:p[0], cy:p[1], rx:7, ry:4, fill:'#3E8E52'}));
+    });
+    svg.appendChild(svgEl('line', {x1:pizzaCX, y1:pizzaCY, x2:pizzaCX, y2:pizzaCY-pizzaR, stroke:'#5B3A26', 'stroke-width':'2', 'stroke-dasharray':'5,5', opacity:'.55'}));
+    svg.appendChild(svgEl('text', {x:pizzaCX, y:pizzaCY-pizzaR-8, 'text-anchor':'middle', 'font-size':'22'})).textContent='⭐';
+    var live = svg.appendChild(svgEl('path', {d:'', fill:'rgba(255,255,255,.4)', stroke:'var(--ink)', 'stroke-width':'2.5'}));
+    var target = svg.appendChild(svgEl('line', {x1:pizzaCX,y1:pizzaCY,x2:pizzaCX,y2:pizzaCY, stroke:'var(--success)', 'stroke-width':'3', 'stroke-dasharray':'4,4', opacity:'0'}));
+    var knife = svg.appendChild(knifeGroup());
+    var overlay = svg.appendChild(svgEl('rect', {x:0,y:0,width:300,height:300, fill:'transparent'}));
+    return {live:live, target:target, knife:knife, overlay:overlay, grid:grid};
+  }
+
+  function pizzaInteraction(svg, q, isAnswered, onDone){
+    var b = buildPizzaSvg(svg, q.beda ? q.den : null);
+    var lastAngle = 0;
+    var targetAngle = 360 * (q.num/q.den);
+    function showTarget(){
+      var tp = pizzaPoint(pizzaCX,pizzaCY,pizzaR,targetAngle);
+      b.target.setAttribute('x2', tp[0]);
+      b.target.setAttribute('y2', tp[1]);
+      b.target.setAttribute('opacity','1');
+    }
+    function update(p){
+      var dx = p.x - pizzaCX, dy = p.y - pizzaCY;
+      var dr = Math.sqrt(dx*dx+dy*dy) || 0.001;
+      lastAngle = pointerAngleFromTop(dx,dy);
+      b.live.setAttribute('d', wedgePath(pizzaCX,pizzaCY,pizzaR,lastAngle));
+      var tip = pizzaPoint(pizzaCX,pizzaCY,Math.min(dr, pizzaR),lastAngle);
+      b.knife.setAttribute('transform','translate('+tip[0]+','+tip[1]+') rotate('+(Math.atan2(dy,dx)*180/Math.PI)+')');
+      b.knife.setAttribute('opacity','1');
+    }
+    function release(){
+      var diff = Math.abs(lastAngle - targetAngle);
+      diff = Math.min(diff, 360-diff);
+      var correct = diff <= q.tolDeg;
+      b.live.setAttribute('fill', correct ? 'rgba(62,142,82,.45)' : 'rgba(168,51,28,.4)');
+      b.knife.setAttribute('opacity','0.5');
+      if(!correct) showTarget();
+      onDone(correct);
+    }
+    var detach = makeDrag(svg, b.overlay, isAnswered, update, release);
+    return {
+      grid: b.grid,
+      detach: detach,
+      timeout: function(){
+        detach();
+        showTarget();
+        b.live.setAttribute('fill', 'rgba(168,51,28,.35)');
+        b.knife.setAttribute('opacity','0');
+      }
+    };
+  }
+
+  // ================= COKLAT (BAR) STAGE =================
+  var barX=30, barY=55, barW=240, barH=90;
+
+  function buildCoklatSvg(svg, gridN){
+    clearSvg(svg);
+    svg.appendChild(svgEl('rect', {x:barX-6, y:barY-6, width:barW+12, height:barH+12, rx:14, fill:'var(--choco-dark)'}));
+    svg.appendChild(svgEl('rect', {x:barX, y:barY, width:barW, height:barH, rx:10, fill:'var(--choco)'}));
+    var grid = null;
+    if(gridN){
+      grid = svgEl('g', {opacity:'0'});
+      for(var gk=1; gk<gridN; gk++){
+        var gx = barX + gk*(barW/gridN);
+        grid.appendChild(svgEl('line', {x1:gx,y1:barY+2,x2:gx,y2:barY+barH-2, stroke:'var(--tomato-dark)', 'stroke-width':'1.8', 'stroke-dasharray':'3,3', opacity:'.85'}));
+      }
+      svg.appendChild(grid);
+    }
+    for(var i=1;i<6;i++){
+      svg.appendChild(svgEl('line', {x1:barX+i*40, y1:barY+4, x2:barX+i*40, y2:barY+barH-4, stroke:'var(--choco-light)', 'stroke-width':'3'}));
+    }
+    svg.appendChild(svgEl('line', {x1:barX+4, y1:barY+barH/2, x2:barX+barW-4, y2:barY+barH/2, stroke:'var(--choco-light)', 'stroke-width':'3'}));
+    svg.appendChild(svgEl('line', {x1:barX, y1:barY-14, x2:barX, y2:barY+barH+14, stroke:'#5B3A26', 'stroke-width':'2', 'stroke-dasharray':'5,5', opacity:'.6'}));
+    svg.appendChild(svgEl('text', {x:barX, y:barY-18, 'text-anchor':'middle', 'font-size':'20'})).textContent='⭐';
+    var live = svg.appendChild(svgEl('rect', {x:barX, y:barY, width:0, height:barH, fill:'rgba(255,255,255,.35)'}));
+    var cut = svg.appendChild(svgEl('line', {x1:barX,y1:barY,x2:barX,y2:barY+barH, stroke:'var(--ink)', 'stroke-width':'3', opacity:'0'}));
+    var target = svg.appendChild(svgEl('line', {x1:barX,y1:barY,x2:barX,y2:barY+barH, stroke:'var(--success)', 'stroke-width':'3', 'stroke-dasharray':'4,4', opacity:'0'}));
+    var knife = svg.appendChild(knifeGroup());
+    var overlay = svg.appendChild(svgEl('rect', {x:0,y:0,width:300,height:220, fill:'transparent'}));
+    return {live:live, cut:cut, target:target, knife:knife, overlay:overlay, grid:grid};
+  }
+
+  function coklatInteraction(svg, q, isAnswered, onDone){
+    var b = buildCoklatSvg(svg, q.beda ? q.den : null);
+    var lastFrac = 0;
+    var targetFrac = q.num/q.den;
+    function showTarget(){
+      var tx = barX + targetFrac*barW;
+      b.target.setAttribute('x1',tx); b.target.setAttribute('x2',tx);
+      b.target.setAttribute('opacity','1');
+    }
+    function update(p){
+      var cx = Math.max(barX, Math.min(barX+barW, p.x));
+      lastFrac = (cx-barX)/barW;
+      b.live.setAttribute('width', cx-barX);
+      b.cut.setAttribute('x1',cx); b.cut.setAttribute('x2',cx);
+      b.cut.setAttribute('opacity','1');
+      b.knife.setAttribute('transform','translate('+cx+','+(barY-10)+') rotate(90)');
+      b.knife.setAttribute('opacity','1');
+    }
+    function release(){
+      var correct = Math.abs(lastFrac - targetFrac) <= q.tolDeg/360;
+      b.live.setAttribute('fill', correct ? 'rgba(62,142,82,.45)' : 'rgba(168,51,28,.4)');
+      b.knife.setAttribute('opacity','0.5');
+      if(!correct) showTarget();
+      onDone(correct);
+    }
+    var detach = makeDrag(svg, b.overlay, isAnswered, update, release);
+    return {
+      grid: b.grid,
+      detach: detach,
+      timeout: function(){
+        detach();
+        showTarget();
+        b.live.setAttribute('fill', 'rgba(168,51,28,.35)');
+        b.knife.setAttribute('opacity','0');
+      }
+    };
+  }
+
+  // ================= TAP-POTONGAN STAGE (mode pembagian) =================
+  function buildPizzaSegments(svg, bden){
+    clearSvg(svg);
+    svg.appendChild(svgEl('circle', {cx:pizzaCX, cy:pizzaCY, r:pizzaR, fill:'var(--crust)', stroke:'var(--crust-dark)', 'stroke-width':'6'}));
+    var segs = [], rr = pizzaR-13;
+    for(var k=0;k<bden;k++){
+      var startA = k*(360/bden), endA = (k+1)*(360/bden);
+      var p0 = pizzaPoint(pizzaCX,pizzaCY,rr,startA);
+      var p1 = pizzaPoint(pizzaCX,pizzaCY,rr,endA);
+      var d = 'M '+pizzaCX+' '+pizzaCY+' L '+p0[0]+' '+p0[1]+' A '+rr+' '+rr+' 0 '+((endA-startA)>180?1:0)+' 1 '+p1[0]+' '+p1[1]+' Z';
+      var seg = svgEl('path', {d:d, fill:SEG_COLORS_PIZZA[k%2], stroke:'#fff', 'stroke-width':'2.5'});
+      seg.style.cursor = 'pointer';
+      svg.appendChild(seg);
+      segs.push(seg);
+    }
+    return segs;
+  }
+
+  function buildCoklatSegments(svg, bden){
+    clearSvg(svg);
+    svg.appendChild(svgEl('rect', {x:barX-6, y:barY-6, width:barW+12, height:barH+12, rx:14, fill:'var(--choco-dark)'}));
+    var segs = [], segW = barW/bden;
+    for(var k=0;k<bden;k++){
+      var seg = svgEl('rect', {x:barX + k*segW + 1.5, y:barY, width:Math.max(0,segW-3), height:barH, fill:SEG_COLORS_COKLAT[k%2], stroke:'#fff', 'stroke-width':'2.5'});
+      seg.style.cursor = 'pointer';
+      svg.appendChild(seg);
+      segs.push(seg);
+    }
+    return segs;
+  }
+
+  var SEG_COLORS_PIZZA = ['var(--cheese)', '#F7D06B'];
+  var SEG_COLORS_COKLAT = ['var(--choco)', '#7C5030'];
+
+  function segmentTapInteraction(svg, q, isAnswered, onDone, counterEl, setCheck){
+    var isPizza = q.food==='pizza';
+    var segs = isPizza ? buildPizzaSegments(svg, q.bDen) : buildCoklatSegments(svg, q.bDen);
+    var colors = isPizza ? SEG_COLORS_PIZZA : SEG_COLORS_COKLAT;
+    var selected = segs.map(function(){ return false; });
+    var locked = false;
+
+    function count(){ return selected.filter(Boolean).length; }
+    function updateCounter(){ counterEl.textContent = 'Terpilih: ' + count() + ' potongan'; }
+
+    segs.forEach(function(seg, idx){
+      onTap(seg, function(){
+        if(locked || isAnswered()) return;
+        selected[idx] = !selected[idx];
+        seg.setAttribute('fill', selected[idx] ? 'var(--tomato)' : colors[idx % 2]);
+        updateCounter();
+      });
+    });
+    updateCounter();
+
+    function disableAll(){
+      locked = true;
+      segs.forEach(function(seg){ seg.style.pointerEvents = 'none'; });
+      setCheck(null);
+    }
+
+    setCheck(function(){
+      if(locked || isAnswered()) return;
+      var c = count();
+      var correct = c === q.resultCount;
+      disableAll();
+      if(!correct){
+        segs.forEach(function(seg, idx){
+          if(idx < q.resultCount) seg.setAttribute('fill', 'var(--success)');
+          else if(selected[idx]) seg.setAttribute('fill', 'var(--miss)');
+        });
+      }
+      onDone(correct);
+    });
+
+    return {
+      grid: null,
+      detach: disableAll,
+      timeout: function(){
+        disableAll();
+        segs.forEach(function(seg, idx){
+          seg.setAttribute('fill', idx < q.resultCount ? 'var(--success)' : colors[idx % 2]);
+        });
+      }
+    };
+  }
+
+  // ================= PLAYER (one per panel) =================
+  var PLAYER_COLORS = ['#D6472B', '#2F6FB5', '#7B4BB7'];
+  var tpl = document.getElementById('tpl-panel');
+
+  var game = { n:1, count:10, names:['','',''], mode:'dasar', players:[], paused:false, endTimer:null };
+
+  function createPlayer(idx, name, session, onFinish){
+    var root = tpl.content.firstElementChild.cloneNode(true);
+    var $ = function(s){ return root.querySelector(s); };
+    root.style.setProperty('--pc', PLAYER_COLORS[idx]);
+    var el = {
+      name:$('.p-name'), prog:$('.p-prog'), score:$('.p-score'),
+      timerBar:$('.timer-bar'), timerNum:$('.timer-num'),
+      prompt:$('.q-prompt'), fractionWrap:$('.q-fraction-wrap'), equationWrap:$('.q-equation-wrap'),
+      num:$('.q-num'), den:$('.q-den'),
+      eqA:$('.eq-a'), eqB:$('.eq-b'), eqDen1:$('.eq-den1'), eqDen2:$('.eq-den2'), eqOp:$('.eq-op'),
+      eqFracA:$('.eq-frac-a'), eqFracB:$('.eq-frac-b'),
+      percentWrap:$('.q-percent-wrap'), percentValue:$('.q-percent-value'),
+      btnGridHelp:$('.btn-grid-help'),
+      tapWrap:$('.tap-wrap'), tapCounter:$('.tap-counter'), btnCheckTap:$('.btn-check-tap'),
+      food:$('.q-food'), word:$('.q-word'),
+      boardPizza:$('.board-pizza'), boardCoklat:$('.board-coklat'),
+      svgPizza:$('.svg-pizza'), svgCoklat:$('.svg-coklat'),
+      hint:$('.hint-text'),
+      feedback:$('.feedback'), fbHead:$('.fb-headline'), fbDetail:$('.fb-detail'),
+      btnNext:$('.btn-next'),
+      done:$('.p-done'), doneScore:$('.p-done-score')
+    };
+
+    var P = { idx:idx, name:name, color:PLAYER_COLORS[idx], root:root, score:0, correctCount:0, total:session.length, done:false };
+    var index = 0, answered = false, interaction = null, checkFn = null;
+    var timer = { remaining:0, total:0, id:null };
+
+    el.name.textContent = name;
+    function isAnswered(){ return answered; }
+
+    // ----- timer -----
+    function clearTimer(){ if(timer.id){ clearInterval(timer.id); timer.id = null; } }
+    function updateTimerUI(){
+      var pct = timer.total > 0 ? Math.max(0, timer.remaining/timer.total) : 0;
+      el.timerBar.style.width = (pct*100) + '%';
+      el.timerBar.style.background = pct>0.5 ? 'var(--success)' : pct>0.25 ? '#E2A73B' : 'var(--miss)';
+      el.timerNum.textContent = Math.ceil(Math.max(0, timer.remaining)) + ' dtk';
+    }
+    function startTimer(seconds){
+      clearTimer();
+      timer.total = timer.remaining = seconds;
+      updateTimerUI();
+      timer.id = setInterval(function(){
+        if(game.paused || answered) return;
+        timer.remaining -= 0.1;
+        if(timer.remaining <= 0){
+          timer.remaining = 0;
+          updateTimerUI();
+          clearTimer();
+          if(answered) return;
+          if(interaction && interaction.timeout) interaction.timeout();
+          onAnswered(false, true);
+        } else {
+          updateTimerUI();
+        }
+      }, 100);
+    }
+
+    function updateHud(){
+      var cq = session[Math.min(index, session.length-1)];
+      el.prog.textContent = cq.pno + '/' + cq.ptotal;
+      el.score.textContent = P.score;
+    }
+
+    // ----- question -----
+    function renderQuestion(){
+      var q = session[index];
+      answered = false;
+      el.feedback.hidden = true;
+      el.btnNext.hidden = true;
+      updateHud();
+
+      el.fractionWrap.hidden = true;
+      el.equationWrap.hidden = true;
+      el.percentWrap.hidden = true;
+      el.btnGridHelp.hidden = true;
+      el.tapWrap.hidden = true;
+      el.eqFracA.classList.remove('inactive-operand');
+      el.eqFracB.classList.remove('inactive-operand');
+
+      if(q.mode==='operasi'){
+        el.equationWrap.hidden = false;
+        el.eqA.textContent = q.a; el.eqDen1.textContent = q.aDen;
+        el.eqB.textContent = q.b; el.eqDen2.textContent = q.bDen;
+        el.eqOp.textContent = q.op;
+        if(q.beda){
+          el.word.textContent = 'Samakan penyebut dulu ya! (cari KPK dari ' + q.aDen + ' & ' + q.bDen + ')';
+          el.btnGridHelp.hidden = false;
+          el.btnGridHelp.textContent = '💡 Tampilkan bantuan KPK (dibagi ' + q.den + ')';
+        } else {
+          el.word.textContent = 'Hitung dulu hasilnya, baru potong!';
+        }
+      } else if(q.mode==='persen'){
+        el.percentWrap.hidden = false;
+        el.percentValue.textContent = q.showAs==='percent' ? q.percentStr : q.decimalStr;
+        var other = q.showAs==='percent' ? q.decimalStr : q.percentStr;
+        el.word.textContent = '(' + other + ' = ' + fractionWord(q.num,q.den) + ')';
+      } else if(q.mode==='kali'){
+        el.equationWrap.hidden = false;
+        el.eqA.textContent = q.a; el.eqDen1.textContent = q.aDen;
+        el.eqB.textContent = q.b; el.eqDen2.textContent = q.bDen;
+        el.eqOp.textContent = '×';
+        if(q.stagePart===1){
+          el.eqFracA.classList.add('inactive-operand');
+          el.word.textContent = 'Langkah 1 dari 2: potong dulu pecahan KEDUA dari makanan utuh';
+        } else {
+          el.eqFracB.classList.add('inactive-operand');
+          el.word.textContent = 'Langkah 2 dari 2: anggap potongan tadi satu utuh baru, potong pecahan PERTAMA darinya';
+        }
+      } else if(q.mode==='bagi'){
+        el.equationWrap.hidden = false;
+        el.eqA.textContent = q.a; el.eqDen1.textContent = q.aDen;
+        el.eqB.textContent = 1; el.eqDen2.textContent = q.bDen;
+        el.eqOp.textContent = '÷';
+        el.word.textContent = 'Makanan ini sudah dibagi ' + q.bDen + ' bagian sama besar. Tap bagian yang muat, lalu Cek Jawaban!';
+      } else {
+        el.fractionWrap.hidden = false;
+        el.num.textContent = q.num;
+        el.den.textContent = q.den;
+        el.word.textContent = '(' + fractionWord(q.num,q.den) + ')';
+      }
+
+      var lead = q.food==='pizza' ? 'Potong mulai dari ⭐, searah jarum jam' : 'Potong mulai dari ⭐ di kiri';
+      if(q.mode==='operasi') el.prompt.textContent = lead + ', sebesar hasil dari:';
+      else if(q.mode==='kali') el.prompt.textContent = (q.stagePart===1 ? lead : 'Potong mulai dari ⭐ lagi') + ', sebesar:';
+      else if(q.mode==='bagi') el.prompt.textContent = 'Berapa hasil pembagian ini?';
+      else el.prompt.textContent = lead + ', sebesar';
+
+      var isPizza = q.food==='pizza';
+      el.food.textContent = isPizza ? 'bagian pizza' : 'bagian cokelat';
+      el.boardPizza.hidden = !isPizza;
+      el.boardCoklat.hidden = isPizza;
+      var svg = isPizza ? el.svgPizza : el.svgCoklat;
+
+      if(q.mode==='bagi'){
+        el.tapWrap.hidden = false;
+        el.hint.textContent = 'Tap potongan yang menurutmu pas, lalu tekan Cek Jawaban';
+        interaction = segmentTapInteraction(svg, q, isAnswered, onAnswered, el.tapCounter, function(fn){ checkFn = fn; });
+      } else if(isPizza){
+        el.hint.textContent = 'Sentuh pizza lalu geser pisau memutar untuk memotong';
+        interaction = pizzaInteraction(svg, q, isAnswered, onAnswered);
+      } else {
+        el.hint.textContent = 'Sentuh cokelat lalu geser pisau ke kanan untuk memotong';
+        interaction = coklatInteraction(svg, q, isAnswered, onAnswered);
+      }
+      startTimer((TIER_TIME[q.tier] || 20) + (q.mode==='bagi' ? 10 : 0));
+    }
+
+    function onAnswered(correct, timedOut){
+      if(answered) return;
+      answered = true;
+      clearTimer();
+      el.hint.textContent = '';
+      var q = session[index];
+      var eqNote = '';
+      if(q.mode==='operasi'){
+        eqNote = ' (' + q.a + '/' + q.aDen + ' ' + q.op + ' ' + q.b + '/' + q.bDen + ' = ' + q.num + '/' + q.den + ')';
+      } else if(q.mode==='persen'){
+        eqNote = ' (' + q.percentStr + ' = ' + q.decimalStr + ' = ' + fractionWord(q.num,q.den) + ')';
+      } else if(q.mode==='kali' && q.stagePart===2){
+        eqNote = ' (' + q.a + '/' + q.aDen + ' × ' + q.b + '/' + q.bDen + ' = ' + q.resultNumRaw + '/' + q.resultDenRaw +
+          ((q.simpNum!==q.resultNumRaw || q.simpDen!==q.resultDenRaw) ? ' = ' + q.simpNum + '/' + q.simpDen : '') + ')';
+      } else if(q.mode==='bagi'){
+        eqNote = ' (' + q.a + '/' + q.aDen + ' ÷ 1/' + q.bDen + ' = ' + q.resultCount + ')';
+      }
+      if(correct){
+        P.score += 10;
+        P.correctCount += 1;
+        el.feedback.className = 'feedback correct';
+        el.fbHead.textContent = (q.mode==='kali' && q.stagePart===1) ? 'Tepat! Lanjut langkah 2 🎉 +10' : 'Tepat sekali! 🎉 +10';
+        el.fbDetail.textContent = q.mode==='bagi'
+          ? 'Benar, ada ' + q.resultCount + ' potongan 1/' + q.bDen + ' yang muat.' + eqNote
+          : 'Kamu memotong ' + fractionWord(q.num,q.den) + ' dengan pas.' + eqNote;
+      } else {
+        el.feedback.className = 'feedback wrong';
+        el.fbHead.textContent = timedOut ? 'Waktu habis! ⏰' : 'Hampir pas!';
+        el.fbDetail.textContent = q.mode==='bagi'
+          ? 'Yang benar ada ' + q.resultCount + ' potongan yang muat (lihat yang diwarnai hijau).' + eqNote
+          : 'Lihat garis hijau putus-putus: itu posisi ' + q.num + '/' + q.den + ' yang benar.' + eqNote;
+      }
+      el.feedback.hidden = false;
+      el.btnNext.hidden = false;
+      updateHud();
+    }
+
+    onTap(el.btnNext, function(){
+      if(!answered || P.done || game.paused) return;
+      index += 1;
+      if(index >= session.length){
+        P.done = true;
+        clearTimer();
+        el.doneScore.textContent = '⭐ ' + P.score + ' · benar ' + P.correctCount + ' dari ' + session.length + (game.mode==='kali' ? ' langkah' : '');
+        el.done.hidden = false;
+        onFinish(P);
+      } else {
+        renderQuestion();
+      }
+    });
+
+    onTap(el.btnCheckTap, function(){ if(checkFn && !game.paused) checkFn(); });
+
+    onTap(el.btnGridHelp, function(){
+      var g = interaction && interaction.grid;
+      if(!g) return;
+      var showing = g.getAttribute('opacity') === '1';
+      g.setAttribute('opacity', showing ? '0' : '1');
+      el.btnGridHelp.textContent = showing
+        ? ('💡 Tampilkan bantuan KPK (dibagi ' + session[index].den + ')')
+        : '🙈 Sembunyikan bantuan';
+    });
+
+    P.start = renderQuestion;
+    P.destroy = function(){
+      clearTimer();
+      if(interaction && interaction.detach) interaction.detach();
+    };
+    return P;
+  }
+
+  // ---------- Screen management ----------
+  var app = document.getElementById('app');
+  var els = {
+    start: document.getElementById('screen-start'),
+    game: document.getElementById('screen-game'),
+    end: document.getElementById('screen-end'),
+    menu: document.getElementById('btn-menu'),
+    panels: document.getElementById('panels'),
+    history: document.getElementById('screen-history')
+  };
+  function showScreen(name){
+    els.start.hidden = name!=='start';
+    els.game.hidden = name!=='game';
+    els.end.hidden = name!=='end';
+    els.history.hidden = name!=='history';
+    els.menu.hidden = name!=='game';
+    app.classList.toggle('wide', name==='game' && game.n > 1);
+    window.scrollTo(0,0);
+  }
+
+  function destroyPlayers(){
+    if(game.endTimer){ clearTimeout(game.endTimer); game.endTimer = null; }
+    game.players.forEach(function(p){ p.destroy(); });
+    game.players = [];
+    els.panels.innerHTML = '';
+  }
+
+  function startGame(mode){
+    destroyPlayers();
+    game.mode = mode || game.mode;
+    game.paused = false;
+    els.panels.className = 'panels n' + game.n + (game.n > 1 ? ' multi' : '');
+    els.panels.style.setProperty('--n', game.n);
+    var sessions = buildSessions(game.mode, game.count, game.n);
+    for(var i=0; i<game.n; i++){
+      var nm = (game.names[i] || '').trim() || ('Pemain ' + (i+1));
+      var p = createPlayer(i, nm, sessions[i], onPlayerFinish);
+      game.players.push(p);
+      els.panels.appendChild(p.root);
+    }
+    showScreen('game');
+    game.players.forEach(function(p){ p.start(); });
+  }
+
+  function onPlayerFinish(){
+    var allDone = game.players.every(function(p){ return p.done; });
+    if(!allDone) return;
+    if(game.n === 1){ showEnd(); return; }
+    game.endTimer = setTimeout(showEnd, 1200);
+  }
+
+  function showEnd(){
+    var players = game.players;
+    var starsEl = document.getElementById('end-stars');
+    var titleEl = document.getElementById('end-title');
+    var scoreEl = document.getElementById('end-score');
+    var msgEl = document.getElementById('end-msg');
+    var rankEl = document.getElementById('end-rank');
+
+    if(players.length === 1){
+      var p = players[0];
+      var pct = p.correctCount/p.total;
+      var stars = pct>=0.9 ? 3 : pct>=0.6 ? 2 : pct>=0.3 ? 1 : 0;
+      starsEl.textContent = stars>0 ? '⭐'.repeat(stars) + '☆'.repeat(3-stars) : '💪';
+      titleEl.textContent = 'Selesai!';
+      scoreEl.hidden = false;
+      scoreEl.textContent = 'Benar ' + p.correctCount + ' dari ' + p.total + (game.mode==='kali' ? ' langkah potong' : ' soal');
+      rankEl.hidden = true;
+      msgEl.textContent = stars===3 ? 'Luar biasa! Kamu jago motong pecahan!' :
+                          stars===2 ? 'Bagus sekali, terus berlatih ya!' :
+                          stars===1 ? 'Sudah oke, ayo coba lagi biar makin jago!' :
+                                      'Terus berlatih, kamu pasti bisa!';
+    } else {
+      var sorted = players.slice().sort(function(a,b){ return b.score-a.score || b.correctCount-a.correctCount; });
+      var MEDALS = ['🥇','🥈','🥉'];
+      rankEl.innerHTML = '';
+      var rank = 0;
+      sorted.forEach(function(p, i){
+        if(i>0 && !(p.score===sorted[i-1].score && p.correctCount===sorted[i-1].correctCount)) rank = i;
+        var li = document.createElement('li');
+        li.style.setProperty('--pc', p.color);
+        var m = document.createElement('span'); m.className = 'medal'; m.textContent = MEDALS[rank] || '🎖';
+        var n = document.createElement('span'); n.className = 'rname'; n.textContent = p.name;
+        var s = document.createElement('span'); s.className = 'rscore'; s.textContent = '⭐ ' + p.score + ' · ' + p.correctCount + '/' + p.total;
+        li.appendChild(m); li.appendChild(n); li.appendChild(s);
+        rankEl.appendChild(li);
+      });
+      var tie = sorted[1].score===sorted[0].score && sorted[1].correctCount===sorted[0].correctCount;
+      starsEl.textContent = '🏆';
+      titleEl.textContent = tie ? 'Seri! Sama-sama hebat!' : sorted[0].name + ' menang!';
+      scoreEl.hidden = true;
+      rankEl.hidden = false;
+      msgEl.textContent = 'Semua sudah berlatih memotong pecahan. Mau tanding lagi?';
+    }
+    recordGame(players);
+    destroyPlayers();
+    showScreen('end');
+  }
+
+  // ---------- Start screen: player count + names ----------
+  var segBtns = Array.prototype.slice.call(document.querySelectorAll('.player-btn'));
+  var nameRows = Array.prototype.slice.call(document.querySelectorAll('.name-row'));
+  var nameInputs = Array.prototype.slice.call(document.querySelectorAll('.name-in'));
+  function setCount(n){
+    game.n = n;
+    segBtns.forEach(function(b){
+      var on = Number(b.getAttribute('data-n')) === n;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+    document.getElementById('name-inputs').hidden = false;
+    document.getElementById('multi-tip').hidden = n === 1;
+    nameRows.forEach(function(r, i){ r.hidden = i >= n; });
+  }
+  segBtns.forEach(function(b){
+    b.addEventListener('click', function(){ setCount(Number(b.getAttribute('data-n'))); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-mode]'), function(b){
+    b.addEventListener('click', function(){
+      game.names = nameInputs.map(function(inp){ return inp.value; });
+      startGame(b.getAttribute('data-mode'));
+    });
+  });
+  document.getElementById('btn-again').addEventListener('click', function(){ startGame(game.mode); });
+  document.getElementById('btn-change-mode').addEventListener('click', function(){ showScreen('start'); });
+
+  // ---------- Pause menu (pauses every player) ----------
+  var pauseOverlay = document.getElementById('pause-overlay');
+  els.menu.addEventListener('click', function(){
+    game.paused = true;
+    pauseOverlay.hidden = false;
+  });
+  document.getElementById('btn-resume').addEventListener('click', function(){
+    pauseOverlay.hidden = true;
+    game.paused = false;
+  });
+  document.getElementById('btn-quit-menu').addEventListener('click', function(){
+    pauseOverlay.hidden = true;
+    game.paused = false;
+    destroyPlayers();
+    showScreen('start');
+  });
+
+  var countBtns = Array.prototype.slice.call(document.querySelectorAll('.count-btn'));
+  countBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      game.count = Number(b.getAttribute('data-count'));
+      countBtns.forEach(function(x){
+        var on = x === b;
+        x.classList.toggle('active', on);
+        x.setAttribute('aria-checked', on ? 'true' : 'false');
+      });
+    });
+  });
+
+  // ---------- History & high scores (saved in this browser) ----------
+  var HKEY = 'potongPecahan.history.v1';
+  var HMAX = 1000;
+  var MODE_LABEL = { dasar:'Bagian Pecahan', operasi:'Operasi', persen:'Desimal & Persen', kali:'Perkalian', bagi:'Pembagian' };
+  var MODE_ICON = { dasar:'🍕', operasi:'➕➖', persen:'💯', kali:'✖️', bagi:'➗' };
+
+  function loadHistory(){
+    try{
+      var raw = localStorage.getItem(HKEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){ return []; }
+  }
+  function saveHistory(arr){
+    try{ localStorage.setItem(HKEY, JSON.stringify(arr.slice(-HMAX))); return true; }catch(e){ return false; }
+  }
+  function pctOf(e){ return e.total ? Math.round(e.correct*100/e.total) : 0; }
+  function compareBest(a,b){ return pctOf(b)-pctOf(a) || b.score-a.score || a.t-b.t; }
+
+  // Saves one entry per player; shows "rekor baru" if someone tops this mode's board.
+  function recordGame(players){
+    var hist = loadHistory();
+    var prevBest = hist.filter(function(e){ return e.mode===game.mode; }).sort(compareBest)[0];
+    var gid = Date.now() + '-' + Math.floor(Math.random()*1e6);
+    var now = Date.now();
+    var entries = players.map(function(p){
+      return { gid:gid, t:now, name:p.name, color:p.color, mode:game.mode, count:game.count,
+               nPlayers:players.length, correct:p.correctCount, total:p.total, score:p.score };
+    });
+    var saved = saveHistory(hist.concat(entries));
+    var recEl = document.getElementById('end-record');
+    recEl.hidden = true;
+    if(!saved) return;
+    var top = entries.slice().sort(compareBest)[0];
+    if(top.correct > 0 && (!prevBest || compareBest(top, prevBest) < 0)){
+      recEl.textContent = '🏅 Rekor baru mode ' + MODE_LABEL[game.mode] + ': ' + top.name + ' (' + pctOf(top) + '%)';
+      recEl.hidden = false;
+    }
+  }
+
+  var hView = { tab:'best', mode:'all', clearArmed:false };
+  var hTabs = document.getElementById('h-tabs');
+  var hModes = document.getElementById('h-modes');
+  var hList = document.getElementById('h-list');
+  var btnClear = document.getElementById('btn-h-clear');
+
+  (function buildModeChips(){
+    var modes = [['all','Semua']].concat(Object.keys(MODE_LABEL).map(function(k){ return [k, MODE_ICON[k]+' '+MODE_LABEL[k]]; }));
+    modes.forEach(function(m){
+      var b = document.createElement('button');
+      b.className = 'chip' + (m[0]==='all' ? ' active' : '');
+      b.setAttribute('data-mode-filter', m[0]);
+      b.textContent = m[1];
+      hModes.appendChild(b);
+    });
+  })();
+
+  function fmtDate(t){
+    try{ return new Date(t).toLocaleString('id-ID', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }); }
+    catch(e){ return new Date(t).toISOString().slice(0,16).replace('T',' '); }
+  }
+  function mk(tag, cls, text){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(text != null) e.textContent = text;
+    return e;
+  }
+  function soalLabel(e){ return e.count + ' soal' + (e.mode==='kali' ? ' (' + e.total + ' langkah)' : ''); }
+
+  function renderHistory(){
+    Array.prototype.forEach.call(hTabs.children, function(b){ b.classList.toggle('active', b.getAttribute('data-tab')===hView.tab); });
+    Array.prototype.forEach.call(hModes.children, function(b){ b.classList.toggle('active', b.getAttribute('data-mode-filter')===hView.mode); });
+    hView.clearArmed = false;
+    btnClear.textContent = 'Hapus semua riwayat';
+
+    var hist = loadHistory().filter(function(e){ return hView.mode==='all' || e.mode===hView.mode; });
+    hList.innerHTML = '';
+    btnClear.hidden = loadHistory().length === 0;
+    if(!hist.length){
+      hList.appendChild(mk('li', 'h-empty', 'Belum ada riwayat. Yuk main dulu! 🍕'));
+      return;
+    }
+
+    if(hView.tab === 'best'){
+      hist.sort(compareBest).forEach(function(e, i){
+        var li = mk('li', 'h-item');
+        var top = mk('div', 'h-top');
+        top.appendChild(mk('div', 'h-rank', i<3 ? ['🥇','🥈','🥉'][i] : String(i+1)));
+        var main = mk('div', 'h-main');
+        main.appendChild(mk('div', 'h-name', e.name));
+        main.appendChild(mk('div', 'h-meta', MODE_ICON[e.mode] + ' ' + MODE_LABEL[e.mode] + ' · ' + soalLabel(e) + ' · ' + fmtDate(e.t)));
+        top.appendChild(main);
+        var pc = mk('div', 'h-pct', pctOf(e) + '%');
+        pc.appendChild(mk('small', null, '⭐ ' + e.score + ' · ' + e.correct + '/' + e.total));
+        top.appendChild(pc);
+        li.appendChild(top);
+        hList.appendChild(li);
+      });
+    } else {
+      // group per game, newest first
+      var groups = {}, order = [];
+      hist.forEach(function(e){
+        if(!groups[e.gid]){ groups[e.gid] = []; order.push(e.gid); }
+        groups[e.gid].push(e);
+      });
+      order.reverse().forEach(function(gid){
+        var g = groups[gid].slice().sort(compareBest);
+        var e0 = g[0];
+        var li = mk('li', 'h-item');
+        li.appendChild(mk('div', 'h-meta', fmtDate(e0.t) + ' · ' + MODE_ICON[e0.mode] + ' ' + MODE_LABEL[e0.mode] + ' · ' + soalLabel(e0) + ' · ' + (g.length>1 ? g.length + ' pemain' : '1 pemain')));
+        var pl = mk('div', 'h-players');
+        g.forEach(function(e, i){
+          var row = mk('div', 'h-player');
+          var dot = mk('span', 'dot'); dot.style.background = e.color || 'var(--tomato)';
+          row.appendChild(dot);
+          var win = g.length>1 && i===0 && (pctOf(g[0])!==pctOf(g[1]) || g[0].score!==g[1].score);
+          row.appendChild(mk('span', 'nm', (win ? '🏆 ' : '') + e.name));
+          row.appendChild(mk('span', 'rs', pctOf(e) + '% · ⭐ ' + e.score + ' · ' + e.correct + '/' + e.total));
+          pl.appendChild(row);
+        });
+        li.appendChild(pl);
+        hList.appendChild(li);
+      });
+    }
+  }
+
+  function openHistory(){ hView.mode = hView.mode || 'all'; renderHistory(); showScreen('history'); }
+  document.getElementById('btn-history').addEventListener('click', openHistory);
+  document.getElementById('btn-end-history').addEventListener('click', function(){ hView.mode = game.mode; openHistory(); });
+  document.getElementById('btn-h-back').addEventListener('click', function(){ showScreen('start'); });
+  hTabs.addEventListener('click', function(ev){
+    var t = ev.target.closest('[data-tab]'); if(!t) return;
+    hView.tab = t.getAttribute('data-tab'); renderHistory();
+  });
+  hModes.addEventListener('click', function(ev){
+    var t = ev.target.closest('[data-mode-filter]'); if(!t) return;
+    hView.mode = t.getAttribute('data-mode-filter'); renderHistory();
+  });
+  btnClear.addEventListener('click', function(){
+    if(!hView.clearArmed){
+      hView.clearArmed = true;
+      btnClear.textContent = 'Yakin? Tap sekali lagi untuk menghapus';
+      return;
+    }
+    try{ localStorage.removeItem(HKEY); }catch(e){}
+    renderHistory();
+  });
+
+  setCount(1);
+  showScreen('start');
+})();
+</script>
+
+</body>
+</html>
