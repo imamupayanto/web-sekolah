@@ -141,12 +141,22 @@ mark{background:var(--sun);color:var(--navy);padding:0 .3em;border-radius:.3em}
 .role span{font-size:.72rem;font-weight:900;letter-spacing:.04em;opacity:.92}
 .role.rumah{--z:var(--rumah)}.role.sekolah{--z:var(--sekolah)}.role.masy{--z:var(--masy)}
 .side{display:flex;flex-direction:column;gap:.9rem}
+.diffs.modes{grid-template-columns:repeat(2,minmax(0,1fr))}
+.klasik .cbtn.pass{display:none}
+.board-scores li small{display:block;font-size:.78rem;font-weight:800;color:var(--muted)}
+.players{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin:0 0 1.3rem}
+.pl{position:relative;border-radius:1rem;padding:.7rem .9rem;color:#fff;background:var(--z)}
+.pl.rumah{--z:var(--rumah)}.pl.sekolah{--z:var(--sekolah)}.pl.masy{--z:var(--masy)}
+.pl small{display:block;font-size:.78rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;opacity:.92}
+.pl b{display:block;font-family:var(--display);font-size:2.2rem;line-height:1;font-variant-numeric:tabular-nums}
+.pl span{font-size:.9rem;font-weight:800}
+.pl .top{position:absolute;right:.6rem;top:.6rem;background:var(--sun);color:var(--navy);font-size:.72rem;font-weight:900;padding:.1rem .5rem;border-radius:999px}
 .diffs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;margin-top:-.4rem}
-.diff{border:.2rem solid var(--line);background:var(--paper);color:var(--ink);border-radius:1rem;padding:.5rem .4rem;cursor:pointer;text-align:center}
-.diff b{display:block;font-family:var(--display);font-size:1.45rem;line-height:1.05}
-.diff span{font-size:.72rem;font-weight:800;color:var(--muted)}
-.diff[aria-pressed="true"]{border-color:var(--navy);background:var(--navy);color:#fff}
-.diff[aria-pressed="true"] span{color:#ffffffc7}
+.diff,.mbtn{border:.2rem solid var(--line);background:var(--paper);color:var(--ink);border-radius:1rem;padding:.5rem .4rem;cursor:pointer;text-align:center}
+.diff b,.mbtn b{display:block;font-family:var(--display);font-size:1.45rem;line-height:1.05}
+.diff span,.mbtn span{font-size:.72rem;font-weight:800;color:var(--muted)}
+.diff[aria-pressed="true"],.mbtn[aria-pressed="true"]{border-color:var(--navy);background:var(--navy);color:#fff}
+.diff[aria-pressed="true"] span,.mbtn[aria-pressed="true"] span{color:#ffffffc7}
 .lbl,label.lbl{font-size:.85rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 input#teamName{width:100%;box-sizing:border-box;font-family:var(--display);font-weight:800;font-size:1.7rem;color:var(--navy);border:.2rem solid var(--line);border-radius:1rem;padding:.4rem .9rem;background:var(--paper)}
 .btn{font-family:var(--display);font-weight:800;font-size:1.8rem;border:0;border-radius:1rem;padding:.65rem 2rem;background:var(--flag);color:#fff;box-shadow:0 .4rem 0 var(--flag-deep);cursor:pointer}
@@ -244,6 +254,11 @@ input#teamName{width:100%;box-sizing:border-box;font-family:var(--display);font-
       <div class="side">
         <label class="lbl" for="teamName">Nama kelompok</label>
         <input id="teamName" maxlength="24" value="Kelompok 1" autocomplete="off">
+        <div class="lbl">Mode permainan</div>
+        <div class="diffs modes">
+          <button class="mbtn" data-m="kerja"><b>Kerja Sama</b><span>Saling oper kartu ke teman</span></button>
+          <button class="mbtn" data-m="klasik"><b>Klasik</b><span>Tanpa oper, urus lajur sendiri</span></button>
+        </div>
         <div class="lbl">Kecepatan kartu</div>
         <div class="diffs">
           <button class="diff" data-d="lambat"><b>Lambat</b><span>Banyak waktu membaca</span></button>
@@ -305,6 +320,7 @@ input#teamName{width:100%;box-sizing:border-box;font-family:var(--display);font-
       <div class="big-score"><small>Skor tim</small><span id="resScore">0</span></div>
     </div>
     <div class="stats" id="stats"></div>
+    <div class="players" id="players"></div>
     <div class="res-grid">
       <div class="list"><h3>Pasangan yang kalian temukan</h3><ul id="pairs"></ul></div>
       <div class="list"><h3>Yuk, pelajari lagi</h3><ul id="learn"></ul></div>
@@ -336,6 +352,7 @@ const DIFF={
 const RULES={dur:150,need:2,lives:5,wrong:.5,match:.6,decoy:.15,hard:.4,lifeEvery:3};
 Object.values(DIFF).forEach(d=>Object.assign(d,RULES));
 let diff='sedang',GAME=DIFF[diff];
+const MODES={kerja:'Kerja Sama',klasik:'Klasik'};let mode='kerja';
 const ICON=[
  '<svg viewBox="0 0 24 24"><path d="M3 11.5 12 3.5l9 8V21h-6v-6H9v6H3z"/></svg>',
  '<svg viewBox="0 0 24 24"><path d="M12 3 1.5 8.5 12 14l10.5-5.5zM5.5 12v4.5c0 2 2.9 4 6.5 4s6.5-2 6.5-4V12L12 15.5z"/></svg>',
@@ -448,7 +465,7 @@ function missionOf(text){for(let z=0;z<3;z++)for(const m of MISSIONS[z])if(m.k.i
 /* ---------- state ---------- */
 function freshState(team){
   return {team,lives:GAME.lives,score:0,streak:0,done:0,doneLane:[0,0,0],queue:[[],[],[]],mis:[null,null,null],
-    stats:{ok:0,coop:0,avoid:0,wrong:0,miss:0},mistakes:[],pairs:[],cards:[],badDeck:[],hardDeck:[],
+    stats:{ok:0,coop:0,avoid:0,wrong:0,miss:0},pscore:[0,0,0],pok:[0,0,0],pbad:[0,0,0],mistakes:[],pairs:[],cards:[],badDeck:[],hardDeck:[],
     running:false,paused:false,over:false,t:GAME.dur,spawnT:0};
 }
 const onScreen=t=>S.cards.some(c=>c.text===t);
@@ -463,7 +480,7 @@ function spawn(){
     for(const l of order){
       const M=S.mis[l];if(M.lock)continue;
       const opts=M.m.k.filter(k=>!M.got.includes(k)&&!onScreen(k));
-      if(opts.length){text=opts[rnd(opts.length)];kind='match';lane=Math.random()<GAME.wrong?[0,1,2].filter(x=>x!==l)[rnd(2)]:l;break}
+      if(opts.length){text=opts[rnd(opts.length)];kind='match';lane=Math.random()<(mode==='klasik'?.3:GAME.wrong)?[0,1,2].filter(x=>x!==l)[rnd(2)]:l;break}
     }
   }else if(r<GAME.match+GAME.decoy){
     const active=S.mis.map(M=>M.m);
@@ -481,7 +498,7 @@ function spawn(){
 }
 function makeCard(text,kind,lane){
   const el=document.createElement('div');el.className='card';
-  el.innerHTML=`<div class="in" style="--tilt:${(Math.random()*3-1.5).toFixed(1)}deg">${text}<div class="hint">ketuk = tangkap · geser = oper</div></div>`;
+  el.innerHTML=`<div class="in" style="--tilt:${(Math.random()*3-1.5).toFixed(1)}deg">${text}<div class="hint">${mode==='klasik'?'ketuk jika cocok · biarkan jika bukan':'ketuk = tangkap · geser = oper'}</div></div>`;
   lanes[lane].field.appendChild(el);
   const inner=el.firstChild;
   const c={el,inner,text,kind,lane,y:0,top:0,passed:false,done:false,h:el.offsetHeight,drag:null};
@@ -526,8 +543,8 @@ function catchCard(c){
   const lane=c.lane,M=S.mis[lane],need=neededBy(c.text);
   if(need===lane){
     S.streak++;const mult=S.streak>=5?2:1;
-    let pts=10;if(c.passed){pts+=5;S.stats.coop++}
-    pts*=mult;S.score+=pts;S.stats.ok++;
+    let pts=10;if(c.passed){pts+=5;S.stats.coop++;S.pscore[c.passer]+=5*mult}
+    pts*=mult;S.score+=pts;S.stats.ok++;S.pscore[lane]+=10*mult;S.pok[lane]++;
     M.got.push(c.text);
     pop(lane,c.top,`+${pts}`+(c.passed?' Kerja sama!':'')+(mult>1?' Kombo':''),'good');
     removeCard(c,'caught');sfx('good');
@@ -535,17 +552,17 @@ function catchCard(c){
     if(M.got.length>=GAME.need)completeMission(lane);
   }else{
     let msg;
-    if(need>=0)msg=`Cocok untuk misi ${ZN[need]}! Oper ke sana`;
+    if(need>=0)msg=mode==='klasik'?`Itu untuk misi ${ZN[need]}, bukan misimu`:`Cocok untuk misi ${ZN[need]}! Oper ke sana`;
     else if(c.kind==='bad')msg='Itu hanya menuntut hak!';
     else msg='Kewajiban baik, tapi bukan untuk misi ini';
-    S.streak=0;S.stats.wrong++;mistake(c.text,`Ditangkap di ${ZN[lane]}`);
+    S.streak=0;S.stats.wrong++;S.pbad[lane]++;mistake(c.text,`Ditangkap di ${ZN[lane]}`);
     pop(lane,c.top,msg,'bad');removeCard(c,'wrong');sfx('bad');loseLife();
   }
   renderHUD();
 }
 function completeMission(l){
   const M=S.mis[l];M.lock=true;
-  S.score+=30;S.done++;S.doneLane[l]++;S.pairs.push({z:l,h:M.m.h,k:M.got.slice()});
+  S.score+=30;S.pscore[l]+=30;S.done++;S.doneLane[l]++;S.pairs.push({z:l,h:M.m.h,k:M.got.slice()});
   pop(l,FH*.3,'Seimbang! +30','good');sfx('done');
   const bk=lanes[l].bk;bk.classList.remove('bump');void bk.offsetWidth;bk.classList.add('bump');
   if(S.done%GAME.lifeEvery===0&&S.lives<GAME.lives){S.lives++;const h=$('#hearts');h.classList.remove('gain');void h.offsetWidth;h.classList.add('gain');pop(l,FH*.45,'Nyawa +1','info')}
@@ -553,6 +570,7 @@ function completeMission(l){
   renderHUD();
 }
 function passCard(c,dir){
+  if(mode==='klasik')return;
   const nl=c.lane+dir;
   if(nl<0||nl>2){c.inner.animate([{transform:'translateX(0) rotate(var(--tilt))'},{transform:`translateX(${dir*12}px) rotate(var(--tilt))`},{transform:'translateX(0) rotate(var(--tilt))'}],{duration:220});return}
   const r0=c.el.getBoundingClientRect();
@@ -562,13 +580,14 @@ function passCard(c,dir){
   void c.el.offsetWidth;
   c.el.style.transition='transform .28s cubic-bezier(.2,.8,.2,1)';c.el.style.transform='';
   setTimeout(()=>{if(!c.done)c.el.style.transition=''},300);
-  c.lane=nl;c.passed=true;sfx('pass');
+  c.passer=c.lane;c.lane=nl;c.passed=true;sfx('pass');
 }
 function missCard(c){
   const need=neededBy(c.text);
-  if(need>=0){S.streak=0;S.stats.miss++;mistake(c.text,'Terlewat jatuh');pop(c.lane,FH*.7,`Terlewat! Dibutuhkan misi ${ZN[need]}`,'bad');sfx('bad');removeCard(c,'gone');loseLife()}
+  /* mode klasik: hanya dihukum jika kartu itu dibutuhkan misi lajur tempat ia jatuh */
+  if(need>=0&&(mode!=='klasik'||need===c.lane)){S.streak=0;S.stats.miss++;S.pbad[c.lane]++;mistake(c.text,'Terlewat jatuh');pop(c.lane,FH*.7,`Terlewat! Dibutuhkan misi ${ZN[need]}`,'bad');sfx('bad');removeCard(c,'gone');loseLife()}
   else{
-    if(c.kind==='bad'){S.score+=5;S.stats.avoid++;pop(c.lane,FH*.75,'Jebakan dihindari +5','good');sfx('avoid')}
+    if(c.kind==='bad'){S.score+=5;S.pscore[c.lane]+=5;S.stats.avoid++;pop(c.lane,FH*.75,'Jebakan dihindari +5','good');sfx('avoid')}
     removeCard(c,'gone');
   }
   renderHUD();
@@ -583,7 +602,7 @@ function loseLife(){
 function renderHUD(){
   $('#hearts').innerHTML=Array.from({length:GAME.lives},(_,i)=>HEART.replace('<svg',`<svg class="${i<S.lives?'':'lost'}"`)).join('');
   $('#score').textContent=S.score;$('#missions').textContent=S.done;
-  $('#combo').hidden=S.streak<5;$('#teamLabel').textContent=`${S.team} · ${GAME.name}`;
+  $('#combo').hidden=S.streak<5;$('#teamLabel').textContent=`${S.team} · ${MODES[mode]} · ${GAME.name}`;
   lanes.forEach((L,i)=>L.bk.querySelector('b').textContent=S.doneLane[i]);
 }
 function renderTimer(){
@@ -638,14 +657,16 @@ function endGame(timeUp){
   S.over=true;S.running=false;
   setTimeout(clearField,600);
   const st=GAME.stars,stars=S.done>=st[0]?3:S.done>=st[1]?2:S.done>=st[2]?1:0;
-  saveScore({team:S.team,score:S.score,stars});
-  $('#resTeam').textContent=`${S.team} · Kecepatan ${GAME.name}`;
+  saveScore({team:S.team,score:S.score,stars,p:S.pscore.slice()});
+  const best=Math.max(...S.pscore);
+  $('#players').innerHTML=[0,1,2].map(i=>`<div class="pl ${ZC[i]}">${best>0&&S.pscore[i]===best?'<span class="top">Poin tertinggi</span>':''}<small>Pemain ${i+1} · ${ZN[i]}</small><b>${S.pscore[i]}</b><span>${S.pok[i]} benar · ${S.pbad[i]} salah/terlewat</span></div>`).join('');
+  $('#resTeam').textContent=`${S.team} · Mode ${MODES[mode]} · Kecepatan ${GAME.name}`;
   $('#resTitle').textContent=timeUp?`Waktu habis! ${S.done} misi selesai`:`Nyawa habis! ${S.done} misi selesai`;
   $('#resScore').textContent=S.score;
   $('#stars').innerHTML=[0,1,2].map(i=>STAR.replace('<svg',`<svg class="${i<stars?'on':''}"`)).join('');
-  $('#stats').innerHTML=[[S.done,'Misi seimbang'],[S.stats.ok,'Kewajiban tepat'],[S.stats.coop,'Oper kerja sama'],[S.stats.avoid,'Jebakan dihindari']]
+  $('#stats').innerHTML=[[S.done,'Misi seimbang'],[S.stats.ok,'Kewajiban tepat'],mode==='klasik'?[S.stats.miss,'Kartu terlewat']:[S.stats.coop,'Oper kerja sama'],[S.stats.avoid,'Jebakan dihindari']]
     .map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join('');
-  $('#pairs').innerHTML=S.pairs.length?S.pairs.slice(-6).map(p=>`<li><span class="h">${ZN[p.z]} · Hak: ${p.h}</span><em>Kewajiban:</em> ${p.k.join(', ')}</li>`).join(''):'<li>Belum ada misi yang selesai.<span>Coba lagi dan saling oper kartu!</span></li>';
+  $('#pairs').innerHTML=S.pairs.length?S.pairs.slice(-6).map(p=>`<li><span class="h">${ZN[p.z]} · Hak: ${p.h}</span><em>Kewajiban:</em> ${p.k.join(', ')}</li>`).join(''):`<li>Belum ada misi yang selesai.<span>${mode==='klasik'?'Coba lagi, baca misi lajurmu baik-baik!':'Coba lagi dan saling oper kartu!'}</span></li>`;
   const seen=new Set(),list=S.mistakes.filter(m=>!seen.has(m.text)&&seen.add(m.text)).slice(-5);
   $('#learn').innerHTML=list.length?list.map(m=>`<li>${m.text}<span>${m.what} · <em>${m.right}</em></span></li>`).join(''):'<li>Hebat! Tidak ada kartu yang salah.<span>Kerja sama kalian luar biasa.</span></li>';
   renderScores();
@@ -663,18 +684,18 @@ function act(i,a){
 function setPause(on){if(!S||!S.running||S.over||!$('#ovRestart').hidden||!$('#ovRules').hidden)return;S.paused=on;show('#ovPause',on)}
 
 /* ---------- papan skor ---------- */
-const SK=()=>'penjaga3zona-misi-'+diff;const memScores={};
-function loadScores(){if(memScores[diff])return memScores[diff];try{return JSON.parse(localStorage.getItem(SK()))||[]}catch(e){return []}}
-function saveScore(r){const l=loadScores().concat(r).sort((a,b)=>b.score-a.score).slice(0,20);memScores[diff]=l;try{localStorage.setItem(SK(),JSON.stringify(l))}catch(e){}}
+const SK=()=>(mode==='klasik'?'penjaga3zona-klasik-':'penjaga3zona-misi-')+diff;const memScores={};
+function loadScores(){if(memScores[SK()])return memScores[SK()];try{return JSON.parse(localStorage.getItem(SK()))||[]}catch(e){return []}}
+function saveScore(r){const l=loadScores().concat(r).sort((a,b)=>b.score-a.score).slice(0,20);memScores[SK()]=l;try{localStorage.setItem(SK(),JSON.stringify(l))}catch(e){}}
 function renderScores(){
   const l=loadScores().slice(0,8);
-  document.querySelectorAll('.sb-tier').forEach(s=>s.textContent=GAME.name);
+  document.querySelectorAll('.sb-tier').forEach(s=>s.textContent=`${MODES[mode]} · ${GAME.name}`);
   document.querySelectorAll('.scorelist').forEach(ol=>{
-    ol.innerHTML=l.length?l.map((r,i)=>`<li><span>${i+1}. ${String(r.team).replace(/</g,'&lt;')}</span><span>${'★'.repeat(r.stars)} ${r.score}</span></li>`).join(''):'<li class="empty">Belum ada skor. Kelompok pertama, ayo!</li>';
+    ol.innerHTML=l.length?l.map((r,i)=>`<li><span>${i+1}. ${String(r.team).replace(/</g,'&lt;')}</span><span>${'★'.repeat(r.stars)} ${r.score}</span></li>`.replace('</span><span>',(r.p?`<small>P1 ${r.p[0]} · P2 ${r.p[1]} · P3 ${r.p[2]}</small>`:'')+'</span><span>')).join(''):'<li class="empty">Belum ada skor. Kelompok pertama, ayo!</li>';
   });
 }
 document.querySelectorAll('.clr').forEach(b=>b.addEventListener('click',()=>{
-  if(b.dataset.arm){try{localStorage.removeItem(SK())}catch(e){};memScores[diff]=[];renderScores();document.querySelectorAll('.clr').forEach(x=>{x.textContent='Hapus';delete x.dataset.arm});return}
+  if(b.dataset.arm){try{localStorage.removeItem(SK())}catch(e){};memScores[SK()]=[];renderScores();document.querySelectorAll('.clr').forEach(x=>{x.textContent='Hapus';delete x.dataset.arm});return}
   b.dataset.arm='1';b.textContent='Yakin hapus semua?';
   setTimeout(()=>{delete b.dataset.arm;b.textContent='Hapus'},3000);
 }));
@@ -711,6 +732,13 @@ function setDiff(d){
   renderScores();
 }
 document.querySelectorAll('.diff').forEach(b=>b.addEventListener('click',()=>setDiff(b.dataset.d)));
+function setMode(m){
+  mode=m;$('#board').classList.toggle('klasik',m==='klasik');
+  document.querySelectorAll('.mbtn').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));
+  renderScores();
+}
+document.querySelectorAll('.mbtn').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.m)));
+setMode('kerja');
 setDiff('sedang');
 /* ---------- aturan & ulangi ---------- */
 function buildRules(){
@@ -733,7 +761,9 @@ function buildRules(){
   <h3 style="margin-top:1rem">Aturan lain</h3>
   <p class="note">Tim punya 5 nyawa. Setiap 3 misi selesai, nyawa bertambah 1 (maksimal 5). Permainan selesai saat waktu 2,5 menit habis atau nyawa habis.</p></section>
   <section><h3>Bintang dihitung dari misi selesai</h3><div class="tw"><table class="rt st"><tr><th>Kecepatan</th><th>★</th><th>★★</th><th>★★★</th></tr>${st}</table></div>
-  <p class="note">Papan skor kelas diurutkan dari skor tertinggi dan dipisah per kecepatan.</p></section>`;
+  <p class="note">Papan skor kelas diurutkan dari skor tertinggi dan dipisah per mode dan kecepatan.</p></section>
+  <section><h3>Mode Klasik</h3><p class="note">Tidak ada oper. Tiap pemain hanya menangkap kartu yang cocok dengan misi lajurnya. Kartu yang bukan untuk misimu, termasuk yang cocok untuk misi teman, cukup dibiarkan jatuh. Nyawa berkurang hanya jika salah tangkap atau kartu yang dibutuhkan misi lajurmu terlewat.</p>
+  <h3 style="margin-top:1rem">Nilai tiap pemain</h3><p class="note">Poin tangkapan, kombo, dan +30 misi masuk ke pemain lajur itu. Bonus kerja sama +5 masuk ke pemain yang mengoper. +5 jebakan dihindari masuk ke pemain lajur tempat kartu itu jatuh.</p></section>`;
 }
 buildRules();
 let rulesFrom='#ovStart';
