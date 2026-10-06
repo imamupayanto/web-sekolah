@@ -20,7 +20,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-grad
 .top b{display:block;font-size:16.5px;font-weight:800;line-height:1.2}.top small{opacity:.88;font-size:12.5px;font-weight:600}
 main{max-width:760px;margin:-18px auto 0;padding:0 16px 104px}
 .view{animation:masuk .35s ease both}
-@keyframes masuk{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes masuk{from{opacity:0}to{opacity:1}}
 .card{background:var(--card);border-radius:var(--r);padding:22px 20px;margin-bottom:14px;box-shadow:var(--shadow)}
 h1{font-size:27px;font-weight:900;line-height:1.15;margin:.15em 0 .3em}h2{font-size:19px;font-weight:800;margin:0 0 12px}h3{font-size:17px;font-weight:800;margin:22px 0 8px}
 .eyebrow{margin:0;color:var(--pri);font-weight:800;font-size:13px;letter-spacing:.03em;text-transform:uppercase}
@@ -49,24 +49,29 @@ input.goyang{animation:goyang .35s}
 .tile{background:var(--soft);border-radius:14px;padding:10px 6px;text-align:center}.tile b{display:block;font-size:20px;font-weight:900;color:var(--pri)}.tile span{font-size:12.5px;font-weight:700;color:var(--muted)}
 .rules{list-style:none;margin:0;padding:0}.rules li{display:flex;gap:10px;margin:10px 0;align-items:flex-start}.rules .i{flex:none;width:30px;height:30px;border-radius:10px;background:var(--soft);display:grid;place-items:center;font-size:16px}
 /* quiz */
-.qbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 0 8px;background:linear-gradient(var(--bg) 75%,transparent)}
+.quiz{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;background:var(--bg);height:100vh;height:100dvh}
+.qtop{flex:none;background:#fff;box-shadow:0 2px 12px -6px #1e244030;padding:10px 16px 0;padding-top:calc(10px + env(safe-area-inset-top))}
+.qbar{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.qtop .progress{max-width:760px;margin:10px auto 0;border-radius:0;height:6px}
+.qscroll{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:14px 16px 24px}
+.qscroll .card{max-width:760px;margin:0 auto}
 .timer{font-variant-numeric:tabular-nums;font-weight:900;font-size:17px;background:#fff;border-radius:12px;padding:6px 12px;box-shadow:var(--shadow)}
 .timer.low{color:#fff;background:var(--bad);animation:denyut 1s infinite}
 @keyframes denyut{50%{transform:scale(1.05)}}
 .counter{font-weight:700;color:var(--muted)}.counter b{color:var(--ink);font-size:18px}
-.progress{height:8px;background:#e1e5f2;border-radius:8px;overflow:hidden;margin-bottom:14px}.progress div{height:100%;background:var(--grad);border-radius:8px;transition:width .3s}
+.progress{height:8px;background:#e1e5f2;border-radius:8px;overflow:hidden}.progress div{height:100%;background:var(--grad);border-radius:8px;transition:width .3s}
 .qcard{border-top:6px solid var(--c,var(--pri))}
 .chip{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:800;border-radius:999px;padding:4px 11px;margin:0 6px 6px 0;background:color-mix(in srgb,var(--c) 13%,#fff);color:color-mix(in srgb,var(--c) 82%,#000)}
 .chip.t{background:#f1f3f9;color:var(--muted)}
 .qtext{font-size:19px;font-weight:800;margin:8px 0 18px;white-space:pre-line;line-height:1.45}
 .opt{display:flex;gap:12px;align-items:center;width:100%;text-align:left;font:inherit;font-weight:700;padding:14px;margin:0 0 10px;border:2px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s,transform .12s}
-.opt{scroll-margin:96px 0 120px}.opt:hover{border-color:#c9cff0}
+.opt:hover{border-color:#c9cff0}
 .opt:active{transform:scale(.985)}
 .opt .L{flex:none;width:32px;height:32px;border-radius:11px;display:grid;place-items:center;font-weight:900;background:#f1f3f9;color:var(--muted);font-size:15px;transition:all .15s}
 .opt.sel{border-color:var(--pri);background:#f3f3ff}.opt.sel .L{background:var(--grad);color:#fff}
 .opt.pop{animation:pop .25s}
 @keyframes pop{50%{transform:scale(1.02)}}
-.nav{position:fixed;left:0;right:0;bottom:0;background:#ffffffee;backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));z-index:6}
+.nav{flex:none;background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
 .nav .in{max-width:760px;margin:0 auto;display:flex;gap:10px}.nav .btn{margin:0}
 .overlay{position:fixed;inset:0;background:#1e24406b;z-index:20;display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
 @keyframes fade{from{opacity:0}}
@@ -120,7 +125,9 @@ td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}tr:nth-c
 .rtabs::-webkit-scrollbar{display:none}
 .rtabs .tabs{flex-wrap:nowrap;margin:0}
 .rtabs .tabs button.on{background:var(--c);border-color:var(--c)}
+.mode-quiz{overflow:hidden}.mode-quiz .top{display:none}
 .foot{font-size:13px;color:var(--muted);text-align:center;margin-top:18px;font-weight:600}
+@media (max-width:400px){.qtext{font-size:17px;margin:6px 0 14px}.opt{padding:11px 12px;margin-bottom:8px;font-size:15.5px}.opt .L{width:28px;height:28px;font-size:14px}.card{padding:18px 16px}.timer{font-size:16px;padding:5px 10px}.nav .btn{padding:12px 10px;font-size:15px}h1{font-size:24px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -165,7 +172,7 @@ const sisaMs = () => S.mulai + DURASI_MENIT * 60000 - Date.now();
 function stopTimer(){ if (timerId) { clearInterval(timerId); timerId = null; } }
 function overlay(html){ const d = document.createElement('div'); d.className = 'overlay'; d.innerHTML = `<div class="sheet">${html}</div>`; d.addEventListener('click', e => { if (e.target === d) d.remove(); }); document.body.appendChild(d); return d; }
 const top0 = () => window.scrollTo(0, 0);
-const tampil = html => { app.innerHTML = `<div class="view">${html}</div>`; };
+const tampil = html => { if (!html.includes('class="quiz"')) document.body.classList.remove('mode-quiz'); app.innerHTML = `<div class="view">${html}</div>`; };
 const chipMapel = () => `<div class="mapelrow">${MAPEL.map(m => `<span class="mp" style="--c:${m[4]}">${m[3]} ${m[1]}</span>`).join('')}</div>`;
 
 /* ---------- BERANDA ---------- */
@@ -247,11 +254,14 @@ function viewMenu(){
 function viewQuiz(){
   lastView = 'quiz';
   if (sisaMs() <= 0) return selesai('Waktu habis');
+  document.body.classList.add('mode-quiz');
   tampil(`
-  <div class="qbar"><span id="timer" class="timer">⏱ --:--</span><span class="counter">Soal <b id="no"></b>/${S.soal.length}</span><button class="btn small" id="daftar">☰ Daftar</button></div>
-  <div class="progress"><div id="prog"></div></div>
-  <section class="card qcard" id="qcard"></section>
-  <div class="nav"><div class="in"><button class="btn" id="prev">‹ Sebelumnya</button><button class="btn primary" id="next">Berikutnya ›</button></div></div>`);
+  <div class="quiz">
+    <div class="qtop"><div class="qbar"><span id="timer" class="timer">⏱ --:--</span><span class="counter">Soal <b id="no"></b>/${S.soal.length}</span><button class="btn small" id="daftar">☰ Daftar</button></div>
+      <div class="progress"><div id="prog"></div></div></div>
+    <div class="qscroll" id="qscroll"><section class="card qcard" id="qcard"></section></div>
+    <div class="nav"><div class="in"><button class="btn" id="prev">‹ Sebelumnya</button><button class="btn primary" id="next">Berikutnya ›</button></div></div>
+  </div>`);
   document.getElementById('prev').onclick = () => { if (S.idx > 0) { S.idx--; simpan(); renderSoal(); } };
   document.getElementById('next').onclick = () => { if (S.idx < S.soal.length - 1) { S.idx++; simpan(); renderSoal(); } else konfirmasi(); };
   document.getElementById('daftar').onclick = daftarSoal;
@@ -273,7 +283,7 @@ function renderSoal(pilihBaru = -1){
   card.querySelectorAll('.opt').forEach(b => b.onclick = () => { const i = +b.dataset.i; S.jawab[S.idx] = (S.jawab[S.idx] === i ? null : i); simpan(); renderSoal(S.jawab[S.idx] === i ? i : -1); });
   document.getElementById('prev').disabled = S.idx === 0;
   document.getElementById('next').textContent = S.idx === S.soal.length - 1 ? 'Selesai ✓' : 'Berikutnya ›';
-  if (pilihBaru < 0) top0();
+  if (pilihBaru < 0) { const qs = document.getElementById('qscroll'); if (qs) qs.scrollTop = 0; }
 }
 function daftarSoal(){
   const d = overlay(`<h2>Daftar soal</h2><p class="legend">Ungu = sudah dijawab · ${terjawab(S)} dari ${S.soal.length} terjawab</p>
