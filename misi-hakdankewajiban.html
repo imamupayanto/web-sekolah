@@ -47,6 +47,18 @@ button:focus-visible,input:focus-visible{outline:.25rem solid var(--sun);outline
 .ibtn{width:2.8rem;height:2.8rem;border:0;border-radius:.8rem;background:#ffffff1f;color:#fff;display:grid;place-items:center;cursor:pointer}
 .ibtn svg{width:1.4rem;height:1.4rem}
 .ibtn.off{opacity:.45}
+.ibtn.wide{width:auto;padding:0 .9rem;gap:.4rem;display:flex;align-items:center;font-family:var(--display);font-weight:800;font-size:1.15rem}
+.rtables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem 1.6rem;margin-top:1.2rem;text-align:left}
+.rtables section{min-width:0}
+.tw{overflow-x:auto}
+.rt{width:100%;border-collapse:collapse;font-size:1rem;font-weight:800}
+.rt th{text-align:left;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:.3rem .5rem;border-bottom:.15rem solid var(--line)}
+.rt td{padding:.45rem .5rem;border-bottom:.1rem solid var(--line);vertical-align:top}
+.rt td:last-child{white-space:nowrap;font-family:var(--display);font-size:1.15rem;color:var(--navy);text-align:right}
+.rt.st td:last-child{text-align:left;font-family:var(--body);font-size:1rem;color:var(--ink)}
+.rt .plus{color:var(--good)}.rt .min{color:var(--bad)}
+.note{font-size:.95rem;font-weight:800;color:var(--muted);margin:.5rem 0 0}
+.ex-calc{background:var(--sun);color:var(--navy);border-radius:1rem;padding:.6rem .9rem;font-weight:900;margin-top:.8rem}
 .tbar{position:absolute;left:1.1rem;right:1.1rem;bottom:.3rem;height:.28rem;background:#ffffff22;border-radius:9px;overflow:hidden}
 .tbar i{display:block;height:100%;width:100%;background:var(--sun);border-radius:inherit;transition:width .25s linear}
 
@@ -148,6 +160,8 @@ input#teamName{width:100%;box-sizing:border-box;font-family:var(--display);font-
 .board-scores li:first-child{color:var(--flag)}
 .board-scores .empty{font-weight:800;color:var(--muted);font-size:.95rem}
 .lv-panel{width:min(48rem,94vw);text-align:center}
+.rules-panel{width:min(70rem,94vw)}
+@media (max-width:900px){.rtables{grid-template-columns:1fr}}
 #ovCount{background:#15306f66}
 .count{font-family:var(--display);font-weight:800;font-size:13rem;color:#fff;text-shadow:0 .6rem 0 var(--navy-deep);animation:bump .5s}
 .res-top{display:flex;align-items:flex-end;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
@@ -193,6 +207,7 @@ input#teamName{width:100%;box-sizing:border-box;font-family:var(--display);font-
     <div class="stat-h score"><span>Skor tim</span><b id="score">0</b></div>
     <div class="combo" id="combo" hidden>Kombo ×2</div>
     <div class="ibtns">
+      <button class="ibtn wide" id="bRestart" aria-label="Ulangi permainan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>Ulangi</button>
       <button class="ibtn" id="bPause" aria-label="Jeda (P)"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="5" height="16" rx="1.5"/><rect x="14" y="4" width="5" height="16" rx="1.5"/></svg></button>
       <button class="ibtn" id="bSound" aria-label="Suara"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
       <button class="ibtn" id="bFull" aria-label="Layar penuh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
@@ -236,6 +251,7 @@ input#teamName{width:100%;box-sizing:border-box;font-family:var(--display);font-
           <button class="diff" data-d="cepat"><b>Cepat</b><span>Untuk yang sudah mahir</span></button>
         </div>
         <button class="btn" id="bStart">Mulai Main</button>
+        <button class="btn alt" id="bRules">Aturan &amp; Skor</button>
         <div class="board-scores"><h3><span>Papan Skor · <span class="sb-tier">Sedang</span></span> <button class="clr">Hapus</button></h3><ol class="scorelist"></ol></div>
       </div>
     </div>
@@ -250,7 +266,30 @@ input#teamName{width:100%;box-sizing:border-box;font-family:var(--display);font-
     <h2>Istirahat sebentar</h2>
     <div class="row" style="justify-content:center;margin-top:1.6rem">
       <button class="btn" id="bResume">Lanjut</button>
+      <button class="btn alt" id="bRestart2">Ulangi</button>
+      <button class="btn alt" id="bRules2">Aturan</button>
       <button class="btn alt" id="bQuit">Ke Menu</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ovRules" hidden>
+  <div class="panel rules-panel">
+    <div class="eyebrow">Penjaga 3 Zona</div>
+    <h2>Aturan &amp; Skor</h2>
+    <div class="rtables" id="rulesBody"></div>
+    <div class="row"><button class="btn" id="bRulesClose">Tutup</button></div>
+  </div>
+</div>
+
+<div class="ov" id="ovRestart" hidden>
+  <div class="panel lv-panel">
+    <div class="eyebrow">Ulangi permainan</div>
+    <h2>Mulai lagi dari awal?</h2>
+    <p class="lead" style="margin-inline:auto">Skor dan misi kelompok ini akan diulang dari nol.</p>
+    <div class="row" style="justify-content:center;margin-top:1.4rem">
+      <button class="btn" id="bRestartYes">Ya, ulangi</button>
+      <button class="btn alt" id="bRestartNo">Batal</button>
     </div>
   </div>
 </div>
@@ -509,7 +548,7 @@ function completeMission(l){
   pop(l,FH*.3,'Seimbang! +30','good');sfx('done');
   const bk=lanes[l].bk;bk.classList.remove('bump');void bk.offsetWidth;bk.classList.add('bump');
   if(S.done%GAME.lifeEvery===0&&S.lives<GAME.lives){S.lives++;const h=$('#hearts');h.classList.remove('gain');void h.offsetWidth;h.classList.add('gain');pop(l,FH*.45,'Nyawa +1','info')}
-  setTimeout(()=>{if(S&&!S.over)nextMission(l)},1100);
+  const cur=S;setTimeout(()=>{if(S===cur&&!S.over)nextMission(l)},1100);
   renderHUD();
 }
 function passCard(c,dir){
@@ -536,7 +575,7 @@ function missCard(c){
 function loseLife(){
   S.lives--;
   const h=$('#hearts');h.classList.remove('shake');void h.offsetWidth;h.classList.add('shake');
-  if(S.lives<=0&&!S.over){S.over=true;S.running=false;setTimeout(()=>endGame(false),800)}
+  if(S.lives<=0&&!S.over){S.over=true;S.running=false;const cur=S;setTimeout(()=>{if(S===cur)endGame(false)},800)}
 }
 
 /* ---------- HUD ---------- */
@@ -620,7 +659,7 @@ function act(i,a){
   const c=targetOf(i);if(!c)return;
   if(a==='L'||a==='R')passCard(c,a==='L'?-1:1);else catchCard(c);
 }
-function setPause(on){if(!S||!S.running||S.over)return;S.paused=on;show('#ovPause',on)}
+function setPause(on){if(!S||!S.running||S.over||!$('#ovRestart').hidden||!$('#ovRules').hidden)return;S.paused=on;show('#ovPause',on)}
 
 /* ---------- papan skor ---------- */
 const SK=()=>'penjaga3zona-misi-'+diff;const memScores={};
@@ -671,6 +710,43 @@ function setDiff(d){
 }
 document.querySelectorAll('.diff').forEach(b=>b.addEventListener('click',()=>setDiff(b.dataset.d)));
 setDiff('sedang');
+/* ---------- aturan & ulangi ---------- */
+function buildRules(){
+  const row=(a,b,c)=>`<tr><td>${a}</td><td class="${c||''}">${b}</td></tr>`;
+  const st=Object.values(DIFF).map(d=>`<tr><td>${d.name}</td><td>${d.stars[2]} misi</td><td>${d.stars[1]} misi</td><td>${d.stars[0]} misi</td></tr>`).join('');
+  $('#rulesBody').innerHTML=`
+  <section><h3>Yang menambah skor</h3><div class="tw"><table class="rt"><tr><th>Kejadian</th><th>Poin</th></tr>
+   ${row('Menangkap kewajiban yang cocok dengan misi lajur sendiri','+10','plus')}
+   ${row('Sama, tapi kartunya hasil <b>oper</b> dari teman (bonus kerja sama)','+15','plus')}
+   ${row('<b>Kombo:</b> 5 tangkapan benar berturut-turut atau lebih','Poin ×2','plus')}
+   ${row('Misi selesai (2 kewajiban terkumpul, timbangan seimbang)','+30','plus')}
+   ${row('Kartu "menuntut hak" atau perilaku buruk dibiarkan jatuh','+5','plus')}
+  </table></div>
+  <div class="ex-calc">Contoh: 1 tangkapan biasa + 1 hasil oper + misi selesai = 10 + 15 + 30 = 55 poin</div></section>
+  <section><h3>Yang mengurangi nyawa</h3><div class="tw"><table class="rt"><tr><th>Kejadian</th><th>Akibat</th></tr>
+   ${row('Salah tangkap: kartu buruk, kartu untuk misi teman, atau kewajiban yang bukan untuk misi aktif','−1 nyawa','min')}
+   ${row('Kartu yang dibutuhkan misi terlewat jatuh','−1 nyawa','min')}
+  </table></div>
+  <p class="note">Skor tidak pernah dikurangi, tapi kombo putus. Kewajiban yang tidak dibutuhkan misi mana pun boleh dibiarkan jatuh, tanpa poin dan tanpa mengurangi nyawa.</p>
+  <h3 style="margin-top:1rem">Aturan lain</h3>
+  <p class="note">Tim punya 5 nyawa. Setiap 3 misi selesai, nyawa bertambah 1 (maksimal 5). Permainan selesai saat waktu 2,5 menit habis atau nyawa habis.</p></section>
+  <section><h3>Bintang dihitung dari misi selesai</h3><div class="tw"><table class="rt st"><tr><th>Kecepatan</th><th>★</th><th>★★</th><th>★★★</th></tr>${st}</table></div>
+  <p class="note">Papan skor kelas diurutkan dari skor tertinggi dan dipisah per kecepatan.</p></section>`;
+}
+buildRules();
+let rulesFrom='#ovStart';
+function openRules(from){rulesFrom=from;show(from,false);show('#ovRules',true)}
+$('#bRules').addEventListener('click',()=>openRules('#ovStart'));
+$('#bRules2').addEventListener('click',()=>openRules('#ovPause'));
+$('#bRulesClose').addEventListener('click',()=>{show('#ovRules',false);show(rulesFrom,true)});
+function askRestart(){
+  if(!S||!S.running||S.over)return;
+  S.paused=true;show('#ovPause',false);show('#ovRestart',true);
+}
+$('#bRestart').addEventListener('click',askRestart);
+$('#bRestart2').addEventListener('click',askRestart);
+$('#bRestartNo').addEventListener('click',()=>{show('#ovRestart',false);S.paused=false});
+$('#bRestartYes').addEventListener('click',()=>{show('#ovRestart',false);S.running=false;S.over=true;newGame(S.team)});
 /* contoh misi di layar mulai */
 S=freshState('Kelompok 1');for(let l=0;l<3;l++)nextMission(l);renderHUD();renderTimer();
 })();
