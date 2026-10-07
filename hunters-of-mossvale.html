@@ -311,7 +311,7 @@ const ITEMS={
   guppy:{name:'Ember Guppy',sell:30},gar:{name:'Magma Gar',sell:60},cinderfin:{name:'Cinderfin',sell:160},
   egg:{name:'Monster Egg',sell:350},
   seedV:{name:'Verdant Seed'},seedC:{name:'Ember Seed'},seedF:{name:'Frost Seed'},
-  hotdrink:{name:'Hot Drink',use:1,price:40,hr:3,desc:'Keeps you warm in blizzards'},
+  hotdrink:{name:'Hot Drink',use:1,price:40,hr:2,desc:'Keeps you warm in blizzards'},
   frostcod:{name:'Frost Cod',sell:40},salmon:{name:'Glacier Salmon',sell:80},aurorakoi:{name:'Aurora Koi',sell:260},
   frostfur:{name:'Frost Fur',sell:60},wolffang:{name:'Icefang',sell:80},feather:{name:'Sneakbeak Feather',sell:40},golemcore:{name:'Golem Core',sell:90},
   boarhide:{name:'Boar Hide',sell:30},boartusk:{name:'Bramble Tusk',sell:55},slugslime:{name:'Magma Gel',sell:45},slagshell:{name:'Slag Shell',sell:70},owlplume:{name:'Snow Plume',sell:65},owltalon:{name:'Owl Talon',sell:95},
@@ -461,16 +461,36 @@ const VAR={wyrmC:{base:'wyrm',title:'Blazing Serpent Wyvern',map:{wyrm:'red',bel
   drakeS:{base:'drake',title:'Void-Winged Night Tyrant',map:{drake:'onyx',lava:'purple',gold:'stone',red:'purple'}},
   tuskerS:{base:'tusker',title:'Thunder-Crowned Tusked Beast',map:{fur:'stone',ice:'gold',snow:'white',red:'gold'}}};
 const baseKey=k=>VAR[k]?VAR[k].base:k;
+/* ---- Alpha packs: leader + followers, fought in waves ---- */
+Object.assign(VAR,{boarA:{base:'bramboar',title:'Pack Leader of the Thicket',map:{dirt:'onyx',hair:'red',leaf:'gold'}},
+  wolfA:{base:'icewolf',title:'Pack Leader of Frostpeak',map:{fur:'white',snow:'ice',red:'gold'}},
+  crabA:{base:'embercrab',title:'Pack Leader of the Magma Pools',map:{drake:'onyx',lava:'gold'}}});
+MON.boarA={name:'Alpha Boar',hp:95,atk:22,def:4,weak:'fire',s:2,parts:BODY,alpha:{minion:'bramboar',n:2,mh:.8,ma:1},
+  moves:[...MON.bramboar.moves,{n:'Rampage',p:2,w:1,tell:'scrapes the ground, snorting furiously...'}],drops:[['boarhide',50],['boartusk',30],['bshard',10],['wshard',10]],zenny:90};
+MON.wolfA={name:'Alpha Icefang',hp:185,atk:35,def:7,weak:'fire',res:'ice',s:2,parts:BODY,alpha:{minion:'icewolf',n:2,mh:.4,ma:.68},
+  moves:[...MON.icewolf.moves,{n:'Pack Fang',p:2.1,w:1,tell:'howls, and its eyes lock onto you...'}],drops:[['wolffang',45],['frostfur',35],['bshard',10],['wshard',10]],zenny:160};
+MON.crabA={name:'Alpha Ember Crab',hp:320,atk:45,def:16,weak:'ice',res:'fire',s:2,parts:BODY,alpha:{minion:'embercrab',n:2,mh:1.5,ma:1.3,md:10},
+  moves:[...MON.embercrab.moves,{n:'Molten Crush',p:2.1,st:'burn',sc:.5,w:1,tell:'raises both claws — magma drips from them...'}],drops:[['crabshell',45],['firestone',35],['bshard',10],['wshard',10]],zenny:260};
+/* ---- Boss phase 2: signature moves unlocked below 50% HP ---- */
+MON.wyrm.moves.push({n:'Toxic Deluge',p:1.9,st:'poison',sc:.8,w:2,p2:1,weakBy:'Head',tell:'rears up, its venom sacs swelling...'});
+MON.wyrmC.moves.push({n:'Crimson Deluge',p:2,st:'burn',sc:.7,w:2,p2:1,weakBy:'Head',tell:'rears up, its throat glowing crimson...'});
+MON.tusker.moves.push({n:'Glacial Stampede',p:2.6,w:2,p2:1,legs:1,tell:'stamps the ground — the whole glacier shakes!'});
+MON.tuskerS.moves.push({n:'Thunder Stampede',p:2.6,st:'stun',sc:.4,w:2,p2:1,legs:1,tell:'stamps the ground — lightning arcs across the snow!'});
+MON.drake.moves.push({n:'Meteor Nova',p:2.6,st:'burn',sc:.9,w:2,p2:1,wings:1,air:1,tell:'soars high — the air around it ignites!'});
+MON.drakeS.moves.push({n:'Eclipse Nova',p:2.6,st:'poison',sc:.8,w:2,p2:1,wings:1,air:1,tell:'soars high — the sky itself goes dark!'});
 const PARTPOS={wyrm:{Head:[-30,-14],Body:[8,10],Tail:[44,0]},drake:{Head:[-32,-16],Wings:[16,-30],Body:[8,12],Tail:[52,6]}};
 const QUESTS=[
   {id:'q1',name:'Herbal Remedy',zone:'forest',type:'deliver',item:'herb',n:5,z:150,hr:1,desc:'Gather 5 Herbs in the Misty Forest.'},
   {id:'q2',name:'Moss Menace',zone:'forest',type:'slay',mon:'mossling',n:4,z:250,hr:1,desc:'Slay 4 Mosslings in the tall grass.'},
   {id:'c1',name:'The Lost Kitten',zone:'forest',type:'rescue',z:100,hr:1,req:'q1',desc:'A young cat hunter went missing in the Misty Forest. Find it.'},
-  {id:'q3',name:'The Verdant Wyrm',zone:'forest',type:'hunt',mon:'wyrm',z:800,hr:1,req:'q2',hrUp:2,desc:'Hunt the Verdant Wyrm stalking the forest.'},
+  {id:'a1',name:'Leader of the Thicket',zone:'forest',type:'alpha',mon:'boarA',z:500,hr:1,req:'q2',desc:'An Alpha Boar leads a pack through the forest. Break the pack.'},
+  {id:'q3',name:'The Verdant Wyrm',zone:'forest',type:'hunt',mon:'wyrm',z:800,hr:1,req:'a1',hrUp:2,desc:'Hunt the Verdant Wyrm stalking the forest.'},
   {id:'q6',name:'Frost Hounds',zone:'snow',type:'slay',mon:'icewolf',n:3,z:450,hr:2,req:'q3',desc:'Slay 3 Icefang Wolves on Frostpeak.'},
-  {id:'q7',name:'The Rimeback Tusker',zone:'snow',type:'hunt',mon:'tusker',z:1500,hr:2,req:'q6',hrUp:3,desc:'Hunt the Rimeback Tusker roaming the glacier.'},
+  {id:'a2',name:'Howl on the Peak',zone:'snow',type:'alpha',mon:'wolfA',z:1000,hr:2,req:'q6',desc:'An Alpha Icefang leads a hunting pack on Frostpeak. Break the pack.'},
+  {id:'q7',name:'The Rimeback Tusker',zone:'snow',type:'hunt',mon:'tusker',z:1500,hr:2,req:'a2',hrUp:3,desc:'Hunt the Rimeback Tusker roaming the glacier.'},
   {id:'q4',name:'Crabs in the Deep',zone:'cave',type:'slay',mon:'embercrab',n:3,z:1200,hr:3,req:'q7',desc:'Slay 3 Ember Crabs in the Ember Cave.'},
-  {id:'q5',name:'Cinder Drake Descends',zone:'cave',type:'hunt',mon:'drake',z:3000,hr:3,req:'q4',hrUp:4,desc:'Hunt the Cinder Drake nesting in the cave.'},
+  {id:'a3',name:'King of the Magma Pools',zone:'cave',type:'alpha',mon:'crabA',z:2000,hr:3,req:'q4',desc:'An Alpha Ember Crab rules the deep tunnels with its guards. Break the pack.'},
+  {id:'q5',name:'Cinder Drake Descends',zone:'cave',type:'hunt',mon:'drake',z:3000,hr:3,req:'a3',hrUp:4,desc:'Hunt the Cinder Drake nesting in the cave.'},
   {id:'b1',name:'Bramble Trouble',zone:'forest',type:'slay',mon:'bramboar',n:3,z:320,hr:1,req:'q2',desc:'Slay 3 Bramble Boars tearing up the forest.'},
   {id:'b3',name:'Owls of Frostpeak',zone:'snow',type:'slay',mon:'snowowl',n:3,z:650,hr:2,req:'q6',desc:'Slay 3 Snow Owls hunting on Frostpeak.'},
   {id:'b2',name:'Molten Slugs',zone:'cave',type:'slay',mon:'magslug',n:3,z:1300,hr:3,req:'q4',desc:'Slay 3 Magma Slugs clogging the cave tunnels.'},
@@ -1068,6 +1088,10 @@ function portrait(k){if(PORTRAITS[k])return PORTRAITS[k];
     guild:()=>face('skin','red',{body:'cloth',blush:1,eye:'cloth'}),
     gate:()=>face('skin','hair',{helm:'steel',body:'steel',beard:'hair',beardL:1}),
     hunter:()=>face('skin','hair',{body:ARMRAMP[S.arm],blush:1}),
+    brann:()=>face('skin','hair',{helm:'ice',body:'ice',beard:'hair',beardL:1}),
+    kira:()=>face('skin','red',{body:'drake',band:'drake',blush:1}),
+    rowan:()=>face('skin','white',{body:'snow',brow:'white'}),
+    pip:()=>face('skin','hair',{body:'grass',blush:1}),
     stranger:()=>{face('skin','purple',{body:'purple'});p.disc(18,11,13,10,'purple',2);p.rect(5,11,5,20,'purple',1);p.rect(26,11,5,20,'purple',1);p.rect(10,14,16,7,'purple',0,true);p.rect(12,17,3,1,'gold',4,true);p.rect(21,17,3,1,'gold',4,true)}};
   (P[k]||P.guild)();return PORTRAITS[k]=p.render().toDataURL()}
 
@@ -1238,6 +1262,8 @@ embercrab:{w:72,h:52,ox:36,oy:30,parts:{Body:[0,2]},fn(p,f,st){const b=f%4<2?0:1
 function monSpr(key,f,st){const M=MSPR[key];const bits=Object.entries(st.broken||{}).map(([k,v])=>v?k[0]:'').join('');
   return spr(`m${key}${f}${bits}${st.enraged?1:0}${st.charging||''}`,()=>withMap(key,()=>{const p=new Pt(M.w,M.h);p.ox=M.ox;p.oy=M.oy;M.fn(p,f,{...st.broken,enraged:st.enraged,charging:st.charging});return p.render({grad:.78,rich:1})}))}
 for(const k in VAR)MSPR[k]=MSPR[VAR[k].base];
+for(const k in MON)if(MON[k].alpha){const b=MSPR[VAR[k].base],K=1.3;MSPR[k]={w:Math.ceil(b.w*K)+2,h:Math.ceil(b.h*K)+2,ox:Math.round(b.ox*K)+1,oy:Math.round(b.oy*K)+1,
+  parts:Object.fromEntries(Object.entries(b.parts).map(([n,[x,y]])=>[n,[Math.round(x*K),Math.round(y*K)]])),fn(p,f,st){b.fn(scaledPt(p,K),f,st)}}}
 /* overworld mini bosses */
 function miniBoss(key0,f){return spr('mini'+key0+f,()=>withMap(key0,()=>{const key=baseKey(key0);const p=new Pt(36,28);const b=f%2;
   if(key==='wyrm'){p.disc(24,16,6,4,'wyrm',3);p.disc(31,12,3,3,'wyrm',3);p.poly([[31,10],[35,4],[34,11]],'bone',3);p.disc(16,16+b,9,6,'wyrm',3);p.disc(15,19+b,5,2,'belly',2);
@@ -1541,6 +1567,7 @@ function objText(){const Q=S.Q,q=quest(Q.id);
   if(q.type==='deliver')return`${ITEMS[q.item].name}${LANG==='id'?'':'s'} ${Math.min(Q.gathered[q.item]||0,q.n)}/${q.n}`;
   if(q.type==='slay')return`${MON[q.mon].name}${LANG==='id'?'':'s'} ${Math.min(Q.kills[q.mon]||0,q.n)}/${q.n}`;
   if(q.type==='rescue')return Q.rescued?'Kitten found!':'Find the lost kitten';
+  if(q.type==='alpha')return`Break the ${MON[q.mon].name} pack`;
   if(q.type==='hunt')return`Hunt the ${MON[q.mon].name}`;
   return'Expedition — return at camp'}
 const mbar=$('#mbar');
@@ -1648,13 +1675,13 @@ function tryMove(d){P.dir=d;const[dx,dy]=DV[d];const nx=P.x+dx,ny=P.y+dy;const c
   const b=S.Q&&S.Q.boss;const bHere=b&&b.alive&&b.room===S.map&&b.x===nx&&b.y===ny;if(bHere&&b.cool<=0){startBattle(b.key,true);return}
   const mb=S.Q&&mobAt(nx,ny);if(mb){if(mb.cool<=0)mobEngage(mb,mb.dir===d?'ambush':'player');else{P.dir=d;updHint()}return false}
   if(kittenAt(nx,ny)){rescueCat();return false}
-  if(merchAt(nx,ny)){updHint();return false}
+  if(merchAt(nx,ny)||vhAt(nx,ny)){updHint();return false}
   if(SOLID.has(tile(nx,ny))){if(!P.bumpT||T0-P.bumpT>.35){P.bumpT=T0;sfx('bump')}updHint();return false}
   if(bHere)return false;
   CATP.fx=CATP.x;CATP.fy=CATP.y;CATP.x=P.x;CATP.y=P.y;
   P.mv={fx:P.x,fy:P.y,t:0};P.x=nx;P.y=ny;return true}
 function updateWorld(dt){
-  mobTick(dt);
+  mobTick(dt);vhTick(dt);
   if(P.mv){P.mv.t+=dt*7;P.wt+=dt;if(P.mv.t>=1){P.mv=null;onStep()}}
   if(!P.mv&&!busy&&!uiBlocking()){
     if(dirStack.length){P.path=[];P.after=null;const d=dirStack[dirStack.length-1];
@@ -1673,7 +1700,7 @@ function updHint(){let t='';const[fx,fy]=facing();
   if(S.Q){const n=nodeAt(P.x,P.y)||nodeAt(fx,fy);const mb=mobAt(fx,fy);if(mb)t='A: Attack '+MON[mb.key].name;else if(n){const[x,y]=nxy(n);t='A: Gather '+(NODE[tile(x,y)]==='ore'?'Ore':ITEMS[NODE[tile(x,y)]].name)}
     else{const ft=tile(fx,fy);if(ft==='E')t='A: Base Camp';else if(ft==='w')t='A: Fish';else if(ft==='L')t=have('bait')?'A: Lava fishing':'Lava fishing needs Magma Bait'}}
   else{const s=STATION[tile(fx,fy)];if(s)t='A: '+s;else if(tile(fx,fy)==='w')t='A: Fish'}
-  if(kittenAt(fx,fy))t='A: Rescue kitten';if(merchAt(fx,fy))t='A: Traveling Merchant';
+  if(kittenAt(fx,fy))t='A: Rescue kitten';if(merchAt(fx,fy))t='A: Traveling Merchant';{const vh=vhAt(fx,fy);if(vh)t='A: '+vh.n}
   hintEl.hidden=!t||S.scene!=='world';hintEl.textContent=t;
   const lab=!t||!t.startsWith('A: ')?'':t.startsWith('A: Gather')?'Gather':t.startsWith('A: Attack')?'Attack':/Fish|fishing/.test(t)?'Fish':t==='A: Base Camp'?'Camp':t==='A: South Gate'?'Depart':t==='A: Item Chest'?'Open':'Talk';
   const al=document.getElementById('tbAL');if(al)al.textContent=lab}
@@ -1692,7 +1719,7 @@ async function interact(){const[fx,fy]=facing();
   if(S.Q){if(mobAt(fx,fy)){tryMove(P.dir);return}const n=nodeAt(P.x,P.y)||nodeAt(fx,fy);if(n)return gather(n);
     if(kittenAt(fx,fy))return rescueCat();if(trackAt(P.x,P.y)||treasureAt(P.x,P.y))return collectHere();
     const t=tile(fx,fy);if(t==='E')return campMenu();if(t==='w')return fishStart(S.Q.zone==='snow'?'ice':'forest');if(t==='L')return fishStart('lava');return}
-  if(merchAt(fx,fy))return merchantMenu();
+  if(merchAt(fx,fy))return merchantMenu();{const vh=vhAt(fx,fy);if(vh)return vhTalk(vh)}
   switch(tile(fx,fy)){case'Q':return boardMenu();case'B':return smithMenu();case'M':return shopMenu();case'C':return canteenMenu();case'Z':return chestMenu();case'G':return gate();case'w':return fishStart('pond');
     case'H':return toast("It's someone's house. Best not barge in.");}
 }
@@ -1706,11 +1733,25 @@ function reqLine(cost,z){const s=h('span',{cls:'sub'});const parts=Object.entrie
   parts.forEach((p,i)=>{if(i)s.append(' · ');s.append(p)});if(z!=null){s.append(' · ');s.append(h('span',{cls:S.zenny>=z?'ok':'no'},z+'z'))}return s}
 const canPay=(cost,z)=>S.zenny>=(z||0)&&Object.entries(cost||{}).every(([k,n])=>have(k)>=n);
 function pay(cost,z){S.zenny-=z||0;for(const[k,n]of Object.entries(cost||{}))S.inv[k]-=n}
+/* ================= daily bounties ================= */
+const TWISTS={nopot:{name:'No Potions',d:'Potions and Mega Potions cannot be used.'},rush:{name:'Rush',d:'The time limit is halved.'},frenzy:{name:'Frenzy',d:'Monsters hit 25% harder.'},solo:{name:'Solo',d:'Your buddy stays home.'}};
+function bounties(){const day=todayKey();const pool=QUESTS.filter(q=>(q.type==='hunt'||q.type==='slay'||q.type==='alpha')&&S.done[q.id]);
+  if(S.bounty&&S.bounty.day===day&&(S.bounty.list.length>=3||S.bounty.list.length>=pool.length))return S.bounty.list;
+  const keep=S.bounty&&S.bounty.day===day?S.bounty.list:[];let seed=[...day].reduce((a,c)=>(a*31+c.charCodeAt(0))|0,7);const r2=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff};
+  const p=pool.filter(q=>!keep.some(b=>b.q===q.id)),tw=Object.keys(TWISTS),list=keep.slice();
+  while(list.length<3&&p.length){const q=p.splice(Math.floor(r2()*p.length),1)[0];list.push({q:q.id,tw:tw[Math.floor(r2()*tw.length)],done:false})}
+  S.bounty={day,list};return list}
 function boardMenu(){openMenu('Quest Board',body=>{
   body.append(h('div',{cls:'note'},'Pick a job, then leave through the south gate.'));
-  for(const q of QUESTS){if(q.hr>S.hr||(q.req&&!S.done[q.req])||(q.type==='rescue'&&!!S.cat))continue;const acc=S.accepted===q.id;
+  const bl=bounties();body.append(h('div',{cls:'sec'},'Daily bounties'));
+  if(!bl.length)body.append(h('div',{cls:'note'},'Clear hunts to unlock daily bounties. New ones arrive every day.'));
+  bl.forEach((b,i)=>{const q=quest(b.q),tw=TWISTS[b.tw],acc=S.accepted===q.id&&S.bty===i;
+    const lab=h('span',{},(acc?'▶ ':'')+q.name+(b.done?' ✓':''),h('span',{cls:'sub'},h('span',{cls:'no'},`${tw.name} — ${tw.d}`)),h('span',{cls:'sub'},`${ZONES[q.zone].name} · ${S.hr>=4?'+1 Gem +1 Shard':'+2 Shards'}`));
+    body.append(opt(lab,b.done?'done':acc?'accepted':q.z*2+'z',()=>{if(acc){S.accepted=null;S.bty=null}else{S.accepted=q.id;S.bty=i}toast(acc?'Quest cancelled':`Accepted: ${q.name}`);redraw()},b.done))});
+  body.append(h('div',{cls:'sec'},'Quests'));
+  for(const q of QUESTS){if(q.hr>S.hr||(q.req&&!S.done[q.req])||(q.type==='rescue'&&!!S.cat))continue;const acc=S.accepted===q.id&&S.bty==null;
     const lab=h('span',{},(acc?'▶ ':'')+q.name+(S.done[q.id]?' ★':''),h('span',{cls:'sub'},`${ZONES[q.zone].name} · ${q.desc}`));
-    body.append(opt(lab,acc?'accepted':q.z?q.z+'z':'—',()=>{S.accepted=acc?null:q.id;toast(acc?'Quest cancelled':`Accepted: ${q.name}`);redraw()}))}
+    body.append(opt(lab,acc?'accepted':q.z?q.z+'z':'—',()=>{S.accepted=acc?null:q.id;S.bty=null;toast(acc?'Quest cancelled':`Accepted: ${q.name}`);redraw()}))}
 })}
 function smithMenu(){seenSync();openMenu('Smithy',(body,tab)=>{
   if(tab===0){body.append(h('div',{cls:'note'},'Forge upgrades from monster parts. Upgrading keeps the old weapon.'));
@@ -1765,6 +1806,7 @@ async function gate(){if(!S.accepted){await say('Pick a quest at the Quest Board
   const q=quest(S.accepted);openMenu(`Depart: ${q.name}?`,body=>{
     body.append(h('div',{cls:'note'},`${ZONES[q.zone].name} · ${q.desc} · Time limit 50:00 · 3 faints and the quest fails.`));
     body.append(h('div',{cls:'note'},`Weapon: ${wName(S.wep)} · Armor: ${aName(S.arm)} · Potions ${have('potion')} · Meal: ${S.meal?MEALS.find(m=>m.id===S.meal).name:'none'}`));
+    {const b=S.bty!=null&&S.bounty&&S.bounty.list[S.bty];if(b&&b.q===q.id)body.append(h('div',{cls:'note'},`Bounty rule — ${TWISTS[b.tw].name} — ${TWISTS[b.tw].d}`))}
     body.append(opt('Depart now','',async()=>{closeMenu();await storyBefore(S.accepted);startQuest()}))})}
 
 /* ================= quests ================= */
@@ -1775,27 +1817,31 @@ function startQuest(){const q=quest(S.accepted),Z=ZONES[q.zone],m=MAPS[q.zone];
   if(hasBoss){const M=MON[bk];const sp=zoneSpawns(q.zone).filter(s=>s[0]!==Z.camp);const s=sp[ri(0,sp.length-1)];
     boss={key:bk,hp:Math.round(M.hp*DF().hp),parts:M.parts.map(p=>({...p,broken:false})),room:s[0],x:s[1],y:s[2],painted:false,fled:false,alive:true,enraged:false,cool:0,limp:false,pst:null}}
   S.Q={id:q.id,zone:q.zone,time:3000,carts:0,kills:{},gathered:{},nodes,safe:4,steps:0,meal:S.meal,complete:false,boss,weather:pickWeather(q.zone)};questExtras(q,Z);
+  {const b=S.bty!=null&&S.bounty&&S.bounty.list[S.bty];if(b&&b.q===q.id&&!b.done){S.Q.bty=S.bty;S.Q.tw=b.tw;if(b.tw==='rush')S.Q.time=1500}}
   S.meal=null;S.map=Z.camp;P.x=9;P.y=MAPS[Z.camp].length-2;P.dir='up';P.mv=null;S.hp=maxHP();S.pst=null;S.focus=MEAL()?.focus||0;catSnap();S.Q.warm=!!MEAL()?.warm;
-  sfx('door');music(q.zone);startFade();hud();updHint();say([`— ${Z.name} —`,q.desc+(boss?' Paintballs keep it marked on your map.':''),conditionsLine()],'Quest start')}
+  sfx('door');music(q.zone);startFade();hud();updHint();say([`— ${Z.name} —`,q.desc+(boss?' Paintballs keep it marked on your map.':''),conditionsLine()].concat(S.Q.tw?[`Bounty rule — ${TWISTS[S.Q.tw].name} — ${TWISTS[S.Q.tw].d}`]:[]),'Quest start')}
 async function checkQuest(){const Q=S.Q;if(!Q||Q.complete)return;const q=quest(Q.id);let ok=false;
   if(q.type==='deliver')ok=(Q.gathered[q.item]||0)>=q.n;
   else if(q.type==='slay')ok=(Q.kills[q.mon]||0)>=q.n;
   else if(q.type==='hunt')ok=Q.boss&&!Q.boss.alive;
+  else if(q.type==='alpha')ok=(Q.kills[q.mon]||0)>=1;
   else if(q.type==='rescue')ok=!!Q.rescued;
   hud();if(ok){Q.complete=true;await completeQuest()}}
 async function completeQuest(){busy=true;const Q=S.Q,q=quest(Q.id);const first=!S.done[q.id];
   if(q.type==='deliver')S.inv[q.item]=Math.max(0,have(q.item)-q.n);
   const rz=Math.round(q.z*zMul());S.zenny+=rz;S.done[q.id]=(S.done[q.id]||0)+1;
   const lines=[`QUEST COMPLETE — ${q.name}`,`Reward: ${rz}z`];
+  if(Q.bty!=null&&S.bounty){const b=S.bounty.list[Q.bty];if(b&&b.q===q.id&&!b.done){b.done=true;const bz=Math.round(q.z*zMul());S.zenny+=bz;const pick=(a,b2)=>Math.random()<.5?a:b2;
+    const mats=S.hr>=4?[pick('bgem','wgem'),pick('bshard','wshard')]:[pick('bshard','wshard'),pick('bshard','wshard')];mats.forEach(k=>gain(k));lines.push(`Bounty bonus: +${bz}z · ${group(mats)}`)}}
   if(q.type==='hunt'){const bn=[lroll(MON[q.mon].carve),lroll(MON[q.mon].carve)];bn.forEach(k=>gain(k));lines.push('Bonus rewards: '+group(bn))}
-  if(q.id==='q2'&&first){gain('potion',2);lines.push('The guild adds 2 Potions. The Verdant Wyrm hunt is now open!')}
+  if(q.id==='q2'&&first){gain('potion',2);lines.push('The guild adds 2 Potions. Word is, an Alpha Boar pack now roams the forest.')}
   if(q.hrUp&&S.hr<q.hrUp){S.hr=q.hrUp;lines.push(`Hunter Rank up! You are now HR ${S.hr}.`);
-    if(S.hr===2)lines.push('The Ember Cave, Mega Potions and a free forest expedition are now open.')}
+    if(S.hr===2)lines.push('Frostpeak, Mega Potions and a free forest expedition are now open.')}
   if(q.id==='q7'&&first)lines.push('The Rimeback Tusker falls! The path to the Ember Cave has opened — new quests await at the board.');
   if(q.id==='q5'&&first)lines.push('The Cinder Drake is down. You are a true Hunter of Mossvale! Forge the infernal arsenal and keep hunting.');
   jingle('quest');banner('QUEST COMPLETE',q.name);await sleep(1600);if(lines.some(l=>l.startsWith('Hunter Rank')))jingle('rank');await say(lines,'Guild');returnVillage();await storyAfter(q.id);busy=false}
 async function failQuest(reason){busy=true;jingle('fail');banner('QUEST FAILED',reason);await sleep(1400);await say(['QUEST FAILED',reason+' The guild pays nothing, but you keep what you gathered.'],'Guild');returnVillage();busy=false}
-function returnVillage(){S.Q=null;S.accepted=null;S.map='village';P.x=9;P.y=32;P.path=[];P.after=null;catSnap();checkCatReturn();if(merchantHere())setTimeout(()=>toast('A traveling merchant is in town tonight!'),1800);P.dir='up';P.mv=null;S.hp=maxHP();S.pst=null;S.scene='world';music('village');startFade();hud();updHint();save()}
+function returnVillage(){S.Q=null;S.accepted=null;S.bty=null;S.map='village';P.x=9;P.y=32;P.path=[];P.after=null;catSnap();checkCatReturn();if(merchantHere())setTimeout(()=>toast('A traveling merchant is in town tonight!'),1800);P.dir='up';P.mv=null;S.hp=maxHP();S.pst=null;S.scene='world';music('village');startFade();hud();updHint();save()}
 function campMenu(){const Q=S.Q,q=quest(Q.id);openMenu('Base Camp',body=>{
   body.append(h('div',{cls:'note'},`${objText()} · ${fmtT(Q.time)} left`));
   body.append(opt(h('span',{},'Rest in the tent',h('span',{cls:'sub'},'Restore HP and cure ailments. Takes 5 minutes.')),'',()=>{Q.time-=300;S.hp=maxHP();S.pst=null;closeMenu();sfx('heal');toast('You feel refreshed.');if(Q.time<=0)failQuest('Time ran out.')}));
@@ -1834,7 +1880,7 @@ function bagMenu(){openMenu('Bag',(body,tab)=>{
     for(const[id,it]of list){const ready=canPay(it.cost,it.z);
       body.append(h('div',{cls:'mat'},h('span',{},it.name+(it.atk?`  ATK ${it.atk}`:`  DEF ${it.def}`),h('span',{cls:'sub'},reqLine(it.cost,it.z))),h('span',{cls:'r '+(ready?'ok':'')},ready?'Ready':'')))}}
 },['Items','Materials','Forge list','Story'])}
-function fieldUse(k){const it=ITEMS[k];if(k==='hotdrink'){if(!S.Q)return toast('Drink it during a hunt.');if(S.Q.warm)return toast('You are already warm.');S.inv[k]--;S.Q.warm=true;sfx('heal');toast('You feel warm. The cold no longer hurts.');hud();return}if(k==='capture'||k==='bait'||(k==='paintball'&&!S.Q))return;
+function fieldUse(k){const it=ITEMS[k];if((k==='potion'||k==='mega')&&S.Q&&S.Q.tw==='nopot')return toast('Bounty rule: no Potions on this hunt!');if(k==='hotdrink'){if(!S.Q)return toast('Drink it during a hunt.');if(S.Q.warm)return toast('You are already warm.');S.inv[k]--;S.Q.warm=true;sfx('heal');toast('You feel warm. The cold no longer hurts.');hud();return}if(k==='capture'||k==='bait'||(k==='paintball'&&!S.Q))return;
   if(it.heal){if(S.hp>=maxHP())return toast('HP is already full.');S.inv[k]--;S.hp=Math.min(maxHP(),S.hp+it.heal);sfx('heal');toast(`Recovered ${it.heal} HP`)}
   else if(it.cure){if(!S.pst)return toast('Nothing to cure.');S.inv[k]--;S.pst=null;sfx('heal');toast('Ailment cured')}
   else if(k==='paintball'){const b=S.Q.boss;if(!b||!b.alive)return toast('No large monster here.');
@@ -1880,6 +1926,56 @@ const CATP={x:9,y:27,fx:9,fy:27};
 function catSnap(){CATP.x=CATP.fx=P.x;CATP.y=CATP.fy=P.y}
 function kittenAt(x,y){const k=S.Q&&S.Q.kitten;return !!(k&&!S.Q.rescued&&k.room===S.map&&k.x===x&&k.y===y)}
 function merchAt(x,y){return S.map==='village'&&merchantHere()&&x===MERCH_POS[0]&&y===MERCH_POS[1]}
+/* ================= village hunters ================= */
+const VHN=[
+  {n:'Brann',arm:'ar5',w:'gs5',sp:{dawn:{p:[[12,32]],f:'up'},day:{p:[[11,29],[14,29]]},dusk:{p:[[14,30]],f:'right'},night:{p:[[5,27]],f:'down'}}},
+  {n:'Kira',arm:'ar3',w:'tb4',sp:{dawn:{p:[[11,27]],f:'left'},day:{p:[[11,23],[14,23]]},dusk:{p:[[12,28],[14,28]]},night:{p:[[14,30]],f:'right'}}},
+  {n:'Rowan',arm:'arO',w:'bw4',sp:{dawn:{p:[[11,20]],f:'left'},day:{p:[[11,21]],f:'left'},dusk:{p:[[6,26]],f:'left'},night:{p:[[17,17]],f:'up'}}},
+  {n:'Pip',arm:'ar1',w:'tb1',sp:{dawn:{p:[[12,27]],f:'left'},day:{p:[[12,24]],f:'up'},dusk:{p:[[14,24]],f:'right'},night:{p:[[13,30]],f:'right'}}}];
+Object.assign(WHO,{Brann:'brann',Kira:'kira',Rowan:'rowan',Pip:'pip'});
+const VHL={
+  Brann:{ph:{dawn:'Up early? Good. The best hunters warm up before the sun does.',day:'Swing, recover, swing. A greatsword rewards patience.',dusk:'Nothing beats a hot meal after a long hunt. Eat before you head out, too.',night:'Rest well. Monsters grow stronger at night, but they drop rarer parts.'},
+    t:[['When a monster flashes GUARD!, brace yourself. A good guard takes most of the sting out.','The Verdant Wyrm spits venom. Pack Antidotes, and hit it with fire.'],
+       ['Frostpeak blizzards chill you to the bone. A Hot Drink keeps you warm.','The Rimeback Tusker hates fire. Ice just bounces off its hide.'],
+       ['The Cinder Drake laughs at fire. Bring venom or ice instead.','Your armor is your second life. Keep it upgraded with White Shards.'],
+       ['Subspecies are a different beast. The Crimson Wyrm fears ice, not fire.','Black and White Gems only come from subspecies. They take your gear past +5.']]},
+  Kira:{ph:{dawn:"Five more minutes... fine, I'm up! Race you to the Quest Board!",day:"Ooh, new jobs on the board! I'm taking the flashy ones.",dusk:'Wanna hear how I beat a boar with one hand? ...Okay, both hands.',night:"The canteen stew is best at night. Don't tell the cook I said that."},
+    t:[['Mosslings are easy pickings. Farm them for pelts before you face the Wyrm!','See a sparkly spot out there? Gather it! Materials are everything.'],
+       ["Icefang Wolves hunt in packs. Hit 'em with fire and keep moving.",'Snow Owls hit hard but fold fast. Fire again. Everything up there hates it!'],
+       ['Ember Crabs have thick shells. Twin Blades struggle, so hit big.',"Paint the Drake with a Paintball, or it'll vanish into the cave dark."],
+       ['Heard the Shadow Drake is weak to fire! Weird, right? Nothing like its cousin.','Storm Tusker? Venom, venom, venom. Trust me.']]},
+  Rowan:{ph:{dawn:'...The pond is quiet at dawn. I like it that way.',day:'...Watching the fish. Patience catches more than force.',dusk:'...The smith knows his craft. Listen to him.',night:'...Clear stars tonight. Somewhere out there, R. is watching them too.'},
+    t:[["...Break a monster's parts. Each break can drop an extra material.",'...A boss at low health starts to limp. That is when a Capture Kit works.'],
+       ['...Snow hides a lot on Frostpeak. Mark the Tusker with a Paintball.','...Captured bosses give rare parts more often than carving.'],
+       ['...Cinder armor shrugs off burns. The cave will test you.',"...Break the Drake's wings. Every break is another material."],
+       ['...The Crimson Wyrm burns like the Drake. Fire will not touch it.','...Heartroot Watch. That is what R. signed. I have seen that name in old records.']]},
+  Pip:{ph:{dawn:"Oh! G-good morning! I was just... practicing. Don't look.",day:"Kira says I'll be a great hunter someday! ...Do you think so too?",dusk:'Th-the shop sells Potions! I buy ten every time. Just in case.',night:"I'm not scared of the dark. The cat hunters are, though. Probably."},
+    t:[['Did you know? Canteen meals last your whole next hunt!','I faint a lot... Three faints and the quest fails, so be careful!'],
+       ['The Traveling Merchant only comes at night. He has rare stuff!','Hot Drinks! Buy Hot Drinks before Frostpeak. My toes still hurt.'],
+       ["You fought the Tusker?! You're like, a real hunter!",'Kira says upgrading gear with Shards makes it way stronger. Is that true?'],
+       ["Everyone's talking about you! And about someone called... R.? Who's that?",'The Elder says the Hollow is just a story. But he looked scared saying it.']]}};
+let VHS={};
+const vhSpr=(h,d,f)=>spr('vh'+h.n+d+f,()=>chibi(d,f,{body:ARMRAMP[h.arm],helm:ARMRAMP[h.arm],wep:WEAPONS[h.w],wt:tierOf(h.w),tier:tierOf(h.arm)}));
+function vhInit(){const ph=dayPhase();VHS={};
+  for(const h of VHN){const s=h.sp[ph];let[x,y]=s.p[0];if(x===P.x&&y===P.y&&s.p[1])[x,y]=s.p[1];VHS[h.n]={ph,x,y,fx:x,fy:y,t:1,dir:s.f||'down',wait:1+Math.random()*2,tg:1,fr:0}}}
+function vhTick(dt){if(S.map!=='village'||S.Q)return;const ph=dayPhase();if(!VHS.Brann||VHS.Brann.ph!==ph)vhInit();const hold=uiBlocking();
+  for(const h of VHN){const v=VHS[h.n],s=h.sp[ph];
+    if(v.t<1){v.t=Math.min(1,v.t+dt/.45);v.fr+=dt;continue}
+    if(s.p.length<2||hold)continue;if((v.wait-=dt)>0)continue;
+    if(Math.max(Math.abs(v.x-P.x),Math.abs(v.y-P.y))<=1){v.wait=.8;continue}
+    const[gx,gy]=s.p[v.tg];if(v.x===gx&&v.y===gy){v.tg^=1;v.wait=1.5+Math.random()*2.5;continue}
+    const dx=Math.sign(gx-v.x),dy=Math.sign(gy-v.y),nx=v.x+dx,ny=v.y+dy;
+    if((P.x===nx&&P.y===ny)||(P.mv&&P.mv.fx===nx&&P.mv.fy===ny)||SOLID.has(tile(nx,ny))){v.wait=.6;continue}
+    v.dir=dx>0?'right':dx<0?'left':dy>0?'down':'up';v.fx=v.x;v.fy=v.y;v.x=nx;v.y=ny;v.t=0}}
+function vhAt(x,y){if(S.map!=='village'||S.Q)return null;for(const h of VHN){const v=VHS[h.n];if(v&&((v.x===x&&v.y===y)||(v.t<1&&v.fx===x&&v.fy===y)))return h}return null}
+const vhPos=v=>{const t=clamp(v.t,0,1);return[(v.fx+(v.x-v.fx)*t)*16,(v.fy+(v.y-v.fy)*t)*16]};
+function vhTags(){g.save();g.font='bold 8px "Pixelify Sans",sans-serif';g.textAlign='center';g.textBaseline='middle';
+  for(const h of VHN){const v=VHS[h.n];if(!v||Math.max(Math.abs(v.x-P.x),Math.abs(v.y-P.y))>2)continue;const[X0,Y0]=vhPos(v),X=Math.round(X0)+8,Y=Math.round(Y0)-18;
+    const w=Math.ceil(g.measureText(h.n).width)+4;g.fillStyle='rgba(20,16,12,.8)';g.fillRect(Math.round(X-w/2),Y-5,w,10);g.fillStyle='#f0e0b0';g.fillText(h.n,X,Y)}g.restore()}
+async function vhTalk(h){const v=VHS[h.n];v.dir={up:'down',down:'up',left:'right',right:'left'}[P.dir];v.wait=2.5;
+  const L=VHL[h.n],tier=S.done.q5?3:S.done.q7?2:S.done.q3?1:0;S.vt=S.vt||{};const i=S.vt[h.n]=(S.vt[h.n]||0)+1;
+  await say([L.ph[dayPhase()],L.t[tier][i%L.t[tier].length]],h.n);updHint()}
+
 function trackAt(x,y){const Q=S.Q;if(!Q||!Q.tracks)return null;return Q.tracks.find(t=>!t.got&&t.room===S.map&&t.x===x&&t.y===y)||null}
 function treasureAt(x,y){const Q=S.Q;if(!Q||!Q.treasure)return null;return Q.treasure.find(t=>!t.got&&t.room===S.map&&t.x===x&&t.y===y)||null}
 function questExtras(q,Z){const Q=S.Q;const free=[];
@@ -1890,6 +1986,7 @@ function questExtras(q,Z){const Q=S.Q;const free=[];
   if(Q.boss){Q.tracks=[];Q.trackN=0;for(const rm of Z.rooms.filter(r=>!ROOMS[r].secret))for(let i=0;i<2;i++){const c=free.filter(f=>f[0]===rm);if(!c.length)break;const f=c[ri(0,c.length-1)];free.splice(free.indexOf(f),1);Q.tracks.push({room:rm,x:f[1],y:f[2],got:false})}}
   Q.mobs=[];Q.mobN=0;
   for(const rm of Z.rooms){if(rm===Z.camp||ROOMS[rm].secret)continue;for(let i=0;i<3;i++)spawnMob(rm,pickSmall(q),true)}
+  if(q.type==='alpha'){const rms=Z.rooms.filter(r=>r!==Z.camp&&!ROOMS[r].secret);for(let t=0;t<30;t++)if(spawnMob(rms[ri(Math.floor(rms.length/2),rms.length-1)],q.mon,true))break}
   if(q.type==='slay'){let have=Q.mobs.filter(m=>m.key===q.mon).length,guard=0;while(have<q.n+2&&guard++<20){const rms=Z.rooms.filter(r=>r!==Z.camp&&!ROOMS[r].secret);if(spawnMob(rms[ri(0,rms.length-1)],q.mon,true))have++}}
   if(q.type==='rescue'){const sp=zoneSpawns(q.zone).filter(s=>s[0]!==Z.camp);const s=sp[ri(0,sp.length-1)];Q.kitten={room:s[0],x:s[1],y:s[2]}}}
 function collectHere(){const Q=S.Q;if(!Q)return;
@@ -2200,7 +2297,12 @@ Object.assign(STORY_ID,{
 'The Rimeback Tusker falls! The path to the Ember Cave has opened — new quests await at the board.':'Rimeback Tusker tumbang! Jalan ke Ember Cave terbuka — quest baru menunggu di papan.',
 'The Cinder Drake is down. You are a true Hunter of Mossvale! Forge the infernal arsenal and keep hunting.':'Cinder Drake tumbang. Kamu Pemburu Mossvale sejati! Tempa senjata api dan terus berburu.',
 });
+Object.assign(STORY_ID,{"Up early? Good. The best hunters warm up before the sun does.": "Bangun pagi? Bagus. Pemburu terbaik pemanasan sebelum matahari terbit.", "Swing, recover, swing. A greatsword rewards patience.": "Ayun, pulih, ayun. Greatsword menghargai kesabaran.", "Nothing beats a hot meal after a long hunt. Eat before you head out, too.": "Tak ada yang mengalahkan makanan hangat setelah berburu. Makan juga sebelum berangkat.", "Rest well. Monsters grow stronger at night, but they drop rarer parts.": "Istirahatlah. Monster lebih kuat di malam hari, tapi menjatuhkan bahan lebih langka.", "When a monster flashes GUARD!, brace yourself. A good guard takes most of the sting out.": "Saat monster memunculkan GUARD!, bertahanlah. Tahan yang tepat meredam sebagian besar serangan.", "The Verdant Wyrm spits venom. Pack Antidotes, and hit it with fire.": "Verdant Wyrm menyemburkan racun. Bawa Antidote, dan serang dengan api.", "Frostpeak blizzards chill you to the bone. A Hot Drink keeps you warm.": "Badai salju Frostpeak menusuk sampai tulang. Hot Drink membuatmu tetap hangat.", "The Rimeback Tusker hates fire. Ice just bounces off its hide.": "Rimeback Tusker benci api. Es cuma memantul dari kulitnya.", "The Cinder Drake laughs at fire. Bring venom or ice instead.": "Cinder Drake menertawakan api. Bawa racun atau es saja.", "Your armor is your second life. Keep it upgraded with White Shards.": "Zirahmu adalah nyawa keduamu. Terus upgrade dengan White Shard.", "Subspecies are a different beast. The Crimson Wyrm fears ice, not fire.": "Subspesies itu lain cerita. Crimson Wyrm takut es, bukan api.", "Black and White Gems only come from subspecies. They take your gear past +5.": "Black dan White Gem hanya didapat dari subspesies. Itu yang membawa gear-mu melewati +5.", "Five more minutes... fine, I'm up! Race you to the Quest Board!": "Lima menit lagi... ya sudah, aku bangun! Balapan ke Papan Quest, yuk!", "Ooh, new jobs on the board! I'm taking the flashy ones.": "Ooh, ada misi baru di papan! Aku ambil yang keren-keren.", "Wanna hear how I beat a boar with one hand? ...Okay, both hands.": "Mau dengar cara aku mengalahkan babi hutan dengan satu tangan? ...Oke, dua tangan.", "The canteen stew is best at night. Don't tell the cook I said that.": "Sup kantin paling enak di malam hari. Jangan bilang koki aku ngomong begitu.", "Mosslings are easy pickings. Farm them for pelts before you face the Wyrm!": "Mossling itu gampang. Kumpulkan kulitnya sebelum melawan Wyrm!", "See a sparkly spot out there? Gather it! Materials are everything.": "Lihat titik berkilau di luar sana? Kumpulkan! Material itu segalanya.", "Icefang Wolves hunt in packs. Hit 'em with fire and keep moving.": "Icefang Wolf berburu berkelompok. Hajar pakai api dan terus bergerak.", "Snow Owls hit hard but fold fast. Fire again. Everything up there hates it!": "Snow Owl pukulannya keras tapi cepat tumbang. Api lagi. Semua di atas sana benci api!", "Ember Crabs have thick shells. Twin Blades struggle, so hit big.": "Ember Crab cangkangnya tebal. Twin Blades kesulitan, jadi pakai serangan besar.", "Paint the Drake with a Paintball, or it'll vanish into the cave dark.": "Tandai Drake dengan Paintball, atau ia akan hilang di gelapnya gua.", "Heard the Shadow Drake is weak to fire! Weird, right? Nothing like its cousin.": "Katanya Shadow Drake lemah terhadap api! Aneh, kan? Beda sekali dengan sepupunya.", "Storm Tusker? Venom, venom, venom. Trust me.": "Storm Tusker? Racun, racun, racun. Percaya deh.", "...The pond is quiet at dawn. I like it that way.": "...Kolam sepi saat subuh. Aku suka begini.", "...Watching the fish. Patience catches more than force.": "...Mengamati ikan. Kesabaran menangkap lebih banyak daripada tenaga.", "...The smith knows his craft. Listen to him.": "...Pandai besi itu ahli di bidangnya. Dengarkan dia.", "...Clear stars tonight. Somewhere out there, R. is watching them too.": "...Bintang cerah malam ini. Di suatu tempat, R. juga sedang memandanginya.", "...Break a monster's parts. Each break can drop an extra material.": "...Patahkan bagian tubuh monster. Tiap bagian yang patah bisa menjatuhkan material tambahan.", "...A boss at low health starts to limp. That is when a Capture Kit works.": "...Boss yang sekarat mulai pincang. Saat itulah Capture Kit bekerja.", "...Snow hides a lot on Frostpeak. Mark the Tusker with a Paintball.": "...Salju menyembunyikan banyak hal di Frostpeak. Tandai Tusker dengan Paintball.", "...Captured bosses give rare parts more often than carving.": "...Boss yang ditangkap lebih sering memberi bahan langka daripada dikuliti.", "...Cinder armor shrugs off burns. The cave will test you.": "...Zirah Cinder kebal luka bakar. Gua itu akan mengujimu.", "...Break the Drake's wings. Every break is another material.": "...Patahkan sayap Drake. Setiap bagian patah berarti material tambahan.", "...The Crimson Wyrm burns like the Drake. Fire will not touch it.": "...Crimson Wyrm membara seperti Drake. Api tak akan mempan.", "...Heartroot Watch. That is what R. signed. I have seen that name in old records.": "...Heartroot Watch. Itu tanda tangan R. Aku pernah melihat nama itu di catatan lama.", "Oh! G-good morning! I was just... practicing. Don't look.": "Oh! S-selamat pagi! Aku cuma... latihan. Jangan lihat.", "Kira says I'll be a great hunter someday! ...Do you think so too?": "Kata Kira aku bakal jadi pemburu hebat suatu hari nanti! ...Kamu juga berpikir begitu?", "Th-the shop sells Potions! I buy ten every time. Just in case.": "T-toko jual Potion! Aku selalu beli sepuluh. Buat jaga-jaga.", "I'm not scared of the dark. The cat hunters are, though. Probably.": "Aku nggak takut gelap. Tapi kucing-kucing pemburu takut. Mungkin.", "Did you know? Canteen meals last your whole next hunt!": "Tahu nggak? Makanan kantin bertahan selama perburuan berikutnya!", "I faint a lot... Three faints and the quest fails, so be careful!": "Aku sering pingsan... Tiga kali pingsan dan quest gagal, jadi hati-hati!", "The Traveling Merchant only comes at night. He has rare stuff!": "Pedagang Keliling cuma datang malam hari. Barangnya langka-langka!", "Hot Drinks! Buy Hot Drinks before Frostpeak. My toes still hurt.": "Hot Drink! Beli Hot Drink sebelum ke Frostpeak. Jari kakiku masih sakit.", "You fought the Tusker?! You're like, a real hunter!": "Kamu melawan Tusker?! Kamu pemburu sungguhan!", "Kira says upgrading gear with Shards makes it way stronger. Is that true?": "Kata Kira upgrade gear pakai Shard bikin jauh lebih kuat. Benar nggak?", "Everyone's talking about you! And about someone called... R.? Who's that?": "Semua orang membicarakanmu! Juga seseorang bernama... R.? Siapa itu?", "The Elder says the Hollow is just a story. But he looked scared saying it.": "Tetua bilang Hollow cuma dongeng. Tapi wajahnya ketakutan waktu mengatakannya."});
+Object.assign(STORY_ID,{"Daily bounties": "Bounty harian", "Quests": "Quest", "Clear hunts to unlock daily bounties. New ones arrive every day.": "Selesaikan perburuan untuk membuka bounty harian. Bounty baru datang setiap hari.", "done": "selesai", "+2 Shards": "+2 Shard", "+1 Gem +1 Shard": "+1 Gem +1 Shard", "No Potions": "Tanpa Potion", "Potions and Mega Potions cannot be used.": "Potion dan Mega Potion tidak bisa dipakai.", "Rush": "Kejar Waktu", "The time limit is halved.": "Batas waktu dipotong setengah.", "Frenzy": "Amukan", "Monsters hit 25% harder.": "Serangan monster 25% lebih sakit.", "Solo": "Solo", "Your buddy stays home.": "Teman kucingmu tinggal di rumah.", "Bounty rule": "Aturan bounty", "Bounty rule: no Potions on this hunt!": "Aturan bounty: tidak boleh pakai Potion di perburuan ini!", "PACK!": "KAWANAN!", "PHASE 2": "FASE 2", "Shadow Frenzy": "Amukan Bayangan", "Crystal Armor": "Zirah Kristal", "Storm Armor": "Zirah Badai", "Blazing Aura": "Aura Membara", "SHATTER!": "HANCUR!", "Pack Leader of the Thicket": "Pemimpin Kawanan Semak", "Pack Leader of Frostpeak": "Pemimpin Kawanan Frostpeak", "Pack Leader of the Magma Pools": "Pemimpin Kawanan Kolam Magma", "The guild adds 2 Potions. Word is, an Alpha Boar pack now roams the forest.": "Serikat menambahkan 2 Potion. Kabarnya, kawanan Alpha Boar kini berkeliaran di hutan.", "Frostpeak, Mega Potions and a free forest expedition are now open.": "Frostpeak, Mega Potion, dan ekspedisi hutan kini terbuka.", "An Alpha Boar leads a pack through the forest. Break the pack.": "Seekor Alpha Boar memimpin kawanan di hutan. Hancurkan kawanannya.", "An Alpha Icefang leads a hunting pack on Frostpeak. Break the pack.": "Seekor Alpha Icefang memimpin kawanan pemburu di Frostpeak. Hancurkan kawanannya.", "An Alpha Ember Crab rules the deep tunnels with its guards. Break the pack.": "Seekor Alpha Ember Crab menguasai terowongan dalam bersama pengawalnya. Hancurkan kawanannya.", "scrapes the ground, snorting furiously...": "mengais tanah sambil mendengus marah...", "howls, and its eyes lock onto you...": "melolong, matanya terkunci padamu...", "raises both claws — magma drips from them...": "mengangkat kedua capitnya — magma menetes darinya...", "rears up, its venom sacs swelling...": "menegakkan tubuh, kantong racunnya menggembung...", "rears up, its throat glowing crimson...": "menegakkan tubuh, tenggorokannya menyala merah...", "stamps the ground — the whole glacier shakes!": "menghentak tanah — seluruh gletser berguncang!", "stamps the ground — lightning arcs across the snow!": "menghentak tanah — kilat menyambar di atas salju!", "soars high — the air around it ignites!": "melesat tinggi — udara di sekitarnya terbakar!", "soars high — the sky itself goes dark!": "melesat tinggi — langit pun menjadi gelap!"});
+for(const[en,id]of [["The {0} pack surrounds you! Defeat its followers first.", "Kawanan {0} mengepungmu! Kalahkan pengikutnya dulu."], ["Another {0} leaps in!", "{0} lain melompat masuk!"], ["The {0} steps forward, snarling!", "{0} maju sambil menggeram!"], ["Pack {0}/{1}", "Kawanan {0}/{1}"], ["{0}: break the {1}!", "{0}: patahkan {1}!"], ["The {0}'s {1} shatters!", "{1} milik {0} hancur!"], ["Its broken {0} can't hold up the {1}!", "{0} yang patah tak mampu menahan {1}!"], ["{0}! It takes far less damage until its {1} is broken.", "{0}! Ia menerima jauh lebih sedikit damage sampai {1}-nya dipatahkan."], ["{0}! It may strike twice in a row.", "{0}! Ia bisa menyerang dua kali berturut-turut."], ["The {0} strikes again!", "{0} menyerang lagi!"], ["Break the {0} pack", "Hancurkan kawanan {0}"], ["Bounty bonus: +{0}z", "Bonus bounty: +{0}z"]]){const ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),id,ord])}
 for(const[k,v]of Object.entries(STORY_ID))IDD.set(k,v);
+for(const t of ['scrapes the ground, snorting furiously...','howls, and its eyes lock onto you...','raises both claws — magma drips from them...','rears up, its venom sacs swelling...','rears up, its throat glowing crimson...','stamps the ground — the whole glacier shakes!','stamps the ground — lightning arcs across the snow!','soars high — the air around it ignites!','soars high — the sky itself goes dark!']){const en='The {0} '+t,ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),'{0} '+STORY_ID[t],ord])}
+
 for(const[en,id]of[['Needs: {0}','Butuh: {0}'],['The {0} staggers!','{0} goyah!'],['Queued: {0}','Antrean: {0}'],['Battle speed: {0}','Kecepatan tarung: {0}'],['Obtained the {0}','Mendapat {0}'],['Heartroot seeds: {0}/3','Benih Heartroot: {0}/3'],['{0}\'s collar reads: "R. — Heartroot Watch".','Kalung {0} bertuliskan: "R. — Heartroot Watch".']]){
   const ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),id,ord])}
 
@@ -2219,26 +2321,41 @@ function bstat(){if(!E)return;bstatEl.hidden=false;
   const broken=E.parts.filter(p=>p.broken).map(p=>p.name).join(', ');
   bstatEl.innerHTML=`<div class="panel"><b>${E.M.name}</b>${E.M.boss?'':` <span class="small">HP ${Math.max(0,E.hp)}/${E.max}</span>`}
     ${E.M.boss?`<div class="small">${cond()}${E.pst?' · <span class="ok">Poisoned</span>':''}</div>`:bar(E.hp,E.max)}
-    <div class="bar atb e"><i id="atbE"></i></div><div class="tellbar" ${E.charging?'':'hidden'}><span class="small no">GUARD!</span><div class="bar atb t"><i id="atbT"></i></div></div>${E.enraged?'<div class="rage">ENRAGED</div>':''}${broken?`<div class="small">Broken: ${broken}</div>`:''}</div>`;
+    <div class="bar atb e"><i id="atbE"></i></div><div class="tellbar" ${E.charging?'':'hidden'}><span class="small no">GUARD!</span><div class="bar atb t"><i id="atbT"></i></div></div>${E.enraged?'<div class="rage">ENRAGED</div>':''}${E.shield?`<div class="small ok">${P2[E.key].n}: break the ${E.shield}!</div>`:''}${B&&B.pack?`<div class="small">Pack ${B.pack.i}/${B.pack.n}</div>`:''}${broken?`<div class="small">Broken: ${broken}</div>`:''}</div>`;
   const st=[stName(S.pst),B.charged?'Charged!':'',B.stun?'Stunned':''].filter(Boolean).join(' · ');
   bpl.innerHTML=`<div class="bpr"><b>${HNAME()}</b><span class="small">HP ${S.hp}/${maxHP()}</span></div>${bar(S.hp,maxHP())}<div class="bpr"><span class="small">Focus</span><span class="small">${S.focus}/100</span></div>${bar(S.focus,100,'f')}<div class="bpr"><span class="small">${B.ready?'READY':'ATB'}</span></div><div class="bar atb ${B.ready?'rdy':''}"><i id="atbP"></i></div>${st?`<div class="small no">${st}</div>`:''}`}
 async function startBattle(key,boss,o={}){
   if(S.scene!=='world'||busy)return;busy=true;dirStack.length=0;P.path=[];P.after=null;hintEl.hidden=true;
-  const M=MON[key];sfx('encounter');music(boss?'boss':'battle');
+  const M=MON[key],pk=!boss&&M.alpha?{leader:key,minion:M.alpha.minion,q:[...Array(M.alpha.n-1).fill(M.alpha.minion),key],i:1,n:M.alpha.n+1}:null;sfx('encounter');music(boss||pk?'boss':'battle');
   await wipe(boss);setView('battle');
-  if(boss){const b=S.Q.boss;E={key,M,hp:b.hp,max:Math.round(M.hp*DF().hp),parts:b.parts,boss:true,enraged:b.enraged,pst:b.pst}}
-  else E={key,M,hp:Math.round(M.hp*DF().hp*NM()),max:Math.round(M.hp*DF().hp*NM()),parts:M.parts.map(p=>({...p,broken:false})),boss:false,enraged:false,pst:null};
+  if(boss){const b=S.Q.boss;E={key,M,hp:b.hp,max:Math.round(M.hp*DF().hp),parts:b.parts,boss:true,enraged:b.enraged,pst:b.pst,shield:b.shield||null}}
+  else E=mkE(pk?pk.minion:key,pk);
   Object.assign(E,{charging:null,flash:0,dead:0,deadT:0,lastTell:false,lastRoar:false,lx:0,lxT:0,air:0});
-  B={busy:true,sub:null,charged:false,guard:false,stun:false,loot:[],pose:'idle',pdx:-60,pdxT:0,shake:0,pflash:0,fx:[],hover:null,hitstop:0,catT:0,mob:o.mob||null,pg:.55,eg:.05+Math.random()*.3,cg:.3,ready:false,over:false,queued:null,guardT:0};
+  B={busy:true,sub:null,charged:false,guard:false,stun:false,loot:[],pose:'idle',pdx:-60,pdxT:0,shake:0,pflash:0,fx:[],hover:null,hitstop:0,catT:0,mob:o.mob||null,pack:pk,pz:0,pg:.55,eg:.05+Math.random()*.3,cg:.3,ready:false,over:false,queued:null,guardT:0};
   if(S.arm==='arB')B.pg=1;
   S.scene='battle';blog.innerHTML='';PT.length=0;
   hud();await unwipe();
   $('#battle').hidden=false;bstat();
   if(boss){banner(M.name,MTITLE[key]);sfx('roar',key);B.shake=.6;log(`The ${M.name} turns to face you!`,'tell');await sleep(1000);if(!S.Q.boss.painted)log('Tip: a Paintball keeps it marked on your map.')}
+  else if(pk){banner('PACK!',M.name,1);log(`The ${M.name} pack surrounds you! Defeat its followers first.`,'tell')}
   else log(`A wild ${M.name} attacks!`,'tell');
   if(o.first==='ambush'){B.eg=-.9;B.pg=1;banner('AMBUSH!','',1);log('You caught it from behind — it is still reeling!','good')}
   if(o.first==='enemy'){banner('AMBUSHED!','',1);log(`The ${M.name} jumps you first!`,'bad');B.eg=1;B.pg=0}
   busy=false;B.busy=false;renderCmds()}
+function mkE(key,pk){let M=MON[key];if(pk&&key===pk.minion){const a=MON[pk.leader].alpha;M={...M,hp:Math.round(M.hp*a.mh),atk:Math.round(M.atk*a.ma),def:a.md??M.def}}
+  const hp=Math.round(M.hp*DF().hp*NM());return{key,M,hp,max:hp,parts:M.parts.map(p=>({...p,broken:false})),boss:false,enraged:false,pst:null,charging:null,flash:0,dead:0,deadT:0,lastTell:false,lastRoar:false,lx:0,lxT:0,air:0}}
+async function nextWave(){const M=E.M;E.dead=1;E.deadT=0;B.busy=true;
+  log(`The ${M.name} has been defeated!`,'good');bstat();sfx('die');const[fx,fy]=FOOT[E.key];burst(fx,fy-30,MRAMP[E.key],24,{spd:90,big:1});B.shake=.2;B.pose='idle';B.pdxT=0;
+  B.loot.push(lroll(M.drops));B.pz+=Math.round(M.zenny*zMul());S.Q.kills[E.key]=(S.Q.kills[E.key]||0)+1;
+  await sleep(1000);const nk=B.pack.q.shift();E=mkE(nk,B.pack);B.pack.i++;B.eg=0;
+  if(!B.pack.q.length){banner(E.M.name,MTITLE[nk]||'',0);sfx('roar',nk);B.shake=.5;log(`The ${E.M.name} steps forward, snarling!`,'tell')}
+  else{sfx('encounter');log(`Another ${E.M.name} leaps in!`,'tell')}
+  await sleep(700);unlock()}
+const P2={wyrm:{t:'double',n:'Frenzy'},wyrmC:{t:'double',n:'Frenzy'},drakeS:{t:'double',n:'Shadow Frenzy'},tusker:{t:'shield',part:'Spine',n:'Crystal Armor'},tuskerS:{t:'shield',part:'Tusks',n:'Storm Armor'},drake:{t:'shield',part:'Wings',n:'Blazing Aura'}};
+async function phase2(){const p=P2[E.key];if(!p)return;banner('PHASE 2',p.n,1);
+  if(p.t==='shield'){if(brk(p.part))log(`Its broken ${p.part.toLowerCase()} can't hold up the ${p.n}!`,'good');else{E.shield=p.part;log(`${p.n}! It takes far less damage until its ${p.part} is broken.`,'tell')}}
+  else log(`${p.n}! It may strike twice in a row.`,'tell');
+  bstat();await sleep(900)}
 function renderCmds(){bcmds.innerHTML='';bstat();if(!B||B.over)return;
   const w=WEP(),wt=WTYPE[w.t];
   bcmds.classList.toggle('wait',!B.ready||B.busy);
@@ -2249,7 +2366,7 @@ function renderCmds(){bcmds.innerHTML='';bstat();if(!B||B.over)return;
     E.parts.forEach((p,i)=>bcmds.append(hov(opt(p.name+(p.mult>=1.3?' ★':''),p.broken?'broken':`${Math.round(Math.min(1,p.acc+(w.t==='bw'?.15:0))*100)}%`,()=>act(B.sub,i)),i)));
     bcmds.append(opt('Back',null,()=>{sfx('cancel');B.sub=null;B.hover=null;renderCmds()}))}
   else if(B.sub==='item'){
-    for(const k of['potion','mega','antidote','paintball','capture'])if(have(k))bcmds.append(opt(ITEMS[k].name,'×'+have(k),()=>act('item',k)));
+    for(const k of['potion','mega','antidote','paintball','capture'])if(have(k)&&!(S.Q.tw==='nopot'&&(k==='potion'||k==='mega')))bcmds.append(opt(ITEMS[k].name,'×'+have(k),()=>act('item',k)));
     if(!bcmds.children.length)bcmds.append(h('div',{cls:'small'},'Your pouch is empty.'));
     bcmds.append(opt('Back',null,()=>{sfx('cancel');B.sub=null;renderCmds()}))}
   else{
@@ -2281,12 +2398,13 @@ async function strike(mot,pi,o={}){
     const crit=Math.random()<(S.arm==='ar5'||LZ()?.2:.1)+(w.fx==='crit'?.15:0)+(wLv(S.wep)>=5?.05:0);
     let dmg=Math.max(1,Math.round(atk()*mot*p.mult*el*(crit?(w.fx==='crit'?1.7:1.5)+(wLv(S.wep)>=10?.15:0):1)*(S.arm==='ar7'?1.08:1)*(S.arm==='ar3'&&S.hp<maxHP()*.5?1.1:1)*rnd(.9,1.1)-E.M.def));
     if(E.M.hard){if(w.t==='tb'){dmg=Math.max(1,Math.round(dmg*.5));if(!E.hardNote){E.hardNote=1;log('Your blades glance off its rocky skin!','tell')}}else if(w.t==='gs')dmg=Math.round(dmg*1.2)}
+    const pd=dmg;if(E.shield&&!brk(E.shield))dmg=Math.max(1,Math.round(dmg*.6));
     E.hp-=dmg;E.flash=.14;gainFocus(o.quick?5:9);
     popNum(x,y,dmg+(el>1?'!':''),crit?'crit':el>1?'weak':'');sfx(crit?'crit':'hit');
     burst(x,y,crit?'gold':'white',crit?18:9,{spd:crit?90:60});if(w.el)burst(x,y,w.el==='venom'?'wyrm':w.el==='ice'?'ice':'lava',6,{spd:40,up:1});
     B.hitstop=crit?.14:.06;if(crit)B.shake=Math.max(B.shake,.22);
-    const hit=q=>{if(q.broken||q.hp>=9999)return;q.hp-=Math.round(dmg*(S.arm==='ar8'?1.3:1));if(q.hp<=0){q.broken=true;const[bx,by]=partXY(E.parts.indexOf(q));
-      log(`The ${q.name} was ${q.name==='Tail'?'severed':'broken'}!`,'good');sfx('break');burst(bx,by,MRAMP[E.key],30,{spd:110,big:1});popNum(bx,by-16,'BREAK!','brk');B.shake=.35;B.hitstop=.2;if(q.brk)B.loot.push(q.brk)}};
+    const hit=q=>{if(q.broken||q.hp>=9999)return;q.hp-=Math.round(pd*(S.arm==='ar8'?1.3:1));if(q.hp<=0){q.broken=true;const[bx,by]=partXY(E.parts.indexOf(q));
+      log(`The ${q.name} was ${q.name==='Tail'?'severed':'broken'}!`,'good');sfx('break');burst(bx,by,MRAMP[E.key],30,{spd:110,big:1});popNum(bx,by-16,'BREAK!','brk');B.shake=.35;B.hitstop=.2;if(q.brk)B.loot.push(q.brk);if(E.shield===q.name){E.shield=null;log(`The ${E.M.name}'s ${P2[E.key].n} shatters!`,'good');popNum(bx,by-30,'SHATTER!','brk')}}};
     if(o.pierce)E.parts.forEach(hit);else hit(p);
     if(w.el==='venom'&&!E.pst&&Math.random()<(S.arm==='ar2'?.45:.25)){E.pst={t:3};sfx('poison');log(`The ${E.M.name} is poisoned!`,'good')}
     let heal=0;if(w.fx==='drain')heal+=Math.max(1,Math.round(dmg*(wLv(S.wep)>=10?.11:.06)));if(S.arm==='ar7')heal+=3;
@@ -2319,7 +2437,7 @@ async function act(kind,arg){
   if(!B.charged&&!B.guard)B.pose='idle';else if(B.charged)B.pose='charge';
   bstat();
   if(E.hp<=0)return win(false);
-  if(E.boss){if(!E.enraged&&E.hp<E.max*.5){E.enraged=true;log(`The ${E.M.name} flies into a rage!`,'tell');sfx('roar',E.key);B.shake=.5;burst(...partXY(0),'red',16,{spd:50,up:1});await sleep(800)}
+  if(E.boss){if(!E.enraged&&E.hp<E.max*.5){E.enraged=true;log(`The ${E.M.name} flies into a rage!`,'tell');sfx('roar',E.key);B.shake=.5;burst(...partXY(0),'red',16,{spd:50,up:1});await sleep(800);await phase2()}
     if(!S.Q.boss.limp&&E.hp<=E.max*.2){S.Q.boss.limp=true;log(`The ${E.M.name} is limping — capture it now!`,'good');await sleep(500)}}
   unlock()}
 async function battleItem(k){const it=ITEMS[k];S.inv[k]--;
@@ -2331,7 +2449,7 @@ async function battleItem(k){const it=ITEMS[k];S.inv[k]--;
     log(E.boss?`The ${E.M.name} is still too strong to capture.`:'Capture Kits only work on large monsters.','bad');sfx('deny')}
   bstat();await sleep(450);return false}
 function stepBack(){const[dx,dy]=DV[P.dir];const nx=P.x-dx,ny=P.y-dy;if(!SOLID.has(tile(nx,ny))){P.x=nx;P.y=ny}}
-function pickMove(){let ms=E.M.moves.filter(m=>(!m.rage||E.enraged)&&(!m.wings||!brk('Wings'))&&(!m.legs||!brk('Legs'))&&!(m.tell&&E.lastTell)&&!(m.rage&&E.lastRoar));
+function pickMove(){let ms=E.M.moves.filter(m=>(!m.rage||E.enraged)&&(!m.p2||E.enraged)&&(!m.wings||!brk('Wings'))&&(!m.legs||!brk('Legs'))&&!(m.tell&&E.lastTell)&&!(m.rage&&E.lastRoar));
   const tot=ms.reduce((a,m)=>a+m.w,0);let r=Math.random()*tot;for(const m of ms)if((r-=m.w)<0)return m;return ms[0]}
 async function enemyPhase(){
   const nm=E.M.name;
@@ -2340,9 +2458,11 @@ async function enemyPhase(){
   if(E.pst){const d=E.boss?22:6;E.hp-=d;const[x,y]=partXY(E.parts.length>2?2:0);popNum(x,y-10,d,'psn');burst(x,y,'wyrm',8,{up:1,spd:25});sfx('poison');log(`Poison eats at the ${nm}. (${d})`);E.pst.t--;if(E.pst.t<=0)E.pst=null;bstat();await sleep(450);if(E.hp<=0)return win(false)}
   let m;
   if(E.charging){m=E.M.moves.find(x=>x.n===E.charging);E.lastTell=true}
-  else{m=pickMove();E.lastTell=false;if(m.tell){E.charging=m.n;sfx('tell');if(m.n==='Sky Dive'){sfx('flee');E.airT=-110}
+  else{m=pickMove();E.lastTell=false;if(m.tell){E.charging=m.n;sfx('tell');if(m.n==='Sky Dive'||m.air){sfx('flee');E.airT=-110}
     log(`The ${nm} ${m.tell}`,'tell');log('Guard now to soften the blow!','tell');E.tellT=TELLW;m=null;renderCmds();await sleep(300)}}
   if(m){E.lastRoar=!!m.rage;await enemyAct(m);E.charging=null}
+  if(m&&!m.tell&&!m.rage&&E.enraged&&P2[E.key]?.t==='double'&&S.hp>0&&Math.random()<.3){const ms=E.M.moves.filter(x=>!x.tell&&!x.rage&&!x.p2&&x.p>0&&(!x.wings||!brk('Wings'))&&(!x.legs||!brk('Legs')));
+    if(ms.length){const m2=ms[ri(0,ms.length-1)];log(`The ${nm} strikes again!`,'tell');await sleep(250);await enemyAct(m2)}}
   if(S.hp<=0)return faint();
   if(E.stolen&&E.stolen.length&&!E.boss&&Math.random()<.35){log(`The ${nm} flies off with your items!`,'bad');sfx('flee');E.lxT=260;await sleep(900);await endBattle();return}
   if(S.pst){const d=S.pst.k==='poison'?5:S.pst.k==='frost'?7:8;S.hp=Math.max(0,S.hp-d);popNum(PFEET[0],PFEET[1]-36,d,'hurt');burst(PFEET[0],PFEET[1]-20,S.pst.k==='poison'?'wyrm':S.pst.k==='frost'?'ice':'lava',8,{up:1,spd:25});sfx(S.pst.k==='poison'?'poison':S.pst.k==='frost'?'stun':'fire');
@@ -2359,15 +2479,15 @@ async function enemyPhase(){
   unlock()}
 async function enemyAct(m){const nm=E.M.name;let pow=m.p,sc=m.sc||0;
   if(m.weakBy&&brk(m.weakBy)){pow*=.65;sc*=.5}
-  const fire=/Fire|Inferno|Magma/.test(m.n),ven=/Venom|Spore/.test(m.n),ice=/Frost|Crystal/.test(m.n)&&m.p>0,big=m.p>=2;
+  const fire=/Fire|Inferno|Magma|Meteor|Crimson|Molten/.test(m.n),ven=/Venom|Spore|Toxic|Eclipse/.test(m.n),ice=/Frost|Crystal/.test(m.n)&&m.p>0,big=m.p>=2;
   if(m.rage){sfx('roar',E.key);B.shake=.7;B.fx.push({k:'ring',x:partXY(0)[0],y:partXY(0)[1],t:0})}
-  else if(m.n==='Sky Dive'){sfx('dive');E.airT=0;E.lxT=-120}
+  else if(m.n==='Sky Dive'||m.air){sfx('dive');E.airT=0;E.lxT=-120}
   else{E.lxT=big?-70:-45;sfx(fire?'fire':ven?'poison':ice?'stun':big?'heavy':'swing')}
-  await sleep(m.n==='Sky Dive'?260:200);
+  await sleep(m.n==='Sky Dive'||m.air?260:200);
   if(m.steal){const pool=['potion','mega','antidote','paintball'].filter(k=>have(k));if(pool.length){const k=pool[ri(0,pool.length-1)];S.inv[k]--;(E.stolen=E.stolen||[]).push(k);log(`${nm} snatched your ${ITEMS[k].name}!`,'bad');sfx('flee')}}
   if(fire||ven||ice){const[x,y]=partXY(0);B.fx.push({k:'spit',x0:x-20,y0:y+4,x:PFEET[0]+8,y:PFEET[1]-22,t:0,r:fire?'lava':ice?'ice':'wyrm',big});await sleep(220)}
   if(pow>0&&S.arm==='arO'&&Math.random()<.15){B.pdxT=-30;popNum(PFEET[0],PFEET[1]-44,'DODGE','miss');sfx('miss');log('You dodge the attack!','good');pow=0;sc=0}
-  if(pow>0){const raw=E.M.atk*pow*rnd(.9,1.1)*(E.enraged?1.2:1)*DF().dmg*NM();let dmg=Math.max(1,Math.round(raw-def()*.8)*(aLv(S.arm)>=10?.92:1));if(B.guard)dmg=Math.max(1,Math.round(dmg*.3));
+  if(pow>0){const raw=E.M.atk*pow*rnd(.9,1.1)*(E.enraged?1.2:1)*DF().dmg*NM()*(S.Q.tw==='frenzy'?1.25:1);let dmg=Math.max(1,Math.round(raw-def()*.8)*(aLv(S.arm)>=10?.92:1));if(B.guard)dmg=Math.max(1,Math.round(dmg*.3));
     S.hp=Math.max(0,S.hp-dmg);B.pflash=B.guard?.1:.35;B.shake=RM?0:(big?.45:0);B.pdx-=B.guard?4:12;
     if(!B.guard)B.pose='hurt';else{sfx('guard');burst(PFEET[0]+16,PFEET[1]-24,'steel',10,{spd:70})}
     sfx(B.guard?'hit':big?'heavyhurt':'hurt');B.hitstop=big?.12:.05;
@@ -2382,17 +2502,17 @@ async function enemyAct(m){const nm=E.M.name;let pow=m.p,sc=m.sc||0;
   else if(m.st&&resists(m.st)&&sc>0)log('Your armor resists the ailment.');
   if(pow>0&&B.guard){B.guard=false;B.guardT=0}
   bstat();await sleep(250);E.lxT=0;E.airT=0;await sleep(380);if(B.pose==='hurt'&&!B.stun)B.pose=B.guard?'guard':B.charged?'charge':'idle'}
-function syncBoss(){if(E&&E.boss){const b=S.Q.boss;b.hp=Math.max(0,E.hp);b.enraged=E.enraged;b.pst=E.pst}}
+function syncBoss(){if(E&&E.boss){const b=S.Q.boss;b.hp=Math.max(0,E.hp);b.shield=E.shield||null;b.enraged=E.enraged;b.pst=E.pst}}
 async function endBattle(){syncBoss();B.busy=true;B.over=true;busy=true;$('#battle').hidden=true;bstatEl.hidden=true;
   await wipe(false);setView('world');S.scene='world';E=null;fxEl.innerHTML='';PT.length=0;if(S.Q)S.Q.safe=4;S.focus=Math.floor(S.focus/2);dirStack.length=0;MOBG=1.4;
   music(S.Q?S.Q.zone:'village');hud();updHint();await unwipe();busy=false}
-async function win(captured){const M=E.M;E.dead=1;B.over=true;E.deadT=0;
+async function win(captured){if(B.pack&&B.pack.q.length&&!captured)return nextWave();const M=E.M;E.dead=1;B.over=true;E.deadT=0;
   log(captured?`You captured the ${M.name}!`:`The ${M.name} has been ${M.boss?'slain':'defeated'}!`,'good');bstat();
   sfx(captured?'trap':'die');const[fx,fy]=FOOT[E.key];burst(fx,fy-30,MRAMP[E.key],M.boss?60:24,{spd:90,big:1});B.shake=M.boss?.6:.2;B.pose='idle';B.pdxT=0;
   await sleep(M.boss?1500:900);jingle('win');banner(captured?'CAPTURED!':'VICTORY!','',1);await sleep(900);
-  const loot=[...B.loot,...(E.stolen||[])];let z=0;if(S.cat&&!S.cat.exp)catXP(E.boss?30:6);
+  const loot=[...B.loot,...(E.stolen||[])];let z=0;if(S.cat&&!S.cat.exp&&S.Q.tw!=='solo')catXP(E.boss?30:(M.alpha?18:6));
   if(E.boss){const tbl=captured?M.capture:M.carve;for(let i=0;i<3;i++)loot.push(lroll(tbl));S.Q.boss.alive=false}
-  else{loot.push(lroll(M.drops));if(Math.random()<.35)loot.push(lroll(M.drops));z=Math.round(M.zenny*zMul());S.zenny+=z}
+  else{loot.push(lroll(M.drops));if(Math.random()<.35)loot.push(lroll(M.drops));if(M.alpha)loot.push(lroll(M.drops),lroll(M.drops));z=Math.round(M.zenny*zMul())+(B.pz||0);S.zenny+=z}
   loot.forEach(k=>{gain(k);S.Q.gathered[k]=(S.Q.gathered[k]||0)+1});S.Q.kills[E.key]=(S.Q.kills[E.key]||0)+1;
   if(B.mob)B.mob.alive=false;
   const boss=E.boss;await endBattle();
@@ -2426,7 +2546,7 @@ function battleTick(dt){if(!E||!B||B.over||busy||D.open||document.hidden)return;
     if(B.pg>=1){B.ready=true;sfx('move');if(B.queued){const q=B.queued;B.queued=null;act(...q);return}renderCmds()}}
   if(E.charging){E.tellT-=k;if(E.tellT<=0){lockRun(enemyPhase);return}}
   else{B.eg+=k/(E.boss?4:3.6)*(E.enraged?1.25:1);if(B.eg>=1){B.eg=0;lockRun(enemyPhase);return}}
-  if(S.cat&&!S.cat.exp){B.cg+=k/4.2;if(B.cg>=1){B.cg=0;lockRun(async()=>{await catTurn();if(E.hp<=0)return win(false);unlock()});return}}
+  if(S.cat&&!S.cat.exp&&S.Q.tw!=='solo'){B.cg+=k/4.2;if(B.cg>=1){B.cg=0;lockRun(async()=>{await catTurn();if(E.hp<=0)return win(false);unlock()});return}}
   atbDraw()}
 
 /* ================= effects, transitions, render loop ================= */
@@ -2483,17 +2603,20 @@ function drawWorld(dt){const key=S.map;const[gnd,objs,an]=worldData(key);const m
   if(Q&&Q.kitten&&!Q.rescued&&Q.kitten.room===key){const k=Q.kitten;list.push({y:k.y*16+15,d:()=>{blit(catOW(Math.floor(T0*2)%2,null),k.x*16,k.y*16+2);
     if(Math.floor(T0*2)%2){g.fillStyle='#ffffff';g.fillRect(k.x*16+6,k.y*16-8,5,7);g.fillStyle=INK;g.fillRect(k.x*16+8,k.y*16-7,1,3);g.fillRect(k.x*16+8,k.y*16-3,1,1)}}})}
   if(key==='village'&&merchantHere()){const[mx,my]=MERCH_POS;list.push({y:my*16+15,d:()=>{blit(wagonSpr(),mx*16+10,my*16-10);blit(npcSpr('T',Math.floor(T0*2)%2?1:0),mx*16-3,my*16-14)}})}
-  if(S.cat&&!S.cat.exp&&!(CATP.x===P.x&&CATP.y===P.y&&!P.mv)){let cxp=CATP.x*16,cyp=CATP.y*16;if(P.mv){const t=clamp(P.mv.t,0,1);cxp=(CATP.fx+(CATP.x-CATP.fx)*t)*16;cyp=(CATP.fy+(CATP.y-CATP.fy)*t)*16}
+  if(key==='village'&&!Q)for(const h of VHN){const v=VHS[h.n];if(!v)continue;const[X,Y]=vhPos(v);
+    list.push({y:Y+15,d:()=>{g.fillStyle='rgba(0,0,0,.28)';g.fillRect(Math.round(X)+3,Math.round(Y)+14,10,2);const fr=v.t<1?[1,0,3,0][Math.floor(v.fr*8)%4]:0;blit(vhSpr(h,v.dir,fr),Math.round(X)-3,Math.round(Y)-12)}})}
+  if(S.cat&&!S.cat.exp&&!(S.Q&&S.Q.tw==='solo')&&!(CATP.x===P.x&&CATP.y===P.y&&!P.mv)){let cxp=CATP.x*16,cyp=CATP.y*16;if(P.mv){const t=clamp(P.mv.t,0,1);cxp=(CATP.fx+(CATP.x-CATP.fx)*t)*16;cyp=(CATP.fy+(CATP.y-CATP.fy)*t)*16}
     list.push({y:cyp+15,d:()=>blit(catOW(P.mv?Math.floor(P.wt*8)%2:0,S.cat.arm),Math.round(cxp),Math.round(cyp)+2)})}
   if(Q&&Q.mobs)for(const m of Q.mobs)if(m.alive&&m.room===key){const t=m.mt,mx=(m.fx+(m.x-m.fx)*t)*16,my=(m.fy+(m.y-m.fy)*t)*16;const fly=m.key==='duskbat'||m.key==='thiefbird'||m.key==='snowowl';
     list.push({y:my+15,d:()=>{const im=mobSpr(m.key,Math.floor(T0*(m.chase?9:5)+m.id)%8),ft=mobFoot(m.key);
       g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.ellipse(mx+8,my+14,fly?4:6,2,0,0,7);g.fill();
       if(m.cool>0&&Math.floor(T0*6)%2)g.globalAlpha=.5;
       blit(im,Math.round(mx+8-im.width/2),Math.round(my+15-ft-(fly?5:0)),m.face==='right');g.globalAlpha=1;
+      if(MON[m.key].alpha){const cy=Math.round(my+15-ft)-2+(Math.floor(T0*2)%2),cx=Math.round(mx+8);g.fillStyle=INK;g.fillRect(cx-5,cy-4,11,7);g.fillStyle=col('gold',4);g.fillRect(cx-4,cy,9,2);g.fillRect(cx-4,cy-3,1,3);g.fillRect(cx,cy-3,1,3);g.fillRect(cx+4,cy-3,1,3)}
       if(m.chase){const yy=Math.round(my+13-ft-(fly?5:0)-8+(Math.floor(T0*6)%2));g.fillStyle=col('red',3);g.fillRect(mx+7,yy,2,5);g.fillRect(mx+7,yy+6,2,2)}}})}
   list.push({y:py+15.5,d:()=>{g.fillStyle='rgba(0,0,0,.28)';g.fillRect(px+3,py+14,10,2);g.fillRect(px+4,py+15,8,1);
     const fr=P.mv?[1,0,3,0][Math.floor(P.wt*8)%4]:0;blit(hunterOW(P.dir,fr),px-3,py-12)}});
-  list.sort((a,c)=>a.y-c.y);for(const o of list)o.d();
+  list.sort((a,c)=>a.y-c.y);for(const o of list)o.d();if(key==='village'&&!Q)vhTags();
   if(TAPM&&T0<TAPM.until&&Math.floor(T0*10)%2){g.strokeStyle='rgba(255,255,255,.8)';g.lineWidth=1;g.strokeRect(TAPM.x*16+.5,TAPM.y*16+.5,15,15)}
   if(tile(P.x,P.y)===','||(P.mv&&MAPS[key][P.mv.fy]?.[P.mv.fx]===',')){const tx=P.x*16,ty=P.y*16;for(let i=0;i<8;i++){const bx=tx+i*2,hh=4+((i*7)%4),sw=Math.round(Math.sin(T0*3+i)*.6);g.fillStyle=col(zoneOf(key)==='snow'?'snow':'grass',i%2?1:2);g.fillRect(bx+sw,ty+16-hh,1,hh);g.fillStyle=col(zoneOf(key)==='snow'?'white':'grass',4);g.fillRect(bx+sw,ty+16-hh,1,1)}}
   stepPT(dt);
@@ -2656,8 +2779,8 @@ setInterval(dockUpdate,150);
 function edgeExit(x,y){const m=curMap();if(y===0)return'up';if(y===m.length-1)return'down';if(x===0)return'left';if(x===m[0].length-1)return'right';return null}
 function tapTo(tx,ty){const m=curMap();if(ty<0||tx<0||ty>=m.length||tx>=m[0].length)return;
   const b=S.Q&&S.Q.boss;const bossAt=(x,y)=>!!(b&&b.alive&&b.room===S.map&&b.x===x&&b.y===y);
-  const t=tile(tx,ty);const inter=!!STATION[t]||t==='E'||t==='w'||t==='L'||t==='H'||bossAt(tx,ty)||kittenAt(tx,ty)||merchAt(tx,ty)||!!mobAt(tx,ty);const node=S.Q&&nodeAt(tx,ty);
-  const pass=(x,y)=>{const c=(m[y]||'')[x];return c!==undefined&&!SOLID.has(c)&&!bossAt(x,y)&&!kittenAt(x,y)&&!merchAt(x,y)&&!mobAt(x,y)};
+  const t=tile(tx,ty);const inter=!!STATION[t]||t==='E'||t==='w'||t==='L'||t==='H'||bossAt(tx,ty)||kittenAt(tx,ty)||merchAt(tx,ty)||!!vhAt(tx,ty)||!!mobAt(tx,ty);const node=S.Q&&nodeAt(tx,ty);
+  const pass=(x,y)=>{const c=(m[y]||'')[x];return c!==undefined&&!SOLID.has(c)&&!bossAt(x,y)&&!kittenAt(x,y)&&!merchAt(x,y)&&!vhAt(x,y)&&!mobAt(x,y)};
   let goals;
   if(inter)goals=[[0,1,'up'],[0,-1,'down'],[1,0,'left'],[-1,0,'right']].map(([dx,dy,d])=>[tx+dx,ty+dy,d]).filter(([x,y])=>pass(x,y));
   else if(pass(tx,ty))goals=[[tx,ty,null]];else return;
