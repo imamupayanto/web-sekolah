@@ -212,6 +212,8 @@ body.mobile #bcmds .opt .r{font-size:12px;font-weight:400}
 body.mobile #dialog{font-size:15px;line-height:1.4}
 body.mobile #dialog .who{font-size:14px;margin-bottom:2px}
 body.mobile #toast{font-size:14px;white-space:normal;max-width:86%;text-align:center}
+.cprev{display:flex;gap:12px;align-items:flex-end;justify-content:center;padding:.3em 0 .5em}.cprev img{image-rendering:pixelated}
+.swrow{display:flex;flex-wrap:wrap;gap:6px;padding:.15em .45em .45em}.swb{min-width:30px;height:30px;border:2px solid var(--ink);cursor:pointer;padding:0 8px;font:inherit;font-size:14px;background:var(--parch2);color:var(--ink)}.swb.on{outline:3px solid var(--ember);outline-offset:1px}
 .txt{display:block;width:100%;margin:.3em 0;font:14px/1.3 ui-monospace,Menlo,monospace;padding:6px 8px;border:2px solid var(--ink);background:#fff8e4;color:var(--ink);resize:vertical;word-break:break-all}
 .txt:focus{outline:2px solid var(--ember)}
 #menu{z-index:5}#dialog{z-index:6}
@@ -608,7 +610,7 @@ const SAVE_KEY='mossvale-save-v1';
 let S, E=null, B=null, busy=false, T0=0;
 function freshState(){return{v:1,scene:'title',map:'village',hr:1,zenny:300,inv:{potion:5,antidote:2,paintball:2,capture:0},
   weapons:['gs1','tb1','bw1'],armors:['ar0'],wep:'gs1',arm:'ar0',done:{},accepted:null,meal:null,
-  story:{},P:{x:9,y:27,dir:'down'},hp:100,focus:0,pst:null,Q:null,intro:false,wLv:{},aLv:{}}}
+  story:{},P:{x:9,y:27,dir:'down'},hp:100,focus:0,pst:null,Q:null,intro:false,wLv:{},aLv:{},name:'Hunter',look:{skin:'skin',hair:'hair',style:'short'}}}
 const WEP=()=>WEAPONS[S.wep], ARM=()=>ARMORS[S.arm];
 const UPG_PCT=[0,3,6,9,12,15,19,23,27,31,36];
 const UPG_MAT=[0,2,3,4,6,8,2,3,4,6,8];
@@ -619,7 +621,7 @@ function upgWeapon(id){const lv=wLv(id);if(lv>=10)return;const nl=lv+1,mat=nl<=5
   if(have(mat)<n||S.zenny<z)return false;S.inv[mat]-=n;S.zenny-=z;S.wLv=S.wLv||{};S.wLv[id]=nl;return true}
 function upgArmor(id){const lv=aLv(id);if(lv>=10)return;const nl=lv+1,mat=nl<=5?'wshard':'wgem',n=UPG_MAT[nl],z=UPG_Z[nl];
   if(have(mat)<n||S.zenny<z)return false;S.inv[mat]-=n;S.zenny-=z;S.aLv=S.aLv||{};S.aLv[id]=nl;return true}
-const LZ=()=>S.arm==='ar6';const resists=st=>ARM().res==='all'||ARM().res===st;const HNAME=()=>S.lz?'Lazarus':'Hunter';
+const LZ=()=>S.arm==='ar6';const resists=st=>ARM().res==='all'||ARM().res===st;const cleanName=v=>String(v||'').replace(/[<>&"'`\\]/g,'').trim().slice(0,10);const HNAME=()=>S.lz?'Lazarus':(cleanName(S.name)||'Hunter');
 const LZCODE='L4ZARUS';
 function toggleLazarus(){if(S.lz){const pv=S.lz;S.lz=null;S.weapons=S.weapons.filter(x=>x!=='lz5');S.armors=S.armors.filter(x=>x!=='ar6');S.wep=S.weapons.includes(pv.wep)?pv.wep:S.weapons[0];S.arm=S.armors.includes(pv.arm)?pv.arm:S.armors[0];S.hp=Math.min(S.hp,maxHP());return false}
   S.lz={wep:S.wep,arm:S.arm};if(!S.weapons.includes('lz5'))S.weapons.push('lz5');if(!S.armors.includes('ar6'))S.armors.push('ar6');S.wep='lz5';S.arm='ar6';S.hp=maxHP();return true}
@@ -846,6 +848,17 @@ const RAMPS={
   pine:['#0a2020','#163c38','#2a5c50','#2a5c50','#4a8a70'],
   onyx:['#0a0810','#1c1826','#3a3450','#3a3450','#6a6090'],
   pink:['#6a1a4a','#a83070','#f06aa8','#f06aa8','#ffc0e0'],
+  sk1:['#9a5a4a','#d08a6a','#ffd0b0','#ffd0b0','#fff0e0'],
+  sk2:['#6a3a2a','#9a5a3a','#d8935e','#d8935e','#f2c094'],
+  sk3:['#3a1e14','#6a3a24','#a86a42','#a86a42','#d89a6a'],
+  sk4:['#24120c','#4a2818','#7a4a2e','#7a4a2e','#a8704a'],
+  hb:['#08060a','#14101a','#2a2430','#2a2430','#4a4252'],
+  hy:['#5c3e10','#a87a28','#e8c050','#e8c050','#fff0a0'],
+  hr:['#3a0f08','#7a2a14','#c4542b','#c4542b','#f0905a'],
+  hw:['#4a4a5a','#7a7a8c','#c8c8d4','#c8c8d4','#ffffff'],
+  hu:['#0c1a3a','#1c3a7a','#3a6ec4','#3a6ec4','#8cc4f0'],
+  hp:['#5a1840','#a03070','#e86aa8','#e86aa8','#ffc0e0'],
+  hg:['#0c2014','#1f5a2c','#3f9a4a','#3f9a4a','#8fdc6a'],
 };
 
 const RKEYS=Object.keys(RAMPS),RID={},RRGB=[null];
@@ -853,6 +866,8 @@ RKEYS.forEach((k,i)=>{RID[k]=i+1;RRGB.push(RAMPS[k].map(hx=>[parseInt(hx.slice(1
 const col=(r,l)=>{const a=RAMPS[r];return a[clamp(l==null?a.length-2:l,0,a.length-1)]};
 const INKRGB=[20,12,28];
 let RREMAP=null;
+const LKD={skin:'skin',hair:'hair',style:'short'},LK=()=>(typeof S!=='undefined'&&S&&S.look)||LKD,lookKey=()=>{const l=LK();return '|'+l.skin+l.hair+l.style};
+function withLook(fn){const prev=RREMAP,l=LK();RREMAP={skin:l.skin,hair:l.hair};try{return fn()}finally{RREMAP=prev}}
 const T5A=er=>({ice:'ice',gold:'lava',red:'gold',onyx:'purple',stone:'gold'})[er]||'ice';
 class Pt{
   constructor(w,h){this.w=w;this.h=h;this.b=new Uint16Array(w*h);this.ox=0;this.oy=0}
@@ -928,6 +943,11 @@ function chibi(dir,frame,o){
   else if(side){p.disc(7,4+y,6,4,hr,3);p.rect(2,4+y,5,6,hr,3);if(o.helm)p.rect(2,5+y,11,2,hr,1);p.rect(10,7+y,1,2,'ink',0,true);if(o.beard)p.rect(8,9+y,5,3,o.beard,4)}
   else{p.disc(8,4+y,6,4,hr,3);p.rect(2,4+y,13,2,hr,3);if(o.helm){p.rect(2,6+y,2,3,hr,1);p.rect(13,6+y,2,3,hr,1)}else{p.px(3,6+y,hr,3);p.px(13,6+y,hr,3)}
     p.rect(6,7+y,1,2,'ink',0,true);p.rect(10,7+y,1,2,'ink',0,true);if(o.beard)p.rect(5,9+y,7,3,o.beard,4)}
+  {const st=o.style,hm=!!o.helm;
+    if(st==='long'){if(dir==='up')p.rect(3,6+y,10,6,'hair',3);else if(side)p.rect(2,6+y,4,6,'hair',3);else{p.rect(2,6+y,2,6,'hair',3);p.rect(13,6+y,2,6,'hair',3)}}
+    else if(st==='tail'){if(dir==='up'){p.rect(7,6+y,3,6,'hair',3);p.px(8,6+y,'red',3)}else if(side){p.rect(0,4+y,3,3,'hair',3);p.rect(-1,6+y,2,5,'hair',3);p.px(2,4+y,'red',3)}else p.rect(13,3+y,2,4,'hair',2)}
+    else if(st==='spiky'&&!hm){if(!side){p.poly([[3,3+y],[4,-2+y],[6,2+y]],'hair',3);p.poly([[6,2+y],[8,-3+y],[10,2+y]],'hair',3);p.poly([[10,2+y],[12,-2+y],[13,3+y]],'hair',3)}
+      else{p.poly([[3,3+y],[3,-2+y],[7,1+y]],'hair',3);p.poly([[7,1+y],[9,-3+y],[11,2+y]],'hair',3)}}}
   if(o.hat)p.rect(3,-1+y,11,4,o.hat,4);
   if(T===1){p.px(9,-1+y,'leaf',4,true);p.px(10,-2+y,'leaf',4,true);p.px(8,-2+y,'leaf',3,true)}
   if(T===2)p.poly([[6,0+y],[8,-5+y],[10,0+y]],'wyrm',4);
@@ -943,7 +963,7 @@ function chibi(dir,frame,o){
   if(dir==='up')wep();
   if(dir==='left')p.mirror();
   return p.render()}
-function hunterOW(dir,frame){return spr(`how${dir}${frame}${S.arm}${S.wep}`,()=>chibi(dir,frame,{body:ARMRAMP[S.arm],helm:S.arm!=='ar0'?ARMRAMP[S.arm]:null,wep:WEP(),wt:tierOf(S.wep),tier:tierOf(S.arm)}))}
+function hunterOW(dir,frame){return spr(`how${dir}${frame}${S.arm}${S.wep}${lookKey()}`,()=>withLook(()=>chibi(dir,frame,{style:LK().style,body:ARMRAMP[S.arm],helm:S.arm!=='ar0'?ARMRAMP[S.arm]:null,wep:WEP(),wt:tierOf(S.wep),tier:tierOf(S.arm)})))}
 const NPCS={B:{body:'leather',apron:'stone',hair:'hair',beard:'hair',legs:'stone'},M:{body:'cloth',hat:'gold',hair:'hair',legs:'leather'},C:{body:'white',hat:'white',apron:'red',hair:'hair'},T:{body:'purple',hat:'purple',hair:'hair',legs:'leather',beard:'white'}};
 const npcSpr=(k,f)=>spr('npc'+k+f,()=>chibi('down',f,NPCS[k]));
 
@@ -970,7 +990,7 @@ function tbBlade(p,hx,hy,a,t,er){const dx=Math.cos(a),dy=Math.sin(a),nx=-dy,ny=d
   if(t>=3)p.poly([[hx+dx*L+nx*1.5,hy+dy*L+ny*1.5],[hx+dx*(L+4),hy+dy*(L+4)],[hx+dx*L-nx*1.5,hy+dy*L-ny*1.5]],t===4?'lava':t===5?T5A(er):'bone',t>=4?4:3,t>=4);
   p.line(hx-nx*2,hy-ny*2,hx+nx*2,hy+ny*2,t===4?'gold':t===3?'bone':'steel',3,1)}
 function hunterBT(pose,fr){const w=WEP();
-  return spr(`hbt${pose}${fr}${S.arm}${S.wep}`,()=>{const p=new Pt(96,72);p.ox=24;p.oy=14;const A=ARMRAMP[S.arm],T=tierOf(S.arm),t=tierOf(S.wep),er=elRamp(w);
+  return spr(`hbt${pose}${fr}${S.arm}${S.wep}${lookKey()}`,()=>withLook(()=>{const p=new Pt(96,72);p.ox=24;p.oy=14;const A=ARMRAMP[S.arm],T=tierOf(S.arm),t=tierOf(S.wep),er=elRamp(w);
     const lean=pose==='strike'?3:pose==='windup'||pose==='charge'?-2:pose==='hurt'?-4:0;const br=pose==='idle'&&fr%2?1:0;
     const[hx0,hy0,ang0]=(WPOSE[w.t][pose]||WPOSE[w.t].idle);const hx=hx0+lean,hy=hy0+br;const a=ang0*Math.PI/180,dx=Math.cos(a),dy=Math.sin(a);
     const blade=()=>{if(w.t==='gs')gsBlade(p,hx,hy,dx,dy,t,er);else if(w.t==='tb')tbBlade(p,hx,hy,a,t,er)};
@@ -1010,6 +1030,10 @@ function hunterBT(pose,fr){const w=WEP();
       if(T===2){p.rect(cx+5,cy+2,1,2,'wyrm',4,true);p.poly([[cx-8,cy-6],[cx-2,cy-19],[cx+3,cy-8]],'wyrm',4);p.line(cx-5,cy-7,cx-2,cy-16,'wyrm',1,1,true)}
       else if(T===3){p.rect(cx+4,cy+2,2,1,'lava',4,true);p.poly([[cx-3,cy-8],[cx-8,cy-21],[cx-10,cy-20],[cx-6,cy-7]],'bone',3);p.poly([[cx+2,cy-8],[cx+4,cy-19],[cx+6,cy-18],[cx+5,cy-7]],'bone',3);
         p.poly([[cx-6,cy-8],[cx-15,cy-12+(fr%2)],[cx-12,cy-5]],'lava',3,true);p.px(cx-13,cy-10+(fr%2),'lava',4,true)}}
+    {const st=LK().style,hm=T!==0;
+      if(st==='long'){p.rect(cx-9,cy+1,4,10,'hair',3);p.rect(cx-9,cy+9,3,3,'hair',2)}
+      else if(st==='tail'){p.poly([[cx-7,cy-4],[cx-14,cy+1],[cx-13,cy+10],[cx-9,cy+3]],'hair',3);p.rect(cx-9,cy-4,2,3,'red',3)}
+      else if(st==='spiky'&&!hm){p.poly([[cx-6,cy-7],[cx-5,cy-13],[cx-1,cy-8]],'hair',3);p.poly([[cx-1,cy-8],[cx+3,cy-13],[cx+5,cy-7]],'hair',3);p.poly([[cx-9,cy-3],[cx-14,cy-7],[cx-7,cy-7]],'hair',3)}}
     if(T===10){p.poly([[cx+4,cy-4],[cx+10,cy-10],[cx+6,cy-2]],'bone',4);p.poly([[cx-6,cy-6],[cx-10,cy-14],[cx-3,cy-8]],'leaf',3);p.rect(14+lean,21+br,15,1,'leaf',3,true)}
     if(T===11){p.rect(cx-2,cy-9,3,2,'lava',4,true);p.rect(14+lean,21+br,15,1,'lava',4,true);p.disc(23+lean,27+br,1,1,'lava',4,true)}
     if(T===12){p.poly([[cx-6,cy-6],[cx-3,cy-20],[cx+2,cy-7]],'white',4);p.poly([[cx-9,cy-5],[cx-12,cy-16],[cx-4,cy-6]],'white',3);p.disc(sx0,sy0+2,7,3,'white',4)}
@@ -1022,7 +1046,7 @@ function hunterBT(pose,fr){const w=WEP();
     const shx=24+lean,shy=23+br;
     p.line(shx,shy,(shx+hx)/2,(shy+hy)/2+1,A,1,3);p.line((shx+hx)/2,(shy+hy)/2+1,hx,hy,'skin',3,3);p.disc(hx,hy,2,2,T===3?'stone':'skin',3);
     bow();
-    return p.render()})}
+    return p.render()}))}
 
 /* buddy & extras */
 const CATRAMP=k=>k?CARM[k].r:null;
@@ -1066,13 +1090,16 @@ function mobFoot(key){if(MOBFOOT[key]==null){const img=mobSpr(key,0);const d=img
   outer:for(let y=img.height-1;y>=0;y--)for(let x=0;x<img.width;x++)if(d[(y*img.width+x)*4+3]){fy=y;break outer}MOBFOOT[key]=fy}return MOBFOOT[key]}
 /* ---- portraits ---- */
 const PORTRAITS={};
-function portrait(k){if(PORTRAITS[k])return PORTRAITS[k];
+function portrait(k0){const k=k0==='hunter'?'hunter'+lookKey()+S.arm:k0;if(PORTRAITS[k])return PORTRAITS[k];
   const p=new Pt(36,36);const face=(skin,hair,opt={})=>{
     p.disc(18,40,16,10,opt.body||'cloth',2);if(opt.apron)p.rect(12,32,12,6,opt.apron,2);
     p.rect(15,24,6,6,'skin',1);
     p.disc(18,17,10,11,skin,2);
     if(opt.bald){p.disc(18,11,10,6,skin,3)}else{p.disc(18,10,11,7,hair,2);p.rect(7,10,4,10,hair,2);p.rect(25,10,4,10,hair,2);p.poly([[8,12],[20,8],[14,15]],hair,3)}
     if(opt.helm){p.disc(18,10,12,8,opt.helm,3);p.rect(6,11,24,4,opt.helm,2);p.rect(9,14,2,6,opt.helm,1);p.rect(25,14,2,6,opt.helm,1);p.line(18,2,18,9,opt.helm,4,2)}
+    if(opt.style==='long'){p.rect(5,12,5,20,hair,2);p.rect(26,12,5,20,hair,2)}
+    else if(opt.style==='tail'){p.poly([[27,8],[34,12],[33,24],[29,14]],hair,2);p.rect(27,8,3,3,'red',3)}
+    else if(opt.style==='spiky'){p.poly([[8,10],[9,1],[14,7]],hair,3);p.poly([[14,7],[18,-1],[22,7]],hair,3);p.poly([[22,7],[27,1],[28,10]],hair,3)}
     if(opt.hat==='chef'){p.rect(9,1,18,9,'white',3);p.disc(12,3,4,3,'white',3);p.disc(24,3,4,3,'white',3);p.rect(9,8,18,3,'white',1)}
     if(opt.hat==='cap'){p.disc(18,8,11,5,'gold',2);p.rect(18,10,13,2,'gold',1)}
     if(opt.band)p.rect(8,9,20,3,opt.band,2);
@@ -1087,13 +1114,13 @@ function portrait(k){if(PORTRAITS[k])return PORTRAITS[k];
     cook:()=>face('skin','hair',{hat:'chef',body:'white',apron:'red',blush:1}),
     guild:()=>face('skin','red',{body:'cloth',blush:1,eye:'cloth'}),
     gate:()=>face('skin','hair',{helm:'steel',body:'steel',beard:'hair',beardL:1}),
-    hunter:()=>face('skin','hair',{body:ARMRAMP[S.arm],blush:1}),
+    hunter:()=>face('skin','hair',{body:ARMRAMP[S.arm],blush:1,style:LK().style}),
     brann:()=>face('skin','hair',{helm:'ice',body:'ice',beard:'hair',beardL:1}),
     kira:()=>face('skin','red',{body:'drake',band:'drake',blush:1}),
     rowan:()=>face('skin','white',{body:'snow',brow:'white'}),
     pip:()=>face('skin','hair',{body:'grass',blush:1}),
     stranger:()=>{face('skin','purple',{body:'purple'});p.disc(18,11,13,10,'purple',2);p.rect(5,11,5,20,'purple',1);p.rect(26,11,5,20,'purple',1);p.rect(10,14,16,7,'purple',0,true);p.rect(12,17,3,1,'gold',4,true);p.rect(21,17,3,1,'gold',4,true)}};
-  (P[k]||P.guild)();return PORTRAITS[k]=p.render().toDataURL()}
+  if(k0==='hunter')withLook(()=>P.hunter());else(P[k0]||P.guild)();return PORTRAITS[k]=p.render().toDataURL()}
 
 /* ---- monsters (1x, facing left) ---- */
 const MSPR={
@@ -1578,7 +1605,7 @@ function renderMbar(){const Q=S.Q,mh=maxHP();
   if(Q){const b=Q.boss,p=clamp(S.hp/mh,0,1)*100;
     const sub=`${condShort()} · Faints ${'■'.repeat(Q.carts)}${'□'.repeat(3-Q.carts)}`+(b&&b.alive&&b.painted?` · Target: ${ROOMS[b.room].name}`:'');
     body=`<div class="mb-row mb-hp"><div class="bar ${p<30?'low':''}"><i style="width:${p}%"></i></div><span>HP ${S.hp}/${mh}${S.pst?' · '+stName(S.pst):''}</span></div><div class="mb-sub ok">${objText()}</div><div class="mb-sub">${sub}</div>`}
-  else body=`<div class="mb-sub">HR ${S.hr} · ${S.zenny}z · Quest: ${S.accepted?quest(S.accepted).name:'none'}</div>`;
+  else body=`<div class="mb-sub">${HNAME()} · HR ${S.hr} · ${S.zenny}z · Quest: ${S.accepted?quest(S.accepted).name:'none'}</div>`;
   mbar.innerHTML=`<div class="mb-main"><div class="mb-row"><b class="mb-loc">${loc}</b><span class="mb-time">${right}</span></div>${body}</div><button id="mbBag" type="button">Bag</button>`;
   const r=mbar.getBoundingClientRect(),c=cv.getBoundingClientRect();if(c.height)VIEW.padTop=Math.max(0,Math.ceil((r.bottom-c.top)/c.height*VH))+4}
 function hud(){
@@ -1592,7 +1619,7 @@ function hud(){
     let bl='';if(Q.boss&&Q.boss.alive)bl=`<div class="small">${MON[Q.boss.key].name}: ${Q.boss.painted?`<span class="no">● ${ROOMS[Q.boss.room].name}</span>`:'unmarked'}</div>`;
     hudR.innerHTML=`<div class="hn">${fmtT(Q.time)}</div><div class="small">Faints <span class="pips">${'■'.repeat(Q.carts)}${'□'.repeat(3-Q.carts)}</span></div>`;hudEl.insertAdjacentHTML('beforeend',bl);
   }else{const a=S.accepted?quest(S.accepted).name:'none';
-    hudEl.innerHTML=`<div class="hn">Mossvale</div><div class="small">${PHASEN[dayPhase()]}</div><div class="small">HR ${S.hr} · ${S.zenny}z</div><div class="small">Quest: ${a}</div>`;
+    hudEl.innerHTML=`<div class="hn">Mossvale</div><div class="small">${PHASEN[dayPhase()]}</div><div class="small">${HNAME()} · HR ${S.hr} · ${S.zenny}z</div><div class="small">Quest: ${a}</div>`;
     hudR.innerHTML=`<div class="small">${wName(S.wep)}</div><div class="small">${aName(S.arm)}</div>`;}
 }
 /* dialog */
@@ -1604,7 +1631,7 @@ function nextLine(){
   if(!D.q.length){D.open=false;dlg.hidden=true;const r=D.res;D.res=null;r&&r();return}
   dlg.hidden=false;dlg.innerHTML='';const pk=WHO[D.who];
   if(pk){const im=h('img',{src:portrait(pk),alt:'',cls:'por'});dlg.append(im)}
-  const body=h('div',{cls:'dtx'});if(D.who)body.append(h('span',{cls:'who'},tr(D.who)));
+  const body=h('div',{cls:'dtx'});if(D.who)body.append(h('span',{cls:'who'},tr(D.who==='Hunter'?HNAME():D.who)));
   D.full=tr(D.q.shift());D.txt=h('span',{});body.append(D.txt);dlg.append(body,h('span',{cls:'more'},'▼'));
   if(typeof SCENE!=='undefined'&&SCENE){const sk=h('button',{type:'button',cls:'skipb'},'Skip');sk.onclick=e=>{e.stopPropagation();SCENE.skip=true;D.q=[];D.typing=0;clearInterval(D.iv);nextLine()};dlg.append(sk)}
   let i=0;D.typing=1;clearInterval(D.iv);
@@ -1796,6 +1823,7 @@ function chestMenu(){openMenu('Item Chest',(body,tab)=>{
     for(const k of ks)body.append(h('div',{cls:'note'},`${ITEMS[k].name} ×${have(k)}`))}
   else if(tab===3)catTab(body);
   else{const done=QUESTS.filter(q=>S.done[q.id]).length;
+    body.append(opt(h('span',{},HNAME(),h('span',{cls:'sub'},'Edit name & appearance')),'✎',()=>{MENU.onClose=null;closeMenu();charMenu(false)}));
     body.append(h('div',{cls:'note'},`Hunter Rank ${S.hr} · ${S.zenny}z · ${done}/${QUESTS.length} quests cleared`),
       h('div',{cls:'note'},`${wName(S.wep)} (ATK ${atk()}) · ${aName(S.arm)} (DEF ${def()}, HP ${maxHP()})`));
     body.append(opt('Save game','',()=>{save();sfx('save');toast('Game saved')}));
@@ -2007,6 +2035,22 @@ async function rescueCat(){const Q=S.Q;if(busy||Q.rescued)return;busy=true;sfx('
   await say([`${name} joined you as your hunting buddy!`,`${name} fights beside you, and can go on gathering trips from the Item Chest.`],'Guild');
   await playScene('kitten');
   await checkQuest()}
+/* ================= character creator ================= */
+const SKINS=[['sk1','Fair'],['skin','Light'],['sk2','Tan'],['sk3','Brown'],['sk4','Deep']];
+const HAIRS=[['hair','Brown'],['hb','Black'],['hy','Blonde'],['hr','Ginger'],['hw','Silver'],['hu','Blue'],['hp','Pink'],['hg','Green']];
+const STYLES=[['short','Short'],['long','Long'],['tail','Ponytail'],['spiky','Spiky']];
+Object.assign(POR,{'Create your hunter':'hunter','Your hunter':'hunter'});
+function charMenu(isNew){const L=S.look=Object.assign({skin:'skin',hair:'hair',style:'short'},S.look);let nm=S.name&&S.name!=='Hunter'?S.name:'';
+  const fin=()=>{S.name=cleanName(nm)||'Hunter';MENU.onClose=null;closeMenu();if(isNew)beginWorld();else{hud();save();toast('Appearance saved')}};
+  openMenu(isNew?'Create your hunter':'Your hunter',body=>{
+    const im=(src,w,hh)=>h('img',{src,alt:'',style:`width:${w}px;height:${hh}px`});const ow=hunterOW('down',0),bt=hunterBT('idle',0);
+    body.append(h('div',{cls:'cprev'},im(portrait('hunter'),72,72),im(ow.toDataURL(),Math.round(ow.width*3.5),Math.round(ow.height*3.5)),im(bt.toDataURL(),Math.round(bt.width*1.8),Math.round(bt.height*1.8))));
+    body.append(h('div',{cls:'sec'},'Name'));const inp=h('input',{type:'text',maxlength:'10',value:nm,placeholder:tr('Hunter'),autocomplete:'off',cls:'txt'});inp.oninput=()=>{nm=inp.value};
+    body.append(inp,h('div',{cls:'note'},'Up to 10 letters. Leave it empty to be called "Hunter".'));
+    const row=(title,list,key,isCol)=>{const cur=list.find(x=>x[0]===L[key])||list[0];body.append(h('div',{cls:'sec'},`${title} · ${cur[1]}`));const r=h('div',{cls:'swrow'});
+      for(const[v,lab]of list){const b=h('button',{type:'button',cls:'swb'+(L[key]===v?' on':''),title:tr(lab),'aria-label':tr(lab)},isCol?null:lab);if(isCol)b.style.background=col(v,2);b.onclick=()=>{L[key]=v;sfx('move');redraw()};r.append(b)}body.append(r)};
+    row('Skin',SKINS,'skin',1);row('Hair color',HAIRS,'hair',1);row('Hair style',STYLES,'style',0);
+    body.append(opt(isNew?'Start the hunt!':'Done','',fin))})}
 function askName(def){return new Promise(res=>{let done=false;const fin=v=>{if(done)return;done=true;res(String(v||'').trim().slice(0,10)||def)};
   openMenu('Name your buddy',body=>{const inp=h('input',{id:'catName',type:'text',maxlength:'10',value:def,autocomplete:'off',cls:'txt'});
     body.append(h('div',{cls:'note'},'Up to 10 letters.'),inp,opt('Confirm name','',()=>{const v=inp.value;MENU.onClose=null;closeMenu();fin(v)}));setTimeout(()=>{try{inp.focus();inp.select()}catch(e){}},60)});
@@ -2300,6 +2344,7 @@ Object.assign(STORY_ID,{
 Object.assign(STORY_ID,{"Up early? Good. The best hunters warm up before the sun does.": "Bangun pagi? Bagus. Pemburu terbaik pemanasan sebelum matahari terbit.", "Swing, recover, swing. A greatsword rewards patience.": "Ayun, pulih, ayun. Greatsword menghargai kesabaran.", "Nothing beats a hot meal after a long hunt. Eat before you head out, too.": "Tak ada yang mengalahkan makanan hangat setelah berburu. Makan juga sebelum berangkat.", "Rest well. Monsters grow stronger at night, but they drop rarer parts.": "Istirahatlah. Monster lebih kuat di malam hari, tapi menjatuhkan bahan lebih langka.", "When a monster flashes GUARD!, brace yourself. A good guard takes most of the sting out.": "Saat monster memunculkan GUARD!, bertahanlah. Tahan yang tepat meredam sebagian besar serangan.", "The Verdant Wyrm spits venom. Pack Antidotes, and hit it with fire.": "Verdant Wyrm menyemburkan racun. Bawa Antidote, dan serang dengan api.", "Frostpeak blizzards chill you to the bone. A Hot Drink keeps you warm.": "Badai salju Frostpeak menusuk sampai tulang. Hot Drink membuatmu tetap hangat.", "The Rimeback Tusker hates fire. Ice just bounces off its hide.": "Rimeback Tusker benci api. Es cuma memantul dari kulitnya.", "The Cinder Drake laughs at fire. Bring venom or ice instead.": "Cinder Drake menertawakan api. Bawa racun atau es saja.", "Your armor is your second life. Keep it upgraded with White Shards.": "Zirahmu adalah nyawa keduamu. Terus upgrade dengan White Shard.", "Subspecies are a different beast. The Crimson Wyrm fears ice, not fire.": "Subspesies itu lain cerita. Crimson Wyrm takut es, bukan api.", "Black and White Gems only come from subspecies. They take your gear past +5.": "Black dan White Gem hanya didapat dari subspesies. Itu yang membawa gear-mu melewati +5.", "Five more minutes... fine, I'm up! Race you to the Quest Board!": "Lima menit lagi... ya sudah, aku bangun! Balapan ke Papan Quest, yuk!", "Ooh, new jobs on the board! I'm taking the flashy ones.": "Ooh, ada misi baru di papan! Aku ambil yang keren-keren.", "Wanna hear how I beat a boar with one hand? ...Okay, both hands.": "Mau dengar cara aku mengalahkan babi hutan dengan satu tangan? ...Oke, dua tangan.", "The canteen stew is best at night. Don't tell the cook I said that.": "Sup kantin paling enak di malam hari. Jangan bilang koki aku ngomong begitu.", "Mosslings are easy pickings. Farm them for pelts before you face the Wyrm!": "Mossling itu gampang. Kumpulkan kulitnya sebelum melawan Wyrm!", "See a sparkly spot out there? Gather it! Materials are everything.": "Lihat titik berkilau di luar sana? Kumpulkan! Material itu segalanya.", "Icefang Wolves hunt in packs. Hit 'em with fire and keep moving.": "Icefang Wolf berburu berkelompok. Hajar pakai api dan terus bergerak.", "Snow Owls hit hard but fold fast. Fire again. Everything up there hates it!": "Snow Owl pukulannya keras tapi cepat tumbang. Api lagi. Semua di atas sana benci api!", "Ember Crabs have thick shells. Twin Blades struggle, so hit big.": "Ember Crab cangkangnya tebal. Twin Blades kesulitan, jadi pakai serangan besar.", "Paint the Drake with a Paintball, or it'll vanish into the cave dark.": "Tandai Drake dengan Paintball, atau ia akan hilang di gelapnya gua.", "Heard the Shadow Drake is weak to fire! Weird, right? Nothing like its cousin.": "Katanya Shadow Drake lemah terhadap api! Aneh, kan? Beda sekali dengan sepupunya.", "Storm Tusker? Venom, venom, venom. Trust me.": "Storm Tusker? Racun, racun, racun. Percaya deh.", "...The pond is quiet at dawn. I like it that way.": "...Kolam sepi saat subuh. Aku suka begini.", "...Watching the fish. Patience catches more than force.": "...Mengamati ikan. Kesabaran menangkap lebih banyak daripada tenaga.", "...The smith knows his craft. Listen to him.": "...Pandai besi itu ahli di bidangnya. Dengarkan dia.", "...Clear stars tonight. Somewhere out there, R. is watching them too.": "...Bintang cerah malam ini. Di suatu tempat, R. juga sedang memandanginya.", "...Break a monster's parts. Each break can drop an extra material.": "...Patahkan bagian tubuh monster. Tiap bagian yang patah bisa menjatuhkan material tambahan.", "...A boss at low health starts to limp. That is when a Capture Kit works.": "...Boss yang sekarat mulai pincang. Saat itulah Capture Kit bekerja.", "...Snow hides a lot on Frostpeak. Mark the Tusker with a Paintball.": "...Salju menyembunyikan banyak hal di Frostpeak. Tandai Tusker dengan Paintball.", "...Captured bosses give rare parts more often than carving.": "...Boss yang ditangkap lebih sering memberi bahan langka daripada dikuliti.", "...Cinder armor shrugs off burns. The cave will test you.": "...Zirah Cinder kebal luka bakar. Gua itu akan mengujimu.", "...Break the Drake's wings. Every break is another material.": "...Patahkan sayap Drake. Setiap bagian patah berarti material tambahan.", "...The Crimson Wyrm burns like the Drake. Fire will not touch it.": "...Crimson Wyrm membara seperti Drake. Api tak akan mempan.", "...Heartroot Watch. That is what R. signed. I have seen that name in old records.": "...Heartroot Watch. Itu tanda tangan R. Aku pernah melihat nama itu di catatan lama.", "Oh! G-good morning! I was just... practicing. Don't look.": "Oh! S-selamat pagi! Aku cuma... latihan. Jangan lihat.", "Kira says I'll be a great hunter someday! ...Do you think so too?": "Kata Kira aku bakal jadi pemburu hebat suatu hari nanti! ...Kamu juga berpikir begitu?", "Th-the shop sells Potions! I buy ten every time. Just in case.": "T-toko jual Potion! Aku selalu beli sepuluh. Buat jaga-jaga.", "I'm not scared of the dark. The cat hunters are, though. Probably.": "Aku nggak takut gelap. Tapi kucing-kucing pemburu takut. Mungkin.", "Did you know? Canteen meals last your whole next hunt!": "Tahu nggak? Makanan kantin bertahan selama perburuan berikutnya!", "I faint a lot... Three faints and the quest fails, so be careful!": "Aku sering pingsan... Tiga kali pingsan dan quest gagal, jadi hati-hati!", "The Traveling Merchant only comes at night. He has rare stuff!": "Pedagang Keliling cuma datang malam hari. Barangnya langka-langka!", "Hot Drinks! Buy Hot Drinks before Frostpeak. My toes still hurt.": "Hot Drink! Beli Hot Drink sebelum ke Frostpeak. Jari kakiku masih sakit.", "You fought the Tusker?! You're like, a real hunter!": "Kamu melawan Tusker?! Kamu pemburu sungguhan!", "Kira says upgrading gear with Shards makes it way stronger. Is that true?": "Kata Kira upgrade gear pakai Shard bikin jauh lebih kuat. Benar nggak?", "Everyone's talking about you! And about someone called... R.? Who's that?": "Semua orang membicarakanmu! Juga seseorang bernama... R.? Siapa itu?", "The Elder says the Hollow is just a story. But he looked scared saying it.": "Tetua bilang Hollow cuma dongeng. Tapi wajahnya ketakutan waktu mengatakannya."});
 Object.assign(STORY_ID,{"Daily bounties": "Bounty harian", "Quests": "Quest", "Clear hunts to unlock daily bounties. New ones arrive every day.": "Selesaikan perburuan untuk membuka bounty harian. Bounty baru datang setiap hari.", "done": "selesai", "+2 Shards": "+2 Shard", "+1 Gem +1 Shard": "+1 Gem +1 Shard", "No Potions": "Tanpa Potion", "Potions and Mega Potions cannot be used.": "Potion dan Mega Potion tidak bisa dipakai.", "Rush": "Kejar Waktu", "The time limit is halved.": "Batas waktu dipotong setengah.", "Frenzy": "Amukan", "Monsters hit 25% harder.": "Serangan monster 25% lebih sakit.", "Solo": "Solo", "Your buddy stays home.": "Teman kucingmu tinggal di rumah.", "Bounty rule": "Aturan bounty", "Bounty rule: no Potions on this hunt!": "Aturan bounty: tidak boleh pakai Potion di perburuan ini!", "PACK!": "KAWANAN!", "PHASE 2": "FASE 2", "Shadow Frenzy": "Amukan Bayangan", "Crystal Armor": "Zirah Kristal", "Storm Armor": "Zirah Badai", "Blazing Aura": "Aura Membara", "SHATTER!": "HANCUR!", "Pack Leader of the Thicket": "Pemimpin Kawanan Semak", "Pack Leader of Frostpeak": "Pemimpin Kawanan Frostpeak", "Pack Leader of the Magma Pools": "Pemimpin Kawanan Kolam Magma", "The guild adds 2 Potions. Word is, an Alpha Boar pack now roams the forest.": "Serikat menambahkan 2 Potion. Kabarnya, kawanan Alpha Boar kini berkeliaran di hutan.", "Frostpeak, Mega Potions and a free forest expedition are now open.": "Frostpeak, Mega Potion, dan ekspedisi hutan kini terbuka.", "An Alpha Boar leads a pack through the forest. Break the pack.": "Seekor Alpha Boar memimpin kawanan di hutan. Hancurkan kawanannya.", "An Alpha Icefang leads a hunting pack on Frostpeak. Break the pack.": "Seekor Alpha Icefang memimpin kawanan pemburu di Frostpeak. Hancurkan kawanannya.", "An Alpha Ember Crab rules the deep tunnels with its guards. Break the pack.": "Seekor Alpha Ember Crab menguasai terowongan dalam bersama pengawalnya. Hancurkan kawanannya.", "scrapes the ground, snorting furiously...": "mengais tanah sambil mendengus marah...", "howls, and its eyes lock onto you...": "melolong, matanya terkunci padamu...", "raises both claws — magma drips from them...": "mengangkat kedua capitnya — magma menetes darinya...", "rears up, its venom sacs swelling...": "menegakkan tubuh, kantong racunnya menggembung...", "rears up, its throat glowing crimson...": "menegakkan tubuh, tenggorokannya menyala merah...", "stamps the ground — the whole glacier shakes!": "menghentak tanah — seluruh gletser berguncang!", "stamps the ground — lightning arcs across the snow!": "menghentak tanah — kilat menyambar di atas salju!", "soars high — the air around it ignites!": "melesat tinggi — udara di sekitarnya terbakar!", "soars high — the sky itself goes dark!": "melesat tinggi — langit pun menjadi gelap!"});
 for(const[en,id]of [["The {0} pack surrounds you! Defeat its followers first.", "Kawanan {0} mengepungmu! Kalahkan pengikutnya dulu."], ["Another {0} leaps in!", "{0} lain melompat masuk!"], ["The {0} steps forward, snarling!", "{0} maju sambil menggeram!"], ["Pack {0}/{1}", "Kawanan {0}/{1}"], ["{0}: break the {1}!", "{0}: patahkan {1}!"], ["The {0}'s {1} shatters!", "{1} milik {0} hancur!"], ["Its broken {0} can't hold up the {1}!", "{0} yang patah tak mampu menahan {1}!"], ["{0}! It takes far less damage until its {1} is broken.", "{0}! Ia menerima jauh lebih sedikit damage sampai {1}-nya dipatahkan."], ["{0}! It may strike twice in a row.", "{0}! Ia bisa menyerang dua kali berturut-turut."], ["The {0} strikes again!", "{0} menyerang lagi!"], ["Break the {0} pack", "Hancurkan kawanan {0}"], ["Bounty bonus: +{0}z", "Bonus bounty: +{0}z"]]){const ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),id,ord])}
+Object.assign(STORY_ID,{"Create your hunter": "Buat pemburumu", "Your hunter": "Pemburumu", "Name": "Nama", "Skin": "Kulit", "Hair color": "Warna rambut", "Hair style": "Gaya rambut", "Fair": "Cerah", "Light": "Terang", "Tan": "Sawo matang", "Brown": "Cokelat", "Deep": "Gelap", "Black": "Hitam", "Blonde": "Pirang", "Ginger": "Jingga", "Silver": "Perak", "Blue": "Biru", "Pink": "Merah muda", "Green": "Hijau", "Short": "Pendek", "Long": "Panjang", "Ponytail": "Kuncir", "Spiky": "Jabrik", "Start the hunt!": "Mulai berburu!", "Done": "Selesai", "Edit name & appearance": "Ubah nama & penampilan", "Appearance saved": "Penampilan disimpan", "Up to 10 letters. Leave it empty to be called \"Hunter\".": "Maksimal 10 huruf. Kosongkan untuk dipanggil \"Pemburu\"."});
 for(const[k,v]of Object.entries(STORY_ID))IDD.set(k,v);
 for(const t of ['scrapes the ground, snorting furiously...','howls, and its eyes lock onto you...','raises both claws — magma drips from them...','rears up, its venom sacs swelling...','rears up, its throat glowing crimson...','stamps the ground — the whole glacier shakes!','stamps the ground — lightning arcs across the snow!','soars high — the air around it ignites!','soars high — the sky itself goes dark!']){const en='The {0} '+t,ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),'{0} '+STORY_ID[t],ord])}
 
@@ -2805,7 +2850,7 @@ updAudioUI();
 function toTitle(){S.scene='title';S.map='village';$('#title').hidden=false;hud();hintEl.hidden=true;music('title');
   const m=$('#titleMenu');m.innerHTML='';const sv=loadSave();
   if(sv)m.append(opt('Continue',`HR ${sv.hr} · ${sv.zenny}z`,()=>{S=Object.assign(freshState(),sv);S.Q=null;beginWorld()}));
-  m.append(opt('New hunt',null,()=>{S=freshState();S.diff='hard';beginWorld()}));
+  m.append(opt('New hunt',null,()=>{S=freshState();S.diff='hard';charMenu(true)}));
   m.append(opt('Tutorial',null,()=>tutorialMenu()));
   m.append(h('div',{cls:'small',style:'padding:.3em .4em'},'Press any key or tap to enable sound'));
   m.querySelector('button').focus()}
