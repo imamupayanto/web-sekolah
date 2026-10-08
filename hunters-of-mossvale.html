@@ -281,6 +281,7 @@ body.mobile #toast{font-size:14px;white-space:normal;max-width:86%;text-align:ce
     <span><kbd>Z</kbd>/<kbd>Space</kbd> act · confirm</span>
     <span><kbd>X</kbd>/<kbd>Esc</kbd> bag · back</span>
     <span><kbd>M</kbd> mute</span>
+    <span><kbd>T</kbd> chat</span>
     <span>Watch for monster tells — then <b>Guard</b>.</span>
   </div>
 </div>
@@ -1605,7 +1606,7 @@ function renderMbar(){const Q=S.Q,mh=maxHP();
   if(Q){const b=Q.boss,p=clamp(S.hp/mh,0,1)*100;
     const sub=`${condShort()} · Faints ${'■'.repeat(Q.carts)}${'□'.repeat(3-Q.carts)}`+(b&&b.alive&&b.painted?` · Target: ${ROOMS[b.room].name}`:'');
     body=`<div class="mb-row mb-hp"><div class="bar ${p<30?'low':''}"><i style="width:${p}%"></i></div><span>HP ${S.hp}/${mh}${S.pst?' · '+stName(S.pst):''}</span></div><div class="mb-sub ok">${objText()}</div><div class="mb-sub">${sub}</div>`}
-  else body=`<div class="mb-sub">${HNAME()} · HR ${S.hr} · ${S.zenny}z · Quest: ${S.accepted?quest(S.accepted).name:'none'}</div>`;
+  else body=`<div class="mb-sub">${HNAME()} · HR ${S.hr} · ${S.zenny}z${mpBadge()} · Quest: ${S.accepted?quest(S.accepted).name:'none'}</div>`;
   mbar.innerHTML=`<div class="mb-main"><div class="mb-row"><b class="mb-loc">${loc}</b><span class="mb-time">${right}</span></div>${body}</div><button id="mbBag" type="button">Bag</button>`;
   const r=mbar.getBoundingClientRect(),c=cv.getBoundingClientRect();if(c.height)VIEW.padTop=Math.max(0,Math.ceil((r.bottom-c.top)/c.height*VH))+4}
 function hud(){
@@ -1619,7 +1620,7 @@ function hud(){
     let bl='';if(Q.boss&&Q.boss.alive)bl=`<div class="small">${MON[Q.boss.key].name}: ${Q.boss.painted?`<span class="no">● ${ROOMS[Q.boss.room].name}</span>`:'unmarked'}</div>`;
     hudR.innerHTML=`<div class="hn">${fmtT(Q.time)}</div><div class="small">Faints <span class="pips">${'■'.repeat(Q.carts)}${'□'.repeat(3-Q.carts)}</span></div>`;hudEl.insertAdjacentHTML('beforeend',bl);
   }else{const a=S.accepted?quest(S.accepted).name:'none';
-    hudEl.innerHTML=`<div class="hn">Mossvale</div><div class="small">${PHASEN[dayPhase()]}</div><div class="small">${HNAME()} · HR ${S.hr} · ${S.zenny}z</div><div class="small">Quest: ${a}</div>`;
+    hudEl.innerHTML=`<div class="hn">Mossvale</div><div class="small">${PHASEN[dayPhase()]}</div><div class="small">${HNAME()} · HR ${S.hr} · ${S.zenny}z${mpBadge()}</div><div class="small">Quest: ${a}</div>`;
     hudR.innerHTML=`<div class="small">${wName(S.wep)}</div><div class="small">${aName(S.arm)}</div>`;}
 }
 /* dialog */
@@ -1681,7 +1682,7 @@ function press(a){
 }
 addEventListener('pointerdown',()=>auInit(),{capture:true});
 document.addEventListener('click',e=>{const b=e.target.closest('.opt,.tab');if(b&&!b.disabled)sfx('select')},true);
-addEventListener('keydown',e=>{if(e.target&&e.target.closest&&e.target.closest('input,textarea'))return;auInit();if(e.code==='KeyM'){toggleMute();return}const a=KEY[e.code];if(!a||e.ctrlKey||e.metaKey)return;e.preventDefault();
+addEventListener('keydown',e=>{if(e.target&&e.target.closest&&e.target.closest('input,textarea'))return;auInit();if(e.code==='KeyM'){toggleMute();return}if(e.code==='KeyT'&&S&&S.scene==='world'&&!S.Q&&!busy&&!uiBlocking()){e.preventDefault();onlineMenu();return}const a=KEY[e.code];if(!a||e.ctrlKey||e.metaKey)return;e.preventDefault();
   if(DIRS.includes(a)){if(!dirStack.includes(a))dirStack.push(a);if(uiBlocking())press(a)}else if(!e.repeat)press(a)});
 addEventListener('keyup',e=>{const a=KEY[e.code];const i=dirStack.indexOf(a);if(i>=0)dirStack.splice(i,1)});
 addEventListener('blur',()=>dirStack.length=0);
@@ -1731,7 +1732,7 @@ function updHint(){let t='';const[fx,fy]=facing();
   hintEl.hidden=!t||S.scene!=='world';hintEl.textContent=t;
   const lab=!t||!t.startsWith('A: ')?'':t.startsWith('A: Gather')?'Gather':t.startsWith('A: Attack')?'Attack':/Fish|fishing/.test(t)?'Fish':t==='A: Base Camp'?'Camp':t==='A: South Gate'?'Depart':t==='A: Item Chest'?'Open':'Talk';
   const al=document.getElementById('tbAL');if(al)al.textContent=lab}
-async function onStep(){updHint();P.steps=(P.steps||0)+1;if(P.steps%2===0){sfx('step',zoneOf(S.map));dust(P.x*16+8,P.y*16+15)}const Q=S.Q;if(!Q)return;
+async function onStep(){updHint();mpStep();P.steps=(P.steps||0)+1;if(P.steps%2===0){sfx('step',zoneOf(S.map));dust(P.x*16+8,P.y*16+15)}const Q=S.Q;if(!Q)return;
   collectHere();
   Q.time-=5;Q.steps++;if(Q.safe>0)Q.safe--;if(Q.weather==='quake'&&Q.steps%28===0)quake();
   if(Q.weather==='blizzard'&&!Q.warm&&S.arm!=='ar5'&&S.arm!=='arO'&&!LZ()&&Q.steps%4===0){S.hp=Math.max(1,S.hp-1);if(Q.steps%40===0)toast('Freezing! A Hot Drink keeps you warm.')}
@@ -1893,6 +1894,7 @@ function bagMenu(){openMenu('Bag',(body,tab)=>{
     body.append(opt(`Sound: ${AU.muted?'off':'on'}`,'',()=>{toggleMute();redraw()}));
     body.append(opt(`Battle speed: ${SPDN[S.bspd]||'Normal'}`,'',()=>{const o=['slow','normal','fast'];S.bspd=o[(o.indexOf(S.bspd||'normal')+1)%3];save();redraw()}));
     body.append(opt(LANG==='id'?'Bahasa: Indonesia':'Language: English',LANG==='id'?'ID':'EN',()=>{setLang(LANG==='id'?'en':'id');redraw();hud()}));
+    if(!Q)body.append(opt('Online (chat & emotes)',MP.st==='on'?'🌐 '+(mpCount()+1):'',()=>{closeMenu();onlineMenu()}));
     if(!Q)body.append(opt('Save game','',()=>{save();sfx('save');toast('Game saved')}));
     if(!Q)body.append(opt('Save code (backup)','',()=>{closeMenu();codeMenu()}));
     if(Q)body.append(opt(h('span',{},'Quest info',h('span',{cls:'sub'},objText())),'',async()=>{closeMenu();const q=quest(Q.id);await say([q.name,q.desc,`Faints ${Q.carts}/3 · ${fmtT(Q.time)} left.`],'Quest')}))}
@@ -2661,7 +2663,7 @@ function drawWorld(dt){const key=S.map;const[gnd,objs,an]=worldData(key);const m
       if(m.chase){const yy=Math.round(my+13-ft-(fly?5:0)-8+(Math.floor(T0*6)%2));g.fillStyle=col('red',3);g.fillRect(mx+7,yy,2,5);g.fillRect(mx+7,yy+6,2,2)}}})}
   list.push({y:py+15.5,d:()=>{g.fillStyle='rgba(0,0,0,.28)';g.fillRect(px+3,py+14,10,2);g.fillRect(px+4,py+15,8,1);
     const fr=P.mv?[1,0,3,0][Math.floor(P.wt*8)%4]:0;blit(hunterOW(P.dir,fr),px-3,py-12)}});
-  list.sort((a,c)=>a.y-c.y);for(const o of list)o.d();if(key==='village'&&!Q)vhTags();
+  if(key==='village'&&!Q)mpList(list,dt);list.sort((a,c)=>a.y-c.y);for(const o of list)o.d();if(key==='village'&&!Q){vhTags();mpTags()}
   if(TAPM&&T0<TAPM.until&&Math.floor(T0*10)%2){g.strokeStyle='rgba(255,255,255,.8)';g.lineWidth=1;g.strokeRect(TAPM.x*16+.5,TAPM.y*16+.5,15,15)}
   if(tile(P.x,P.y)===','||(P.mv&&MAPS[key][P.mv.fy]?.[P.mv.fx]===',')){const tx=P.x*16,ty=P.y*16;for(let i=0;i<8;i++){const bx=tx+i*2,hh=4+((i*7)%4),sw=Math.round(Math.sin(T0*3+i)*.6);g.fillStyle=col(zoneOf(key)==='snow'?'snow':'grass',i%2?1:2);g.fillRect(bx+sw,ty+16-hh,1,hh);g.fillStyle=col(zoneOf(key)==='snow'?'white':'grass',4);g.fillRect(bx+sw,ty+16-hh,1,1)}}
   stepPT(dt);
@@ -2840,6 +2842,88 @@ function tapTo(tx,ty){const m=curMap();if(ty<0||tx<0||ty>=m.length||tx>=m[0].len
 cv.addEventListener('pointerdown',e=>{if(!isTouch()||S.scene!=='world'||busy||MENU||D.open||FISH.on)return;
   const r=cv.getBoundingClientRect();const lx=(e.clientX-r.left)/r.width*W+CAMX,ly=(e.clientY-r.top)/r.height*VH+CAMY;
   auInit();tapTo(Math.floor(lx/16),Math.floor(ly/16))});
+
+/* ================= ONLINE (Supabase Realtime) =================
+   SETUP: isi 2 baris di bawah dengan data project Supabase kamu
+   (Project Settings → API → Project URL & anon/publishable key).
+   Kalau dikosongkan, game tetap jalan offline seperti biasa. */
+const MP_URL='https://kttfformjoyraqsrjrrv.supabase.co';   // contoh: 'https://abcdxyz.supabase.co'
+const MP_KEY='sb_publishable_noV7z0rqJIq2J24M6z1nXw_y4BwW5DE';   // contoh: 'eyJhbGciOi...' (anon key, aman ditaruh di sini)
+const MP_EMO=['👋','❗','😄','❤️','😮','👍'];
+const MP={st:MP_URL&&MP_KEY?'connecting':'off',ch:null,id:Math.random().toString(36).slice(2,10),ps:{},q:[],lastD:'',sig:'',here:false,log:[],chatT:0,me:null};
+const mpSafe=o=>{const l=o&&o.l||{};return{n:cleanName(o&&o.n)||'Hunter',a:ARMORS[o&&o.a]&&!ARMORS[o.a].leg?o.a:'ar0',w:WEAPONS[o&&o.w]&&!WEAPONS[o.w].leg?o.w:'gs1',
+  l:{skin:SKINS.some(s=>s[0]===l.skin)?l.skin:'skin',hair:HAIRS.some(s=>s[0]===l.hair)?l.hair:'hair',style:STYLES.some(s=>s[0]===l.style)?l.style:'short'}}};
+const mpXY=v=>{const x=v|0;return x>=0&&x<40?x:0};
+const mpDir=d=>DIRS.includes(d)?d:'down';
+const mpText=t=>String(t||'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,60);
+const mpHere=()=>!!S&&S.scene==='world'&&!S.Q&&S.map==='village';
+function mpMe(){return{n:HNAME(),a:S.lz?S.lz.arm:S.arm,w:S.lz?S.lz.wep:S.wep,l:LK(),x:P.x,y:P.y,d:P.dir,h:mpHere()}}
+function mpInit(){if(MP.st==='off')return;const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  sc.onload=()=>{try{mpConnect()}catch(e){MP.st='error'}};sc.onerror=()=>{MP.st='error'};document.head.append(sc)}
+function mpConnect(){const sb=window.supabase.createClient(MP_URL,MP_KEY);
+  const ch=MP.ch=sb.channel('mossvale-village',{config:{broadcast:{self:false},presence:{key:MP.id}}});
+  ch.on('presence',{event:'sync'},()=>{const st=ch.presenceState(),seen={};
+    for(const id in st){if(id===MP.id)continue;const m=st[id][st[id].length-1];if(!m)continue;seen[id]=1;const s=mpSafe(m);let o=MP.ps[id];
+      if(!o)o=MP.ps[id]={x:mpXY(m.x),y:mpXY(m.y),fx:mpXY(m.x),fy:mpXY(m.y),t:1,fr:0,q:[],dir:mpDir(m.d)};
+      Object.assign(o,s,{h:!!m.h});if(!o.h){o.q=[];o.x=o.fx=mpXY(m.x);o.y=o.fy=mpXY(m.y);o.t=1}}
+    for(const id in MP.ps)if(!seen[id])delete MP.ps[id];if(mpHere())hud()});
+  ch.on('presence',{event:'join'},({key})=>{if(key!==MP.id&&mpHere())mpSendPos(true)});
+  ch.on('broadcast',{event:'pos'},({payload:m})=>{const o=MP.ps[m&&m.id];if(!o||!Array.isArray(m.p))return;
+    for(const s of m.p.slice(0,20))if(Array.isArray(s))o.q.push([mpXY(s[0]),mpXY(s[1])]);if(o.q.length>14){const L=o.q[o.q.length-1];o.q=[];o.x=o.fx=L[0];o.y=o.fy=L[1];o.t=1}
+    o.fdir=mpDir(m.d);if(!o.q.length&&o.t>=1)o.dir=o.fdir});
+  ch.on('broadcast',{event:'chat'},({payload:m})=>{const o=MP.ps[m&&m.id];if(!o)return;const t=mpText(m.t);if(!t)return;
+    const e=MP_EMO.includes(t);o.bub={t,e,until:T0+(e?2.5:5)};if(!e){MP.log.push([o.n,t]);MP.log=MP.log.slice(-8);if(MENU&&MENU.title==='Online')redraw()}if(o.h&&mpHere())sfx('text')});
+  ch.subscribe(s=>{if(s==='SUBSCRIBED'){MP.st='on';MP.sig='';mpSync()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'){MP.st='error'}else if(s==='CLOSED')MP.st='connecting'})}
+function mpSync(){if(MP.st!=='on'||!S)return;const me=mpMe(),sig=JSON.stringify([me.n,me.a,me.w,me.l,me.h]);
+  if(sig!==MP.sig){MP.sig=sig;MP.q=[];MP.ch.track(me)}MP.here=me.h}
+function mpSendPos(snap){if(MP.st!=='on'||!mpHere())return;
+  if(snap)MP.q=[[P.x,P.y]];if(!MP.q.length&&P.dir===MP.lastD)return;
+  MP.ch.send({type:'broadcast',event:'pos',payload:{id:MP.id,p:MP.q.length?MP.q:[[P.x,P.y]],d:P.dir}});MP.q=[];MP.lastD=P.dir}
+function mpStep(){if(MP.st==='on'&&mpHere())MP.q.push([P.x,P.y])}
+function mpSay(t){t=mpText(t);if(!t||MP.st!=='on')return false;if(T0<MP.chatT){toast('Wait a moment…');return false}MP.chatT=T0+1.2;
+  MP.ch.send({type:'broadcast',event:'chat',payload:{id:MP.id,t}});const e=MP_EMO.includes(t);MP.me={t,e,until:T0+(e?2.5:5)};if(!e){MP.log.push([HNAME(),t]);MP.log=MP.log.slice(-8)}return true}
+setInterval(()=>{mpSync();mpSendPos()},300);
+const mpCount=()=>Object.values(MP.ps).filter(o=>o.h).length;
+const mpBadge=()=>MP.st==='on'?` · 🌐 ${mpCount()+1}`:'';
+function mpTick(dt){for(const o of Object.values(MP.ps)){if(!o.h)continue;
+  if(o.t<1){o.t=Math.min(1,o.t+dt*7);o.fr+=dt}
+  if(o.t>=1&&o.q.length){const[nx,ny]=o.q.shift();const dx=nx-o.x,dy=ny-o.y;if(!dx&&!dy)continue;
+    o.fx=o.x;o.fy=o.y;o.x=nx;o.y=ny;o.t=Math.abs(dx)+Math.abs(dy)>1?1:0;o.dir=dx>0?'right':dx<0?'left':dy>0?'down':'up'}
+  if(o.t>=1&&!o.q.length&&o.fdir)o.dir=o.fdir}}
+const mpPos=o=>{const t=clamp(o.t,0,1);return[(o.fx+(o.x-o.fx)*t)*16,(o.fy+(o.y-o.fy)*t)*16]};
+function mpSpr(o,d,f){const L=o.l;return spr(`op${d}${f}${o.a}${o.w}|${L.skin}${L.hair}${L.style}`,()=>{const prev=RREMAP;RREMAP={skin:L.skin,hair:L.hair};
+  try{return chibi(d,f,{style:L.style,body:ARMRAMP[o.a],helm:o.a!=='ar0'?ARMRAMP[o.a]:null,wep:WEAPONS[o.w],wt:tierOf(o.w),tier:tierOf(o.a)})}finally{RREMAP=prev}})}
+function mpList(list,dt){mpTick(dt);let n=0;for(const o of Object.values(MP.ps)){if(!o.h||n++>30)continue;const[X0,Y0]=mpPos(o),X=Math.round(X0),Y=Math.round(Y0);
+  list.push({y:Y+15.4,d:()=>{g.fillStyle='rgba(0,0,0,.28)';g.fillRect(X+3,Y+14,10,2);const fr=o.t<1?[1,0,3,0][Math.floor(o.fr*8)%4]:0;
+    g.globalAlpha=.92;blit(mpSpr(o,o.dir,fr),X-3,Y-12);g.globalAlpha=1}})}}
+function mpWrap(t,max){const out=[];let line='';for(const w of t.split(' ')){const tryL=line?line+' '+w:w;if(g.measureText(tryL).width>max&&line){out.push(line);line=w}else line=tryL}if(line)out.push(line);return out.slice(0,3)}
+function mpBubble(b,X,Y){if(!b||T0>b.until)return;g.save();g.textAlign='center';g.textBaseline='middle';
+  if(b.e){g.font='12px sans-serif';g.fillText(b.t,X,Y-14+Math.round(Math.sin(T0*6)))}
+  else{g.font='7px "Pixelify Sans",sans-serif';const ls=mpWrap(b.t,100),w=Math.min(108,Math.ceil(Math.max(...ls.map(l=>g.measureText(l).width)))+6),hh=ls.length*8+3,top=Y-12-hh;
+    g.fillStyle='rgba(255,246,220,.95)';g.fillRect(Math.round(X-w/2),top,w,hh);g.fillRect(X-1,top+hh,3,2);g.fillStyle=INK;ls.forEach((l,i)=>g.fillText(l,X,top+6+i*8))}
+  g.restore()}
+function mpTags(){g.save();g.font='bold 8px "Pixelify Sans",sans-serif';g.textAlign='center';g.textBaseline='middle';
+  for(const o of Object.values(MP.ps)){if(!o.h)continue;const[X0,Y0]=mpPos(o),X=Math.round(X0)+8,Y=Math.round(Y0)-18;
+    const w=Math.ceil(g.measureText(o.n).width)+4;g.fillStyle='rgba(30,40,80,.8)';g.fillRect(Math.round(X-w/2),Y-5,w,10);g.fillStyle='#bfe0ff';g.fillText(o.n,X,Y);mpBubble(o.bub,X,Y-6)}
+  g.restore();if(MP.me){const[px,py]=playerPx();g.save();mpBubble(MP.me,px+8,py-18);g.restore()}}
+function onlineMenu(){openMenu('Online',body=>{
+  const st={off:'Online mode is off. Fill MP_URL and MP_KEY in the game file.',connecting:'Connecting…',error:'Could not connect. Check MP_URL / MP_KEY and your internet.'}[MP.st];
+  if(st){body.append(h('div',{cls:'note'},st));return}
+  const here=mpHere();body.append(h('div',{cls:'note'},`${mpCount()+1} hunters in Mossvale`));
+  if(!here){body.append(h('div',{cls:'note'},'Chat works in Mossvale village.'));return}
+  body.append(h('div',{cls:'sec'},'Emotes'));const r=h('div',{cls:'swrow'});
+  for(const e of MP_EMO){const b=h('button',{type:'button',cls:'swb'},e);b.onclick=()=>{if(mpSay(e)){MENU.onClose=null;closeMenu()}};r.append(b)}body.append(r);
+  body.append(h('div',{cls:'sec'},'Chat'));const inp=h('input',{type:'text',maxlength:'60',autocomplete:'off',cls:'txt',placeholder:tr('Type a message…')});
+  const send=()=>{if(mpSay(inp.value)){inp.value='';redraw()}};inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
+  body.append(inp,opt('Send','',send));
+  if(MP.log.length){body.append(h('div',{cls:'sec'},'Recent'));for(const[n,t]of MP.log.slice().reverse())body.append(h('div',{cls:'note'},`${n}: ${t}`))}
+  setTimeout(()=>{try{inp.focus()}catch(e){}},60)})}
+Object.assign(POR,{'Online':'hunter'});
+for(const[k,v]of Object.entries({'Online':'Online','Emotes':'Emote','Chat':'Chat','Send':'Kirim','Recent':'Terbaru','Type a message…':'Ketik pesan…','Connecting…':'Menghubungkan…','Wait a moment…':'Tunggu sebentar…',
+  'Chat works in Mossvale village.':'Chat hanya di desa Mossvale.','Online mode is off. Fill MP_URL and MP_KEY in the game file.':'Mode online mati. Isi MP_URL dan MP_KEY di file game.',
+  'Could not connect. Check MP_URL / MP_KEY and your internet.':'Gagal terhubung. Cek MP_URL / MP_KEY dan internetmu.','chat':'chat','Online (chat & emotes)':'Online (chat & emote)'}))IDD.set(k,v);
+{const ord=[0];IDR.unshift([/^(.+?) hunters in Mossvale$/,'{0} pemburu di Mossvale',ord]);IDR.unshift([/^Online \((.+?)\)$/,'Online ({0})',ord])}
+mpInit();
 
 /* ================= title / boot ================= */
 function updAudioUI(){const m=$('#mute');if(m){m.textContent=AU.muted?'Sound: off':'Sound: on';m.setAttribute('aria-pressed',String(!AU.muted))}const v=$('#vol');if(v)v.value=Math.round(AU.vol*100)}
