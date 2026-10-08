@@ -5,11 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B1129">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Lompat Sabuk Asteroid</title>
+<title>IPAS Kelas 6 · Tata Surya</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;700;800&display=swap">
 <style>
-/* Versi HP potret: 1 pemain + teman AI (Robo). Layar angkasa di atas, soal di bawah dekat jempol */
 :root{
   --ink:#1A2340; --paper:#0B1129; --deck:#141C3D; --panel:#F6F8FD; --soft:#E4E9F4; --muted:#66708A;
   --sky:#DCE3F7; --dim:#8F9BC0; --blue:#1F78D1;
@@ -23,160 +22,266 @@ body{background:var(--paper);color:var(--ink);font-family:var(--body);overflow:h
   user-select:none;-webkit-user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible{outline:3px solid #9FD3FF;outline-offset:2px}
-.app{height:100vh;height:100dvh;max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:8px;box-sizing:border-box;
+#G .app{height:100vh;height:100dvh;max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:8px;box-sizing:border-box;
   padding:max(8px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom))}
-
-/* ---------- bilah atas ---------- */
-.top{display:flex;align-items:center;gap:6px;color:var(--sky);flex:none}
-.brand{flex:1;min-width:0}
-.brand h1{font-family:var(--display);font-weight:800;font-size:clamp(16px,4.9vw,19px);margin:0;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.brand span{display:block;color:var(--dim);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.05em;
+#G .top{display:flex;align-items:center;gap:6px;color:var(--sky);flex:none}
+#G .brand{flex:1;min-width:0}
+#G .brand h1{font-family:var(--display);font-weight:800;font-size:clamp(16px,4.9vw,19px);margin:0;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#G .brand span{display:block;color:var(--dim);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.05em;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ib{width:40px;height:40px;flex:none;border:0;border-radius:12px;background:rgba(255,255,255,.1);color:var(--sky);
+#G .ib{width:40px;height:40px;flex:none;border:0;border-radius:12px;background:rgba(255,255,255,.1);color:var(--sky);
   font-size:18px;display:grid;place-items:center;padding:0}
-
-/* ---------- layar angkasa ---------- */
-.main{position:relative;flex:none;height:clamp(140px,calc(100dvh - 540px),300px);border-radius:16px;overflow:hidden;background:var(--paper)}
-.main canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.banner{position:absolute;left:8px;right:8px;bottom:8px;background:var(--bad);color:#fff;border-radius:12px;
+#G .main{position:relative;flex:none;height:clamp(140px,calc(100dvh - 540px),300px);border-radius:16px;overflow:hidden;background:var(--paper)}
+#G .main canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#G .banner{position:absolute;left:8px;right:8px;bottom:8px;background:var(--bad);color:#fff;border-radius:12px;
   padding:6px 10px;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.25)}
-.banner strong{display:block;font-family:var(--display);font-size:20px;line-height:1.1}
-.banner span{font-weight:800;font-size:12px}
-.banner .ticks{display:flex;gap:8px;justify-content:center;margin-top:4px}
-.banner .ticks i{width:22px;height:22px;border-radius:50%;border:3px solid #fff;display:grid;place-items:center;
+#G .banner strong{display:block;font-family:var(--display);font-size:20px;line-height:1.1}
+#G .banner span{font-weight:800;font-size:12px}
+#G .banner .ticks{display:flex;gap:8px;justify-content:center;margin-top:4px}
+#G .banner .ticks i{width:22px;height:22px;border-radius:50%;border:3px solid #fff;display:grid;place-items:center;
   font-style:normal;font-weight:800;font-size:12px;background:rgba(255,255,255,.2)}
-.banner .ticks i.done{background:#fff;color:var(--ok)}
-
-/* ---------- HUD ---------- */
-.hud{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;flex:none}
-.hm,.chip{background:var(--deck);border-radius:10px;padding:5px 9px;color:var(--sky)}
-.hl{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:10.5px;font-weight:800;color:var(--dim);
+#G .banner .ticks i.done{background:#fff;color:var(--ok)}
+#G .hud{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;flex:none}
+#G .hm,#G .chip{background:var(--deck);border-radius:10px;padding:5px 9px;color:var(--sky)}
+#G .hl{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:10.5px;font-weight:800;color:var(--dim);
   text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
-.hl b{color:#fff;font-variant-numeric:tabular-nums;font-size:13px;letter-spacing:0}
-.bar{height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden;margin-top:4px}
-.bar i{display:block;height:100%;width:0;background:var(--ok);border-radius:3px;transition:width .3s}
-.bar.safe i{background:var(--warn);transition:none}
-.danger .bar.safe i{background:var(--bad)}
-.danger .hl b{color:#FF8A78}
-.chip{display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:10.5px;font-weight:800;
+#G .hl b{color:#fff;font-variant-numeric:tabular-nums;font-size:13px;letter-spacing:0}
+#G .bar{height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden;margin-top:4px}
+#G .bar i{display:block;height:100%;width:0;background:var(--ok);border-radius:3px;transition:width .3s}
+#G .bar.safe i{background:var(--warn);transition:none}
+#G .danger .bar.safe i{background:var(--bad)}
+#G .danger .hl b{color:#FF8A78}
+#G .chip{display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:10.5px;font-weight:800;
   color:var(--dim);text-transform:uppercase;min-width:60px}
-.chip b{color:#7CE0A0;font-size:13px;text-transform:none}
-.chip.taut{background:#4A1B22}
-.chip.taut b{color:#FF8A78}
-
-/* ---------- strip Robo ---------- */
-#robo{flex:none}
-.robo{background:var(--deck);border-radius:12px;border-left:5px solid var(--c);padding:7px 10px;color:var(--sky);transition:background .2s}
-.robo .phead{display:flex;align-items:center;gap:8px}
-.robo .pname{font-family:var(--display);font-weight:800;font-size:16px;color:#fff;line-height:1;white-space:nowrap}
-.aitag{font-family:var(--body);font-size:10px;background:var(--c);color:#fff;border-radius:5px;padding:2px 6px;margin-left:5px;vertical-align:2px}
-.aist{flex:1;min-width:0;font-size:12px;font-weight:700;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.robo .pscore{font-size:12px;font-weight:800;color:var(--sky);white-space:nowrap}
-.robo .q,.robo .opts,.robo .pmsg{display:none}
-.robo.locked{background:#3A1D2A}
-.robo.locked .aist::before{content:"Salah, retak! ";color:#FF8A78}
-.robo.waiting .aist::before{content:"Menunggu…"}
-.robo.needed .aist::before{content:"Tali tegang, Robo dikejar!";color:#FFD27A}
-
-/* ---------- panel pemain ---------- */
-#me{flex:1;min-height:0;display:flex}
-.mine{flex:1;min-height:0;background:var(--panel);border-radius:16px;border-top:6px solid var(--c);display:flex;flex-direction:column;
+#G .chip b{color:#7CE0A0;font-size:13px;text-transform:none}
+#G .chip.taut{background:#4A1B22}
+#G .chip.taut b{color:#FF8A78}
+#G #robo{flex:none}
+#G .robo{background:var(--deck);border-radius:12px;border-left:5px solid var(--c);padding:7px 10px;color:var(--sky);transition:background .2s}
+#G .robo .phead{display:flex;align-items:center;gap:8px}
+#G .robo .pname{font-family:var(--display);font-weight:800;font-size:16px;color:#fff;line-height:1;white-space:nowrap}
+#G .aitag{font-family:var(--body);font-size:10px;background:var(--c);color:#fff;border-radius:5px;padding:2px 6px;margin-left:5px;vertical-align:2px}
+#G .aist{flex:1;min-width:0;font-size:12px;font-weight:700;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#G .robo .pscore{font-size:12px;font-weight:800;color:var(--sky);white-space:nowrap}
+#G .robo .q,#G .robo .opts,#G .robo .pmsg{display:none}
+#G .robo.locked{background:#3A1D2A}
+#G .robo.locked .aist::before{content:"Salah, retak! ";color:#FF8A78}
+#G .robo.waiting .aist::before{content:"Menunggu…"}
+#G .robo.needed .aist::before{content:"Tali tegang, Robo dikejar!";color:#FFD27A}
+#G #me{flex:1;min-height:0;display:flex}
+#G .mine{flex:1;min-height:0;background:var(--panel);border-radius:16px;border-top:6px solid var(--c);display:flex;flex-direction:column;
   padding:10px 12px 12px;gap:10px;position:relative;overflow:hidden}
-.mine .phead{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.mine .pname{font-family:var(--display);font-weight:800;font-size:18px;color:var(--c);line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pscore{font-weight:800;font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);white-space:nowrap}
-.pscore .dots{letter-spacing:.08em;color:var(--bad)}
-.q{font-family:var(--display);font-weight:800;text-align:center;font-size:calc(clamp(17px,4.8vw,23px)*var(--k,1));line-height:1.22;text-wrap:balance;
+#G .mine .phead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#G .mine .pname{font-family:var(--display);font-weight:800;font-size:18px;color:var(--c);line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#G .pscore{font-weight:800;font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);white-space:nowrap}
+#G .pscore .dots{letter-spacing:.08em;color:var(--bad)}
+#G .q{font-family:var(--display);font-weight:800;text-align:center;font-size:calc(clamp(17px,4.8vw,23px)*var(--k,1));line-height:1.22;text-wrap:balance;
   flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column}
-.q>span{margin:auto 0}
-.q.long{font-size:calc(clamp(15px,4.2vw,20px)*var(--k,1))}
-.opts{flex:none;display:grid;grid-template-rows:repeat(4,minmax(calc(50px*var(--k,1)),auto));gap:calc(8px*var(--k,1))}
-.opt{border:2px solid color-mix(in srgb,var(--c) 38%,#fff);background:#fff;border-radius:14px;font-weight:800;
+#G .q>span{margin:auto 0}
+#G .q.long{font-size:calc(clamp(15px,4.2vw,20px)*var(--k,1))}
+#G .opts{flex:none;display:grid;grid-template-rows:repeat(4,minmax(calc(50px*var(--k,1)),auto));gap:calc(8px*var(--k,1))}
+#G .opt{border:2px solid color-mix(in srgb,var(--c) 38%,#fff);background:#fff;border-radius:14px;font-weight:800;
   font-size:calc(clamp(15px,4.2vw,19px)*var(--k,1));line-height:1.18;padding:calc(7px*var(--k,1)) 12px calc(7px*var(--k,1)) 8px;text-align:left;display:flex;align-items:center;gap:10px;
   box-shadow:0 3px 0 color-mix(in srgb,var(--c) 25%,#fff);transition:transform .08s,background .15s}
-.opt::before{content:attr(data-l);flex:none;width:30px;height:30px;border-radius:9px;background:color-mix(in srgb,var(--c) 14%,#fff);
+#G .opt::before{content:attr(data-l);flex:none;width:30px;height:30px;border-radius:9px;background:color-mix(in srgb,var(--c) 14%,#fff);
   color:var(--c);display:grid;place-items:center;font-family:var(--display);font-size:16px}
-.opts.long .opt{font-size:calc(clamp(13px,3.7vw,17px)*var(--k,1))}
-.opt:active{transform:translateY(2px);box-shadow:none}
-.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff;box-shadow:none}
-.opt.bad{background:var(--bad);border-color:var(--bad);color:#fff;box-shadow:none}
-.opt.ok::before,.opt.bad::before{background:rgba(255,255,255,.25);color:#fff}
-.panel.locked .opts,.panel.waiting .opts{pointer-events:none}
-.panel.waiting .opts{opacity:.35}
-.pmsg{position:absolute;left:10px;right:10px;bottom:10px;text-align:center;font-weight:800;color:var(--bad);font-size:14px;
+#G .opts.long .opt{font-size:calc(clamp(13px,3.7vw,17px)*var(--k,1))}
+#G .opt:active{transform:translateY(2px);box-shadow:none}
+#G .opt.ok{background:var(--ok);border-color:var(--ok);color:#fff;box-shadow:none}
+#G .opt.bad{background:var(--bad);border-color:var(--bad);color:#fff;box-shadow:none}
+#G .opt.ok::before,#G .opt.bad::before{background:rgba(255,255,255,.25);color:#fff}
+#G .panel.locked .opts,#G .panel.waiting .opts{pointer-events:none}
+#G .panel.waiting .opts{opacity:.35}
+#G .pmsg{position:absolute;left:10px;right:10px;bottom:10px;text-align:center;font-weight:800;color:var(--bad);font-size:14px;
   background:#fff;border-radius:12px;padding:9px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
-.pmsg.note{top:4px;bottom:auto;padding:6px;background:var(--bad);color:#fff}
-.pmsg.wait{color:var(--ink)}
-.pmsg.expl{text-align:left;color:var(--ink);font-weight:700;line-height:1.38;font-size:15px;border:2px solid var(--bad);
+#G .pmsg.note{top:4px;bottom:auto;padding:6px;background:var(--bad);color:#fff}
+#G .pmsg.wait{color:var(--ink)}
+#G .pmsg.expl{text-align:left;color:var(--ink);font-weight:700;line-height:1.38;font-size:15px;border:2px solid var(--bad);
   max-height:64%;overflow:auto;box-sizing:border-box}
-.pmsg.expl b{color:var(--ok);display:block;margin-bottom:4px;font-size:16px}
-.pmsg.expl i{color:var(--muted);font-style:normal;font-size:.85em}
-.pmsg.expl small{display:block;margin-top:6px;color:var(--muted);font-size:12px;text-align:center}
-.mine.needed{animation:need 1s ease-in-out infinite}
-.mine.needed .pname::after{content:" · Robo menunggumu!";font-size:.68em;color:var(--ink)}
+#G .pmsg.expl b{color:var(--ok);display:block;margin-bottom:4px;font-size:16px}
+#G .pmsg.expl i{color:var(--muted);font-style:normal;font-size:.85em}
+#G .pmsg.expl small{display:block;margin-top:6px;color:var(--muted);font-size:12px;text-align:center}
+#G .mine.needed{animation:need 1s ease-in-out infinite}
+#G .mine.needed .pname::after{content:" · Robo menunggumu!";font-size:.68em;color:var(--ink)}
 @keyframes need{50%{box-shadow:inset 0 0 0 4px var(--c)}}
-
-/* ---------- overlay ---------- */
-.ov{position:fixed;inset:0;background:rgba(6,10,28,.84);display:grid;place-items:center;z-index:10;box-sizing:border-box;
+#G .ov{position:fixed;inset:0;background:rgba(6,10,28,.84);display:grid;place-items:center;z-index:10;box-sizing:border-box;
   padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
-.card{background:var(--panel);border-radius:20px;padding:18px 16px;width:min(520px,100%);box-sizing:border-box;display:grid;gap:14px;
+#G .card{background:var(--panel);border-radius:20px;padding:18px 16px;width:min(520px,100%);box-sizing:border-box;display:grid;gap:14px;
   max-height:100%;overflow:auto;overscroll-behavior:contain}
-.card h2{font-family:var(--display);font-weight:800;font-size:26px;margin:0;line-height:1.05;text-wrap:balance}
-.card p{margin:0;line-height:1.45;font-size:15px}
-.hero{text-align:center;display:grid;gap:4px}
-.big{font-size:52px;line-height:1}
-details{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.45}
-summary{font-weight:800;cursor:pointer}
-details ul{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
-.lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
-.seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg button{flex:1 1 auto;border:2px solid #C9D4E3;background:var(--soft);border-radius:12px;padding:9px 12px;font-weight:800;font-size:15px;min-height:44px}
-.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff}
-.card input{width:100%;box-sizing:border-box;font:inherit;font-weight:800;font-size:17px;padding:10px 12px;border:2px solid #C9D4E3;border-radius:12px;user-select:text}
-.hint{font-size:13px!important;color:var(--muted);margin-top:6px!important}
-.go{position:sticky;bottom:0;background:var(--blue);color:#fff;border:none;border-radius:14px;padding:13px;font-family:var(--display);
+#G .card h2{font-family:var(--display);font-weight:800;font-size:26px;margin:0;line-height:1.05;text-wrap:balance}
+#G .card p{margin:0;line-height:1.45;font-size:15px}
+#G .hero{text-align:center;display:grid;gap:4px}
+#G .big{font-size:52px;line-height:1}
+#G details{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.45}
+#G summary{font-weight:800;cursor:pointer}
+#G details ul{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
+#G .lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+#G .seg{display:flex;gap:6px;flex-wrap:wrap}
+#G .seg button{flex:1 1 auto;border:2px solid #C9D4E3;background:var(--soft);border-radius:12px;padding:9px 12px;font-weight:800;font-size:15px;min-height:44px}
+#G .seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff}
+#G .card input{width:100%;box-sizing:border-box;font:inherit;font-weight:800;font-size:17px;padding:10px 12px;border:2px solid #C9D4E3;border-radius:12px;user-select:text}
+#G .hint{font-size:13px!important;color:var(--muted);margin-top:6px!important}
+#G .go{position:sticky;bottom:0;background:var(--blue);color:#fff;border:none;border-radius:14px;padding:13px;font-family:var(--display);
   font-weight:800;font-size:22px;box-shadow:0 4px 0 #134F8C}
-.count{font-family:var(--display);font-weight:800;color:#fff;font-size:min(36vh,200px);line-height:1;animation:pop .9s}
+#G .count{font-family:var(--display);font-weight:800;color:#fff;font-size:min(36vh,200px);line-height:1;animation:pop .9s}
 @keyframes pop{from{transform:scale(1.6);opacity:0}30%{transform:scale(1);opacity:1}}
-.win{text-align:center}
-.rank{display:grid;gap:6px;text-align:left}
-.rank div{display:flex;justify-content:space-between;gap:10px;font-weight:800;font-size:15px;padding:9px 12px;border-radius:10px;background:var(--soft)}
-/* ---------- tombol menu & rangkuman ---------- */
-.acts{position:sticky;bottom:0;display:grid;gap:8px;background:var(--panel);padding-top:6px}
-.acts .go{position:static}
-.btn2{background:#fff;color:var(--ink);border:2px solid #C9D4E3;border-radius:14px;padding:11px;font-weight:800;font-size:17px}
-.card.study{height:100%;grid-template-rows:auto auto minmax(0,1fr);gap:10px;padding:12px;overflow:hidden}
-.shead{display:flex;align-items:center;gap:10px}
-.shead h2{font-size:22px}
-.ib.back{background:var(--soft);color:var(--ink);font-size:20px}
-.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px 2px}
-.tabs::-webkit-scrollbar{display:none}
-.tabs button{flex:none;border:2px solid #C9D4E3;background:var(--soft);border-radius:999px;padding:7px 13px;font-weight:800;font-size:14px}
-.tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
-.sbody{overflow:auto;display:grid;gap:10px;align-content:start;overscroll-behavior:contain;user-select:text;-webkit-user-select:text;padding-bottom:4px}
-.sbody .go{position:static;font-size:18px;margin-top:4px}
-.kc{background:#fff;border:2px solid var(--soft);border-radius:14px;padding:12px 14px}
-.kc h3{font-family:var(--display);font-weight:800;font-size:18px;margin:0 0 6px;color:var(--blue);line-height:1.15}
-.kc ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15px;line-height:1.45}
-.kc b{color:var(--ink);font-weight:800}
-.kc.tip{background:#FFF6E0;border-color:#F3D48A}
-.kc.tip h3{color:#A86A00}
-.kv{display:grid;grid-template-columns:repeat(var(--n),auto);border:1px solid var(--soft);border-radius:10px;overflow:hidden;margin-top:8px;font-size:14px;line-height:1.35}
-.kv span{padding:6px 8px;border-top:1px solid var(--soft)}
-.kv span:nth-child(-n+3).kh,.kv .kh{background:var(--soft);font-weight:800;border-top:0;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.03em}
-.kv[style*="--n:2"]{grid-template-columns:minmax(0,38%) 1fr}
-.kv[style*="--n:3"]{grid-template-columns:auto 1fr 1fr}
+#G .win{text-align:center}
+#G .rank{display:grid;gap:6px;text-align:left}
+#G .rank div{display:flex;justify-content:space-between;gap:10px;font-weight:800;font-size:15px;padding:9px 12px;border-radius:10px;background:var(--soft)}
+#G .acts{position:sticky;bottom:0;display:grid;gap:8px;background:var(--panel);padding-top:6px}
+#G .acts .go{position:static}
+#G .btn2{background:#fff;color:var(--ink);border:2px solid #C9D4E3;border-radius:14px;padding:11px;font-weight:800;font-size:17px}
+#G .card.study{height:100%;grid-template-rows:auto auto minmax(0,1fr);gap:10px;padding:12px;overflow:hidden}
+#G .shead{display:flex;align-items:center;gap:10px}
+#G .shead h2{font-size:22px}
+#G .ib.back{background:var(--soft);color:var(--ink);font-size:20px}
+#G .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px 2px}
+#G .tabs::-webkit-scrollbar{display:none}
+#G .tabs button{flex:none;border:2px solid #C9D4E3;background:var(--soft);border-radius:999px;padding:7px 13px;font-weight:800;font-size:14px}
+#G .tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+#G .sbody{overflow:auto;display:grid;gap:10px;align-content:start;overscroll-behavior:contain;user-select:text;-webkit-user-select:text;padding-bottom:4px}
+#G .sbody .go{position:static;font-size:18px;margin-top:4px}
+#G .kc{background:#fff;border:2px solid var(--soft);border-radius:14px;padding:12px 14px}
+#G .kc h3{font-family:var(--display);font-weight:800;font-size:18px;margin:0 0 6px;color:var(--blue);line-height:1.15}
+#G .kc ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15px;line-height:1.45}
+#G .kc b{color:var(--ink);font-weight:800}
+#G .kc.tip{background:#FFF6E0;border-color:#F3D48A}
+#G .kc.tip h3{color:#A86A00}
+#G .kv{display:grid;grid-template-columns:repeat(var(--n),auto);border:1px solid var(--soft);border-radius:10px;overflow:hidden;margin-top:8px;font-size:14px;line-height:1.35}
+#G .kv span{padding:6px 8px;border-top:1px solid var(--soft)}
+#G .kv span:nth-child(-n+3).kh,#G .kv .kh{background:var(--soft);font-weight:800;border-top:0;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+#G .kv[style*="--n:2"]{grid-template-columns:minmax(0,38%) 1fr}
+#G .kv[style*="--n:3"]{grid-template-columns:auto 1fr 1fr}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-@media (max-height:680px){.mine{padding:8px 10px 10px;gap:8px} .opt::before{width:26px;height:26px;font-size:14px}}
+@media (max-height:680px){#G .mine{padding:8px 10px 10px;gap:8px}
+#G .opt::before{width:26px;height:26px;font-size:14px}}
+:root{
+  --ink:#1A2340; --paper:#0B1129; --deck:#141C3D; --panel:#F6F8FD; --soft:#E4E9F4; --line:#C9D4E3; --muted:#66708A;
+  --sky:#DCE3F7; --dim:#8F9BC0; --blue:#1F78D1; --ok:#2E9B57; --bad:#D6452F; --warn:#E89B0C;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif; --body:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+#L #app{height:100vh;height:100dvh;max-width:560px;margin:0 auto;display:flex;flex-direction:column;box-sizing:border-box;
+  padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));gap:10px}
+#L .bar{display:flex;align-items:center;gap:8px;color:var(--sky);flex:none;min-height:40px}
+#L .bar h1{flex:1;min-width:0;font-family:var(--display);font-weight:800;font-size:clamp(17px,5vw,21px);margin:0;line-height:1.1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#L .ib{width:40px;height:40px;flex:none;border:0;border-radius:12px;background:rgba(255,255,255,.1);color:var(--sky);font-size:19px;display:grid;place-items:center;padding:0}
+#L .sheet{flex:1;min-height:0;background:var(--panel);border-radius:18px;overflow:auto;overscroll-behavior:contain;padding:16px 14px;
+  display:flex;flex-direction:column;gap:14px;box-sizing:border-box}
+#L h2{font-family:var(--display);font-weight:800;font-size:26px;margin:0;line-height:1.08;text-wrap:balance}
+#L p{margin:0;line-height:1.45;font-size:15px}
+#L .lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+#L input{width:100%;box-sizing:border-box;font:inherit;font-weight:800;font-size:17px;padding:11px 12px;border:2px solid var(--line);border-radius:12px;background:#fff}
+#L .go{background:var(--blue);color:#fff;border:none;border-radius:14px;padding:13px;font-family:var(--display);font-weight:800;font-size:21px;box-shadow:0 4px 0 #134F8C}
+#L .go:active{transform:translateY(2px);box-shadow:none}
+#L .btn2{background:#fff;color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:11px;font-weight:800;font-size:16px}
+#L .hero{text-align:center;display:grid;gap:6px;padding-top:4px}
+#L .big{font-size:54px;line-height:1}
+#L .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#L .facts div{background:#fff;border:2px solid var(--soft);border-radius:12px;padding:8px 4px;text-align:center;font-weight:800;font-size:12px;color:var(--muted)}
+#L .facts b{display:block;font-family:var(--display);font-size:22px;color:var(--ink);line-height:1.1}
+#L .acts{display:grid;gap:8px;margin-top:auto}
+#L .hist{display:grid;gap:6px}
+#L .hist div{display:flex;justify-content:space-between;gap:8px;background:#fff;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700}
+#L .hist b{font-family:var(--display);font-size:17px}
+#L .resume{background:#FFF6E0;border:2px solid #F3D48A;border-radius:14px;padding:12px;display:grid;gap:8px}
+#L .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:none}
+#L .tabs::-webkit-scrollbar{display:none}
+#L .tabs button{flex:none;border:2px solid #2A3566;background:var(--deck);color:var(--sky);border-radius:999px;padding:7px 13px;font-weight:800;font-size:14px}
+#L .tabs button[aria-selected="true"]{background:var(--sky);border-color:var(--sky);color:var(--ink)}
+#L .kc{background:#fff;border:2px solid var(--soft);border-radius:14px;padding:12px 14px}
+#L .kc h3{font-family:var(--display);font-weight:800;font-size:18px;margin:0 0 6px;color:var(--blue);line-height:1.15}
+#L .kc ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15px;line-height:1.45}
+#L .kc b{font-weight:800}
+#L .kc.tip{background:#FFF6E0;border-color:#F3D48A}
+#L .kc.tip h3{color:#A86A00}
+#L .kv{display:grid;border:1px solid var(--soft);border-radius:10px;overflow:hidden;margin-top:8px;font-size:14px;line-height:1.35}
+#L .kv span{padding:6px 8px;border-top:1px solid var(--soft)}
+#L .kv .kh{background:var(--soft);font-weight:800;border-top:0;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+#L .kv[style*="--n:2"]{grid-template-columns:minmax(0,38%) 1fr}
+#L .kv[style*="--n:3"]{grid-template-columns:auto 1fr 1fr}
+#L .timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;background:rgba(255,255,255,.1);border-radius:10px;padding:8px 10px;white-space:nowrap}
+#L .timer.low{background:var(--bad);color:#fff;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.6}}
+#L .prog{flex:none;color:var(--dim);font-size:12px;font-weight:800;display:flex;justify-content:space-between;text-transform:uppercase;letter-spacing:.04em}
+#L .track{flex:none;height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden;margin-top:-6px}
+#L .track i{display:block;height:100%;background:var(--ok);border-radius:3px;transition:width .3s}
+#L .qhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#L .qno{font-family:var(--display);font-weight:800;font-size:22px;line-height:1}
+#L .tag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--blue);background:#E3EEFB;border-radius:6px;padding:3px 8px}
+#L .qtext{font-size:clamp(17px,4.8vw,20px);font-weight:800;line-height:1.4}
+#L .opts{display:grid;gap:8px}
+#L .opt{border:2px solid var(--line);background:#fff;border-radius:14px;font-weight:700;font-size:clamp(15px,4.3vw,17px);line-height:1.3;
+  padding:10px 12px 10px 8px;text-align:left;display:flex;align-items:center;gap:10px;min-height:52px}
+#L .opt::before{content:attr(data-l);flex:none;width:30px;height:30px;border-radius:9px;background:var(--soft);color:var(--ink);
+  display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:16px}
+#L .opt[aria-pressed="true"]{border-color:var(--blue);background:#E9F2FC}
+#L .opt[aria-pressed="true"]::before{background:var(--blue);color:#fff}
+#L .nav{flex:none;display:grid;grid-template-columns:1fr auto 1fr;gap:8px}
+#L .nav button{border:0;border-radius:14px;padding:12px 8px;font-weight:800;font-size:15px;background:var(--deck);color:var(--sky)}
+#L .nav .mid{background:rgba(255,255,255,.12);padding:12px 14px}
+#L .nav .next{background:var(--blue);color:#fff}
+#L .nav button:disabled{opacity:.35}
+#L .ov{position:fixed;inset:0;background:rgba(6,10,28,.8);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+#L .pop{background:var(--panel);border-radius:20px 20px 0 0;width:min(560px,100%);max-height:86dvh;overflow:auto;box-sizing:border-box;
+  padding:16px 14px max(16px,env(safe-area-inset-bottom));display:grid;gap:12px}
+#L .pop.center{border-radius:20px;margin:auto 12px;align-self:center}
+#L .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px}
+#L .grid button{aspect-ratio:1;border:2px solid var(--line);background:#fff;border-radius:10px;font-weight:800;font-size:15px;padding:0}
+#L .grid button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+#L .grid button.cur{outline:3px solid var(--warn);outline-offset:1px}
+#L .legend{display:flex;gap:14px;font-size:13px;font-weight:700;color:var(--muted)}
+#L .legend i{display:inline-block;width:12px;height:12px;border-radius:4px;border:2px solid var(--line);vertical-align:-2px;margin-right:4px}
+#L .legend i.on{background:var(--blue);border-color:var(--blue)}
+#L .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#L .score{text-align:center;display:grid;gap:4px;justify-items:center}
+#L .ring{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--c) calc(var(--v)*1%),var(--soft) 0)}
+#L .ring div{width:118px;height:118px;border-radius:50%;background:var(--panel);display:grid;place-content:center}
+#L .ring b{font-family:var(--display);font-size:50px;line-height:1}
+#L .ring span{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+#L .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+#L .stats div{background:#fff;border-radius:12px;padding:8px 2px;text-align:center;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase}
+#L .stats b{display:block;font-family:var(--display);font-size:21px;line-height:1.1;color:var(--ink);text-transform:none}
+#L .mat{display:grid;gap:8px;background:#fff;border-radius:14px;padding:12px}
+#L .mrow{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:14px;font-weight:700}
+#L .mrow b{font-variant-numeric:tabular-nums}
+#L .mrow .mb{grid-column:1/-1;height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+#L .mrow .mb i{display:block;height:100%;border-radius:4px}
+#L .flt{display:flex;gap:6px;flex-wrap:wrap}
+#L .flt button{flex:1;border:2px solid var(--line);background:var(--soft);border-radius:12px;padding:8px;font-weight:800;font-size:14px;min-height:42px}
+#L .flt button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+#L .rv{background:#fff;border-radius:14px;border-left:6px solid var(--c);padding:12px;display:grid;gap:8px}
+#L .rv .qhead{font-size:13px;font-weight:800;color:var(--muted)}
+#L .rv .qtext{font-size:16px}
+#L .ans{font-size:14px;line-height:1.4;font-weight:700;display:grid;gap:4px}
+#L .ans .no{color:var(--bad)}
+#L .ans .yes{color:var(--ok)}
+#L .expl{background:var(--panel);border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.45}
+#L .mark{font-weight:800;border-radius:6px;padding:2px 8px;color:#fff;background:var(--c);font-size:12px}
+#L #app{height:100vh;height:100dvh}
+#L .menu{display:grid;gap:10px}
+#L .menu button{display:flex;align-items:center;gap:12px;text-align:left;background:#fff;border:2px solid var(--soft);border-radius:16px;padding:14px 12px;box-shadow:0 3px 0 var(--soft)}
+#L .menu button:active{transform:translateY(2px);box-shadow:none}
+#L .menu .mi{flex:none;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:28px;background:var(--mc)}
+#L .menu b{display:block;font-family:var(--display);font-size:20px;line-height:1.1}
+#L .menu small{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-top:2px}
+#L .menu .chev{margin-left:auto;font-size:26px;color:var(--muted);font-weight:800}
+#L .hero.hub{padding-top:8px}
+
 </style>
 </head>
 <body>
+<div id="L">
+<div id="app"></div>
+<div class="ov" id="ov" hidden></div>
+</div>
+<div id="G" hidden>
 <div class="app">
   <header class="top">
     <div class="brand"><h1>Lompat Sabuk Asteroid</h1><span id="gMeta"></span></div>
     <button class="ib" id="btnSound" type="button" aria-pressed="true" aria-label="Suara">🔊</button>
     <button class="ib" id="btnFull" type="button" aria-label="Layar penuh">⛶</button>
-    <button class="ib" id="btnSetup" type="button" aria-label="Menu utama">☰</button>
+    <button class="ib" id="btnSetup" type="button" aria-label="Pengaturan game">☰</button>
   </header>
   <section class="main" id="mainScreen" aria-label="Layar utama"></section>
   <div class="hud">
@@ -189,6 +294,7 @@ details ul{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
 </div>
 <div class="ov" id="overlay" hidden></div>
 
+</div>
 <script>
 /* =====================================================================
    LOMPAT SABUK ASTEROID — game kerja sama untuk layar pintar
@@ -934,34 +1040,13 @@ const RANGKUMAN=[
   {tip:true, h:"Ingat ya!", li:["**Rotasi** → siang-malam, perbedaan waktu, gerak semu harian.","**Revolusi** → musim, gerak semu tahunan, kalender.","**Gerhana** → Matahari, Bumi, dan Bulan segaris."]}
  ]}
 ];
-let rkTab=0;
-function showRangkuman(tab=rkTab){
-  rkTab=tab;
-  const md=s=>esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
-  const B=RANGKUMAN[tab], last=tab===RANGKUMAN.length-1;
-  const card=c=>`<section class="kc${c.tip?" tip":""}"><h3>${c.tip?"💡 ":""}${md(c.h)}</h3>
-    ${c.li?`<ul>${c.li.map(x=>`<li>${md(x)}</li>`).join("")}</ul>`:""}
-    ${c.rows?`<div class="kv" style="--n:${c.rows[0].length}">${c.rows.map((r,i)=>r.map(x=>`<span class="${i?"":"kh"}">${md(x)}</span>`).join("")).join("")}</div>`:""}</section>`;
-  const ov=$("#overlay"); ov.hidden=false;
-  ov.innerHTML=`<div class="card study">
-    <div class="shead"><button class="ib back" id="rkBack" type="button" aria-label="Kembali ke menu">←</button><h2>Rangkuman materi</h2></div>
-    <div class="tabs" role="tablist">${RANGKUMAN.map((b,i)=>`<button type="button" role="tab" data-i="${i}" aria-selected="${i===tab}">${b.ic} ${esc(b.t)}</button>`).join("")}</div>
-    <div class="sbody" id="rkBody">${B.cards.map(card).join("")}
-      <button class="go" id="rkNext" type="button">${last?"Selesai, kembali ke menu":`Lanjut: ${esc(RANGKUMAN[tab+1].t)} →`}</button></div>
-  </div>`;
-  ov.querySelector('.tabs [aria-selected="true"]').scrollIntoView({inline:"center",block:"nearest"});
-  ov.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>showRangkuman(+b.dataset.i));
-  $("#rkBack").onclick=showSetup;
-  $("#rkNext").onclick=()=>last?showSetup():showRangkuman(tab+1);
-}
-
 function showSetup(){
   cdToken++; GAME.paused=false; GAME.stop(); running=false; Sound.stopMusic();
   const ov=$("#overlay"); ov.hidden=false;
   const seg=(key,items)=>`<div class="seg">${items.map(([v,l])=>`<button type="button" data-k="${key}" data-v="${v}" aria-pressed="${String(cfg[key])===String(v)}">${l}</button>`).join("")}</div>`;
   ov.innerHTML=`<div class="card">
     <div class="hero"><div class="big" aria-hidden="true">🧑‍🚀🤖</div><h2>Siapkan misi</h2>
-      <p>Seberangi sabuk asteroid dari Mars ke Yupiter bersama Robo, teman AI-mu.</p></div>
+      <p>${cfg.name?esc(cfg.name)+", seberangi":"Seberangi"} sabuk asteroid dari Mars ke Yupiter bersama Robo, teman AI-mu.</p></div>
     <details><summary>Cara main</summary><ul>
       <li>Jawab benar → astronotmu melompat 1 batu.</li>
       <li>Kalian terikat tali 3 batu. Terlalu jauh di depan Robo? Tali menarikmu kembali.</li>
@@ -969,21 +1054,20 @@ function showSetup(){
       <li>Salah 3 kali → batu pecah. Kamu dan Robo harus menjawab soal bonus.</li>
       <li>Kalau salah, ketuk pembahasan untuk lanjut lebih cepat.</li>
     </ul></details>
-    <div><div class="lbl">Namamu</div><input id="nm" maxlength="14" value="${esc(cfg.name)}" placeholder="Kamu" aria-label="Namamu" autocomplete="off"></div>
     <div><div class="lbl">Materi</div>${seg("materi",GAME.materi.map(m=>[m.id,m.label]))}</div>
     <div><div class="lbl">Tingkat soal</div>${seg("level",GAME.levels.map(l=>[l.id,l.label]))}</div>
     <div><div class="lbl">Kepintaran Robo</div>${seg("ai",Object.entries(AI_LV).map(([k,v])=>[k,v.label]))}
       <p class="hint">Pemula lambat dan sering salah, Jago cepat dan jarang salah.</p></div>
-    <div class="acts"><button class="btn2" id="btnRk" type="button">📖 Rangkuman materi</button>
-    <button class="go" id="btnGo" type="button">Mulai misi!</button></div>
+    <div class="acts"><button class="go" id="btnGo" type="button">Mulai misi!</button>
+    <button class="btn2" id="btnHub" type="button">← Menu utama</button></div>
   </div>`;
   ov.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{
     cfg[b.dataset.k]=b.dataset.v;
     b.parentNode.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));
   });
-  $("#btnRk").onclick=()=>{ cfg.name=$("#nm").value.trim(); showRangkuman() };
+  $("#btnHub").onclick=closeGame;
   $("#btnGo").onclick=()=>{
-    Sound.init(); cfg.name=$("#nm").value.trim();
+    Sound.init();
     try{ localStorage.setItem("lsa-cfg",JSON.stringify({ai:cfg.ai,name:cfg.name,materi:cfg.materi,level:cfg.level})) }catch(e){}
     build(); countdown();
   };
@@ -1008,7 +1092,7 @@ function showResult(res){
     <div class="rank">${res.rows.map(([p,v])=>`<div><span style="color:${p.color}">${esc(p.name)}</span><span>${esc(v)}</span></div>`).join("")}</div>
     <div class="seg">
       <button type="button" id="again" aria-pressed="true">Main lagi</button>
-      <button type="button" id="toSetup">Menu utama</button>
+      <button type="button" id="toSetup">Pengaturan game</button>
     </div></div>`;
   $("#again").onclick=()=>{ Sound.init(); build(); countdown() };
   $("#toSetup").onclick=showSetup;
@@ -1020,15 +1104,15 @@ function askMenu(){
   running=false; GAME.paused=true; Sound.stopMusic();
   const ov=$("#overlay"); ov.hidden=false;
   ov.innerHTML=`<div class="card"><h2>Permainan dijeda</h2>
-    <p>Kembali ke menu utama akan menghentikan permainan ini.</p>
+    <p>Kembali ke pengaturan game akan menghentikan permainan ini.</p>
     <div class="seg"><button type="button" id="mNo" aria-pressed="true">Lanjut main</button>
-    <button type="button" id="mYes">Ke menu utama</button></div></div>`;
+    <button type="button" id="mYes">Ke pengaturan</button></div></div>`;
   $("#mNo").onclick=()=>{ ov.hidden=true; GAME.paused=false; running=true; Sound.startMusic() };
   $("#mYes").onclick=showSetup;
 }
 $("#btnSetup").onclick=askMenu;
 /* jeda otomatis saat aplikasi ditinggal (pindah aplikasi / layar mati) */
-document.addEventListener("visibilitychange",()=>{ if(document.hidden && running) askMenu() });
+document.addEventListener("visibilitychange",()=>{ if(document.hidden && running && !$("#G").hidden) askMenu() });
 (()=>{ const b=$("#btnSound");
   const set=v=>{ Sound.setOn(v); b.setAttribute("aria-pressed",v); b.textContent=v?"🔊":"🔇";
     try{ localStorage.setItem("lsa-sound",v?"1":"0") }catch(e){} };
@@ -1038,9 +1122,222 @@ $("#btnFull").onclick=()=>{ const d=document.documentElement;
   if(document.fullscreenElement){ document.exitFullscreen?.().catch?.(()=>{}); return }
   d.requestFullscreen?.()?.then?.(()=>screen.orientation?.lock?.("portrait").catch(()=>{}))?.catch?.(()=>{}) };
 
-build();
-showSetup();
+/* ----- masuk & keluar game dari menu utama ----- */
+window.openGame=()=>{
+  try{ cfg.name=JSON.parse(localStorage.getItem("ipas6-nama"))||"" }catch(e){ cfg.name="" }
+  $("#L").hidden=true; $("#G").hidden=false;
+  build(); showSetup();
+};
+function closeGame(){
+  cdToken++; GAME.stop(); GAME.paused=false; running=false; Sound.stopMusic();
+  $("#overlay").hidden=true; $("#mainScreen").innerHTML="";
+  $("#G").hidden=true; $("#L").hidden=false; Hub.hub();
+}
 </script>
+<script>
+(()=>{
+/* SOAL & RANGKUMAN dipakai bersama dengan game (didefinisikan di skrip game) */
+const MATERI=["Tata Surya","Rotasi Bumi","Revolusi Bumi","Bulan & Fase Bulan","Gerhana"];
+const TOTAL=50, PER_MATERI=10, MIX=[3,4,3], MENIT=60, KEY="ipas6-latihan", HKEY="ipas6-riwayat";
+const $=s=>document.querySelector(s), app=$("#app"), ov=$("#ov");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const md=s=>esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+const shuffle=a=>{ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a };
+const load=(k,d)=>{ try{ return JSON.parse(localStorage.getItem(k))??d }catch(e){ return d } };
+const save=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} };
+const mm=ms=>{ const s=Math.max(0,Math.round(ms/1000)); return `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}` };
+let S=load(KEY,null), name=load("ipas6-nama",""), timer=null, rkTab=0;
 
+/* 10 soal per materi (3 mudah, 4 sedang, 3 sulit), urutan soal & pilihan diacak */
+function newSession(){
+  let qs=[];
+  for(let m=0;m<5;m++){
+    const pool=SOAL.map((r,i)=>({r,n:i+1})).slice(m*40,m*40+40);
+    let pickd=[];
+    [1,2,3].forEach((lv,k)=>pickd.push(...shuffle(pool.filter(x=>x.r[0]===lv)).slice(0,MIX[k])));
+    if(pickd.length<PER_MATERI) pickd.push(...shuffle(pool.filter(x=>!pickd.includes(x))).slice(0,PER_MATERI-pickd.length));
+    qs.push(...pickd);
+  }
+  qs=shuffle(qs).map(x=>({n:x.n, o:shuffle([x.r[2],...x.r[3]])}));
+  S={name, qs, ans:Array(TOTAL).fill(null), cur:0, start:Date.now(), done:false};
+  save(KEY,S);
+}
+const Q=i=>SOAL[S.qs[i].n-1], mOf=n=>Math.floor((n-1)/40), left=()=>S.start+MENIT*60000-Date.now();
+const isRight=i=>S.ans[i]!==null && S.qs[i].o[S.ans[i]]===Q(i)[2];
+
+/* ---------- beranda ---------- */
+function hub(){
+  stopTimer(); ov.hidden=true;
+  const hist=load(HKEY,[]), going=S && !S.done;
+  app.innerHTML=`<header class="bar"><h1>IPAS Kelas 6</h1></header>
+  <main class="sheet">
+    <div class="hero hub"><div class="big" aria-hidden="true">🪐</div><h2>Tata Surya, Gerak Bumi & Bulan, Gerhana</h2>
+      <p>Pelajari rangkuman, uji dirimu dengan soal latihan, lalu bermain bersama Robo.</p></div>
+    <div><div class="lbl">Namamu</div><input id="nm" maxlength="24" value="${esc(name)}" placeholder="Tulis namamu" autocomplete="off"></div>
+    <nav class="menu" aria-label="Menu utama">
+      <button type="button" data-go="rk"><span class="mi" style="--mc:#E3EEFB">📖</span><span><b>Rangkuman materi</b><small>Poin penting 5 materi + kamus</small></span><span class="chev">›</span></button>
+      <button type="button" data-go="lt"><span class="mi" style="--mc:#E5F4EA">📝</span><span><b>Soal latihan</b><small>${going?`Lanjutkan · ${S.ans.filter(a=>a!==null).length}/${TOTAL} dijawab`:`50 soal acak · ${MENIT} menit${hist[0]?` · nilai terakhir ${hist[0].nilai}`:""}`}</small></span><span class="chev">›</span></button>
+      <button type="button" data-go="gm"><span class="mi" style="--mc:#FDEBD3">🚀</span><span><b>Game Sabuk Asteroid</b><small>Seberangi sabuk asteroid bersama Robo</small></span><span class="chev">›</span></button>
+    </nav>
+  </main>`;
+  const keep=()=>{ name=$("#nm").value.trim(); save("ipas6-nama",name) };
+  $("#nm").onchange=keep;
+  app.querySelectorAll(".menu button").forEach(b=>b.onclick=()=>{ keep(); ({rk:()=>study(),lt:intro,gm:()=>window.openGame()})[b.dataset.go]() });
+}
+function intro(){
+  stopTimer(); ov.hidden=true;
+  const hist=load(HKEY,[]), going=S && !S.done;
+  app.innerHTML=`<header class="bar"><button class="ib" id="bBack" type="button" aria-label="Menu utama">←</button><h1>Soal latihan</h1></header>
+  <main class="sheet">
+    <div class="hero"><div class="big" aria-hidden="true">📝</div><h2>Latihan 50 soal</h2>
+      <p>${name?`Halo, ${esc(name)}! `:""}10 soal dari tiap materi; urutan soal dan pilihan diacak. Nilai dan pembahasan muncul di akhir.</p></div>
+    <div class="facts"><div><b>50</b>soal acak</div><div><b>${MENIT}</b>menit</div><div><b>10</b>per materi</div></div>
+    ${going?`<div class="resume"><p><b>Ada latihan yang belum selesai</b> (${S.ans.filter(a=>a!==null).length}/${TOTAL} dijawab, sisa waktu ${mm(left())}).</p>
+      <button class="go" id="bResume" type="button">Lanjutkan latihan</button></div>`:""}
+    ${hist.length?`<div><div class="lbl">Nilai terakhir</div><div class="hist">${hist.slice(0,5).map(h=>`<div><span>${esc(h.name||"Siswa")} · ${esc(h.tgl)}</span><b>${h.nilai}</b></div>`).join("")}</div></div>`:""}
+    <div class="acts">
+      ${S&&S.done?`<button class="btn2" id="bLast" type="button">📊 Lihat hasil & pembahasan terakhir</button>`:""}
+      <button class="${going?"btn2":"go"}" id="bStart" type="button">📝 ${going?"Mulai latihan baru":"Mulai latihan"}</button>
+    </div>
+  </main>`;
+  $("#bBack").onclick=hub;
+  $("#bStart").onclick=()=>{
+    if(going) return confirmBox("Mulai latihan baru?","Latihan yang belum selesai akan dihapus.","Ya, mulai baru",()=>{ newSession(); quiz() });
+    newSession(); quiz() };
+  if($("#bLast")) $("#bLast").onclick=()=>result("semua");
+  if(going) $("#bResume").onclick=quiz;
+}
+
+/* ---------- rangkuman ---------- */
+function study(tab=rkTab){
+  rkTab=tab; const B=RANGKUMAN[tab], last=tab===RANGKUMAN.length-1;
+  const card=c=>`<section class="kc${c.tip?" tip":""}"><h3>${c.tip?"💡 ":""}${md(c.h)}</h3>
+    ${c.li?`<ul>${c.li.map(x=>`<li>${md(x)}</li>`).join("")}</ul>`:""}
+    ${c.rows?`<div class="kv" style="--n:${c.rows[0].length}">${c.rows.map((r,i)=>r.map(x=>`<span class="${i?"":"kh"}">${md(x)}</span>`).join("")).join("")}</div>`:""}</section>`;
+  app.innerHTML=`<header class="bar"><button class="ib" id="bBack" type="button" aria-label="Kembali">←</button><h1>Rangkuman materi</h1></header>
+  <div class="tabs" role="tablist">${RANGKUMAN.map((b,i)=>`<button type="button" role="tab" data-i="${i}" aria-selected="${i===tab}">${b.ic} ${esc(b.t)}</button>`).join("")}</div>
+  <main class="sheet" id="sb">${B.cards.map(card).join("")}
+    <button class="go" id="bNext" type="button">${last?"Selesai, kembali ke menu":`Lanjut: ${esc(RANGKUMAN[tab+1].t)} →`}</button></main>`;
+  app.querySelector('.tabs [aria-selected="true"]').scrollIntoView({inline:"center",block:"nearest"});
+  app.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>study(+b.dataset.i));
+  $("#bBack").onclick=hub;
+  $("#bNext").onclick=()=>last?hub():study(tab+1);
+}
+
+/* ---------- mengerjakan ---------- */
+function quiz(){
+  if(left()<=0) return finish(true);
+  const i=S.cur, r=Q(i), q=S.qs[i], answered=S.ans.filter(a=>a!==null).length;
+  app.innerHTML=`<header class="bar"><button class="ib" id="bHome" type="button" aria-label="Kembali">←</button><h1>Latihan 50 soal</h1>
+    <span class="timer" id="tm" aria-label="Sisa waktu">⏱ ${mm(left())}</span></header>
+  <div class="prog"><span>Dijawab ${answered}/${TOTAL}</span><span>${TOTAL-answered} belum</span></div>
+  <div class="track"><i style="width:${answered/TOTAL*100}%"></i></div>
+  <main class="sheet" id="qs">
+    <div class="qhead"><span class="qno">Soal ${i+1}</span><span class="tag">${MATERI[mOf(q.n)]}</span></div>
+    <div class="qtext">${esc(r[1])}</div>
+    <div class="opts">${q.o.map((o,j)=>`<button class="opt" type="button" data-j="${j}" data-l="${"ABCD"[j]}" aria-pressed="${S.ans[i]===j}">${esc(o)}</button>`).join("")}</div>
+  </main>
+  <nav class="nav"><button type="button" id="bPrev" ${i===0?"disabled":""}>◀ Sebelumnya</button>
+    <button type="button" class="mid" id="bList" aria-label="Daftar soal">☷ ${i+1}/${TOTAL}</button>
+    ${i===TOTAL-1?`<button type="button" class="next" id="bFin">Selesai ✓</button>`:`<button type="button" class="next" id="bNextQ">Berikutnya ▶</button>`}</nav>`;
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const j=+b.dataset.j; S.ans[i]=S.ans[i]===j?null:j; save(KEY,S);   // ketuk lagi untuk membatalkan
+    quiz();
+  });
+  $("#bPrev").onclick=()=>go(i-1);
+  if($("#bNextQ")) $("#bNextQ").onclick=()=>go(i+1);
+  if($("#bFin")) $("#bFin").onclick=askFinish;
+  $("#bList").onclick=list;
+  $("#bHome").onclick=intro;
+  startTimer();
+}
+function go(i){ S.cur=Math.max(0,Math.min(TOTAL-1,i)); save(KEY,S); quiz(); $("#qs").scrollTop=0 }
+function list(){
+  ov.hidden=false;
+  ov.innerHTML=`<div class="pop"><h2>Daftar soal</h2>
+    <div class="legend"><span><i class="on"></i>Sudah dijawab</span><span><i></i>Belum</span></div>
+    <div class="grid">${S.qs.map((_,k)=>`<button type="button" data-k="${k}" class="${S.ans[k]!==null?"on":""} ${k===S.cur?"cur":""}">${k+1}</button>`).join("")}</div>
+    <div class="row2"><button class="btn2" id="bClose" type="button">Tutup</button><button class="go" id="bFin2" type="button">Selesai ✓</button></div></div>`;
+  ov.querySelectorAll(".grid button").forEach(b=>b.onclick=()=>{ ov.hidden=true; go(+b.dataset.k) });
+  $("#bClose").onclick=()=>ov.hidden=true;
+  $("#bFin2").onclick=askFinish;
+  ov.onclick=e=>{ if(e.target===ov) ov.hidden=true };
+}
+function askFinish(){
+  const kosong=S.ans.filter(a=>a===null).length;
+  confirmBox("Kumpulkan jawaban?", kosong?`Masih ada ${kosong} soal yang belum dijawab. Soal kosong dihitung salah.`:"Semua soal sudah dijawab. Setelah dikumpulkan, jawaban tidak bisa diubah.",
+    "Ya, kumpulkan",()=>finish(false));
+}
+function confirmBox(title,text,yes,fn){
+  ov.hidden=false;
+  ov.innerHTML=`<div class="pop center"><h2>${esc(title)}</h2><p>${esc(text)}</p>
+    <div class="row2"><button class="btn2" id="cNo" type="button">Batal</button><button class="go" id="cYes" type="button">${esc(yes)}</button></div></div>`;
+  $("#cNo").onclick=()=>ov.hidden=true;
+  $("#cYes").onclick=()=>{ ov.hidden=true; fn() };
+  ov.onclick=null;
+}
+function startTimer(){
+  stopTimer();
+  timer=setInterval(()=>{
+    const l=left(), t=$("#tm");
+    if(l<=0){ stopTimer(); return finish(true) }
+    if(t){ t.textContent="⏱ "+mm(l); t.classList.toggle("low",l<5*60000) }
+  },1000);
+}
+function stopTimer(){ clearInterval(timer); timer=null }
+
+/* ---------- hasil & pembahasan ---------- */
+function finish(timeout){
+  stopTimer(); ov.hidden=true;
+  S.done=true; S.end=Math.min(Date.now(),S.start+MENIT*60000); S.timeout=timeout;
+  const benar=S.qs.filter((_,i)=>isRight(i)).length;
+  const h=load(HKEY,[]); h.unshift({name:S.name||name, nilai:benar*2, tgl:new Date().toLocaleDateString("id-ID",{day:"numeric",month:"short"})});
+  save(HKEY,h.slice(0,10)); save(KEY,S);
+  result("semua");
+}
+function result(filter){
+  stopTimer(); ov.hidden=true;
+  const ok=S.qs.map((_,i)=>isRight(i)), benar=ok.filter(Boolean).length, kosong=S.ans.filter(a=>a===null).length;
+  const nilai=benar*2, col=nilai>=85?"var(--ok)":nilai>=70?"var(--blue)":nilai>=55?"var(--warn)":"var(--bad)";
+  const pesan=nilai>=85?"Luar biasa! Kamu sangat menguasai materi ini.":nilai>=70?"Bagus! Tinggal sedikit lagi menuju sempurna.":nilai>=55?"Cukup baik. Pelajari lagi materi yang masih lemah, ya.":"Jangan menyerah! Baca rangkumannya lagi, lalu coba lagi.";
+  const per=MATERI.map((m,k)=>({m,k,b:S.qs.filter((q,i)=>mOf(q.n)===k && ok[i]).length}));
+  const weak=[...per].sort((a,b)=>a.b-b.b)[0];
+  const items=S.qs.map((q,i)=>({q,i})).filter(({i})=>filter==="semua"||(filter==="salah"?!ok[i]:ok[i]));
+  app.innerHTML=`<header class="bar"><button class="ib" id="bHome" type="button" aria-label="Kembali">←</button><h1>Hasil latihan</h1></header>
+  <main class="sheet" id="rs">
+    <div class="score">
+      <div class="ring" style="--v:${nilai};--c:${col}"><div><b>${nilai}</b><span>Nilai</span></div></div>
+      <h2>${esc(S.name||"Hebat")}${S.name?"":"!"}</h2><p>${S.timeout?"⏰ Waktu habis, jawaban dikumpulkan otomatis. ":""}${pesan}</p>
+    </div>
+    <div class="stats"><div><b style="color:var(--ok)">${benar}</b>Benar</div><div><b style="color:var(--bad)">${TOTAL-benar-kosong}</b>Salah</div>
+      <div><b>${kosong}</b>Kosong</div><div><b>${mm(S.end-S.start)}</b>Waktu</div></div>
+    <div class="mat"><div class="lbl" style="margin:0">Hasil per materi</div>
+      ${per.map(p=>`<div class="mrow"><span>${p.m}</span><b>${p.b}/${PER_MATERI}</b><div class="mb"><i style="width:${p.b*10}%;background:${p.b>=8?"var(--ok)":p.b>=6?"var(--warn)":"var(--bad)"}"></i></div></div>`).join("")}
+      ${weak.b<8?`<button class="btn2" id="bWeak" type="button">📖 Pelajari lagi: ${weak.m}</button>`:""}
+    </div>
+    <div><div class="lbl">Pembahasan soal</div>
+      <div class="flt">${[["semua",`Semua (${TOTAL})`],["salah",`Salah (${TOTAL-benar})`],["benar",`Benar (${benar})`]].map(([k,l])=>`<button type="button" data-f="${k}" aria-pressed="${k===filter}">${l}</button>`).join("")}</div></div>
+    ${items.length?items.map(({q,i})=>{ const r=SOAL[q.n-1], a=S.ans[i], good=ok[i];
+      return `<article class="rv" style="--c:${good?"var(--ok)":"var(--bad)"}">
+        <div class="qhead"><span>Soal ${i+1} · ${MATERI[mOf(q.n)]}</span><span class="mark">${good?"✓ Benar":a===null?"– Kosong":"✗ Salah"}</span></div>
+        <div class="qtext">${esc(r[1])}</div>
+        <div class="ans">${good?`<span class="yes">✓ Jawabanmu: ${"ABCD"[a]}. ${esc(q.o[a])}</span>`
+          :`<span class="no">${a===null?"Kamu tidak menjawab":`✗ Jawabanmu: ${"ABCD"[a]}. ${esc(q.o[a])}`}</span><span class="yes">✓ Jawaban benar: ${"ABCD"[q.o.indexOf(r[2])]}. ${esc(r[2])}</span>`}</div>
+        <div class="expl">💡 ${esc(r[4])}</div></article>` }).join(""):`<p style="text-align:center;color:var(--muted)">Tidak ada soal di sini. 🎉</p>`}
+    <div class="acts"><button class="go" id="bAgain" type="button">🔁 Latihan lagi (soal baru)</button>
+      <button class="btn2" id="bRk" type="button">📖 Rangkuman materi</button></div>
+  </main>`;
+  app.querySelectorAll(".flt button").forEach(b=>b.onclick=()=>{ const y=$(".flt").offsetTop; result(b.dataset.f); $("#rs").scrollTop=y-10 });
+  $("#bHome").onclick=intro;
+  $("#bAgain").onclick=()=>{ newSession(); quiz() };
+  $("#bRk").onclick=()=>study(0);
+  if($("#bWeak")) $("#bWeak").onclick=()=>study(weak.k);
+}
+
+/* buka sesuai keadaan terakhir */
+window.Hub={hub};
+hub();
+})();
+</script>
 </body>
 </html>
