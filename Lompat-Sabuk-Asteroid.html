@@ -124,7 +124,7 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
     <span class="meta" id="gMeta"></span>
     <span class="sp"></span>
     <button class="tbtn" id="btnSound" type="button" aria-pressed="true">Suara: nyala</button>
-    <button class="tbtn" id="btnSetup" type="button">Pengaturan</button>
+    <button class="tbtn" id="btnSetup" type="button">Menu utama</button>
     <button class="tbtn" id="btnFull" type="button">Layar penuh</button>
   </header>
   <section class="main" id="mainScreen" aria-label="Layar utama"></section>
@@ -471,7 +471,7 @@ const GAME = {
   frame(now){
     if(!this.cv || !this.cv.isConnected){ this.raf=null; return }
     const dt=Math.min(.05,(now-this.last)/1000); this.last=now; this.t+=dt;
-    const live=this.state==="play"||this.state==="bonus";
+    const live=(this.state==="play"||this.state==="bonus") && !this.paused;
     if(live){
       this.elapsed=(this.elapsed||0)+dt;
       const accel=1+Math.min(.6,this.elapsed/200);     // makin lama makin cepat
@@ -732,10 +732,10 @@ const GAME = {
 const $=s=>document.querySelector(s);
 const DEF_NAMES=["Merah","Biru","Kuning"];
 const cfg={count:3, names:[...DEF_NAMES], ...GAME.defaults};
-let players=[], panels=[], running=false;
+let players=[], panels=[], running=false, cdToken=0;
 
 const ctx={
-  end(res){ if(!running) return; running=false; GAME.stop(); Sound.stopMusic(); res.icon==="🏁"?Sound.win():Sound.lose(); setTimeout(()=>showResult(res),1300) },
+  end(res){ if(!running) return; running=false; GAME.stop(); Sound.stopMusic(); res.icon==="🪐"?Sound.win():Sound.lose(); const id=cdToken; setTimeout(()=>{ if(id===cdToken) showResult(res) },1300) },
   setWaiting(i,on,msg=""){
     const el=panels[i]; if(!el) return;
     const key=on?msg:""; if((el.dataset.wait||"")===key) return;
@@ -788,7 +788,7 @@ function build(){
 }
 
 function showSetup(){
-  GAME.stop(); running=false; Sound.stopMusic();
+  cdToken++; GAME.paused=false; GAME.stop(); running=false; Sound.stopMusic();
   const ov=$("#overlay"); ov.hidden=false;
   const seg=(key,items)=>`<div class="seg">${items.map(([v,l])=>`<button type="button" data-k="${key}" data-v="${v}" aria-pressed="${String(cfg[key])===String(v)}">${l}</button>`).join("")}</div>`;
   ov.innerHTML=`<div class="card">
@@ -815,10 +815,10 @@ function showSetup(){
 }
 
 function countdown(){
-  const ov=$("#overlay"); ov.hidden=false; let n=3;
-  const tick=()=>{
+  const ov=$("#overlay"), id=++cdToken; ov.hidden=false; let n=3;
+  const tick=()=>{ if(id!==cdToken) return;
     if(n===0){ ov.innerHTML=`<div class="count">Ayo!</div>`;
-      Sound.go(); setTimeout(()=>{ ov.hidden=true; running=true; GAME.start(ctx); Sound.startMusic() },600); return }
+      Sound.go(); setTimeout(()=>{ if(id!==cdToken) return; ov.hidden=true; running=true; GAME.start(ctx); Sound.startMusic() },600); return }
     Sound.beep(); ov.innerHTML=`<div class="count">${n}</div>`; n--; setTimeout(tick,900);
   };
   tick();
@@ -833,13 +833,26 @@ function showResult(res){
     <div class="rank">${res.rows.map(([p,v])=>`<div><span style="color:${p.color}">${esc(p.name)}</span><span>${esc(v)}</span></div>`).join("")}</div>
     <div class="seg" style="justify-content:center">
       <button type="button" id="again" aria-pressed="true">Main lagi</button>
-      <button type="button" id="toSetup">Pengaturan</button>
+      <button type="button" id="toSetup">Menu utama</button>
     </div></div>`;
   $("#again").onclick=()=>{ Sound.init(); build(); countdown() };
   $("#toSetup").onclick=showSetup;
 }
 
-$("#btnSetup").onclick=showSetup;
+/* Menu utama: saat bermain, jeda dulu lalu minta konfirmasi */
+function askMenu(){
+  if(!running){ showSetup(); return }
+  running=false; GAME.paused=true; Sound.stopMusic();
+  const ov=$("#overlay"); ov.hidden=false;
+  ov.innerHTML=`<div class="card"><h2>Kembali ke menu utama?</h2>
+    <p>Permainan sedang dijeda. Kalau kembali ke menu utama, permainan ini berhenti dan tidak disimpan.</p>
+    <div class="seg"><button type="button" id="mNo" aria-pressed="true">Lanjut main</button>
+    <button type="button" id="mYes">Ya, ke menu utama</button></div></div>`;
+  $("#mNo").onclick=()=>{ ov.hidden=true; GAME.paused=false; running=true; Sound.startMusic() };
+  $("#mYes").onclick=showSetup;
+  $("#mNo").focus();
+}
+$("#btnSetup").onclick=askMenu;
 (()=>{ const b=$("#btnSound");
   const set=v=>{ Sound.setOn(v); b.setAttribute("aria-pressed",v); b.textContent=v?"Suara: nyala":"Suara: mati";
     try{ localStorage.setItem("lsa-sound",v?"1":"0") }catch(e){} };
