@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B1129">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Lompat Sabuk Asteroid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;700;800&display=swap">
+<style>
+/* Versi HP potret: 1 pemain + teman AI (Robo). Layar angkasa di atas, soal di bawah dekat jempol */
+:root{
+  --ink:#1A2340; --paper:#0B1129; --deck:#141C3D; --panel:#F6F8FD; --soft:#E4E9F4; --muted:#66708A;
+  --sky:#DCE3F7; --dim:#8F9BC0; --blue:#1F78D1;
+  --ok:#2E9B57; --bad:#D6452F; --warn:#E89B0C;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+html,body{height:100%;margin:0}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);overflow:hidden;overscroll-behavior:none;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid #9FD3FF;outline-offset:2px}
+.app{height:100vh;height:100dvh;max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:8px;box-sizing:border-box;
+  padding:max(8px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom))}
+
+/* ---------- bilah atas ---------- */
+.top{display:flex;align-items:center;gap:6px;color:var(--sky);flex:none}
+.brand{flex:1;min-width:0}
+.brand h1{font-family:var(--display);font-weight:800;font-size:clamp(16px,4.9vw,19px);margin:0;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand span{display:block;color:var(--dim);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.05em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{width:40px;height:40px;flex:none;border:0;border-radius:12px;background:rgba(255,255,255,.1);color:var(--sky);
+  font-size:18px;display:grid;place-items:center;padding:0}
+
+/* ---------- layar angkasa ---------- */
+.main{position:relative;flex:none;height:clamp(140px,calc(100dvh - 540px),300px);border-radius:16px;overflow:hidden;background:var(--paper)}
+.main canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.banner{position:absolute;left:8px;right:8px;bottom:8px;background:var(--bad);color:#fff;border-radius:12px;
+  padding:6px 10px;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.banner strong{display:block;font-family:var(--display);font-size:20px;line-height:1.1}
+.banner span{font-weight:800;font-size:12px}
+.banner .ticks{display:flex;gap:8px;justify-content:center;margin-top:4px}
+.banner .ticks i{width:22px;height:22px;border-radius:50%;border:3px solid #fff;display:grid;place-items:center;
+  font-style:normal;font-weight:800;font-size:12px;background:rgba(255,255,255,.2)}
+.banner .ticks i.done{background:#fff;color:var(--ok)}
+
+/* ---------- HUD ---------- */
+.hud{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;flex:none}
+.hm,.chip{background:var(--deck);border-radius:10px;padding:5px 9px;color:var(--sky)}
+.hl{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:10.5px;font-weight:800;color:var(--dim);
+  text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+.hl b{color:#fff;font-variant-numeric:tabular-nums;font-size:13px;letter-spacing:0}
+.bar{height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;width:0;background:var(--ok);border-radius:3px;transition:width .3s}
+.bar.safe i{background:var(--warn);transition:none}
+.danger .bar.safe i{background:var(--bad)}
+.danger .hl b{color:#FF8A78}
+.chip{display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:10.5px;font-weight:800;
+  color:var(--dim);text-transform:uppercase;min-width:60px}
+.chip b{color:#7CE0A0;font-size:13px;text-transform:none}
+.chip.taut{background:#4A1B22}
+.chip.taut b{color:#FF8A78}
+
+/* ---------- strip Robo ---------- */
+#robo{flex:none}
+.robo{background:var(--deck);border-radius:12px;border-left:5px solid var(--c);padding:7px 10px;color:var(--sky);transition:background .2s}
+.robo .phead{display:flex;align-items:center;gap:8px}
+.robo .pname{font-family:var(--display);font-weight:800;font-size:16px;color:#fff;line-height:1;white-space:nowrap}
+.aitag{font-family:var(--body);font-size:10px;background:var(--c);color:#fff;border-radius:5px;padding:2px 6px;margin-left:5px;vertical-align:2px}
+.aist{flex:1;min-width:0;font-size:12px;font-weight:700;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.robo .pscore{font-size:12px;font-weight:800;color:var(--sky);white-space:nowrap}
+.robo .q,.robo .opts,.robo .pmsg{display:none}
+.robo.locked{background:#3A1D2A}
+.robo.locked .aist::before{content:"Salah, retak! ";color:#FF8A78}
+.robo.waiting .aist::before{content:"Menunggu…"}
+.robo.needed .aist::before{content:"Tali tegang, Robo dikejar!";color:#FFD27A}
+
+/* ---------- panel pemain ---------- */
+#me{flex:1;min-height:0;display:flex}
+.mine{flex:1;min-height:0;background:var(--panel);border-radius:16px;border-top:6px solid var(--c);display:flex;flex-direction:column;
+  padding:10px 12px 12px;gap:10px;position:relative;overflow:hidden}
+.mine .phead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mine .pname{font-family:var(--display);font-weight:800;font-size:18px;color:var(--c);line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pscore{font-weight:800;font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);white-space:nowrap}
+.pscore .dots{letter-spacing:.08em;color:var(--bad)}
+.q{font-family:var(--display);font-weight:800;text-align:center;font-size:calc(clamp(17px,4.8vw,23px)*var(--k,1));line-height:1.22;text-wrap:balance;
+  flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column}
+.q>span{margin:auto 0}
+.q.long{font-size:calc(clamp(15px,4.2vw,20px)*var(--k,1))}
+.opts{flex:none;display:grid;grid-template-rows:repeat(4,minmax(calc(50px*var(--k,1)),auto));gap:calc(8px*var(--k,1))}
+.opt{border:2px solid color-mix(in srgb,var(--c) 38%,#fff);background:#fff;border-radius:14px;font-weight:800;
+  font-size:calc(clamp(15px,4.2vw,19px)*var(--k,1));line-height:1.18;padding:calc(7px*var(--k,1)) 12px calc(7px*var(--k,1)) 8px;text-align:left;display:flex;align-items:center;gap:10px;
+  box-shadow:0 3px 0 color-mix(in srgb,var(--c) 25%,#fff);transition:transform .08s,background .15s}
+.opt::before{content:attr(data-l);flex:none;width:30px;height:30px;border-radius:9px;background:color-mix(in srgb,var(--c) 14%,#fff);
+  color:var(--c);display:grid;place-items:center;font-family:var(--display);font-size:16px}
+.opts.long .opt{font-size:calc(clamp(13px,3.7vw,17px)*var(--k,1))}
+.opt:active{transform:translateY(2px);box-shadow:none}
+.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff;box-shadow:none}
+.opt.bad{background:var(--bad);border-color:var(--bad);color:#fff;box-shadow:none}
+.opt.ok::before,.opt.bad::before{background:rgba(255,255,255,.25);color:#fff}
+.panel.locked .opts,.panel.waiting .opts{pointer-events:none}
+.panel.waiting .opts{opacity:.35}
+.pmsg{position:absolute;left:10px;right:10px;bottom:10px;text-align:center;font-weight:800;color:var(--bad);font-size:14px;
+  background:#fff;border-radius:12px;padding:9px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.pmsg.note{top:4px;bottom:auto;padding:6px;background:var(--bad);color:#fff}
+.pmsg.wait{color:var(--ink)}
+.pmsg.expl{text-align:left;color:var(--ink);font-weight:700;line-height:1.38;font-size:15px;border:2px solid var(--bad);
+  max-height:64%;overflow:auto;box-sizing:border-box}
+.pmsg.expl b{color:var(--ok);display:block;margin-bottom:4px;font-size:16px}
+.pmsg.expl i{color:var(--muted);font-style:normal;font-size:.85em}
+.pmsg.expl small{display:block;margin-top:6px;color:var(--muted);font-size:12px;text-align:center}
+.mine.needed{animation:need 1s ease-in-out infinite}
+.mine.needed .pname::after{content:" · Robo menunggumu!";font-size:.68em;color:var(--ink)}
+@keyframes need{50%{box-shadow:inset 0 0 0 4px var(--c)}}
+
+/* ---------- overlay ---------- */
+.ov{position:fixed;inset:0;background:rgba(6,10,28,.84);display:grid;place-items:center;z-index:10;box-sizing:border-box;
+  padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+.card{background:var(--panel);border-radius:20px;padding:18px 16px;width:min(520px,100%);box-sizing:border-box;display:grid;gap:14px;
+  max-height:100%;overflow:auto;overscroll-behavior:contain}
+.card h2{font-family:var(--display);font-weight:800;font-size:26px;margin:0;line-height:1.05;text-wrap:balance}
+.card p{margin:0;line-height:1.45;font-size:15px}
+.hero{text-align:center;display:grid;gap:4px}
+.big{font-size:52px;line-height:1}
+details{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.45}
+summary{font-weight:800;cursor:pointer}
+details ul{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
+.lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1 1 auto;border:2px solid #C9D4E3;background:var(--soft);border-radius:12px;padding:9px 12px;font-weight:800;font-size:15px;min-height:44px}
+.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff}
+.card input{width:100%;box-sizing:border-box;font:inherit;font-weight:800;font-size:17px;padding:10px 12px;border:2px solid #C9D4E3;border-radius:12px;user-select:text}
+.hint{font-size:13px!important;color:var(--muted);margin-top:6px!important}
+.go{position:sticky;bottom:0;background:var(--blue);color:#fff;border:none;border-radius:14px;padding:13px;font-family:var(--display);
+  font-weight:800;font-size:22px;box-shadow:0 4px 0 #134F8C}
+.count{font-family:var(--display);font-weight:800;color:#fff;font-size:min(36vh,200px);line-height:1;animation:pop .9s}
+@keyframes pop{from{transform:scale(1.6);opacity:0}30%{transform:scale(1);opacity:1}}
+.win{text-align:center}
+.rank{display:grid;gap:6px;text-align:left}
+.rank div{display:flex;justify-content:space-between;gap:10px;font-weight:800;font-size:15px;padding:9px 12px;border-radius:10px;background:var(--soft)}
+/* ---------- tombol menu & rangkuman ---------- */
+.acts{position:sticky;bottom:0;display:grid;gap:8px;background:var(--panel);padding-top:6px}
+.acts .go{position:static}
+.btn2{background:#fff;color:var(--ink);border:2px solid #C9D4E3;border-radius:14px;padding:11px;font-weight:800;font-size:17px}
+.card.study{height:100%;grid-template-rows:auto auto minmax(0,1fr);gap:10px;padding:12px;overflow:hidden}
+.shead{display:flex;align-items:center;gap:10px}
+.shead h2{font-size:22px}
+.ib.back{background:var(--soft);color:var(--ink);font-size:20px}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px 2px}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;border:2px solid #C9D4E3;background:var(--soft);border-radius:999px;padding:7px 13px;font-weight:800;font-size:14px}
+.tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.sbody{overflow:auto;display:grid;gap:10px;align-content:start;overscroll-behavior:contain;user-select:text;-webkit-user-select:text;padding-bottom:4px}
+.sbody .go{position:static;font-size:18px;margin-top:4px}
+.kc{background:#fff;border:2px solid var(--soft);border-radius:14px;padding:12px 14px}
+.kc h3{font-family:var(--display);font-weight:800;font-size:18px;margin:0 0 6px;color:var(--blue);line-height:1.15}
+.kc ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15px;line-height:1.45}
+.kc b{color:var(--ink);font-weight:800}
+.kc.tip{background:#FFF6E0;border-color:#F3D48A}
+.kc.tip h3{color:#A86A00}
+.kv{display:grid;grid-template-columns:repeat(var(--n),auto);border:1px solid var(--soft);border-radius:10px;overflow:hidden;margin-top:8px;font-size:14px;line-height:1.35}
+.kv span{padding:6px 8px;border-top:1px solid var(--soft)}
+.kv span:nth-child(-n+3).kh,.kv .kh{background:var(--soft);font-weight:800;border-top:0;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+.kv[style*="--n:2"]{grid-template-columns:minmax(0,38%) 1fr}
+.kv[style*="--n:3"]{grid-template-columns:auto 1fr 1fr}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-height:680px){.mine{padding:8px 10px 10px;gap:8px} .opt::before{width:26px;height:26px;font-size:14px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><h1>Lompat Sabuk Asteroid</h1><span id="gMeta"></span></div>
+    <button class="ib" id="btnSound" type="button" aria-pressed="true" aria-label="Suara">🔊</button>
+    <button class="ib" id="btnFull" type="button" aria-label="Layar penuh">⛶</button>
+    <button class="ib" id="btnSetup" type="button" aria-label="Menu utama">☰</button>
+  </header>
+  <section class="main" id="mainScreen" aria-label="Layar utama"></section>
+  <div class="hud">
+    <div class="hm"><div class="hl"><span>Ke Yupiter</span><b id="mProg"></b></div><div class="bar"><i id="bProg"></i></div></div>
+    <div class="hm" id="safeBox"><div class="hl"><span>Jarak badai</span><b id="mSafe"></b></div><div class="bar safe"><i id="bSafe"></i></div></div>
+    <div class="chip" id="ropeChip"><span>Tali</span><b id="ropeTxt">Kendur</b></div>
+  </div>
+  <div id="robo"></div>
+  <section id="me" aria-label="Panel soalmu"></section>
+</div>
+<div class="ov" id="overlay" hidden></div>
+
+<script>
+/* =====================================================================
+   LOMPAT SABUK ASTEROID — game kerja sama untuk layar pintar
+   Template: 1 layar utama + 2/3 panel pemain (sentuh bersamaan).
+   Bagian INTI di paling bawah; logika & gambar game ada di objek GAME.
+   ===================================================================== */
+const COLORS = ["#E23D4B","#1F78D1","#E89B0C"];
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const shuffle=a=>a.sort(()=>Math.random()-.5);
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const frac=(p,q)=>`<span class="fr"><span>${p}</span><span>${q}</span></span>`;
+const hash=i=>{const v=Math.sin(i*127.1+311.7)*43758.5453; return v-Math.floor(v)};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+/* ---------------- Bank soal: Rangkuman IPAS Kelas 6 (200 soal, 5 materi x 40) ---------------- */
+const pick=(a,n)=>shuffle([...a]).slice(0,n);
+/* [tingkat, soal, jawaban, [pengecoh], pembahasan] — urutan sama dengan nomor soal di rangkuman */
+const SOAL=[[1,"Pusat Tata Surya adalah ....","Matahari",["Bumi","Bulan","Yupiter"],"Matahari menjadi pusat Tata Surya dan semua planet beredar mengelilinginya."],[2,"Benda-benda langit tetap beredar mengelilingi Matahari karena adanya ....","gaya gravitasi Matahari",["gaya magnet Bumi","dorongan angin","gaya gesek"],"Gaya gravitasi Matahari yang sangat besar menarik benda langit sehingga tetap berada di orbitnya."],[1,"Lintasan tempat planet beredar mengelilingi Matahari disebut ....","orbit",["poros","ekuator","meridian"],"Orbit atau garis edar adalah jalur peredaran planet mengelilingi Matahari."],[1,"Matahari termasuk jenis benda langit yang disebut ....","bintang",["planet","satelit","komet"],"Matahari adalah bintang karena memancarkan cahaya sendiri."],[2,"Perbedaan utama bintang dan planet adalah bintang ....","memancarkan cahaya sendiri",["memantulkan cahaya Matahari","selalu lebih kecil dari planet","tidak memiliki gravitasi"],"Bintang menghasilkan cahaya sendiri, sedangkan planet hanya memantulkan cahaya Matahari."],[2,"Diameter Matahari kira-kira ... kali diameter Bumi.","109",["10","50","1.000"],"Matahari sangat besar; diameternya sekitar 109 kali diameter Bumi."],[2,"Gas utama penyusun Matahari adalah ....","hidrogen dan helium",["oksigen dan nitrogen","karbon dioksida dan uap air","neon dan argon"],"Matahari tersusun terutama dari gas hidrogen dan helium yang sangat panas."],[1,"Jumlah planet dalam Tata Surya adalah ....","8",["7","9","10"],"Tata Surya memiliki 8 planet, dari Merkurius sampai Neptunus."],[1,"Planet yang paling dekat dengan Matahari adalah ....","Merkurius",["Venus","Bumi","Mars"],"Merkurius berada pada urutan pertama, paling dekat dengan Matahari."],[1,"Planet terkecil di Tata Surya adalah ....","Merkurius",["Mars","Venus","Neptunus"],"Merkurius adalah planet dengan ukuran paling kecil."],[1,"Planet terpanas di Tata Surya adalah ....","Venus",["Merkurius","Mars","Yupiter"],"Venus paling panas karena atmosfernya tebal sehingga panas terperangkap."],[3,"Venus menjadi planet terpanas walaupun bukan yang terdekat dengan Matahari karena ....","atmosfernya sangat tebal sehingga panas terperangkap",["ukurannya paling besar","tidak memiliki atmosfer","berputar paling cepat"],"Atmosfer Venus yang tebal menahan panas seperti selimut sehingga suhunya sangat tinggi."],[2,"Planet yang sering disebut bintang fajar atau bintang senja adalah ....","Venus",["Mars","Merkurius","Saturnus"],"Venus tampak sangat terang di pagi atau senja hari sehingga dijuluki bintang fajar atau bintang senja."],[1,"Bumi berada pada urutan ke-... dari Matahari.","3",["2","4","5"],"Urutan planet: Merkurius, Venus, Bumi, sehingga Bumi berada di urutan ketiga."],[2,"Bumi menjadi satu-satunya planet yang diketahui memiliki kehidupan karena ....","ada air, udara, dan suhu yang cocok",["ukurannya paling besar","paling dekat dengan Matahari","memiliki cincin"],"Air, udara (oksigen), dan suhu yang sesuai memungkinkan makhluk hidup tinggal di Bumi."],[1,"Planet yang dijuluki planet merah adalah ....","Mars",["Yupiter","Venus","Merkurius"],"Mars tampak merah karena permukaannya mengandung debu besi berkarat."],[2,"Warna merah pada planet Mars disebabkan oleh ....","debu yang mengandung besi berkarat",["lava gunung berapi","pantulan cahaya Bulan","awan berwarna merah"],"Permukaan Mars berdebu dan mengandung besi berkarat sehingga berwarna kemerahan."],[1,"Planet terbesar di Tata Surya adalah ....","Yupiter",["Saturnus","Uranus","Neptunus"],"Yupiter merupakan planet dengan ukuran paling besar."],[2,"Badai raksasa di planet Yupiter dikenal dengan nama ....","Bintik Merah Besar",["Cincin Api","Sabuk Asteroid","Badai Kutub"],"Bintik Merah Besar adalah badai raksasa yang sangat terkenal di Yupiter."],[1,"Planet yang terkenal dengan cincinnya yang paling indah dan jelas adalah ....","Saturnus",["Yupiter","Uranus","Mars"],"Saturnus memiliki cincin yang paling jelas, tersusun dari es dan batuan."],[2,"Cincin Saturnus tersusun dari ....","es dan batuan",["gas hidrogen","api dan lava","air laut"],"Cincin Saturnus terbentuk dari bongkahan es dan batuan."],[2,"Planet yang sumbu rotasinya sangat miring sehingga tampak berputar seperti menggelinding adalah ....","Uranus",["Neptunus","Saturnus","Venus"],"Uranus memiliki sumbu rotasi yang sangat miring."],[1,"Planet terjauh dari Matahari adalah ....","Neptunus",["Uranus","Saturnus","Yupiter"],"Neptunus berada di urutan kedelapan, terjauh dari Matahari."],[2,"Neptunus sangat dingin karena ....","letaknya paling jauh dari Matahari",["tidak memiliki atmosfer","ukurannya paling kecil","tertutup cincin es"],"Semakin jauh dari Matahari, semakin sedikit panas yang diterima, sehingga Neptunus sangat dingin."],[2,"Kelompok planet dalam adalah ....","Merkurius, Venus, Bumi, Mars",["Yupiter, Saturnus, Uranus, Neptunus","Bumi, Mars, Yupiter, Saturnus","Merkurius, Venus, Yupiter, Neptunus"],"Planet dalam adalah empat planet yang dekat dengan Matahari dan berpermukaan batuan."],[2,"Ciri planet luar adalah ....","berukuran besar dan tersusun dari gas atau es",["berukuran kecil dan berbatu","tidak memiliki satelit","paling dekat dengan Matahari"],"Yupiter, Saturnus, Uranus, dan Neptunus berukuran besar dan sebagian besar tersusun dari gas atau es."],[2,"Urutan planet yang benar dari yang terdekat dengan Matahari adalah ....","Merkurius, Venus, Bumi, Mars",["Venus, Merkurius, Bumi, Mars","Merkurius, Bumi, Venus, Mars","Mars, Bumi, Venus, Merkurius"],"Ingat singkatan Me-Ve-Bu-Ma: Merkurius, Venus, Bumi, Mars."],[2,"Planet yang terletak di antara Mars dan Saturnus adalah ....","Yupiter",["Uranus","Bumi","Neptunus"],"Urutannya Mars, Yupiter, Saturnus, sehingga Yupiter berada di antara keduanya."],[2,"Planet tampak bersinar di langit malam karena ....","memantulkan cahaya Matahari",["memancarkan cahaya sendiri","terbakar oleh panas Matahari","memiliki lampu alami"],"Planet tidak memiliki cahaya sendiri, tetapi memantulkan cahaya Matahari."],[1,"Benda langit yang beredar mengelilingi planet disebut ....","satelit",["asteroid","komet","meteor"],"Satelit adalah benda langit yang mengelilingi planet, contohnya Bulan."],[1,"Satelit alami yang dimiliki Bumi adalah ....","Bulan",["Matahari","Phobos","Titan"],"Bumi hanya memiliki satu satelit alami, yaitu Bulan."],[3,"Planet yang tidak memiliki satelit adalah ....","Merkurius dan Venus",["Bumi dan Mars","Yupiter dan Saturnus","Uranus dan Neptunus"],"Merkurius dan Venus tidak memiliki satelit alami."],[2,"Sabuk asteroid terletak di antara orbit planet ....","Mars dan Yupiter",["Bumi dan Mars","Yupiter dan Saturnus","Venus dan Bumi"],"Kebanyakan asteroid berada di sabuk asteroid antara Mars dan Yupiter."],[2,"Benda langit yang tersusun dari es dan debu serta memiliki ekor saat mendekati Matahari adalah ....","komet",["asteroid","meteorit","satelit"],"Komet terbuat dari es dan debu; esnya menguap dan membentuk ekor saat dekat dengan Matahari."],[3,"Ekor komet selalu mengarah ....","menjauhi Matahari",["menuju Matahari","menuju Bumi","ke arah utara"],"Ekor komet terdorong oleh pancaran Matahari sehingga selalu mengarah menjauhi Matahari."],[3,"Komet Halley dapat terlihat dari Bumi sekitar setiap ... tahun sekali.","76",["10","25","100"],"Komet Halley muncul kira-kira setiap 76 tahun sekali."],[2,"Meteoroid yang masuk ke atmosfer Bumi lalu terbakar sehingga tampak seperti garis cahaya disebut ....","meteor",["meteorit","asteroid","komet"],"Meteor adalah meteoroid yang terbakar di atmosfer; orang menyebutnya bintang jatuh."],[2,"Sisa meteor yang tidak habis terbakar dan jatuh sampai ke permukaan Bumi disebut ....","meteorit",["meteoroid","komet","asteroid"],"Meteorit adalah batuan sisa meteor yang sampai ke permukaan Bumi."],[3,"Sejak tahun 2006, Pluto digolongkan sebagai ....","planet kerdil",["planet luar","satelit","komet"],"Sejak 2006, Pluto tidak lagi disebut planet, melainkan planet kerdil."],[3,"Perhatikan pernyataan berikut: (1) memancarkan cahaya sendiri, (2) memantulkan cahaya, (3) mengelilingi Matahari, (4) pusat Tata Surya. Ciri planet ditunjukkan oleh nomor ....","(2) dan (3)",["(1) dan (4)","(1) dan (3)","(2) dan (4)"],"Planet memantulkan cahaya Matahari dan beredar mengelilingi Matahari."],[1,"Rotasi Bumi adalah ....","perputaran Bumi pada porosnya",["peredaran Bumi mengelilingi Matahari","peredaran Bulan mengelilingi Bumi","pergeseran lempeng Bumi"],"Rotasi berarti Bumi berputar pada porosnya sendiri."],[2,"Poros Bumi adalah garis khayal yang menghubungkan ....","Kutub Utara dan Kutub Selatan",["arah timur dan barat","khatulistiwa dan kutub","Bumi dan Matahari"],"Poros Bumi menghubungkan Kutub Utara dengan Kutub Selatan."],[1,"Arah rotasi Bumi adalah dari ....","barat ke timur",["timur ke barat","utara ke selatan","selatan ke utara"],"Bumi berotasi dari barat ke timur."],[1,"Waktu yang dibutuhkan Bumi untuk satu kali rotasi adalah sekitar ....","24 jam",["12 jam","7 hari","365 hari"],"Satu kali rotasi Bumi memerlukan waktu sekitar 24 jam atau satu hari."],[2,"Waktu yang diperlukan untuk satu kali rotasi disebut ....","kala rotasi",["kala revolusi","tahun kabisat","ekuinoks"],"Kala rotasi adalah lamanya waktu untuk satu kali rotasi."],[2,"Kecepatan rotasi Bumi di ekuator kira-kira ....","1.670 km/jam",["167 km/jam","16.700 km/jam","67 km/jam"],"Di ekuator, permukaan Bumi bergerak sekitar 1.670 km/jam."],[3,"Kita tidak merasakan Bumi berputar karena ....","semua benda di Bumi, termasuk udara, ikut bergerak bersama Bumi",["Bumi berputar sangat lambat","Bumi sebenarnya diam","gravitasi Bulan menahan Bumi"],"Kita, udara, dan semua benda ikut bergerak bersama Bumi sehingga putarannya tidak terasa."],[2,"Percobaan yang membuktikan bahwa Bumi berotasi adalah ....","Bandul Foucault",["kamera lubang jarum","teropong bintang","termometer"],"Arah ayunan Bandul Foucault tampak berubah karena lantai di bawahnya ikut berputar bersama Bumi."],[3,"Pada percobaan Bandul Foucault, arah ayunan bandul tampak berubah karena ....","lantai di bawahnya ikut berputar bersama Bumi",["bandul tertiup angin","tali bandul memanjang","bandul ditarik gravitasi Bulan"],"Yang berputar sebenarnya Bumi (lantai), bukan bandulnya."],[1,"Peristiwa berikut yang merupakan akibat rotasi Bumi adalah ....","terjadinya siang dan malam",["pergantian musim","perubahan rasi bintang tahunan","adanya tahun kabisat"],"Siang dan malam terjadi karena Bumi berputar pada porosnya."],[1,"Bagian Bumi yang membelakangi Matahari akan mengalami ....","malam",["siang","musim panas","gerhana"],"Bagian yang tidak terkena cahaya Matahari mengalami malam."],[2,"Siang dan malam terjadi bergantian karena ....","Bumi terus berputar pada porosnya",["Matahari mengelilingi Bumi","Bulan menutupi Matahari","Bumi mengelilingi Bulan"],"Rotasi Bumi membuat bagian yang menghadap Matahari terus berganti."],[2,"Matahari tampak terbit di timur dan terbenam di barat karena ....","Bumi berotasi dari barat ke timur",["Matahari bergerak dari timur ke barat","Bumi berevolusi","Bulan mengelilingi Bumi"],"Gerak Matahari itu hanya tampaknya saja; yang bergerak adalah Bumi dari barat ke timur."],[2,"Gerak Matahari dari timur ke barat yang kita lihat setiap hari disebut ....","gerak semu harian",["gerak semu tahunan","revolusi Matahari","rotasi Matahari"],"Disebut gerak semu harian karena hanya tampaknya saja dan terjadi setiap hari."],[3,"Saat naik mobil, pohon di pinggir jalan tampak bergerak ke belakang. Peristiwa ini mirip dengan ....","gerak semu harian Matahari",["gerhana Bulan","pasang surut air laut","pergantian musim"],"Seperti pohon yang tampak bergerak, Matahari juga hanya tampak bergerak karena Bumi yang berputar."],[2,"Selain Matahari, benda langit yang juga tampak terbit di timur dan terbenam di barat adalah ....","Bulan dan bintang",["hanya Bulan","hanya bintang","tidak ada"],"Akibat rotasi Bumi, Bulan dan bintang juga tampak terbit di timur dan terbenam di barat."],[2,"Setiap perbedaan 15° garis bujur menyebabkan selisih waktu ....","1 jam",["15 menit","2 jam","24 jam"],"Bumi berputar 360° dalam 24 jam, jadi 360° : 24 = 15° setiap jam."],[2,"Patokan waktu dunia yang berpusat di garis bujur 0° disebut ....","GMT/UTC",["WIB","WITA","WIT"],"Waktu dunia berpatokan pada GMT/UTC di bujur 0° Greenwich."],[2,"Kota Greenwich yang dilalui garis bujur 0° terletak di negara ....","Inggris",["Indonesia","Amerika Serikat","Jepang"],"Greenwich berada di Inggris dan menjadi patokan bujur 0°."],[1,"Indonesia dibagi menjadi ... zona waktu.","3",["2","4","5"],"Indonesia memiliki tiga zona waktu: WIB, WITA, dan WIT."],[2,"Wilayah yang termasuk zona WIB adalah ....","Sumatra dan Jawa",["Bali dan Sulawesi","Maluku dan Papua","Nusa Tenggara dan Bali"],"Sumatra, Jawa, Kalimantan Barat, dan Kalimantan Tengah termasuk WIB."],[2,"Pulau Bali menggunakan zona waktu ....","WITA",["WIB","WIT","GMT"],"Bali termasuk wilayah Waktu Indonesia Tengah (WITA)."],[2,"Papua menggunakan zona waktu ....","WIT",["WITA","WIB","GMT"],"Maluku dan Papua menggunakan Waktu Indonesia Timur (WIT)."],[2,"Selisih waktu WIB dari UTC adalah ....","UTC+7",["UTC+8","UTC+9","UTC+6"],"WIB lebih cepat 7 jam dari UTC."],[2,"Selisih waktu WIT dari UTC adalah ....","UTC+9",["UTC+7","UTC+8","UTC+10"],"WIT lebih cepat 9 jam dari UTC."],[3,"Jika di Jakarta pukul 08.00 WIB, maka di Makassar pukul ....","09.00 WITA",["07.00 WITA","08.00 WITA","10.00 WITA"],"WITA lebih cepat 1 jam dari WIB, jadi 08.00 + 1 jam = 09.00 WITA."],[3,"Jika di Jayapura pukul 10.00 WIT, maka di Medan pukul ....","08.00 WIB",["09.00 WIB","11.00 WIB","12.00 WIB"],"WIB lebih lambat 2 jam dari WIT, jadi 10.00 − 2 jam = 08.00 WIB."],[3,"Pertandingan sepak bola di Surabaya dimulai pukul 19.00 WIB. Penonton di Ambon menyaksikan siaran langsungnya pada pukul ....","21.00 WIT",["20.00 WIT","19.00 WIT","17.00 WIT"],"Ambon (Maluku) memakai WIT yang 2 jam lebih cepat, jadi 19.00 + 2 jam = 21.00 WIT."],[3,"Pukul 12.00 WITA di Denpasar sama dengan pukul ... WIB di Bandung.","11.00",["13.00","12.00","10.00"],"WIB lebih lambat 1 jam dari WITA, jadi 12.00 − 1 jam = 11.00 WIB."],[3,"Wilayah di sebelah timur mengalami pagi lebih dahulu karena ....","Bumi berotasi dari barat ke timur",["Matahari lebih dekat ke arah timur","wilayah timur lebih tinggi","Bumi berevolusi ke arah timur"],"Karena Bumi berputar ke arah timur, wilayah timur lebih dulu menghadap Matahari."],[2,"Pembelokan arah angin dan arus laut akibat rotasi Bumi disebut ....","efek Coriolis",["efek rumah kaca","gerak semu","gaya gravitasi"],"Efek Coriolis adalah pembelokan arah angin dan arus laut karena rotasi Bumi."],[3,"Di belahan Bumi utara, angin dibelokkan ke arah ....","kanan",["kiri","atas","tidak berbelok"],"Akibat efek Coriolis, angin di belahan utara berbelok ke kanan."],[3,"Di belahan Bumi selatan, badai siklon berputar ....","searah jarum jam",["berlawanan arah jarum jam","lurus ke utara","tidak berputar"],"Siklon di belahan selatan berputar searah jarum jam, kebalikan dari belahan utara."],[2,"Bentuk Bumi yang pepat di kutub dan menggembung di ekuator disebut ....","geoid",["bulat sempurna","kerucut","kubus"],"Bentuk Bumi yang tidak bulat sempurna ini disebut geoid."],[3,"Bumi menggembung di daerah ekuator karena ....","putaran Bumi lebih cepat di daerah ekuator",["ekuator lebih dekat ke Matahari","ekuator memiliki banyak gunung","tarikan gravitasi Bulan di kutub"],"Putaran yang lebih cepat di ekuator membuat bagian itu sedikit menggembung."],[2,"Pasang surut air laut dipengaruhi oleh ....","gravitasi Bulan dan Matahari serta rotasi Bumi",["angin muson","efek rumah kaca","letak gunung berapi"],"Gaya tarik Bulan dan Matahari, ditambah rotasi Bumi, menyebabkan pasang surut."],[2,"Hewan yang aktif di malam hari, seperti kelelawar dan burung hantu, disebut hewan ....","nokturnal",["diurnal","herbivora","pemakan biji"],"Hewan nokturnal aktif di malam hari; ini contoh pengaruh rotasi Bumi pada makhluk hidup."],[3,"Jam biologis makhluk hidup yang mengikuti siang dan malam disebut ....","ritme sirkadian",["gerak semu","kala rotasi","ekuinoks"],"Ritme sirkadian adalah jam biologis yang mengikuti pergantian siang dan malam."],[3,"Berikut ini yang BUKAN akibat rotasi Bumi adalah ....","pergantian musim",["siang dan malam","perbedaan waktu","gerak semu harian Matahari"],"Pergantian musim adalah akibat revolusi Bumi, bukan rotasi."],[3,"Seandainya Bumi berhenti berotasi, yang akan terjadi adalah ....","siang dan malam tidak lagi bergantian setiap hari",["Bumi tidak lagi mengalami musim","Bulan berhenti mengelilingi Bumi","Matahari terbit dari barat setiap hari"],"Tanpa rotasi, satu sisi Bumi menghadap Matahari dalam waktu sangat lama sehingga siang dan malam tidak lagi berganti setiap hari."],[1,"Revolusi Bumi adalah ....","peredaran Bumi mengelilingi Matahari",["perputaran Bumi pada porosnya","peredaran Bulan mengelilingi Bumi","peredaran Matahari mengelilingi Bumi"],"Revolusi Bumi berarti Bumi beredar mengelilingi Matahari."],[1,"Waktu yang dibutuhkan Bumi untuk satu kali revolusi adalah ....","365¼ hari",["24 jam","29½ hari","366¼ hari"],"Kala revolusi Bumi sekitar 365¼ hari atau satu tahun."],[1,"Bentuk lintasan Bumi saat mengelilingi Matahari adalah ....","elips",["bulat sempurna","garis lurus","segitiga"],"Lintasan Bumi berbentuk elips atau lonjong."],[3,"Jika dilihat dari atas Kutub Utara, arah revolusi Bumi adalah ....","berlawanan arah jarum jam",["searah jarum jam","dari utara ke selatan","tidak beraturan"],"Bumi beredar berlawanan arah jarum jam jika dilihat dari atas Kutub Utara."],[2,"Posisi Bumi saat paling dekat dengan Matahari disebut ....","perihelion",["aphelion","ekuinoks","solstis"],"Perihelion adalah titik terdekat Bumi dengan Matahari."],[3,"Aphelion terjadi sekitar tanggal ....","4 Juli",["3 Januari","21 Maret","23 September"],"Bumi berada di titik terjauh dari Matahari (aphelion) sekitar 4 Juli."],[3,"Perihelion terjadi sekitar tanggal ....","3 Januari",["4 Juli","21 Juni","22 Desember"],"Bumi paling dekat dengan Matahari sekitar 3 Januari."],[2,"Besar kemiringan sumbu Bumi adalah ....","23,5°",["15°","45°","66,5°"],"Sumbu Bumi miring sebesar 23,5°."],[2,"Penyebab utama terjadinya musim di Bumi adalah ....","kemiringan sumbu Bumi",["jarak Bumi ke Matahari","rotasi Bulan","ukuran Matahari"],"Musim terjadi terutama karena sumbu Bumi miring 23,5°."],[3,"Bukti bahwa musim BUKAN disebabkan oleh jarak Bumi ke Matahari adalah ....","saat perihelion, belahan Bumi utara justru mengalami musim dingin",["saat aphelion seluruh Bumi mengalami musim panas","jarak Bumi ke Matahari selalu sama","musim terjadi bersamaan di seluruh Bumi"],"Pada bulan Januari Bumi paling dekat dengan Matahari, tetapi belahan utara sedang musim dingin."],[2,"Pergeseran Matahari yang tampak ke utara dan ke selatan sepanjang tahun disebut ....","gerak semu tahunan Matahari",["gerak semu harian Matahari","rotasi Matahari","revolusi Matahari"],"Gerak semu tahunan terjadi karena revolusi Bumi dan kemiringan sumbunya."],[3,"Gerak semu tahunan Matahari terjadi di antara ....","23,5° LU dan 23,5° LS",["0° dan 90° LU","66,5° LU dan 66,5° LS","0° dan 23,5° LS saja"],"Matahari tampak bergeser antara Garis Balik Utara dan Garis Balik Selatan."],[3,"Garis lintang 23,5° LU disebut ....","Garis Balik Utara",["Garis Balik Selatan","khatulistiwa","Lingkar Kutub Utara"],"23,5° LU dikenal sebagai Garis Balik Utara."],[2,"Pada tanggal 21 Maret, Matahari berada tepat di atas ....","khatulistiwa",["Garis Balik Utara","Garis Balik Selatan","Kutub Utara"],"Pada ekuinoks Maret, Matahari tepat di atas khatulistiwa (0°)."],[3,"Pada tanggal 21 Juni, Matahari berada di ....","23,5° LU",["23,5° LS","0°","66,5° LU"],"Pada solstis Juni, Matahari berada di titik paling utara, yaitu 23,5° LU."],[3,"Pada tanggal 22 Desember, Matahari berada di ....","23,5° LS",["23,5° LU","0°","66,5° LS"],"Pada solstis Desember, Matahari berada di titik paling selatan, yaitu 23,5° LS."],[2,"Saat ekuinoks, panjang siang dan malam di seluruh Bumi adalah ....","sama, masing-masing sekitar 12 jam",["siang lebih panjang","malam lebih panjang","siang 24 jam"],"Ekuinoks berarti siang dan malam sama panjang, sekitar 12 jam."],[3,"Ekuinoks terjadi dua kali setahun, yaitu sekitar tanggal ....","21 Maret dan 23 September",["21 Juni dan 22 Desember","3 Januari dan 4 Juli","1 Januari dan 31 Desember"],"Ekuinoks terjadi sekitar 21 Maret dan 23 September."],[3,"Saat solstis Juni, siang terpanjang terjadi di ....","belahan Bumi utara",["belahan Bumi selatan","khatulistiwa saja","seluruh Bumi secara merata"],"Matahari berada di 23,5° LU sehingga belahan utara mendapat siang terpanjang."],[3,"Istilah ekuinoks memiliki arti ....","malam yang sama panjang",["siang terpanjang","titik terjauh","matahari terbenam"],"Ekuinoks berarti malam sama panjang dengan siang."],[1,"Peristiwa berikut yang merupakan akibat revolusi Bumi adalah ....","pergantian musim",["siang dan malam","perbedaan waktu antarwilayah","efek Coriolis"],"Pergantian musim terjadi karena revolusi Bumi dan kemiringan sumbunya."],[2,"Negara-negara di daerah subtropis dan sedang mengalami ... musim.","4",["2","3","1"],"Daerah subtropis dan sedang mengalami musim semi, panas, gugur, dan dingin."],[3,"Urutan musim di belahan Bumi utara mulai 21 Maret adalah ....","semi, panas, gugur, dingin",["panas, semi, dingin, gugur","dingin, gugur, panas, semi","gugur, dingin, semi, panas"],"Di belahan utara: semi (Mar–Jun), panas (Jun–Sep), gugur (Sep–Des), dingin (Des–Mar)."],[2,"Pada bulan Juli, belahan Bumi utara mengalami musim panas. Pada saat yang sama, belahan Bumi selatan mengalami musim ....","dingin",["panas","semi","gugur"],"Musim di belahan utara dan belahan selatan selalu berkebalikan."],[3,"Antara 21 Maret dan 21 Juni, Australia yang terletak di belahan Bumi selatan mengalami musim ....","gugur",["semi","panas","dingin"],"Saat belahan utara musim semi, belahan selatan mengalami musim gugur."],[2,"Fenomena Matahari tetap terlihat pada tengah malam di daerah kutub disebut ....","midnight sun",["polar night","ekuinoks","aphelion"],"Midnight sun adalah saat Matahari tidak terbenam walaupun sudah tengah malam."],[2,"Fenomena Matahari tidak terbit sama sekali selama berhari-hari di daerah kutub disebut ....","polar night",["midnight sun","solstis","perihelion"],"Polar night adalah malam yang berlangsung terus selama berhari-hari."],[2,"Di daerah khatulistiwa seperti Indonesia, lama siang dan malam ....","hampir selalu sama, sekitar 12 jam",["selalu berubah drastis","siang selalu 18 jam","malam selalu 18 jam"],"Di khatulistiwa, perbedaan lama siang dan malam sangat kecil."],[3,"Zona iklim tropis terletak antara ....","0° – 23,5° LU/LS",["23,5° – 40° LU/LS","40° – 66,5° LU/LS","66,5° – 90° LU/LS"],"Daerah tropis berada di antara khatulistiwa dan garis balik."],[1,"Indonesia termasuk dalam zona iklim ....","tropis",["subtropis","sedang","dingin"],"Indonesia terletak di sekitar khatulistiwa sehingga beriklim tropis."],[3,"Daerah yang terletak antara 66,5° dan 90° LU/LS memiliki iklim ....","dingin (kutub)",["tropis","subtropis","sedang"],"Daerah kutub sangat dingin dan tertutup es hampir sepanjang tahun."],[3,"Zona iklim di Bumi berbeda-beda karena ....","sudut datang sinar Matahari berbeda di setiap lintang",["jumlah gunung berbeda","letak laut berbeda","jumlah penduduk berbeda"],"Perbedaan sudut sinar Matahari menyebabkan suhu di tiap lintang berbeda."],[1,"Indonesia hanya mengalami 2 musim, yaitu ....","kemarau dan hujan",["panas dan dingin","semi dan gugur","panas dan gugur"],"Karena terletak di sekitar khatulistiwa, Indonesia hanya mengalami musim kemarau dan musim hujan."],[3,"Musim kemarau di Indonesia terjadi karena bertiupnya angin muson timur dari ....","Australia",["Asia","Eropa","Afrika"],"Angin muson timur bertiup dari Australia yang kering sehingga membawa sedikit uap air."],[1,"Tahun kabisat terdiri dari ... hari.","366",["365","364","367"],"Tahun kabisat memiliki satu hari tambahan sehingga berjumlah 366 hari."],[1,"Pada tahun kabisat, bulan Februari berjumlah ... hari.","29",["28","30","31"],"Hari tambahan diberikan pada bulan Februari sehingga menjadi 29 hari."],[2,"Tahun kabisat terjadi karena ....","kala revolusi Bumi sekitar 365¼ hari",["Bumi berputar lebih lambat","Bulan mengelilingi Bumi 12 kali","kalender dibuat secara acak"],"Sisa ¼ hari setiap tahun dikumpulkan menjadi 1 hari setiap 4 tahun."],[2,"Tahun berikut yang merupakan tahun kabisat adalah ....","2028",["2026","2027","2030"],"2028 habis dibagi 4, sehingga termasuk tahun kabisat."],[3,"Tahun 1900 BUKAN tahun kabisat karena ....","habis dibagi 100 tetapi tidak habis dibagi 400",["tidak habis dibagi 4","habis dibagi 400","terjadi sebelum kalender Masehi"],"Tahun yang habis dibagi 100 bukan tahun kabisat, kecuali juga habis dibagi 400."],[3,"Rasi bintang yang terlihat di langit malam berganti sepanjang tahun karena ....","posisi Bumi berpindah saat mengelilingi Matahari",["bintang bergerak sangat cepat","Bulan menutupi bintang","Bumi berotasi"],"Revolusi Bumi membuat bagian langit yang terlihat pada malam hari berubah."],[1,"Bulan merupakan ... alami Bumi.","satelit",["planet","bintang","asteroid"],"Bulan adalah satu-satunya satelit alami Bumi."],[1,"Bulan tampak bersinar pada malam hari karena ....","memantulkan cahaya Matahari",["memancarkan cahaya sendiri","terbakar di atmosfer","memantulkan cahaya lampu kota"],"Bulan tidak memiliki cahaya sendiri; ia memantulkan cahaya Matahari."],[2,"Tidak ada kehidupan di Bulan karena ....","tidak ada udara dan air dalam bentuk cair",["terlalu dekat dengan Matahari","ukurannya terlalu besar","selalu gelap"],"Makhluk hidup memerlukan udara dan air, yang tidak tersedia di Bulan."],[2,"Permukaan Bulan dipenuhi kawah yang terbentuk akibat ....","tabrakan meteorit",["letusan gunung berapi di Bumi","hujan deras","gempa Bumi"],"Tanpa atmosfer pelindung, meteorit menabrak Bulan dan membentuk kawah."],[2,"Bulan melakukan ... gerakan sekaligus.","3",["1","2","4"],"Bulan berotasi, berevolusi mengelilingi Bumi, dan bersama Bumi mengelilingi Matahari."],[1,"Peredaran Bulan mengelilingi Bumi disebut ....","revolusi Bulan",["rotasi Bulan","revolusi Bumi","gerak semu"],"Revolusi Bulan adalah peredaran Bulan mengelilingi Bumi."],[2,"Waktu rotasi Bulan sama dengan waktu revolusinya, yaitu sekitar ....","27⅓ hari",["24 jam","365 hari","7 hari"],"Bulan berotasi dan berevolusi dalam waktu yang sama, sekitar 27⅓ hari."],[3,"Karena waktu rotasi dan revolusi Bulan sama, maka ....","sisi Bulan yang menghadap Bumi selalu sama",["Bulan selalu tampak purnama","terjadi gerhana setiap bulan","Bulan tidak pernah terlihat"],"Karena itu, kita tidak pernah melihat sisi belakang Bulan dari Bumi."],[2,"Waktu dari satu purnama ke purnama berikutnya kira-kira ....","29½ hari",["27⅓ hari","14 hari","365 hari"],"Dari purnama ke purnama berikutnya dibutuhkan sekitar 29½ hari."],[1,"Perubahan bentuk Bulan yang tampak dari Bumi disebut ....","fase Bulan",["gerhana Bulan","revolusi Bulan","gerak semu"],"Fase Bulan adalah perubahan bentuk Bulan yang terlihat dari Bumi."],[2,"Bentuk Bulan tampak berubah-ubah karena ....","bagian Bulan yang terkena cahaya Matahari dan terlihat dari Bumi berubah",["Bulan benar-benar berubah bentuk","Bulan tertutup awan","Bumi menutupi Bulan setiap malam"],"Bentuk Bulan tetap bulat; yang berubah hanyalah bagian terang yang terlihat dari Bumi."],[1,"Fase Bulan saat Bulan tidak tampak dari Bumi disebut ....","Bulan baru",["Bulan purnama","kuartal pertama","Bulan cembung"],"Pada fase Bulan baru, sisi terang Bulan membelakangi Bumi."],[1,"Fase Bulan saat Bulan tampak bulat penuh disebut ....","Bulan purnama",["Bulan baru","Bulan sabit","kuartal ketiga"],"Bulan purnama terlihat bulat penuh dan terang."],[2,"Pada fase kuartal pertama, Bulan tampak ....","setengah lingkaran",["bulat penuh","tidak terlihat","sabit tipis"],"Kuartal pertama disebut juga Bulan separuh karena tampak setengah lingkaran."],[2,"Fase Bulan setelah Bulan baru adalah ....","Bulan sabit awal",["Bulan purnama","Bulan cembung akhir","kuartal ketiga"],"Setelah Bulan baru, Bulan tampak seperti sabit tipis (sabit awal)."],[3,"Fase Bulan yang tampak lebih dari setengah lingkaran tetapi belum bulat penuh, sebelum purnama, disebut ....","Bulan cembung awal",["Bulan sabit awal","kuartal ketiga","Bulan baru"],"Bulan cembung awal muncul di antara kuartal pertama dan purnama."],[3,"Urutan fase Bulan yang benar adalah ....","Bulan baru, sabit, kuartal pertama, cembung, purnama",["purnama, sabit, Bulan baru, cembung","sabit, purnama, Bulan baru, kuartal pertama","Bulan baru, purnama, sabit, cembung"],"Bulan tampak membesar bertahap dari Bulan baru hingga purnama."],[2,"Setelah purnama, Bulan akan tampak ....","semakin mengecil",["semakin membesar","tetap bulat","langsung hilang"],"Setelah purnama, Bulan berangsur mengecil menuju Bulan baru."],[3,"Fase Bulan sebelum kembali ke Bulan baru adalah ....","Bulan sabit akhir",["Bulan cembung awal","Bulan purnama","kuartal pertama"],"Sabit akhir adalah fase terakhir sebelum Bulan baru."],[3,"Fase kuartal ketiga terjadi setelah fase ....","Bulan cembung akhir",["Bulan sabit awal","Bulan baru","kuartal pertama"],"Urutannya: purnama, cembung akhir, kuartal ketiga, lalu sabit akhir."],[3,"Pada fase Bulan baru, posisi Bulan berada ....","di antara Matahari dan Bumi",["di belakang Bumi, jauh dari Matahari","di samping Matahari, jauh dari Bumi","tepat di atas Kutub Utara"],"Saat Bulan baru, Bulan berada di antara Matahari dan Bumi sehingga sisi terangnya membelakangi kita."],[3,"Pada fase purnama, posisi yang benar adalah ....","Bumi berada di antara Matahari dan Bulan",["Bulan berada di antara Matahari dan Bumi","Matahari berada di antara Bumi dan Bulan","Bulan berada di dekat Matahari"],"Saat purnama, Bumi berada di tengah sehingga seluruh sisi Bulan yang menghadap Bumi terkena cahaya Matahari."],[3,"Pada fase Bulan baru, Bulan tidak terlihat karena ....","sisi Bulan yang terkena cahaya membelakangi Bumi",["Bulan sedang berada di balik Matahari","Bulan keluar dari orbitnya","Bulan tertutup bayangan Bumi"],"Sisi terang Bulan menghadap Matahari, bukan ke Bumi."],[3,"Bulan purnama dapat terlihat sepanjang malam karena ....","Bulan berada di sisi yang berlawanan dengan Matahari",["Bulan memancarkan cahaya sendiri","Bulan berada sangat dekat dengan Matahari","Bumi berhenti berotasi"],"Saat purnama, Bulan berseberangan dengan Matahari sehingga terbit ketika Matahari terbenam."],[2,"Bulan purnama terjadi sekitar ... hari setelah Bulan baru.","15",["7","22","29"],"Purnama terjadi kira-kira di tengah siklus 29½ hari, yaitu sekitar hari ke-15."],[3,"Pada fase kuartal pertama, Bulan telah menempuh sekitar ... perjalanannya mengelilingi Bumi, dihitung dari Bulan baru.","seperempat",["setengah","tiga perempat","seluruh"],"Kuartal berarti seperempat; kuartal pertama terjadi setelah seperempat perjalanan."],[2,"Dalam satu tahun, Bulan mengelilingi Bumi sekitar ... kali.","12",["1","6","24"],"Satu siklus Bulan sekitar 29½ hari, sehingga dalam setahun terjadi sekitar 12 kali."],[3,"Perhatikan pernyataan berikut: (1) tidak memancarkan cahaya sendiri, (2) memiliki air cair yang melimpah, (3) permukaannya berkawah, (4) satelit alami Bumi. Pernyataan yang benar tentang Bulan adalah ....","(1), (3), dan (4)",["(1), (2), dan (3)","(2), (3), dan (4)","(1), (2), dan (4)"],"Bulan tidak memiliki air cair yang melimpah, jadi pernyataan (2) salah."],[2,"Bulan disebut satelit karena ....","beredar mengelilingi planet Bumi",["memancarkan cahaya sendiri","ukurannya lebih besar dari Bumi","tidak memiliki gravitasi"],"Satelit adalah benda langit yang mengelilingi planet."],[1,"Benda langit berikut yang tidak memancarkan cahaya sendiri adalah ....","Bulan",["Matahari","bintang Sirius","bintang Polaris"],"Bulan hanya memantulkan cahaya Matahari; Matahari dan bintang memancarkan cahaya sendiri."],[1,"Kalender yang penanggalannya didasarkan pada peredaran Bulan adalah ....","kalender Hijriah",["kalender Masehi","kalender Syamsiah","kalender Matahari"],"Kalender Hijriah (Qamariyah) didasarkan pada peredaran Bulan mengelilingi Bumi."],[2,"Kalender Hijriah digunakan untuk menentukan ....","awal bulan Ramadan dan hari raya Islam",["tanggal Tahun Baru Masehi","tahun kabisat","hari kemerdekaan Indonesia"],"Awal Ramadan, Idulfitri, dan Iduladha ditentukan dengan kalender Hijriah."],[2,"Satu tahun Hijriah lebih pendek daripada satu tahun Masehi karena ....","didasarkan pada peredaran Bulan",["didasarkan pada rotasi Bumi","tidak memiliki bulan Februari","hanya memiliki 10 bulan"],"12 kali peredaran Bulan (±354 hari) lebih pendek dari satu revolusi Bumi (±365 hari)."],[1,"Peristiwa naik turunnya permukaan air laut terutama disebabkan oleh gaya tarik ....","Bulan",["Mars","Yupiter","angin"],"Gaya gravitasi Bulan adalah penyebab utama pasang surut air laut."],[1,"Gaya tarik Bulan terhadap Bumi menyebabkan ....","pasang surut air laut",["pergantian musim","siang dan malam","perbedaan zona waktu"],"Gravitasi Bulan menarik air laut sehingga terjadi pasang surut."],[3,"Saat Bulan purnama dan Bulan baru, pasang air laut biasanya ....","paling tinggi",["paling rendah","tidak terjadi","sama seperti biasa"],"Saat purnama dan Bulan baru, gaya tarik Bulan dan Matahari searah sehingga pasang menjadi paling tinggi."],[2,"Manfaat pasang surut air laut bagi manusia adalah ....","pembangkit listrik tenaga pasang surut",["membuat hujan buatan","menentukan zona waktu","mencegah gerhana"],"Gerakan air saat pasang surut dapat dimanfaatkan untuk menghasilkan listrik."],[2,"Manusia dapat melompat lebih tinggi di Bulan karena ....","gravitasi Bulan lebih kecil daripada gravitasi Bumi",["Bulan tidak memiliki gravitasi sama sekali","Bulan berputar sangat cepat","permukaan Bulan sangat lunak"],"Gravitasi Bulan hanya sekitar seperenam gravitasi Bumi."],[1,"Manusia pertama yang mendarat di Bulan pada tahun 1969 berasal dari negara ....","Amerika Serikat",["Rusia","Jepang","Inggris"],"Neil Armstrong dari Amerika Serikat menjadi manusia pertama yang mendarat di Bulan pada tahun 1969."],[3,"Peredaran Bulan bermanfaat bagi manusia, KECUALI ....","menentukan pergantian musim kemarau dan hujan",["dasar penanggalan kalender Hijriah","menyebabkan pasang surut air laut","menjadi penerang alami di malam hari"],"Pergantian musim di Indonesia dipengaruhi angin muson dan revolusi Bumi, bukan peredaran Bulan."],[1,"Gerhana adalah peristiwa ....","tertutupnya benda langit oleh bayangan benda langit lain",["bergantinya siang dan malam","pergantian musim","munculnya bintang jatuh"],"Gerhana terjadi saat benda langit tertutup bayangan benda langit lain."],[1,"Gerhana terjadi ketika Matahari, Bumi, dan Bulan ....","berada dalam satu garis lurus",["membentuk segitiga","saling menjauh","berada di sisi yang berbeda"],"Gerhana terjadi bila ketiganya sejajar dalam satu garis lurus atau hampir lurus."],[2,"Bayangan inti yang gelap disebut ....","umbra",["penumbra","orbit","ekuinoks"],"Umbra adalah bayangan inti yang paling gelap."],[2,"Bayangan kabur di sekitar umbra disebut ....","penumbra",["umbra","aphelion","solstis"],"Penumbra adalah bayangan samar di sekitar umbra."],[1,"Gerhana Matahari terjadi ketika ....","Bulan berada di antara Matahari dan Bumi",["Bumi berada di antara Matahari dan Bulan","Matahari berada di antara Bumi dan Bulan","Bulan berada di belakang Bumi"],"Bulan menghalangi cahaya Matahari yang menuju Bumi."],[1,"Susunan posisi benda langit saat gerhana Matahari adalah ....","Matahari – Bulan – Bumi",["Matahari – Bumi – Bulan","Bumi – Matahari – Bulan","Bulan – Matahari – Bumi"],"Bulan berada di tengah, di antara Matahari dan Bumi."],[2,"Gerhana Matahari hanya dapat terjadi saat fase ....","Bulan baru",["Bulan purnama","kuartal pertama","Bulan cembung"],"Saat Bulan baru, Bulan berada di antara Matahari dan Bumi."],[1,"Gerhana Matahari terjadi pada ....","siang hari",["malam hari","tengah malam","dini hari sebelum Matahari terbit"],"Gerhana Matahari terjadi saat Matahari sedang terlihat, yaitu siang hari."],[2,"Gerhana Matahari hanya dapat dilihat dari sebagian kecil wilayah Bumi karena ....","bayangan Bulan yang jatuh ke Bumi berukuran kecil",["Matahari lebih kecil dari Bumi","gerhana Matahari hanya terjadi di kutub","Bumi berhenti berotasi saat gerhana"],"Bulan lebih kecil dari Bumi sehingga bayangannya hanya menutupi sebagian kecil permukaan Bumi."],[3,"Gerhana Matahari total terjadi di daerah yang terkena ....","umbra Bulan",["penumbra Bulan","umbra Bumi","penumbra Bumi"],"Daerah yang berada di umbra Bulan melihat Matahari tertutup seluruhnya."],[3,"Daerah yang terkena penumbra Bulan akan mengalami gerhana Matahari ....","sebagian",["total","cincin","penumbra"],"Di daerah penumbra, Matahari hanya tertutup sebagian."],[3,"Gerhana Matahari cincin terjadi ketika ....","Bulan berada di titik terjauh dari Bumi sehingga tampak lebih kecil dari Matahari",["Bulan berada paling dekat dengan Bumi","Bumi berada di antara Matahari dan Bulan","Bulan masuk ke umbra Bumi"],"Bulan yang tampak lebih kecil tidak menutupi seluruh Matahari sehingga tersisa cincin cahaya."],[2,"Saat gerhana Matahari total, keadaan langit di siang hari menjadi ....","gelap sesaat",["lebih terang","merah sepanjang hari","tidak berubah"],"Cahaya Matahari tertutup seluruhnya sehingga langit gelap sebentar."],[1,"Cara yang aman untuk mengamati gerhana Matahari adalah ....","menggunakan kacamata khusus gerhana",["melihat langsung dengan mata telanjang","memakai kacamata hitam biasa","menggunakan teropong biasa"],"Kacamata khusus gerhana melindungi mata dari cahaya Matahari yang merusak."],[1,"Melihat gerhana Matahari secara langsung tanpa pelindung berbahaya karena dapat ....","merusak mata secara permanen",["membuat kulit gatal","menyebabkan demam","membuat rambut rontok"],"Cahaya Matahari yang sangat kuat dapat merusak mata secara permanen."],[2,"Alat sederhana yang dapat dibuat sendiri untuk mengamati gerhana Matahari secara aman adalah ....","kamera lubang jarum",["cermin datar","kacamata hitam","teropong mainan"],"Kamera lubang jarum memproyeksikan bayangan Matahari sehingga kita tidak perlu melihat langsung."],[1,"Gerhana Bulan terjadi ketika ....","Bumi berada di antara Matahari dan Bulan",["Bulan berada di antara Matahari dan Bumi","Matahari berada di antara Bumi dan Bulan","Bulan berada di samping Matahari"],"Bayangan Bumi menutupi Bulan karena Bumi berada di tengah."],[1,"Susunan posisi benda langit saat gerhana Bulan adalah ....","Matahari – Bumi – Bulan",["Matahari – Bulan – Bumi","Bulan – Matahari – Bumi","Bumi – Matahari – Bulan"],"Bumi berada di tengah sehingga bayangannya jatuh ke Bulan."],[2,"Gerhana Bulan hanya dapat terjadi saat fase ....","Bulan purnama",["Bulan baru","Bulan sabit","kuartal ketiga"],"Saat purnama, Bumi berada di antara Matahari dan Bulan."],[1,"Gerhana Bulan terjadi pada ....","malam hari",["siang hari","tengah hari","sore hari sebelum Matahari terbenam"],"Gerhana Bulan terjadi saat Bulan purnama terlihat, yaitu malam hari."],[2,"Gerhana Bulan dapat dilihat dari wilayah yang lebih luas daripada gerhana Matahari karena ....","dapat dilihat dari seluruh wilayah Bumi yang sedang malam hari",["Bulan lebih besar dari Matahari","terjadi pada siang hari","hanya terjadi di khatulistiwa"],"Semua tempat yang sedang malam dan dapat melihat Bulan bisa menyaksikan gerhana Bulan."],[2,"Saat gerhana Bulan total, Bulan sering tampak berwarna ....","kemerahan",["hijau","biru terang","putih menyilaukan"],"Cahaya Matahari dibiaskan atmosfer Bumi sehingga Bulan tampak kemerahan."],[3,"Bulan tampak kemerahan saat gerhana Bulan total karena ....","cahaya Matahari dibiaskan oleh atmosfer Bumi",["Bulan terbakar","Bulan memancarkan cahaya merah sendiri","Bulan tertutup debu dari Mars"],"Atmosfer Bumi membelokkan cahaya merah sampai ke permukaan Bulan."],[2,"Julukan untuk Bulan yang tampak merah saat gerhana Bulan total adalah ....","bulan darah",["bulan biru","bulan sabit","bulan baru"],"Bulan merah saat gerhana total sering disebut bulan darah."],[3,"Gerhana Bulan total terjadi ketika seluruh Bulan masuk ke ....","umbra Bumi",["penumbra Bumi","umbra Bulan","penumbra Matahari"],"Seluruh Bulan berada di dalam bayangan inti Bumi."],[3,"Gerhana Bulan sebagian terjadi ketika ....","hanya sebagian Bulan masuk ke umbra Bumi",["seluruh Bulan masuk ke umbra Bumi","Bulan berada di titik terjauh","Bulan menutupi sebagian Matahari"],"Pada gerhana Bulan sebagian, hanya sebagian Bulan tertutup umbra Bumi."],[3,"Gerhana Bulan yang paling sulit diamati karena Bulan hanya tampak sedikit redup adalah gerhana Bulan ....","penumbra",["total","sebagian","cincin"],"Pada gerhana penumbra, Bulan hanya melewati bayangan kabur Bumi."],[3,"Jenis gerhana yang hanya terjadi pada gerhana Matahari adalah gerhana ....","cincin",["total","sebagian","penumbra"],"Gerhana cincin hanya terjadi pada gerhana Matahari, saat Bulan tampak lebih kecil dari Matahari."],[3,"Jenis gerhana yang hanya terjadi pada gerhana Bulan adalah gerhana ....","penumbra",["cincin","total","sebagian"],"Gerhana penumbra merupakan jenis gerhana Bulan; total dan sebagian ada pada kedua jenis gerhana."],[2,"Gerhana Bulan aman dilihat langsung dengan mata telanjang karena ....","cahaya Bulan tidak menyilaukan dan tidak merusak mata",["Bulan memancarkan cahaya sendiri yang lembut","terjadi pada siang hari","Bulan selalu tertutup awan"],"Cahaya Bulan hanyalah pantulan yang lemah sehingga aman bagi mata."],[3,"Gerhana tidak terjadi setiap bulan karena ....","orbit Bulan sedikit miring terhadap orbit Bumi",["Bulan berhenti berevolusi","Matahari terlalu jauh","Bumi tidak berotasi setiap bulan"],"Kemiringan orbit Bulan membuat Matahari, Bumi, dan Bulan jarang tepat segaris."],[3,"Kemiringan orbit Bulan terhadap orbit Bumi sekitar ....","5°",["23,5°","45°","90°"],"Orbit Bulan miring sekitar 5° terhadap orbit Bumi."],[1,"Pada gerhana Matahari, benda langit yang menghalangi cahaya Matahari adalah ....","Bulan",["Bumi","Mars","Venus"],"Bulan menghalangi cahaya Matahari yang menuju Bumi."],[1,"Pada gerhana Bulan, benda langit yang bayangannya menutupi Bulan adalah ....","Bumi",["Matahari","Venus","Mars"],"Bayangan Bumi jatuh ke permukaan Bulan."],[3,"Perhatikan ciri berikut: (1) terjadi saat Bulan purnama, (2) terjadi siang hari, (3) dapat dilihat dari wilayah yang luas, (4) ada jenis cincin. Ciri gerhana Bulan ditunjukkan oleh nomor ....","(1) dan (3)",["(1) dan (2)","(2) dan (4)","(3) dan (4)"],"Gerhana Bulan terjadi saat purnama dan terlihat dari wilayah luas; siang hari dan jenis cincin adalah ciri gerhana Matahari."],[2,"Gerhana Matahari dan gerhana Bulan biasanya terjadi berpasangan dengan selang waktu sekitar ....","2 minggu",["1 hari","6 bulan","1 tahun"],"Dari Bulan baru ke purnama (atau sebaliknya) dibutuhkan sekitar 2 minggu."],[3,"Para ahli dapat mengetahui waktu terjadinya gerhana jauh-jauh hari karena ....","gerak Matahari, Bumi, dan Bulan teratur sehingga dapat dihitung",["gerhana selalu terjadi setiap tanggal 1","gerhana terjadi secara acak","ada tanda dari perilaku hewan"],"Gerakan benda langit sangat teratur sehingga waktu gerhana dapat dihitung."],[3,"Ketika gerhana Bulan total terjadi di Indonesia pada malam hari, penduduk di negara yang sedang siang hari ....","tidak dapat melihat gerhana tersebut",["melihat gerhana lebih jelas","mengalami gerhana Matahari","melihat Bulan berwarna biru"],"Gerhana Bulan hanya terlihat dari wilayah yang sedang malam dan dapat melihat Bulan."],[3,"Saat terjadi gerhana Matahari total di suatu daerah, daerah lain di sekitarnya yang lebih jauh akan mengalami gerhana Matahari ....","sebagian",["total juga","cincin","penumbra"],"Daerah di sekitar umbra terkena penumbra Bulan sehingga hanya mengalami gerhana sebagian."],[3,"Pernyataan yang benar tentang perbedaan gerhana Matahari dan gerhana Bulan adalah ....","gerhana Matahari terjadi saat Bulan baru, gerhana Bulan saat purnama",["gerhana Matahari terjadi malam hari, gerhana Bulan siang hari","keduanya terjadi saat Bulan purnama","gerhana Bulan berbahaya dilihat langsung"],"Gerhana Matahari terjadi saat Bulan baru (siang hari), gerhana Bulan saat purnama (malam hari)."]];
+const TataSurya = {
+  materi:[
+    {id:"tatasurya", label:"Tata Surya"},
+    {id:"rotasi", label:"Rotasi Bumi"},
+    {id:"revolusi", label:"Revolusi Bumi"},
+    {id:"bulan", label:"Bulan & fase Bulan"},
+    {id:"gerhana", label:"Gerhana"},
+    {id:"campur", label:"Semua materi"}
+  ],
+  levels:[ {id:"1", label:"Mudah"}, {id:"2", label:"Sedang"}, {id:"3", label:"Sulit"} ],
+  bags:{},
+  make(materi, level){
+    const key=materi+level;
+    if(!this.bags[key]?.length){
+      const mi=this.materi.findIndex(m=>m.id===materi);
+      this.bags[key]=shuffle(SOAL.map((r,i)=>({r,n:i+1,m:Math.floor(i/40)}))
+        .filter(x=>x.r[0]===+level && (materi==="campur"||x.m===mi)));
+    }
+    const {r,n}=this.bags[key].pop();
+    return {n, q:r[1], a:r[2], w:r[3], p:r[4]};
+  }
+};
+
+/* Kecilkan huruf soal & jawaban bertahap sampai semuanya muat di panel */
+function fitPanel(el){
+  const q=el.querySelector(".q"); if(!q || !el.classList.contains("mine")) return;
+  let k=1; el.style.setProperty("--k",k);
+  const over=()=>q.scrollHeight>q.clientHeight+1 || el.scrollHeight>el.clientHeight+1;
+  while(over() && k>.6){ k=Math.round((k-.05)*100)/100; el.style.setProperty("--k",k) }
+}
+/* Panel soal pilihan ganda. next(): soal biasa (salah → jawaban & pembahasan tampil), bonus(q, selesai): soal bonus */
+function quizPanel(el, api, makeQ){
+  el.insertAdjacentHTML("beforeend",`<div class="q"></div><div class="opts"></div>`);
+  const qEl=el.querySelector(".q"), oEl=el.querySelector(".opts");
+  let gen=0;
+  const show=(q,handler)=>{
+    const g=++gen;
+    qEl.className="q"+(q.long?" long":""); oEl.className="opts"+(q.longOpts?" long":""); qEl.innerHTML=`<span>${q.html}</span>`;
+    oEl.innerHTML=q.opts.map((o,j)=>`<button class="opt" type="button" data-l="${"ABCD"[j]}" data-k="${esc(o.key)}">${o.label}</button>`).join("");
+    fitPanel(el);
+    oEl.querySelectorAll(".opt").forEach(b=>b.addEventListener("pointerdown",e=>{
+      e.preventDefault();
+      if(!api.active()) return;
+      const good=b.dataset.k===q.key;
+      b.classList.add(good?"ok":"bad");
+      handler(good,g);
+    }));
+    api.onShow?.(q,g);
+  };
+  const reveal=q=>oEl.querySelectorAll(".opt").forEach(x=>{ if(x.dataset.k===q.key) x.classList.add("ok") });
+  const ctrl={
+    next(){ const q=makeQ(); show(q,(good,g)=>{
+      if(good){ api.point(); setTimeout(()=>{ if(gen===g) ctrl.next() },250) }
+      else { reveal(q); api.miss(5000,()=>{ if(gen===g) ctrl.next() }, false, q.expl) }
+    })},
+    bonus(q,done){ show(q,(good,g)=>{
+      if(good) done();
+      else api.miss(1200,()=>{ if(gen===g) ctrl.bonus(q,done) }, true);
+    })}
+  };
+  new ResizeObserver(()=>fitPanel(el)).observe(el);
+  document.fonts?.ready.then(()=>fitPanel(el));
+  ctrl.next();
+  return ctrl;
+}
+
+/* ======================= SUARA (dibuat langsung dengan Web Audio, tanpa file) ======================= */
+const Sound = {
+  ctx:null, on:true, danger:0, bonus:false, playing:false,
+  init(){
+    if(this.ctx){ this.ctx.resume(); return }
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    const c=this.ctx=new AC();
+    this.master=c.createGain(); this.master.gain.value=this.on?.9:0;
+    const comp=c.createDynamicsCompressor(); this.master.connect(comp); comp.connect(c.destination);
+    this.music=c.createGain(); this.music.gain.value=0; this.music.connect(this.master);
+    const b=c.createBuffer(1,c.sampleRate*2,c.sampleRate), d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    this.noiseBuf=b;
+    // angin ngarai
+    const wn=c.createBufferSource(); wn.buffer=b; wn.loop=true;
+    const wf=c.createBiquadFilter(); wf.type="bandpass"; wf.frequency.value=420; wf.Q.value=.8;
+    const wg=c.createGain(); wg.gain.value=.05;
+    wn.connect(wf); wf.connect(wg); wg.connect(this.master); wn.start();
+    const lfo=c.createOscillator(); lfo.frequency.value=.13; const lg=c.createGain(); lg.gain.value=260;
+    lfo.connect(lg); lg.connect(wf.frequency); lfo.start();
+    this.windG=wg;
+    // dengung tegang (nada rendah yang bergesekan)
+    const df=c.createBiquadFilter(); df.type="lowpass"; df.frequency.value=200;
+    const dg=c.createGain(); dg.gain.value=0;
+    this.drone=[[55,"sawtooth"],[82.4,"sawtooth"],[58.3,"sine"]].map(([f,t])=>{
+      const o=c.createOscillator(); o.type=t; o.frequency.value=f; o.connect(df); o.start(); return o });
+    df.connect(dg); dg.connect(this.music);
+    this.droneF=df; this.droneG=dg;
+    this.next=0; this.step=0; this.hb=0;
+    setInterval(()=>this.schedule(),25);
+  },
+  get now(){ return this.ctx.currentTime },
+  setOn(v){ this.on=v; if(this.ctx) this.master.gain.setTargetAtTime(v?.9:0,this.now,.05) },
+  startMusic(){ if(!this.ctx) return; this.playing=true; this.next=this.now+.05; this.step=0;
+    this.music.gain.setTargetAtTime(1,this.now,.3) },
+  stopMusic(){ if(!this.ctx) return; this.playing=false;
+    this.music.gain.setTargetAtTime(0,this.now,.25); this.droneG.gain.setTargetAtTime(0,this.now,.25) },
+  setDanger(d,bonus){
+    this.danger=d; this.bonus=bonus; if(!this.ctx) return;
+    const t=this.now;
+    this.droneF.frequency.setTargetAtTime(170+d*1100+(bonus?300:0),t,.4);
+    this.drone[0].frequency.setTargetAtTime(55*(1+d*.06),t,.4);
+    this.droneG.gain.setTargetAtTime(this.playing?.035+d*.09:0,t,.4);
+    this.windG.gain.setTargetAtTime(.04+d*.06,t,.6);
+  },
+  schedule(){
+    if(!this.playing || !this.ctx) return;
+    const d=this.danger, bpm=92+d*84+(this.bonus?12:0), sp=60/bpm/2, lim=this.now+.12;
+    while(this.next<lim){
+      const s=this.step%16, t=this.next;
+      if([0,6,8,11,14].includes(s)) this.tom(t, s%8===0?68:96, s%8===0?.55:.32);
+      if(d>.35 && (s===4||s===12)) this.tom(t,150,.25);
+      if(d>.7 && s%4===2) this.tom(t,120,.18);
+      if(d>.55 || s%2===0) this.shaker(t, d>.55?.05:.03);
+      if(s===0 && (d>.5||this.bonus)) this.stab(t);
+      this.next+=sp; this.step++;
+    }
+    if(d>.45){
+      const period=1.05-d*.55;
+      if(this.hb<this.now) this.hb=this.now+.05;
+      while(this.hb<lim){ this.thump(this.hb,.7); this.thump(this.hb+.17,.45); this.hb+=period }
+    }
+  },
+  /* bahan dasar */
+  env(t,peak,dur,dest){ const g=this.ctx.createGain();
+    g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(peak,t+.006);
+    g.gain.exponentialRampToValueAtTime(.0001,t+dur); g.connect(dest||this.master); return g },
+  osc(type,f,t,dur,peak,dest,f2){ const o=this.ctx.createOscillator(); o.type=type;
+    o.frequency.setValueAtTime(f,t); if(f2) o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+    o.connect(this.env(t,peak,dur,dest)); o.start(t); o.stop(t+dur+.05) },
+  noise(t,dur,peak,type,freq,q,dest){ const s=this.ctx.createBufferSource(); s.buffer=this.noiseBuf;
+    const f=this.ctx.createBiquadFilter(); f.type=type; f.frequency.value=freq; f.Q.value=q||1;
+    s.connect(f); f.connect(this.env(t,peak,dur,dest)); s.start(t,Math.random()*1.5); s.stop(t+dur+.05) },
+  tom(t,f,v){ this.osc("sine",f*1.7,t,.38,v,this.music,f*.55); this.noise(t,.05,v*.25,"lowpass",900,1,this.music) },
+  shaker(t,v){ this.noise(t,.035,v,"highpass",6500,1,this.music) },
+  stab(t){ this.osc("sawtooth",110,t,.7,.035,this.music); this.osc("sawtooth",116.5,t,.7,.035,this.music) },
+  thump(t,v){ this.osc("sine",62,t,.2,v*.55,this.music,34) },
+  ok(){ return this.ctx && this.on },
+  /* efek */
+  stepWood(t){ this.osc("triangle",230,t,.09,.18,null,150); this.noise(t,.05,.1,"bandpass",1300,2) },
+  correct(){ if(!this.ok()) return; const t=this.now;
+    this.osc("triangle",660,t,.18,.22); this.osc("triangle",990,t+.08,.22,.2);
+    this.stepWood(t+.1); this.stepWood(t+.32) },
+  wrong(){ if(!this.ok()) return; const t=this.now;
+    this.osc("triangle",150,t,.35,.35,null,70); this.noise(t,.18,.25,"lowpass",320) },
+  crack(big){ if(!this.ok()) return; const t=this.now, n=big?9:4;
+    for(let i=0;i<n;i++){ const tt=t+i*(.02+Math.random()*.03);
+      this.noise(tt,.025,big?.55:.4,"highpass",2400+Math.random()*1500);
+      this.osc("square",1600+Math.random()*600,tt,.03,.04,null,300) }
+    this.osc("triangle",120,t,.2,big?.35:.2,null,60) },
+  creak(){ if(!this.ok()) return; const t=this.now, c=this.ctx;
+    const o=c.createOscillator(); o.type="sawtooth";
+    const f=c.createBiquadFilter(); f.type="bandpass"; f.frequency.value=950; f.Q.value=7;
+    const curve=new Float32Array(24).map((_,i)=>170+Math.sin(i*1.9)*40+i*4);
+    o.frequency.setValueCurveAtTime(curve,t,.55);
+    o.connect(f); f.connect(this.env(t,.22,.6)); o.start(t); o.stop(t+.65);
+    this.osc("triangle",98,t,.7,.25,null,92) },
+  splash(t,v){ this.noise(t,.9,v*.8,"lowpass",260,.7); this.osc("sine",70,t,.6,v*.5,null,35) },
+  breakPlank(){ if(!this.ok()) return; this.crack(true); const t=this.now;
+    this.osc("sine",950,t+.15,1.0,.12,null,140); this.splash(t+1.15,.45);
+    [0,.18,.36].forEach((d,i)=>this.osc("square",i%2?660:880,t+.5+d,.14,.08)) },
+  crumble(){ if(!this.ok()) return; const t=this.now;
+    this.noise(t,.35,.18,"lowpass",520); this.osc("triangle",90,t,.25,.12,null,50); this.splash(t+1.25,.1) },
+  done(){ if(!this.ok()) return; this.osc("sine",1250,this.now,.15,.18) },
+  patch(){ if(!this.ok()) return; const t=this.now;
+    [0,.16,.32].forEach(d=>{ this.osc("triangle",320,t+d,.07,.35,null,200); this.noise(t+d,.03,.25,"bandpass",2200,2) });
+    [784,988,1175,1568].forEach((f,i)=>this.osc("triangle",f,t+.5+i*.09,.35,.16)) },
+  warn(){ if(!this.ok()) return; const t=this.now;
+    this.osc("sine",330,t,.28,.12,null,660); this.osc("sine",330,t+.32,.28,.12,null,660) },
+  beep(){ if(!this.ok()) return; this.osc("square",440,this.now,.12,.09); this.tom(this.now,80,.4) },
+  go(){ if(!this.ok()) return; this.osc("square",880,this.now,.35,.1); this.tom(this.now,60,.6) },
+  win(){ if(!this.ok()) return; const t=this.now;
+    [523,659,784,1047].forEach((f,i)=>this.osc("triangle",f,t+i*.12,.3,.22));
+    [523,659,784].forEach(f=>this.osc("triangle",f,t+.55,1.4,.14));
+    [0,.1,.2,.3].forEach(d=>this.osc("sine",160+d*300,t+d,.3,.35,null,70)) },
+  lose(){ if(!this.ok()) return; const t=this.now;
+    this.noise(t,.08,.6,"highpass",3000); this.crack(true);
+    this.osc("sawtooth",420,t+.1,1.3,.14,null,40); this.splash(t+1.4,.7);
+    this.osc("sine",55,t+1.4,.9,.5,null,30) }
+};
+
+/* ======================= GAME ======================= */
+const GAME = {
+  name:"Lompat Sabuk Asteroid",
+  intro:"Kamu dan Robo menyeberangi sabuk asteroid dari Mars ke Yupiter.",
+  levels:TataSurya.levels,
+  materi:TataSurya.materi,
+  defaults:{materi:"campur", level:"1", planks:16, speed:"sedang"},
+  options:[
+    {key:"planks", label:"Panjang sabuk (batu asteroid)", items:[[12,"12"],[16,"16"],[20,"20"]]},
+    {key:"speed", label:"Kecepatan badai matahari", items:[["santai","Santai"],["sedang","Sedang"],["cepat","Cepat"]]}
+  ],
+  SPEED:{santai:.05, sedang:.075, cepat:.1},   // batu per detik
+  ROPE:3, MAX_WRONG:3, START_GAP:4,
+  reduce: matchMedia("(prefers-reduced-motion: reduce)").matches,
+  meta(cfg){ return `${TataSurya.materi.find(m=>m.id===cfg.materi).label} · ${TataSurya.levels.find(l=>l.id===cfg.level).label} · Robo ${AI_LV[cfg.ai].label}` },
+
+  makeQ(){
+    const q=TataSurya.make(this.cfg.materi,this.cfg.level), opts=shuffle([q.a,...q.w]);
+    return {html:esc(q.q), text:q.q, key:q.a, long:q.q.length>95, longOpts:opts.some(o=>o.length>32),
+      opts:opts.map(o=>({key:o, label:esc(o)})),
+      expl:`<b>Jawaban: ${esc(q.a)}</b> ${esc(q.p)} <i>(soal no. ${q.n})</i>`};
+  },
+
+  renderMain(el, players, cfg){
+    const n=players.length;
+    Object.assign(this,{players, cfg, n, N:cfg.planks, pos:Array(n).fill(0), disp:Array(n).fill(0),
+      ph:Array(n).fill(0), wrongs:Array(n).fill(0), breaks:Array(n).fill(0),
+      broken:-1, hang:-1, patched:new Set(), c:-this.START_GAP, gone:-1,
+      state:"idle", t:0, endT:0, elapsed:0, dangerLv:0, warned:false, shake:0, taut:0, texts:[], falling:[], dust:[], ctrls:[], done:new Set()});
+    el.innerHTML=`<canvas aria-label="Astronot menyeberangi sabuk asteroid"></canvas><div class="banner" id="banner" hidden></div>`;
+    this.cv=el.querySelector("canvas"); this.cx=this.cv.getContext("2d");
+    this.fit();
+    this.ro?.disconnect(); this.ro=new ResizeObserver(()=>this.fit()); this.ro.observe(el);
+    this.hud();
+    if(!this.raf){ this.last=performance.now(); this.raf=requestAnimationFrame(t=>this.frame(t)); }
+  },
+  fit(){
+    const b=this.cv.getBoundingClientRect(), dpr=Math.min(2,window.devicePixelRatio||1);
+    this.W=b.width; this.H=b.height;
+    this.cv.width=Math.max(1,Math.round(b.width*dpr)); this.cv.height=Math.max(1,Math.round(b.height*dpr));
+    this.cx.setTransform(dpr,0,0,dpr,0,0);
+  },
+  status(i){
+    const w=this.wrongs[i];
+    return `🪨 ${this.pos[i]}/${this.N} · <span class="dots">${"●".repeat(w)}${"○".repeat(this.MAX_WRONG-w)}</span>`;
+  },
+  hud(){
+    const $e=id=>document.getElementById(id); if(!$e("mProg")) return;
+    const min=Math.min(...this.pos), max=Math.max(...this.pos), safe=Math.max(0,min-this.c);
+    $e("mProg").textContent=`${min}/${this.N}`;
+    $e("bProg").style.width=(min/this.N*100)+"%";
+    $e("mSafe").textContent=safe.toFixed(1);
+    $e("bSafe").style.width=Math.min(100,safe/(this.START_GAP*2)*100)+"%";
+    $e("safeBox").classList.toggle("danger",safe<1.5);
+    const taut=max-min>=this.ROPE;
+    $e("ropeChip").classList.toggle("taut",taut);
+    $e("ropeTxt").textContent=taut?"Tegang!":"Kendur";
+    const bn=$e("banner"); if(!bn) return;
+    bn.hidden=this.state!=="bonus";
+    if(this.state==="bonus") bn.innerHTML=`<strong>Asteroid pecah!</strong><span>Jawab soal bonus bersama Robo untuk menarik temanmu</span>
+      <div class="ticks">${this.players.map((p,i)=>`<i class="${this.done.has(i)?"done":""}" style="border-color:${p.color}">${this.done.has(i)?"✓":""}</i>`).join("")}</div>`;
+  },
+
+  /* ---------- logika ---------- */
+  // teman AI menahan diri kalau tali sudah tegang
+  aiShouldWait(i){ return this.state==="play" && this.pos[i]-Math.min(...this.pos)>=this.ROPE },
+  createPanel(el, player, api, cfg, i){ this.ctrls[i]=quizPanel(el, api, ()=>this.makeQ()) },
+  xOfPos(p){ const g=this.geo(); return g.xL+p/this.N*g.span },
+  onPoint(i, ctx){
+    if(this.state!=="play") return;
+    const min=Math.min(...this.pos);
+    if(this.pos[i]+1-min > this.ROPE){
+      // tali tegang: maju sebentar lalu ditarik kembali
+      this.disp[i]=this.pos[i]+.7; this.taut=1;
+      this.texts.push({txt:"Tali tegang!",x:this.xOfPos(this.pos[i]),y:this.H*.36,col:"#D6452F",life:1});
+      ctx.note(i,"Tali tegang! Tunggu Robo",1600); Sound.creak();
+    } else {
+      this.pos[i]++; Sound.correct();
+      this.texts.push({txt:"+1",x:this.xOfPos(this.pos[i]),y:this.H*.38,col:"#2E9B57",life:1});
+    }
+    ctx.status(i,this.status(i)); this.hud();
+    if(this.pos.every(v=>v>=this.N)){ this.state="win"; this.endT=0; ctx.end(this.result(true)); }
+  },
+  onMiss(i, ctx){
+    if(this.state!=="play") return;
+    this.wrongs[i]++; this.shake=.3;
+    if(this.wrongs[i]>=this.MAX_WRONG) this.breakPlank(i,ctx);
+    else { Sound.wrong(); Sound.crack(false); }
+    ctx.status(i,this.status(i));
+  },
+  breakPlank(i, ctx){
+    this.wrongs[i]=0; this.breaks[i]++;
+    const p=Math.round(this.pos[i]);
+    this.broken=Math.min(this.N-1,Math.max(1,p));
+    this.patched.delete(this.broken);
+    this.hang=(p>=1 && p<=this.N-1)?i:-1;
+    this.dropPlank(this.broken); this.shake=.8; Sound.breakPlank();
+    this.state="bonus"; this.done=new Set();
+    const q=this.makeQ();
+    this.players.forEach((_,j)=>{
+      ctx.pulse(j,false); ctx.setWaiting(j,false);
+      this.ctrls[j].bonus(q,()=>{
+        this.done.add(j); ctx.setWaiting(j,true,"Beres! Tunggu temanmu"); Sound.done();
+        this.hud();
+        if(this.done.size===this.n) this.patch(ctx);
+      });
+      ctx.status(j,this.status(j));
+    });
+    this.hud();
+  },
+  patch(ctx){
+    Sound.patch();
+    this.patched.add(this.broken); this.broken=-1; this.hang=-1; this.state="play";
+    this.texts.push({txt:"Temanmu selamat!",x:this.W/2,y:this.H*.36,col:"#2E9B57",life:1.2});
+    this.players.forEach((_,j)=>{ ctx.setWaiting(j,false); this.ctrls[j].next() });
+    this.hud();
+  },
+  dropPlank(k){
+    const g=this.geo();
+    this.falling.push({x:g.X(k),y:g.Y(k),vx:(Math.random()-.5)*40*g.s,vy:-20*g.s,rot:0,vr:(Math.random()-.5)*4,k,
+      col:this.patched.has(k)?"#8FA6BF":(hash(k)>.5?"#8C7B6E":"#7A6B62")});
+  },
+  start(ctx){ this.ctx=ctx; this.state="play"; },
+  stop(){ if(this.state==="play"||this.state==="bonus") this.state="idle"; },
+  result(win){
+    const min=Math.min(...this.pos);
+    return {
+      icon: win?"🪐":"☀️",
+      title: win?"Semua astronot tiba di Yupiter!":"Badai matahari menyusul!",
+      text: win?"Kalian saling menunggu dan saling bantu. Coba sabuk yang lebih panjang atau tingkat yang lebih sulit?"
+               :`Tim tertahan di batu ${min} dari ${this.N}. Tim hanya secepat anggota paling lambat, jadi saling bantu!`,
+      rows: this.players.map((p,i)=>[p, `${p.score} benar · ${p.miss} salah · ${this.breaks[i]} batu pecah`])
+    };
+  },
+
+  /* ---------- loop ---------- */
+  frame(now){
+    if(!this.cv || !this.cv.isConnected){ this.raf=null; return }
+    const dt=Math.min(.05,(now-this.last)/1000); this.last=now; this.t+=dt;
+    const live=(this.state==="play"||this.state==="bonus") && !this.paused;
+    if(live){
+      this.elapsed=(this.elapsed||0)+dt;
+      const accel=1+Math.min(.6,this.elapsed/200);     // makin lama makin cepat
+      this.c+=this.SPEED[this.cfg.speed]*accel*(this.state==="bonus"?.5:1)*dt;
+      const safe0=Math.min(...this.pos)-this.c;
+      this.dangerLv=Math.max(0,Math.min(1,1-(safe0-.6)/3.4));
+      Sound.setDanger(this.dangerLv,this.state==="bonus");
+      if(safe0<1.5 && !this.warned){ this.warned=true; Sound.warn() }
+      if(safe0>2.2) this.warned=false;
+      if(this.dangerLv>.75 && !this.reduce) this.shake=Math.max(this.shake,.06+(this.dangerLv-.75)*.3);
+      const f=Math.floor(this.c);
+      while(this.gone<f){ this.gone++; const k=this.gone;
+        if(k>=1 && k<=this.N-1 && k!==this.broken){ this.dropPlank(k); Sound.crumble(); } }
+      const min=Math.min(...this.pos), max=Math.max(...this.pos);
+      if(this.state==="play"){
+        const taut=max-min>=this.ROPE;
+        this.players.forEach((p,j)=>{
+          this.ctx.setWaiting(j,this.pos[j]>=this.N,"Sudah sampai! Semangati temanmu");
+          this.ctx.pulse(j,taut && this.pos[j]===min && this.pos[j]<this.N);
+        });
+      }
+      if(this.c>=min && min<this.N){
+        this.state="lose"; this.endT=0; this.shake=1;
+        this.players.forEach((_,j)=>this.ctx.pulse(j,false));
+        this.ctx.end(this.result(false));
+      }
+      this.hud();
+    }
+    if(this.state==="win"||this.state==="lose") this.endT+=dt;
+    for(let i=0;i<this.n;i++){
+      const d=this.pos[i]-this.disp[i];
+      this.disp[i]+=d*Math.min(1,dt*(d<0?7:4));
+      const walking=Math.abs(d)>.03 || (this.state==="win" && this.endT<1.2);
+      this.ph[i]+=dt*(walking?9:0);
+    }
+    this.taut=Math.max(0,this.taut-dt*1.5);
+    this.shake=Math.max(0,this.shake-dt*2);
+    this.draw(dt);
+    this.raf=requestAnimationFrame(t=>this.frame(t));
+  },
+
+  /* ---------- gambar ---------- */
+  geo(){
+    const W=this.W, H=this.H, xL=W*.12, xR=W*.88, yT=H*.6, span=xR-xL, N=this.N;
+    const jit=this.reduce?0:Math.sin(this.t*40)*this.taut*H*.003;
+    const Y=p=>{ const u=Math.min(1,Math.max(0,p/N)), arc=Math.sin(Math.PI*u);
+      return yT-arc*H*.07+arc*((this.reduce?0:Math.sin(p*1.9+this.t*1.1)*H*.012)+jit) };
+    const X=p=>xL+p/N*span;
+    return {W,H,xL,xR,yT,span,X,Y,s:H/300,pw:span/N*.84};
+  },
+  circ(x,y,r){ const c=this.cx; c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill() },
+  ell(x,y,rx,ry){ const c=this.cx; c.beginPath(); c.ellipse(x,y,rx,ry,0,0,Math.PI*2); c.fill() },
+  rr(x,y,w,h,r){ const c=this.cx; c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
+    c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); c.fill() },
+  seg(pts,w,col){ const c=this.cx; c.strokeStyle=col; c.lineWidth=w; c.beginPath(); c.moveTo(...pts[0]);
+    for(let i=1;i<pts.length;i++) c.lineTo(...pts[i]); c.stroke() },
+  blob(x,y,rx,ry,k){ const c=this.cx; c.beginPath();
+    for(let j=0;j<10;j++){ const a=j/10*Math.PI*2, r=.82+hash(k*13+j)*.3, px=x+Math.cos(a)*rx*r, py=y+Math.sin(a)*ry*r; j?c.lineTo(px,py):c.moveTo(px,py) }
+    c.closePath(); c.fill() },
+  rock(x,y,k,patched,g){
+    const c=this.cx, s=g.s, rx=g.pw/2, ry=Math.max(9*s,g.pw*.34), cy=y+ry*.7;
+    c.fillStyle="#241E38"; this.blob(x,cy+2*s,rx+1.5*s,ry+1.5*s,k);
+    c.fillStyle=patched?"#8FA6BF":(hash(k)>.5?"#8C7B6E":"#7A6B62"); this.blob(x,cy,rx,ry,k);
+    c.fillStyle="rgba(255,236,200,.22)"; this.ell(x-rx*.25,cy-ry*.5,rx*.55,ry*.2);
+    c.fillStyle="rgba(0,0,0,.25)"; this.circ(x+rx*.3,cy+ry*.15,ry*.22); this.circ(x-rx*.35,cy+ry*.35,ry*.14);
+    if(patched){ c.fillStyle="#3D4A5C"; this.circ(x-rx*.55,cy,1.8*s); this.circ(x+rx*.55,cy,1.8*s) }
+  },
+  platform(side,g){
+    const c=this.cx, {W,xL,xR,yT,s}=g, edge=side<0?xL:xR, outer=side<0?-10:W+10, mars=side<0;
+    c.fillStyle=mars?"#A5442D":"#8C9DB8"; c.beginPath(); c.moveTo(outer,yT-2*s); c.lineTo(edge,yT-2*s);
+    for(let k=1;k<=6;k++) c.lineTo(edge+side*(k*k*3.2+hash(k*5+side+3)*8-4)*s, yT+k*22*s);
+    c.lineTo(outer,yT+150*s); c.closePath(); c.fill();
+    c.fillStyle=mars?"#D8774C":"#DCE5F2"; c.fillRect(Math.min(outer,edge),yT-6*s,Math.abs(edge-outer),7*s);
+    c.fillStyle=mars?"#6E2A1C":"#5D6C86";
+    for(let k=0;k<4;k++) this.ell(edge+side*(28+k*36)*s, yT+(18+hash(k+side*7+20)*40)*s, (6+hash(k+11)*6)*s, (3+hash(k+13)*2)*s);
+    // tiang lampu penambat
+    const px=edge+side*6*s;
+    c.fillStyle="#4A5568"; this.rr(px-3*s,yT-40*s,6*s,40*s,2*s);
+    c.fillStyle=mars?"#FFB347":"#7CF0B5"; this.circ(px,yT-42*s,4*s);
+    if(mars){ const hx=xL-48*s; c.fillStyle="#E9EEF6"; c.beginPath(); c.arc(hx,yT-6*s,22*s,Math.PI,0); c.fill();
+      c.fillStyle="#7FB3E0"; c.beginPath(); c.arc(hx,yT-6*s,14*s,Math.PI,0); c.fill() }
+    else { c.fillStyle="#4A5568"; c.fillRect(xR+40*s,yT-70*s,4*s,70*s);
+      c.fillStyle="#2E9B57"; c.beginPath(); c.moveTo(xR+44*s,yT-70*s);
+      c.quadraticCurveTo(xR+60*s,yT-66*s+Math.sin(this.t*4)*3*s,xR+76*s,yT-62*s); c.lineTo(xR+44*s,yT-52*s); c.fill() }
+    c.fillStyle="rgba(255,255,255,.75)"; c.font=`800 ${Math.round(11*s)}px "Baloo 2", system-ui, sans-serif`; c.textAlign="center";
+    c.fillText(mars?"MARS":"YUPITER",(Math.max(0,Math.min(outer,edge))+Math.min(W,Math.max(outer,edge)))/2,yT+30*s);
+  },
+
+  draw(dt){
+    const c=this.cx; if(!this.W||!this.H) return;
+    const g=this.geo(), {W,H,xL,xR,yT,X,Y,s,pw}=g, t=this.t, N=this.N, live=this.state==="play"||this.state==="bonus";
+    c.save();
+    if(this.shake>0 && !this.reduce) c.translate((Math.random()-.5)*14*this.shake,(Math.random()-.5)*8*this.shake);
+
+    // angkasa, nebula, bintang
+    const sky=c.createLinearGradient(0,0,0,H); sky.addColorStop(0,"#060A1C"); sky.addColorStop(1,"#17204A");
+    c.fillStyle=sky; c.fillRect(-20,-20,W+40,H+40);
+    const neb=c.createRadialGradient(W*.62,H*.82,0,W*.62,H*.82,W*.45);
+    neb.addColorStop(0,"rgba(120,80,200,.28)"); neb.addColorStop(1,"rgba(120,80,200,0)");
+    c.fillStyle=neb; c.fillRect(0,0,W,H);
+    for(let k=0;k<110;k++){ const tw=this.reduce?.8:.55+.45*Math.sin(t*(1+hash(k+900)*2)+k);
+      c.fillStyle=`rgba(255,255,255,${tw*(.4+hash(k+500)*.6)})`; this.circ(hash(k)*W,hash(k+300)*H,(.5+hash(k+600)*1.1)*s) }
+    // Matahari (sumber badai) di kiri
+    const sx=-W*.06, sy=H*.36, sr=Math.min(W,H)*.16;
+    const sg=c.createRadialGradient(sx,sy,sr*.5,sx,sy,sr*3.2);
+    sg.addColorStop(0,"rgba(255,200,90,.85)"); sg.addColorStop(1,"rgba(255,140,40,0)");
+    c.fillStyle=sg; c.fillRect(0,0,W,H);
+    c.fillStyle="#FFE08A"; this.circ(sx,sy,sr);
+    // Yupiter
+    const jx=W*.8, jy=H*.2, jr=Math.min(W,H)*.12;
+    c.save(); c.beginPath(); c.arc(jx,jy,jr,0,Math.PI*2); c.clip();
+    ["#D9B48A","#B9835A","#E8CFA8","#A86E48","#E2C29A","#C08F66","#D6B088"].forEach((col,k)=>{ c.fillStyle=col; c.fillRect(jx-jr,jy-jr+k*jr*2/7,jr*2,jr*2/7+1) });
+    c.fillStyle="#B5533A"; this.ell(jx+jr*.35,jy+jr*.3,jr*.22,jr*.12);
+    const js=c.createLinearGradient(jx-jr,0,jx+jr,0); js.addColorStop(0,"rgba(255,230,180,.2)"); js.addColorStop(1,"rgba(10,10,30,.6)");
+    c.fillStyle=js; c.fillRect(jx-jr,jy-jr,jr*2,jr*2); c.restore();
+
+    if(this.dangerLv>0 && this.state!=="win"){ c.fillStyle=`rgba(255,110,40,${this.dangerLv*.16})`; c.fillRect(-20,-20,W+40,H+40) }
+    this.platform(-1,g); this.platform(1,g);
+
+    // gelombang badai matahari yang melahap batu
+    if(this.state!=="idle" && this.state!=="win"){
+      const fx=X(this.c), ex=fx+24*s+(this.reduce?0:Math.sin(t*6)*6*s);
+      if(ex>0){ const p=Math.max(0,Math.min(1,fx/ex)), sw=c.createLinearGradient(0,0,ex,0);
+        sw.addColorStop(0,"rgba(255,160,60,.16)"); sw.addColorStop(p,"rgba(255,140,50,.45)"); sw.addColorStop(1,"rgba(255,200,120,0)");
+        c.fillStyle=sw; c.fillRect(0,0,ex,H) }
+    }
+
+    // batu asteroid
+    for(let k=1;k<N;k++){
+      if(k<=this.gone || k===this.broken) continue;
+      let x=X(k), y=Y(k);
+      if(k===this.gone+1 && live){
+        const fr=this.c-Math.floor(this.c);
+        if(fr>.5 && !this.reduce){ x+=(Math.random()-.5)*4*s*fr; y+=(Math.random()-.5)*3*s*fr }
+      }
+      this.rock(x,y,k,this.patched.has(k),g);
+      this.players.forEach((p,i)=>{
+        const w=this.wrongs[i]; if(!w || Math.round(this.pos[i])!==k) return;
+        c.strokeStyle="#1E1830"; c.lineWidth=1.6*s;
+        for(let m=0;m<w;m++){ const cx0=x-pw*.3+m*pw*.3; c.beginPath();
+          c.moveTo(cx0,y); c.lineTo(cx0+3*s,y+3*s); c.lineTo(cx0-1*s,y+6*s); c.lineTo(cx0+2*s,y+10*s); c.stroke() }
+      });
+    }
+    // pecahan batu yang hanyut
+    this.falling=this.falling.filter(f=>f.y<H+60 && f.x>-60 && f.x<W+60);
+    this.falling.forEach(f=>{ f.vy+=160*s*dt; f.x+=f.vx*dt; f.y+=f.vy*dt; f.rot+=f.vr*dt;
+      c.save(); c.translate(f.x,f.y); c.rotate(f.rot); c.fillStyle=f.col; this.blob(0,0,pw/2,Math.max(9*s,pw*.34),f.k); c.restore() });
+    // percikan badai
+    if(live && Math.random()<dt*16 && !this.reduce){ const p=Math.max(0,this.c);
+      this.dust.push({x:X(p),y:Y(p),vx:(Math.random()-.5)*50*s,vy:(Math.random()-.6)*40*s,life:.8}) }
+    this.dust=this.dust.filter(d=>(d.life-=dt)>0);
+    this.dust.forEach(d=>{ d.x+=d.vx*dt; d.y+=d.vy*dt; c.fillStyle=`rgba(255,${Math.round(150+d.life*90)},70,${d.life})`; this.circ(d.x,d.y,(1.5+d.life*3)*s) });
+
+    // posisi astronot
+    const es=Math.min(H/300, pw/13);
+    const ex=this.players.map((p,i)=>{
+      let x=X(this.disp[i])+(i-(this.n-1)/2)*3*es, y=Y(this.disp[i])-3*s, mode="walk";
+      if(this.disp[i]<.05) x=X(0)-(this.n-i)*10*es;
+      const walking=Math.abs(this.pos[i]-this.disp[i])>.03;
+      if(i===this.hang){ y=Y(this.disp[i])+40*es+Math.sin(t*3)*2*es; x+=Math.sin(t*2)*3*es; mode="hang" }
+      if(this.state==="win"){
+        const e=Math.min(1,this.endT/1.2); x=X(N)+(18+i*20)*es*e;
+        if(this.endT>=1.2){ mode="happy"; y-=Math.abs(Math.sin((this.endT-1.2)*7+i))*14*es }
+      }
+      if(this.state==="lose"){ mode="scared"; const tt=Math.max(0,this.endT-.35); y+=.5*900*es*tt*tt; x-=tt*60*es }
+      return {x,y,mode,walking:walking||(this.state==="win"&&this.endT<1.2),p,i};
+    });
+    // tali pengikat antarastronot
+    const waist=e=>[e.x,e.y-(e.mode==="hang"?46:24)*es];
+    const order=[...ex].sort((a,b)=>a.x-b.x);
+    for(let k=0;k<order.length-1;k++){
+      const a=order[k], b=order[k+1], [x1,y1]=waist(a), [x2,y2]=waist(b);
+      const dist=Math.abs(this.pos[a.i]-this.pos[b.i]);
+      const tight=dist>=this.ROPE-.01 && this.state!=="win";
+      c.lineCap="round";
+      if(tight){
+        const v=this.reduce?0:Math.sin(t*50)*this.taut*3*es;
+        c.strokeStyle="#FF5A4A"; c.lineWidth=3.5*es;
+        c.beginPath(); c.moveTo(x1,y1); c.quadraticCurveTo((x1+x2)/2,(y1+y2)/2+v,x2,y2); c.stroke();
+      } else {
+        c.strokeStyle="#C7D0E4"; c.lineWidth=2.4*es;
+        c.beginPath(); c.moveTo(x1,y1);
+        c.quadraticCurveTo((x1+x2)/2,Math.max(y1,y2)+(this.ROPE-dist+.5)*9*es,x2,y2); c.stroke();
+      }
+    }
+    ex.forEach(e=>this.drawExp(e,es));
+
+    // teks melayang
+    this.texts=this.texts.filter(x=>(x.life-=dt*.8)>0);
+    this.texts.forEach(x=>{
+      c.globalAlpha=Math.min(1,x.life*2); c.fillStyle=x.col; c.strokeStyle="#fff"; c.lineWidth=5*s; c.lineJoin="round";
+      c.font=`800 ${Math.round(24*s)}px "Baloo 2", system-ui, sans-serif`; c.textAlign="center";
+      const y=x.y-(1-x.life)*40*s; c.strokeText(x.txt,x.x,y); c.fillText(x.txt,x.x,y); c.globalAlpha=1;
+    });
+    c.restore();
+
+    if(live && Math.min(...this.pos)-this.c<1.5){
+      const safe=Math.min(...this.pos)-this.c;
+      const a=(.25+.12*Math.sin(t*9))*(1-safe/1.5)+.08;
+      const v=c.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.7);
+      v.addColorStop(0,"rgba(255,90,40,0)"); v.addColorStop(1,`rgba(255,90,40,${a})`);
+      c.fillStyle=v; c.fillRect(0,0,W,H);
+      if(this.state==="play"){
+        c.font=`800 ${Math.round(Math.min(26*s,W/15))}px "Baloo 2", system-ui, sans-serif`; c.textAlign="center";
+        c.fillStyle="#fff"; c.strokeStyle="#D6452F"; c.lineWidth=6*s; c.lineJoin="round";
+        c.strokeText("Badai matahari mendekat!",W/2,H*.4); c.fillText("Badai matahari mendekat!",W/2,H*.4);
+      }
+    }
+  },
+
+  drawExp(e,s){
+    const c=this.cx, ph=this.ph[e.i], run=e.walking?1:0, mode=e.mode, color=e.p.color;
+    const suit="#EEF1F7", suit2="#BCC4D4";
+    c.save(); c.translate(e.x,e.y); c.scale(s,s); c.lineCap="round"; c.lineJoin="round";
+    const hanging=mode==="hang";
+    c.translate(0,-Math.abs(Math.sin(ph))*2*run);
+    const hip=[0,-22], sh=[2*run,-40];
+    const P=(o,a,L)=>[o[0]+Math.sin(a)*L,o[1]+Math.cos(a)*L];
+    const leg=(p,side,col)=>{
+      let th=Math.sin(p)*.7*run+side*.1*(1-run), kn=th-(.1+Math.max(0,Math.cos(p))*1)*run;
+      if(hanging){ th=Math.sin(this.t*4+side)*.35; kn=th-.2 }
+      if(mode==="scared"){ th=Math.sin(this.t*14+side)*.6; kn=th+.4 }
+      const k=P(hip,th,10), f=P(k,kn,11);
+      this.seg([hip,k,f],5.5,col); c.fillStyle="#5A6478"; this.rr(f[0]-3,f[1]-2.5,8,5,2);
+    };
+    const arm=(p,side,col)=>{
+      let ua=-Math.sin(p)*.9*run+side*.15*(1-run)+.1, fa=ua+1.3*run+.3*(1-run);
+      if(hanging||mode==="scared"||mode==="happy"){ ua=Math.PI*(.9+side*.06)+(mode==="happy"?Math.sin(this.t*10+side)*.2:0); fa=ua+.1*side }
+      const el=P(sh,ua,8), h=P(el,fa,8);
+      this.seg([sh,el,h],4.6,col); c.fillStyle=color; this.circ(h[0],h[1],2.8);
+    };
+    leg(ph+Math.PI,-1,suit2); arm(ph+Math.PI,-1,suit2);
+    // tabung oksigen
+    c.fillStyle="#9AA6B8"; this.rr(sh[0]-12,-42,9,17,3); c.fillStyle=color; c.fillRect(sh[0]-12,-36,9,2.5);
+    leg(ph,1,suit);
+    c.fillStyle="#5A6478"; this.rr(-5,-26,10,8,3);
+    this.seg([hip,sh],11,suit);
+    c.fillStyle=color; this.rr(sh[0]-2,-36,7,7,2);
+    // helm
+    const hd=[sh[0]+3,sh[1]-9];
+    this.seg([[hd[0]-6,hd[1]-6],[hd[0]-8,hd[1]-14]],1.4,suit2); c.fillStyle=color; this.circ(hd[0]-8,hd[1]-15,2);
+    c.fillStyle=suit; this.circ(hd[0],hd[1],10);
+    c.fillStyle="#1C2A4A"; this.ell(hd[0]+2.5,hd[1]+.5,7,6);
+    c.fillStyle="rgba(255,255,255,.55)"; this.ell(hd[0]+5,hd[1]-2.5,2.2,1.2);
+    c.strokeStyle="#9FD3FF"; c.fillStyle="#9FD3FF"; c.lineWidth=1.3; c.beginPath();
+    if(mode==="happy"){ c.arc(hd[0]+3,hd[1]+1.5,2.4,.1,Math.PI-.1); c.stroke() }
+    else if(mode==="scared"||hanging) this.ell(hd[0]+3,hd[1]+3,1.2,2);
+    arm(ph,1,suit);
+    // label nama
+    c.fillStyle=color; this.circ(hd[0],hd[1]-22,6.5);
+    c.fillStyle="#fff"; c.font=`800 8px "Baloo 2", system-ui, sans-serif`; c.textAlign="center"; c.textBaseline="middle";
+    c.fillText((e.p.name[0]||"?").toUpperCase(),hd[0],hd[1]-21.5); c.textBaseline="alphabetic";
+    c.restore();
+  }
+};
+
+/* ======================= INTI: 1 pemain + teman AI ======================= */
+const $=s=>document.querySelector(s);
+/* Teman AI = pemain komputer: tahu kunci, lalu dibuat lambat/salah sesuai tingkat. Waktu pikir = (dasar + panjang soal x per huruf) detik */
+const AI_LV={
+  pemula:{label:"Pemula", acc:.6, base:4, per:.04},
+  sedang:{label:"Sedang", acc:.8, base:3, per:.025},
+  jago:{label:"Jago", acc:.95, base:1.8, per:.012}
+};
+const cfg={ai:"sedang", name:"", ...GAME.defaults};
+try{ Object.assign(cfg, JSON.parse(localStorage.getItem("lsa-cfg")||"{}")) }catch(e){}
+let players=[], panels=[], running=false, cdToken=0;
+
+const ctx={
+  end(res){ if(!running) return; running=false; GAME.stop(); Sound.stopMusic(); res.icon==="🪐"?Sound.win():Sound.lose(); const id=cdToken; setTimeout(()=>{ if(id===cdToken) showResult(res) },1300) },
+  setWaiting(i,on,msg=""){
+    const el=panels[i]; if(!el) return;
+    const key=on?msg:""; if((el.dataset.wait||"")===key) return;
+    el.dataset.wait=key; el.classList.toggle("waiting",on);
+    el.querySelector(".pmsg.wait")?.remove();
+    if(on) el.insertAdjacentHTML("beforeend",`<div class="pmsg wait">${esc(msg)}</div>`);
+  },
+  pulse(i,on){ const el=panels[i]; if(el && el.classList.contains("needed")!==on) el.classList.toggle("needed",on) },
+  status(i,html){ const el=panels[i]; if(el) el.querySelector(".pscore").innerHTML=html },
+  note(i,msg,ms){
+    const el=panels[i]; if(!el) return;
+    el.querySelector(".pmsg.note")?.remove();
+    const m=document.createElement("div"); m.className="pmsg note"; m.textContent=msg; el.appendChild(m);
+    setTimeout(()=>m.remove(),ms);
+  }
+};
+
+function build(){
+  GAME.stop(); running=false; Sound.stopMusic();
+  players=[
+    {name:cfg.name||"Kamu", ai:false, color:COLORS[0], score:0, miss:0, locked:false},
+    {name:"Robo", ai:true, color:COLORS[1], score:0, miss:0, locked:false}
+  ];
+  $("#gMeta").textContent=GAME.meta(cfg);
+  const me=document.createElement("div"); me.className="panel mine"; me.style.setProperty("--c",COLORS[0]);
+  me.innerHTML=`<div class="phead"><span class="pname">${esc(players[0].name)}</span><span class="pscore"></span></div>`;
+  const ro=document.createElement("div"); ro.className="panel robo"; ro.style.setProperty("--c",COLORS[1]);
+  ro.innerHTML=`<div class="phead"><span class="pname">Robo<span class="aitag">AI ${AI_LV[cfg.ai].label}</span></span><span class="aist"></span><span class="pscore"></span></div>`;
+  $("#me").replaceChildren(me); $("#robo").replaceChildren(ro);
+  panels=[me,ro];
+  GAME.renderMain($("#mainScreen"),players,cfg);
+  players.forEach((p,i)=>{
+    const el=panels[i];
+    const api={
+      active:()=>running && !p.locked && !el.classList.contains("waiting"),
+      point:()=>{ if(!running) return; p.score++; GAME.onPoint(i,ctx) },
+      miss:(ms,after,silent,info)=>{
+        p.miss++; p.locked=true; el.classList.add("locked");
+        if(!silent) GAME.onMiss(i,ctx);
+        const m=document.createElement("div"); m.className="pmsg"+(info?" expl":"");
+        if(info) m.innerHTML=info+"<small>Ketuk untuk lanjut</small>"; else m.textContent="Belum tepat — coba lagi";
+        el.appendChild(m);
+        let fin=false;
+        const finish=()=>{ if(fin) return; fin=true; p.locked=false; el.classList.remove("locked"); m.remove(); after&&after() };
+        if(info) m.addEventListener("pointerdown",e=>{ e.preventDefault(); finish() });
+        setTimeout(finish,ms);
+      }
+    };
+    if(p.ai) aiDriver(i,el,api);
+    GAME.createPanel(el,p,api,cfg,i);
+    ctx.status(i,GAME.status(i));
+  });
+}
+
+/* Penggerak teman AI: tiap soal tampil, "berpikir" lalu menekan satu pilihan */
+function aiDriver(i,el,api){
+  let token=0;
+  api.onShow=(q)=>{
+    const my=++token, A=AI_LV[cfg.ai];
+    let left=(A.base+q.text.length*A.per)*(.75+Math.random()*.5)*1000;
+    const st=()=>el.querySelector(".aist");
+    const step=()=>{
+      if(my!==token || !el.isConnected) return;
+      const s=st();
+      if(!api.active()){ if(s) s.textContent=""; return setTimeout(step,250) }
+      if(GAME.aiShouldWait(i)){ if(s) s.textContent="Menunggumu…"; return setTimeout(step,400) }
+      if(s) s.textContent="Sedang berpikir…";
+      left-=250; if(left>0) return setTimeout(step,250);
+      const btns=[...el.querySelectorAll(".opt")], good=Math.random()<A.acc;
+      const b=good?btns.find(x=>x.dataset.k===q.key):shuffle(btns.filter(x=>x.dataset.k!==q.key))[0];
+      if(!b) return;
+      if(s) s.textContent="Memilih jawaban…";
+      setTimeout(()=>{
+        if(my!==token) return;
+        if(s) s.textContent="";
+        if(api.active()) b.dispatchEvent(new PointerEvent("pointerdown",{bubbles:true,cancelable:true}));
+        else setTimeout(step,250);
+      },550);
+    };
+    setTimeout(step,250);
+  };
+}
+
+/* ======================= RANGKUMAN MATERI (poin inti, hanya baca) ======================= */
+/* kartu: {h, li:[...]} poin; {h, rows:[[...],...]} tabel ringkas (baris pertama = judul kolom); tip:true = kotak "Ingat!" */
+const RANGKUMAN=[
+ {t:"Tata Surya", ic:"☀️", cards:[
+  {h:"Apa itu Tata Surya?", li:["Kumpulan benda langit dengan **Matahari sebagai pusat**: planet, satelit, asteroid, komet, dan meteoroid.","Semuanya tetap beredar karena ditarik **gaya gravitasi Matahari**.","Jalur peredarannya disebut **orbit** (garis edar)."]},
+  {h:"Matahari", li:["Matahari adalah **bintang**, yaitu benda langit yang **memancarkan cahaya sendiri**.","Sumber cahaya dan panas bagi Bumi.","Diameternya ±**109 kali** diameter Bumi.","Tersusun dari gas panas, terutama **hidrogen dan helium**."]},
+  {h:"Planet", li:["Planet **tidak bercahaya sendiri**; ia **memantulkan cahaya Matahari**.","Ada **8 planet**.","**Planet dalam** (kecil, berbatu): Merkurius, Venus, Bumi, Mars.","**Planet luar** (besar, gas/es): Yupiter, Saturnus, Uranus, Neptunus."]},
+  {h:"Ciri khas tiap planet", rows:[["Planet","Ciri khas"],["Merkurius","Terkecil dan terdekat dengan Matahari; tanpa satelit"],["Venus","Terpanas (atmosfer tebal); bintang fajar/senja; tanpa satelit"],["Bumi","Ada kehidupan; satelitnya Bulan"],["Mars","Planet merah (debu besi berkarat)"],["Yupiter","Terbesar; badai Bintik Merah Besar"],["Saturnus","Cincin paling indah (es dan batuan)"],["Uranus","Es raksasa; sumbu sangat miring"],["Neptunus","Terjauh dan sangat dingin"]]},
+  {tip:true, h:"Cara menghafal urutan planet", li:["**Me-Ve-Bu-Ma-Yu-Sa-U-Ne**","Merkurius, Venus, Bumi, Mars, Yupiter, Saturnus, Uranus, Neptunus."]},
+  {h:"Benda langit lainnya", li:["**Satelit**: mengelilingi planet. Contoh: Bulan.","**Asteroid**: bongkahan batuan; kebanyakan berada di **sabuk asteroid antara Mars dan Yupiter**.","**Komet**: terbuat dari es dan debu; ekornya selalu **menjauhi Matahari**. Komet Halley muncul ±76 tahun sekali.","**Meteor** = meteoroid yang terbakar di atmosfer (bintang jatuh). **Meteorit** = sisanya yang jatuh ke permukaan Bumi.","**Pluto** menjadi **planet kerdil** sejak 2006."]}
+ ]},
+ {t:"Rotasi Bumi", ic:"🌍", cards:[
+  {h:"Pengertian", li:["**Rotasi** = Bumi berputar pada **porosnya** (garis khayal dari Kutub Utara ke Kutub Selatan).","Arahnya dari **barat ke timur**.","Satu kali rotasi ±**24 jam** (kala rotasi).","Di ekuator kecepatannya ±1.670 km/jam. Kita tidak merasakannya karena semua benda ikut bergerak.","Buktinya: percobaan **Bandul Foucault**."]},
+  {h:"Akibat rotasi Bumi", li:["**Siang dan malam**: sisi yang menghadap Matahari mengalami siang.","**Gerak semu harian**: Matahari, Bulan, dan bintang tampak terbit di timur dan terbenam di barat.","**Perbedaan waktu**: wilayah timur lebih dulu pagi.","**Efek Coriolis**: angin dan arus laut berbelok (ke kanan di belahan utara, ke kiri di belahan selatan).","**Bentuk geoid**: pepat di kutub, menggembung di ekuator.","Ikut memengaruhi **pasang surut** air laut."]},
+  {tip:true, h:"Contoh gerak semu", li:["Saat naik mobil, pohon tampak bergerak ke belakang, padahal mobilmu yang bergerak. Matahari juga hanya **tampak** bergerak."]},
+  {h:"Zona waktu", li:["Setiap **15° bujur = selisih 1 jam** (360° : 24 jam).","Patokan waktu dunia: **GMT/UTC** di bujur 0° (Greenwich, Inggris)."], rows:[["Zona","UTC","Wilayah"],["WIB","+7","Sumatra, Jawa, Kalbar, Kalteng"],["WITA","+8","Bali, Nusa Tenggara, Kalsel, Kaltim, Kaltara, Sulawesi"],["WIT","+9","Maluku, Papua"]]},
+  {tip:true, h:"Menghitung waktu", li:["07.00 WIB = **08.00 WITA** = **09.00 WIT**.","Semakin ke **timur**, jam semakin **maju**."]},
+  {h:"Dalam kehidupan", li:["Mengatur aktivitas harian (bekerja siang, istirahat malam).","**Ritme sirkadian** (jam biologis): hewan **nokturnal** seperti kelelawar aktif di malam hari."]}
+ ]},
+ {t:"Revolusi Bumi", ic:"🔄", cards:[
+  {h:"Pengertian", li:["**Revolusi** = Bumi beredar **mengelilingi Matahari**.","Satu kali revolusi ±**365¼ hari** (1 tahun).","Lintasannya berbentuk **elips** (lonjong).","Sumbu Bumi miring **23,5°**."]},
+  {h:"Titik dekat dan jauh", rows:[["Istilah","Arti","Waktu"],["Perihelion","Terdekat dengan Matahari","±3 Januari"],["Aphelion","Terjauh dari Matahari","±4 Juli"]]},
+  {tip:true, h:"Penting!", li:["Musim terjadi karena **kemiringan sumbu Bumi**, BUKAN karena jarak ke Matahari.","Buktinya: saat perihelion (Januari), belahan utara justru sedang musim dingin."]},
+  {h:"Gerak semu tahunan Matahari", li:["Matahari tampak bergeser antara **23,5° LU** (Garis Balik Utara) dan **23,5° LS** (Garis Balik Selatan)."], rows:[["Tanggal","Posisi Matahari"],["21 Maret","Khatulistiwa (ekuinoks): siang = malam"],["21 Juni","23,5° LU (solstis)"],["23 September","Khatulistiwa (ekuinoks)"],["22 Desember","23,5° LS (solstis)"]]},
+  {h:"Akibat revolusi Bumi", li:["**Pergantian musim**. Daerah subtropis dan sedang mengalami 4 musim; musim di belahan utara dan selatan selalu **berkebalikan**.","**Lama siang dan malam berubah**. Di kutub ada **midnight sun** dan **polar night**.","**Zona iklim**: tropis (0°–23,5°), subtropis, sedang, dan dingin/kutub (66,5°–90°).","**Kalender Masehi** dan **tahun kabisat**.","**Rasi bintang** yang terlihat berganti sepanjang tahun."]},
+  {tip:true, h:"Tahun kabisat (366 hari)", li:["Sisa ¼ hari dikumpulkan selama 4 tahun sehingga **Februari menjadi 29 hari**.","Tahun yang habis dibagi 4 adalah tahun kabisat (2024, 2028).","Kecuali yang habis dibagi 100 (1900), kecuali lagi jika habis dibagi 400 (2000 tetap kabisat)."]},
+  {h:"Indonesia hanya punya 2 musim", li:["Indonesia **tropis** karena berada di sekitar khatulistiwa.","**Kemarau** (±April–Oktober): angin muson timur dari Australia yang kering.","**Hujan** (±Oktober–April): angin muson barat dari Asia yang membawa banyak uap air."]}
+ ]},
+ {t:"Bulan", ic:"🌙", cards:[
+  {h:"Mengenal Bulan", li:["Satu-satunya **satelit alami Bumi**.","**Tidak bercahaya sendiri**; Bulan memantulkan cahaya Matahari.","Tidak ada udara dan air cair, sehingga tidak ada kehidupan.","Permukaannya penuh **kawah** akibat tabrakan meteorit.","Gravitasinya ±1/6 gravitasi Bumi."]},
+  {h:"Gerak Bulan", li:["Bulan melakukan **3 gerakan**: rotasi, revolusi mengelilingi Bumi, dan bersama Bumi mengelilingi Matahari.","Rotasi = revolusi ±**27⅓ hari**, sehingga **sisi Bulan yang menghadap Bumi selalu sama**.","Dari purnama ke purnama berikutnya ±**29½ hari**."]},
+  {h:"Fase Bulan", li:["Bentuk Bulan tidak benar-benar berubah. Yang berubah adalah **bagian terang yang terlihat dari Bumi**."], rows:[["Urutan","Tampak seperti"],["1. Bulan baru","Tidak terlihat"],["2. Sabit awal","Sabit tipis"],["3. Kuartal pertama","Setengah lingkaran"],["4. Cembung awal","Lebih dari setengah"],["5. Purnama","Bulat penuh (±hari ke-15)"],["6. Cembung akhir","Mulai mengecil"],["7. Kuartal ketiga","Setengah lingkaran"],["8. Sabit akhir","Sabit tipis lalu kembali ke Bulan baru"]]},
+  {tip:true, h:"Posisi saat fase", li:["**Bulan baru**: Bulan berada di antara Matahari dan Bumi.","**Purnama**: Bumi berada di antara Matahari dan Bulan."]},
+  {h:"Manfaat peredaran Bulan", li:["Dasar **kalender Hijriah** (menentukan Ramadan dan hari raya). Setahun Hijriah ±354 hari.","Menyebabkan **pasang surut** air laut; pasang tertinggi saat purnama dan Bulan baru.","Menyebabkan **gerhana**."]}
+ ]},
+ {t:"Gerhana", ic:"🌑", cards:[
+  {h:"Pengertian", li:["**Gerhana** = benda langit tertutup bayangan benda langit lain.","Terjadi saat Matahari, Bumi, dan Bulan berada **segaris**.","**Umbra** = bayangan inti yang gelap. **Penumbra** = bayangan kabur di sekitarnya."]},
+  {h:"Gerhana Matahari", li:["Susunan: **Matahari – Bulan – Bumi**.","Hanya saat **Bulan baru**, pada **siang hari**, dan hanya di wilayah sempit.","**Total**: terkena umbra Bulan. **Sebagian**: terkena penumbra Bulan.","**Cincin**: Bulan di titik terjauh sehingga tampak lebih kecil dari Matahari."]},
+  {tip:true, h:"Peringatan keselamatan!", li:["**Jangan melihat gerhana Matahari langsung**, karena dapat merusak mata secara permanen.","Gunakan **kacamata khusus gerhana** atau **kamera lubang jarum**."]},
+  {h:"Gerhana Bulan", li:["Susunan: **Matahari – Bumi – Bulan**.","Hanya saat **purnama**, pada **malam hari**, dan terlihat dari wilayah luas.","**Aman** dilihat langsung.","**Total**: Bulan masuk umbra Bumi dan tampak **kemerahan** (bulan darah) karena pembiasan atmosfer Bumi.","**Sebagian**: sebagian Bulan masuk umbra. **Penumbra**: Bulan hanya sedikit redup."]},
+  {h:"Perbedaan singkat", rows:[["","Matahari","Bulan"],["Posisi","Matahari–Bulan–Bumi","Matahari–Bumi–Bulan"],["Fase","Bulan baru","Purnama"],["Waktu","Siang","Malam"],["Wilayah","Sempit","Luas"],["Jenis khusus","Cincin","Penumbra"],["Dilihat langsung","Berbahaya","Aman"]]},
+  {tip:true, h:"Tahukah kamu?", li:["Gerhana tidak terjadi setiap bulan karena orbit Bulan **miring ±5°** terhadap orbit Bumi.","Gerhana Matahari dan Bulan sering berpasangan, berselang ±2 minggu.","Waktu gerhana dapat dihitung jauh-jauh hari karena gerak benda langit teratur."]}
+ ]},
+ {t:"Kamus", ic:"📖", cards:[
+  {h:"Kata penting", rows:[["Istilah","Arti"],["Orbit","Lintasan atau garis edar benda langit"],["Rotasi","Berputar pada porosnya sendiri"],["Revolusi","Beredar mengelilingi benda langit lain"],["Gerak semu","Gerak yang hanya tampaknya saja"],["Perihelion","Titik terdekat Bumi–Matahari"],["Aphelion","Titik terjauh Bumi–Matahari"],["Ekuinoks","Matahari di atas khatulistiwa; siang = malam"],["Solstis","Matahari di 23,5° LU atau 23,5° LS"],["Tahun kabisat","Tahun dengan 366 hari"],["Umbra","Bayangan inti yang gelap"],["Penumbra","Bayangan kabur di sekitar umbra"],["Geoid","Bentuk Bumi: pepat di kutub, menggembung di ekuator"],["Efek Coriolis","Pembelokan angin dan arus laut akibat rotasi"]]},
+  {tip:true, h:"Ingat ya!", li:["**Rotasi** → siang-malam, perbedaan waktu, gerak semu harian.","**Revolusi** → musim, gerak semu tahunan, kalender.","**Gerhana** → Matahari, Bumi, dan Bulan segaris."]}
+ ]}
+];
+let rkTab=0;
+function showRangkuman(tab=rkTab){
+  rkTab=tab;
+  const md=s=>esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+  const B=RANGKUMAN[tab], last=tab===RANGKUMAN.length-1;
+  const card=c=>`<section class="kc${c.tip?" tip":""}"><h3>${c.tip?"💡 ":""}${md(c.h)}</h3>
+    ${c.li?`<ul>${c.li.map(x=>`<li>${md(x)}</li>`).join("")}</ul>`:""}
+    ${c.rows?`<div class="kv" style="--n:${c.rows[0].length}">${c.rows.map((r,i)=>r.map(x=>`<span class="${i?"":"kh"}">${md(x)}</span>`).join("")).join("")}</div>`:""}</section>`;
+  const ov=$("#overlay"); ov.hidden=false;
+  ov.innerHTML=`<div class="card study">
+    <div class="shead"><button class="ib back" id="rkBack" type="button" aria-label="Kembali ke menu">←</button><h2>Rangkuman materi</h2></div>
+    <div class="tabs" role="tablist">${RANGKUMAN.map((b,i)=>`<button type="button" role="tab" data-i="${i}" aria-selected="${i===tab}">${b.ic} ${esc(b.t)}</button>`).join("")}</div>
+    <div class="sbody" id="rkBody">${B.cards.map(card).join("")}
+      <button class="go" id="rkNext" type="button">${last?"Selesai, kembali ke menu":`Lanjut: ${esc(RANGKUMAN[tab+1].t)} →`}</button></div>
+  </div>`;
+  ov.querySelector('.tabs [aria-selected="true"]').scrollIntoView({inline:"center",block:"nearest"});
+  ov.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>showRangkuman(+b.dataset.i));
+  $("#rkBack").onclick=showSetup;
+  $("#rkNext").onclick=()=>last?showSetup():showRangkuman(tab+1);
+}
+
+function showSetup(){
+  cdToken++; GAME.paused=false; GAME.stop(); running=false; Sound.stopMusic();
+  const ov=$("#overlay"); ov.hidden=false;
+  const seg=(key,items)=>`<div class="seg">${items.map(([v,l])=>`<button type="button" data-k="${key}" data-v="${v}" aria-pressed="${String(cfg[key])===String(v)}">${l}</button>`).join("")}</div>`;
+  ov.innerHTML=`<div class="card">
+    <div class="hero"><div class="big" aria-hidden="true">🧑‍🚀🤖</div><h2>Siapkan misi</h2>
+      <p>Seberangi sabuk asteroid dari Mars ke Yupiter bersama Robo, teman AI-mu.</p></div>
+    <details><summary>Cara main</summary><ul>
+      <li>Jawab benar → astronotmu melompat 1 batu.</li>
+      <li>Kalian terikat tali 3 batu. Terlalu jauh di depan Robo? Tali menarikmu kembali.</li>
+      <li>Badai matahari melahap batu dari belakang. Jangan sampai tersusul!</li>
+      <li>Salah 3 kali → batu pecah. Kamu dan Robo harus menjawab soal bonus.</li>
+      <li>Kalau salah, ketuk pembahasan untuk lanjut lebih cepat.</li>
+    </ul></details>
+    <div><div class="lbl">Namamu</div><input id="nm" maxlength="14" value="${esc(cfg.name)}" placeholder="Kamu" aria-label="Namamu" autocomplete="off"></div>
+    <div><div class="lbl">Materi</div>${seg("materi",GAME.materi.map(m=>[m.id,m.label]))}</div>
+    <div><div class="lbl">Tingkat soal</div>${seg("level",GAME.levels.map(l=>[l.id,l.label]))}</div>
+    <div><div class="lbl">Kepintaran Robo</div>${seg("ai",Object.entries(AI_LV).map(([k,v])=>[k,v.label]))}
+      <p class="hint">Pemula lambat dan sering salah, Jago cepat dan jarang salah.</p></div>
+    <div class="acts"><button class="btn2" id="btnRk" type="button">📖 Rangkuman materi</button>
+    <button class="go" id="btnGo" type="button">Mulai misi!</button></div>
+  </div>`;
+  ov.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{
+    cfg[b.dataset.k]=b.dataset.v;
+    b.parentNode.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  });
+  $("#btnRk").onclick=()=>{ cfg.name=$("#nm").value.trim(); showRangkuman() };
+  $("#btnGo").onclick=()=>{
+    Sound.init(); cfg.name=$("#nm").value.trim();
+    try{ localStorage.setItem("lsa-cfg",JSON.stringify({ai:cfg.ai,name:cfg.name,materi:cfg.materi,level:cfg.level})) }catch(e){}
+    build(); countdown();
+  };
+}
+
+function countdown(){
+  const ov=$("#overlay"), id=++cdToken; ov.hidden=false; let n=3;
+  const tick=()=>{ if(id!==cdToken) return;
+    if(n===0){ ov.innerHTML=`<div class="count">Ayo!</div>`;
+      Sound.go(); setTimeout(()=>{ if(id!==cdToken) return; ov.hidden=true; running=true; GAME.start(ctx); Sound.startMusic() },600); return }
+    Sound.beep(); ov.innerHTML=`<div class="count">${n}</div>`; n--; setTimeout(tick,900);
+  };
+  tick();
+}
+
+function showResult(res){
+  const ov=$("#overlay"); ov.hidden=false;
+  ov.innerHTML=`<div class="card win">
+    <div class="big" aria-hidden="true">${res.icon}</div>
+    <h2>${esc(res.title)}</h2>
+    <p>${esc(res.text)}</p>
+    <div class="rank">${res.rows.map(([p,v])=>`<div><span style="color:${p.color}">${esc(p.name)}</span><span>${esc(v)}</span></div>`).join("")}</div>
+    <div class="seg">
+      <button type="button" id="again" aria-pressed="true">Main lagi</button>
+      <button type="button" id="toSetup">Menu utama</button>
+    </div></div>`;
+  $("#again").onclick=()=>{ Sound.init(); build(); countdown() };
+  $("#toSetup").onclick=showSetup;
+}
+
+/* Menu utama: saat bermain, jeda dulu lalu minta konfirmasi */
+function askMenu(){
+  if(!running){ showSetup(); return }
+  running=false; GAME.paused=true; Sound.stopMusic();
+  const ov=$("#overlay"); ov.hidden=false;
+  ov.innerHTML=`<div class="card"><h2>Permainan dijeda</h2>
+    <p>Kembali ke menu utama akan menghentikan permainan ini.</p>
+    <div class="seg"><button type="button" id="mNo" aria-pressed="true">Lanjut main</button>
+    <button type="button" id="mYes">Ke menu utama</button></div></div>`;
+  $("#mNo").onclick=()=>{ ov.hidden=true; GAME.paused=false; running=true; Sound.startMusic() };
+  $("#mYes").onclick=showSetup;
+}
+$("#btnSetup").onclick=askMenu;
+/* jeda otomatis saat aplikasi ditinggal (pindah aplikasi / layar mati) */
+document.addEventListener("visibilitychange",()=>{ if(document.hidden && running) askMenu() });
+(()=>{ const b=$("#btnSound");
+  const set=v=>{ Sound.setOn(v); b.setAttribute("aria-pressed",v); b.textContent=v?"🔊":"🔇";
+    try{ localStorage.setItem("lsa-sound",v?"1":"0") }catch(e){} };
+  let v=true; try{ v=localStorage.getItem("lsa-sound")!=="0" }catch(e){}
+  set(v); b.onclick=()=>{ Sound.init(); set(!Sound.on) }; })();
+$("#btnFull").onclick=()=>{ const d=document.documentElement;
+  if(document.fullscreenElement){ document.exitFullscreen?.().catch?.(()=>{}); return }
+  d.requestFullscreen?.()?.then?.(()=>screen.orientation?.lock?.("portrait").catch(()=>{}))?.catch?.(()=>{}) };
+
+build();
+showSetup();
+</script>
+
+</body>
+</html>
