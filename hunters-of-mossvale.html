@@ -3025,10 +3025,14 @@ function mpTick(dt){for(const o of Object.values(MP.ps)){if(!o.h)continue;
   if(o.t>=1&&o.q.length){const[nx,ny]=o.q.shift();const dx=nx-o.x,dy=ny-o.y;if(!dx&&!dy)continue;
     o.fx=o.x;o.fy=o.y;o.x=nx;o.y=ny;o.t=Math.abs(dx)+Math.abs(dy)>1?1:0;o.dir=dx>0?'right':dx<0?'left':dy>0?'down':'up'}
   if(o.t>=1&&!o.q.length&&o.fdir)o.dir=o.fdir}}
-const mpPos=o=>{const t=clamp(o.t,0,1);return[(o.fx+(o.x-o.fx)*t)*16,(o.fy+(o.y-o.fy)*t)*16]};
+const mpPos=o=>{const t=clamp(o.t,0,1);return[(o.fx+(o.x-o.fx)*t)*16+(o.ox||0),(o.fy+(o.y-o.fy)*t)*16]};
+const MP_SLOT=[0,13,-13,26,-26,39,-39];
+function mpSpread(dt){const occ={};occ[Math.round(P.x)+','+Math.round(P.y)]=1;const k=Math.min(1,dt*8);
+  for(const o of Object.values(MP.ps)){if(!o.h)continue;const t=clamp(o.t,0,1),key=Math.round(o.fx+(o.x-o.fx)*t)+','+Math.round(o.fy+(o.y-o.fy)*t),i=occ[key]||0;occ[key]=i+1;
+    const tg=MP_SLOT[Math.min(i,MP_SLOT.length-1)];o.ox=(o.ox||0)+(tg-(o.ox||0))*k}}
 function mpSpr(o,d,f){const L=o.l;return spr(`op${d}${f}${o.a}${o.w}|${L.skin}${L.hair}${L.style}`,()=>{const prev=RREMAP;RREMAP={skin:L.skin,hair:L.hair};
   try{return chibi(d,f,{style:L.style,body:ARMRAMP[o.a],helm:o.a!=='ar0'?ARMRAMP[o.a]:null,wep:WEAPONS[o.w],wt:tierOf(o.w),tier:tierOf(o.a)})}finally{RREMAP=prev}})}
-function mpList(list,dt){if(!MP)return;mpTick(dt);let n=0;for(const o of Object.values(MP.ps)){if(!o.h||n++>30)continue;const[X0,Y0]=mpPos(o),X=Math.round(X0),Y=Math.round(Y0);
+function mpList(list,dt){if(!MP)return;mpTick(dt);mpSpread(dt||0);let n=0;for(const o of Object.values(MP.ps)){if(!o.h||n++>30)continue;const[X0,Y0]=mpPos(o),X=Math.round(X0),Y=Math.round(Y0);
   list.push({y:Y+15.4,d:()=>{g.fillStyle='rgba(0,0,0,.28)';g.fillRect(X+3,Y+14,10,2);const fr=o.t<1?[1,0,3,0][Math.floor(o.fr*8)%4]:0;
     g.globalAlpha=.92;blit(mpSpr(o,o.dir,fr),X-3,Y-12);g.globalAlpha=1}})}}
 function mpWrap(c,t,max){const out=[];let line='';for(const w of t.split(' ')){const tryL=line?line+' '+w:w;if(c.measureText(tryL).width>max&&line){out.push(line);line=w}else line=tryL}if(line)out.push(line);return out.slice(0,3)}
