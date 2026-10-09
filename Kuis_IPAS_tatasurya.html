@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuis IPAS Kelas 6</title>
+<style>
+:root{--bg:#0f1e3a;--card:#ffffff;--ink:#16233d;--muted:#5b6b85;--ok:#1f9d55;--okbg:#dcf5e6;
+  --a:#e8a317;--b:#2e7dd7;--c:#c2410c;--y:#ffd23f}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+.screen{display:none;height:100%;flex-direction:column}
+.screen.on{display:flex}
+button{font-family:inherit;border:0;cursor:pointer}
+/* MENU */
+#menu{align-items:center;justify-content:center;gap:2.5vw;color:#fff;text-align:center}
+#menu .sub{font-size:1.6vw;color:var(--y);font-weight:bold;letter-spacing:.1vw}
+#menu h1{font-size:4.6vw;line-height:1.1}
+#menu p{font-size:1.5vw;color:#b9c6dc}
+.big{display:flex;gap:2.5vw;margin-top:1vw}
+.big button{width:24vw;padding:2.2vw 1vw;border-radius:1.2vw;font-size:2.4vw;font-weight:bold}
+.b1{background:#fff;color:var(--ink)}
+.b2{background:var(--y);color:var(--ink)}
+/* HEADER */
+header{display:flex;align-items:center;gap:.8vw;padding:.7vw 1.2vw;color:#fff}
+header h1{font-size:1.2vw;white-space:nowrap}
+.nav{display:flex;align-items:center;gap:.5vw;flex:1;justify-content:flex-end}
+.num{width:1.85vw;height:2.1vw;font-size:.9vw;font-weight:bold;background:#26385c;color:#cfd9ea;border-radius:.4vw}
+.num.cur{background:var(--y);color:var(--ink)}
+.step{padding:0 .8vw;height:2.1vw;font-size:1vw;white-space:nowrap;font-weight:bold;background:var(--y);color:var(--ink);border-radius:.4vw}
+.step:disabled{opacity:.35;cursor:default}
+.home{background:#fff}
+/* RINGKASAN */
+#ring{background:radial-gradient(circle at 20% 30%,#1b3466 0,transparent 45%),radial-gradient(circle at 85% 80%,#2a1f55 0,transparent 40%),var(--bg)}
+.pgno{font-size:1.1vw;font-weight:bold;color:var(--y)}
+.slides{flex:1;min-height:0;padding:0 1.6vw;position:relative}
+.slide{display:none;height:100%;grid-template-columns:42% 1fr;gap:1.6vw}
+.slide.on{display:grid;animation:fade .45s ease}
+@keyframes fade{from{opacity:0;transform:translateY(1vw)}to{opacity:1;transform:none}}
+.ill{border-radius:1.4vw;background:radial-gradient(circle at 50% 45%,#16305e 0,#0a1530 75%);border:.25vw solid var(--k);
+  display:flex;align-items:center;justify-content:center;padding:1.5vw;position:relative;overflow:hidden}
+.ill::before{content:"";position:absolute;inset:0;background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff 50%,transparent),radial-gradient(1.5px 1.5px at 78% 12%,#fff 50%,transparent),
+  radial-gradient(1px 1px at 30% 82%,#fff 50%,transparent),radial-gradient(1.5px 1.5px at 88% 66%,#fff 50%,transparent),radial-gradient(1px 1px at 55% 8%,#fff 50%,transparent),
+  radial-gradient(1px 1px at 6% 60%,#fff 50%,transparent),radial-gradient(1.5px 1.5px at 66% 92%,#fff 50%,transparent);opacity:.7}
+.ill svg{width:100%;height:100%;position:relative}
+.txt{background:#fff;border-radius:1.4vw;padding:1.8vw 2.2vw;display:flex;flex-direction:column;gap:1.2vw;border-top:.8vw solid var(--k);min-height:0}
+.txt h2{font-size:2.8vw;display:flex;align-items:center;gap:1vw;color:var(--ink)}
+.badge{width:3.6vw;height:3.6vw;border-radius:50%;background:var(--k);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:2vw;flex:none}
+.txt ul{list-style:none;display:flex;flex-direction:column;gap:.9vw}
+.txt li{font-size:1.8vw;line-height:1.35;padding-left:2.2vw;position:relative}
+.txt li::before{content:"\2605";position:absolute;left:0;color:var(--k)}
+.txt li b{color:#0f2550}
+.think{margin-top:auto;background:#f3f6fb;border-left:.6vw solid var(--k);border-radius:.8vw;padding:1vw 1.4vw;font-size:1.65vw;line-height:1.35}
+.think span{display:block;font-weight:bold;color:var(--k);filter:brightness(.8);margin-bottom:.3vw}
+.rnav{display:flex;align-items:center;justify-content:center;gap:1.5vw;padding:1vw}
+.rnav .step{height:2.8vw;font-size:1.3vw;padding:0 1.4vw}
+.dots{display:flex;gap:.6vw}
+.dots button{width:1.1vw;height:1.1vw;border-radius:50%;background:#3a4d74}
+.dots button.cur{background:var(--y);width:2.6vw;border-radius:1vw}
+/* KUIS */
+main{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:1vw;padding:0 1.2vw 1.2vw;min-height:0}
+.col{background:var(--card);border-radius:1vw;display:flex;flex-direction:column;overflow:hidden;border-top:1vw solid var(--pc)}
+.top{display:flex;justify-content:space-between;align-items:center;padding:.9vw 1.4vw .4vw}
+.pk{font-size:1.9vw;font-weight:bold;color:var(--pc)}
+.lv{font-size:1vw;font-weight:bold;padding:.25vw .8vw;border-radius:2vw;background:#eef2f8;color:var(--muted)}
+.body{flex:1;padding:.4vw 1.4vw;display:flex;flex-direction:column;gap:1.1vw;min-height:0}
+.q{font-size:var(--qs,2vw);line-height:1.35;font-weight:bold}
+.q b{color:var(--pc);margin-right:.4vw}
+.col ol{list-style:none;display:flex;flex-direction:column;gap:.6vw}
+.col li{font-size:var(--os,1.85vw);line-height:1.3;padding:.55vw .8vw;border-radius:.6vw;border:.15vw solid #e3e8f0;display:flex;gap:.8vw}
+.col li span{font-weight:bold;min-width:1.6vw}
+.col li.ok{background:var(--okbg);border-color:var(--ok);font-weight:bold}
+.col li.ok::after{content:"\2714";margin-left:auto;color:var(--ok)}
+.show{margin:0 1.4vw 1.2vw;padding:.8vw;font-size:1.25vw;font-weight:bold;border-radius:.6vw;background:var(--pc);color:#fff}
+.show.on{background:#eef2f8;color:var(--ink)}
+.pa{--pc:var(--a)}.pb{--pc:var(--b)}.pc{--pc:var(--c)}
+</style>
+</head>
+<body>
+
+<section class="screen on" id="menu">
+  <div class="sub">IPAS KELAS 6</div>
+  <h1>Tata Surya, Gerak Bumi &amp; Bulan,<br>serta Gerhana</h1>
+  <p>30 soal pilihan ganda &middot; Paket A, B, dan C</p>
+  <div class="big">
+    <button class="b1" onclick="page(0);show('ring')">&#128214; Ringkasan</button>
+    <button class="b2" onclick="show('quiz')">&#9998; Mulai Ujian</button>
+  </div>
+</section>
+
+<section class="screen" id="ring">
+  <header>
+    <button class="step home" onclick="show('menu')">&#8962; Menu</button>
+    <h1>Ringkasan Sebelum Ujian</h1>
+    <div class="nav"><span class="pgno" id="pgno"></span></div>
+  </header>
+  <div class="slides" id="slides">
+
+    <!-- 1. TATA SURYA -->
+    <div class="slide" style="--k:#f0a91e">
+      <div class="ill"><svg viewBox="-200 -200 400 400">
+        <defs><radialGradient id="sun1"><stop offset="0" stop-color="#fff4b0"/><stop offset=".6" stop-color="#ffc21a"/><stop offset="1" stop-color="#ff8a00"/></radialGradient></defs>
+        <g fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.2">
+          <circle r="42"/><circle r="58"/><circle r="75"/><circle r="92"/><circle r="118"/><circle r="142"/><circle r="164"/><circle r="186"/></g>
+        <circle r="34" fill="#ffc21a" opacity=".25"><animate attributeName="r" values="32;40;32" dur="3s" repeatCount="indefinite"/></circle>
+        <circle r="28" fill="url(#sun1)"/>
+        <g><circle cx="42" r="3.5" fill="#b7b2aa"/><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/></g>
+        <g><circle cx="58" r="6" fill="#e8c27a"/><animateTransform attributeName="transform" type="rotate" from="120" to="480" dur="7s" repeatCount="indefinite"/></g>
+        <g><circle cx="75" r="6.5" fill="#3b8ee8"/><circle cx="75" r="6.5" fill="none" stroke="#5fd17a" stroke-width="2" stroke-dasharray="5 6"/><animateTransform attributeName="transform" type="rotate" from="240" to="600" dur="10s" repeatCount="indefinite"/></g>
+        <g><circle cx="92" r="5" fill="#d9573b"/><animateTransform attributeName="transform" type="rotate" from="60" to="420" dur="14s" repeatCount="indefinite"/></g>
+        <g><circle cx="118" r="13" fill="#d8a46b"/><path d="M106 -3h24M107 4h22" stroke="#a8693a" stroke-width="2.5"/><animateTransform attributeName="transform" type="rotate" from="200" to="560" dur="22s" repeatCount="indefinite"/></g>
+        <g><ellipse cx="142" rx="19" ry="5" fill="none" stroke="#e9d39b" stroke-width="2.5"/><circle cx="142" r="10" fill="#e3c38a"/><animateTransform attributeName="transform" type="rotate" from="300" to="660" dur="30s" repeatCount="indefinite"/></g>
+        <g><circle cx="164" r="8" fill="#8fd6e0"/><animateTransform attributeName="transform" type="rotate" from="20" to="380" dur="40s" repeatCount="indefinite"/></g>
+        <g><circle cx="186" r="8" fill="#3f63d8"/><animateTransform attributeName="transform" type="rotate" from="150" to="510" dur="52s" repeatCount="indefinite"/></g>
+      </svg></div>
+      <div class="txt">
+        <h2><span class="badge">1</span>Tata Surya</h2>
+        <ul>
+          <li>Tata Surya berpusat pada <b>satu bintang</b>. Benda langit lainnya beredar mengelilinginya karena gaya tariknya.</li>
+          <li>Bedakan benda yang <b>memancarkan</b> cahaya sendiri dengan yang hanya <b>memantulkan</b> cahaya.</li>
+          <li>Ingat kembali <b>urutan 8 planet</b> dan ciri khas masing-masing.</li>
+          <li>Planet dibagi dua kelompok, yaitu yang dekat dan yang jauh dari Matahari. Ciri kedua kelompok berbeda.</li>
+          <li>Kenali benda langit lain: <b>satelit, asteroid, komet, meteoroid, meteor, dan meteorit</b>.</li>
+        </ul>
+        <div class="think"><span>&#129300; Coba pikirkan</span>Kalau kamu bisa terbang mengelilingi Tata Surya, planet mana yang paling ingin kamu kunjungi? Mengapa?</div>
+      </div>
+    </div>
+
+    <!-- 2. ROTASI -->
+    <div class="slide" style="--k:#3b8ee8">
+      <div class="ill"><svg viewBox="0 0 400 320">
+        <defs>
+          <radialGradient id="sun2" cx=".2"><stop offset="0" stop-color="#fff4b0"/><stop offset="1" stop-color="#ffb000"/></radialGradient>
+          <clipPath id="ec2"><circle cx="255" cy="160" r="95"/></clipPath>
+        </defs>
+        <circle cx="10" cy="160" r="70" fill="url(#sun2)"/>
+        <g stroke="#ffd23f" stroke-width="3" stroke-linecap="round" opacity=".8">
+          <path d="M95 110h50M95 160h50M95 210h50"><animate attributeName="opacity" values=".3;1;.3" dur="2s" repeatCount="indefinite"/></path></g>
+        <circle cx="255" cy="160" r="95" fill="#2f7fd9"/>
+        <g clip-path="url(#ec2)"><g fill="#4cc36b">
+          <g><path d="M150 110q20-25 45-5t10 40q-30 20-50-5zM215 170q25-10 35 15t-20 35q-25-15-15-50zM290 95q30-5 35 20t-25 25q-20-20-10-45zM300 190q20 5 25 30t-30 10q-10-25 5-40z"/>
+             <path transform="translate(-200 0)" d="M150 110q20-25 45-5t10 40q-30 20-50-5zM215 170q25-10 35 15t-20 35q-25-15-15-50zM290 95q30-5 35 20t-25 25q-20-20-10-45zM300 190q20 5 25 30t-30 10q-10-25 5-40z"/>
+             <animateTransform attributeName="transform" type="translate" from="0 0" to="200 0" dur="10s" repeatCount="indefinite"/></g>
+        </g>
+        <path d="M255 65a95 95 0 0 1 0 190z" fill="#06102a" opacity=".55"/></g>
+        <line x1="225" y1="45" x2="285" y2="275" stroke="#fff" stroke-width="3" stroke-dasharray="7 6"/>
+        <text x="352" y="70" font-size="34">&#9728;&#65039;</text><text x="352" y="270" font-size="34">&#127769;</text>
+      </svg></div>
+      <div class="txt">
+        <h2><span class="badge">2</span>Rotasi Bumi</h2>
+        <ul>
+          <li>Rotasi berarti Bumi <b>berputar pada porosnya</b> sendiri.</li>
+          <li>Pikirkan hubungan <b>arah putaran Bumi</b> dengan arah Matahari terbit dan terbenam.</li>
+          <li>Rotasi membawa banyak akibat: pada <b>waktu sehari-hari</b>, arah angin, sampai bentuk Bumi.</li>
+          <li>Ada <b>percobaan terkenal</b> yang membuktikan bahwa Bumi berputar.</li>
+          <li><b>Zona waktu:</b> wilayah yang lebih ke timur, jamnya lebih maju atau mundur? Hitung selisihnya dengan teliti.</li>
+        </ul>
+        <div class="think"><span>&#129300; Coba pikirkan</span>Saat kamu bangun pagi, apakah teman di belahan Bumi yang lain juga sedang pagi?</div>
+      </div>
+    </div>
+
+    <!-- 3. REVOLUSI -->
+    <div class="slide" style="--k:#2fb36a">
+      <div class="ill"><svg viewBox="0 0 400 300">
+        <defs><radialGradient id="sun3"><stop offset="0" stop-color="#fff4b0"/><stop offset=".6" stop-color="#ffc21a"/><stop offset="1" stop-color="#ff8a00"/></radialGradient></defs>
+        <path id="orb3" d="M25 150A175 105 0 1 0 375 150A175 105 0 1 0 25 150" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="6 7"/>
+        <circle cx="165" cy="150" r="42" fill="#ffc21a" opacity=".25"><animate attributeName="r" values="40;50;40" dur="3s" repeatCount="indefinite"/></circle>
+        <circle cx="165" cy="150" r="36" fill="url(#sun3)"/>
+        <g><circle r="17" fill="#3b8ee8"/><path d="M-9-6q6-6 11 0t-2 9q-8 2-9-9zM4 5q6-2 8 3t-6 5q-4-3-2-8z" fill="#5fd17a"/>
+          <line x1="-8" y1="-27" x2="8" y2="27" stroke="#fff" stroke-width="2.5"/>
+          <animateMotion dur="16s" repeatCount="indefinite"><mpath href="#orb3"/></animateMotion></g>
+        <g font-size="26"><text x="20" y="40">&#127800;</text><text x="350" y="40">&#9728;&#65039;</text><text x="350" y="285">&#127810;</text><text x="20" y="285">&#10052;&#65039;</text></g>
+      </svg></div>
+      <div class="txt">
+        <h2><span class="badge">3</span>Revolusi Bumi</h2>
+        <ul>
+          <li>Revolusi berarti Bumi <b>mengelilingi Matahari</b>. Lintasannya tidak bulat sempurna.</li>
+          <li>Apa penyebab utama musim? <b>Hati-hati jebakan!</b></li>
+          <li>Ada saat Bumi terdekat dan terjauh dari Matahari, ada saat siang sama dengan malam, dan ada saat siang terpanjang.</li>
+          <li>Bandingkan musim di <b>belahan utara</b> dan <b>belahan selatan</b>.</li>
+          <li>Mengapa musim di Indonesia berbeda dengan musim di negara yang jauh dari khatulistiwa?</li>
+          <li>Pahami aturan <b>tahun kabisat</b>, termasuk pengecualiannya.</li>
+        </ul>
+        <div class="think"><span>&#129300; Coba pikirkan</span>Sudah berapa kali Bumi mengelilingi Matahari sejak kamu lahir?</div>
+      </div>
+    </div>
+
+    <!-- 4. BULAN -->
+    <div class="slide" style="--k:#9b6cf0">
+      <div class="ill"><svg viewBox="0 0 400 300">
+        <defs><linearGradient id="lt4"><stop offset="0" stop-color="#ffd23f" stop-opacity=".55"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></linearGradient></defs>
+        <rect x="0" y="0" width="120" height="300" fill="url(#lt4)"/>
+        <g stroke="#ffd23f" stroke-width="3" stroke-linecap="round"><path d="M15 80h40M15 150h40M15 220h40"/></g>
+        <circle id="mo4" cx="230" cy="150" r="105" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-dasharray="6 7"/>
+        <circle cx="230" cy="150" r="34" fill="#3b8ee8"/>
+        <path d="M212 135q10-12 22-3t-3 18q-15 4-19-15zM238 158q12-4 16 6t-12 12q-8-6-4-18z" fill="#5fd17a"/>
+        <path d="M230 116a34 34 0 0 1 0 68z" fill="#06102a" opacity=".5"/>
+        <g><circle r="15" fill="#4a4f5c"/><path d="M0-15a15 15 0 0 0 0 30z" fill="#f1f1ea"/>
+          <animateMotion dur="12s" repeatCount="indefinite" path="M335 150A105 105 0 1 0 125 150A105 105 0 1 0 335 150"/></g>
+        <text x="352" y="45" font-size="30">&#10067;</text>
+      </svg></div>
+      <div class="txt">
+        <h2><span class="badge">4</span>Bulan</h2>
+        <ul>
+          <li>Bulan adalah satelit Bumi. <b>Dari mana asal cahayanya?</b></li>
+          <li>Bulan melakukan <b>lebih dari satu gerakan</b> sekaligus.</li>
+          <li>Mengapa kita selalu melihat <b>sisi Bulan yang sama</b>?</li>
+          <li><b>Fase Bulan:</b> bentuk Bulan sebenarnya tidak berubah. Bayangkan urutannya dari tidak tampak, menjadi bulat penuh, lalu kembali lagi.</li>
+          <li>Bulan memengaruhi kehidupan kita, misalnya <b>kalender</b> dan <b>air laut</b>.</li>
+        </ul>
+        <div class="think"><span>&#129300; Coba pikirkan</span>Malam ini, coba amati Bulan di langit. Seperti apa bentuknya?</div>
+      </div>
+    </div>
+
+    <!-- 5. GERHANA -->
+    <div class="slide" style="--k:#f0643c">
+      <div class="ill"><svg viewBox="0 0 400 300">
+        <defs><radialGradient id="sun5"><stop offset="0" stop-color="#fff4b0"/><stop offset=".6" stop-color="#ffc21a"/><stop offset="1" stop-color="#ff8a00"/></radialGradient></defs>
+        <path d="M70 95L390 135V165L70 205z" fill="#ffd23f" opacity=".12"/>
+        <line x1="20" y1="150" x2="390" y2="150" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-dasharray="6 7"/>
+        <circle cx="70" cy="150" r="62" fill="#ffc21a" opacity=".25"><animate attributeName="r" values="60;70;60" dur="3s" repeatCount="indefinite"/></circle>
+        <circle cx="70" cy="150" r="55" fill="url(#sun5)"/>
+        <g font-family="Arial" font-weight="bold" text-anchor="middle">
+          <circle cx="225" cy="150" r="30" fill="#5a6b8c" stroke="#fff" stroke-width="3" stroke-dasharray="5 5"/>
+          <text x="225" y="163" font-size="36" fill="#fff">?<animate attributeName="opacity" values="1;.3;1" dur="1.6s" repeatCount="indefinite"/></text>
+          <circle cx="340" cy="150" r="30" fill="#5a6b8c" stroke="#fff" stroke-width="3" stroke-dasharray="5 5"/>
+          <text x="340" y="163" font-size="36" fill="#fff">?<animate attributeName="opacity" values=".3;1;.3" dur="1.6s" repeatCount="indefinite"/></text>
+          <text x="225" y="240" font-size="20" fill="#ffd23f">Siapa di tengah?</text>
+        </g>
+      </svg></div>
+      <div class="txt">
+        <h2><span class="badge">5</span>Gerhana</h2>
+        <ul>
+          <li>Gerhana terjadi saat tiga benda langit berada dalam <b>satu garis lurus</b>.</li>
+          <li>Kuncinya: <b>siapa yang berada di tengah?</b></li>
+          <li>Hubungkan jenis gerhana dengan <b>fase Bulan</b> dan <b>waktu terjadinya</b> (siang atau malam).</li>
+          <li>Kenali dua macam bayangan, yaitu <b>bayangan inti</b> dan <b>bayangan kabur</b>.</li>
+          <li>Ada jenis gerhana yang hanya dimiliki salah satu gerhana saja.</li>
+          <li>Ingat cara aman <b>menjaga mata</b> saat mengamati gerhana.</li>
+        </ul>
+        <div class="think"><span>&#129300; Coba pikirkan</span>Dengan senter, bola, dan jeruk, bisakah kamu membuat gerhana sendiri?</div>
+      </div>
+    </div>
+
+    <!-- 6. TIPS -->
+    <div class="slide" style="--k:#ffd23f">
+      <div class="ill"><svg viewBox="0 0 400 300">
+        <g transform="rotate(-6 200 150)">
+          <rect x="105" y="35" width="190" height="240" rx="12" fill="#fff"/>
+          <rect x="105" y="35" width="190" height="34" rx="12" fill="#ffd23f"/>
+          <g fill="none" stroke="#c9d3e3" stroke-width="5" stroke-linecap="round">
+            <path d="M160 100h105M160 140h105M160 180h105M160 220h80"/></g>
+          <g fill="none" stroke="#16233d" stroke-width="3">
+            <rect x="128" y="88" width="22" height="22" rx="4"/><rect x="128" y="128" width="22" height="22" rx="4"/>
+            <rect x="128" y="168" width="22" height="22" rx="4"/><rect x="128" y="208" width="22" height="22" rx="4"/></g>
+          <g fill="none" stroke="#2fb36a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="30" stroke-dashoffset="30">
+            <path d="M132 99l6 7 12-14"><animate attributeName="stroke-dashoffset" values="30;0;0;30" keyTimes="0;.15;.9;1" dur="6s" repeatCount="indefinite"/></path>
+            <path d="M132 139l6 7 12-14"><animate attributeName="stroke-dashoffset" values="30;30;0;0;30" keyTimes="0;.2;.35;.9;1" dur="6s" repeatCount="indefinite"/></path>
+            <path d="M132 179l6 7 12-14"><animate attributeName="stroke-dashoffset" values="30;30;0;0;30" keyTimes="0;.4;.55;.9;1" dur="6s" repeatCount="indefinite"/></path>
+            <path d="M132 219l6 7 12-14"><animate attributeName="stroke-dashoffset" values="30;30;0;0;30" keyTimes="0;.6;.75;.9;1" dur="6s" repeatCount="indefinite"/></path>
+          </g>
+        </g>
+        <g transform="translate(300 200) rotate(35)">
+          <rect x="-9" y="-80" width="18" height="90" fill="#f0a91e"/><rect x="-9" y="-92" width="18" height="14" fill="#f08080"/>
+          <path d="M-9 10L0 30L9 10z" fill="#f3d9b1"/><path d="M-3 23L0 30L3 23z" fill="#16233d"/>
+          <animateTransform attributeName="transform" type="translate" additive="sum" values="0 0;-6 4;0 0" dur="1.2s" repeatCount="indefinite"/>
+        </g>
+        <text x="40" y="70" font-size="34">&#11088;</text><text x="330" y="60" font-size="26">&#10024;</text>
+      </svg></div>
+      <div class="txt">
+        <h2><span class="badge">&#9733;</span>Tips Mengerjakan</h2>
+        <ul>
+          <li>Tulis <b>nama, kelas, dan paket</b> dengan jelas di lembar jawaban.</li>
+          <li>Baca soal sampai selesai. Perhatikan kata <b>BUKAN</b> atau <b>KECUALI</b>.</li>
+          <li>Baca <b>keempat pilihan jawaban</b> sebelum memilih.</li>
+          <li>Kalau ragu, <b>coret jawaban yang pasti salah</b> dulu.</li>
+          <li>Untuk soal hitungan, tulis cara singkatnya di kertas coretan.</li>
+          <li>Tenang, percaya diri, dan <b>kerjakan sendiri</b>!</li>
+        </ul>
+        <div class="think"><span>&#128170; Semangat!</span>Kamu sudah belajar. Sekarang saatnya menunjukkan kemampuanmu!</div>
+      </div>
+    </div>
+  </div>
+  <footer class="rnav">
+    <button class="step" id="rprev">&#9664; Sebelumnya</button>
+    <div class="dots" id="dots"></div>
+    <button class="step" id="rnext">Berikutnya &#9654;</button>
+  </footer>
+</section>
+
+<section class="screen" id="quiz">
+  <header>
+    <button class="step home" onclick="show('menu')">&#8962; Menu</button>
+    <h1>Kuis IPAS Kelas 6 &middot; Tata Surya</h1>
+    <div class="nav">
+      <button class="step" id="prev">&#9664; Sebelum</button>
+      <span id="nums" style="display:flex;gap:.2vw"></span>
+      <button class="step" id="next">Lanjut &#9654;</button>
+    </div>
+  </header>
+  <main id="main"></main>
+</section>
+
+<script>
+const P=[[{"q":"Pusat Tata Surya adalah ....","o":["Bumi","Matahari","Bulan","Yupiter"],"k":1,"n":1,"d":"Mudah"},{"q":"Planet yang paling dekat dengan Matahari adalah ....","o":["Venus","Bumi","Mars","Merkurius"],"k":3,"n":9,"d":"Mudah"},{"q":"Planet yang dijuluki planet merah adalah ....","o":["Yupiter","Mars","Venus","Merkurius"],"k":1,"n":16,"d":"Mudah"},{"q":"Planet terjauh dari Matahari adalah ....","o":["Neptunus","Uranus","Saturnus","Yupiter"],"k":0,"n":23,"d":"Mudah"},{"q":"Sabuk asteroid terletak di antara orbit planet ....","o":["Mars dan Yupiter","Bumi dan Mars","Yupiter dan Saturnus","Venus dan Bumi"],"k":0,"n":33,"d":"Mudah"},{"q":"Rotasi Bumi adalah ....","o":["peredaran Bumi mengelilingi Matahari","perputaran Bumi pada porosnya","peredaran Bulan mengelilingi Bumi","pergeseran lempeng Bumi"],"k":1,"n":41,"d":"Mudah"},{"q":"Percobaan yang membuktikan bahwa Bumi berotasi adalah ....","o":["kamera lubang jarum","teropong bintang","termometer","Bandul Foucault"],"k":3,"n":48,"d":"Mudah"},{"q":"Pulau Bali menggunakan zona waktu ....","o":["WITA","WIB","WIT","GMT"],"k":0,"n":62,"d":"Mudah"},{"q":"Bentuk Bumi yang pepat di kutub dan menggembung di ekuator disebut ....","o":["bulat sempurna","kerucut","geoid","kubus"],"k":2,"n":74,"d":"Mudah"},{"q":"Bentuk lintasan Bumi saat mengelilingi Matahari adalah ....","o":["elips","bulat sempurna","garis lurus","segitiga"],"k":0,"n":83,"d":"Mudah"},{"q":"Fenomena Matahari tetap terlihat pada tengah malam di daerah kutub disebut ....","o":["polar night","ekuinoks","aphelion","midnight sun"],"k":3,"n":106,"d":"Mudah"},{"q":"Tahun kabisat terdiri dari ... hari.","o":["365","364","366","367"],"k":2,"n":115,"d":"Mudah"},{"q":"Fase Bulan saat Bulan tidak tampak dari Bumi disebut ....","o":["Bulan purnama","kuartal pertama","Bulan cembung","Bulan baru"],"k":3,"n":132,"d":"Mudah"},{"q":"Gerhana Matahari terjadi ketika ....","o":["Bumi berada di antara Matahari dan Bulan","Bulan berada di antara Matahari dan Bumi","Matahari berada di antara Bumi dan Bulan","Bulan berada di belakang Bumi"],"k":1,"n":165,"d":"Mudah"},{"q":"Cara yang aman untuk mengamati gerhana Matahari adalah ....","o":["menggunakan kacamata khusus gerhana","melihat langsung dengan mata telanjang","memakai kacamata hitam biasa","menggunakan teropong biasa"],"k":0,"n":174,"d":"Mudah"},{"q":"Benda-benda langit tetap beredar mengelilingi Matahari karena adanya ....","o":["gaya magnet Bumi","dorongan angin","gaya gravitasi Matahari","gaya gesek"],"k":2,"n":2,"d":"Sedang"},{"q":"Warna merah pada planet Mars disebabkan oleh ....","o":["lava gunung berapi","pantulan cahaya Bulan","awan berwarna merah","debu yang mengandung besi berkarat"],"k":3,"n":17,"d":"Sedang"},{"q":"Planet yang terletak di antara Mars dan Saturnus adalah ....","o":["Uranus","Yupiter","Bumi","Neptunus"],"k":1,"n":28,"d":"Sedang"},{"q":"Matahari tampak terbit di timur dan terbenam di barat karena ....","o":["Matahari bergerak dari timur ke barat","Bumi berotasi dari barat ke timur","Bumi berevolusi","Bulan mengelilingi Bumi"],"k":1,"n":53,"d":"Sedang"},{"q":"Di belahan Bumi selatan, badai siklon berputar ....","o":["berlawanan arah jarum jam","searah jarum jam","lurus ke utara","tidak berputar"],"k":1,"n":73,"d":"Sedang"},{"q":"Pada bulan Juli, belahan Bumi utara mengalami musim panas. Pada saat yang sama, belahan Bumi selatan mengalami musim ....","o":["panas","semi","dingin","gugur"],"k":2,"n":104,"d":"Sedang"},{"q":"Tahun berikut yang merupakan tahun kabisat adalah ....","o":["2028","2026","2027","2030"],"k":0,"n":118,"d":"Sedang"},{"q":"Pada fase purnama, posisi yang benar adalah ....","o":["Bulan berada di antara Matahari dan Bumi","Matahari berada di antara Bumi dan Bulan","Bumi berada di antara Matahari dan Bulan","Bulan berada di dekat Matahari"],"k":2,"n":142,"d":"Sedang"},{"q":"Saat Bulan purnama dan Bulan baru, pasang air laut biasanya ....","o":["paling rendah","tidak terjadi","sama seperti biasa","paling tinggi"],"k":3,"n":156,"d":"Sedang"},{"q":"Gerhana Bulan dapat dilihat dari wilayah yang lebih luas daripada gerhana Matahari karena ....","o":["Bulan lebih besar dari Matahari","terjadi pada siang hari","dapat dilihat dari seluruh wilayah Bumi yang sedang malam hari","hanya terjadi di khatulistiwa"],"k":2,"n":181,"d":"Sedang"},{"q":"Perhatikan pernyataan berikut: (1) memancarkan cahaya sendiri, (2) memantulkan cahaya, (3) mengelilingi Matahari, (4) pusat Tata Surya. Ciri planet ditunjukkan oleh nomor ....","o":["(1) dan (4)","(1) dan (3)","(2) dan (4)","(2) dan (3)"],"k":3,"n":40,"d":"Sulit"},{"q":"Pukul 12.00 WITA di Denpasar sama dengan pukul ... WIB di Bandung.","o":["11.00","13.00","12.00","10.00"],"k":0,"n":69,"d":"Sulit"},{"q":"Bukti bahwa musim BUKAN disebabkan oleh jarak Bumi ke Matahari adalah ....","o":["saat aphelion seluruh Bumi mengalami musim panas","jarak Bumi ke Matahari selalu sama","saat perihelion, belahan Bumi utara justru mengalami musim dingin","musim terjadi bersamaan di seluruh Bumi"],"k":2,"n":90,"d":"Sulit"},{"q":"Perhatikan pernyataan berikut: (1) tidak memancarkan cahaya sendiri, (2) memiliki air cair yang melimpah, (3) permukaannya berkawah, (4) satelit alami Bumi. Pernyataan yang benar tentang Bulan adalah ....","o":["(1), (2), dan (3)","(2), (3), dan (4)","(1), (2), dan (4)","(1), (3), dan (4)"],"k":3,"n":148,"d":"Sulit"},{"q":"Perhatikan ciri berikut: (1) terjadi saat Bulan purnama, (2) terjadi siang hari, (3) dapat dilihat dari wilayah yang luas, (4) ada jenis cincin. Ciri gerhana Bulan ditunjukkan oleh nomor ....","o":["(1) dan (2)","(2) dan (4)","(3) dan (4)","(1) dan (3)"],"k":3,"n":195,"d":"Sulit"}],[{"q":"Lintasan tempat planet beredar mengelilingi Matahari disebut ....","o":["orbit","poros","ekuator","meridian"],"k":0,"n":3,"d":"Mudah"},{"q":"Planet terkecil di Tata Surya adalah ....","o":["Mars","Venus","Neptunus","Merkurius"],"k":3,"n":10,"d":"Mudah"},{"q":"Planet terbesar di Tata Surya adalah ....","o":["Saturnus","Uranus","Neptunus","Yupiter"],"k":3,"n":18,"d":"Mudah"},{"q":"Benda langit yang beredar mengelilingi planet disebut ....","o":["asteroid","satelit","komet","meteor"],"k":1,"n":30,"d":"Mudah"},{"q":"Benda langit yang tersusun dari es dan debu serta memiliki ekor saat mendekati Matahari adalah ....","o":["asteroid","meteorit","komet","satelit"],"k":2,"n":34,"d":"Mudah"},{"q":"Arah rotasi Bumi adalah dari ....","o":["timur ke barat","barat ke timur","utara ke selatan","selatan ke utara"],"k":1,"n":43,"d":"Mudah"},{"q":"Bagian Bumi yang membelakangi Matahari akan mengalami ....","o":["siang","musim panas","malam","gerhana"],"k":2,"n":51,"d":"Mudah"},{"q":"Papua menggunakan zona waktu ....","o":["WITA","WIB","WIT","GMT"],"k":2,"n":63,"d":"Mudah"},{"q":"Revolusi Bumi adalah ....","o":["perputaran Bumi pada porosnya","peredaran Bulan mengelilingi Bumi","peredaran Matahari mengelilingi Bumi","peredaran Bumi mengelilingi Matahari"],"k":3,"n":81,"d":"Mudah"},{"q":"Besar kemiringan sumbu Bumi adalah ....","o":["15°","23,5°","45°","66,5°"],"k":1,"n":88,"d":"Mudah"},{"q":"Indonesia termasuk dalam zona iklim ....","o":["subtropis","sedang","tropis","dingin"],"k":2,"n":110,"d":"Mudah"},{"q":"Bulan merupakan ... alami Bumi.","o":["satelit","planet","bintang","asteroid"],"k":0,"n":121,"d":"Mudah"},{"q":"Fase Bulan saat Bulan tampak bulat penuh disebut ....","o":["Bulan purnama","Bulan baru","Bulan sabit","kuartal ketiga"],"k":0,"n":133,"d":"Mudah"},{"q":"Susunan posisi benda langit saat gerhana Matahari adalah ....","o":["Matahari – Bumi – Bulan","Bumi – Matahari – Bulan","Matahari – Bulan – Bumi","Bulan – Matahari – Bumi"],"k":2,"n":166,"d":"Mudah"},{"q":"Gerhana Bulan terjadi ketika ....","o":["Bumi berada di antara Matahari dan Bulan","Bulan berada di antara Matahari dan Bumi","Matahari berada di antara Bumi dan Bulan","Bulan berada di samping Matahari"],"k":0,"n":177,"d":"Mudah"},{"q":"Perbedaan utama bintang dan planet adalah bintang ....","o":["memantulkan cahaya Matahari","selalu lebih kecil dari planet","tidak memiliki gravitasi","memancarkan cahaya sendiri"],"k":3,"n":5,"d":"Sedang"},{"q":"Neptunus sangat dingin karena ....","o":["letaknya paling jauh dari Matahari","tidak memiliki atmosfer","ukurannya paling kecil","tertutup cincin es"],"k":0,"n":24,"d":"Sedang"},{"q":"Ekor komet selalu mengarah ....","o":["menjauhi Matahari","menuju Matahari","menuju Bumi","ke arah utara"],"k":0,"n":35,"d":"Sedang"},{"q":"Jika di Jakarta pukul 08.00 WIB, maka di Makassar pukul ....","o":["09.00 WITA","07.00 WITA","08.00 WITA","10.00 WITA"],"k":0,"n":66,"d":"Sedang"},{"q":"Bumi menggembung di daerah ekuator karena ....","o":["ekuator lebih dekat ke Matahari","ekuator memiliki banyak gunung","tarikan gravitasi Bulan di kutub","putaran Bumi lebih cepat di daerah ekuator"],"k":3,"n":75,"d":"Sedang"},{"q":"Zona iklim di Bumi berbeda-beda karena ....","o":["jumlah gunung berbeda","letak laut berbeda","jumlah penduduk berbeda","sudut datang sinar Matahari berbeda di setiap lintang"],"k":3,"n":112,"d":"Sedang"},{"q":"Bentuk Bulan tampak berubah-ubah karena ....","o":["Bulan benar-benar berubah bentuk","bagian Bulan yang terkena cahaya Matahari dan terlihat dari Bumi berubah","Bulan tertutup awan","Bumi menutupi Bulan setiap malam"],"k":1,"n":131,"d":"Sedang"},{"q":"Pada fase Bulan baru, Bulan tidak terlihat karena ....","o":["Bulan sedang berada di balik Matahari","Bulan keluar dari orbitnya","Bulan tertutup bayangan Bumi","sisi Bulan yang terkena cahaya membelakangi Bumi"],"k":3,"n":143,"d":"Sedang"},{"q":"Gerhana Matahari hanya dapat dilihat dari sebagian kecil wilayah Bumi karena ....","o":["bayangan Bulan yang jatuh ke Bumi berukuran kecil","Matahari lebih kecil dari Bumi","gerhana Matahari hanya terjadi di kutub","Bumi berhenti berotasi saat gerhana"],"k":0,"n":169,"d":"Sedang"},{"q":"Bulan tampak kemerahan saat gerhana Bulan total karena ....","o":["Bulan terbakar","Bulan memancarkan cahaya merah sendiri","Bulan tertutup debu dari Mars","cahaya Matahari dibiaskan oleh atmosfer Bumi"],"k":3,"n":183,"d":"Sedang"},{"q":"Jika di Jayapura pukul 10.00 WIT, maka di Medan pukul ....","o":["09.00 WIB","11.00 WIB","12.00 WIB","08.00 WIB"],"k":3,"n":67,"d":"Sulit"},{"q":"Berikut ini yang BUKAN akibat rotasi Bumi adalah ....","o":["siang dan malam","perbedaan waktu","pergantian musim","gerak semu harian Matahari"],"k":2,"n":79,"d":"Sulit"},{"q":"Antara 21 Maret dan 21 Juni, Australia yang terletak di belahan Bumi selatan mengalami musim ....","o":["semi","gugur","panas","dingin"],"k":1,"n":105,"d":"Sulit"},{"q":"Satu tahun Hijriah lebih pendek daripada satu tahun Masehi karena ....","o":["didasarkan pada peredaran Bulan","didasarkan pada rotasi Bumi","tidak memiliki bulan Februari","hanya memiliki 10 bulan"],"k":0,"n":153,"d":"Sulit"},{"q":"Ketika gerhana Bulan total terjadi di Indonesia pada malam hari, penduduk di negara yang sedang siang hari ....","o":["melihat gerhana lebih jelas","mengalami gerhana Matahari","tidak dapat melihat gerhana tersebut","melihat Bulan berwarna biru"],"k":2,"n":198,"d":"Sulit"}],[{"q":"Jumlah planet dalam Tata Surya adalah ....","o":["8","7","9","10"],"k":0,"n":8,"d":"Mudah"},{"q":"Planet terpanas di Tata Surya adalah ....","o":["Merkurius","Mars","Yupiter","Venus"],"k":3,"n":11,"d":"Mudah"},{"q":"Planet yang terkenal dengan cincinnya yang paling indah dan jelas adalah ....","o":["Yupiter","Uranus","Saturnus","Mars"],"k":2,"n":20,"d":"Mudah"},{"q":"Satelit alami yang dimiliki Bumi adalah ....","o":["Bulan","Matahari","Phobos","Titan"],"k":0,"n":31,"d":"Mudah"},{"q":"Meteoroid yang masuk ke atmosfer Bumi lalu terbakar sehingga tampak seperti garis cahaya disebut ....","o":["meteorit","meteor","asteroid","komet"],"k":1,"n":37,"d":"Mudah"},{"q":"Waktu yang dibutuhkan Bumi untuk satu kali rotasi adalah sekitar ....","o":["12 jam","7 hari","365 hari","24 jam"],"k":3,"n":44,"d":"Mudah"},{"q":"Indonesia dibagi menjadi ... zona waktu.","o":["2","4","3","5"],"k":2,"n":60,"d":"Mudah"},{"q":"Pembelokan arah angin dan arus laut akibat rotasi Bumi disebut ....","o":["efek rumah kaca","gerak semu","gaya gravitasi","efek Coriolis"],"k":3,"n":71,"d":"Mudah"},{"q":"Waktu yang dibutuhkan Bumi untuk satu kali revolusi adalah ....","o":["365¼ hari","24 jam","29½ hari","366¼ hari"],"k":0,"n":82,"d":"Mudah"},{"q":"Pada tanggal 21 Maret, Matahari berada tepat di atas ....","o":["Garis Balik Utara","Garis Balik Selatan","khatulistiwa","Kutub Utara"],"k":2,"n":94,"d":"Mudah"},{"q":"Indonesia hanya mengalami 2 musim, yaitu ....","o":["panas dan dingin","semi dan gugur","kemarau dan hujan","panas dan gugur"],"k":2,"n":113,"d":"Mudah"},{"q":"Bulan tampak bersinar pada malam hari karena ....","o":["memancarkan cahaya sendiri","terbakar di atmosfer","memantulkan cahaya Matahari","memantulkan cahaya lampu kota"],"k":2,"n":122,"d":"Mudah"},{"q":"Kalender yang penanggalannya didasarkan pada peredaran Bulan adalah ....","o":["kalender Masehi","kalender Syamsiah","kalender Hijriah","kalender Matahari"],"k":2,"n":151,"d":"Mudah"},{"q":"Gerhana Matahari hanya dapat terjadi saat fase ....","o":["Bulan purnama","kuartal pertama","Bulan cembung","Bulan baru"],"k":3,"n":167,"d":"Mudah"},{"q":"Susunan posisi benda langit saat gerhana Bulan adalah ....","o":["Matahari – Bulan – Bumi","Bulan – Matahari – Bumi","Bumi – Matahari – Bulan","Matahari – Bumi – Bulan"],"k":3,"n":178,"d":"Mudah"},{"q":"Venus menjadi planet terpanas walaupun bukan yang terdekat dengan Matahari karena ....","o":["ukurannya paling besar","tidak memiliki atmosfer","berputar paling cepat","atmosfernya sangat tebal sehingga panas terperangkap"],"k":3,"n":12,"d":"Sedang"},{"q":"Ciri planet luar adalah ....","o":["berukuran besar dan tersusun dari gas atau es","berukuran kecil dan berbatu","tidak memiliki satelit","paling dekat dengan Matahari"],"k":0,"n":26,"d":"Sedang"},{"q":"Pada percobaan Bandul Foucault, arah ayunan bandul tampak berubah karena ....","o":["lantai di bawahnya ikut berputar bersama Bumi","bandul tertiup angin","tali bandul memanjang","bandul ditarik gravitasi Bulan"],"k":0,"n":49,"d":"Sedang"},{"q":"Di belahan Bumi utara, angin dibelokkan ke arah ....","o":["kanan","kiri","atas","tidak berbelok"],"k":0,"n":72,"d":"Sedang"},{"q":"Penyebab utama terjadinya musim di Bumi adalah ....","o":["kemiringan sumbu Bumi","jarak Bumi ke Matahari","rotasi Bulan","ukuran Matahari"],"k":0,"n":89,"d":"Sedang"},{"q":"Tahun kabisat terjadi karena ....","o":["kala revolusi Bumi sekitar 365¼ hari","Bumi berputar lebih lambat","Bulan mengelilingi Bumi 12 kali","kalender dibuat secara acak"],"k":0,"n":117,"d":"Sedang"},{"q":"Pada fase Bulan baru, posisi Bulan berada ....","o":["di belakang Bumi, jauh dari Matahari","di samping Matahari, jauh dari Bumi","tepat di atas Kutub Utara","di antara Matahari dan Bumi"],"k":3,"n":141,"d":"Sedang"},{"q":"Bulan purnama dapat terlihat sepanjang malam karena ....","o":["Bulan memancarkan cahaya sendiri","Bulan berada sangat dekat dengan Matahari","Bulan berada di sisi yang berlawanan dengan Matahari","Bumi berhenti berotasi"],"k":2,"n":144,"d":"Sedang"},{"q":"Gerhana Matahari cincin terjadi ketika ....","o":["Bulan berada paling dekat dengan Bumi","Bumi berada di antara Matahari dan Bulan","Bulan masuk ke umbra Bumi","Bulan berada di titik terjauh dari Bumi sehingga tampak lebih kecil dari Matahari"],"k":3,"n":172,"d":"Sedang"},{"q":"Gerhana tidak terjadi setiap bulan karena ....","o":["Bulan berhenti berevolusi","Matahari terlalu jauh","Bumi tidak berotasi setiap bulan","orbit Bulan sedikit miring terhadap orbit Bumi"],"k":3,"n":191,"d":"Sedang"},{"q":"Pertandingan sepak bola di Surabaya dimulai pukul 19.00 WIB. Penonton di Ambon menyaksikan siaran langsungnya pada pukul ....","o":["20.00 WIT","21.00 WIT","19.00 WIT","17.00 WIT"],"k":1,"n":68,"d":"Sulit"},{"q":"Seandainya Bumi berhenti berotasi, yang akan terjadi adalah ....","o":["siang dan malam tidak lagi bergantian setiap hari","Bumi tidak lagi mengalami musim","Bulan berhenti mengelilingi Bumi","Matahari terbit dari barat setiap hari"],"k":0,"n":80,"d":"Sulit"},{"q":"Tahun 1900 BUKAN tahun kabisat karena ....","o":["tidak habis dibagi 4","habis dibagi 100 tetapi tidak habis dibagi 400","habis dibagi 400","terjadi sebelum kalender Masehi"],"k":1,"n":119,"d":"Sulit"},{"q":"Peredaran Bulan bermanfaat bagi manusia, KECUALI ....","o":["dasar penanggalan kalender Hijriah","menentukan pergantian musim kemarau dan hujan","menyebabkan pasang surut air laut","menjadi penerang alami di malam hari"],"k":1,"n":160,"d":"Sulit"},{"q":"Saat terjadi gerhana Matahari total di suatu daerah, daerah lain di sekitarnya yang lebih jauh akan mengalami gerhana Matahari ....","o":["sebagian","total juga","cincin","penumbra"],"k":0,"n":199,"d":"Sulit"}]];
+const nama=['A','B','C'],cls=['pa','pb','pc'];
+let i=0,cur='menu';
+function show(id){cur=id;document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(id==='quiz')go(i)}
+const nums=document.getElementById('nums'),main=document.getElementById('main');
+for(let n=0;n<30;n++){const b=document.createElement('button');b.className='num';b.textContent=n+1;b.onclick=()=>go(n);nums.appendChild(b)}
+main.innerHTML=nama.map((p,c)=>`<section class="col ${cls[c]}"><div class="top"><div class="pk">PAKET ${p}</div><div class="lv"></div></div>
+<div class="body"><div class="q"></div><ol></ol></div><button class="show">Tunjukkan Jawaban Benar</button></section>`).join('');
+const cols=[...main.children];
+cols.forEach((el,c)=>{const btn=el.querySelector('.show');btn.onclick=()=>{
+  const on=btn.classList.toggle('on');el.querySelectorAll('li')[P[c][i].k].classList.toggle('ok',on);
+  btn.textContent=on?'Sembunyikan Jawaban':'Tunjukkan Jawaban Benar'}});
+function go(n){
+  i=Math.max(0,Math.min(29,n));
+  cols.forEach((el,c)=>{const s=P[c][i];
+    el.querySelector('.lv').textContent=s.d;
+    el.querySelector('.q').innerHTML=`<b>${i+1}.</b>${s.q}`;
+    el.querySelector('ol').innerHTML=s.o.map((t,j)=>`<li><span>${'ABCD'[j]}.</span>${t}</li>`).join('');
+    const btn=el.querySelector('.show');btn.classList.remove('on');btn.textContent='Tunjukkan Jawaban Benar';
+    const len=s.q.length+s.o.join('').length;el.style.setProperty('--qs',len>330?'1.6vw':'2vw');el.style.setProperty('--os',len>330?'1.5vw':'1.85vw');
+  });
+  [...nums.children].forEach((b,n)=>b.classList.toggle('cur',n===i));
+  document.getElementById('prev').disabled=i===0;document.getElementById('next').disabled=i===29;
+}
+document.getElementById('prev').onclick=()=>go(i-1);
+document.getElementById('next').onclick=()=>go(i+1);
+document.addEventListener('keydown',e=>{if(cur!=='quiz')return;if(e.key==='ArrowRight'||e.key===' ')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+go(0);
+
+// Halaman ringkasan
+const slides=[...document.querySelectorAll('.slide')],dots=document.getElementById('dots');let pg=0;
+slides.forEach((_,n)=>{const d=document.createElement('button');d.onclick=()=>page(n);dots.appendChild(d)});
+function page(n){pg=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('on',k===pg));
+  [...dots.children].forEach((d,k)=>d.classList.toggle('cur',k===pg));
+  document.getElementById('pgno').textContent=`Halaman ${pg+1} / ${slides.length}`;
+  document.getElementById('rprev').disabled=pg===0;
+  const nx=document.getElementById('rnext');nx.innerHTML=pg===slides.length-1?'Mulai Ujian &#9654;':'Berikutnya &#9654;';}
+document.getElementById('rprev').onclick=()=>page(pg-1);
+document.getElementById('rnext').onclick=()=>pg===slides.length-1?show('quiz'):page(pg+1);
+page(0);
+document.addEventListener('keydown',e=>{if(cur!=='ring')return;if(e.key==='ArrowRight'||e.key===' ')page(pg+1);if(e.key==='ArrowLeft')page(pg-1)});
+</script>
+</body>
+</html>
