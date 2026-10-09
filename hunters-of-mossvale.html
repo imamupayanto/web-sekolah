@@ -1892,19 +1892,19 @@ async function checkQuest(){const Q=S.Q;if(!Q||Q.complete)return;const q=quest(Q
   else if(q.type==='alpha')ok=(Q.kills[q.mon]||0)>=1;
   else if(q.type==='rescue')ok=!!Q.rescued;
   hud();if(ok){Q.complete=true;await completeQuest()}}
-async function completeQuest(){busy=true;const Q=S.Q,q=quest(Q.id);const first=!S.done[q.id];
+async function completeQuest(){busy=true;const Q=S.Q,q=quest(Q.id),gst=!!Q.guest;const first=!gst&&!S.done[q.id];
   if(q.type==='deliver')S.inv[q.item]=Math.max(0,have(q.item)-q.n);
-  const rz=Math.round(q.z*zMul());S.zenny+=rz;S.done[q.id]=(S.done[q.id]||0)+1;
-  const lines=[`QUEST COMPLETE — ${q.name}`,`Reward: ${rz}z`];
+  const rz=Math.round((q.z||0)*zMul());S.zenny+=rz;if(!gst)S.done[q.id]=(S.done[q.id]||0)+1;
+  const lines=[`QUEST COMPLETE — ${q.name}`,`Reward: ${rz}z`].concat(gst?['Guest hunt — this quest is not unlocked for you yet, so it does not count toward your progress.']:[]);
   if(Q.bty!=null&&S.bounty){const b=S.bounty.list[Q.bty];if(b&&b.q===q.id&&!b.done){b.done=true;S.bcount=(S.bcount||0)+1;const bz=Math.round(q.z*zMul());S.zenny+=bz;const pick=(a,b2)=>Math.random()<.5?a:b2;
     const mats=S.hr>=4?[pick('bgem','wgem'),pick('bshard','wshard')]:[pick('bshard','wshard'),pick('bshard','wshard')];mats.forEach(k=>gain(k));lines.push(`Bounty bonus: +${bz}z · ${group(mats)}`)}}
   if(q.type==='hunt'){const bn=[lroll(MON[q.mon].carve),lroll(MON[q.mon].carve)];bn.forEach(k=>gain(k));lines.push('Bonus rewards: '+group(bn))}
   if(q.id==='q2'&&first){gain('potion',2);lines.push('The guild adds 2 Potions. Word is, an Alpha Boar pack now roams the forest.')}
-  if(q.hrUp&&S.hr<q.hrUp){S.hr=q.hrUp;lines.push(`Hunter Rank up! You are now HR ${S.hr}.`);
+  if(!gst&&q.hrUp&&S.hr<q.hrUp){S.hr=q.hrUp;lines.push(`Hunter Rank up! You are now HR ${S.hr}.`);
     if(S.hr===2)lines.push('Frostpeak, Mega Potions and a free forest expedition are now open.')}
   if(q.id==='q7'&&first)lines.push('The Rimeback Tusker falls! The path to the Ember Cave has opened — new quests await at the board.');
   if(q.id==='q5'&&first)lines.push('The Cinder Drake is down. You are a true Hunter of Mossvale! Forge the infernal arsenal and keep hunting.');
-  jingle('quest');banner('QUEST COMPLETE',q.name);await sleep(1600);if(lines.some(l=>l.startsWith('Hunter Rank')))jingle('rank');await say(lines,'Guild');returnVillage();await storyAfter(q.id);busy=false}
+  jingle('quest');banner('QUEST COMPLETE',q.name);await sleep(1600);if(lines.some(l=>l.startsWith('Hunter Rank')))jingle('rank');await say(lines,'Guild');returnVillage();if(!gst)await storyAfter(q.id);busy=false}
 async function failQuest(reason){busy=true;jingle('fail');banner('QUEST FAILED',reason);await sleep(1400);await say(['QUEST FAILED',reason+' The guild pays nothing, but you keep what you gathered.'],'Guild');returnVillage();busy=false}
 function returnVillage(){S.Q=null;S.accepted=null;S.bty=null;ptOnReturn();S.map='village';P.x=9;P.y=32;P.path=[];P.after=null;catSnap();checkCatReturn();if(merchantHere())setTimeout(()=>toast('A traveling merchant is in town tonight!'),1800);P.dir='up';P.mv=null;S.hp=maxHP();S.pst=null;S.scene='world';music('village');startFade();hud();updHint();save()}
 function campMenu(){const Q=S.Q,q=quest(Q.id);openMenu('Base Camp',body=>{
@@ -3157,7 +3157,8 @@ function ptOn(){return !!(MP&&MP.pt&&MP.pt.m.length>1)}
 function ptLeader(){return !!(MP&&MP.pt&&MP.pt.leader===MP.id)}
 function ptActive(){return !!(ptOn()&&MP.pt.go&&S&&S.Q&&S.Q.id===MP.pt.q)}
 function ptFollower(){return ptActive()&&!ptLeader()}
-function ptCan(q){return !!(q&&q.type==='hunt'&&q.hr<=S.hr&&(!q.req||S.done[q.req]))}
+function ptCan(q){return !!(q&&QUESTS.includes(q))}
+function ptUnlocked(q){return !!(q&&q.hr<=S.hr&&(!q.req||S.done[q.req]))}
 function ptName(id){return id===MP.id?HNAME():(MP.ps[id]&&MP.ps[id].n)||'?'}
 async function ptSend(ev,pl,arr){if(MP.st!=='on'||!MP.ch)return;const ts=mpNext(),ch=MP.ch,sig=await mpSign([ev,MP.id,...arr,ts]);
   if(MP.st==='on'&&ch===MP.ch)ch.send({type:'broadcast',event:ev,payload:{id:MP.id,...pl,ts,sig}})}
@@ -3166,7 +3167,7 @@ async function ptVer(ev,m,arr){if(!m||typeof m.id!=='string'||typeof m.ts!=='num
 function ptStr(v,n){return typeof v==='string'&&v.length<=n}
 /* ---- membership ---- */
 function ptNew(){MP.pt={pid:Math.random().toString(36).slice(2,10),leader:MP.id,m:[MP.id],q:null,go:false,seen:{}};return MP.pt}
-function ptBroadcast(){const p=MP.pt;if(!p||!ptLeader())return;const q=p.go?p.q:(S.accepted&&quest(S.accepted).type==='hunt'?S.accepted:null);p.q=q;ptSend('pst',{pid:p.pid,m:p.m,q,go:p.go},[p.pid,p.m,q,p.go])}
+function ptBroadcast(){const p=MP.pt;if(!p||!ptLeader())return;const q=p.go?p.q:(S.accepted&&quest(S.accepted)?S.accepted:null);p.q=q;ptSend('pst',{pid:p.pid,m:p.m,q,go:p.go},[p.pid,p.m,q,p.go])}
 function ptInvite(id){const o=MP.ps[id];if(!o||!o.h||!mpHere())return;if(MP.pt&&!ptLeader())return toast('Only the party leader can invite.');
   const p=MP.pt||ptNew();if(p.m.length>=PT_MAX)return toast('The party is full.');if(p.m.includes(id))return;
   ptSend('pinv',{to:id,pid:p.pid},[id,p.pid]);toast(`Invited ${o.n}.`)}
@@ -3188,7 +3189,7 @@ async function ptOnSt(m){const p=MP.pt;if(!m||!p||m.id!==p.leader||m.pid!==p.pid
   if(!m.m.includes(MP.id)){if(!p.pending)toast('You left the party.');MP.pt=null;hud();return}
   if(p.pending){p.pending=false;toast('You joined the party!');sfx('coin')}
   for(const id of m.m)if(!p.m.includes(id)&&id!==MP.id)chatSys('p',`${ptName(id)} joined the party.`);for(const id of p.m)if(!m.m.includes(id)&&id!==MP.id)chatSys('p',`${ptName(id)} left the party.`);
-  const was=p.go;p.m=m.m.slice();p.q=m.q;p.go=m.go;hud();
+  const was=p.go;if(m.go&&!was){p.went=false;p.goT=mpNow()}p.m=m.m.slice();p.q=m.q;p.go=m.go;hud();
   if(m.go&&!was&&!S.Q)ptGoPrompt()}
 async function ptOnLv(m){const p=MP.pt;if(!m||!p||m.pid!==p.pid||!p.m.includes(m.id))return;if(!await ptVer('plv',m,[m.pid]))return;
   if(m.id===p.leader){MP.pt=null;toast('The leader disbanded the party.');hud();return}
@@ -3196,15 +3197,15 @@ async function ptOnLv(m){const p=MP.pt;if(!m||!p||m.pid!==p.pid||!p.m.includes(m
 function ptLeave(){const p=MP.pt;if(!p)return;ptSend('plv',{pid:p.pid},[p.pid]);MP.pt=null;toast(ptLeader()?'Party disbanded.':'You left the party.');hud()}
 /* ---- departure ---- */
 function ptOnStart(q){const p=MP.pt;if(!ptOn())return;
-  if(ptLeader()){if(q.type!=='hunt'){toast('Party hunts only work with Hunt quests — going solo.');return}p.q=q.id;p.go=true;ptBroadcast();ptSend('pgo',{pid:p.pid,q:q.id},[p.pid,q.id]);setTimeout(ptBossSend,400)}
-  else if(p.go&&p.q===q.id)ptSend('preq',{pid:p.pid},[p.pid])}
-async function ptOnGo(m){const p=MP.pt;if(!m||!p||m.id!==p.leader||m.pid!==p.pid||!ptStr(m.q,8))return;if(!await ptVer('pgo',m,[m.pid,m.q]))return;p.q=m.q;p.go=true;if(!S.Q)ptGoPrompt()}
-function ptGoPrompt(){const p=MP.pt;if(!p||!p.go||S.Q)return;const q=quest(p.q);if(!q)return;sfx('text');
-  if(!ptCan(q)){toast(`The party left for "${q.name}", but that hunt is not open for you yet.`);return}
-  if(!mpHere()||MENU||D.open||busy){toast('Your party has departed! Open the Online menu to follow.');return}
-  openMenu('Party departing',body=>{body.append(h('div',{cls:'note'},`${ptName(p.leader)} left for "${q.name}". Follow now?`));
-    body.append(opt('Depart with the party','✓',()=>{MENU.onClose=null;closeMenu();ptDepart()}),opt('Not now','',()=>{MENU.onClose=null;closeMenu()}))})}
-async function ptDepart(){const p=MP.pt;if(!p||!p.go||S.Q)return;const q=quest(p.q);if(!ptCan(q))return;S.accepted=q.id;S.bty=null;await storyBefore(q.id);startQuest()}
+  if(ptLeader()){p.q=q.id;p.go=true;ptBroadcast();ptSend('pgo',{pid:p.pid,q:q.id},[p.pid,q.id]);setTimeout(ptBossSend,400)}
+  else if(p.go&&p.q===q.id){p.went=true;ptSend('preq',{pid:p.pid},[p.pid])}}
+async function ptOnGo(m){const p=MP.pt;if(!m||!p||m.id!==p.leader||m.pid!==p.pid||!ptStr(m.q,8))return;if(!await ptVer('pgo',m,[m.pid,m.q]))return;if(!p.go||p.q!==m.q){p.went=false;p.goT=mpNow()}p.q=m.q;p.go=true;if(!S.Q)ptGoPrompt()}
+function ptFree(){return mpHere()&&!MENU&&!D.open&&!busy&&S.scene==='world'&&!(typeof FISH!=='undefined'&&FISH.on)}
+function ptGoPrompt(){const p=MP.pt;if(!p||!p.go||S.Q||p.went)return;const q=quest(p.q);if(!q)return;sfx('text');
+  if(ptFree())ptDepart();else toast(`${ptName(p.leader)} left for "${q.name}" — you will follow when you are free.`)}
+function ptAutoGo(){const p=MP.pt;if(!p||ptLeader()||!p.go||p.went||S.Q||!p.goT||mpNow()-p.goT>120||!ptFree())return;ptDepart()}
+async function ptDepart(){const p=MP.pt;if(!p||!p.go||S.Q||p.went)return;const q=quest(p.q);if(!ptCan(q))return;p.went=true;const guest=!ptUnlocked(q);
+  S.accepted=q.id;S.bty=null;toast(guest?`Following the party to "${q.name}" as a guest.`:`Following the party to "${q.name}"!`);if(!guest)await storyBefore(q.id);if(S.Q)return;startQuest();if(S.Q)S.Q.guest=guest}
 async function ptOnReq(m){const p=MP.pt;if(!m||!p||!ptLeader()||m.pid!==p.pid||!p.m.includes(m.id))return;if(!await ptVer('preq',m,[m.pid]))return;ptBossSend()}
 function ptOnReturn(){const p=MP.pt;if(p&&ptLeader()&&p.go){p.go=false;ptBroadcast()}if(p)p.seen={}}
 /* ---- shared boss (leader = host) ---- */
@@ -3270,7 +3271,7 @@ function ptHud(){if(!ptOn())return'';const p=MP.pt;const parts=p.m.filter(id=>id
 /* ---- upkeep ---- */
 function ptTick(){const p=MP.pt;
   for(let i=MP.pinv.length-1;i>=0;i--)if(mpNow()>MP.pinv[i].until)MP.pinv.splice(i,1);
-  if(!p||MP.st!=='on')return;ptZoneSend();
+  if(!p||MP.st!=='on')return;ptZoneSend();ptAutoGo();
   const t=mpNow();if(!p.lastB||t-p.lastB>2){p.lastB=t;if(ptLeader()){ptBroadcast();if(ptActive())ptBossSend()}}
   for(const id of p.m){if(id===MP.id)continue;if(MP.ps[id]){p.seen[id]=t;continue}if(!p.seen[id])p.seen[id]=t;
     if(t-p.seen[id]>12){if(id===p.leader){MP.pt=null;toast('Lost contact with the party leader — you continue solo.');hud();return}
@@ -3281,13 +3282,16 @@ function ptMenu(body){const p=MP.pt;body.append(h('div',{cls:'sec'},'Party'));
   if(MP.pinv.length)body.append(opt(`Party invites (${MP.pinv.length})`,'👥',()=>{MENU.onClose=null;closeMenu();ptInvMenu()}));
   if(!p||p.m.length<2){body.append(h('div',{cls:'note'},'Open a hunter\'s card and tap "Invite to party" to hunt together (up to 4).'));return}
   for(const id of p.m)body.append(h('div',{cls:'note'},(id===p.leader?'★ ':'')+ptName(id)+(id===MP.id?' (you)':'')));
-  if(p.go){const q=quest(p.q);body.append(h('div',{cls:'note'},`On the hunt: ${q?q.name:'?'}`));if(!S.Q&&!ptLeader()&&ptCan(q))body.append(opt('Depart with the party','✓',()=>{MENU.onClose=null;closeMenu();ptDepart()}))}
+  if(p.go){const q=quest(p.q);body.append(h('div',{cls:'note'},`On the hunt: ${q?q.name:'?'}`));if(!S.Q&&!ptLeader()&&ptCan(q))body.append(opt('Depart with the party','✓',()=>{MENU.onClose=null;closeMenu();MP.pt.went=false;ptDepart()}))}
   else body.append(h('div',{cls:'note'},ptLeader()?'Accept a Hunt quest and leave through the gate — your party will be asked to follow.':'Waiting for the leader to depart.'));
   body.append(opt(ptLeader()?'Disband party':'Leave party','',()=>{ptLeave();redraw()}))}
 for(const[ev,fn]of[['pinv',ptOnInv],['pacc',ptOnAcc],['pst',ptOnSt],['plv',ptOnLv],['pgo',ptOnGo],['preq',ptOnReq],['pb',ptOnB],['pbu',ptOnBu],['pbz',ptOnBz],['pf',ptOnF],['zp',ptOnZ]])MP_EXTRA.push([ev,fn]);
 
 for(const[k,v]of Object.entries({"Only the party leader can invite.": "Hanya ketua party yang bisa mengajak.", "The party is full.": "Party sudah penuh.", "Party invite": "Ajakan party", "No invites waiting.": "Tidak ada ajakan.", "Party members hunt the same boss together and share 3 faints.": "Anggota party memburu boss yang sama dan berbagi 3 kali pingsan.", "Join": "Gabung", "Joining party…": "Bergabung ke party…", "You joined the party!": "Kamu bergabung ke party!", "You left the party.": "Kamu keluar dari party.", "The leader disbanded the party.": "Ketua membubarkan party.", "Party disbanded.": "Party dibubarkan.", "Party hunts only work with Hunt quests — going solo.": "Perburuan party hanya untuk quest Hunt — kamu berangkat solo.", "Your party has departed! Open the Online menu to follow.": "Party-mu sudah berangkat! Buka menu Online untuk menyusul.", "Party departing": "Party berangkat", "Depart with the party": "Berangkat bersama party", "Not now": "Nanti saja", "Your party fainted three times.": "Party-mu pingsan tiga kali.", "Lost contact with the party leader — you continue solo.": "Kontak dengan ketua party hilang — kamu lanjut solo.", "Party": "Party", "Invite to party": "Ajak ke party", "Disband party": "Bubarkan party", "Leave party": "Keluar dari party", "Accept a Hunt quest and leave through the gate — your party will be asked to follow.": "Ambil quest Hunt lalu keluar lewat gerbang — anggota party akan diajak menyusul.", "Waiting for the leader to depart.": "Menunggu ketua berangkat.", "Open a hunter's card and tap \"Invite to party\" to hunt together (up to 4).": "Buka kartu hunter lalu tekan \"Ajak ke party\" untuk berburu bersama (maks. 4)."}))IDD.set(k,v);
 for(const[en,id]of [["Invited {0}.", "{0} diajak."], ["{0} invites you to a party — open the Online menu.", "{0} mengajakmu ke party — buka menu Online."], ["{0} invites you to a hunting party.", "{0} mengajakmu ke party berburu."], ["{0} declined.", "{0} menolak."], ["{0} joined the party!", "{0} bergabung ke party!"], ["{0} left the party.", "{0} keluar dari party."], ["The party left for \"{0}\", but that hunt is not open for you yet.", "Party berangkat ke \"{0}\", tapi perburuan itu belum terbuka untukmu."], ["{0} left for \"{1}\". Follow now?", "{0} berangkat ke \"{1}\". Susul sekarang?"], ["{0} brought it down! Party carve: {1}", "{0} menumbangkannya! Bagian party: {1}"], ["{0} is fighting it right now!", "{0} sedang melawannya!"], ["{0} fainted! ({1}/3)", "{0} pingsan! ({1}/3)"], ["{0} disconnected.", "{0} terputus."], ["Party invites ({0})", "Ajakan party ({0})"], ["On the hunt: {0}", "Sedang berburu: {0}"], ["{0} (you)", "{0} (kamu)"]]){const ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),id,ord])}
+
+for(const[k,v]of Object.entries({"Guest hunt — this quest is not unlocked for you yet, so it does not count toward your progress.": "Berburu sebagai tamu — quest ini belum terbuka untukmu, jadi tidak dihitung ke progresmu."}))IDD.set(k,v);
+for(const[en,id]of [["{0} left for \"{1}\" — you will follow when you are free.", "{0} berangkat ke \"{1}\" — kamu akan menyusul saat sudah senggang."], ["Following the party to \"{0}\" as a guest.", "Menyusul party ke \"{0}\" sebagai tamu."], ["Following the party to \"{0}\"!", "Menyusul party ke \"{0}\"!"]]){const ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),id,ord])}
 
 /* ================= CHAT PANEL =================
    Own 💬 button (top bar / HUD), two tabs (Village / Party), 100-line history,
