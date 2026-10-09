@@ -153,6 +153,22 @@ body.dock #hudR{display:none}body.dock .hpline{display:none}
 #tbA,#tbB{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
 .tb small{font-size:11px;font-weight:600;margin-top:2px;opacity:.9}
 .tb small:empty{display:none}
+body.touch:not(.mobile) .wrap{max-width:min(960px,calc((100vh - 96px)*4/3));max-width:min(960px,calc((100dvh - 96px)*4/3))}
+@media (max-height:620px){body.touch:not(.mobile){padding:4px 8px}body.touch:not(.mobile) header,body.touch:not(.mobile) .help{display:none}body.touch:not(.mobile) .wrap{gap:0;max-width:calc((100vh - 18px)*4/3);max-width:calc((100dvh - 18px)*4/3)}}
+@media (max-height:620px) and (min-aspect-ratio:16/10){body.touch:not(.mobile){--mw:calc((100vw - (100dvh - 18px)*4/3)/2)}body.touch:not(.mobile) #touch{position:fixed;inset:0;z-index:4}body.touch:not(.mobile) #stickZone{width:calc(var(--mw) + 30px);height:100%}body.touch:not(.mobile) #stick{left:50%;top:60%;width:min(130px,calc(var(--mw) - 16px));height:min(130px,calc(var(--mw) - 16px))}body.touch:not(.mobile) #tbA{width:min(84px,calc(var(--mw) - 40px));height:min(84px,calc(var(--mw) - 40px));right:calc(var(--mw)/2 - min(42px,calc(var(--mw)/2 - 20px)));bottom:16%}body.touch:not(.mobile) #tbB{width:min(64px,calc(var(--mw) - 60px));height:min(64px,calc(var(--mw) - 60px));right:calc(var(--mw)/2 - min(32px,calc(var(--mw)/2 - 30px)));bottom:52%}}
+.gcard{border:2px solid var(--ink);background:rgba(255,255,255,.28);padding:.3em .55em;margin:.15em .3em}.gcard b{display:block}
+#menu.chatm .mbody{gap:.3em}
+.chatlog{flex:none;max-height:min(46vh,300px);min-height:90px;overflow-y:auto;background:rgba(20,12,28,.06);border:2px solid var(--ink);padding:.3em .45em;display:flex;flex-direction:column;gap:.15em}
+body.mobile #menu.chatm{max-height:64%}body.mobile .chatlog{max-height:28vh}
+.cl{line-height:1.35;word-break:break-word}.cl .ct{opacity:.55;font-size:.8em}
+.cl .cn{font:inherit;font-weight:700;background:none;border:0;padding:0 .3em 0 0;color:#2a4a8a;cursor:pointer}.cl .cn.pt{color:#2f7a3a}.cl .cn.me{color:#a8641c}.cl.sys{opacity:.7;font-style:italic}
+.crow{display:flex;gap:6px;align-items:center}.crow .txt{flex:1;margin:0}.csend{min-width:64px}
+#mbChat{flex:none;min-width:50px;font:700 19px sans-serif;background:var(--parch2);color:var(--ink);border:0;border-left:2px solid var(--ink);padding:0 8px;cursor:pointer;position:relative}
+#mbChat i,#hudChat i{font-style:normal;background:#c43b2b;color:#fff;border-radius:9px;font:700 11px sans-serif;padding:1px 5px}#mbChat i{position:absolute;top:3px;right:2px}
+#hudChat{pointer-events:auto;font:inherit;background:var(--parch2);color:var(--ink);border:2px solid var(--ink);cursor:pointer;padding:.05em .45em;align-self:flex-end;margin-top:.2em}
+#chatTick{left:50%;transform:translateX(-50%);top:.5em;max-width:44%;padding:.2em .6em;background:rgba(20,16,12,.75);color:#f0e0b0;border-radius:3px;pointer-events:none;opacity:0;transition:opacity .35s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.85em;z-index:3}
+#chatTick.on{opacity:1}#chatTick b{color:#bfe0ff}#chatTick b.pt{color:#a8f0a0}
+body.mobile #chatTick{left:8px;right:8px;transform:none;max-width:none;font-size:13px}
 #rotate{position:fixed;inset:0;z-index:50;background:var(--night);color:var(--parch);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:24px}
 #rotate b{font:700 24px "Pixelify Sans",monospace}
 body.mobile{padding:0;height:100%;overflow:hidden;overscroll-behavior:none}
@@ -1613,15 +1629,15 @@ function objText(){const Q=S.Q,q=quest(Q.id);
   if(q.type==='hunt')return`Hunt the ${MON[q.mon].name}`;
   return'Expedition — return at camp'}
 const mbar=$('#mbar');
-mbar.onclick=e=>{if(e.target.closest('#mbBag')&&S.scene==='world'&&!busy&&!MENU&&!D.open&&!FISH.on){auInit();bagMenu()}};
+mbar.onclick=e=>{if(S.scene!=='world'||busy||MENU||D.open||FISH.on)return;if(e.target.closest('#mbChat')){auInit();chatOpen();return}if(e.target.closest('#mbBag')){auInit();bagMenu()}};
 function renderMbar(){const Q=S.Q,mh=maxHP();
   const loc=Q?`${ZONES[Q.zone].name} · ${ROOMS[S.map].name}`:'Mossvale';
   const right=Q?fmtT(Q.time):PHASEN[dayPhase()];let body;
   if(Q){const b=Q.boss,p=clamp(S.hp/mh,0,1)*100;
     const sub=`${condShort()} · Faints ${'■'.repeat(Q.carts)}${'□'.repeat(3-Q.carts)}`+(b&&b.alive&&b.painted?` · Target: ${ROOMS[b.room].name}`:'');
-    body=`<div class="mb-row mb-hp"><div class="bar ${p<30?'low':''}"><i style="width:${p}%"></i></div><span>HP ${S.hp}/${mh}${S.pst?' · '+stName(S.pst):''}</span></div><div class="mb-sub ok">${objText()}</div><div class="mb-sub">${sub}</div>`}
-  else body=`<div class="mb-sub">${HNAME()} · HR ${S.hr} · ${S.zenny}z${mpBadge()} · Quest: ${S.accepted?quest(S.accepted).name:'none'}</div>`;
-  mbar.innerHTML=`<div class="mb-main"><div class="mb-row"><b class="mb-loc">${loc}</b><span class="mb-time">${right}</span></div>${body}</div><button id="mbBag" type="button">Bag</button>`;
+    body=`<div class="mb-row mb-hp"><div class="bar ${p<30?'low':''}"><i style="width:${p}%"></i></div><span>HP ${S.hp}/${mh}${S.pst?' · '+stName(S.pst):''}</span></div><div class="mb-sub ok">${objText()}</div><div class="mb-sub">${sub}</div>${ptHud()}`}
+  else body=`<div class="mb-sub">${HNAME()} · HR ${S.hr} · ${S.zenny}z${mpBadge()} · Quest: ${S.accepted?quest(S.accepted).name:'none'}</div>${ptHud()}`;
+  mbar.innerHTML=`<div class="mb-main"><div class="mb-row"><b class="mb-loc">${loc}</b><span class="mb-time">${right}</span></div>${body}</div>${chatBtnHtml()}<button id="mbBag" type="button">Bag</button>`;
   const r=mbar.getBoundingClientRect(),c=cv.getBoundingClientRect();if(c.height)VIEW.padTop=Math.max(0,Math.ceil((r.bottom-c.top)/c.height*VH))+4}
 function hud(){
   const sc=S.scene;
@@ -1632,10 +1648,10 @@ function hud(){
   if(S.Q){const Q=S.Q;
     hudEl.innerHTML=`<div class="hn">${ZONES[Q.zone].name}</div><div class="small">${ROOMS[S.map].name} · ${condShort()}</div><div class="hpline">${bar(S.hp,maxHP())}</div><div class="small hpline">HP ${S.hp}/${maxHP()} ${stName(S.pst)?'· <span class="no">'+stName(S.pst)+'</span>':''}</div><div class="obj">${objText()}</div>`;
     let bl='';if(Q.boss&&Q.boss.alive)bl=`<div class="small">${MON[Q.boss.key].name}: ${Q.boss.painted?`<span class="no">● ${ROOMS[Q.boss.room].name}</span>`:'unmarked'}</div>`;
-    hudR.innerHTML=`<div class="hn">${fmtT(Q.time)}</div><div class="small">Faints <span class="pips">${'■'.repeat(Q.carts)}${'□'.repeat(3-Q.carts)}</span></div>`;hudEl.insertAdjacentHTML('beforeend',bl);
+    hudR.innerHTML=`<div class="hn">${fmtT(Q.time)}</div><div class="small">Faints <span class="pips">${'■'.repeat(Q.carts)}${'□'.repeat(3-Q.carts)}</span></div>${chatBtnHtml(1)}`;hudEl.insertAdjacentHTML('beforeend',bl);
   }else{const a=S.accepted?quest(S.accepted).name:'none';
     hudEl.innerHTML=`<div class="hn">Mossvale</div><div class="small">${PHASEN[dayPhase()]}</div><div class="small">${HNAME()} · HR ${S.hr} · ${S.zenny}z${mpBadge()}</div><div class="small">Quest: ${a}</div>`;
-    hudR.innerHTML=`<div class="small">${wName(S.wep)}</div><div class="small">${aName(S.arm)}</div>`;}
+    hudR.innerHTML=`<div class="small">${wName(S.wep)}</div><div class="small">${aName(S.arm)}</div>${chatBtnHtml(1)}`;}
 }
 /* dialog */
 const D={open:false,q:[],res:null,who:''};
@@ -1659,7 +1675,7 @@ const POR={'Tutorial':'elder','Bag':'hunter','Traveling Merchant':'stranger','Na
 const GREET={'Quest Board':'"Pick a job that suits your blade, hunter."','Smithy':'"Bring me parts and I\'ll hammer out something fierce."','General Store':'"Potions, paint, traps — all fresh!"','Canteen':'"Nothing beats a hot meal before a hunt!"','Base Camp':'The campfire crackles softly.'};
 function openMenu(title,render,tabs){MENU={title,render,tabs,tab:0};drawMenu(0)}
 function drawMenu(fi){
-  menuEl.hidden=false;menuEl.innerHTML='';
+  menuEl.hidden=false;menuEl.innerHTML='';menuEl.classList.toggle('chatm',MENU.title==='Chat');
   const pk=MENU.title.startsWith('Depart')?'gate':POR[MENU.title];
   const head=h('div',{cls:'mh'},pk?h('img',{src:portrait(pk),alt:'',cls:'mpor'}):null,h('div',{cls:'mt'},h('b',{},MENU.title),greetFor(MENU.title)?h('span',{cls:'small'},greetFor(MENU.title)):null),h('span',{cls:'small zen'},S.scene==='title'?'':`${S.zenny}z · HR ${S.hr}`));menuEl.append(head);
   if(MENU.tabs){const tb=h('div',{cls:'tabs'});MENU.tabs.forEach((t,i)=>tb.append(h('button',{cls:'tab'+(i===MENU.tab?' on':''),type:'button',on:()=>{MENU.tab=i;drawMenu(0)}},t)));menuEl.append(tb)}
@@ -1700,7 +1716,7 @@ function press(a){
 }
 addEventListener('pointerdown',()=>auInit(),{capture:true});
 document.addEventListener('click',e=>{const b=e.target.closest('.opt,.tab');if(b&&!b.disabled)sfx('select')},true);
-addEventListener('keydown',e=>{if(e.target&&e.target.closest&&e.target.closest('input,textarea'))return;auInit();if(e.code==='KeyM'){toggleMute();return}if(e.code==='KeyT'&&S&&S.scene==='world'&&!S.Q&&!busy&&!uiBlocking()){e.preventDefault();onlineMenu();return}const a=KEY[e.code];if(!a||e.ctrlKey||e.metaKey)return;e.preventDefault();
+addEventListener('keydown',e=>{if(e.target&&e.target.closest&&e.target.closest('input,textarea'))return;auInit();if(e.code==='KeyM'){toggleMute();return}if(e.code==='KeyT'&&S&&S.scene==='world'&&!busy&&!uiBlocking()){e.preventDefault();chatOpen();return}const a=KEY[e.code];if(!a||e.ctrlKey||e.metaKey)return;e.preventDefault();
   if(DIRS.includes(a)){if(!dirStack.includes(a))dirStack.push(a);if(uiBlocking())press(a)}else if(!e.repeat)press(a)});
 addEventListener('keyup',e=>{const a=KEY[e.code];const i=dirStack.indexOf(a);if(i>=0)dirStack.splice(i,1)});
 addEventListener('blur',()=>dirStack.length=0);
@@ -1718,7 +1734,7 @@ const DV={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 function bossVisible(){const b=S.Q&&S.Q.boss;if(!b||!b.alive||b.room!==S.map)return false;return b.painted||Math.max(Math.abs(b.x-P.x),Math.abs(b.y-P.y))<=((S.Q.weather==='fog'||S.Q.weather==='blizzard')?3:5)}
 function tryMove(d){P.dir=d;const[dx,dy]=DV[d];const nx=P.x+dx,ny=P.y+dy;const cm=curMap();
   if(nx<0||ny<0||ny>=cm.length||nx>=cm[0].length){const R=ROOMS[S.map],dk={up:'n',down:'s',left:'w',right:'e'}[d];if(R&&R[dk])changeRoom(R[dk],dk);return}
-  const b=S.Q&&S.Q.boss;const bHere=b&&b.alive&&b.room===S.map&&b.x===nx&&b.y===ny;if(bHere&&b.cool<=0){startBattle(b.key,true);return}
+  const b=S.Q&&S.Q.boss;const bHere=b&&b.alive&&b.room===S.map&&b.x===nx&&b.y===ny;if(bHere&&b.cool<=0){if(ptBlocked())return false;ptEngage();startBattle(b.key,true);return}
   const mb=S.Q&&mobAt(nx,ny);if(mb){if(mb.cool<=0)mobEngage(mb,mb.dir===d?'ambush':'player');else{P.dir=d;updHint()}return false}
   if(kittenAt(nx,ny)){rescueCat();return false}
   if(merchAt(nx,ny)||vhAt(nx,ny)){updHint();return false}
@@ -1750,13 +1766,13 @@ function updHint(){let t='';const[fx,fy]=facing();
   hintEl.hidden=!t||S.scene!=='world';hintEl.textContent=t;
   const lab=!t||!t.startsWith('A: ')?'':t.startsWith('A: Gather')?'Gather':t.startsWith('A: Attack')?'Attack':/Fish|fishing/.test(t)?'Fish':t==='A: Base Camp'?'Camp':t==='A: South Gate'?'Depart':t==='A: Item Chest'?'Open':'Talk';
   const al=document.getElementById('tbAL');if(al)al.textContent=lab}
-async function onStep(){updHint();mpStep();P.steps=(P.steps||0)+1;if(P.steps%2===0){sfx('step',zoneOf(S.map));dust(P.x*16+8,P.y*16+15)}const Q=S.Q;if(!Q)return;
+async function onStep(){updHint();mpStep();ptStep();P.steps=(P.steps||0)+1;if(P.steps%2===0){sfx('step',zoneOf(S.map));dust(P.x*16+8,P.y*16+15)}const Q=S.Q;if(!Q)return;
   collectHere();
   Q.time-=5;Q.steps++;if(Q.safe>0)Q.safe--;if(Q.weather==='quake'&&Q.steps%28===0)quake();
   if(Q.weather==='blizzard'&&!Q.warm&&S.arm!=='ar5'&&S.arm!=='arO'&&!LZ()&&Q.steps%4===0){S.hp=Math.max(1,S.hp-1);if(Q.steps%40===0)toast('Freezing! A Hot Drink keeps you warm.')}
   const b=Q.boss;
   if(b&&b.alive){if(b.cool>0)b.cool--;
-    if(Q.steps%45===0&&!(b.room===S.map&&Math.max(Math.abs(b.x-P.x),Math.abs(b.y-P.y))<=3)){const opts=zoneSpawns(Q.zone).filter(s=>!(s[0]===S.map&&Math.abs(s[1]-P.x)+Math.abs(s[2]-P.y)<4)&&!(s[0]===b.room&&s[1]===b.x&&s[2]===b.y));const s=opts[ri(0,opts.length-1)];[b.room,b.x,b.y]=s;toast(b.painted?`The ${MON[b.key].name} moved to ${ROOMS[b.room].name}.`:'A distant roar echoes...')}}
+    if(Q.steps%45===0&&!ptNoMove()&&!(b.room===S.map&&Math.max(Math.abs(b.x-P.x),Math.abs(b.y-P.y))<=3)){const opts=zoneSpawns(Q.zone).filter(s=>!(s[0]===S.map&&Math.abs(s[1]-P.x)+Math.abs(s[2]-P.y)<4)&&!(s[0]===b.room&&s[1]===b.x&&s[2]===b.y));const s=opts[ri(0,opts.length-1)];[b.room,b.x,b.y]=s;toast(b.painted?`The ${MON[b.key].name} moved to ${ROOMS[b.room].name}.`:'A distant roar echoes...')}}
   if(Q.time<=0){await failQuest('Time ran out.');return}
   hud();
   if(Q.mobs)for(const m of Q.mobs)if(m.cool>0)m.cool--;
@@ -1843,6 +1859,7 @@ function chestMenu(){openMenu('Item Chest',(body,tab)=>{
   else if(tab===3)catTab(body);
   else{const done=QUESTS.filter(q=>S.done[q.id]).length;
     body.append(opt(h('span',{},HNAME(),h('span',{cls:'sub'},'Edit name & appearance')),'✎',()=>{MENU.onClose=null;closeMenu();charMenu(false)}));
+    body.append(opt('View my Hunter Card','🪪',()=>{MENU.onClose=null;closeMenu();myCard()}));
     body.append(h('div',{cls:'note'},`Hunter Rank ${S.hr} · ${S.zenny}z · ${done}/${QUESTS.length} quests cleared`),
       h('div',{cls:'note'},`${wName(S.wep)} (ATK ${atk()}) · ${aName(S.arm)} (DEF ${def()}, HP ${maxHP()})`));
     body.append(opt('Save game','',()=>{save();sfx('save');toast('Game saved')}));
@@ -1865,6 +1882,7 @@ function startQuest(){const q=quest(S.accepted),Z=ZONES[q.zone],m=MAPS[q.zone];
     boss={key:bk,hp:Math.round(M.hp*DF().hp),parts:M.parts.map(p=>({...p,broken:false})),room:s[0],x:s[1],y:s[2],painted:false,fled:false,alive:true,enraged:false,cool:0,limp:false,pst:null}}
   S.Q={id:q.id,zone:q.zone,time:3000,carts:0,kills:{},gathered:{},nodes,safe:4,steps:0,meal:S.meal,complete:false,boss,weather:pickWeather(q.zone)};questExtras(q,Z);
   {const b=S.bty!=null&&S.bounty&&S.bounty.list[S.bty];if(b&&b.q===q.id&&!b.done){S.Q.bty=S.bty;S.Q.tw=b.tw;if(b.tw==='rush')S.Q.time=1500}}
+  ptOnStart(q);
   S.meal=null;S.map=Z.camp;P.x=9;P.y=MAPS[Z.camp].length-2;P.dir='up';P.mv=null;S.hp=maxHP();S.pst=null;S.focus=MEAL()?.focus||0;catSnap();S.Q.warm=!!MEAL()?.warm;
   sfx('door');music(q.zone);startFade();hud();updHint();say([`— ${Z.name} —`,q.desc+(boss?' Paintballs keep it marked on your map.':''),conditionsLine()].concat(S.Q.tw?[`Bounty rule — ${TWISTS[S.Q.tw].name} — ${TWISTS[S.Q.tw].d}`]:[]),'Quest start')}
 async function checkQuest(){const Q=S.Q;if(!Q||Q.complete)return;const q=quest(Q.id);let ok=false;
@@ -1888,7 +1906,7 @@ async function completeQuest(){busy=true;const Q=S.Q,q=quest(Q.id);const first=!
   if(q.id==='q5'&&first)lines.push('The Cinder Drake is down. You are a true Hunter of Mossvale! Forge the infernal arsenal and keep hunting.');
   jingle('quest');banner('QUEST COMPLETE',q.name);await sleep(1600);if(lines.some(l=>l.startsWith('Hunter Rank')))jingle('rank');await say(lines,'Guild');returnVillage();await storyAfter(q.id);busy=false}
 async function failQuest(reason){busy=true;jingle('fail');banner('QUEST FAILED',reason);await sleep(1400);await say(['QUEST FAILED',reason+' The guild pays nothing, but you keep what you gathered.'],'Guild');returnVillage();busy=false}
-function returnVillage(){S.Q=null;S.accepted=null;S.bty=null;S.map='village';P.x=9;P.y=32;P.path=[];P.after=null;catSnap();checkCatReturn();if(merchantHere())setTimeout(()=>toast('A traveling merchant is in town tonight!'),1800);P.dir='up';P.mv=null;S.hp=maxHP();S.pst=null;S.scene='world';music('village');startFade();hud();updHint();save()}
+function returnVillage(){S.Q=null;S.accepted=null;S.bty=null;ptOnReturn();S.map='village';P.x=9;P.y=32;P.path=[];P.after=null;catSnap();checkCatReturn();if(merchantHere())setTimeout(()=>toast('A traveling merchant is in town tonight!'),1800);P.dir='up';P.mv=null;S.hp=maxHP();S.pst=null;S.scene='world';music('village');startFade();hud();updHint();save()}
 function campMenu(){const Q=S.Q,q=quest(Q.id);openMenu('Base Camp',body=>{
   body.append(h('div',{cls:'note'},`${objText()} · ${fmtT(Q.time)} left`));
   body.append(opt(h('span',{},'Rest in the tent',h('span',{cls:'sub'},'Restore HP and cure ailments. Takes 5 minutes.')),'',()=>{Q.time-=300;S.hp=maxHP();S.pst=null;closeMenu();sfx('heal');toast('You feel refreshed.');if(Q.time<=0)failQuest('Time ran out.')}));
@@ -1912,7 +1930,8 @@ function bagMenu(){openMenu('Bag',(body,tab)=>{
     body.append(opt(`Sound: ${AU.muted?'off':'on'}`,'',()=>{toggleMute();redraw()}));
     body.append(opt(`Battle speed: ${SPDN[S.bspd]||'Normal'}`,'',()=>{const o=['slow','normal','fast'];S.bspd=o[(o.indexOf(S.bspd||'normal')+1)%3];save();redraw()}));
     body.append(opt(LANG==='id'?'Bahasa: Indonesia':'Language: English',LANG==='id'?'ID':'EN',()=>{setLang(LANG==='id'?'en':'id');redraw();hud()}));
-    if(!Q&&MP&&MP.st!=='off')body.append(opt('Online (chat & emotes)',MP.st==='on'?'🌐 '+(mpCount()+1):'',()=>{closeMenu();onlineMenu()}));
+    if(MP&&MP.st!=='off')body.append(opt(`Chat: ${{all:'All',party:'Party only',off:'Off'}[chatMode()]}`,'💬',()=>{const o=['all','party','off'];S.chatMode=o[(o.indexOf(chatMode())+1)%3];redraw();hud()}));
+    if(MP&&MP.st!=='off')body.append(opt('Online (party & gifts)',MP.st==='on'?'🌐 '+mpOnline():'',()=>{closeMenu();onlineMenu()}));
     if(!Q)body.append(opt('Save game','',()=>{save();sfx('save');toast('Game saved')}));
     if(!Q)body.append(opt('Save code (backup)','',()=>{closeMenu();codeMenu()}));
     if(Q)body.append(opt(h('span',{},'Quest info',h('span',{cls:'sub'},objText())),'',async()=>{closeMenu();const q=quest(Q.id);await say([q.name,q.desc,`Faints ${Q.carts}/3 · ${fmtT(Q.time)} left.`],'Quest')}))}
@@ -2568,9 +2587,9 @@ async function enemyAct(m){const nm=E.M.name;let pow=m.p,sc=m.sc||0;
   if(pow>0&&B.guard){B.guard=false;B.guardT=0}
   bstat();await sleep(250);E.lxT=0;E.airT=0;await sleep(380);if(B.pose==='hurt'&&!B.stun)B.pose=B.guard?'guard':B.charged?'charge':'idle'}
 function syncBoss(){if(E&&E.boss){const b=S.Q.boss;b.hp=Math.max(0,E.hp);b.shield=E.shield||null;b.enraged=E.enraged;b.pst=E.pst}}
-async function endBattle(){syncBoss();B.busy=true;B.over=true;busy=true;$('#battle').hidden=true;bstatEl.hidden=true;
+async function endBattle(){syncBoss();ptAfterBoss();B.busy=true;B.over=true;busy=true;$('#battle').hidden=true;bstatEl.hidden=true;
   await wipe(false);setView('world');S.scene='world';E=null;fxEl.innerHTML='';PT.length=0;if(S.Q)S.Q.safe=4;S.focus=Math.floor(S.focus/2);dirStack.length=0;MOBG=1.4;
-  music(S.Q?S.Q.zone:'village');hud();updHint();await unwipe();busy=false}
+  music(S.Q?S.Q.zone:'village');hud();updHint();await unwipe();busy=false;ptPending()}
 async function win(captured){if(B.pack&&B.pack.q.length&&!captured)return nextWave();const M=E.M;E.dead=1;B.over=true;E.deadT=0;
   log(captured?`You captured the ${M.name}!`:`The ${M.name} has been ${M.boss?'slain':'defeated'}!`,'good');bstat();
   sfx(captured?'trap':'die');const[fx,fy]=FOOT[E.key];burst(fx,fy-30,MRAMP[E.key],M.boss?60:24,{spd:90,big:1});B.shake=M.boss?.6:.2;B.pose='idle';B.pdxT=0;
@@ -2584,7 +2603,7 @@ async function win(captured){if(B.pack&&B.pack.q.length&&!captured)return nextWa
   await say([`${boss?(captured?'Capture rewards':'Carved'):'Obtained'}: ${group(loot)}${z?` · +${z}z`:''}`],'Hunter');
   await checkQuest()}
 async function faint(){B.over=true;log('You collapse...','bad');B.pose='down';sfx('faint');B.pflash=0;await sleep(1300);syncBoss();if(S.Q.boss)S.Q.boss.cool=3;
-  const Q=S.Q;Q.carts++;S.hp=maxHP();S.pst=null;S.map=ZONES[Q.zone].camp;P.x=9;P.y=MAPS[S.map].length-2;catSnap();P.dir='up';Q.time-=60;await endBattle();hud();
+  const Q=S.Q;Q.carts=Math.min(3,Q.carts+1);ptFaint();S.hp=maxHP();S.pst=null;S.map=ZONES[Q.zone].camp;P.x=9;P.y=MAPS[S.map].length-2;catSnap();P.dir='up';Q.time-=60;await endBattle();hud();
   if(Q.carts>=3)return failQuest('You fainted three times.');
   await say(['The rescue cart hauls you back to camp.',`Faints: ${Q.carts}/3. Guard against the big tells!`],'Guild')}
 
@@ -2681,7 +2700,7 @@ function drawWorld(dt){const key=S.map;const[gnd,objs,an]=worldData(key);const m
       if(m.chase){const yy=Math.round(my+13-ft-(fly?5:0)-8+(Math.floor(T0*6)%2));g.fillStyle=col('red',3);g.fillRect(mx+7,yy,2,5);g.fillRect(mx+7,yy+6,2,2)}}})}
   list.push({y:py+15.5,d:()=>{g.fillStyle='rgba(0,0,0,.28)';g.fillRect(px+3,py+14,10,2);g.fillRect(px+4,py+15,8,1);
     const fr=P.mv?[1,0,3,0][Math.floor(P.wt*8)%4]:0;blit(hunterOW(P.dir,fr),px-3,py-12)}});
-  if(key==='village'&&!Q)mpList(list,dt);list.sort((a,c)=>a.y-c.y);for(const o of list)o.d();
+  if(key==='village'&&!Q)mpList(list,dt);else if(Q)ptList(list,dt);list.sort((a,c)=>a.y-c.y);for(const o of list)o.d();
   if(TAPM&&T0<TAPM.until&&Math.floor(T0*10)%2){g.strokeStyle='rgba(255,255,255,.8)';g.lineWidth=1;g.strokeRect(TAPM.x*16+.5,TAPM.y*16+.5,15,15)}
   if(tile(P.x,P.y)===','||(P.mv&&MAPS[key][P.mv.fy]?.[P.mv.fx]===',')){const tx=P.x*16,ty=P.y*16;for(let i=0;i<8;i++){const bx=tx+i*2,hh=4+((i*7)%4),sw=Math.round(Math.sin(T0*3+i)*.6);g.fillStyle=col(zoneOf(key)==='snow'?'snow':'grass',i%2?1:2);g.fillRect(bx+sw,ty+16-hh,1,hh);g.fillStyle=col(zoneOf(key)==='snow'?'white':'grass',4);g.fillRect(bx+sw,ty+16-hh,1,1)}}
   stepPT(dt);
@@ -2787,7 +2806,7 @@ let LBL=[];
 function fitY(x,y,w,h){let yy=y;for(let k=0;k<8;k++){const hit=LBL.find(r=>x-w/2<r.x+r.w/2&&x+w/2>r.x-r.w/2&&yy<r.y+r.h&&yy+h>r.y);if(!hit)break;yy=hit.y-h-1}LBL.push({x,y:yy,w,h});return yy}
 function drawTags(){LBL=[];const dpr=Math.min(3,devicePixelRatio||1),cw=cv.clientWidth,ch=cv.clientHeight,w=Math.round(cw*dpr),hh=Math.round(ch*dpr);
   if(tcv.width!==w||tcv.height!==hh){tcv.width=w;tcv.height=hh}tg.setTransform(1,0,0,1,0,0);tg.clearRect(0,0,w,hh);
-  if(S.scene!=='world'||S.map!=='village'||S.Q||WP.v>0||!cw)return;const s=cw/W*dpr;tg.setTransform(s,0,0,s,-CAMX*s,-CAMY*s);vhTags(tg);mpTags(tg)}
+  if(S.scene!=='world'||WP.v>0||!cw)return;const s=cw/W*dpr;tg.setTransform(s,0,0,s,-CAMX*s,-CAMY*s);if(S.Q)ptTags(tg);else if(S.map==='village'){vhTags(tg);mpTags(tg)}}
 function loop(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;T0+=dt;
   rainAmb(!!(S.Q&&S.Q.weather==='rain'&&S.scene!=='title'));
   if(S.scene==='world'){updateWorld(dt);fishTick(dt);if(S.Q&&S.pst&&!busy&&!uiBlocking()){S.pstT=(S.pstT||0)+dt;if(S.pstT>2){S.pstT=0;S.hp=Math.max(1,S.hp-2);hud()}}}
@@ -2797,8 +2816,8 @@ function loop(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;T0+=dt;
   requestAnimationFrame(loop)}
 
 /* ================= touch controls & responsive layout ================= */
-function layout(){const mob=isTouch();const was=document.body.classList.contains('mobile');document.body.classList.toggle('mobile',mob);if(was!==mob&&typeof S!=='undefined'&&S)hud();document.body.classList.remove('dock');
-  const rot=document.getElementById('rotate');if(rot)rot.hidden=!(mob&&innerWidth>innerHeight);
+function layout(){const mob=isTouch()&&innerHeight>=innerWidth*.9;const was=document.body.classList.contains('mobile');document.body.classList.toggle('mobile',mob);if(was!==mob&&typeof S!=='undefined'&&S)hud();document.body.classList.remove('dock');
+  const rot=document.getElementById('rotate');if(rot)rot.hidden=true;
   const d=document.getElementById('dock');if(d)d.hidden=true;
   const fr=$('#frame');VIEW.ratio=mob?Math.max(1.2,fr.clientHeight/Math.max(1,fr.clientWidth)):0;
   setView(typeof S!=='undefined'&&S&&S.scene==='battle'?'battle':'world');if(mob&&typeof S!=='undefined'&&S&&S.scene==='world')hud()}
@@ -2907,6 +2926,7 @@ var MP_URL='https://kttfformjoyraqsrjrrv.supabase.co';
 var MP_KEY='sb_publishable_noV7z0rqJIq2J24M6z1nXw_y4BwW5DE';
 var MP_CH='mossvale-village-v2';
 var MP_EMO=['👋','❗','😄','❤️','😮','👍'];
+var MP_EXTRA=[];
 var MP={st:MP_URL&&MP_KEY?'connecting':'off',sb:null,ch:null,id:'',kb:'',priv:null,ps:{},vk:{},q:[],lastD:'',sig:'',log:[],chatT:0,me:null,seq:0,retry:0,rt:null,gen:0,inbox:[],gseen:new Set(),sess:Math.random().toString(36).slice(2)};
 const GIFT_TTL=45,mpNow=()=>performance.now()/1000;
 const mpB64=u=>{const a=new Uint8Array(u);let s='';for(let i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s)};
@@ -2934,7 +2954,9 @@ const mpHere=()=>!!S&&S.scene==='world'&&!S.Q&&S.map==='village';
 function mpProf(){const w=S.lz?S.lz.wep:S.wep,a=S.lz?S.lz.arm:S.arm,d=S.done||{},qc=Object.values(d).reduce((s,v)=>s+(+v||0),0);let ach=0;const B=(i,c)=>{if(c)ach|=1<<i};
   B(0,d.q3);B(1,d.q7);B(2,d.q5);B(3,d.a1&&d.a2&&d.a3);B(4,d.s1&&d.s2&&d.s3);B(5,Object.values(S.wLv||{}).some(v=>v>=10)||Object.values(S.aLv||{}).some(v=>v>=10));B(6,(S.bcount||0)>=10);B(7,!!S.cat);
   return[S.hr|0,wLv(w),aLv(a),Math.min(99999,qc),ach]}
-function mpMe(){const L=LK();return{n:HNAME(),a:S.lz?S.lz.arm:S.arm,w:S.lz?S.lz.wep:S.wep,l:[L.skin,L.hair,L.style],x:P.x,y:P.y,d:P.dir,h:mpHere(),pr:mpProf()}}
+var MP_ACT=performance.now();for(const ev of['keydown','pointerdown'])addEventListener(ev,()=>{MP_ACT=performance.now()},{passive:true});
+function mpStatus(){if(!S||S.scene==='title')return't';if(performance.now()-MP_ACT>300000)return'i';if(typeof FISH!=='undefined'&&FISH.on)return'f';if(S.scene==='battle')return'b';return S.Q?'q':'v'}
+function mpMe(){const L=LK();return{st:mpStatus(),pt:ptOn(),n:HNAME(),a:S.lz?S.lz.arm:S.arm,w:S.lz?S.lz.wep:S.wep,l:[L.skin,L.hair,L.style],x:P.x,y:P.y,d:P.dir,h:mpHere(),pr:mpProf()}}
 const mpInt=(v,a,b)=>Number.isInteger(v)?Math.max(a,Math.min(b,v)):a;
 const mpSafePr=p=>Array.isArray(p)&&p.length===5?[mpInt(p[0],1,9),mpInt(p[1],0,10),mpInt(p[2],0,10),mpInt(p[3],0,99999),mpInt(p[4],0,255)]:null;
 /* ---- connection ---- */
@@ -2953,19 +2975,22 @@ function mpConnect(){try{if(MP.ch){const old=MP.ch;MP.ch=null;MP.sb.removeChanne
   ch.on('presence',{event:'join'},({key})=>{if(ch===MP.ch&&key!==MP.id&&mpHere())mpSendPos(true)});
   ch.on('broadcast',{event:'pos'},({payload})=>{if(ch===MP.ch)mpOnPos(payload)});
   ch.on('broadcast',{event:'chat'},({payload})=>{if(ch===MP.ch)mpOnChat(payload)});
-  for(const[ev,fn]of[['gift',mpOnGift],['gack',mpOnGack],['gfin',mpOnGfin]])ch.on('broadcast',{event:ev},({payload})=>{if(ch===MP.ch)fn(payload)});
-  ch.subscribe(s=>{if(ch!==MP.ch)return;if(s==='SUBSCRIBED'){MP.st='on';MP.retry=0;MP.sig='';mpSync()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'||s==='CLOSED')mpRetry()})}
+  for(const[ev,fn]of[['gift',mpOnGift],['gack',mpOnGack],['gfin',mpOnGfin],...MP_EXTRA])ch.on('broadcast',{event:ev},({payload})=>{if(ch===MP.ch)fn(payload)});
+  MP.synced=0;ch.subscribe(s=>{if(ch!==MP.ch)return;if(s==='SUBSCRIBED'){MP.st='on';MP.retry=0;MP.sig='';mpSync()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'||s==='CLOSED')mpRetry()})}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&MP.rt){clearTimeout(MP.rt);MP.rt=null;MP.st='connecting';mpConnect()}});
 /* ---- incoming ---- */
-async function mpPresence(){const g=++MP.gen,st=MP.ch.presenceState(),seen={};
+async function mpPresence(){const g=++MP.gen,st=MP.ch.presenceState(),seen={},prevH=new Set(Object.entries(MP.ps).filter(([,o])=>o.h).map(([id])=>id));
   for(const pk in st){if(pk===MP.id)continue;let best=null;
     for(const m of(st[pk]||[]).slice(-4)){if(!m||m.id!==pk||typeof m.ts!=='number')continue;const k=await mpKeyFor(pk,m.k);if(!k)continue;
-      const l=Array.isArray(m.l)?m.l:[],base=[pk,m.n,m.a,m.w,l[0],l[1],l[2],m.x,m.y,m.d,m.h,m.ts];if(await mpVerify(k,['p',...base],m.sig)&&(!best||m.ts>best.ts)){best=m;best.__pr=Array.isArray(m.pr)&&await mpVerify(k,['p2',...base,m.pr],m.sig2)?mpSafePr(m.pr):null}}
+      const l=Array.isArray(m.l)?m.l:[],base=[pk,m.n,m.a,m.w,l[0],l[1],l[2],m.x,m.y,m.d,m.h,m.ts];if(await mpVerify(k,['p',...base],m.sig)&&(!best||m.ts>best.ts)){best=m;best.__pr=Array.isArray(m.pr)&&await mpVerify(k,['p2',...base,m.pr],m.sig2)?mpSafePr(m.pr):null;
+        best.__st=typeof m.st==='string'&&'vqbfti'.includes(m.st)&&m.st.length===1&&typeof m.pt==='boolean'&&await mpVerify(k,['p3',...base,m.st,m.pt],m.sig3)?[m.st,m.pt]:null}}
     if(g!==MP.gen)return;if(!best)continue;seen[pk]=1;let o=MP.ps[pk];
     if(!o)o=MP.ps[pk]={x:9,y:27,fx:9,fy:27,t:1,fr:0,q:[],dir:'down',lt:0,lc:0,pts:0,rp:[],ct:0};
-    if(best.ts<o.pts)continue;o.pts=best.ts;const wasH=o.h;Object.assign(o,mpSafe(best),{h:!!best.h,pr:best.__pr||null});
+    if(best.ts<o.pts)continue;o.pts=best.ts;const wasH=o.h;Object.assign(o,mpSafe(best),{h:!!best.h,pr:best.__pr||null,st:best.__st?best.__st[0]:null,ptf:best.__st?best.__st[1]:false});
     const P0=mpPt(best.x,best.y);if(!o.h||!wasH){o.q=[];if(P0){o.x=o.fx=P0[0];o.y=o.fy=P0[1];o.t=1}o.dir=mpDir(best.d)}}
-  if(g!==MP.gen)return;for(const id in MP.ps)if(!seen[id])delete MP.ps[id];if(mpHere())hud()}
+  if(g!==MP.gen)return;for(const id in MP.ps)if(!seen[id])delete MP.ps[id];
+  if(MP.synced){for(const[id,o]of Object.entries(MP.ps))if(o.h&&!prevH.has(id))chatSys('v',`${o.n} arrived in the village.`);for(const id of prevH)if(!MP.ps[id]||!MP.ps[id].h)chatSys('v',`${(MP.pn||{})[id]||'?'} left the village.`)}
+  MP.synced=1;MP.pn=Object.fromEntries(Object.entries(MP.ps).map(([id,o])=>[id,o.n]));if(mpHere())hud()}
 async function mpOnPos(m){if(!m||typeof m.id!=='string'||typeof m.ts!=='number'||!Array.isArray(m.p)||m.p.length>20)return;const o=MP.ps[m.id],c=MP.vk[m.id];if(!o||!c||!o.h)return;
   const now=performance.now();o.rp=o.rp.filter(t=>now-t<1000);if(o.rp.length>=8)return;o.rp.push(now);
   if(!await mpVerify(c.key,['m',m.id,m.p,m.d,m.ts],m.sig)||m.ts<=o.lt)return;o.lt=m.ts;
@@ -2978,22 +3003,23 @@ async function mpOnChat(m){if(!m||typeof m.id!=='string'||typeof m.ts!=='number'
   const now=performance.now();if(now-o.ct<800)return;o.ct=now;
   if(!await mpVerify(c.key,['c',m.id,m.t,m.ts],m.sig)||m.ts<=o.lc)return;o.lc=m.ts;
   const raw=mpText(m.t);if(!raw||mpMuted(o.n))return;const e=MP_EMO.includes(raw),t=e?raw:mpClean(raw);
-  o.bub={t,e,until:T0+(e?2.5:5)};if(!e){MP.log.push([o.n,t]);MP.log=MP.log.slice(-8);if(MENU&&MENU.title==='Online')redraw()}if(o.h&&mpHere())sfx('text')}
+  o.bub={t,e,until:T0+(e?2.5:5)};if(!e)chatPush('v',{n:o.n,id:m.id,x:t,tab:'v'});const me=HNAME().toLowerCase();if(!e&&chatMode()==='all'&&me.length>2&&t.toLowerCase().includes(me))sfx('text')}
 /* ---- outgoing ---- */
-async function mpSync(){if(MP.st!=='on'||!S||!MP.ch)return;const me=mpMe(),sig=JSON.stringify([me.n,me.a,me.w,me.l,me.h,me.pr]);if(sig===MP.sig)return;MP.sig=sig;MP.q=[];
-  const ts=mpNext(),ch=MP.ch;const base=[MP.id,me.n,me.a,me.w,me.l[0],me.l[1],me.l[2],me.x,me.y,me.d,me.h,ts];const s=await mpSign(['p',...base]),s2=await mpSign(['p2',...base,me.pr]);
-  if(MP.st==='on'&&ch===MP.ch)ch.track({id:MP.id,k:MP.kb,...me,ts,sig:s,sig2:s2})}
+async function mpSync(){if(MP.st!=='on'||!S||!MP.ch)return;const me=mpMe(),sig=JSON.stringify([me.n,me.a,me.w,me.l,me.h,me.pr,me.st,me.pt]);if(sig===MP.sig)return;MP.sig=sig;MP.q=[];
+  const ts=mpNext(),ch=MP.ch;const base=[MP.id,me.n,me.a,me.w,me.l[0],me.l[1],me.l[2],me.x,me.y,me.d,me.h,ts];const s=await mpSign(['p',...base]),s2=await mpSign(['p2',...base,me.pr]),s3=await mpSign(['p3',...base,me.st,me.pt]);
+  if(MP.st==='on'&&ch===MP.ch)ch.track({id:MP.id,k:MP.kb,...me,ts,sig:s,sig2:s2,sig3:s3})}
 async function mpSendPos(snap){if(MP.st!=='on'||!mpHere())return;if(snap)MP.q=[[P.x,P.y]];if(!MP.q.length&&P.dir===MP.lastD)return;
   const p=MP.q.length?MP.q.slice(-20):[[P.x,P.y]],d=P.dir,ts=mpNext(),ch=MP.ch;MP.q=[];MP.lastD=d;const sig=await mpSign(['m',MP.id,p,d,ts]);
   if(MP.st==='on'&&ch===MP.ch)ch.send({type:'broadcast',event:'pos',payload:{id:MP.id,p,d,ts,sig}})}
 function mpStep(){if(MP&&MP.st==='on'&&mpHere())MP.q.push([P.x,P.y])}
 function mpSay(t){t=mpText(t);if(!t||MP.st!=='on')return false;if(T0<MP.chatT){toast('Wait a moment…');return false}MP.chatT=T0+1.2;
   const ts=mpNext(),id=MP.id,ch=MP.ch;mpSign(['c',id,t,ts]).then(sig=>{if(MP.st==='on'&&ch===MP.ch)ch.send({type:'broadcast',event:'chat',payload:{id,t,ts,sig}})});
-  const e=MP_EMO.includes(t),shown=e?t:mpClean(t);MP.me={t:shown,e,until:T0+(e?2.5:5)};if(!e){MP.log.push([HNAME(),shown]);MP.log=MP.log.slice(-8)}return true}
+  const e=MP_EMO.includes(t),shown=e?t:mpClean(t);MP.me={t:shown,e,until:T0+(e?2.5:5)};if(!e)chatPush('v',{n:HNAME(),x:shown,self:1,tab:'v'});return true}
 setInterval(()=>{if(MP.st==='on'){mpSync();mpSendPos()}giftTick()},300);
 /* ---- drawing (from the player's add-on) ---- */
 function mpCount(){return MP?Object.values(MP.ps).filter(o=>o.h).length:0}
-function mpBadge(){if(!MP||MP.st!=='on')return'';const g=MP.inbox.filter(x=>x.st==='new').length;return` · 🌐 ${mpCount()+1}`+(g?` · 🎁${g}`:'')}
+function mpOnline(){return MP?Object.keys(MP.ps).length+1:1}
+function mpBadge(){if(!MP||MP.st!=='on')return'';const g=MP.inbox.filter(x=>x.st==='new').length;return` · 🌐 ${mpOnline()}`+(g?` · 🎁${g}`:'')}
 function mpTick(dt){for(const o of Object.values(MP.ps)){if(!o.h)continue;
   if(o.t<1){o.t=Math.min(1,o.t+dt*7);o.fr+=dt}
   if(o.t>=1&&o.q.length){const[nx,ny]=o.q.shift();const dx=nx-o.x,dy=ny-o.y;if(!dx&&!dy)continue;
@@ -3013,40 +3039,45 @@ function mpBubble(c,b,X,Y){if(!b||T0>b.until)return;c.save();c.textAlign='center
   c.restore()}
 function mpTags(c){if(!MP)return;c.save();c.font='bold 8px "Pixelify Sans",sans-serif';c.textAlign='center';c.textBaseline='middle';
   const bubs=[];for(const o of Object.values(MP.ps)){if(!o.h)continue;const[X0,Y0]=mpPos(o),X=Math.round(X0)+8,Y=Math.round(Y0)-18;
-    const w=Math.ceil(c.measureText(o.n).width)+4,ty=fitY(X,Y-5,w,10);c.fillStyle='rgba(30,40,80,.8)';c.fillRect(Math.round(X-w/2),ty,w,10);c.fillStyle='#bfe0ff';c.fillText(o.n,X,ty+5);if(!mpMuted(o.n))bubs.push([o.bub,X,ty-1])}
-  c.restore();if(MP.me){const[px,py]=playerPx();bubs.unshift([MP.me,px+8,py-18])}for(const[b,X,Y]of bubs){c.save();mpBubble(c,b,X,Y);c.restore()}}
+    const w=Math.ceil(c.measureText(o.n).width)+4,ty=fitY(X,Y-5,w,10);c.fillStyle='rgba(30,40,80,.8)';c.fillRect(Math.round(X-w/2),ty,w,10);c.fillStyle='#bfe0ff';c.fillText(o.n,X,ty+5);if(!mpMuted(o.n)&&chatMode()==='all')bubs.push([o.bub,X,ty-1])}
+  c.restore();if(MP.me&&chatMode()!=='off'){const[px,py]=playerPx();bubs.unshift([MP.me,px+8,py-18])}for(const[b,X,Y]of bubs){c.save();mpBubble(c,b,X,Y);c.restore()}}
 function onlineMenu(){openMenu('Online',body=>{
   const st={off:'Online mode is off. Fill MP_URL and MP_KEY in the game file.',connecting:'Connecting…',error:'Could not connect. Retrying automatically…',insecure:'Online needs a secure (https) page.'}[MP.st];
   if(st){body.append(h('div',{cls:'note'},st));return}
-  const here=mpHere();body.append(h('div',{cls:'note'},`${mpCount()+1} hunters in Mossvale`));
-  if(!here){body.append(h('div',{cls:'note'},'Chat works in Mossvale village.'));return}
-  body.append(h('div',{cls:'sec'},'Emotes'));const r=h('div',{cls:'swrow'});
-  for(const e of MP_EMO){const b=h('button',{type:'button',cls:'swb'},e);b.onclick=()=>{if(mpSay(e)){MENU.onClose=null;closeMenu()}};r.append(b)}body.append(r);
-  body.append(h('div',{cls:'sec'},'Chat'));const inp=h('input',{type:'text',maxlength:'60',autocomplete:'off',cls:'txt',placeholder:tr('Type a message…')});
-  const send=()=>{if(mpSay(inp.value)){inp.value='';redraw()}};inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
-  body.append(inp,opt('Send','',send));
+  const here=mpHere();body.append(h('div',{cls:'note'},`${mpOnline()} hunters online · ${mpCount()+(here?1:0)} in Mossvale`));
+  body.append(opt(`Hunters online (${mpOnline()})`,'🌐',()=>{MENU.onClose=null;closeMenu();onlineList()}));
+  if(!here){if(chatOn())body.append(opt('Open chat','💬',()=>{MENU.onClose=null;closeMenu();chatOpen()}));body.append(h('div',{cls:'note'},'Gifts and hunter cards work in Mossvale village.'));ptMenu(body);return}
+  if(chatOn())body.append(opt('Open chat','💬',()=>{MENU.onClose=null;closeMenu();chatOpen()}));
   {const gw=MP.inbox.filter(x=>x.st==='new').length;if(gw)body.append(opt(`Gifts waiting (${gw})`,'🎁',()=>{MENU.onClose=null;closeMenu();giftMenu()}))}
-  if(MP.log.length){body.append(h('div',{cls:'sec'},'Recent'));for(const[n,t]of MP.log.slice().reverse())body.append(h('div',{cls:'note'},`${n}: ${t}`))}
+  ptMenu(body);
   const here2=Object.entries(MP.ps).filter(([,o])=>o.h);
   if(here2.length){body.append(h('div',{cls:'sec'},'Hunters here'));
     for(const[id,o]of here2)body.append(opt(h('span',{},o.n,h('span',{cls:'sub'},o.pr?`HR ${o.pr[0]}`:'')),mpMuted(o.n)?'🔇':'›',()=>{MENU.onClose=null;closeMenu();mpCard(id)}))}
-  setTimeout(()=>{try{inp.focus()}catch(e){}},60)})}
+})}
 /* ---- hunter card ---- */
 const MP_ACH=['Wyrm Slayer','Tusker Breaker','Hunter of Mossvale','Pack Breaker','Subspecies Conqueror','Master Smith','Bounty Hunter','Buddy Partner'];
 function mpAt(x,y){if(!MP||MP.st!=='on'||!S||S.map!=='village'||S.Q)return null;for(const id in MP.ps){const o=MP.ps[id];if(o.h&&o.x===x&&o.y===y)return id}return null}
 function mpLookImg(o){const sv=[S.look,S.arm];S.look=o.l;S.arm=o.a;try{return portrait('hunter')}finally{S.look=sv[0];S.arm=sv[1]}}
+function mpBattleImg(o){const sv=[S.look,S.arm,S.wep];S.look=o.l;S.arm=o.a;S.wep=o.w;try{return hunterBT('idle',0).toDataURL()}finally{S.look=sv[0];S.arm=sv[1];S.wep=sv[2]}}
+function mpCardTop(body,o){const pr=o.pr;
+  body.append(h('div',{cls:'cprev'},h('img',{src:mpLookImg(o),alt:'',style:'width:80px;height:80px'}),h('img',{src:mpBattleImg(o),alt:'',style:'width:230px;height:173px;margin:-24px -20px -10px -16px'})));
+  if(!pr){body.append(h('div',{cls:'note'},'Profile unavailable (older game version).'),h('div',{cls:'sec'},'Gear'),h('div',{cls:'gcard'},h('b',{},WEAPONS[o.w].name)),h('div',{cls:'gcard'},h('b',{},ARMORS[o.a].name)));return}
+  body.append(h('div',{cls:'note'},`Hunter Rank ${pr[0]} · ${pr[3]} quests cleared`));
+  const w=WEAPONS[o.w],a=ARMORS[o.a],wk=1+UPG_PCT[pr[1]]/100,ak=1+UPG_PCT[pr[2]]/100,EL={venom:'Venom',fire:'Fire',ice:'Ice'};
+  body.append(h('div',{cls:'sec'},'Gear'),
+    h('div',{cls:'gcard'},h('b',{},w.name+(pr[1]?' +'+pr[1]:'')),h('div',{cls:'small'},[WTYPE[w.t].name,'ATK '+Math.round(w.atk*wk),w.el?EL[w.el]:'',w.fx?FXN[w.fx]:''].filter(Boolean).join(' · '))),
+    h('div',{cls:'gcard'},h('b',{},a.name+(pr[2]?' +'+pr[2]:'')),h('div',{cls:'small'},`DEF ${Math.round(a.def*ak)} · HP +${Math.round(a.hp*ak)}`),h('div',{cls:'small ok'},'Set bonus: '+a.bonus)));
+  const ach=MP_ACH.filter((_,i)=>pr[4]&(1<<i));body.append(h('div',{cls:'sec'},`Titles · ${ach.length}/${MP_ACH.length}`));
+  if(ach.length){const r=h('div',{cls:'swrow'});for(const t of ach)r.append(h('span',{cls:'swb on',style:'display:inline-flex;align-items:center;cursor:default'},t));body.append(r)}
+  else body.append(h('div',{cls:'note'},'No titles yet.'))}
+function myCard(){const me=mpMe(),L=LK();const o={n:HNAME(),a:me.a,w:me.w,l:{skin:L.skin,hair:L.hair,style:L.style},pr:mpProf()};sfx('move');
+  openMenu(o.n,body=>{body.append(h('div',{cls:'note'},'This is how other hunters see you.'));mpCardTop(body,o)})}
 function mpCard(id){if(!MP.ps[id])return;sfx('move');openMenu(MP.ps[id].n,body=>{const o=MP.ps[id];if(!o||!o.h){body.append(h('div',{cls:'note'},'This hunter has left the village.'));return}
-  const c=mpSpr(o,'down',0);body.append(h('div',{cls:'cprev'},h('img',{src:mpLookImg(o),alt:'',style:'width:72px;height:72px'}),h('img',{src:c.toDataURL(),alt:'',style:`width:${c.width*3}px;height:${c.height*3}px`})));
-  const pr=o.pr;
-  if(!pr)body.append(h('div',{cls:'note'},'Profile unavailable (older game version).'));
-  else{body.append(h('div',{cls:'note'},`Hunter Rank ${pr[0]} · ${pr[3]} quests cleared`));
-    body.append(h('div',{cls:'sec'},'Gear'),h('div',{cls:'note'},WEAPONS[o.w].name+(pr[1]?' +'+pr[1]:'')),h('div',{cls:'note'},ARMORS[o.a].name+(pr[2]?' +'+pr[2]:'')));
-    const ach=MP_ACH.filter((_,i)=>pr[4]&(1<<i));body.append(h('div',{cls:'sec'},`Titles · ${ach.length}/${MP_ACH.length}`));
-    if(ach.length){const r=h('div',{cls:'swrow'});for(const a of ach)r.append(h('span',{cls:'swb on',style:'display:inline-flex;align-items:center;cursor:default'},a));body.append(r)}
-    else body.append(h('div',{cls:'note'},'No titles yet.'))}
+  mpCardTop(body,o);const pr=o.pr;
   const r=h('div',{cls:'swrow'});for(const e of MP_EMO){const b=h('button',{type:'button',cls:'swb'},e);b.onclick=()=>{if(mpSay(e)){MENU.onClose=null;closeMenu()}};r.append(b)}
   body.append(h('div',{cls:'sec'},'Emotes'),r);
   const mu=mpMuted(o.n);
+  if(pr&&mpHere()&&!(MP.pt&&MP.pt.m.includes(id))&&(!MP.pt||MP.pt.leader===MP.id))body.append(opt('Invite to party','👥',()=>{ptInvite(id);redraw()}));
   if(pr)body.append(opt('Send a gift','🎁',()=>{MENU.onClose=null;closeMenu();giftPick(id)},!!S.giftOut||mu||!mpHere()));
   if(S.giftOut)body.append(h('div',{cls:'note'},'You already have a gift waiting for an answer.'));
   body.append(opt(mu?'Unmute':'Mute','',()=>{S.mpMute=(S.mpMute||[]).filter(x=>x!==o.n.toLowerCase());if(!mu)S.mpMute.push(o.n.toLowerCase());save();redraw()}))})}
@@ -3088,7 +3119,19 @@ async function mpOnGack(m){const g=S&&S.giftOut;if(!g||g.sess!==MP.sess||!m||m.t
 async function mpOnGfin(m){if(!m||m.to!==MP.id||typeof m.ts!=='number')return;const g=MP.inbox.find(x=>x.gid===m.gid&&x.from===m.id&&x.st==='wait'),c=MP.vk[m.id];if(!g||!c)return;
   if(!await mpVerify(c.key,['gf',m.id,m.to,m.gid,m.ts],m.sig)||g.st!=='wait')return;g.st='gone';MP.inbox=MP.inbox.filter(x=>x!==g);
   gain(g.k,g.n);save();sfx('forge');toast(`Received ${g.n}× ${ITEMS[g.k].name} from ${g.name}!`);hud()}
-Object.assign(POR,{'Online':'hunter'});
+/* ---- who's online ---- */
+const MP_STN={v:['🏠','In the village'],q:['🗺️','Hunting'],b:['⚔️','In battle'],f:['🎣','Fishing'],t:['📖','On the title screen'],i:['💤','Idle']};
+const MP_STO='vqbfti';
+function onlineList(){sfx('move');openMenu('Hunters online',body=>{if(MP.st!=='on'){body.append(h('div',{cls:'note'},'Not connected right now.'));return}
+  const row=(name,hr,st,pt,me,id,o)=>{const s=MP_STN[st]||['🌐','Online'];
+    body.append(opt(h('span',{},name+(me?' (you)':''),h('span',{cls:'sub'},[hr?`HR ${hr}`:'',s[1]].filter(Boolean).join(' · '))),s[0]+(pt?' 👥':''),()=>{if(me){MENU.onClose=null;closeMenu();myCard();return}
+      if(o&&o.h&&mpHere()&&MP.ps[id]){MENU.onClose=null;closeMenu();mpCard(id)}else toast(`${name} is not in the village right now.`)}))};
+  body.append(h('div',{cls:'note'},`${mpOnline()} hunters online`));
+  row(HNAME(),S.hr,mpStatus(),ptOn(),1);
+  const L=Object.entries(MP.ps).sort((a,b)=>(MP_STO.indexOf(a[1].st||'z')-MP_STO.indexOf(b[1].st||'z'))||a[1].n.localeCompare(b[1].n));
+  for(const[id,o]of L)row(o.n,o.pr?o.pr[0]:0,o.st,o.ptf,0,id,o);
+  body.append(h('div',{cls:'note'},'Tap a hunter in the village to open their card.'))})}
+Object.assign(POR,{'Online':'hunter','Hunters online':'hunter'});
 for(const[k,v]of Object.entries({'Online':'Online','Emotes':'Emote','Chat':'Chat','Send':'Kirim','Recent':'Terbaru','Type a message…':'Ketik pesan…','Connecting…':'Menghubungkan…','Wait a moment…':'Tunggu sebentar…',
   'Chat works in Mossvale village.':'Chat hanya di desa Mossvale.','Online mode is off. Fill MP_URL and MP_KEY in the game file.':'Mode online mati. Isi MP_URL dan MP_KEY di file game.',
   'Could not connect. Retrying automatically…':'Gagal terhubung. Mencoba lagi otomatis…','Online needs a secure (https) page.':'Mode online butuh halaman aman (https).',
@@ -3097,6 +3140,214 @@ for(const[k,v]of Object.entries({'Online':'Online','Emotes':'Emote','Chat':'Chat
 for(const[k,v]of Object.entries({"This hunter has left the village.": "Pemburu ini sudah meninggalkan desa.", "Profile unavailable (older game version).": "Profil tidak tersedia (versi game lama).", "Gear": "Perlengkapan", "Titles": "Gelar", "No titles yet.": "Belum ada gelar.", "Wyrm Slayer": "Pembasmi Wyrm", "Tusker Breaker": "Penakluk Tusker", "Hunter of Mossvale": "Pemburu Mossvale", "Pack Breaker": "Penghancur Kawanan", "Subspecies Conqueror": "Penakluk Subspesies", "Master Smith": "Ahli Tempa", "Bounty Hunter": "Pemburu Bounty", "Buddy Partner": "Sahabat Kucing", "Send a gift": "Kirim hadiah", "You already have a gift waiting for an answer.": "Kamu masih punya hadiah yang menunggu jawaban.", "Nothing to give.": "Tidak ada yang bisa diberikan.", "Choose another item": "Pilih item lain", "Max": "Maks", "Gift": "Hadiah", "No gifts waiting.": "Tidak ada hadiah yang menunggu.", "Accept": "Terima", "Decline": "Tolak", "Accepting…": "Menerima…", "Gift delivered!": "Hadiah terkirim!", "No answer. Gift returned.": "Tidak dijawab. Hadiah dikembalikan.", "Gift expired.": "Hadiah kedaluwarsa."}))IDD.set(k,v);
 for(const[en,id]of [["{0} quests cleared", "{0} quest selesai"], ["To {0}. They must accept within 45 seconds, or the gift comes back to you.", "Untuk {0}. Ia harus menerima dalam 45 detik, atau hadiah kembali padamu."], ["Send {0}× {1}", "Kirim {0}× {1}"], ["Gift sent to {0}. Waiting…", "Hadiah dikirim ke {0}. Menunggu…"], ["{0} declined. Gift returned.", "{0} menolak. Hadiah dikembalikan."], ["🎁 {0} sent you a gift — open the Online menu.", "🎁 {0} mengirimimu hadiah — buka menu Online."], ["{0} wants to give you {1}× {2}.", "{0} ingin memberimu {1}× {2}."], ["Received {0}× {1} from {2}!", "Menerima {0}× {1} dari {2}!"], ["Gifts waiting ({0})", "Hadiah menunggu ({0})"]]){const ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),id,ord])}
 mpInit();
+
+/* ================= CO-OP PARTY (stage 1) =================
+   Party of up to 4, formed in the village. The leader hosts the shared boss:
+   position, paint, HP, part breaks, flee and death are shared; faints count for the
+   whole party (3 total). Members see each other inside the hunting zone.
+   Every party message is signed and only accepted from party members (boss state
+   only from the leader). Stage 2 will add joining the same battle. */
+MP.pt=null;MP.pinv=[];MP.plt={};
+const PT_MAX=4;
+function ptOn(){return !!(MP&&MP.pt&&MP.pt.m.length>1)}
+function ptLeader(){return !!(MP&&MP.pt&&MP.pt.leader===MP.id)}
+function ptActive(){return !!(ptOn()&&MP.pt.go&&S&&S.Q&&S.Q.id===MP.pt.q)}
+function ptFollower(){return ptActive()&&!ptLeader()}
+function ptCan(q){return !!(q&&q.type==='hunt'&&q.hr<=S.hr&&(!q.req||S.done[q.req]))}
+function ptName(id){return id===MP.id?HNAME():(MP.ps[id]&&MP.ps[id].n)||'?'}
+async function ptSend(ev,pl,arr){if(MP.st!=='on'||!MP.ch)return;const ts=mpNext(),ch=MP.ch,sig=await mpSign([ev,MP.id,...arr,ts]);
+  if(MP.st==='on'&&ch===MP.ch)ch.send({type:'broadcast',event:ev,payload:{id:MP.id,...pl,ts,sig}})}
+async function ptVer(ev,m,arr){if(!m||typeof m.id!=='string'||typeof m.ts!=='number')return false;const c=MP.vk[m.id];if(!c)return false;
+  const k=m.id+ev;if(m.ts<=(MP.plt[k]||0))return false;if(!await mpVerify(c.key,[ev,m.id,...arr,m.ts],m.sig))return false;if(m.ts<=(MP.plt[k]||0))return false;MP.plt[k]=m.ts;return true}
+function ptStr(v,n){return typeof v==='string'&&v.length<=n}
+/* ---- membership ---- */
+function ptNew(){MP.pt={pid:Math.random().toString(36).slice(2,10),leader:MP.id,m:[MP.id],q:null,go:false,seen:{}};return MP.pt}
+function ptBroadcast(){const p=MP.pt;if(!p||!ptLeader())return;const q=p.go?p.q:(S.accepted&&quest(S.accepted).type==='hunt'?S.accepted:null);p.q=q;ptSend('pst',{pid:p.pid,m:p.m,q,go:p.go},[p.pid,p.m,q,p.go])}
+function ptInvite(id){const o=MP.ps[id];if(!o||!o.h||!mpHere())return;if(MP.pt&&!ptLeader())return toast('Only the party leader can invite.');
+  const p=MP.pt||ptNew();if(p.m.length>=PT_MAX)return toast('The party is full.');if(p.m.includes(id))return;
+  ptSend('pinv',{to:id,pid:p.pid},[id,p.pid]);toast(`Invited ${o.n}.`)}
+async function ptOnInv(m){if(!m||m.to!==MP.id||!ptStr(m.pid,12))return;const o=MP.ps[m.id];if(!o||!o.h||mpMuted(o.n))return;
+  if(!await ptVer('pinv',m,[m.to,m.pid]))return;
+  if(MP.pt&&MP.pt.m.length>1){ptSend('pacc',{to:m.id,pid:m.pid,ok:false},[m.id,m.pid,false]);return}
+  if(MP.pinv.some(x=>x.pid===m.pid)||MP.pinv.length>=3)return;MP.pinv.push({from:m.id,name:o.n,pid:m.pid,until:mpNow()+30});sfx('text');hud();
+  if(mpHere()&&!MENU&&!D.open&&!busy)ptInvMenu();else toast(`${o.n} invites you to a party — open the Online menu.`)}
+function ptInvMenu(){openMenu('Party invite',body=>{const v=MP.pinv[0];if(!v){body.append(h('div',{cls:'note'},'No invites waiting.'));return}
+  body.append(h('div',{cls:'note'},`${v.name} invites you to a hunting party.`),h('div',{cls:'note'},'Party members hunt the same boss together and share 3 faints.'));
+  const ans=ok=>{MP.pinv.shift();if(ok)MP.pt={pid:v.pid,leader:v.from,m:[v.from,MP.id],q:null,go:false,pending:true,seen:{}};
+    ptSend('pacc',{to:v.from,pid:v.pid,ok},[v.from,v.pid,ok]);if(MENU){MENU.onClose=null;closeMenu()}hud();if(ok)toast('Joining party…')};
+  body.append(opt('Join','✓',()=>ans(true)),opt('Decline','✕',()=>ans(false)))})}
+async function ptOnAcc(m){const p=MP.pt;if(!m||m.to!==MP.id||!p||!ptLeader()||m.pid!==p.pid||typeof m.ok!=='boolean')return;if(!await ptVer('pacc',m,[m.to,m.pid,m.ok]))return;
+  const n=ptName(m.id);if(!m.ok){toast(`${n} declined.`);if(p.m.length<2&&!p.go)MP.pt=null;return}
+  if(p.m.includes(m.id))return;if(p.m.length>=PT_MAX){toast('The party is full.');return}p.m.push(m.id);toast(`${n} joined the party!`);chatSys('p',`${n} joined the party.`);sfx('coin');ptBroadcast();hud()}
+async function ptOnSt(m){const p=MP.pt;if(!m||!p||m.id!==p.leader||m.pid!==p.pid||!Array.isArray(m.m)||m.m.length>PT_MAX||!m.m.every(x=>ptStr(x,16))||!(m.q===null||ptStr(m.q,8))||typeof m.go!=='boolean')return;
+  if(!await ptVer('pst',m,[m.pid,m.m,m.q,m.go]))return;
+  if(!m.m.includes(MP.id)){if(!p.pending)toast('You left the party.');MP.pt=null;hud();return}
+  if(p.pending){p.pending=false;toast('You joined the party!');sfx('coin')}
+  for(const id of m.m)if(!p.m.includes(id)&&id!==MP.id)chatSys('p',`${ptName(id)} joined the party.`);for(const id of p.m)if(!m.m.includes(id)&&id!==MP.id)chatSys('p',`${ptName(id)} left the party.`);
+  const was=p.go;p.m=m.m.slice();p.q=m.q;p.go=m.go;hud();
+  if(m.go&&!was&&!S.Q)ptGoPrompt()}
+async function ptOnLv(m){const p=MP.pt;if(!m||!p||m.pid!==p.pid||!p.m.includes(m.id))return;if(!await ptVer('plv',m,[m.pid]))return;
+  if(m.id===p.leader){MP.pt=null;toast('The leader disbanded the party.');hud();return}
+  if(ptLeader()){p.m=p.m.filter(x=>x!==m.id);toast(`${ptName(m.id)} left the party.`);chatSys('p',`${ptName(m.id)} left the party.`);if(p.m.length<2&&!p.go)MP.pt=null;else ptBroadcast();hud()}}
+function ptLeave(){const p=MP.pt;if(!p)return;ptSend('plv',{pid:p.pid},[p.pid]);MP.pt=null;toast(ptLeader()?'Party disbanded.':'You left the party.');hud()}
+/* ---- departure ---- */
+function ptOnStart(q){const p=MP.pt;if(!ptOn())return;
+  if(ptLeader()){if(q.type!=='hunt'){toast('Party hunts only work with Hunt quests — going solo.');return}p.q=q.id;p.go=true;ptBroadcast();ptSend('pgo',{pid:p.pid,q:q.id},[p.pid,q.id]);setTimeout(ptBossSend,400)}
+  else if(p.go&&p.q===q.id)ptSend('preq',{pid:p.pid},[p.pid])}
+async function ptOnGo(m){const p=MP.pt;if(!m||!p||m.id!==p.leader||m.pid!==p.pid||!ptStr(m.q,8))return;if(!await ptVer('pgo',m,[m.pid,m.q]))return;p.q=m.q;p.go=true;if(!S.Q)ptGoPrompt()}
+function ptGoPrompt(){const p=MP.pt;if(!p||!p.go||S.Q)return;const q=quest(p.q);if(!q)return;sfx('text');
+  if(!ptCan(q)){toast(`The party left for "${q.name}", but that hunt is not open for you yet.`);return}
+  if(!mpHere()||MENU||D.open||busy){toast('Your party has departed! Open the Online menu to follow.');return}
+  openMenu('Party departing',body=>{body.append(h('div',{cls:'note'},`${ptName(p.leader)} left for "${q.name}". Follow now?`));
+    body.append(opt('Depart with the party','✓',()=>{MENU.onClose=null;closeMenu();ptDepart()}),opt('Not now','',()=>{MENU.onClose=null;closeMenu()}))})}
+async function ptDepart(){const p=MP.pt;if(!p||!p.go||S.Q)return;const q=quest(p.q);if(!ptCan(q))return;S.accepted=q.id;S.bty=null;await storyBefore(q.id);startQuest()}
+async function ptOnReq(m){const p=MP.pt;if(!m||!p||!ptLeader()||m.pid!==p.pid||!p.m.includes(m.id))return;if(!await ptVer('preq',m,[m.pid]))return;ptBossSend()}
+function ptOnReturn(){const p=MP.pt;if(p&&ptLeader()&&p.go){p.go=false;ptBroadcast()}if(p)p.seen={}}
+/* ---- shared boss (leader = host) ---- */
+function ptBossArr(kb){const Q=S.Q,b=Q&&Q.boss;if(!b)return null;return[b.room,b.x,b.y,Math.max(0,Math.round(b.hp)),!!b.painted,!!b.alive,!!b.fled,!!b.enraged,!!b.limp,b.shield||'',b.parts.filter(x=>x.broken).map(x=>x.name).join(','),b.busy||'',kb||b.kb||'',Math.min(3,Q.carts|0)]}
+function ptBossSend(kb){const p=MP.pt;if(!ptActive()||!ptLeader())return;const a=ptBossArr(kb);if(a)ptSend('pb',{pid:p.pid,b:a},[p.pid,a])}
+function ptBossOk(a){return Array.isArray(a)&&a.length===14&&ptStr(a[0],8)&&ROOMS[a[0]]&&Number.isInteger(a[1])&&Number.isInteger(a[2])&&Number.isInteger(a[3])&&a[3]>=0
+  &&[4,5,6,7,8].every(i=>typeof a[i]==='boolean')&&ptStr(a[9],12)&&ptStr(a[10],60)&&ptStr(a[11],16)&&ptStr(a[12],16)&&Number.isInteger(a[13])}
+function ptBossApply(a,from){const Q=S.Q,b=Q&&Q.boss;if(!b||!ZONES[Q.zone].rooms.includes(a[0]))return;
+  const fighting=S.scene==='battle'&&E&&E.boss;
+  if(!fighting){const was=b.alive;b.room=a[0];b.x=a[1];b.y=a[2];b.hp=Math.min(b.hp,a[3]);b.painted=b.painted||a[4];b.fled=a[6];b.enraged=b.enraged||a[7];b.limp=b.limp||a[8];b.shield=a[9]||null;
+    const br=a[10]?a[10].split(','):[];for(const pt of b.parts)if(br.includes(pt.name))pt.broken=true;b.busy=a[11]||null;
+    if(was&&!a[5]){b.alive=false;b.kb=a[12];chatSys('p',`${ptName(a[12])} brought down the ${MON[b.key].name}!`);if(a[12]!==MP.id)ptPartyCarve(b.key,a[12]);Q.pendingCheck=true}}
+  else b.busy=a[11]||null;
+  const c=Math.min(3,a[13]);if(c>Q.carts){Q.carts=c;if(c>=3&&!Q.complete){Q.complete=true;setTimeout(()=>{if(S.Q===Q)failQuest('Your party fainted three times.')},50);return}}
+  hud();ptPending()}
+function ptPartyCarve(key,kid){const bn=[lroll(MON[key].carve),lroll(MON[key].carve),lroll(MON[key].carve)];bn.forEach(k=>{gain(k);S.Q.gathered[k]=(S.Q.gathered[k]||0)+1});
+  S.Q.pc=`${ptName(kid)} brought it down! Party carve: ${group(bn)}`}
+function ptPending(){const Q=S.Q;if(!Q||!Q.pendingCheck||S.scene!=='world'||busy||D.open)return;Q.pendingCheck=false;
+  (async()=>{if(Q.pc){const t=Q.pc;Q.pc=null;await say([t],'Hunter')}if(S.Q===Q)await checkQuest()})()}
+async function ptOnB(m){const p=MP.pt;if(!m||!p||m.id!==p.leader||m.pid!==p.pid||!ptBossOk(m.b))return;if(!await ptVer('pb',m,[m.pid,m.b]))return;if(ptActive())ptBossApply(m.b,m.id)}
+async function ptOnBu(m){const p=MP.pt;if(!m||!p||!ptLeader()||m.pid!==p.pid||!p.m.includes(m.id)||!ptBossOk(m.b))return;if(!await ptVer('pbu',m,[m.pid,m.b]))return;
+  if(!ptActive()||(S.scene==='battle'&&E&&E.boss))return;const b=S.Q.boss;const a=m.b.slice();a[13]=S.Q.carts;a[12]=a[5]?'':m.id;
+  if(b.busy===m.id||!b.busy)a[11]='';ptBossApply(a,m.id);ptBossSend(a[5]?'':m.id)}
+async function ptOnBz(m){const p=MP.pt;if(!m||!p||!ptLeader()||m.pid!==p.pid||!p.m.includes(m.id))return;if(!await ptVer('pbz',m,[m.pid]))return;
+  if(ptActive()&&S.Q.boss&&!S.Q.boss.busy){S.Q.boss.busy=m.id;S.Q.boss.busyT=mpNow();ptBossSend()}}
+function ptBlocked(){const b=S.Q&&S.Q.boss;if(!ptActive()||!b||!b.busy||b.busy===MP.id)return false;toast(`${ptName(b.busy)} is fighting it right now!`);return true}
+function ptEngage(){if(!ptActive())return;const b=S.Q.boss;b.busy=MP.id;if(ptLeader())ptBossSend();else ptSend('pbz',{pid:MP.pt.pid},[MP.pt.pid])}
+function ptAfterBoss(){if(!ptActive()||!E||!E.boss)return;const b=S.Q.boss;b.busy=null;const a=ptBossArr(b.alive?'':MP.id);if(!a)return;
+  if(ptLeader())ptBossSend(b.alive?'':MP.id);else ptSend('pbu',{pid:MP.pt.pid,b:a},[MP.pt.pid,a])}
+function ptNoMove(){return ptFollower()||!!(ptActive()&&S.Q.boss&&S.Q.boss.busy)}
+/* ---- shared faints ---- */
+function ptFaint(){if(!ptActive())return;if(ptLeader())ptBossSend();else ptSend('pf',{pid:MP.pt.pid},[MP.pt.pid])}
+async function ptOnF(m){const p=MP.pt;if(!m||!p||!ptLeader()||m.pid!==p.pid||!p.m.includes(m.id))return;if(!await ptVer('pf',m,[m.pid]))return;if(!ptActive())return;
+  const Q=S.Q;Q.carts=Math.min(3,Q.carts+1);toast(`${ptName(m.id)} fainted! (${Q.carts}/3)`);chatSys('p',`${ptName(m.id)} fainted!`);ptBossSend();hud();if(Q.carts>=3&&!Q.complete){Q.complete=true;setTimeout(()=>{if(S.Q===Q)failQuest('Your party fainted three times.')},50)}}
+/* ---- seeing each other in the zone ---- */
+MP.zq=[];MP.zr='';
+function ptStep(){if(ptActive())MP.zq.push([P.x,P.y])}
+function ptZoneSend(){if(!ptActive()||S.scene!=='world')return;const p=MP.pt,r=S.map,hp=Math.round(S.hp/maxHP()*100);
+  if(r!==MP.zr){MP.zq=[[P.x,P.y]];MP.zr=r}else if(!MP.zq.length&&!(mpNow()-(MP.zT||0)>2))return;MP.zT=mpNow();
+  const pp=MP.zq.length?MP.zq.slice(-20):[[P.x,P.y]];MP.zq=[];ptSend('zp',{pid:p.pid,r,p:pp,d:P.dir,hp},[p.pid,r,pp,P.dir,hp])}
+function ptPtR(r,x,y){if(!Number.isInteger(x)||!Number.isInteger(y)||!MAPS[r])return null;const row=MAPS[r][y],c=row&&row[x];return c&&!SOLID.has(c)&&c!=='L'?[x,y]:null}
+async function ptOnZ(m){const p=MP.pt;if(!m||!p||m.pid!==p.pid||!p.m.includes(m.id)||m.id===MP.id||!ptStr(m.r,8)||!MAPS[m.r]||!Array.isArray(m.p)||m.p.length>20||!Number.isInteger(m.hp))return;
+  const o=MP.ps[m.id];if(!o)return;const now=performance.now();o.zrp=(o.zrp||[]).filter(t=>now-t<1000);if(o.zrp.length>=8)return;o.zrp.push(now);
+  if(!await ptVer('zp',m,[m.pid,m.r,m.p,m.d,m.hp]))return;
+  let z=o.z;if(!z||z.r!==m.r){const s=m.p.map(q=>Array.isArray(q)&&ptPtR(m.r,q[0],q[1])).filter(Boolean).pop();if(!s)return;z=o.z={r:m.r,x:s[0],y:s[1],fx:s[0],fy:s[1],t:1,fr:0,q:[],dir:'down'}}
+  else for(const q of m.p){const s=Array.isArray(q)&&ptPtR(m.r,q[0],q[1]);if(!s)continue;const L=z.q.length?z.q[z.q.length-1]:[z.x,z.y];const d=Math.abs(s[0]-L[0])+Math.abs(s[1]-L[1]);
+    if(!d)continue;if(d>1){z.q=[];z.x=z.fx=s[0];z.y=z.fy=s[1];z.t=1}else z.q.push(s)}
+  if(z.q.length>14){const L=z.q.pop();z.q=[];z.x=z.fx=L[0];z.y=z.fy=L[1];z.t=1}
+  z.hp=Math.max(0,Math.min(100,m.hp));z.dir=mpDir(m.d);z.seen=mpNow()}
+function ptMembersHere(){const p=MP.pt,out=[];if(!ptActive())return out;for(const id of p.m){if(id===MP.id)continue;const o=MP.ps[id];if(o&&o.z&&o.z.r===S.map&&mpNow()-o.z.seen<20)out.push(o)}return out}
+function ptList(list,dt){for(const o of ptMembersHere()){const z=o.z;
+  if(z.t<1){z.t=Math.min(1,z.t+dt*7);z.fr+=dt}if(z.t>=1&&z.q.length){const[nx,ny]=z.q.shift();const dx=nx-z.x,dy=ny-z.y;z.fx=z.x;z.fy=z.y;z.x=nx;z.y=ny;z.t=Math.abs(dx)+Math.abs(dy)>1?1:0;z.dir=dx>0?'right':dx<0?'left':dy>0?'down':'up'}
+  const t=clamp(z.t,0,1),X=Math.round((z.fx+(z.x-z.fx)*t)*16),Y=Math.round((z.fy+(z.y-z.fy)*t)*16);
+  list.push({y:Y+15.4,d:()=>{g.fillStyle='rgba(0,0,0,.28)';g.fillRect(X+3,Y+14,10,2);const fr=z.t<1?[1,0,3,0][Math.floor(z.fr*8)%4]:0;blit(mpSpr(o,z.dir,fr),X-3,Y-12)}})}}
+let LBLB=[];
+function ptTags(c){LBLB=[];const ms=ptMembersHere();if(MP.me&&chatMode()!=='off'&&ptActive()){const[px,py]=playerPx();LBLB.push([MP.me,px+8,py-18])}if(!ms.length&&!LBLB.length)return;c.save();c.font='bold 8px "Pixelify Sans",sans-serif';c.textAlign='center';c.textBaseline='middle';
+  for(const o of ms){const z=o.z,t=clamp(z.t,0,1),X=Math.round((z.fx+(z.x-z.fx)*t)*16)+8,Y=Math.round((z.fy+(z.y-z.fy)*t)*16)-20;
+    const w=Math.max(22,Math.ceil(c.measureText(o.n).width)+4),ty=fitY(X,Y-5,w,13);c.fillStyle='rgba(30,70,40,.85)';c.fillRect(Math.round(X-w/2),ty,w,13);
+    if(chatMode()!=='off'&&o.bub)LBLB.push([o.bub,X,ty-1]);c.fillStyle='#d8ffd0';c.fillText(o.n,X,ty+5);c.fillStyle=INK;c.fillRect(Math.round(X-w/2)+2,ty+10,w-4,2);c.fillStyle=z.hp>30?'#7ad04a':'#e05a3a';c.fillRect(Math.round(X-w/2)+2,ty+10,Math.round((w-4)*z.hp/100),2)}
+  c.restore();for(const[b,X,Y]of LBLB){c.save();mpBubble(c,b,X,Y);c.restore()}}
+function ptHud(){if(!ptOn())return'';const p=MP.pt;const parts=p.m.filter(id=>id!==MP.id).map(id=>{const o=MP.ps[id];const hp=o&&o.z&&S.Q&&mpNow()-o.z.seen<20?` ${o.z.hp}%`:'';return(id===p.leader?'★':'')+ptName(id)+hp});
+  return`<div class="mb-sub">👥 ${parts.join(' · ')}</div>`}
+/* ---- upkeep ---- */
+function ptTick(){const p=MP.pt;
+  for(let i=MP.pinv.length-1;i>=0;i--)if(mpNow()>MP.pinv[i].until)MP.pinv.splice(i,1);
+  if(!p||MP.st!=='on')return;ptZoneSend();
+  const t=mpNow();if(!p.lastB||t-p.lastB>2){p.lastB=t;if(ptLeader()){ptBroadcast();if(ptActive())ptBossSend()}}
+  for(const id of p.m){if(id===MP.id)continue;if(MP.ps[id]){p.seen[id]=t;continue}if(!p.seen[id])p.seen[id]=t;
+    if(t-p.seen[id]>12){if(id===p.leader){MP.pt=null;toast('Lost contact with the party leader — you continue solo.');hud();return}
+      if(ptLeader()){p.m=p.m.filter(x=>x!==id);if(S.Q&&S.Q.boss&&S.Q.boss.busy===id)S.Q.boss.busy=null;toast(`${ptName(id)} disconnected.`);if(p.m.length<2&&!p.go)MP.pt=null;else ptBroadcast();hud()}}}
+  if(ptLeader()&&ptActive()&&S.Q.boss&&S.Q.boss.busy&&S.Q.boss.busy!==MP.id&&!MP.ps[S.Q.boss.busy])S.Q.boss.busy=null}
+setInterval(ptTick,300);
+function ptMenu(body){const p=MP.pt;body.append(h('div',{cls:'sec'},'Party'));
+  if(MP.pinv.length)body.append(opt(`Party invites (${MP.pinv.length})`,'👥',()=>{MENU.onClose=null;closeMenu();ptInvMenu()}));
+  if(!p||p.m.length<2){body.append(h('div',{cls:'note'},'Open a hunter\'s card and tap "Invite to party" to hunt together (up to 4).'));return}
+  for(const id of p.m)body.append(h('div',{cls:'note'},(id===p.leader?'★ ':'')+ptName(id)+(id===MP.id?' (you)':'')));
+  if(p.go){const q=quest(p.q);body.append(h('div',{cls:'note'},`On the hunt: ${q?q.name:'?'}`));if(!S.Q&&!ptLeader()&&ptCan(q))body.append(opt('Depart with the party','✓',()=>{MENU.onClose=null;closeMenu();ptDepart()}))}
+  else body.append(h('div',{cls:'note'},ptLeader()?'Accept a Hunt quest and leave through the gate — your party will be asked to follow.':'Waiting for the leader to depart.'));
+  body.append(opt(ptLeader()?'Disband party':'Leave party','',()=>{ptLeave();redraw()}))}
+for(const[ev,fn]of[['pinv',ptOnInv],['pacc',ptOnAcc],['pst',ptOnSt],['plv',ptOnLv],['pgo',ptOnGo],['preq',ptOnReq],['pb',ptOnB],['pbu',ptOnBu],['pbz',ptOnBz],['pf',ptOnF],['zp',ptOnZ]])MP_EXTRA.push([ev,fn]);
+
+for(const[k,v]of Object.entries({"Only the party leader can invite.": "Hanya ketua party yang bisa mengajak.", "The party is full.": "Party sudah penuh.", "Party invite": "Ajakan party", "No invites waiting.": "Tidak ada ajakan.", "Party members hunt the same boss together and share 3 faints.": "Anggota party memburu boss yang sama dan berbagi 3 kali pingsan.", "Join": "Gabung", "Joining party…": "Bergabung ke party…", "You joined the party!": "Kamu bergabung ke party!", "You left the party.": "Kamu keluar dari party.", "The leader disbanded the party.": "Ketua membubarkan party.", "Party disbanded.": "Party dibubarkan.", "Party hunts only work with Hunt quests — going solo.": "Perburuan party hanya untuk quest Hunt — kamu berangkat solo.", "Your party has departed! Open the Online menu to follow.": "Party-mu sudah berangkat! Buka menu Online untuk menyusul.", "Party departing": "Party berangkat", "Depart with the party": "Berangkat bersama party", "Not now": "Nanti saja", "Your party fainted three times.": "Party-mu pingsan tiga kali.", "Lost contact with the party leader — you continue solo.": "Kontak dengan ketua party hilang — kamu lanjut solo.", "Party": "Party", "Invite to party": "Ajak ke party", "Disband party": "Bubarkan party", "Leave party": "Keluar dari party", "Accept a Hunt quest and leave through the gate — your party will be asked to follow.": "Ambil quest Hunt lalu keluar lewat gerbang — anggota party akan diajak menyusul.", "Waiting for the leader to depart.": "Menunggu ketua berangkat.", "Open a hunter's card and tap \"Invite to party\" to hunt together (up to 4).": "Buka kartu hunter lalu tekan \"Ajak ke party\" untuk berburu bersama (maks. 4)."}))IDD.set(k,v);
+for(const[en,id]of [["Invited {0}.", "{0} diajak."], ["{0} invites you to a party — open the Online menu.", "{0} mengajakmu ke party — buka menu Online."], ["{0} invites you to a hunting party.", "{0} mengajakmu ke party berburu."], ["{0} declined.", "{0} menolak."], ["{0} joined the party!", "{0} bergabung ke party!"], ["{0} left the party.", "{0} keluar dari party."], ["The party left for \"{0}\", but that hunt is not open for you yet.", "Party berangkat ke \"{0}\", tapi perburuan itu belum terbuka untukmu."], ["{0} left for \"{1}\". Follow now?", "{0} berangkat ke \"{1}\". Susul sekarang?"], ["{0} brought it down! Party carve: {1}", "{0} menumbangkannya! Bagian party: {1}"], ["{0} is fighting it right now!", "{0} sedang melawannya!"], ["{0} fainted! ({1}/3)", "{0} pingsan! ({1}/3)"], ["{0} disconnected.", "{0} terputus."], ["Party invites ({0})", "Ajakan party ({0})"], ["On the hunt: {0}", "Sedang berburu: {0}"], ["{0} (you)", "{0} (kamu)"]]){const ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),id,ord])}
+
+/* ================= CHAT PANEL =================
+   Own 💬 button (top bar / HUD), two tabs (Village / Party), 100-line history,
+   1-line ticker under the top bar, auto-hidden in battle, dialogs, menus and fishing.
+   Chat mode (All / Party only / Off) lives in the Bag. Opening the panel pauses the world. */
+MP.hist={v:[],p:[]};MP.unread={v:0,p:0};MP.draft={v:'',p:''};
+function chatMode(){return(S&&S.chatMode)||'all'}
+function chatOn(){return !!(MP&&MP.st!=='off'&&chatMode()!=='off')}
+function chatUnread(){if(!chatOn())return 0;return(chatMode()==='all'?MP.unread.v:0)+MP.unread.p}
+function chatBtnHtml(desk){if(!chatOn())return'';const n=chatUnread();
+  return desk?`<button id="hudChat" type="button" class="hchat">💬${n?` <i>${n>99?'99+':n}</i>`:''}</button>`:`<button id="mbChat" type="button" aria-label="Chat">💬${n?`<i>${n>99?'99+':n}</i>`:''}</button>`}
+const chatTime=d=>String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+function chatPush(tab,e){e.d=new Date();const L=MP.hist[tab];L.push(e);if(L.length>100)L.shift();
+  const open=MENU&&MENU.title==='Chat'&&MENU.tab===(tab==='v'?0:1);
+  if(open)chatAppendLine(e);else if(!e.self&&!e.sys&&(tab==='p'||chatMode()==='all')){MP.unread[tab]++;hud()}
+  if(!e.self&&(e.sys?tab==='p':true))chatTicker(tab,e)}
+function chatLine(e){if(e.sys)return h('div',{cls:'cl sys'},h('span',{cls:'ct'},chatTime(e.d)),' '+e.x);
+  const nm=h('button',{type:'button',cls:'cn'+(e.self?' me':e.tab==='p'?' pt':'')},e.n);
+  if(e.id&&!e.self)nm.onclick=()=>{if(MP.ps[e.id]&&MP.ps[e.id].h&&mpHere()){MENU.onClose=null;closeMenu();mpCard(e.id)}};
+  return h('div',{cls:'cl'},h('span',{cls:'ct'},chatTime(e.d)),' ',nm,h('span',{cls:'cx'},e.x))}
+function chatAppendLine(e){const box=menuEl.querySelector('.chatlog');if(!box)return;const nx=box.querySelector('.cempty');if(nx)nx.remove();box.append(chatLine(e));while(box.children.length>100)box.firstChild.remove();box.scrollTop=box.scrollHeight}
+function chatOpen(tab){if(!chatOn()){toast(MP.st==='off'?'Online mode is off.':'Chat is turned off (Bag → Chat).');return}
+  if(MENU)return;sfx('move');openMenu('Chat',(body,t)=>{const k=t===0?'v':'p';MP.unread[k]=0;
+    const box=h('div',{cls:'chatlog'});const L=MP.hist[k];
+    if(!L.length)box.append(h('div',{cls:'note cempty'},k==='v'?'No messages yet. Say hi to the village!':'No party messages yet.'));for(const e of L)box.append(chatLine(e));body.append(box);
+    const canV=mpHere()&&MP.st==='on',canP=ptOn()&&MP.st==='on',can=k==='v'?canV:canP;
+    if(k==='v'&&chatMode()==='party')body.append(h('div',{cls:'note'},'Chat mode is "Party only" — village messages stay hidden on screen.'));
+    if(!can){body.append(h('div',{cls:'note'},MP.st!=='on'?'Not connected right now.':k==='v'?'You can read village chat anywhere, but send messages from the village.':'Join a party to use party chat (it works while hunting, too).'));}
+    else{const r=h('div',{cls:'swrow'});for(const em of MP_EMO){const b=h('button',{type:'button',cls:'swb'},em);b.onclick=()=>{if(chatSend(k,em)){MENU.onClose=null;closeMenu()}};r.append(b)}body.append(r);
+      const inp=h('input',{type:'text',maxlength:'60',autocomplete:'off',enterkeyhint:'send',cls:'txt',placeholder:tr(k==='v'?'Message the village…':'Message your party…')});inp.value=MP.draft[k];
+      inp.oninput=()=>{MP.draft[k]=inp.value};const send=()=>{if(chatSend(k,inp.value)){inp.value='';MP.draft[k]=''}};inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
+      body.append(h('div',{cls:'crow'},inp,h('button',{type:'button',cls:'swb csend',on:send},'Send')));
+      if(!isTouch())setTimeout(()=>{try{inp.focus()}catch(e){}},30)}
+    setTimeout(()=>{box.scrollTop=box.scrollHeight;const ae=document.activeElement;if(isTouch()&&ae&&ae.classList&&ae.classList.contains('cn'))ae.blur()},0);hud()},['Village','Party']);
+  if(tab!=null){MENU.tab=tab;drawMenu(0)}else if(ptOn()&&(MP.unread.p||S.Q)){MENU.tab=1;drawMenu(0)}}
+function chatSend(k,t){if(k==='v'){if(!mpHere())return false;return mpSay(t)}return ptSay(t)}
+/* ---- ticker ---- */
+const tickEl=h('div',{id:'chatTick',cls:'ui','aria-live':'polite'});$('#frame').append(tickEl);let tickT=0;
+function chatQuiet(){return S.scene!=='world'||D.open||!!MENU||FISH.on||busy||WP.v>0}
+function chatTicker(tab,e){if(!chatOn()||chatQuiet())return;if(tab==='v'&&(chatMode()!=='all'||S.Q))return;
+  tickEl.innerHTML='';if(e.sys)tickEl.append(e.x);else{tickEl.append(h('b',{cls:tab==='p'?'pt':''},(tab==='p'?'👥 ':'')+e.n),': '+e.x)}
+  if(document.body.classList.contains('mobile')){const fr=$('#frame').getBoundingClientRect(),mb=mbar.getBoundingClientRect();tickEl.style.top=Math.max(4,Math.round(mb.bottom-fr.top+4))+'px'}else tickEl.style.top='';
+  tickEl.classList.add('on');tickT=performance.now()+4200}
+setInterval(()=>{if(tickEl.classList.contains('on')&&(performance.now()>tickT||chatQuiet()))tickEl.classList.remove('on')},150);
+hudR.addEventListener('click',e=>{if(e.target.closest('#hudChat')&&S.scene==='world'&&!busy&&!MENU&&!D.open&&!FISH.on){auInit();chatOpen()}});
+/* ---- party chat ---- */
+function ptSay(t){t=mpText(t);if(!t||!ptOn()||MP.st!=='on')return false;if(T0<MP.chatT){toast('Wait a moment…');return false}MP.chatT=T0+1.2;
+  ptSend('pc',{pid:MP.pt.pid,t},[MP.pt.pid,t]);const e=MP_EMO.includes(t),shown=e?t:mpClean(t);MP.me={t:shown,e,until:T0+(e?2.5:5)};
+  chatPush('p',{n:HNAME(),x:shown,self:1,tab:'p'});return true}
+async function ptOnC(m){const p=MP.pt;if(!m||!p||m.pid!==p.pid||!p.m.includes(m.id)||m.id===MP.id||typeof m.t!=='string'||m.t.length>200)return;
+  const o=MP.ps[m.id];if(!o)return;const now=performance.now();if(now-(o.pct||0)<800)return;o.pct=now;
+  if(!await ptVer('pc',m,[m.pid,m.t]))return;const raw=mpText(m.t);if(!raw||mpMuted(o.n))return;const e=MP_EMO.includes(raw),t=e?raw:mpClean(raw);
+  o.bub={t,e,until:T0+(e?2.5:5)};chatPush('p',{n:o.n,id:m.id,x:t,tab:'p'});if(chatMode()!=='off'&&!e)sfx('text')}
+MP_EXTRA.push(['pc',ptOnC]);
+function chatSys(tab,x){chatPush(tab,{sys:1,x,tab})}
+for(const[k,v]of Object.entries({'Chat':'Chat','Village':'Desa','Send':'Kirim','No messages yet. Say hi to the village!':'Belum ada pesan. Sapa warga desa!','No party messages yet.':'Belum ada pesan party.',
+  'Message the village…':'Pesan untuk desa…','Message your party…':'Pesan untuk party…','Not connected right now.':'Sedang tidak terhubung.',
+  'You can read village chat anywhere, but send messages from the village.':'Chat desa bisa dibaca di mana saja, tapi kirim pesan hanya dari desa.',
+  'Join a party to use party chat (it works while hunting, too).':'Gabung party untuk memakai chat party (bisa juga saat berburu).',
+  'Chat mode is "Party only" — village messages stay hidden on screen.':'Mode chat "Party saja" — pesan desa tidak muncul di layar.',
+  'Online mode is off.':'Mode online mati.','Chat is turned off (Bag → Chat).':'Chat dimatikan (Bag → Chat).','Open chat':'Buka chat',
+  'Chat: All':'Chat: Semua','Online (party & gifts)':'Online (party & hadiah)','party & gifts':'party & hadiah','Chat: Party only':'Chat: Party saja','Chat: Off':'Chat: Mati','In the village':'Di desa','Hunting':'Berburu','In battle':'Bertarung','Fishing':'Memancing','On the title screen':'Di layar judul','Idle':'Diam','Online':'Online','Hunters online':'Hunter online','Tap a hunter in the village to open their card.':'Tap hunter di desa untuk membuka kartunya.','Gifts and hunter cards work in Mossvale village.':'Hadiah dan kartu hunter hanya di desa Mossvale.','This is how other hunters see you.':'Begini tampilanmu di mata pemburu lain.','View my Hunter Card':'Lihat kartu hunter saya'}))IDD.set(k,v);
+for(const[en,id]of[['{0} hunters online · {1} in Mossvale','{0} hunter online · {1} di Mossvale'],['Hunters online ({0})','Hunter online ({0})'],['{0} hunters online','{0} hunter online'],['{0} is not in the village right now.','{0} sedang tidak di desa.'],['{0} (you)','{0} (kamu)'],['{0} arrived in the village.','{0} tiba di desa.'],['{0} left the village.','{0} meninggalkan desa.'],['{0} joined the party.','{0} bergabung ke party.'],['{0} left the party.','{0} keluar dari party.'],
+  ['{0} fainted!','{0} pingsan!'],['{0} brought down the {1}!','{0} menumbangkan {1}!']]){const ord=[];const src='^'+reEsc(en).replace(/\\\{(\d)\\\}/g,(_,n)=>{ord.push(+n);return '(.+?)'})+'$';IDR.unshift([new RegExp(src),id,ord])}
 
 </script>
 </body>
