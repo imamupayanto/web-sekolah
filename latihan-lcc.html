@@ -47,6 +47,12 @@ input.goyang{animation:goyang .35s}
 .avatar{width:58px;height:58px;border-radius:18px;background:var(--grad);color:#fff;display:grid;place-items:center;font-size:24px;font-weight:900;flex:none}
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0 4px}
 .tile{background:var(--soft);border-radius:14px;padding:10px 6px;text-align:center}.tile b{display:block;font-size:20px;font-weight:900;color:var(--pri)}.tile span{font-size:12.5px;font-weight:700;color:var(--muted)}
+.pick{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 2px}
+.pick button{font:inherit;font-size:14px;font-weight:800;border:2px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:7px 12px;cursor:pointer}
+.pick button.on{border-color:var(--c,var(--pri));background:color-mix(in srgb,var(--c,var(--pri)) 13%,#fff);color:color-mix(in srgb,var(--c,var(--pri)) 82%,#000)}
+.seg{display:flex;gap:6px;margin:8px 0 2px}.seg button{flex:1;font:inherit;font-weight:800;font-size:15px;border:2px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:9px 6px;cursor:pointer}
+.seg button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.sub{font-weight:800;font-size:14.5px;margin:16px 0 0;color:var(--ink)}
 .rules{list-style:none;margin:0;padding:0}.rules li{display:flex;gap:10px;margin:10px 0;align-items:flex-start}.rules .i{flex:none;width:30px;height:30px;border-radius:10px;background:var(--soft);display:grid;place-items:center;font-size:16px}
 /* quiz */
 .quiz{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;background:var(--bg);height:100vh;height:100dvh}
@@ -159,16 +165,21 @@ const store = {
 };
 let S = null, timerId = null, lastView = 'home';
 
+const PIL = Object.assign({ mapel: MAPEL.map(m => m[1]), jumlah: 100 }, store.get('lcc_pilihan') || {});
+PIL.mapel = PIL.mapel.filter(m => MAPEL.some(x => x[1] === m)); if (!PIL.mapel.length) PIL.mapel = MAPEL.map(m => m[1]);
+const menitUntuk = n => Math.round(n * DURASI_MENIT / 100);
+const durSesi = st => (st && st.durMenit) || DURASI_MENIT;
+const labelMapel = arr => arr.length === MAPEL.length ? 'Semua mapel' : arr.join(', ');
 function buatSoal(){
-  const pilih = [];
-  MAPEL.forEach(([kode,,n]) => pilih.push(...shuffle(BANK.filter(s => s.id.startsWith(kode + '-'))).slice(0, n)));
+  const pilih = [], dipilih = MAPEL.filter(m => PIL.mapel.includes(m[1])), n = PIL.jumlah;
+  dipilih.forEach(([kode], i) => { const jatah = Math.floor(n / dipilih.length) + (i < n % dipilih.length ? 1 : 0); pilih.push(...shuffle(BANK.filter(s => s.id.startsWith(kode + '-'))).slice(0, jatah)); });
   return shuffle(pilih).map(s => { const o = shuffle([s.a, ...s.w]); return { id:s.id, m:s.m, t:s.t, q:s.q, o, k:o.indexOf(s.a), p:s.p }; });
 }
 const terjawab = st => st.jawab.filter(j => j !== null).length;
 const simpan = () => store.set('lcc_sesi', S);
 const fmtWaktu = ms => { const t = Math.max(0, Math.ceil(ms / 1000)); const m = Math.floor(t / 60), s = t % 60; return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; };
 const fmtTgl = ts => { const d = new Date(ts), p = n => String(n).padStart(2,'0'); return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`; };
-const sisaMs = () => S.mulai + DURASI_MENIT * 60000 - Date.now();
+const sisaMs = () => S.mulai + durSesi(S) * 60000 - Date.now();
 function stopTimer(){ if (timerId) { clearInterval(timerId); timerId = null; } }
 function overlay(html){ const d = document.createElement('div'); d.className = 'overlay'; d.innerHTML = `<div class="sheet">${html}</div>`; d.addEventListener('click', e => { if (e.target === d) d.remove(); }); document.body.appendChild(d); return d; }
 const top0 = () => window.scrollTo(0, 0);
@@ -182,7 +193,7 @@ function viewHome(){ return NAMA ? viewMenu() : viewNama(); }
 function viewNama(){
   stopTimer(); lastView = 'home'; top0();
   const saved = store.get('lcc_sesi');
-  if (saved && !saved.selesai && saved.mulai + DURASI_MENIT * 60000 <= Date.now()) { S = saved; selesai('Waktu habis', false); }
+  if (saved && !saved.selesai && saved.mulai + durSesi(saved) * 60000 <= Date.now()) { S = saved; selesai('Waktu habis', false); }
   tampil(`
   <section class="card">
     <p class="eyebrow">SD Negeri 2 Pesantren</p>
@@ -215,12 +226,16 @@ function viewMenu(){
   stopTimer(); lastView = 'home'; top0();
   const saved = store.get('lcc_sesi');
   const milikku = saved && samaNama(saved.nama, NAMA);
-  const bisaLanjut = milikku && !saved.selesai && saved.mulai + DURASI_MENIT * 60000 > Date.now();
+  const bisaLanjut = milikku && !saved.selesai && saved.mulai + durSesi(saved) * 60000 > Date.now();
   const adaHasil = milikku && saved.selesai;
   tampil(`
   <section class="card">
     <div class="hello"><div class="avatar">${esc(NAMA[0])}</div><div><p class="eyebrow">Halo, semangat berlatih!</p><h1 style="margin:2px 0 0">${esc(NAMA)}</h1></div></div>
-    <div class="tiles"><div class="tile"><b>${JUMLAH}</b><span>soal acak</span></div><div class="tile"><b>${DURASI_MENIT}</b><span>menit</span></div><div class="tile"><b>6</b><span>mapel</span></div></div>
+    <div class="tiles"><div class="tile"><b id="tS">${PIL.jumlah}</b><span>soal acak</span></div><div class="tile"><b id="tM">${menitUntuk(PIL.jumlah)}</b><span>menit</span></div><div class="tile"><b id="tP">${PIL.mapel.length}</b><span>mapel</span></div></div>
+    <p class="sub">📚 Pilih mapel</p>
+    <div class="pick" id="pick"><button data-m="*" class="${PIL.mapel.length === MAPEL.length ? 'on' : ''}">✨ Semua</button>${MAPEL.map(m => `<button data-m="${m[1]}" style="--c:${m[4]}" class="${PIL.mapel.length !== MAPEL.length && PIL.mapel.includes(m[1]) ? 'on' : ''}">${m[3]} ${m[1]}</button>`).join('')}</div>
+    <p class="sub">🔢 Jumlah soal</p>
+    <div class="seg" id="segN">${[25, 50, 100].map(n => `<button data-n="${n}" class="${PIL.jumlah === n ? 'on' : ''}">${n} soal<small style="display:block;font-size:12.5px;opacity:.8">${menitUntuk(n)} menit</small></button>`).join('')}</div>
     ${bisaLanjut ? `<button class="btn primary big" id="lanjut">▶ Lanjutkan latihan (${terjawab(saved)}/${saved.soal.length})</button>` : ''}
     <button class="btn ${bisaLanjut ? '' : 'primary big'}" id="mulai">${bisaLanjut ? 'Mulai latihan baru' : '🚀 Mulai mengerjakan'}</button>
     ${adaHasil ? `<button class="btn" id="hasilLama">📊 Lihat hasil & pembahasan terakhir</button>` : ''}
@@ -230,8 +245,8 @@ function viewMenu(){
   <section class="card">
     <h2>Aturan latihan</h2>
     <ul class="rules">
-      <li><span class="i">🎲</span><span>Soal diambil acak dari 6 mapel. Urutan pilihan jawaban juga diacak.</span></li>
-      <li><span class="i">⏱️</span><span>Waktu ${DURASI_MENIT} menit. Jika waktu habis, jawaban otomatis dikumpulkan.</span></li>
+      <li><span class="i">🎲</span><span>Soal diambil acak dari mapel yang kamu pilih, dibagi rata. Urutan pilihan jawaban juga diacak.</span></li>
+      <li><span class="i">⏱️</span><span>Waktu sekitar 54 detik per soal, seperti lomba. Jika waktu habis, jawaban otomatis dikumpulkan.</span></li>
       <li><span class="i">✅</span><span>Benar bernilai 1, salah atau kosong bernilai 0. Jangan biarkan ada soal kosong!</span></li>
       <li><span class="i">🙈</span><span>Ringkasan materi tidak bisa dibuka selama mengerjakan.</span></li>
       <li><span class="i">📨</span><span>Nilaimu otomatis terkirim ke guru. Boleh berlatih berkali-kali.</span></li>
@@ -239,10 +254,24 @@ function viewMenu(){
   </section>`);
   document.getElementById('mulai').onclick = () => {
     if (bisaLanjut && !confirm('Latihan yang belum selesai akan ditinggalkan dan tidak dinilai. Mulai latihan baru?')) return;
-    S = { nama: NAMA, kode: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), soal: buatSoal(), jawab: [], idx: 0, mulai: Date.now(), selesai: null };
+    S = { nama: NAMA, kode: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), soal: buatSoal(), jawab: [], idx: 0, mulai: Date.now(), selesai: null, durMenit: menitUntuk(PIL.jumlah), mapelPilih: PIL.mapel.slice() };
     S.jawab = Array(S.soal.length).fill(null);
     simpan(); viewQuiz();
   };
+  const segarkan = () => {
+    store.set('lcc_pilihan', PIL);
+    const semua = PIL.mapel.length === MAPEL.length;
+    document.querySelectorAll('#pick button').forEach(b => b.classList.toggle('on', b.dataset.m === '*' ? semua : (!semua && PIL.mapel.includes(b.dataset.m))));
+    document.querySelectorAll('#segN button').forEach(b => b.classList.toggle('on', +b.dataset.n === PIL.jumlah));
+    document.getElementById('tS').textContent = PIL.jumlah; document.getElementById('tM').textContent = menitUntuk(PIL.jumlah); document.getElementById('tP').textContent = PIL.mapel.length;
+  };
+  document.querySelectorAll('#pick button').forEach(b => b.onclick = () => {
+    const m = b.dataset.m, semua = PIL.mapel.length === MAPEL.length;
+    if (m === '*') PIL.mapel = MAPEL.map(x => x[1]);
+    else { let sel = semua ? [] : PIL.mapel.slice(); sel = sel.includes(m) ? sel.filter(x => x !== m) : sel.concat(m); PIL.mapel = sel.length ? MAPEL.map(x => x[1]).filter(x => sel.includes(x)) : MAPEL.map(x => x[1]); }
+    segarkan();
+  });
+  document.querySelectorAll('#segN button').forEach(b => b.onclick = () => { PIL.jumlah = +b.dataset.n; segarkan(); });
   if (bisaLanjut) document.getElementById('lanjut').onclick = () => { S = saved; viewQuiz(); };
   if (adaHasil) document.getElementById('hasilLama').onclick = () => { S = saved; viewHasil(); };
   document.getElementById('ring').onclick = () => viewRingkasan();
@@ -319,7 +348,7 @@ function selesai(status, tampilkan = true){
     S.selesai = Date.now(); S.status = status;
     const h = hitung(S);
     const mapel = {}; MAPEL.forEach(([, n]) => mapel[n] = h.per[n].b);
-    const payload = { kode: S.kode, nama: S.nama, mulai: fmtTgl(S.mulai), durasi: Math.round((S.selesai - S.mulai) / 6000) / 10, status, nilai: h.nilai, benar: h.benar, salah: h.salah, kosong: h.kosong, jumlahSoal: S.soal.length, mapel, salahIds: h.salahIds.join(', ') };
+    const payload = { kode: S.kode, nama: S.nama, mulai: fmtTgl(S.mulai), durasi: Math.round((S.selesai - S.mulai) / 6000) / 10, status: `${status} · ${S.soal.length} soal · ${labelMapel(S.mapelPilih || MAPEL.map(m => m[1]))}`, nilai: h.nilai, benar: h.benar, salah: h.salah, kosong: h.kosong, jumlahSoal: S.soal.length, mapel, salahIds: h.salahIds.join(', ') };
     const q = store.get('lcc_antrian') || []; q.push(payload); store.set('lcc_antrian', q);
     simpan();
   }
@@ -367,7 +396,7 @@ function viewHasil(filter = 'semua', baru = false){
     <div id="send" class="send wait">📨 Mengirim nilai ke guru…</div>
   </section>
   <section class="card"><h2>Nilai per mapel</h2>
-    ${MAPEL.map(([, n, , ic, c]) => { const p = h.per[n]; const pct = p.n ? Math.round(p.b / p.n * 100) : 0;
+    ${MAPEL.filter(([, n]) => h.per[n].n > 0).map(([, n, , ic, c]) => { const p = h.per[n]; const pct = p.n ? Math.round(p.b / p.n * 100) : 0;
       return `<div class="bar" style="--c:${c}"><div class="row"><span><span class="ic">${ic}</span>${n}</span><span>${p.b}/${p.n}</span></div><div class="track"><div class="fill" data-w="${pct}"></div></div></div>`; }).join('')}
     <button class="btn primary" id="lagi">🔁 Latihan lagi dengan soal baru</button>
     <button class="btn ghost" id="ringk">📖 Baca ringkasan materi</button>
