@@ -154,7 +154,7 @@ table.st th{font-family:'Lilita One',Impact,sans-serif;font-weight:400;color:var
 <div id="panes"></div>
 <div id="hud">
  <div class="hc" id="hpw">🚙<div class="bar"><i id="hpf"></i></div><b id="hpt">100</b></div>
- <div class="hc" id="jamI" style="display:none;border-color:#ff3b30;animation:blink .6s infinite">🔒 MACET • tunggu: <b id="jamT"></b></div>
+ <div class="hc" id="jamI" style="display:none;border-color:#ff3b30;animation:blink .6s infinite">🔒 MACET • <b id="jamT"></b></div>
  <div class="hc" id="prog"><div id="track"><div id="dots"></div><span id="trk">🚙</span><span id="flag">🏁</span></div><div id="ptx"><span>⏱ <b id="tim">0:00</b></span><span>Sisa <b id="rem">0</b> m</span><span id="spd">0 km/j</span></div></div>
  <button class="ib" id="muteB">🔊</button><button class="ib" id="pauseB">⏸</button>
 </div>
@@ -175,7 +175,7 @@ table.st th{font-family:'Lilita One',Impact,sans-serif;font-weight:400;color:var
  <div class="sec"><h3>GRAFIK</h3><div class="row" data-k="q"><button class="opt" data-v="auto">⚙ Auto</button><button class="opt" data-v="rendah">Rendah</button><button class="opt" data-v="sedang">Sedang</button><button class="opt" data-v="tinggi">Tinggi</button></div></div>
  <button id="go">▶ MULAI KABUR!</button>
  <div class="mini"><button id="histB">📜 Riwayat</button><button id="fsB">⛶ Layar penuh</button><button id="muteM">🔊 Suara</button></div>
- <div class="how">📚 <b>Mode belajar:</b> saat peluru habis, jawab soal di bawah layarmu untuk isi ulang. Salah <b>2× berturut-turut</b> = senjata <b>semua pemain macet</b> sampai setiap pemain menjawab benar 2 soal.<br>👆 <b>Geser jari</b> di bagian layarmu untuk membidik • tahan <b>TEMBAK</b> • 💣 <b>BOM BIUS</b> melumpuhkan dino di area luas.<br>🦖 Peluru <b>tidak membunuh</b> — hanya <b>memperlambat</b> &amp; bisa membuat dino <b>jatuh</b>. Tembak <b>kepala</b> untuk efek ganda.<br>📦 Tembak <b>kotak melayang</b> di pinggir jalan: 🔧 perbaikan, ⚡ nitro, 💤 bius massal.</div>
+ <div class="how">📚 <b>Mode belajar:</b> saat peluru habis, jawab soal di bawah layarmu untuk isi ulang. Salah <b>2× berturut-turut</b> = senjata <b>semua pemain macet</b> sampai tim mengumpulkan <b>2 jawaban benar</b> (dari siapa saja).<br>👆 <b>Geser jari</b> di bagian layarmu untuk membidik • tahan <b>TEMBAK</b> • 💣 <b>BOM BIUS</b> melumpuhkan dino di area luas.<br>🦖 Peluru <b>tidak membunuh</b> — hanya <b>memperlambat</b> &amp; bisa membuat dino <b>jatuh</b>. Tembak <b>kepala</b> untuk efek ganda.<br>📦 Tembak <b>kotak melayang</b> di pinggir jalan: 🔧 perbaikan, ⚡ nitro, 💤 bius massal.</div>
 </div>
 
 <div class="ov" id="pauseO"><div class="card"><h2>⏸ JEDA</h2><p id="pinfo" style="opacity:.75"></p><div class="ovb"><button id="resB">▶ Lanjut</button><button class="sec2" id="restB">🔁 Ulang</button><button class="sec2" id="menuB">☰ Menu</button></div></div></div>
@@ -589,20 +589,33 @@ function sGun(P){const p=panOf(P),k=P.wk;if(k==='mini'){nz(.07,3800,700,.11,'low
 function sClick(P){tn(900,600,.06,.12,'square',panOf(P));tn(300,200,.08,.1,'square',panOf(P),AC&&AC.currentTime+.06)}
 function roar(size,pan){if(!AC)return;const t=AC.currentTime,d=.65+size*.4,o=AC.createOscillator(),l=AC.createOscillator(),lg=AC.createGain(),g=AC.createGain(),f=AC.createBiquadFilter(),f0=(180/size)*rnd(.9,1.12);
  o.type='sawtooth';o.frequency.setValueAtTime(f0,t);o.frequency.linearRampToValueAtTime(f0*1.3,t+d*.3);o.frequency.exponentialRampToValueAtTime(f0*.5,t+d);l.frequency.value=rnd(18,30);lg.gain.value=f0*.2;l.connect(lg);lg.connect(o.frequency);
- f.type='lowpass';f.frequency.value=1000;f.Q.value=5;g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(.2*Math.min(1.5,.6+size*.3),t+.08);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(f);f.connect(g);g.connect(outN(pan));o.start(t);l.start(t);o.stop(t+d+.05);l.stop(t+d+.05);nz(d,1400,180,.12*Math.min(2,size),'bandpass',pan,1.5)}
+ f.type='lowpass';f.frequency.value=1000;f.Q.value=5;g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(.2*Math.min(1.5,.6+size*.3),t+.08);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(f);f.connect(g);g.connect(outN(pan));o.start(t);l.start(t);o.stop(t+d+.05);l.stop(t+d+.05);nz(d,1400,180,.12*Math.min(2,size),'bandpass',pan,1.5);
+ if(size>=1.3){tn(f0*.5,f0*.25,d*1.1,.16*Math.min(1.6,size*.6),'sine',pan,t+.05);nz(d*.8,700,90,.1*Math.min(2,size),'lowpass',pan,4,t+.1)}}
 function sBite(pan){nz(.13,2600,500,.35,'lowpass',pan);tn(220,70,.1,.25,'square',pan);nz(.1,1800,400,.25,'lowpass',pan,0,AC&&AC.currentTime+.1)}
-function sBoom(){nz(1.1,1600,60,.6,'lowpass');tn(85,28,.9,.55,'sine')}
+function sBoom(){if(!AC)return;const t=AC.currentTime;nz(.08,8000,2000,.5,'highpass',0,0,t);nz(1.4,1800,50,.7,'lowpass',0,0,t);tn(90,24,1.2,.7,'sine',0,t);tn(160,40,.35,.3,'square',0,t);for(let k=0;k<6;k++)nz(.12,3000,1200,.08,'bandpass',rnd(-.8,.8),2,t+.3+k*.11+Math.random()*.06)}
 function sJingle(notes,type,vol){if(!AC)return;const t=AC.currentTime;notes.forEach((f,i)=>tn(f,f*1.01,.16,vol||.14,type||'triangle',0,t+i*.09))}
+function sQ(P){if(!AC)return;const p=panOf(P),t=AC.currentTime;tn(520,1040,.09,.07,'sine',p,t);tn(1560,1560,.12,.05,'triangle',p,t+.07)}
+function sOk(P){if(!AC)return;const p=panOf(P),t=AC.currentTime;[784,988,1175,1568].forEach((f,i)=>tn(f,f,.2,.13,'triangle',p,t+i*.06));tn(2093,2093,.35,.05,'sine',p,t+.24);nz(.3,9000,5000,.05,'highpass',p,0,t+.2)}
+function sBad(P,warn){if(!AC)return;const p=panOf(P),t=AC.currentTime;tn(196,185,.22,.15,'square',p,t);tn(147,139,.38,.17,'square',p,t+.24);if(warn)[0,.75,.9].forEach(d=>tn(1320,1320,.08,.08,'square',p,t+d))}
+function sJam(){if(!AC)return;const t=AC.currentTime;nz(.5,1200,150,.45,'lowpass',0,0,t);tn(140,55,.5,.35,'sawtooth',0,t);tn(2400,1800,.12,.12,'square',0,t+.02);
+ for(let k=0;k<4;k++){const o=AC.createOscillator(),g=AC.createGain(),a=t+.35+k*.42;o.type='sawtooth';o.frequency.setValueAtTime(520,a);o.frequency.linearRampToValueAtTime(880,a+.2);o.frequency.linearRampToValueAtTime(520,a+.4);g.gain.setValueAtTime(.001,a);g.gain.linearRampToValueAtTime(.1,a+.03);g.gain.linearRampToValueAtTime(.001,a+.41);o.connect(g);g.connect(SGN);o.start(a);o.stop(a+.45)}}
+function sJamStep(){if(!AC)return;const t=AC.currentTime;[523,659,784].forEach((f,i)=>tn(f,f,.16,.12,'square',0,t+.25+i*.07))}
+function sFanfare(){if(!AC)return;const t=AC.currentTime;tn(70,40,.4,.4,'sine',0,t);nz(.25,4000,800,.2,'bandpass',0,1,t);[[523,0],[659,.1],[784,.2],[1047,.32]].forEach(([f,d])=>{tn(f,f*1.005,.22,.12,'square',0,t+d);tn(f/2,f/2,.22,.1,'triangle',0,t+d)});
+ [1047,1319,1568].forEach(f=>tn(f,f,.7,.07,'triangle',0,t+.46));nz(.6,9000,4000,.06,'highpass',0,0,t+.46);tn(70,40,.4,.4,'sine',0,t+.46)}
+function sStep(m,gap){if(!AC||muted)return;const v=(1-gap/45)*(m.T.boss?1:m.key==='rex'?.7:.45),p=clamp(m.lat/8,-.8,.8);if(v<=.02)return;tn(m.T.boss?55:75,28,.3,.5*v,'sine',p);nz(.18,500,80,.35*v,'lowpass',p)}
 function sHit(P){tn(1400,800,.035,.035,'square',panOf(P))}
 function mtof(n){return 440*Math.pow(2,(n-69)/12)}
 const BASS=[45,45,48,45,50,45,52,48],LEAD=[69,72,76,74,72,69,67,69];
-function musicTick(){if(!AC||muted)return;if(nextT<AC.currentTime-.5)nextT=AC.currentTime+.05;const BT=60/(118+intensity*30)/2;
+function musicTick(){if(!AC||muted)return;if(nextT<AC.currentTime-.5)nextT=AC.currentTime+.05;const BT=60/(112+intensity*46+(jam?14:0))/2;
  while(nextT<AC.currentTime+.18){const st=mStep%16,t=nextT,I=intensity;
   if(st%4===0)tn(140,42,.2,.42,'sine',0,t,MUG);
   if(I>.45&&st%8===4)nz(.16,3000,900,.22,'bandpass',0,1,t,MUG);
   if(st%2===1)nz(.04,9000,7000,.06+I*.05,'highpass',0,0,t,MUG);
   if(st%2===0){const n=BASS[(mStep>>1)%8];tn(mtof(n-12),mtof(n-12)*.98,BT*1.7,.22,'sawtooth',0,t,MUG)}
   if(I>.72&&st%4===2){const n=LEAD[(mStep>>2)%8];tn(mtof(n),mtof(n),BT*1.5,.06,'square',0,t,MUG)}
+  if(I>.6&&st%2===1){const n=[57,60,64,60][(mStep>>1)%4]+12;tn(mtof(n),mtof(n),BT*.8,.035+(I-.6)*.06,'triangle',0,t,MUG)}
+  if(I>.85&&st%8===6)nz(.12,3000,900,.2,'bandpass',0,1,t,MUG);
+  if(jam&&state==='play'){if(st%2===0)tn(st%4===0?2200:1700,st%4===0?2200:1700,.04,.09,'square',0,t,MUG);if(st===0)tn(mtof(40),mtof(39),BT*15,.12,'sawtooth',0,t,MUG)}
   nextT+=BT;mStep++}}
 function setMute(m){muted=m;store.set('mute',m);if(MG)MG.gain.value=m?0:.9;$('muteB').textContent=$('muteM').textContent=m?'🔇':'🔊';if(!m)$('muteM').textContent='🔊 Suara';else $('muteM').textContent='🔇 Senyap'}
 
@@ -766,6 +779,7 @@ function updMons(dt){const pl=state==='play';
   m.g.position.set(roadX(z)+m.lat,y,z);
   const sy=roadYaw(z)-Math.atan2(dl/Math.max(dt,1e-3),Math.max(v,4));m.yaw=lerp(m.yaw,sy,Math.min(1,dt*6));m.g.rotation.y=m.yaw;
   roarCD-=dt*.0;m.roarT-=dt;if(gap<40&&m.roarT<=0&&roarCD<=0&&m.down<=0&&state!=='count'){roar(T.roar*(T.boss?1:m.sc),clamp(m.lat/8,-.8,.8));m.roar=.7;m.roarT=rnd(5,10);roarCD=1.5}
+  if((m.key==='rex'||m.key==='trike'||T.boss)&&m.down<=0&&gap<45&&state==='play'){m.stT=(m.stT||0)-dt;if(m.stT<=0){m.stT=T.boss?.62:m.key==='rex'?.5:.36;sStep(m,gap)}}
   if((m.key==='rex'||T.boss)&&m.down<=0&&Math.random()<dt*3){puff(m.g.position.x,.3,m.g.position.z,0xb89a6a,1.5*m.sc,3*m.sc,.9,.35);if(gap<25)shake=Math.min(1,shake+(T.boss?.05:.02))}
   animMon(m,dt);m.g.updateMatrixWorld(true);for(const h of m.hit)h.a.getWorldPosition(h.wp);
   const show=(m.slow>.04||m.stag>.1)&&m.down<=0&&state!=='menu';m.bars.forEach(b=>b.visible=show);
@@ -931,28 +945,28 @@ function assist(P,dt){const cp=P.cam.position;let best=null,bd=.13;
  if(best){const k=Math.min(1,dt*3.2);P.yaw+=best[0]*k;P.pitch+=best[1]*k;clampAim(P)}}
 
 /* ---------- QUIZ ---------- */
-let jam=false;
+let jam=false,jamNeed=0;
 function pickQ(P){if(!SOAL.length)SOAL=parseSoal(SOAL_TEKS);let idx,t=0;do{idx=Math.random()*SOAL.length|0;t++}while(P.seen.includes(idx)&&t<40);P.seen.push(idx);if(P.seen.length>Math.min(40,SOAL.length-1))P.seen.shift();
  const s=SOAL[idx],ord=s.o.map((_,i)=>i).sort(()=>Math.random()-.5);return{q:s.q,o:ord.map(k=>s.o[k]),c:ord.indexOf(s.c),lock:false}}
 function openQuiz(P,mode){P.qMode=mode;P.qT=0;P.fireN=0;P.mFire=false;if(P.el){P.el.fire.classList.remove('down');P.el.d.classList.add('qon')}newQ(P)}
 function newQ(P){P.quiz=pickQ(P);renderQ(P)}
-function renderQ(P){const e=P.el;if(!e)return;const q=P.quiz;e.quiz.classList.remove('wait');
- if(P.qMode==='jam')e.qh.innerHTML='🔒 SENJATA MACET! Jawab benar <b>'+(3-P.need)+' / 2</b>';
+function jamHead(){return '🔒 MACET! Tim butuh <b>'+jamNeed+'</b> jawaban benar lagi (siapa saja)'}
+function renderQ(P){const e=P.el;if(!e)return;const q=P.quiz;e.quiz.classList.remove('wait');sQ(P);
+ if(P.qMode==='jam')e.qh.innerHTML=jamHead();
  else e.qh.innerHTML='🔄 ISI ULANG — jawab dengan benar!'+(P.wrongS===1?' <span class="warn">⚠ Salah sekali lagi = SEMUA senjata macet!</span>':'');
  e.qt.textContent=q.q;e.qa.className='qa n'+q.o.length;e.qa.innerHTML=q.o.map((o,i)=>'<button data-ans="'+i+'"><i>'+'ABCD'[i]+'</i><span>'+esc(o)+'</span></button>').join('')}
-function renderWait(){const left=players.filter(Q=>!Q.done).map(Q=>esc(Q.name));players.forEach(P=>{if(!P.done||!P.el)return;const e=P.el;e.quiz.classList.add('wait');e.qh.innerHTML='✅ Kamu sudah benar 2 soal!';e.qt.innerHTML=left.length?'Menunggu teman: <b>'+left.join(', ')+'</b>':'';e.qa.innerHTML=''})}
 function answer(P,i){const q=P.quiz;if(!q||q.lock||state!=='play'&&state!=='count')return;q.lock=true;const ok=i===q.c,bs=P.el.qa.children;bs[q.c].classList.add('ok');if(!ok&&bs[i])bs[i].classList.add('no');
- if(ok){P.stats.ok++;P.score+=20;tn(784,784,.12,.12,'triangle',panOf(P));tn(1047,1047,.18,.12,'triangle',panOf(P),AC&&AC.currentTime+.1);P.qT=.55;P.qNext=1}
- else{P.stats.bad++;tn(220,90,.35,.18,'sawtooth',panOf(P));P.qT=1.2;P.qNext=0}}
+ if(ok){P.stats.ok++;P.score+=20;sOk(P);P.qT=.55;P.qNext=1}
+ else{P.stats.bad++;sBad(P,P.qMode==='reload'&&P.wrongS===1);P.qT=1.2;P.qNext=0}}
 function resolveQ(P){const ok=P.qNext===1;
  if(P.qMode==='reload'){if(ok){P.wrongS=0;closeQuiz(P);P.ammo=P.W.mag;pop(P,'✅ BENAR! Peluru penuh','#7dff9a',true)}
   else{P.wrongS++;if(P.wrongS>=2&&!jam)triggerJam(P);else{pop(P,'❌ Salah! Coba soal lain','#ff6b5a');newQ(P)}}}
- else if(P.qMode==='jam'){if(ok){P.need--;if(P.need<=0){P.done=true;P.quiz=null;pop(P,'✅ SELESAI!','#7dff9a',true);renderWait();checkUnjam()}else{pop(P,'✅ Benar! 1 soal lagi','#7dff9a');newQ(P)}}else{pop(P,'❌ Salah! Soal lain','#ff6b5a');newQ(P)}}}
+ else if(P.qMode==='jam'){if(!jam){closeQuiz(P);return}if(ok){jamNeed--;pop(P,'✅ Benar! +1 untuk tim','#7dff9a',true);if(jamNeed<=0){checkUnjam(P);return}sJamStep();updJamHud();players.forEach(Q=>{if(Q.el&&Q.qMode==='jam')Q.el.qh.innerHTML=jamHead()});newQ(P)}else{pop(P,'❌ Salah! Soal lain','#ff6b5a');newQ(P)}}}
 function closeQuiz(P){P.quiz=null;P.qMode=null;P.qT=0;if(P.el)P.el.d.classList.remove('qon')}
-function triggerJam(by){jam=true;banner('🔒 SEMUA SENJATA MACET!','#ff4a3a');ticker('❌ '+by.name+' salah 2× — semua pemain jawab 2 soal benar!');nz(.8,900,200,.3,'lowpass');tn(180,60,.6,.25,'sawtooth');
- players.forEach(Q=>{Q.need=2;Q.done=false;Q.wrongS=0;Q.ammo=0;openQuiz(Q,'jam')});$('jamI').style.display='flex';updJamHud()}
-function updJamHud(){if(!jam)return;$('jamT').textContent=players.filter(Q=>!Q.done).map(Q=>Q.name).join(', ')}
-function checkUnjam(){updJamHud();if(players.some(Q=>!Q.done))return;jam=false;$('jamI').style.display='none';players.forEach(Q=>{Q.done=false;closeQuiz(Q);Q.ammo=Q.W.mag});banner('🔓 SENJATA PULIH!','#7dff9a');ticker('Semua senjata terisi penuh — TEMBAK!');sJingle([523,659,784,1047],'triangle',.14)}
+function triggerJam(by){jam=true;jamNeed=2;banner('🔒 SEMUA SENJATA MACET!','#ff4a3a');ticker('❌ '+by.name+' salah 2× — tim butuh 2 jawaban benar (siapa saja)!');sJam();
+ players.forEach(Q=>{Q.wrongS=0;Q.ammo=0;openQuiz(Q,'jam')});$('jamI').style.display='flex';updJamHud()}
+function updJamHud(){if(!jam)return;$('jamT').textContent='Benar '+(2-jamNeed)+' / 2'}
+function checkUnjam(by){jam=false;jamNeed=0;$('jamI').style.display='none';players.forEach(Q=>{closeQuiz(Q);Q.wrongS=0;Q.ammo=Q.W.mag});banner('🔓 SENJATA PULIH!','#7dff9a');ticker((by?by.name+' menyelesaikan! ':'')+'Semua senjata terisi penuh — TEMBAK!');sFanfare()}
 
 /* ---------- HUD ---------- */
 const dots=[];for(let i=0;i<24;i++){const d=document.createElement('div');d.className='dd';d.style.display='none';$('dots').appendChild(d);dots.push(d)}
