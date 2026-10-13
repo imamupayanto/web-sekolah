@@ -237,6 +237,14 @@ function viewMenu() {
 }
 const namaRegu = () => (CFG.regu || '').trim() || NAMA_SEKOLAH;
 const namaAnggota = i => (CFG.anggota[i] || '').trim() || `Anggota ${i + 1}`;
+function keMenu(batal) {
+  if (document.getElementById('kmenu')) return;
+  const o = document.createElement('div'); o.className = 'overlay'; o.id = 'kmenu';
+  o.innerHTML = `<div><div style="font-size:5rem">🏠</div><h2>Kembali ke menu utama?</h2><p>Latihan yang sedang berjalan akan dihentikan dan tidak disimpan.</p><button class="btn y" id="kmY">Ya, ke menu utama</button> <button class="btn" id="kmN">Batal, lanjutkan</button></div>`;
+  document.body.appendChild(o);
+  o.querySelector('#kmY').onclick = () => { o.remove(); stopTick(); diam(); F = null; viewMenu(); };
+  o.querySelector('#kmN').onclick = () => { o.remove(); if (batal) batal(); };
+}
 function layar(html, kelas = 'light') { app.innerHTML = `<div class="screen ${kelas}">${html}</div>`; }
 function pengumuman(ikon, judul, teks, tombol, fn, tombol2, fn2) {
   layar(`<div class="overlay" style="position:static;flex:1"><div><div style="font-size:5rem">${ikon}</div><h2>${judul}</h2><p>${teks}</p><button class="btn y" id="ok1">${tombol}</button>${tombol2 ? ` <button class="btn" id="ok2">${tombol2}</button>` : ''}</div></div>`, 'dark');
@@ -253,12 +261,13 @@ function introTertulis() {
 function mulaiTertulis() {
   T = { soal: pilihPG(), idx: 0, mulai: Date.now(), dur: CFG.durasi * 60000 / SPEED };
   T.jawab = Array(T.soal.length).fill(null);
-  layar(`<header class="hud"><div class="t">📝 Tes Tertulis<small>${esc(namaRegu())}</small></div><div class="sp"></div><span class="timer" id="tm">--:--</span><span style="font-weight:900;font-size:1.2rem">Soal <span id="no"></span>/100</span><button class="hbtn" id="bGrid">☰ Daftar soal</button></header>
+  layar(`<header class="hud"><div class="t">📝 Tes Tertulis<small>${esc(namaRegu())}</small></div><div class="sp"></div><span class="timer" id="tm">--:--</span><span style="font-weight:900;font-size:1.2rem">Soal <span id="no"></span>/100</span><button class="hbtn" id="bGrid">☰ Daftar soal</button><button class="hbtn" id="bMenu">🏠 Menu</button></header>
     <div class="body"><section class="card" style="flex:1;overflow:auto"><div><span class="chip" id="mc"></span></div><div class="qt" id="qt"></div></section><div class="opts" id="ops"></div></div>
     <div class="nav"><button class="btn" id="prev">‹ Sebelumnya</button><span class="grow"></span><button class="btn p" id="next">Berikutnya ›</button></div>`);
   document.getElementById('prev').onclick = () => { if (T.idx > 0) { T.idx--; soalT(); } };
   document.getElementById('next').onclick = () => { if (T.idx < 99) { T.idx++; soalT(); } else kumpulT(); };
   document.getElementById('bGrid').onclick = gridT;
+  document.getElementById('bMenu').onclick = () => keMenu();
   soalT(); stopTick();
   TICK = setInterval(() => { const ms = T.mulai + T.dur - Date.now(), el = document.getElementById('tm'); if (el) { el.textContent = '⏱ ' + fmt(ms); el.classList.toggle('low', ms < 300000 / SPEED); } if (ms <= 0) { stopTick(); selesaiT(true); } }, 250);
 }
@@ -310,7 +319,7 @@ function soalC() {
   stopTick();
   const no = C.tahap * 5 + C.i, s = C.soal[no], dur = (s.h ? 120000 : 30000) / SPEED;
   let teksTampil = !CFG.suara, akhir = Date.now() + dur + (CFG.suara ? lamaBaca(s.q) / SPEED : 0);
-  layar(`<header class="hud"><div class="t">🧠 Mencongak · Tahap ${C.tahap + 1}<small>${esc(namaRegu())}</small></div><div class="sp"></div><span class="timer" id="tm">--:--</span><span style="font-weight:900;font-size:1.2rem">Soal ${C.i + 1}/5</span></header>
+  layar(`<header class="hud"><div class="t">🧠 Mencongak · Tahap ${C.tahap + 1}<small>${esc(namaRegu())}</small></div><div class="sp"></div><span class="timer" id="tm">--:--</span><span style="font-weight:900;font-size:1.2rem">Soal ${C.i + 1}/5</span><button class="hbtn" id="bMenu">🏠 Menu</button></header>
     <div class="body"><section class="card mc"><div style="width:100%"><div><span class="chip">${IKON[s.m]} ${esc(s.m)}</span><span class="chip g">${s.h ? '🧮 Soal hitung · 2 menit' : '⚡ 30 detik'}</span></div>
       <div id="qbox"></div><div class="big" id="cd"></div><p class="hid">Tulis jawaban singkat di kertas</p></div></section></div>
     <div class="nav"><button class="btn" id="ulang">🔊 Bacakan ulang</button><button class="btn" id="lihat">👁 Tampilkan teks</button><span class="grow"></span><button class="btn p" id="lanjut">${C.i === 4 ? 'Selesai tahap ›' : 'Soal berikutnya ›'}</button></div>`);
@@ -320,14 +329,17 @@ function soalC() {
   document.getElementById('lihat').onclick = () => { teksTampil = !teksTampil; tulis(); };
   const lanjut = () => { stopTick(); diam(); if (C.i < 4) { C.i++; soalC(); } else koreksiC(); };
   document.getElementById('lanjut').onclick = lanjut;
-  TICK = setInterval(() => { const ms = akhir - Date.now(); document.getElementById('tm').textContent = '⏱ ' + fmt(ms); document.getElementById('cd').textContent = fmt(ms); if (ms <= 0) { bunyi('habis'); lanjut(); } }, 200);
+  document.getElementById('bMenu').onclick = () => keMenu();
+  TICK = setInterval(() => { if (!document.getElementById('cd')) return stopTick(); const ms = akhir - Date.now(); (document.getElementById('tm') || {}).textContent = '⏱ ' + fmt(ms); document.getElementById('cd').textContent = fmt(ms); if (ms <= 0) { bunyi('habis'); lanjut(); } }, 200);
 }
 function koreksiC() {
+  stopTick();
   const base = C.tahap * 5;
-  layar(`<header class="hud"><div class="t">🧑‍⚖️ Koreksi juri · Tahap ${C.tahap + 1}<small>Bacakan kunci, cocokkan dengan jawaban di kertas</small></div><div class="sp"></div><span class="timer" id="nt">Nilai tahap: 0</span></header>
+  layar(`<header class="hud"><div class="t">🧑‍⚖️ Koreksi juri · Tahap ${C.tahap + 1}<small>Bacakan kunci, cocokkan dengan jawaban di kertas</small></div><div class="sp"></div><span class="timer" id="nt">Nilai tahap: 0</span><button class="hbtn" id="bMenu">🏠 Menu</button></header>
     <div class="body" style="overflow:auto"><section class="card">${C.soal.slice(base, base + 5).map((s, i) => `<div class="krow"><span class="no">${base + i + 1}</span><span class="q">${esc(s.q)}</span><span class="k">🔑 ${esc(s.a)}</span><div class="tog" data-i="${base + i}"><button data-v="1">✓ Benar</button><button data-v="0">✗ Salah</button></div></div>`).join('')}</section></div>
     <div class="nav"><span class="grow"></span><button class="btn y" id="simpan" disabled>Simpan nilai tahap ${C.tahap + 1} ›</button></div>`);
   const hitung = () => { let n = 0, isi = 0; for (let i = base; i < base + 5; i++) { if (C.benar[i] !== null) isi++; if (C.benar[i]) n += 2; } document.getElementById('nt').textContent = `Nilai tahap: ${n}`; document.getElementById('simpan').disabled = isi < 5; return n; };
+  document.getElementById('bMenu').onclick = () => keMenu();
   document.querySelectorAll('.tog').forEach(t => t.querySelectorAll('button').forEach(b => b.onclick = () => { const i = +t.dataset.i; C.benar[i] = b.dataset.v === '1'; t.querySelectorAll('button').forEach(x => x.className = x === b ? (b.dataset.v === '1' ? 'okon' : 'badon') : ''); hitung(); }));
   document.getElementById('simpan').onclick = () => {
     const n = hitung(); C.nilaiTahap.push(n); const tot = C.nilaiTahap.reduce((a, b) => a + b, 0);
@@ -381,7 +393,7 @@ function mulaiFinal() {
 }
 const BABAK = { wajib: 'Soal Wajib', lempar: 'Lempar Rebut', rebutan: 'Rebutan', tambahan: 'Rebutan Tambahan' };
 function renderFinal() {
-  layar(`<header class="hud"><div class="t">🏆 Babak Final<small id="sub"></small></div><div class="sp"></div><span class="timer" id="tm">--:--</span><button class="hbtn" id="bJeda">⏸ Jeda</button></header>
+  layar(`<header class="hud"><div class="t">🏆 Babak Final<small id="sub"></small></div><div class="sp"></div><span class="timer" id="tm">--:--</span><button class="hbtn" id="bJeda">⏸ Jeda</button><button class="hbtn" id="bMenu">🏠 Menu</button></header>
     <div class="body">
       <div class="score3" id="sc"></div>
       <div class="stage"><section class="card" id="kartu"></section></div>
@@ -398,6 +410,11 @@ function renderFinal() {
   document.getElementById('jS').onclick = () => nilaiKita(false);
   document.getElementById('jL').onclick = () => { if (F.fase === 'hasil') berikut(); };
   document.getElementById('bJeda').onclick = jedaFinal;
+  document.getElementById('bMenu').onclick = () => {
+    if (!F || F.jeda) return;
+    F.jeda = true; diam(); const t0 = Date.now();
+    keMenu(() => { const dt = Date.now() - t0; geser(dt); F.jeda = false; });
+  };
   skorUI();
 }
 function skorUI(delta) {
@@ -419,6 +436,7 @@ const waktuJawab = s => (s.h ? 120000 : 10000) / SPEED;
 
 /* ---- alur soal ---- */
 function berikut() {
+  if (!F || !document.getElementById('bel')) return;
   diam(); stopTick();
   F.blok = F.blokBerikut; F.blokBerikut = {};
   F.i++;
@@ -435,6 +453,7 @@ function berikut() {
 }
 function statusTeks(h, c) { const st = document.getElementById('st'); if (st) st.innerHTML = `<div class="status" ${c ? `style="--c:${c}"` : ''}>${h}</div>`; }
 function mulaiJawab(r, d, tundaBaca = 0) {
+  if (!F || !document.getElementById('bel')) return;
   F.fase = 'jawab'; F.penjawab = r; F.aktif = r; skorUI();
   const reg = F.regu[r], dur = waktuJawab(d.s), mulai = Date.now() + tundaBaca, akhir = mulai + dur;
   const label = d.babak === 'wajib' ? `lewat juru bicara (${esc(namaAnggota(CFG.jubir))})` : 'boleh siapa saja';
@@ -452,7 +471,7 @@ function mulaiJawab(r, d, tundaBaca = 0) {
   TICK = setInterval(() => {
     if (F.jeda) return;
     const t = Date.now(), ms = akhir - t, tb = document.getElementById('tb');
-    document.getElementById('tm').textContent = '⏱ ' + fmt(t < mulai ? dur : ms);
+    (document.getElementById('tm') || {}).textContent = '⏱ ' + fmt(t < mulai ? dur : ms);
     if (tb) tb.style.width = (t < mulai ? 100 : Math.max(0, ms / dur * 100)) + '%';
     if (reg.ai && F.aiJawab && t >= F.aiJawab.t) { const a = F.aiJawab; F.aiJawab = null; selesaiJawab(r, a.benar, a.benar ? d.s.a : d.s.w[Math.floor(Math.random() * 3)]); return; }
     if (ms <= 0) { bunyi('habis'); selesaiJawab(r, false, null, true); }
@@ -460,6 +479,7 @@ function mulaiJawab(r, d, tundaBaca = 0) {
 }
 function nilaiKita(benar) { if (F.fase !== 'jawab' || F.regu[F.penjawab].ai) return; selesaiJawab(F.penjawab, benar, null); }
 function selesaiJawab(r, benar, teksAI, habis = false) {
+  if (!F || !document.getElementById('bel')) return;
   stopTick(); kontrol({}); F.fase = 'putus';
   const d = F.cur, reg = F.regu[r], perebut = F.dilempar, rebut = d.babak === 'rebutan' || d.babak === 'tambahan';
   let poin = benar ? 100 : (rebut ? -100 : 0);
@@ -477,17 +497,19 @@ function selesaiJawab(r, benar, teksAI, habis = false) {
   tampilHasil(d, benar, F.hasilTeks);
 }
 function tampilHasil(d, benar, teks) {
+  if (!F || !document.getElementById('bel')) return;
   stopTick(); diam(); F.fase = 'hasil'; F.aktif = null; skorUI();
   const s = d.s;
   kartu(kepala(d) + `<div class="qt${ukuran(s.q)}">${esc(s.q)}</div>
     ${teks ? `<div class="ans ${benar ? 'ok' : 'bad'}">${teks}</div>` : ''}
     <div class="ans info">🔑 Jawaban: <b>${esc(s.a)}</b><span class="ex">💡 ${esc(s.p)}</span></div>`);
   kontrol({ lanjut: true });
-  document.getElementById('tm').textContent = '--:--';
+  (document.getElementById('tm') || {}).textContent = '--:--';
 }
 
 /* ---- lempar rebut ---- */
 function bukaLempar(d) {
+  if (!F || !document.getElementById('bel')) return;
   F.dilempar = true; F.fase = 'lempar'; F.aktif = null; skorUI();
   const boleh = [0, 1, 2].filter(r => r !== d.giliran && !F.blok[r]);
   if (!boleh.length) return tampilHasil(d, false, F.hasilTeks || 'Tidak ada regu yang boleh merebut.');
@@ -502,7 +524,7 @@ function bukaLempar(d) {
   TICK = setInterval(() => {
     if (F.jeda) return;
     const t = Date.now(), tb = document.getElementById('tb'); if (tb) tb.style.width = Math.max(0, 100 - (t - mulai) / jendela * 100) + '%';
-    document.getElementById('tm').textContent = '⏱ ' + fmt(mulai + jendela - t);
+    (document.getElementById('tm') || {}).textContent = '⏱ ' + fmt(mulai + jendela - t);
     const ai = F.belAI.filter(x => t >= x.t).sort((a, b) => a.t - b.t)[0];
     if (ai) return belMasuk(ai.r, ai.tahu);
     if (t - mulai >= jendela) { stopTick(); tampilHasil(d, false, (F.hasilTeks || '') + '<br>Tidak ada regu yang menekan bel.'); }
@@ -511,6 +533,7 @@ function bukaLempar(d) {
 
 /* ---- rebutan ---- */
 function mulaiRebutan(d) {
+  if (!F || !document.getElementById('bel')) return;
   F.fase = 'baca'; skorUI();
   const kata = d.s.q.split(/(\s+)/), totalKata = d.s.q.split(/\s+/).length, durBaca = lamaBaca(d.s.q) / SPEED, mulai = Date.now();
   kartu(kepala(d) + `<div class="qt${ukuran(d.s.q)}" id="qr"></div><div id="st"></div>`);
@@ -529,7 +552,7 @@ function mulaiRebutan(d) {
     const t = Date.now(), p = Math.min(1, (t - mulai) / durBaca), tampil = Math.ceil(p * totalKata);
     let n = 0; const q = document.getElementById('qr');
     if (q) q.innerHTML = kata.map(w => { if (/\S/.test(w)) n++; return n <= tampil ? esc(w) : `<span class="rest">${esc(w)}</span>`; }).join('');
-    document.getElementById('tm').textContent = '⏱ ' + fmt(mulai + jendela - t);
+    (document.getElementById('tm') || {}).textContent = '⏱ ' + fmt(mulai + jendela - t);
     F.progresBaca = p;
     const ai = F.belAI.filter(x => t >= x.t).sort((a, b) => a.t - b.t)[0];
     if (ai) return belMasuk(ai.r, ai.tahu);
@@ -558,6 +581,7 @@ function jedaFinal() {
 }
 function geser(dt) { if (F.aiJawab) F.aiJawab.t += dt; (F.belAI || []).forEach(x => x.t += dt); /* timer berbasis waktu mulai digeser lewat ulang soal */ if (F.fase === 'jawab' || F.fase === 'baca' || F.fase === 'lempar') { const d = F.cur; if (F.fase === 'jawab') mulaiJawab(F.penjawab, d, 0); else if (F.fase === 'baca') mulaiRebutan(d); else bukaLempar(d); } }
 function cekSeri() {
+  if (!F || !document.getElementById('bel')) return;
   const skor = F.regu.map(r => r.skor), seri = skor.some((v, i) => skor.indexOf(v) !== i);
   if (seri && F.tambahan < 5) {
     F.tambahan++;
