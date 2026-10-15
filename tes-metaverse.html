@@ -890,7 +890,7 @@ function modal(html, buttons = [{ t: 'Oke', cls: '' }], opts = {}) {
     if (opts.onOpen) opts.onOpen(m);
   });
 }
-function addCoins(n) { S.coins += n; save(); }
+function addCoins(n) { S.coins += n; save(); sfx('coin'); }
 function gainXP(n) {
   S.xp += n; let up = false;
   while (S.xp >= need(S.rank)) {
@@ -901,6 +901,7 @@ function gainXP(n) {
     if (S.rank === 2) setTimeout(() => toast('Puncak Salju sekarang terbuka', 3200), 900);
     if (S.rank === 4) setTimeout(() => toast('Gua Bara sekarang terbuka', 3200), 900);
   }
+  if (up) sfx('rank');
   save(); return up;
 }
 function teamCost(t = S.team) { return t.reduce((a, id) => a + RAR[M[id].r].cost, 0); }
@@ -959,6 +960,132 @@ function ensureDaily() {
   save(); return S.daily;
 }
 const featured = () => { try { return ensureDaily().zone; } catch (e) { return null; } };
+
+/* ================= SUARA: musik dan efek chiptune, dibuat lewat kode (tanpa file audio) =================
+   Web Audio dimulai setelah sentuhan pertama (aturan browser HP). Musik dan efek bisa dimatikan terpisah. */
+const SND = { ac: null, mg: null, sg: null, nz: null, st: { m: 1, s: 1 }, key: '', want: '', song: null, step: 0, next: 0, last: '', stepT: 0 };
+try { const v = JSON.parse(localStorage.getItem('mga-snd') || 'null'); if (v) SND.st = { m: v.m ? 1 : 0, s: v.s ? 1 : 0 }; } catch (e) {}
+const MAJ = [0, 2, 4, 5, 7, 9, 11], MIN = [0, 2, 3, 5, 7, 8, 10], PENT = [0, 2, 4, 7, 9], MIXO = [0, 2, 4, 5, 7, 9, 10], LYD = [0, 2, 4, 6, 7, 9, 11], DOR = [0, 2, 3, 5, 7, 9, 10], PHR = [0, 1, 3, 5, 7, 8, 10], HMIN = [0, 2, 3, 5, 7, 8, 11];
+const SONGS = {
+  school: { bpm: 104, root: 60, sc: MAJ, prog: [0, 4, 5, 3], seed: 11, ld: 'square', lv: .1, arp: 0, drum: 0, dens: .85 },
+  mtk: { bpm: 116, root: 67, sc: PENT, prog: [0, 3, 4, 0], seed: 23, ld: 'square', lv: .1, arp: 1, drum: 1, dens: .9 },
+  ind: { bpm: 96, root: 65, sc: MAJ, prog: [0, 5, 3, 4], seed: 37, ld: 'triangle', lv: .22, arp: 0, drum: 0, dens: .8 },
+  ipas: { bpm: 100, root: 62, sc: MIXO, prog: [0, 6, 3, 0], seed: 41, ld: 'triangle', lv: .2, arp: 1, drum: 0, dens: .75 },
+  ing: { bpm: 124, root: 69, sc: MAJ, prog: [0, 4, 5, 4], seed: 59, ld: 'square', lv: .1, arp: 0, drum: 1, dens: .95 },
+  forest: { bpm: 88, root: 57, sc: DOR, prog: [0, 3, 6, 4], seed: 61, ld: 'triangle', lv: .2, arp: 1, drum: 0, dens: .7 },
+  snow: { bpm: 78, root: 64, sc: LYD, prog: [0, 4, 1, 5], seed: 71, ld: 'triangle', lv: .22, arp: 1, drum: 0, dens: .6 },
+  cave: { bpm: 92, root: 52, sc: MIN, prog: [0, 5, 3, 4], seed: 83, ld: 'square', lv: .08, arp: 1, drum: 1, dens: .7 },
+  menu: { bpm: 84, root: 60, sc: MAJ, prog: [0, 3, 4, 3], seed: 97, ld: 'triangle', lv: .2, arp: 1, drum: 0, dens: .6 },
+  study: { bpm: 72, root: 62, sc: LYD, prog: [0, 4, 1, 4], seed: 101, ld: 'triangle', lv: .16, arp: 1, drum: 0, dens: .5 },
+  battle: { bpm: 150, root: 57, sc: MIN, prog: [0, 5, 3, 4], seed: 113, ld: 'square', lv: .1, arp: 1, drum: 2, dens: .95 },
+  duel: { bpm: 164, root: 59, sc: HMIN, prog: [0, 3, 4, 5], seed: 127, ld: 'square', lv: .1, arp: 1, drum: 2, dens: 1 },
+  legend: { bpm: 138, root: 55, sc: PHR, prog: [0, 1, 5, 4], seed: 131, ld: 'square', lv: .11, arp: 1, drum: 2, dens: .9 }
+};
+const sRng = s => () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const mFreq = n => 440 * Math.pow(2, (n - 69) / 12);
+function mkSong(p) {
+  const r = sRng(p.seed), L = p.sc.length, N = d => p.root + 12 * Math.floor(d / L) + p.sc[((d % L) + L) % L];
+  const pats = [[1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0], [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0], [1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0]];
+  const pat = pats[Math.floor(r() * 3)], tones = [0, 2, 4, 7, 9]; let d = p.prog[0] + 4;
+  const mk = ch => { const row = []; for (let s = 0; s < 16; s++) { if (!pat[s] || r() > p.dens) { row.push(null); continue; } if (s % 4 === 0) d = ch + tones[Math.floor(r() * 4)] + L; else d += [-2, -1, -1, 0, 1, 1, 2][Math.floor(r() * 7)]; d = Math.max(ch + L - 3, Math.min(ch + L + 5, d)); row.push(d); } return row; };
+  const a = mk(p.prog[0]), b = mk(p.prog[1]), shift = r => r.map(x => x === null ? null : x + (p.prog[2] - p.prog[0])), c = shift(a), e = mk(p.prog[3]);
+  return { p, N, bars: [a, b, c, e] };
+}
+function sndInit() {
+  if (SND.ac) return SND.ac.state === 'suspended' ? (SND.ac.resume(), 1) : 1;
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return 0;
+  const ac = SND.ac = new AC(); SND.mg = ac.createGain(); SND.sg = ac.createGain(); SND.mg.connect(ac.destination); SND.sg.connect(ac.destination);
+  const nb = ac.createBuffer(1, ac.sampleRate, ac.sampleRate), d = nb.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; SND.nz = nb;
+  sndVol(); if (ac.state === 'suspended') ac.resume();
+  setInterval(sndSched, 30); return 1;
+}
+function sndVol() { if (!SND.ac) return; const t = SND.ac.currentTime; SND.mg.gain.setTargetAtTime(SND.st.m ? .5 : 0, t, .05); SND.sg.gain.setTargetAtTime(SND.st.s ? .8 : 0, t, .05); }
+function sndSet(k, v) { SND.st[k] = v ? 1 : 0; try { localStorage.setItem('mga-snd', JSON.stringify(SND.st)); } catch (e) {} sndVol(); if (k === 'm' && v) { SND.key = ''; sndAuto(); } }
+function tone(f, t, dur, type = 'square', vol = .2, dest, f2) {
+  const ac = SND.ac; if (!ac) return; const o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + .006); g.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(.02, dur)); o.connect(g); g.connect(dest || SND.sg); o.start(t); o.stop(t + dur + .03);
+}
+function nz(t, dur, vol, ft = 'lowpass', fq = 1500, dest) {
+  const ac = SND.ac; if (!ac) return; const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = SND.nz; f.type = ft; f.frequency.value = fq;
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); s.connect(f); f.connect(g); g.connect(dest || SND.sg); s.start(t, Math.random() * .5); s.stop(t + dur + .02);
+}
+const seqN = (arr, t, st, type, vol, dur) => arr.forEach((n, i) => tone(n, t + i * st, dur || st * 1.6, type, vol));
+const SFX = {
+  click: t => tone(880, t, .05, 'square', .12),
+  step: t => nz(t, .04, .1, 'lowpass', 600),
+  coin: t => { tone(988, t, .07, 'square', .18); tone(1319, t + .07, .2, 'square', .18); },
+  hit: t => { nz(t, .12, .5, 'lowpass', 2000); tone(240, t, .14, 'square', .28, 0, 70); },
+  crit: t => { SFX.hit(t); seqN([1319, 1568, 2093], t + .06, .06, 'square', .2); },
+  strong: t => { SFX.hit(t); seqN([523, 659, 784], t + .08, .06, 'square', .2); },
+  weak: t => { nz(t, .1, .25, 'lowpass', 900); tone(160, t, .15, 'triangle', .3, 0, 110); },
+  miss: t => nz(t, .22, .25, 'highpass', 2500),
+  faint: t => tone(440, t, .6, 'sawtooth', .18, 0, 90),
+  guard: t => { tone(330, t, .1, 'triangle', .3); tone(495, t + .06, .12, 'triangle', .25); },
+  skill: t => { tone(300, t, .3, 'sawtooth', .13, 0, 1300); nz(t + .1, .2, .2, 'bandpass', 3000); },
+  heal: t => seqN([523, 659, 784, 1047], t, .07, 'triangle', .3),
+  swap: t => tone(500, t, .12, 'square', .16, 0, 900),
+  encounter: t => seqN([392, 330, 262, 392, 523], t, .09, 'sawtooth', .13),
+  ok: t => seqN([659, 880, 1319], t, .07, 'square', .17),
+  bad: t => tone(170, t, .3, 'sawtooth', .16, 0, 100),
+  pass: t => { seqN([523, 523, 523, 659, 784, 1047], t, .11, 'square', .17); seqN([262, 330, 392, 523], t + .1, .22, 'triangle', .3); },
+  win: t => { seqN([523, 659, 784, 659, 784, 1047], t, .13, 'square', .17); seqN([262, 392, 523], t, .26, 'triangle', .3); },
+  lose: t => seqN([392, 370, 349, 330, 294], t, .22, 'triangle', .34, .34),
+  rank: t => { seqN([523, 659, 784, 1047, 784, 1047, 1319, 1568], t, .1, 'square', .17); seqN([262, 392, 523, 659], t, .2, 'triangle', .3); },
+  box: t => { nz(t, .5, .5, 'lowpass', 400); tone(120, t, .5, 'sawtooth', .2, 0, 240); seqN([880, 1109, 1319, 1760], t + .5, .06, 'square', .14); },
+  revC: t => tone(784, t, .3, 'triangle', .32),
+  revR: t => seqN([784, 988], t, .09, 'triangle', .32),
+  revE: t => seqN([659, 784, 988, 1319], t, .09, 'square', .17),
+  revL: t => { seqN([523, 659, 784, 1047, 1319, 1568, 2093], t, .09, 'square', .17); seqN([262, 392, 523], t, .3, 'triangle', .32); },
+  pop: t => tone(700, t, .09, 'square', .15, 0, 1100),
+  alert: t => seqN([880, 660, 880, 660], t, .12, 'square', .17)
+};
+function sfx(k) {
+  if (!SND.st.s || !SND.ac || SND.ac.state !== 'running' || !SFX[k]) return; const n = performance.now(); if (k === 'click' && n - (SND.lc || 0) < 60) return; if (k === 'click') SND.lc = n;
+  SFX[k](SND.ac.currentTime + .005);
+}
+function playStep(i, t, sp) {
+  const S2 = SND.song, p = S2.p, bar = (i >> 4) & 3, s = i & 15, ch = p.prog[bar], N = S2.N, dest = SND.sg2, L = p.sc.length;
+  const row = S2.bars[bar], d = row[s];
+  if (d !== null) { let n = 1; while (s + n < 16 && row[s + n] === null && n < 4) n++; tone(mFreq(N(d)), t, sp * n * .92, p.ld, p.lv, dest); }
+  if (s % 4 === 0 || (p.drum === 2 && s % 4 === 2)) tone(mFreq(N(ch) - 12), t, sp * (p.drum === 2 ? 1.8 : 3.6), 'triangle', .3, dest);
+  if (p.arp) tone(mFreq(N(ch + [0, 2, 4, 2][s % 4]) + 12), t, sp * .7, 'square', .035, dest);
+  if (p.drum) {
+    if (s % 8 === 0) tone(150, t, .12, 'sine', .45, dest, 45);
+    if (s % 8 === 4) nz(t, .1, .22, 'bandpass', 1800, dest);
+    if (p.drum === 2 ? s % 2 === 0 : s % 4 === 2) nz(t, .03, .08, 'highpass', 6000, dest);
+  }
+}
+function sndSched() {
+  const ac = SND.ac; if (!ac || ac.state !== 'running' || !SND.song || !SND.st.m) return;
+  const sp = 60 / SND.song.p.bpm / 4; while (SND.next < ac.currentTime + .25) { playStep(SND.step, SND.next, sp); SND.next += sp; SND.step++; }
+}
+function setSong(key) {
+  const ac = SND.ac; if (!ac || !SONGS[key]) return; const t = ac.currentTime;
+  if (SND.sg2) { const old = SND.sg2; old.gain.cancelScheduledValues(t); old.gain.setValueAtTime(old.gain.value, t); old.gain.linearRampToValueAtTime(0, t + .5); setTimeout(() => { try { old.disconnect(); } catch (e) {} }, 700); }
+  const g = SND.sg2 = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1, t + .6); g.connect(SND.mg);
+  SND.song = mkSong(SONGS[key]); SND.step = 0; SND.next = t + .1; SND.key = key;
+}
+function sndWant() {
+  const vis = id => { const e = document.getElementById(id); return e && !e.hidden; };
+  if (vis('s-battle')) { const ty = typeof B !== 'undefined' && B && B.cfg && B.cfg.type; return ty === 'duel' ? 'duel' : ty === 'legend' ? 'legend' : 'battle'; }
+  if (vis('s-aka') || vis('s-quiz')) return 'study';
+  if (vis('s-world') && typeof W !== 'undefined' && W) { const z = W.zone; if (SONGS[z]) return z; const m = /^[a-z]+/.exec(z || ''); return m && SONGS[m[0]] ? m[0] : 'school'; }
+  return 'menu';
+}
+function sndScreen() { for (const id of ['s-battle', 's-box', 's-aka', 's-quiz', 's-world']) { const e = document.getElementById(id); if (e && !e.hidden) return id; } return ''; }
+function sndAuto() {
+  if (!SND.ac || SND.ac.state !== 'running') return;
+  const w = sndWant(); if (SND.st.m && w !== SND.key) setSong(w);
+  const sc = sndScreen(); if (sc !== SND.last) {
+    SND.last = sc;
+    if (sc === 's-box') { sfx('box'); setTimeout(() => { const pk = document.querySelector('#s-box .pk'); if (pk) { const r = ['L', 'E', 'R', 'C'].find(x => pk.classList.contains(x)) || 'C'; sfx('rev' + r); } }, 900); }
+    if (sc === 's-battle' && typeof B !== 'undefined' && B && B.cfg && B.cfg.type === 'wild') sfx('encounter');
+  }
+}
+['pointerdown', 'touchend', 'keydown', 'click'].forEach(ev => addEventListener(ev, () => { if (!SND.ac || SND.ac.state !== 'running') sndInit(); }, { passive: true, capture: true }));
+document.addEventListener('click', e => { if (e.target.closest && e.target.closest('button,.btn,.round')) sfx('click'); }, true);
+document.addEventListener('visibilitychange', () => { if (!SND.ac) return; if (document.hidden) SND.ac.suspend(); else SND.ac.resume(); });
+setInterval(sndAuto, 400);
 
 /* ================= pixel painter ================= */
 const hx = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -1706,7 +1833,7 @@ function tick(t) {
     const sp = 54, nx = p.x + mx * sp * dt, ny = p.y + my * sp * dt;
     if (walkable(nx, p.y)) p.x = nx; if (walkable(p.x, ny)) p.y = ny;
     p.dir = Math.abs(mx) > Math.abs(my) ? (mx < 0 ? 'left' : 'right') : (my < 0 ? 'up' : 'down');
-    p.ft += dt; if (p.ft > .13) { p.ft = 0; p.f = (p.f + 1) % 4; }
+    p.ft += dt; if (p.ft > .13) { p.ft = 0; p.f = (p.f + 1) % 4; if (p.f % 2 === 0) sfx('step'); }
   } else p.f = 0;
   { const cid = compId();
     if (cid) {
@@ -2340,7 +2467,7 @@ function runQuiz({ title, sub, qs, timed = false, secs = 45, hint = null }) {
     const answer = k => {
       if (done) return; done = true; stopT();
       const q = qs[i], good = k >= 0 && opts[k].c;
-      res[i] = good; if (good) { ok++; bondAdd(1); progress('benar'); progress('benar:' + q[0]); }
+      res[i] = good; sfx(good ? 'ok' : 'bad'); if (good) { ok++; bondAdd(1); progress('benar'); progress('benar:' + q[0]); }
       el.querySelectorAll('.qz-o').forEach((b, j) => { b.disabled = true; if (opts[j].c) b.classList.add('ok'); else if (j === k) b.classList.add('no'); });
       const fb = $('#qFb'); fb.hidden = false;
       if (!good) wrong++;
@@ -2440,7 +2567,7 @@ async function openKuil(z) {
   progress('kuil');
   const pass = r.ok >= 8;
   if (pass && !done) {
-    pg.lulus.push(Z.bab); pg.open = Math.max(pg.open, Math.min(5, Z.bab + 1));
+    sfx('pass'); pg.lulus.push(Z.bab); pg.open = Math.max(pg.open, Math.min(5, Z.bab + 1));
     addDup(mon);
     S.boxes.Perak++; gainXP(25); save(); hud();
     const nx = Z.bab < 5 ? ZONES[Z.pulau + (Z.bab + 1)] : null;
@@ -2668,10 +2795,10 @@ async function strike(side, mult, sk = {}, ring = true) {
   let crit = false; if (side === 'me' && ring && B.cfg.type !== 'duel') crit = await tapRing();
   const sp = $(side === 'me' ? '#meSpr' : '#foeSpr'), tp = $(side === 'me' ? '#foeSpr' : '#meSpr');
   sp.classList.add(side === 'me' ? 'lunge-me' : 'lunge-foe'); await wait(220); sp.classList.remove('lunge-me', 'lunge-foe');
-  if (a.blind && dRf() < 0.5) { a.blind = 0; floatAt(other, 'Meleset', 'big'); log(`${a.m.n} silau, serangannya meleset!`); await wait(500); return 0; }
+  if (a.blind && dRf() < 0.5) { a.blind = 0; sfx('miss'); floatAt(other, 'Meleset', 'big'); log(`${a.m.n} silau, serangannya meleset!`); await wait(500); return 0; }
   a.blind = 0;
   const { dm, e } = hitCalc(a, d, mult * (crit ? 1.3 : 1), sk);
-  d.hp -= dm;
+  d.hp -= dm; sfx(crit ? 'crit' : e > 1 ? 'strong' : e < 1 ? 'weak' : 'hit');
   tp.classList.remove('hit'); void tp.offsetWidth; tp.classList.add('hit');
   floatAt(other, '-' + dm); if (crit) { floatAt(other, 'KRITIS!', 'big'); progress('kritis'); }
   if (e > 1) bigText('SUPER EFEKTIF!'); else if (e < 1) bigText('Kurang efektif');
@@ -2685,18 +2812,18 @@ async function act(side, a) {
   if (f.stun) { f.stun = 0; log(`${who} pusing dan tidak bisa bergerak.`); floatAt(side, 'Pusing', 'big'); renderB(); await wait(700); return; }
   if (a.t === 'sw') {
     if (side === 'me') { B.mi = a.to; log(`Kamu memanggil ${meA().m.n}!`); } else { B.fi = a.to; log(`Lawan memanggil ${foeA().m.n}!`); }
-    sprite(side, true); renderB(); await wait(600); return;
+    sfx('swap'); sprite(side, true); renderB(); await wait(600); return;
   }
   if (a.t === 'def') {
     f.guard = 1; if (side === 'me') B.en = Math.min(5, B.en + 1); else B.fen = Math.min(5, B.fen + 1);
-    log(`${who} bertahan.`); renderB(); await wait(550); return;
+    sfx('guard'); log(`${who} bertahan.`); renderB(); await wait(550); return;
   }
   if (a.t === 'atk') { log(`${who} menyerang!`); await strike(side, 1, {}, true); return; }
   const sk = f.m.sk;
   if (side === 'me') B.en -= sk.c; else B.fen -= sk.c;
-  log(`${who} memakai <b>${esc(sk.n)}</b>!`); renderB(); bigText(sk.n); await wait(350);
+  sfx('skill'); log(`${who} memakai <b>${esc(sk.n)}</b>!`); renderB(); bigText(sk.n); await wait(350);
   if (sk.guard) f.guard = 1;
-  if (sk.heal) { const h = Math.round(f.max * sk.heal); f.hp = Math.min(f.max, f.hp + h); floatAt(side, '+' + h, 'heal'); }
+  if (sk.heal) { const h = Math.round(f.max * sk.heal); f.hp = Math.min(f.max, f.hp + h); sfx('heal'); floatAt(side, '+' + h, 'heal'); }
   if (sk.buff) f.buff = Math.min(0.6, f.buff + sk.buff);
   if (sk.debuff) o.debuff = Math.min(0.4, o.debuff + sk.debuff);
   if (sk.energy) { if (side === 'me') B.en = Math.min(5, B.en + sk.energy); else B.fen = Math.min(5, B.fen + sk.energy); }
@@ -2730,14 +2857,14 @@ function aiPick() {
 async function ko() {
   let r = '';
   if (foeA().hp <= 0) {
-    $('#foeSpr').classList.add('faint'); log(`${foeA().m.n} lawan tumbang!`); await wait(800);
+    $('#foeSpr').classList.add('faint'); sfx('faint'); log(`${foeA().m.n} lawan tumbang!`); await wait(800);
     const i = B.foe.findIndex(x => x.hp > 0);
     if (i < 0) { await finish('win'); return 'end'; }
     const best = B.foe.map((x, k) => [x, k]).filter(([x]) => x.hp > 0).sort((a, b) => (BEATS[b[0].m.el] === meA().m.el) - (BEATS[a[0].m.el] === meA().m.el))[0][1];
     B.fi = best; sprite('foe', true); log(`Lawan memanggil ${foeA().m.n}!`); renderB(); await wait(700); r = 'foe';
   }
   if (meA().hp <= 0) {
-    $('#meSpr').classList.add('faint'); log(`${meA().m.n} tumbang!`); await wait(800);
+    $('#meSpr').classList.add('faint'); sfx('faint'); log(`${meA().m.n} tumbang!`); await wait(800);
     if (!B.me.some(x => x.hp > 0)) { await finish('lose'); return 'end'; }
     B.mi = await pickSwitch(true); sprite('me', true); renderB(); await wait(500); r = r || 'me';
   }
@@ -2761,7 +2888,7 @@ async function turn(a) {
   B.busy = false; renderB(); log(`Giliran ${B.round}. Energi kamu ${B.en}.`);
 }
 async function finish(res) {
-  B.busy = true;
+  B.busy = true; sfx(res === 'win' ? 'win' : res === 'lose' ? 'lose' : '');
   const cfg = B.cfg; let html = '', rw = [];
   if (cfg.type === 'duel') {
     const P = S.pvp || (S.pvp = { w: 0, l: 0 }), D = cfg.duel;
@@ -2821,6 +2948,7 @@ function duelWait(key) {
 async function duelStop() { const D = B.cfg.duel; await finish(D.why === 'bye' ? 'win' : 'dc'); }
 async function duelKo() {
   const D = B.cfg.duel, key = B.round + '.' + (++D.ph), dm = meA().hp <= 0, df = foeA().hp <= 0;
+  if (df || dm) sfx('faint');
   if (df) { $('#foeSpr').classList.add('faint'); log(`${foeA().m.n} lawan tumbang!`); }
   if (dm) { $('#meSpr').classList.add('faint'); log(`${meA().m.n} tumbang!`); }
   if (dm || df) await wait(800);
@@ -2965,6 +3093,7 @@ async function mpOnEm(m) {
   const now = performance.now(); if (now - o.re < 800) return; o.re = now;
   if (!await mpVerify(c.key, ['e', m.id, m.e, m.s, m.ts], m.sig) || m.ts <= o.le) return; o.le = m.ts;
   const ei = Number.isInteger(m.e) && MP_EMO[m.e] ? m.e : -1, si = Number.isInteger(m.s) && MP_SAY[m.s] ? m.s : -1;
+  sfx('pop');
   if (ei >= 0) o.bub = { t: MP_EMO[ei], e: 1, until: performance.now() + 2500 }; else if (si >= 0) o.bub = { t: MP_SAY[si], e: 0, until: performance.now() + 4000 };
 }
 /* ---- kirim ---- */
@@ -2984,7 +3113,7 @@ async function mpSendPos(force) {
 function mpSay(ei, si) {
   if (MP.st !== 'on') { toast('Belum tersambung online'); return false; }
   const now = performance.now(); if (now < MP.sayT) { toast('Tunggu sebentar…'); return false; } MP.sayT = now + 1200;
-  const ts = mpNext(), id = MP.id, ch = MP.ch, e = ei, s = si;
+  sfx('pop'); const ts = mpNext(), id = MP.id, ch = MP.ch, e = ei, s = si;
   mpSign(['e', id, e, s, ts]).then(sig => { if (MP.st === 'on' && ch === MP.ch) ch.send({ type: 'broadcast', event: 'em', payload: { id, e, s, ts, sig } }); });
   MP.me = e >= 0 ? { t: MP_EMO[e], e: 1, until: now + 2500 } : { t: MP_SAY[s], e: 0, until: now + 4000 };
   return true;
@@ -3089,7 +3218,7 @@ function duelIncoming(id, o, sid, x) {
   if (!foe || duelBusy() || !mpHere(o)) { mpDuelSend(id, 'no', sid, 0); return; }
   const D = MP.duel = { opp: id, name: o.n, sid, role: 'o', q: {}, w: {}, ph: 0, st: 'ask', over: false, mine: duelMine(), foe };
   const end = () => { if (MP.duel === D && D.st === 'ask') { mpDuelSend(id, 'no', sid, 0); MP.duel = null; } duelBarOff(); };
-  duelBar(`${esc(o.n)} menantangmu duel!`, [['Tolak', 'ghost', end], ['Terima', 'hot', () => { if (MP.duel !== D || D.st !== 'ask') return; D.st = 'go'; mpDuelSend(id, 'ac', sid, { t: D.mine }); startDuel(D, foe); }]]);
+  sfx('alert'); duelBar(`${esc(o.n)} menantangmu duel!`, [['Tolak', 'ghost', end], ['Terima', 'hot', () => { if (MP.duel !== D || D.st !== 'ask') return; D.st = 'go'; mpDuelSend(id, 'ac', sid, { t: D.mine }); startDuel(D, foe); }]]);
   setTimeout(end, 25000);
 }
 async function startDuel(D, foe) {
@@ -3320,10 +3449,14 @@ async function openProf() {
     <div class="row"><button type="button" class="btn hot" id="pShop">Ganti aksesoris</button></div>
     <div class="row" style="justify-content:space-between"><span class="disp" style="font-size:18px">Tim andalan</span><span style="font-size:12px;font-weight:800;color:var(--muted)">Biaya ${teamCost()}/${TEAM_MAX}</span></div>
     <div class="slots">${[0, 1, 2].map(i => { const id = S.team[i]; return id ? `<div class="slot f" style="${artBg(id)}">${mSvg(id)}</div>` : '<div class="slot">Kosong</div>'; }).join('')}</div>
+    <div class="row" style="justify-content:space-between"><span class="disp" style="font-size:18px">Suara</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button type="button" class="btn ${SND.st.m ? '' : 'ghost'}" id="pMus" style="min-height:46px;font-size:15px">Musik: ${SND.st.m ? 'Nyala' : 'Mati'}</button><button type="button" class="btn ${SND.st.s ? '' : 'ghost'}" id="pSfx" style="min-height:46px;font-size:15px">Efek: ${SND.st.s ? 'Nyala' : 'Mati'}</button></div>
     <button type="button" class="btn dark" id="pReset" style="margin-top:10px">Mulai ulang dari awal</button>
   </div>`;
   $('#pBack').onclick = () => { show('s-world'); hud(); };
   $('#pShop').onclick = () => openShop('prof');
+  $('#pMus').onclick = () => { sndSet('m', !SND.st.m); openProf(); };
+  $('#pSfx').onclick = () => { sndSet('s', !SND.st.s); openProf(); sfx('coin'); };
   $('#pReset').onclick = async () => { const c = await modal('<h2>Mulai ulang?</h2><p>Semua monster, koin, dan aksesoris akan hilang dari perangkat ini.</p>', [{ t: 'Batal', cls: 'ghost' }, { t: 'Hapus dan mulai ulang', cls: 'hot' }]); if (c === 1) { try { localStorage.removeItem(KEY); } catch (e) {} S = null; W = null; openStart(); } };
   show('s-prof');
 }
