@@ -1,4 +1,11 @@
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#0f0d2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Metaverse School">
+<meta name="format-detection" content="telephone=no">
 <title>Metaverse School</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Lilita+One&family=Baloo+2:wght@500;700;800&display=swap">
@@ -225,6 +232,22 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-of
 .fname,.float,.eff,.big,.pk .n,.mc .n{font-family:var(--pix)!important;font-weight:700}
 .mc .art,.pk .art,.slot{padding:4px;box-sizing:border-box}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ===== Fullscreen smartphone ===== */
+:root{--sat:env(safe-area-inset-top,0px);--sar:env(safe-area-inset-right,0px);--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px)}
+html{height:100%;background:var(--deep);overflow:hidden;overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+#app{width:100%;height:100%}
+/* batas lebar 480px hanya untuk layar lebar (desktop/tablet); di HP penuh selebar layar */
+@media (max-width:600px),(max-height:500px) and (pointer:coarse){#app{max-width:none}}
+/* layar non-dunia menghindari poni/notch; dunia tetap full-bleed */
+.scr:not(#s-world){top:var(--sat);right:var(--sar);left:var(--sal)}
+.hud{top:calc(10px + var(--sat));left:calc(10px + var(--sal));right:calc(10px + var(--sar))}
+#joy{left:calc(20px + var(--sal))}
+#btnA{right:calc(22px + var(--sar))}
+#toasts{top:calc(118px + var(--sat))}
+.sheet{padding-bottom:calc(22px + var(--sab))}
+@supports (height:100dvh){.wm-wrap{max-height:calc(100dvh - 150px - var(--sat))}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -3293,4 +3316,27 @@ window.claude?.hot?.snapshot?.(() => ({ S }));
 window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
 
 
+</script>
+
+<script>
+/* Masuk fullscreen otomatis saat sentuhan pertama (Android/Chrome). iPhone Safari tidak mendukung API ini:
+   gunakan Bagikan > Tambahkan ke Layar Utama agar tampil fullscreen. */
+(function () {
+  var de = document.documentElement;
+  var rf = de.requestFullscreen || de.webkitRequestFullscreen;
+  var standalone = (window.matchMedia && (matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches)) || navigator.standalone;
+  if (!rf || standalone) return;
+  var done = false;
+  function lockPortrait() { try { var o = screen.orientation; if (o && o.lock) o.lock('portrait').catch(function () {}); } catch (e) {} }
+  function go() {
+    if (done) return;
+    if (document.fullscreenElement || document.webkitFullscreenElement) { done = true; return; }
+    done = true;
+    try {
+      var p = rf.call(de, { navigationUI: 'hide' });
+      if (p && p.then) p.then(lockPortrait, function () { done = false; }); else lockPortrait();
+    } catch (e) { done = false; }
+  }
+  ['pointerup', 'touchend', 'click'].forEach(function (ev) { addEventListener(ev, go, { passive: true }); });
+})();
 </script>
