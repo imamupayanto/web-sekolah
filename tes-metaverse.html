@@ -779,7 +779,10 @@ const ZONES = {
   snow: { n: 'Puncak Salju', rank: 2, el: 'Es', pool: ['frost', 'frost', 'pingu', 'dew', 'ink', 'owl', 'bear', 'wolf', 'robo', 'kutub'], coins: 30, xp: 12, drop: { Kayu: 30, Perak: 5 } },
   cave: { n: 'Gua Bara', rank: 4, el: 'Api', pool: ['crab', 'flick', 'fly', 'mud', 'golem', 'slug', 'lizard', 'fox', 'scorp', 'arang'], coins: 45, xp: 16, drop: { Kayu: 30, Perak: 10, Emas: 2 } },
 };
-const need = r => 40 + r * 20;
+const RANK_MAX = 20;
+const need = r => 40 + r * 20 + 5 * r * r;
+const TITLES = [[1, 'Siswa Baru', '#8fd8ff'], [5, 'Penjelajah', '#7fe3a8'], [10, 'Ksatria Ilmu', '#c9a2ff'], [15, 'Cendekiawan', '#ffb072'], [20, 'Master Metaverse', '#ffd23c']];
+const titleOf = r => TITLES.filter(t => r >= t[0]).pop();
 const mSvg = (id, cls = '') => `<img class="pxm ${cls}" src="${monURL(id)}" alt="${esc(M[id].n)}">`;
 const artBg = id => `background:radial-gradient(circle at 50% 45%,${ELBG[M[id].el][0]},${ELBG[M[id].el][1]})`;
 const elTag = el => `<span class="el ${el}">${el}</span>`;
@@ -817,7 +820,7 @@ const SHOP = [
   { id: 'rokbatik', slot: 'pants', n: 'Rok Batik', p: 350, rk: 3, g: 'p' },
   { id: 'sneak', slot: 'shoes', n: 'Sneakers', p: 200, rk: 3 }, { id: 'hitam', slot: 'shoes', n: 'Sepatu Hitam', p: 250, rk: 3 },
   { id: 'lari', slot: 'shoes', n: 'Sepatu Lari', p: 300, rk: 3 }, { id: 'crocs', slot: 'shoes', n: 'Sandal Karet', p: 300, rk: 3 },
-  { id: 'bot', slot: 'shoes', n: 'Sepatu Bot', p: 350, rk: 3 }, { id: 'pelangi', slot: 'shoes', n: 'Kets Pelangi', p: 400, rk: 3 },
+  { id: 'bot', slot: 'shoes', n: 'Sepatu Bot', p: 350, rk: 3 }, { id: 'neon', slot: 'shoes', n: 'Kets Neon', p: 400, rk: 3 },
   { id: 'botmerah', slot: 'shoes', n: 'Bot Merah', p: 400, rk: 3 },
   { id: 'kbulat', slot: 'glass', n: 'Kacamata Bulat', p: 300, rk: 3 }, { id: 'kchitam', slot: 'glass', n: 'Kacamata Hitam', p: 350, rk: 3 },
   { id: 'k3d', slot: 'glass', n: 'Kacamata 3D', p: 400, rk: 3 }, { id: 'kbintang', slot: 'glass', n: 'Kacamata Bintang', p: 450, rk: 3 },
@@ -836,6 +839,17 @@ const SHOP = [
   { id: 'wisuda', slot: 'hat', n: 'Topi Wisuda', p: 1200, rk: 5 }, { id: 'astro', slot: 'hat', n: 'Helm Astronot', p: 1500, rk: 5 },
   { id: 'roket', slot: 'shoes', n: 'Sepatu Roket', p: 1200, rk: 5 }, { id: 'tasroket', slot: 'back', n: 'Ransel Roket', p: 1500, rk: 5 },
 ];
+/* Tier ulang: Rank 3-5 untuk item sehari-hari, item istimewa lama ke Rank 8-9 */
+SHOP.forEach(it => { if (it.rk === 5) it.rk = { wisuda: 8, roket: 8, astro: 9, tasroket: 9 }[it.id] || 8; else if (it.rk === 4) it.rk = 5; else if (it.rk === 3) it.rk = it.p <= 300 ? 3 : it.p <= 400 ? 4 : 5; });
+/* Set gelar: dibuka bertahap Rank 6-20. Hanya hiasan, tanpa tambahan kekuatan. */
+const SETS = {
+  penjelajah: { n: 'Set Penjelajah', c: '#7fe3a8', items: [['safari', 'hat', 'Topi Penjelajah', 600, 6], ['rompi', 'shirt', 'Rompi Penjelajah', 800, 6], ['teropong', 'glass', 'Kacamata Teropong', 900, 7], ['gunung', 'shoes', 'Sepatu Gunung', 1000, 8], ['kompas', 'back', 'Ransel Kompas', 1200, 9]] },
+  ksatria: { n: 'Set Ksatria Ilmu', c: '#c9a2ff', items: [['helmksatria', 'hat', 'Helm Ksatria', 1000, 10], ['zirah', 'shirt', 'Baju Zirah Buku', 1200, 11], ['celksatria', 'pants', 'Celana Ksatria', 1300, 12], ['besi', 'shoes', 'Sepatu Besi', 1500, 13], ['perisai', 'back', 'Perisai Pengetahuan', 1800, 14]] },
+  cendekia: { n: 'Set Cendekiawan', c: '#ffb072', items: [['togaemas', 'hat', 'Toga Emas', 1800, 15], ['kemas', 'glass', 'Kacamata Emas', 2000, 16], ['jubahc', 'shirt', 'Jubah Cendekiawan', 2400, 17], ['bintang', 'shoes', 'Sepatu Bintang', 2600, 18], ['sayapbuku', 'back', 'Sayap Buku', 3000, 19]] },
+  master: { n: 'Set Master Metaverse', c: '#ffd23c', items: [['mahkotam', 'hat', 'Mahkota Metaverse', 3000, 20], ['jubahagung', 'shirt', 'Jubah Agung', 3500, 20], ['galaksi', 'pants', 'Celana Galaksi', 3500, 20], ['cahaya', 'shoes', 'Sepatu Cahaya', 4000, 20], ['sayapnaga', 'back', 'Sayap Naga', 5000, 20]] }
+};
+for (const k in SETS) for (const [id, slot, n, p, rk] of SETS[k].items) SHOP.push({ id, slot, n, p, rk, set: k });
+const setOf = L => { for (const k in SETS) if (L && SETS[k].items.every(([id, slot]) => L[slot] === id)) return k; return null; };
 const SH = Object.fromEntries(SHOP.map(s => [s.id, s]));
 
 /* ---------- save state ---------- */
@@ -847,7 +861,8 @@ function fresh(name, look) {
     comp: null, bond: {}, quests: [], qn: 0, quizDay: '', quizCount: 0, zone: 'school' };
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
-function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 2) return s; } catch (e) {} return null; }
+const ACC_RENAME = { pelangi: 'neon', jubahpelangi: 'jubahagung' };
+function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 2) { if (s.acc) { s.acc.own = (s.acc.own || []).map(id => ACC_RENAME[id] || id); for (const k in s.acc) if (typeof s.acc[k] === 'string' && ACC_RENAME[s.acc[k]]) s.acc[k] = ACC_RENAME[s.acc[k]]; } return s; } } catch (e) {} return null; }
 /* ---------- monster pendamping ---------- */
 const BOND_AT = [0, 30, 80, 160, 300];
 function compId() { return S.team.includes(S.comp) ? S.comp : (S.team[0] || null); }
@@ -892,18 +907,28 @@ function modal(html, buttons = [{ t: 'Oke', cls: '' }], opts = {}) {
 }
 function addCoins(n) { S.coins += n; save(); sfx('coin'); }
 function gainXP(n) {
-  S.xp += n; let up = false;
-  while (S.xp >= need(S.rank)) {
+  if (S.rank >= RANK_MAX) { S.xp = 0; return false; }
+  S.xp += n; let up = false; const r0 = S.rank, got = { c: 0, b: [] };
+  while (S.rank < RANK_MAX && S.xp >= need(S.rank)) {
     S.xp -= need(S.rank); S.rank++; up = true;
-    const b = S.rank % 5 === 0 ? 'Emas' : S.rank % 2 === 0 ? 'Perak' : 'Kayu';
-    S.boxes[b]++;
-    setTimeout(() => toast(`Naik ke <b>Rank ${S.rank}</b>! Dapat Kotak ${b}`, 3200), 400);
+    const c = 20 * S.rank, b = S.rank % 10 === 0 ? 'Emas' : S.rank % 5 === 0 ? 'Perak' : S.rank % 2 === 0 ? 'Kayu' : null;
+    S.coins += c; got.c += c; if (b) { S.boxes[b]++; got.b.push(b); }
     if (S.rank === 2) setTimeout(() => toast('Puncak Salju sekarang terbuka', 3200), 900);
     if (S.rank === 4) setTimeout(() => toast('Gua Bara sekarang terbuka', 3200), 900);
   }
-  if (up) sfx('rank');
+  if (S.rank >= RANK_MAX) S.xp = 0;
+  if (up) {
+    const R = S.rank, bt = got.b.length ? ` dan ${got.b.length > 1 ? got.b.length + ' kotak' : 'Kotak ' + got.b[0]}` : '';
+    setTimeout(() => toast(`Naik ke <b>Rank ${R}</b>! ${COIN}+${got.c}${bt}`, 3200), 400);
+    const tt = TITLES.filter(t => t[0] > r0 && t[0] <= R).pop(); if (tt) setTimeout(() => toast(`Gelar baru: <b>${tt[1]}</b>!`, 3600), 1300);
+    const na = SHOP.filter(it => it.rk > r0 && it.rk <= R).length; if (na) setTimeout(() => toast(`${na} aksesoris baru terbuka di Toko Mak Sumi`, 3200), 2200);
+    sfx('rank');
+  }
   save(); return up;
 }
+/* XP battle per hari: 20 menang pertama penuh, 21-40 setengah, setelahnya 0 (koin tetap penuh) */
+function battleXP(n) { const d = today(); if (!S.bw || S.bw.d !== d) S.bw = { d, w: 0 }; S.bw.w++; return Math.round(n * (S.bw.w <= 20 ? 1 : S.bw.w <= 40 ? .5 : 0)); }
+const bxpNote = () => S.bw && S.bw.w > 20 ? `<small style="font-weight:700;color:var(--muted)">${S.bw.w > 40 ? 'XP battle hari ini sudah habis' : 'XP battle hari ini setengah'} (sudah ${S.bw.w} menang). Belajar tetap memberi XP penuh!</small>` : '';
 function teamCost(t = S.team) { return t.reduce((a, id) => a + RAR[M[id].r].cost, 0); }
 
 /* ---------- quests ---------- */
@@ -1161,6 +1186,7 @@ const SHIRTS = {
   pramuka: { r: ['#6a5a32', '#a8945a', '#d4c08a'] }, kemeja: { r: ['#5a8ab0', '#9ac8ee', '#d6eeff'] }, hero: { r: ['#8a1a1a', '#e0302a', '#ff6a5a'] },
   kaosmerah: { r: ['#8a1a1a', '#e0302a', '#ff7a6a'] }, polka: { r: ['#1f4f9a', '#3a7bd5', '#7aaaf0'] }, koko: { r: ['#b8ae94', '#efe8d6', '#ffffff'] },
   kebaya: { r: ['#b03a6a', '#f06aa8', '#ffb0d0'] }, labcoat: { r: ['#a8b0c0', '#e6ecf4', '#ffffff'] },
+  rompi: { r: ['#8a6a3a', '#c9a46a', '#e6c890'] }, zirah: { r: ['#6a7488', '#c9d2e0', '#eef2f8'] }, jubahc: { r: ['#1f5a3a', '#2f8a5a', '#5ac08a'] }, jubahagung: { r: ['#3a1a5a', '#5a2e8a', '#8a5ac8'] },
 };
 const PANTS = {
   short: { r: ['#8a6a3a', '#c9a46a', '#e6c890'], k: 'short' }, jogger: { r: ['#1f4f9a', '#3a7bd5', '#7aaaf0'], k: 'long', stripe: '#ffffff' },
@@ -1169,11 +1195,13 @@ const PANTS = {
   kargo: { r: ['#4a5a2a', '#6a7a3a', '#8a9a5a'], k: 'long' }, pramukap: { r: ['#4a3a20', '#6a5a32', '#8a7a52'], k: 'long' },
   celputih: { r: ['#a8b0c0', '#e6ecf4', '#ffffff'], k: 'long' }, sarung: { r: ['#1d3f6a', '#2f6aa8', '#6a9ad8'], k: 'skirt', long: 1, check: 1 },
   rokpanjang: { r: ['#4a2a7a', '#7b4fd6', '#a88af0'], k: 'skirt', long: 1 }, rokbatik: { r: ['#6a3a1a', '#a8642a', '#d99a4a'], k: 'skirt', batik: 1 },
+  celksatria: { r: ['#1d2a5a', '#2f4a8a', '#5a7ac8'], k: 'long', knee: '#c9d2e0' }, galaksi: { r: ['#120a2e', '#2e1a6a', '#4a2e9a'], k: 'long', stars: 1 },
 };
 const SHOES = {
   sneak: { c: ['#ffffff', '#e0302a'] }, sandal: { c: ['#8a5530'], sandal: 1 }, lari: { c: ['#3a7bd5', '#ff8a3c'] }, bot: { c: ['#5a3420', '#8a5530'], tall: 1 },
-  pelangi: { c: ['#ff5d5d', '#7fd35a'], rainbow: 1 }, emas: { c: ['#c97a0a', '#ffd23c'] }, roket: { c: ['#c8302a', '#ffd23c'], rocket: 1 }, putih: { c: ['#f3f3f8', '#9aa4b8'] },
+  neon: { c: ['#1f1a26', '#7fff5a'], neon: 1 }, emas: { c: ['#c97a0a', '#ffd23c'] }, roket: { c: ['#c8302a', '#ffd23c'], rocket: 1 }, putih: { c: ['#f3f3f8', '#9aa4b8'] },
   hitam: { c: ['#1f1a26', '#5a5468'] }, crocs: { c: ['#3fbf5a', '#1f6a2a'], holes: 1 }, botmerah: { c: ['#a81a1a', '#ff5a4a'], tall: 1 }, lampu: { c: ['#f3f3f8', '#5bb8f0'], light: 1 },
+  gunung: { c: ['#6a4428', '#ff8a3c'], tall: 1 }, besi: { c: ['#9aa4b8', '#eef2f8'], tall: 1 }, bintang: { c: ['#1d1b46', '#ffd23c'], star: 1 }, cahaya: { c: ['#ffffff', '#7fe8ff'], glow: 1 },
 };
 function pxLook(o) {
   const hi = typeof SH !== 'undefined' && o.hat && SH[o.hat] && SH[o.hat].hj ? SH[o.hat] : null;
@@ -1228,6 +1256,18 @@ function hat(g, h, dir) {
   } else if (h === 'wisuda') {
     R(g, 4, 2, 8, 3, '#24142c'); R(g, 0, 1, 16, 2, '#1f1a26'); R(g, 0, 1, 16, 1, '#3a3442'); P(g, 8, 1, '#ffd23c');
     if (!up) { R(g, side ? 2 : 13, 2, 1, 4, '#ffd23c'); P(g, side ? 2 : 13, 6, '#ff8a2a'); }
+  } else if (h === 'safari') {
+    E(g, 8, 3, 6.6, 3.4, ramp('#c9a46a')); R(g, 1, 5, 14, 1, '#8a6a3a'); R(g, 2, 4, 12, 1, '#6a4a2a'); P(g, 8, 0, '#e6c890');
+  } else if (h === 'helmksatria') {
+    E(g, 8, 3.2, 6.8, 3.6, ramp('#9aa4b8')); R(g, 2, 5, 12, 1, '#5a6478'); R(g, 7, -3, 2, 4, '#3a7bd5'); P(g, 9, -3, '#7aaaf0'); P(g, 6, -2, '#7aaaf0');
+    if (!up && !side) { R(g, 7, 2, 2, 4, '#eef2f8'); P(g, 4, 3, '#ffd23c'); P(g, 11, 3, '#ffd23c'); }
+  } else if (h === 'togaemas') {
+    R(g, 4, 2, 8, 3, '#c97a0a'); R(g, 0, 1, 16, 2, '#ffc93c'); R(g, 0, 1, 16, 1, '#fff3b0'); P(g, 8, 1, '#ff5d8f');
+    if (!up) { R(g, side ? 2 : 13, 2, 1, 4, '#ffffff'); P(g, side ? 2 : 13, 6, '#5bb8f0'); }
+  } else if (h === 'mahkotam') {
+    R(g, 3, -1, 10, 4, '#ffc93c'); R(g, 3, -1, 10, 1, '#fff3b0'); R(g, 3, 2, 10, 1, '#c97a0a');
+    for (const [x, y] of [[3, -2], [5, -3], [5, -2], [8, -4], [8, -3], [8, -2], [11, -3], [11, -2], [12, -2]]) P(g, x, y, '#ffc93c');
+    P(g, 8, -4, '#ff5d8f'); if (!up) { P(g, 5, 0, '#ff5d8f'); P(g, 8, 0, '#5bc0f8'); P(g, 11, 0, '#7fd35a'); P(g, 6, 1, '#ffffff'); }
   } else if (h === 'bajak') {
     R(g, 3, 0, 10, 2, '#1f1a26'); R(g, 1, 2, 14, 3, '#1f1a26'); R(g, 1, 4, 14, 1, '#c8302a'); if (!up) { P(g, 7, 1, '#ffffff'); P(g, 8, 1, '#ffffff'); P(g, 7, 2, '#ffffff'); P(g, 8, 2, '#ffffff'); P(g, 6, 3, '#ffffff'); P(g, 9, 3, '#ffffff'); }
   }
@@ -1242,6 +1282,9 @@ function shoeAt(g, o, x, y, h) {
   if (s.rainbow) { P(g, x, y, '#ff5d5d'); P(g, x + 1, y, '#ffd23c'); if (h > 1) { P(g, x, y + 1, '#5bb8f0'); P(g, x + 1, y + 1, '#7fd35a'); } }
   if (s.holes) { P(g, x, y, s.c[1]); }
   if (s.light) { P(g, x, y + h - 1, '#ff5d8f'); P(g, x + 1, y + h - 1, '#ffd23c'); }
+  if (s.neon) { P(g, x, y, '#7fff5a'); P(g, x + 1, y + h - 1, '#7fff5a'); P(g, x, y + h - 1, '#2a6a1a'); }
+  if (s.star) P(g, x, y, '#ffd23c');
+  if (s.glow) { P(g, x, y + h - 1, '#7fe8ff'); P(g, x + 1, y + h - 1, '#bff6ff'); }
   if (s.rocket && h === 1) { P(g, x, y + 1, '#ffd23c'); P(g, x + 1, y + 1, '#ff8a2a'); P(g, x, y + 2, '#ff8a2a'); }
 }
 function glassAt(g, o, dir) {
@@ -1252,11 +1295,19 @@ function glassAt(g, o, dir) {
     if (side) { R(g, 2, hj ? 8 : 7, hj ? 5 : 8, 2, c); P(g, 2, hj ? 8 : 7, cl); P(g, hj ? 5 : 4, hj ? 8 : 7, o.eye || EY); return; }
     R(g, 3, hj ? 8 : 7, 10, 2, c); R(g, 3, hj ? 8 : 7, 10, 1, cl); P(g, hj ? 6 : 5, hj ? 9 : 8, o.eye || EY); P(g, hj ? 9 : 10, hj ? 9 : 8, o.eye || EY); return;
   }
+  if (id === 'teropong') {
+    const y = hj ? 7 : 6;
+    if (up) { R(g, 2, y + 1, 12, 1, '#3a2416'); return; }
+    if (side) { R(g, 2, y, 4, 3, '#6a4428'); R(g, 3, y + 1, 2, 1, '#5bd07a'); R(g, 6, y + 1, 4, 1, '#3a2416'); return; }
+    R(g, 3, y, 4, 3, '#6a4428'); R(g, 9, y, 4, 3, '#6a4428'); R(g, 4, y + 1, 2, 1, '#5bd07a'); R(g, 10, y + 1, 2, 1, '#5bd07a'); P(g, 4, y + 1, '#c8ffd8'); P(g, 10, y + 1, '#c8ffd8');
+    R(g, 7, y + 1, 2, 1, '#3a2416'); P(g, 2, y + 1, '#3a2416'); P(g, 13, y + 1, '#3a2416'); return;
+  }
   if (up) return;
-  const fr = { kbulat: '#3a2a3a', kchitam: '#1f1a26', k3d: '#ffffff', kbintang: '#ffd23c' }[id] || '#3a2a3a';
+  const fr = { kbulat: '#3a2a3a', kchitam: '#1f1a26', k3d: '#ffffff', kbintang: '#ffd23c', kemas: '#c97a0a' }[id] || '#3a2a3a';
   const lens = (x, y, w, k) => {
     if (id === 'kchitam') { R(g, x, y, w, 2, '#1f1a26'); P(g, x, y, '#7a7a9a'); }
     else if (id === 'k3d') { R(g, x, y, w, 2, k ? '#3a7bd5' : '#e0302a'); P(g, x, y, '#ffffff'); }
+    else if (id === 'kemas') { R(g, x, y, w, 2, '#ffc93c'); P(g, x + 1, y, '#fff3b0'); if (w > 2) P(g, x + 1, y + 1, o.eye || EY); }
     else if (id === 'kbintang') { R(g, x, y, w, 2, '#ff5d8f'); P(g, x, y, '#ffd1e4'); P(g, x - 1, y - 1, '#ffd23c'); P(g, x + w, y - 1, '#ffd23c'); }
     else { R(g, x, y, w, 2, fr); P(g, x + 1, y, '#cfe8ff'); if (w > 2) P(g, x + 1, y + 1, o.eye || EY); }
   };
@@ -1264,13 +1315,13 @@ function glassAt(g, o, dir) {
   if (hj) { lens(5, 8, 2, 0); lens(9, 8, 2, 1); R(g, 7, 8, 2, 1, fr); }
   else { lens(4, 7, 3, 0); lens(9, 7, 3, 1); R(g, 7, 7, 2, 1, fr); }
 }
-const BAGC = { tasmerah: ['#8a1a1a', '#e0302a', '#ff7a6a'], tasbiru: ['#1f4f9a', '#3a7bd5', '#7aaaf0'], tasberuang: ['#6a4428', '#a8743f', '#d9a066'], tasroket: ['#6a7488', '#c9d2e0', '#ffffff'], sayap: ['#a8b8d0', '#e6eef8', '#ffffff'], sayapkupu: ['#b03a6a', '#ff8ab8', '#ffd1e4'] };
+const BAGC = { tasmerah: ['#8a1a1a', '#e0302a', '#ff7a6a'], tasbiru: ['#1f4f9a', '#3a7bd5', '#7aaaf0'], tasberuang: ['#6a4428', '#a8743f', '#d9a066'], tasroket: ['#6a7488', '#c9d2e0', '#ffffff'], sayap: ['#a8b8d0', '#e6eef8', '#ffffff'], sayapkupu: ['#b03a6a', '#ff8ab8', '#ffd1e4'], kompas: ['#2a5a2a', '#4ea543', '#86cc5a'], perisai: ['#1f4f9a', '#3a7bd5', '#7aaaf0'], sayapbuku: ['#b8a47a', '#fff6dc', '#ffffff'], sayapnaga: ['#6a1010', '#c8302a', '#ff6a5a'] };
 function backAt(g, o, dir, front) {
   const id = o.bk, c = BAGC[id]; if (!c) return;
-  const side = dir === 'left', up = dir === 'up', wing = id === 'sayap' || id === 'sayapkupu';
+  const side = dir === 'left', up = dir === 'up', wing = id === 'sayap' || id === 'sayapkupu' || id === 'sayapbuku' || id === 'sayapnaga';
   if (wing) {
-    const W = [2, 3, 4, 5, 5, 4, 3, 2, 1], wy = 9;
-    const one = (edge, s) => W.forEach((w, i) => { const x = s < 0 ? edge - w : edge; R(g, x, wy + i, w, 1, i < 2 ? c[2] : c[1]); P(g, s < 0 ? x : x + w - 1, wy + i, c[0]); if (id === 'sayapkupu' && i === 3) P(g, s < 0 ? x + 1 : x + w - 2, wy + i, '#ffd23c'); if (id === 'sayap' && i % 2 === 0) P(g, s < 0 ? edge - 1 : edge, wy + i, '#ffffff'); });
+    const W = id === 'sayapnaga' ? [2, 4, 5, 6, 5, 5, 4, 3, 2, 1] : [2, 3, 4, 5, 5, 4, 3, 2, 1], wy = id === 'sayapnaga' ? 8 : 9;
+    const one = (edge, s) => W.forEach((w, i) => { const x = s < 0 ? edge - w : edge; R(g, x, wy + i, w, 1, i < 2 ? c[2] : c[1]); P(g, s < 0 ? x : x + w - 1, wy + i, c[0]); if (id === 'sayapkupu' && i === 3) P(g, s < 0 ? x + 1 : x + w - 2, wy + i, '#ffd23c'); if (id === 'sayap' && i % 2 === 0) P(g, s < 0 ? edge - 1 : edge, wy + i, '#ffffff'); if (id === 'sayapbuku' && i % 2 === 1 && w > 2) R(g, s < 0 ? x + 1 : x + 1, wy + i, w - 2, 1, '#9a8a6a'); if (id === 'sayapnaga' && i > 1 && i % 2 === 0) P(g, s < 0 ? x + Math.floor(w / 2) : x + Math.ceil(w / 2) - 1, wy + i, c[0]); if (id === 'sayapnaga' && i === 0) P(g, s < 0 ? x - 1 : x + w, wy - 1, '#ffd23c'); });
     if (side) { if (front) one(11, 1); return; }
     if (up ? front : !front) { one(4, -1); one(12, 1); }
     return;
@@ -1280,6 +1331,7 @@ function backAt(g, o, dir, front) {
   if (side) {
     R(g, 10, 12, 3, 6, c[1]); R(g, 10, 12, 3, 1, c[2]); R(g, 12, 13, 1, 5, c[0]);
     if (id === 'tasberuang') { P(g, 10, 11, c[0]); P(g, 12, 11, c[0]); }
+    if (id === 'perisai') { R(g, 10, 11, 3, 8, c[1]); R(g, 10, 11, 3, 1, c[2]); R(g, 12, 12, 1, 7, c[0]); P(g, 11, 14, '#ffd23c'); P(g, 11, 15, '#ffd23c'); return; }
     if (id === 'tasroket') { R(g, 10, 10, 3, 2, '#e0302a'); R(g, 13, 15, 1, 3, '#e0302a'); P(g, 11, 18, '#ffd23c'); P(g, 11, 19, '#ff8a2a'); }
     return;
   }
@@ -1287,7 +1339,12 @@ function backAt(g, o, dir, front) {
     R(g, 5, 11, 6, 8, c[1]); R(g, 5, 11, 2, 8, c[2]); R(g, 10, 12, 1, 7, c[0]); TRI(g, 5, 8, 6, 3, '#e0302a'); R(g, 3, 15, 2, 4, '#e0302a'); R(g, 11, 15, 2, 4, '#e0302a');
     P(g, 7, 13, '#5bb8f0'); P(g, 8, 13, '#5bb8f0'); P(g, 7, 14, '#3a7bd5'); P(g, 8, 14, '#3a7bd5'); R(g, 7, 19, 2, 1, '#ffd23c'); P(g, 7, 20, '#ff8a2a'); P(g, 8, 21, '#ff8a2a'); return;
   }
+  if (id === 'perisai') {
+    R(g, 4, 11, 8, 8, c[1]); R(g, 4, 11, 8, 1, c[2]); R(g, 4, 11, 1, 8, c[2]); R(g, 11, 11, 1, 8, c[0]); R(g, 5, 19, 6, 1, c[1]); R(g, 6, 20, 4, 1, c[0]);
+    R(g, 6, 13, 4, 3, '#ffd23c'); R(g, 6, 13, 4, 1, '#fff3b0'); R(g, 8, 13, 1, 3, '#c97a0a'); return;
+  }
   R(g, 4, 12, 8, 6, c[1]); R(g, 4, 12, 8, 1, c[2]); R(g, 4, 17, 8, 1, c[0]); R(g, 6, 14, 4, 3, c[0]); R(g, 6, 14, 4, 1, c[2]); P(g, 8, 13, '#ffd23c');
+  if (id === 'kompas') { R(g, 6, 14, 4, 3, '#e6c890'); R(g, 7, 14, 2, 1, '#fff6dc'); P(g, 8, 15, '#c8302a'); P(g, 7, 16, '#24123a'); R(g, 4, 11, 8, 1, '#8a6a3a'); }
   if (id === 'tasberuang') { E(g, 5, 11.5, 1.4, 1.2, [c[0], c[1], c[1], c[2]]); E(g, 11, 11.5, 1.4, 1.2, [c[0], c[1], c[1], c[2]]); R(g, 6, 14, 4, 3, c[2]); P(g, 6, 15, '#24123a'); P(g, 9, 15, '#24123a'); P(g, 7, 16, '#24123a'); P(g, 8, 16, '#24123a'); }
 }
 function kid(o, dir, f) {
@@ -1304,10 +1361,12 @@ function kid(o, dir, f) {
     shoeAt(g, o, side ? 6 : 5, 22, 2 - raise[0]); shoeAt(g, o, side ? 8 : 9, 22, 2 - raise[1]);
   } else {
     const lx = side ? [6 - swing, 8 + swing] : [5, 9], bare = o.pk === 'sd' || o.pk === 'short';
-    for (let k = 0; k < 2; k++) { const x = lx[k], end = 21 - raise[k]; R(g, x, 19, 2, end - 18, bare ? sk[2] : bot[1]); if (bare) P(g, x + 1, 20, sk[1]); if (pd.stripe) P(g, x, 20, pd.stripe); shoeAt(g, o, x, end + 1, 2); }
+    for (let k = 0; k < 2; k++) { const x = lx[k], end = 21 - raise[k]; R(g, x, 19, 2, end - 18, bare ? sk[2] : bot[1]); if (bare) P(g, x + 1, 20, sk[1]); if (pd.stripe) P(g, x, 20, pd.stripe); if (pd.knee) R(g, x, 20, 2, 1, pd.knee); if (pd.stars) { P(g, x, 19, '#ffffff'); P(g, x + 1, end, '#ffd23c'); } shoeAt(g, o, x, end + 1, 2); }
     R(g, 4, 17, 8, 3, bot[1]); R(g, 4, 17, 8, 1, bot[2]); R(g, 7, 18, 2, 2, bot[0]);
+    if (pd.stars) { P(g, 5, 18, '#ffffff'); P(g, 10, 17, '#ffd23c'); P(g, 9, 19, '#7fe8ff'); }
+    if (pd.knee) R(g, 4, 17, 8, 1, '#c9d2e0');
   }
-  const robe = o.pat === 'robe', tl = robe ? 9 : o.pat === 'labcoat' ? 8 : o.pat === 'kebaya' ? 7 : 6;
+  const robe = o.pat === 'robe', tl = robe || o.pat === 'jubahc' || o.pat === 'jubahagung' ? 9 : o.pat === 'labcoat' ? 8 : o.pat === 'kebaya' ? 7 : 6;
   if (side) {
     R(g, 5, 12, 6, tl, top[1]); R(g, 5, 12, 2, tl, top[2]); R(g, 9, 13, 2, 5, top[0]);
     R(g, 7 + swing, 13, 2, 3, top[1]); R(g, 7 + swing, 16, 2, 2, sk[2]);
@@ -1331,6 +1390,10 @@ function kid(o, dir, f) {
   if (o.pat === 'koko') { if (front) { R(g, 6, 12, 4, 1, '#9a8f78'); P(g, 8, 13, '#9a8f78'); P(g, 8, 15, '#9a8f78'); P(g, 6, 14, '#d4c08a'); P(g, 9, 14, '#d4c08a'); } else R(g, side ? 6 : 5, 12, side ? 4 : 6, 1, '#9a8f78'); }
   if (o.pat === 'kebaya') { for (let x = 4; x < 12; x += 2) if (!side || (x > 4 && x < 11)) P(g, x, 18, '#ffffff'); if (front) { P(g, 7, 13, '#ffd23c'); P(g, 8, 13, '#ffd23c'); P(g, 7, 12, '#ffffff'); P(g, 8, 12, '#ffffff'); } }
   if (o.pat === 'labcoat') { if (front) { R(g, 7, 12, 2, 8, '#ffffff'); R(g, 8, 13, 1, 7, '#a8b0c0'); P(g, 6, 12, C.red[1]); R(g, 9, 15, 2, 2, '#c9d2e0'); P(g, 10, 14, '#3a7bd5'); } else if (side) P(g, 7, 15, '#3a7bd5'); }
+  if (o.pat === 'rompi') { if (front) { R(g, 7, 12, 2, tl, '#fffaf0'); R(g, 5, 15, 2, 1, top[0]); R(g, 9, 15, 2, 1, top[0]); P(g, 6, 13, '#6a4a2a'); P(g, 9, 13, '#6a4a2a'); } else if (side) R(g, 6, 15, 3, 1, top[0]); }
+  if (o.pat === 'zirah') { R(g, side ? 5 : 4, 17, side ? 6 : 8, 1, '#5a4030'); if (front) { R(g, 6, 13, 4, 3, '#3a7bd5'); R(g, 6, 13, 4, 1, '#7aaaf0'); R(g, 8, 13, 1, 3, '#ffffff'); P(g, 4, 12, '#ffd23c'); P(g, 11, 12, '#ffd23c'); } else if (side) P(g, 7, 14, '#3a7bd5'); }
+  if (o.pat === 'jubahc') { if (front) { R(g, 7, 12, 1, 9, '#ffd23c'); R(g, 5, 12, 6, 1, '#ffd23c'); P(g, 9, 15, '#ffd23c'); } else R(g, side ? 5 : 4, 20, side ? 6 : 8, 1, '#ffd23c'); }
+  if (o.pat === 'jubahagung') { const tw = side ? 6 : 8, tx = side ? 5 : 4; R(g, tx, 12, tw, 1, '#ffd23c'); R(g, tx, 20, tw, 1, '#ffd23c'); if (front) { R(g, 7, 12, 2, 9, '#ffd23c'); R(g, 7, 13, 2, 7, '#c97a0a'); E(g, 8, 15, 1.6, 1.6, ['#c97a0a', '#ffd23c', '#ffd23c', '#fff3b0']); P(g, 8, 15, '#ff5d8f'); P(g, 5, 18, '#fff3b0'); P(g, 10, 18, '#fff3b0'); } else if (dir === 'up') { R(g, 3, 12, 10, 9, '#8a1a2a'); R(g, 3, 12, 10, 1, '#c8302a'); R(g, 3, 20, 10, 1, '#ffd23c'); } }
   if (o.bk) backAt(g, o, dir, 1);
   if (o.pat === 'hero' && front) { P(g, 7, 14, '#ffd23c'); P(g, 8, 14, '#ffd23c'); P(g, 7, 15, '#ffd23c'); P(g, 8, 15, '#ffd23c'); P(g, 7, 13, '#ffd23c'); P(g, 8, 16, '#ffd23c'); }
   const eyeL = (x, y) => { R(g, x, y, 1, 2, o.eye || EY); P(g, x, y, mix(o.eye || EY, '#ffffff', .35)); };
@@ -1785,7 +1848,7 @@ function spawnWild() {
 function hud() {
   if (W && ZONES[W.zone]) $('#hLoc').innerHTML = esc(ZONES[W.zone].hl || ZONES[W.zone].n) + mpBadge() + envChip() + buffTag() + (W.zone === featured() ? ' <span class="bf" style="background:#ffd23c;color:#3a2200">\u2605 Unggulan</span>' : '');
   streakNag();
-  $('#hRank').innerHTML = `Rank ${S.rank} · ${S.xp}/${need(S.rank)} XP`;
+  $('#hRank').innerHTML = S.rank >= RANK_MAX ? `Rank ${S.rank} · MAKS` : `Rank ${S.rank} · ${S.xp}/${need(S.rank)} XP`;
   $('#hCoin').innerHTML = `${COIN}${S.coins}`;
   const nb = S.boxes.Kayu + S.boxes.Perak + S.boxes.Emas;
   $('#boxBadge').hidden = !nb; $('#boxBadge').textContent = nb;
@@ -1898,7 +1961,7 @@ function draw(t) {
   if (W.zone === 'school') { const kx = 6 * TS + Math.cos(t / 1400) * 18, ky = 17 * TS + Math.sin(t / 1400) * 10; bx.fillStyle = '#ff8a2a'; bx.fillRect(Math.round(kx - ox), Math.round(ky - oy), 4, 2); }
   const list = [];
   for (const o of W.OBJ) { if (o.cond && !o.cond()) continue; if (o.fy < oy - 10 || o.y - oy > VH + 4) continue; list.push({ fy: o.fy, d: () => bx.drawImage(o.flag ? FLAG[Math.floor(t / 260) % 3] : o.img, Math.round(o.x - ox), Math.round(o.y - oy)) }); }
-  const person = (e, look, isMe) => () => { const x = Math.round(e.x - ox), y = Math.round(e.y - oy); shadow(x, y, 5); bx.drawImage(kidImg(look, e.dir, e.f), x - 8, y - 27 - ((e.f === 1 || e.f === 3) ? 1 : 0)); if (e.mark) { const b = Math.round(Math.sin(t / 250) * 1.5); bx.fillStyle = '#24123a'; bx.fillRect(x - 2, y - 40 + b, 5, 8); bx.fillStyle = '#ff6a3d'; bx.fillRect(x - 1, y - 39 + b, 3, 4); bx.fillRect(x - 1, y - 34 + b, 3, 1); } };
+  const person = (e, look, isMe) => () => { const x = Math.round(e.x - ox), y = Math.round(e.y - oy); shadow(x, y, 5); bx.drawImage(kidImg(look, e.dir, e.f), x - 8, y - 27 - ((e.f === 1 || e.f === 3) ? 1 : 0)); const sk = setOf(look); if (sk) { bx.fillStyle = SETS[sk].c; for (let i = 0; i < 4; i++) { const a = t / 420 + i * 1.57, r = 9 + Math.sin(t / 300 + i) * 2; if (Math.sin(t / 180 + i * 2) > -.2) bx.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y - 14 + Math.sin(a) * 13), 1, 1); } } if (e.mark) { const b = Math.round(Math.sin(t / 250) * 1.5); bx.fillStyle = '#24123a'; bx.fillRect(x - 2, y - 40 + b, 5, 8); bx.fillStyle = '#ff6a3d'; bx.fillRect(x - 1, y - 39 + b, 3, 4); bx.fillRect(x - 1, y - 34 + b, 3, 1); } };
   for (const e of W.npcs) list.push({ fy: e.y, d: person(e, e.look) });
   list.push({ fy: p.y, d: person(p, look(), true) });
   if (W.cp) { const c = W.cp; list.push({ fy: c.y, d: () => {
@@ -1939,14 +2002,15 @@ function draw(t) {
     if (sg.bg) { const w = ctx.measureText(sg.t).width + 10 * DPR; ctx.fillStyle = sg.bg; ctx.strokeStyle = '#24123a'; ctx.lineWidth = 2 * DPR; rr(ctx, x - w / 2, y - fs * .7, w, fs * 1.4, 4 * DPR); ctx.fill(); ctx.stroke(); }
     ctx.fillStyle = sg.c; ctx.fillText(sg.t, x, y + DPR);
   }
-  const tag = (e, name, fill) => {
+  const tag = (e, name, fill, tt) => {
     const fs = Math.round(10 * DPR); ctx.font = `700 ${fs}px "Pixelify Sans", monospace`;
     const x = (e.x - ox) * s, y = (e.y - oy - 35) * s, w = ctx.measureText(name).width + 12 * DPR;
     ctx.fillStyle = fill; ctx.strokeStyle = '#24123a'; ctx.lineWidth = 2 * DPR; rr(ctx, x - w / 2, y - fs * .75, w, fs * 1.5, fs * .5); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#23214a'; ctx.fillText(name, x, y + DPR);
+    if (tt) { const f2 = Math.round(8 * DPR); ctx.font = `700 ${f2}px "Pixelify Sans", monospace`; ctx.lineWidth = 3 * DPR; ctx.strokeStyle = '#24123a'; ctx.strokeText(tt[1], x, y - fs * 1.35); ctx.fillStyle = tt[1] === 'Master Metaverse' && Math.floor(performance.now() / 300) % 2 ? '#ffffff' : tt[2]; ctx.fillText(tt[1], x, y - fs * 1.35); }
   };
   for (const e of W.npcs) tag(e, e.name, e.tag);
-  tag(p, S.name, '#ffc93c'); mpTags(tag);
+  tag(p, S.name, '#ffc93c', titleOf(S.rank)); mpTags(tag);
 }
 function petComp() {
   const c = W && W.cp; if (!c) return false; const p = W.p;
@@ -2332,7 +2396,7 @@ const ISTU = {};
   ['ing1', 'Kevin', { g: 'l', hs: 'poni', hc: '#3a2418', sk: 0, hat: 'capmerah', shirt: 'hoodie', pants: 'jeans', shoes: 'sneak' }, 'Hello! Pagi bilang "Good morning", siang "Good afternoon", malam "Good evening".'],
   ['ing2', 'Amel', { g: 'p', hs: 'twintail', hc: '#2a1a14', sk: 1, shirt: 'jersey', pants: 'rok', shoes: 'lari' }, 'Jangan tertukar: thirteen itu 13, thirty itu 30!'],
   ['ing3', 'Jordan', { g: 'l', hs: 'keriting', hc: '#1a1210', sk: 2, hat: 'beanie', shirt: 'icej', pants: 'jogger', shoes: 'sneak', glass: 'kchitam' }, '"What time is it?" artinya "Jam berapa sekarang?" Days of the week: Monday sampai Sunday.'],
-  ['ing4', 'Chika', { g: 'p', hs: 'ikal', hc: '#3a2418', sk: 0, hat: 'bando', shirt: 'polka', pants: 'rok', shoes: 'pelangi', glass: 'kbintang' }, 'Red, blue, yellow! "This is a green bag" artinya "Ini tas hijau".'],
+  ['ing4', 'Chika', { g: 'p', hs: 'ikal', hc: '#3a2418', sk: 0, hat: 'bando', shirt: 'polka', pants: 'rok', shoes: 'neon', glass: 'kbintang' }, 'Red, blue, yellow! "This is a green bag" artinya "Ini tas hijau".'],
   ['ing5', 'Rizky', { g: 'l', hs: 'pendek', hc: '#1a1210', sk: 1, hat: 'wisuda', shirt: 'kemeja', pants: 'celputih', shoes: 'hitam' }, 'Father itu ayah, mother itu ibu. "I have one brother" artinya "Aku punya satu saudara laki-laki".']
 ].forEach(([id, n, o, tip]) => { const b = +id.slice(-1), k = id.slice(0, -1); ISTU[id] = { n, o, tip, rank: b + 1, team: ISTU_TEAM[b - 1], role: `Siswa ${PSHORT[k]} · Bab ${b}` }; });
 const THEME = { snow: 'snow', forest: 'forest', park: 'park', grass: 'park', pave: 'town', pave2: 'town', cobble: 'town', stone: 'rock', sand: 'sand', wood: 'harbor', cave: 'rock' };
@@ -2946,15 +3010,15 @@ async function finish(res) {
     if (cfg.type === 'wild') {
       const Z = ZONES[cfg.zone], bm = W && W.buff === 'berkah' ? 1.2 : W && W.buff === 'kecil' ? 1.1 : 1; const c = Math.round((Z.coins + ri(0, 6)) * bm * (cfg.zone === featured() ? 1.5 : 1));
       addCoins(c); progress('coins', c); progress('wild'); S.st.wild++; const fz = cfg.zone === featured(); if (fz) progress('zonewild');
-      rw.push(`${COIN}+${c} koin`, `+${Z.xp} XP`); gainXP(Z.xp);
+      const bx = battleXP(Z.xp); rw.push(`${COIN}+${c} koin`, `+${bx} XP`); gainXP(bx); if (bxpNote()) rw.push(bxpNote());
       const roll = rnd(0, 100) / (W && W.buff === 'berkah' ? 1.5 : 1) / (cfg.zone === featured() ? 1.5 : 1), got = (() => { const r = M[cfg.foe[0]].r, [k, pk] = { C: [5, 0], R: [8, 1], E: [8, 3], L: [8, 3] }[r]; return roll < pk ? 'Perak' : roll < pk + k ? 'Kayu' : null; })();
       if (got) { S.boxes[got]++; rw.push(`<b>Kotak ${got}!</b>`); }
     } else if (cfg.type === 'legend') {
-      progress('duel'); gainXP(40); rw.push('+40 XP');
+      const bx = battleXP(40); progress('duel'); gainXP(bx); rw.push(`+${bx} XP`); if (bxpNote()) rw.push(bxpNote());
     } else {
-      const st = cfg.who, c = 25 + st.rank * 8, xp = 10 + st.rank * 3;
+      const st = cfg.who, c = 25 + st.rank * 8, xp = battleXP(10 + st.rank * 3);
       addCoins(c); progress('coins', c); progress('duel'); S.st.duel++; gainXP(xp);
-      rw.push(`${COIN}+${c} koin`, `+${xp} XP`);
+      rw.push(`${COIN}+${c} koin`, `+${xp} XP`); if (bxpNote()) rw.push(bxpNote());
     }
     html = `<div class="big" style="color:var(--sun)">MENANG!</div>`;
   } else if (res === 'lose') {
@@ -3109,7 +3173,7 @@ async function mpPresence() {
     for (const m of (st[pk] || []).slice(-4)) {
       if (!m || m.id !== pk || typeof m.ts !== 'number' || !mpZoneOk(m.z)) continue;
       const k = await mpKeyFor(pk, m.k); if (!k) continue;
-      if (await mpVerify(k, ['p', pk, m.n, m.lk, m.z, m.ts, typeof m.c === 'string' ? m.c : ''], m.sig) && (!best || m.ts > best.ts)) best = m;
+      if (await mpVerify(k, ['p', pk, m.n, m.lk, m.z, m.ts, typeof m.c === 'string' ? m.c : '', m.rk], m.sig) && (!best || m.ts > best.ts)) best = m;
     }
     if (g !== MP.gen) return; if (!best) continue;
     const lk = mpLookSafe(best.lk); if (!lk) continue;
@@ -3117,7 +3181,7 @@ async function mpPresence() {
     if (!o) o = MP.ps[pk] = { x: 0, y: 0, tx: 0, ty: 0, dir: 'down', f: 0, ft: 0, has: false, lt: 0, le: 0, pts: 0, rp: [], re: 0 };
     if (best.ts < o.pts) continue; o.pts = best.ts;
     if (o.z !== best.z) { o.has = false; o.z = best.z; }
-    o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : '';
+    o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : ''; o.rk = mpInt(best.rk, 1, RANK_MAX);
   }
   if (g !== MP.gen) return; for (const id in MP.ps) if (!seen[id]) delete MP.ps[id];
   MP.synced = 1; hud();
@@ -3142,9 +3206,9 @@ async function mpOnEm(m) {
 /* ---- kirim ---- */
 async function mpSync() {
   if (MP.st !== 'on' || !S || !MP.ch || !W) return;
-  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, c = compId() || '', sig0 = JSON.stringify([n, lk, z, c]); if (sig0 === MP.sig) return; MP.sig = sig0;
-  const ts = mpNext(), ch = MP.ch, sig = await mpSign(['p', MP.id, n, lk, z, ts, c]);
-  if (MP.st === 'on' && ch === MP.ch) { ch.track({ id: MP.id, k: MP.kb, n, lk, z, ts, sig, c }); setTimeout(() => mpSendPos(true), 600); }
+  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, c = compId() || '', rk = S.rank, sig0 = JSON.stringify([n, lk, z, c, rk]); if (sig0 === MP.sig) return; MP.sig = sig0;
+  const ts = mpNext(), ch = MP.ch, sig = await mpSign(['p', MP.id, n, lk, z, ts, c, rk]);
+  if (MP.st === 'on' && ch === MP.ch) { ch.track({ id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk }); setTimeout(() => mpSendPos(true), 600); }
 }
 async function mpSendPos(force) {
   if (MP.st !== 'on' || !W || !W.p || $('#s-world').hidden) return;
@@ -3204,14 +3268,14 @@ function mpDraw(list, person, t, ox, oy) {
   }
   if (MP.me) list.push({ fy: W.p.y + 200, d: () => mpBubble(W.p.x - ox, W.p.y - oy, MP.me, t) });
 }
-function mpTags(tag) { if (!MP || (S && S.mpOff) || MP.st !== 'on') return; for (const o of Object.values(MP.ps)) if (mpHere(o)) tag(o, o.n, '#bfe9ff'); }
+function mpTags(tag) { if (!MP || (S && S.mpOff) || MP.st !== 'on') return; for (const o of Object.values(MP.ps)) if (mpHere(o)) tag(o, o.n, '#bfe9ff', titleOf(o.rk || 1)); }
 async function openChat() {
   const st = S.mpOff ? 'Online dimatikan' : MP.st === 'on' ? `Tersambung · ${mpCount()} siswa online` : MP.st === 'connecting' ? 'Menyambung…' : 'Belum tersambung (main sendirian dulu)';
   const why = MP.st === 'on' || S.mpOff ? '' : ` [${MP.st}${MP.why ? ': ' + MP.why : ''}]`;
   const inZone = Object.values(MP.ps).filter(o => mpHere(o)).length;
   const row = (lk, nm, loc, here, id) => `<div style="display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:2px solid rgba(36,18,58,.12)"><div style="flex:none;width:36px;height:36px;display:grid;place-items:center">${avatarSvg(lk, 34)}</div><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nm)}</div><div style="font-size:12px;font-weight:700;color:${here ? '#1f7a52' : 'var(--sub)'}">${esc(loc)}${here ? ' · di sini' : ''}</div></div>${id ? `<button type="button" class="btn ghost" data-d="${esc(id)}" style="min-height:34px;padding:2px 10px;font-size:13px;flex:none">Tantang</button>` : ''}</div>`;
   const others = Object.entries(MP.ps).filter(([, o]) => o.lk && o.z && ZONES[o.z]).sort((a, b) => (mpHere(b[1]) ? 1 : 0) - (mpHere(a[1]) ? 1 : 0));
-  const plist = MP.st !== 'on' ? '' : `<div class="card" style="padding:6px 8px;max-height:190px;overflow:auto"><div style="font-size:12px;font-weight:800;color:var(--sub);padding-bottom:2px">Sedang online (${others.length + 1})</div>${row(look(), S.name + ' (kamu)', ZONES[W.zone] ? ZONES[W.zone].n : '', false, '')}${others.map(([id, o]) => row(o.lk, o.n, ZONES[o.z].n, mpHere(o), mpHere(o) && !MP.duel ? id : '')).join('') || '<div style="font-size:13px;font-weight:700;color:var(--sub);padding:6px 2px">Belum ada siswa lain yang online.</div>'}</div>`;
+  const plist = MP.st !== 'on' ? '' : `<div class="card" style="padding:6px 8px;max-height:190px;overflow:auto"><div style="font-size:12px;font-weight:800;color:var(--sub);padding-bottom:2px">Sedang online (${others.length + 1})</div>${row(look(), S.name + ' · R' + S.rank + ' (kamu)', ZONES[W.zone] ? ZONES[W.zone].n : '', false, '')}${others.map(([id, o]) => row(o.lk, o.n + ' · R' + (o.rk || 1), ZONES[o.z].n, mpHere(o), mpHere(o) && !MP.duel ? id : '')).join('') || '<div style="font-size:13px;font-weight:700;color:var(--sub);padding:6px 2px">Belum ada siswa lain yang online.</div>'}</div>`;
   await modal(`<h2>Teman online</h2><p style="font-size:13px">${esc(st + why)}${MP.st === 'on' ? ` · ${inZone} di wilayah ini` : ''}</p>${plist}
     <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">${MP_EMO.map((e, i) => `<button type="button" class="btn ghost" data-e="${i}" style="min-height:44px;font-size:22px;padding:0">${e}</button>`).join('')}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${MP_SAY.map((s, i) => `<button type="button" class="btn" data-s="${i}" style="min-height:42px;font-size:14px;padding:4px">${esc(s)}</button>`).join('')}</div>
@@ -3624,7 +3688,7 @@ async function openProf() {
     <div class="card" style="display:flex;flex-direction:column;gap:8px">
       <div class="row"><div style="flex:1;min-width:0"><div class="disp" style="font-size:28px;line-height:1">${esc(S.name)}</div><div style="font-size:13px;font-weight:800;color:var(--sub)">Metaverse School${S.admin ? ' · ★ Super Admin' : ''}</div></div>
       <div style="width:58px;height:58px;border-radius:50%;background:var(--text);border:3px solid var(--sun);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sun)"><span style="font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--muted)">RANK</span><span class="disp" style="font-size:24px;line-height:1">${S.rank}</span></div></div>
-      <div class="bar"><i style="width:${S.xp / need(S.rank) * 100}%"></i></div><div style="font-size:12px;font-weight:800;color:var(--sub)">${S.xp}/${need(S.rank)} XP ke Rank ${S.rank + 1}</div>
+      <div style="font-size:14px;font-weight:800">Gelar: <span style="color:${titleOf(S.rank)[2]};-webkit-text-stroke:.4px #24123a">${titleOf(S.rank)[1]}</span></div>${S.rank >= RANK_MAX ? '<div style="font-size:12px;font-weight:800;color:var(--sub)">Rank maksimal tercapai!</div>' : `<div class="bar"><i style="width:${S.xp / need(S.rank) * 100}%"></i></div><div style="font-size:12px;font-weight:800;color:var(--sub)">${S.xp}/${need(S.rank)} XP ke Rank ${S.rank + 1}</div>`}
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center">${[[S.st.win, 'Menang'], [owned, 'Monster'], [S.st.latihan || 0, 'Latihan'], [S.st.opened, 'Kotak']].map(([v, l]) => `<div style="background:var(--soft);border-radius:12px;padding:4px 2px"><div class="disp" style="font-size:20px">${v}</div><div style="font-size:11px;font-weight:800;color:var(--sub)">${l}</div></div>`).join('')}</div>
     </div>
     <div class="row" style="justify-content:space-between"><span class="disp" style="font-size:18px">Dipakai</span></div>
