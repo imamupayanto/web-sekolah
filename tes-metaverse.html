@@ -2863,7 +2863,7 @@ async function mpPresence() {
     for (const m of (st[pk] || []).slice(-4)) {
       if (!m || m.id !== pk || typeof m.ts !== 'number' || !mpZoneOk(m.z)) continue;
       const k = await mpKeyFor(pk, m.k); if (!k) continue;
-      if (await mpVerify(k, ['p', pk, m.n, m.lk, m.z, m.ts], m.sig) && (!best || m.ts > best.ts)) best = m;
+      if (await mpVerify(k, ['p', pk, m.n, m.lk, m.z, m.ts, typeof m.c === 'string' ? m.c : ''], m.sig) && (!best || m.ts > best.ts)) best = m;
     }
     if (g !== MP.gen) return; if (!best) continue;
     const lk = mpLookSafe(best.lk); if (!lk) continue;
@@ -2871,7 +2871,7 @@ async function mpPresence() {
     if (!o) o = MP.ps[pk] = { x: 0, y: 0, tx: 0, ty: 0, dir: 'down', f: 0, ft: 0, has: false, lt: 0, le: 0, pts: 0, rp: [], re: 0 };
     if (best.ts < o.pts) continue; o.pts = best.ts;
     if (o.z !== best.z) { o.has = false; o.z = best.z; }
-    o.n = mpName(best.n); o.lk = lk;
+    o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : '';
   }
   if (g !== MP.gen) return; for (const id in MP.ps) if (!seen[id]) delete MP.ps[id];
   MP.synced = 1; hud();
@@ -2895,9 +2895,9 @@ async function mpOnEm(m) {
 /* ---- kirim ---- */
 async function mpSync() {
   if (MP.st !== 'on' || !S || !MP.ch || !W) return;
-  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, sig0 = JSON.stringify([n, lk, z]); if (sig0 === MP.sig) return; MP.sig = sig0;
-  const ts = mpNext(), ch = MP.ch, sig = await mpSign(['p', MP.id, n, lk, z, ts]);
-  if (MP.st === 'on' && ch === MP.ch) { ch.track({ id: MP.id, k: MP.kb, n, lk, z, ts, sig }); setTimeout(() => mpSendPos(true), 600); }
+  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, c = compId() || '', sig0 = JSON.stringify([n, lk, z, c]); if (sig0 === MP.sig) return; MP.sig = sig0;
+  const ts = mpNext(), ch = MP.ch, sig = await mpSign(['p', MP.id, n, lk, z, ts, c]);
+  if (MP.st === 'on' && ch === MP.ch) { ch.track({ id: MP.id, k: MP.kb, n, lk, z, ts, sig, c }); setTimeout(() => mpSendPos(true), 600); }
 }
 async function mpSendPos(force) {
   if (MP.st !== 'on' || !W || !W.p || $('#s-world').hidden) return;
@@ -2929,7 +2929,13 @@ function mpFrame(dt) {
   if (!W) return; const k = Math.min(1, dt * 8);
   for (const o of Object.values(MP.ps)) {
     if (!mpHere(o)) continue; const dx = o.tx - o.x, dy = o.ty - o.y, mv = Math.hypot(dx, dy) > .8;
-    o.x += dx * k; o.y += dy * k; if (mv) { o.ft += dt; if (o.ft > .13) { o.ft = 0; o.f = (o.f + 1) % 4; } } else o.f = 0;
+    o.x += dx * k; o.y += dy * k;
+    if (o.cid) {
+      if (o.cx === undefined || Math.hypot(o.x - o.cx, o.y - o.cy) > 120) { o.cx = o.x; o.cy = o.y + 8; }
+      const cd = Math.hypot(o.x - o.cx, o.y - o.cy); o.cm = 0;
+      if (cd > 18) { const sp = Math.min(cd - 18, (cd > 60 ? 90 : 58) * dt); o.cx += (o.x - o.cx) / cd * sp; o.cy += (o.y - o.cy) / cd * sp; o.cm = 1; o.cfl = o.x < o.cx; }
+      o.cph = (o.cph || 0) + dt * (o.cm ? 9 : 3);
+    } if (mv) { o.ft += dt; if (o.ft > .13) { o.ft = 0; o.f = (o.f + 1) % 4; } } else o.f = 0;
   }
 }
 function mpBubble(x, y, b, t) {
@@ -2943,7 +2949,11 @@ function mpDraw(list, person, t, ox, oy) {
   if (!MP || (S && S.mpOff) || MP.st !== 'on') return; let n = 0;
   for (const o of Object.values(MP.ps)) {
     if (!mpHere(o) || n++ > 24) continue; const e = { x: o.x, y: o.y, dir: o.dir, f: o.f };
-    list.push({ fy: o.y, d: person(e, o.lk) }); if (o.bub) list.push({ fy: o.y + 200, d: () => mpBubble(o.x - ox, o.y - oy, o.bub, t) });
+    list.push({ fy: o.y, d: person(e, o.lk) });
+    if (o.cid && o.cx !== undefined) list.push({ fy: o.cy, d: () => {
+      const x = Math.round(o.cx - ox), y = Math.round(o.cy - oy), bob = Math.round(Math.abs(Math.sin(o.cph || 0)) * (o.cm ? 2 : 1)), img = monImg(o.cid, false, Math.floor(t / 180) % 2, !!o.cfl);
+      shadow(x, y, Math.round(img.width / 2.8)); bx.drawImage(img, x - Math.floor(img.width / 2), y - img.height - bob + 3);
+    } }); if (o.bub) list.push({ fy: o.y + 200, d: () => mpBubble(o.x - ox, o.y - oy, o.bub, t) });
   }
   if (MP.me) list.push({ fy: W.p.y + 200, d: () => mpBubble(W.p.x - ox, W.p.y - oy, MP.me, t) });
 }
@@ -3007,48 +3017,6 @@ function openStart() {
 
 /* ---------- lootbox ---------- */
 function rollR(type) { const t = BOX[type]; let x = rnd(0, 100); for (const r of ['L', 'E', 'R', 'C']) { if (x < t[r]) return r; x -= t[r]; } return 'C'; }
-const itemRar = it => it.p >= 900 ? 'L' : it.p >= 500 ? 'E' : it.p >= 250 ? 'R' : 'C';
-function openCosBox(type) {
-  return new Promise(resolve => {
-    if (S.boxes[type] <= 0) { resolve(null); return; }
-    S.boxes[type]--; S.st.opened++;
-    const g = gOf(S.look), el = $('#s-box');
-    const fr = SHOP.filter(x => x.p > 0 && (!x.g || x.g === g) && !S.acc.own.includes(x.id));
-    const picks = [];
-    for (let i = 0; i < 3; i++) {
-      const r = rollR(type); let pool = fr.filter(x => itemRar(x) === r && !picks.includes(x.id));
-      if (!pool.length) pool = fr.filter(x => !picks.includes(x.id));
-      if (!pool.length) break; picks.push(pick(pool).id);
-    }
-    progress('open');
-    if (!picks.length) {
-      const c = { Kayu: 60, Perak: 150, Emas: 350 }[type]; addCoins(c); save();
-      modal(`<h2>Kotak ${type}</h2><p>Semua aksesoris sudah kamu punya! Sebagai gantinya kamu mendapat ${COIN}${c} koin.</p>`, [{ t: 'Lanjut' }], { dismiss: false }).then(() => resolve(null)); return;
-    }
-    let sel = 0;
-    const draw = () => {
-      const it = SH[picks[sel]];
-      el.innerHTML = `<div class="rays"></div>
-      <div style="position:relative;height:100%;display:flex;flex-direction:column;gap:14px;padding:22px 12px calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box">
-        <div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">KOTAK HADIAH</div>
-        <div class="logo" style="font-size:30px">Kotak ${type} terbuka!</div><div style="font-weight:700;color:var(--muted)">Pilih 1 dari 3 aksesoris untuk avatarmu</div></div>
-        <div class="picks" style="margin-top:14px">${picks.map((id, i) => { const x = SH[id], r = itemRar(x); return `<button type="button" class="pk ${r}" data-i="${i}" aria-pressed="${i === sel}"><span class="tag new">BARU</span>
-          <span class="art" style="display:grid;place-items:center">${avatarSvg({ ...look(), [x.slot]: x.id }, 64)}</span>${rarTag(r)}<span class="n">${esc(x.n)}</span></button>`; }).join('')}</div>
-        <div class="card" style="font-size:13px;font-weight:700;color:var(--sub)"><b style="color:var(--text);font-size:14px">${esc(it.n)}</b><br>${{ hat: g === 'p' ? 'Topi/Hijab' : 'Topi', shirt: 'Baju', pants: g === 'p' ? 'Celana/Rok' : 'Celana', shoes: 'Sepatu' }[it.slot]}. Hanya hiasan, tidak mengubah kekuatan.</div>
-        <div style="flex:1;display:grid;place-items:center"><img src="${chestURL(type)}" width="160" height="128" alt="" style="image-rendering:pixelated;animation:bob 1.4s steps(2) infinite"></div>
-        <button type="button" class="btn" id="keep" style="font-size:20px;min-height:56px">Ambil ${esc(it.n)}</button>
-      </div>`;
-      el.querySelectorAll('.pk').forEach(b => b.onclick = () => { sel = +b.dataset.i; draw(); });
-      $('#keep').onclick = async () => {
-        const id = picks[sel], it2 = SH[id]; S.acc.own.push(id); save();
-        const c = await modal(`<div style="display:flex;gap:12px;align-items:center">${avatarSvg({ ...look(), [it2.slot]: id }, 80)}<div><h2>${esc(it2.n)}</h2><p>Masuk ke koleksimu. Pakai kapan saja lewat Profil atau Toko.</p></div></div>`, [{ t: 'Lanjut', cls: 'ghost' }, { t: 'Pakai sekarang', cls: 'hot' }], { dismiss: false });
-        if (c === 1) { S.acc[it2.slot] = id; save(); }
-        resolve(id);
-      };
-    };
-    draw(); show('s-box');
-  });
-}
 function openOne(type) {
   return new Promise(resolve => {
     if (S.boxes[type] <= 0) { resolve(null); return; }
@@ -3076,18 +3044,14 @@ function openBox(type, opt = {}) {
   return new Promise(resolve => {
     if (S.boxes[type] <= 0) { resolve(null); return; }
     S.boxes[type]--; S.st.opened++;
-    const force = S.pity >= 9;
     const picks = [];
     for (let i = 0; i < 3; i++) {
-      let r = rollR(type);
-      if (force && i === 0) r = Math.random() < BOX[type].L / (BOX[type].L + BOX[type].E) ? 'L' : 'E';
-      let pool = MONS.filter(m => m.r === r && !picks.includes(m.id) && !(opt.starter && S.owned[m.id]));
-      if (!pool.length) pool = MONS.filter(m => m.r !== 'L' && !picks.includes(m.id));
+      const r = Math.random() < .8 ? 'C' : 'R';
+      let pool = MONS.filter(m => m.r === r && !picks.includes(m.id) && !S.owned[m.id]);
+      if (!pool.length) pool = MONS.filter(m => (m.r === 'C' || m.r === 'R') && !picks.includes(m.id));
       picks.push(pick(pool).id);
     }
     picks.sort(() => Math.random() - .5);
-    const high = picks.some(id => 'EL'.includes(M[id].r));
-    S.pity = high ? 0 : S.pity + 1;
     progress('open'); save();
     let sel = picks.indexOf(picks.slice().sort((a, b) => RORDER.indexOf(M[a].r) - RORDER.indexOf(M[b].r))[0]);
     const el = $('#s-box');
@@ -3104,10 +3068,9 @@ function openBox(type, opt = {}) {
         <div class="card" style="font-size:13px;font-weight:700;color:var(--sub);line-height:1.35"><b style="color:var(--text);font-size:14px">${esc(M[picks[sel]].sk.n)}</b> · ${M[picks[sel]].sk.c} energi<br>${esc(M[picks[sel]].d)}${M[picks[sel]].weak ? `<br><span style="color:#c2301b">Kelemahan: ${esc(M[picks[sel]].weak)}</span>` : ''}</div>
         <div style="flex:1;display:grid;place-items:center"><img src="${chestURL(type)}" width="160" height="128" alt="" style="image-rendering:pixelated;animation:bob 1.4s steps(2) infinite"></div>
         <button type="button" class="btn" id="keep" style="font-size:20px;min-height:56px">Simpan ${esc(M[picks[sel]].n)}</button>
-        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--muted)"><span>Jaminan Epik: ${S.pity}/10</span><button type="button" id="odds" style="background:none;border:0;color:var(--sun);font-weight:800;font-size:12px;padding:0">Lihat peluang</button></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--muted)"><span>Hadiah awal: Biasa 80% · Langka 20%</span></div>
       </div>`;
       el.querySelectorAll('.pk').forEach(b => b.onclick = () => { sel = +b.dataset.i; draw(); });
-      $('#odds').onclick = () => modal(oddsHtml(), [{ t: 'Tutup', cls: 'ghost' }]);
       $('#keep').onclick = async () => {
         const id = picks[sel], m = M[id];
         let msg;
@@ -3317,7 +3280,6 @@ window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.
 
 
 </script>
-
 <script>
 /* Masuk fullscreen otomatis saat sentuhan pertama (Android/Chrome). iPhone Safari tidak mendukung API ini:
    gunakan Bagikan > Tambahkan ke Layar Utama agar tampil fullscreen. */
