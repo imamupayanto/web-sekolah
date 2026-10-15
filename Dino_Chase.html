@@ -68,6 +68,16 @@ button{font:inherit;color:inherit;cursor:pointer}
 .quiz.wait .qt{font-size:1.15em;font-weight:700}
 .qa.n3{grid-template-columns:repeat(3,1fr)}.qa.n3 button{font-size:1.05em}
 @media (max-width:900px){.qa,.qa.n3{grid-template-columns:1fr}}
+.scp{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .12s;background:radial-gradient(circle closest-side at 50% 50%,transparent 0 80%,#000 82%),linear-gradient(transparent calc(50% - 1px),rgba(0,0,0,.75) calc(50% - 1px) calc(50% + 1px),transparent calc(50% + 1px)),linear-gradient(90deg,transparent calc(50% - 1px),rgba(0,0,0,.75) calc(50% - 1px) calc(50% + 1px),transparent calc(50% + 1px))}
+.pane.scoped .scp{opacity:1}.pane.scoped .cross{opacity:.25}
+.cind{position:absolute;left:50%;top:50%;width:0;height:0;display:none;pointer-events:none;--cc:#fff;z-index:2}
+.cind.on{display:block}.cind b{position:absolute;left:-1.1em;top:-1.1em;width:2.2em;height:2.2em;display:grid;place-items:center;font-size:1.9em;border-radius:50%;border:.16em solid var(--cc);background:rgba(0,0,0,.55);box-shadow:0 0 .8em var(--cc)}
+.cind i{position:absolute;left:-4em;width:8em;top:1.7em;text-align:center;font-style:normal;font-weight:900;font-size:1.05em;color:var(--cc);text-shadow:0 0 .3em #000,0 0 .2em #000}
+.cind.in b{animation:cpl .5s infinite alternate}.cind.out i{display:none}
+.cind.out b::after{content:'';position:absolute;left:50%;top:50%;width:0;height:0;border:.55em solid transparent;border-left:.8em solid var(--cc);transform:rotate(var(--rot,0deg)) translate(1.25em,-50%);transform-origin:0 0}
+@keyframes cpl{to{transform:scale(1.2)}}
+.pane.qon .cind{display:none}
+.qa.tf{grid-template-columns:1fr 1fr!important}.qa.tf button{justify-content:center;font-size:1.45em;min-height:2.6em;letter-spacing:.04em}.qa.tf button:first-child{border-color:#5fd27a}.qa.tf button:last-child{border-color:#ff7b6b}.qa.tf button:first-child i{background:#5fd27a}.qa.tf button:last-child i{background:#ff7b6b}
 .nmi{display:block;width:100%;margin:.35em 0 .3em;padding:.45em .6em;border-radius:.6em;border:2px solid rgba(255,255,255,.25);background:rgba(0,0,0,.35);color:#fff;font:inherit;font-size:1.05em;text-align:center;-webkit-user-select:text;user-select:text;touch-action:manipulation}
 .nmi:focus{outline:none;border-color:var(--pc)}
 .pc .wb{display:block;width:100%;background:none;border:0;padding:0;color:inherit}
@@ -211,118 +221,121 @@ function emojiTex(e,bg){return tex(128,128,(g)=>{if(bg){g.fillStyle=bg;g.beginPa
 /* ================= SETTINGS ================= */
 const PCOL=['#ff5a4f','#3fb2ff','#ffd23f'],PCN=[0xff5a4f,0x3fb2ff,0xffd23f],PNAME=['MERAH','BIRU','KUNING'];
 const WEAP={
- mini:{n:'MINIGUN',ic:'🔩',d:'Tembakan super cepat, menahan dino terus-menerus',rate:.075,spr:.022,pell:1,slow:.5,stag:1,mag:60,heat:.034,kick:.0015,rng:160,sc:0xffe27a,snd:'mini'},
- shot:{n:'SHOTGUN',ic:'💥',d:'8 peluru sekaligus, mendorong mundur dari dekat',rate:.6,spr:.07,pell:8,slow:.42,stag:.9,mag:6,heat:.19,kick:.03,push:.75,rng:50,sc:0xffa040,snd:'shot'},
- bius:{n:'SENAPAN BIUS',ic:'💉',d:'Peluru bius kuat: dino lambat lama & cepat jatuh',rate:.8,spr:.002,pell:1,slow:3.2,stag:6.5,mag:5,heat:.18,kick:.022,sed:1.7,rng:220,sc:0x7dff9a,snd:'bius'}
+ mini:{n:'MINIGUN',ic:'🔩',d:'Tembakan super cepat, menahan dino terus-menerus',rate:.08,spr:.02,pell:1,slow:.58,stag:1.25,mag:60,kick:.0015,rng:160,sc:0xffe27a},
+ shot:{n:'SHOTGUN',ic:'💥',d:'8 peluru sekaligus, mendorong mundur dari dekat',rate:.6,spr:.07,pell:8,slow:.38,stag:.85,mag:7,kick:.03,push:.55,rng:50,sc:0xffa040},
+ bius:{n:'SENAPAN BIUS',ic:'💉',d:'Peluru bius: dino lambat lama & cepat jatuh',rate:.6,spr:.002,pell:1,slow:4,stag:9,mag:6,kick:.022,sed:1.8,rng:220,sc:0x7dff9a,zoom:12},
+ roket:{n:'PELUNCUR ROKET',ic:'🚀',d:'Roket meledak & menghantam banyak dino sekaligus',rate:1.3,spr:.004,pell:1,slow:4,stag:13,mag:4,kick:.035,push:3.2,rng:200,sc:0xff8a2a,proj:70,rad:5.5},
+ snip:{n:'SNIPER',ic:'🎯',d:'Teropong zoom, menembus 3 dino, kepala = sangat kuat',rate:.72,spr:0,pell:1,slow:3.8,stag:18,hk:2.6,mag:6,kick:.04,rng:320,sc:0xbff4ff,pierce:3,zoom:32}
 };
-const WK=['mini','shot','bius'];
+const WK=['mini','shot','bius','roket','snip'];
 /* ======== BANK SOAL ========
- Format: satu baris per soal ->  Pertanyaan | Pilihan A | Pilihan B | Pilihan C | (Pilihan D opsional) | Huruf benar
- Boleh 2-4 pilihan. Baris yang diawali # diabaikan. Urutan pilihan diacak otomatis saat tampil. */
+ Format BENAR/SALAH : "B: pernyataan benar"  atau  "S: pernyataan salah → koreksi (opsional)"
+ Format PILIHAN GANDA (tetap didukung): Pertanyaan | Pilihan A | Pilihan B | (C) | (D) | Huruf benar
+ Baris yang diawali # diabaikan. */
 const SOAL_TEKS=`
-# Pendidikan Pancasila Kelas 6 · Keseimbangan Hak dan Kewajiban (100 soal)
-Bima kerja bakti membersihkan saluran air. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Kampung bebas banjir | Memakai komputer sekolah | Dimasakkan makanan enak | A
-Di lingkungan tempat tinggalnya, Andi ingin udara kampung bersih. Kewajiban yang harus Andi jalankan agar haknya terpenuhi adalah .... | Meminjam sepeda teman tanpa bilang | Tidak membakar sampah sembarangan | Minta dibelikan HP baru | B
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Memakai komputer sesuai petunjuk guru | Bolos saat jam pelajaran | Menanam pohon di lingkungan | B
-Andi merapikan mainan sendiri. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Udara kampung bersih | Pendapatnya didengar saat diskusi | Rumah bersih dan nyaman | C
-Ayu tidak memetik bunga di taman. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Memakai komputer sekolah | Nilai bagus | Taman umum yang indah | C
-Di lingkungan tempat tinggalnya, Fajar ingin kampung bebas banjir. Kewajiban yang harus Fajar jalankan agar haknya terpenuhi adalah .... | Mengembalikan buku perpustakaan dalam keadaan sobek | Pulang sekolah langsung main sampai malam | Menanam pohon di lingkungan | C
-Sinta merawat buku dengan baik. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Pendapatnya didengar saat diskusi | Ikut lomba mewakili sekolah | Dibelikan buku pelajaran | C
-Putri masuk kelas saat bel berbunyi. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Jalan raya yang tertib | Bermain di lapangan sekolah | Dimasakkan makanan enak | B
-Di sekolah, Hafiz ingin bermain di lapangan sekolah. Kewajiban yang harus Hafiz jalankan agar haknya terpenuhi adalah .... | Mengembalikan bola ke gudang | Menyapu lalu sampahnya dibuang ke selokan | Membuang sampah ke sungai | A
-Ayu membuang sampah di tong kelas. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Kelas bersih dan nyaman | Taman umum yang indah | Dibelikan buku pelajaran | A
-Di sekolah, Putri ingin nilai bagus. Kewajiban yang harus Putri jalankan agar haknya terpenuhi adalah .... | Memperhatikan guru saat menjelaskan | Menyeberang jalan sambil bermain HP | Membuang sampah dari jendela mobil | A
-Di sekolah, Salsa ingin meminjam buku perpustakaan. Kewajiban yang harus Salsa jalankan agar haknya terpenuhi adalah .... | Piket kelas tapi minta dibayar teman | Marah kalau tidak dibelikan mainan | Mengembalikan buku tepat waktu | C
-Dimas menaruh baju kotor di keranjang. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Kamar tidur yang rapi | Meminjam buku perpustakaan | Pendapatnya didengar saat diskusi | A
-Fajar bersikap tenang selama perjalanan. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Udara kampung bersih | Diajak berlibur bersama keluarga | Bermain di lapangan sekolah | B
-Bayu pamit sebelum pergi bermain. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Disayangi orang tua | Pendapatnya didengar saat diskusi | Lomba 17 Agustus yang meriah | A
-Di sekolah, Tari ingin pendapatnya didengar saat diskusi. Kewajiban yang harus Tari jalankan agar haknya terpenuhi adalah .... | Menerima keputusan bersama | Merapikan kamar hanya kalau diberi uang | Menyerobot antrean | A
-Putri memakai sepeda dengan hati-hati. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Ikut lomba mewakili sekolah | Dibelikan sepeda baru | Kampung bebas banjir | B
-Di sekolah, Raka ingin kelas bersih dan nyaman. Kewajiban yang harus Raka jalankan agar haknya terpenuhi adalah .... | Menyapu lalu sampahnya dibuang ke selokan | Memaksa teman menuruti kemauan kita | Merapikan kursi sebelum pulang sekolah | C
-Wulan menyeberang di zebra cross. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Ikut lomba mewakili sekolah | Dibelikan buku pelajaran | Jalan raya yang tertib | C
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Meminta izin Pak RT sebelum memakai | Menyeberang jalan sambil bermain HP | Merawat sepeda lama dengan baik | B
-Di sekolah, Gilang ingin meminjam buku perpustakaan. Kewajiban yang harus Gilang jalankan agar haknya terpenuhi adalah .... | Tidak merobek halaman buku | Menabung dengan mengambil uang adik | Merusak lampu jalan | A
-Citra melapor ke Pak RT jika ada bahaya. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Meminjam buku perpustakaan | Hidup aman dan tenang | Ikut lomba mewakili sekolah | B
-Di sekolah, Yoga ingin memakai komputer sekolah. Kewajiban yang harus Yoga jalankan agar haknya terpenuhi adalah .... | Memakai komputer sesuai petunjuk guru | Mengembalikan buku perpustakaan dalam keadaan sobek | Meminjam buku tapi tidak dikembalikan | A
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Menyontek supaya nilai bagus | Merawat buku dengan baik | Memakai sepeda dengan hati-hati | A
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Membantu tetangga yang pindahan | Merapikan kamar hanya kalau diberi uang | Mematikan komputer setelah dipakai | B
-Di rumah, Gilang ingin disayangi orang tua. Kewajiban yang harus Gilang jalankan agar haknya terpenuhi adalah .... | Ikut kerja bakti hanya untuk dapat makanan | Menuntut uang jajan tambahan | Berkata sopan kepada orang tua | C
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Tidak bermain di jalan raya | Menabung sebagian uang jajan | Kerja bakti tapi hanya duduk mengobrol | C
-Raka meminta maaf jika berbuat salah. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Lomba 17 Agustus yang meriah | Keluarga hidup sehat | Dihargai teman sekelas | C
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Menyampaikan pendapat dengan sopan | Meminjam buku tapi tidak dikembalikan | Menjaga kebersihan balai warga | B
-Di lingkungan tempat tinggalnya, Yoga ingin taman umum yang indah. Kewajiban yang harus Yoga jalankan agar haknya terpenuhi adalah .... | Kerja bakti tapi hanya duduk mengobrol | Menyetel musik keras tengah malam | Tidak memetik bunga di taman | C
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Mengembalikan bola ke gudang | Mengembalikan buku perpustakaan dalam keadaan sobek | Menghabiskan makanan, tidak dibuang | B
-Di rumah, Fajar ingin diajak berlibur bersama keluarga. Kewajiban yang harus Fajar jalankan agar haknya terpenuhi adalah .... | Meminjam sepeda teman tanpa bilang | Menjaga adik selama perjalanan | Menuntut uang jajan tambahan | B
-Di rumah, Nadia ingin keluarga hidup sehat. Kewajiban yang harus Nadia jalankan agar haknya terpenuhi adalah .... | Menutup makanan agar tidak dihinggapi lalat | Menyiram tanaman taman lalu memetik bunganya | Marah kalau tidak dibelikan mainan | A
-Di rumah, Wulan ingin dibelikan sepeda baru. Kewajiban yang harus Wulan jalankan agar haknya terpenuhi adalah .... | Menyeberang jalan sambil bermain HP | Menyerobot antrean | Menyimpan sepeda di tempatnya | C
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Belajar hanya kalau dijanjikan hadiah | Berkata sopan kepada orang tua | Rajin datang latihan | A
-Raka mengerjakan PR tepat waktu. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Dibelikan sepeda baru | Nilai bagus | Udara kampung bersih | B
-Di lingkungan tempat tinggalnya, Citra ingin hidup aman dan tenang. Kewajiban yang harus Citra jalankan agar haknya terpenuhi adalah .... | Piket kelas tapi minta dibayar teman | Rukun dengan tetangga | Menyuruh teman mengerjakan PR kita | B
-Di rumah, Sinta ingin dibelikan buku pelajaran. Kewajiban yang harus Sinta jalankan agar haknya terpenuhi adalah .... | Piket kelas tapi minta dibayar teman | Bolos saat jam pelajaran | Menyampul buku agar tidak rusak | C
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Menuntut uang jajan tambahan | Berkata sopan kepada orang tua | Mendengarkan teman yang berbicara | A
-Rina menyapa tetangga dengan ramah. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Bermain di lapangan sekolah | Kelas bersih dan nyaman | Dibantu tetangga saat kesulitan | C
-Di lingkungan tempat tinggalnya, Ayu ingin hidup aman dan tenang. Kewajiban yang harus Ayu jalankan agar haknya terpenuhi adalah .... | Menghormati tetangga yang beribadah | Merapikan kamar hanya kalau diberi uang | Menginjak tanaman di taman | A
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Menyiram tanaman taman lalu memetik bunganya | Mengembalikan buku tepat waktu | Mengangkat tangan sebelum bicara | A
-Di sekolah, Ayu ingin kelas bersih dan nyaman. Kewajiban yang harus Ayu jalankan agar haknya terpenuhi adalah .... | Ikut lomba tapi berbuat curang | Main bola di jalan raya | Tidak mencoret-coret meja | C
-Tari mendengarkan teman yang berbicara. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Dibelikan sepeda baru | Pendapatnya didengar saat diskusi | Rumah bersih dan nyaman | B
-Di rumah, Lala ingin dibelikan buku pelajaran. Kewajiban yang harus Lala jalankan agar haknya terpenuhi adalah .... | Belajar hanya kalau dijanjikan hadiah | Main bola di jalan raya | Belajar rajin di rumah | C
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Tidak mencoret dinding taman | Marah kalau tidak dibelikan mainan | Melapor ke Pak RT jika ada bahaya | B
-Dimas menutup makanan agar tidak dihinggapi lalat. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Hidup aman dan tenang | Memakai balai warga | Keluarga hidup sehat | C
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Menjaga kebersihan balai warga | Mencatat pinjaman di buku petugas | Menolak membantu ibu karena main game | C
-Fajar membantu tetangga yang pindahan. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Dibelikan buku pelajaran | Dibantu tetangga saat kesulitan | Ikut lomba mewakili sekolah | B
-Di rumah, Putri ingin dibelikan sepeda baru. Kewajiban yang harus Putri jalankan agar haknya terpenuhi adalah .... | Belajar hanya kalau dijanjikan hadiah | Menginjak tanaman di taman | Menabung sebagian uang jajan | C
-Di rumah, Bima ingin kamar tidur yang rapi. Kewajiban yang harus Bima jalankan agar haknya terpenuhi adalah .... | Mematikan komputer dengan mencabut kabelnya | Meminjam buku tapi tidak dikembalikan | Menyusun buku di rak | C
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Mematuhi rambu lalu lintas | Ikut kerja bakti hanya untuk dapat makanan | Menabung sebagian uang jajan | B
-Di lingkungan tempat tinggalnya, Rina ingin dibantu tetangga saat kesulitan. Kewajiban yang harus Rina jalankan agar haknya terpenuhi adalah .... | Menyiram tanaman taman lalu memetik bunganya | Menyontek supaya nilai bagus | Membantu tetangga yang pindahan | C
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Ikut lomba tapi berbuat curang | Tidak memetik bunga di taman | Melapor ke Pak RT jika ada bahaya | A
-Di sekolah, Raka ingin nilai bagus. Kewajiban yang harus Raka jalankan agar haknya terpenuhi adalah .... | Belajar sebelum ulangan | Mematikan komputer dengan mencabut kabelnya | Menyetel musik keras tengah malam | A
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Meminjam sepeda teman tanpa bilang | Kerja bakti membersihkan saluran air | Mengembalikan buku tepat waktu | A
-Gilang mencatat pinjaman di buku petugas. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Dibantu tetangga saat kesulitan | Udara kampung bersih | Meminjam buku perpustakaan | C
-Nadia mencuci tangan sebelum makan. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Taman umum yang indah | Keluarga hidup sehat | Nilai bagus | B
-Nadia menyusun buku di rak. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Nilai bagus | Memakai balai warga | Kamar tidur yang rapi | C
-Sinta ikut menghias gapura kampung. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Lomba 17 Agustus yang meriah | Pendapatnya didengar saat diskusi | Keluarga hidup sehat | A
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Mengembalikan bola ke gudang | Main bola di jalan raya | Ikut menghias gapura kampung | B
-Di rumah, Dimas ingin kamar tidur yang rapi. Kewajiban yang harus Dimas jalankan agar haknya terpenuhi adalah .... | Merapikan tempat tidur setiap pagi | Kerja bakti tapi hanya duduk mengobrol | Memaksa teman menuruti kemauan kita | A
-Reza tidak mencoret dinding taman. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Dibelikan buku pelajaran | Taman umum yang indah | Memakai komputer sekolah | B
-Di rumah, Bayu ingin disayangi orang tua. Kewajiban yang harus Bayu jalankan agar haknya terpenuhi adalah .... | Membantu orang tua tanpa disuruh | Ikut kerja bakti hanya untuk dapat makanan | Pulang sekolah langsung main sampai malam | A
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Menyetel musik keras tengah malam | Ikut menghias gapura kampung | Tidak mencoret dinding taman | A
-Salsa menghargai pendapat teman. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Udara kampung bersih | Rumah bersih dan nyaman | Dihargai teman sekelas | C
-Di rumah, Rina ingin dimasakkan makanan enak. Kewajiban yang harus Rina jalankan agar haknya terpenuhi adalah .... | Menghabiskan makanan, tidak dibuang | Merapikan kamar hanya kalau diberi uang | Membuang sampah dari jendela mobil | A
-Di sekolah, Citra ingin memakai komputer sekolah. Kewajiban yang harus Citra jalankan agar haknya terpenuhi adalah .... | Ikut lomba tapi berbuat curang | Tidak makan di dekat komputer | Menyalakan petasan dekat rumah orang | B
-Rina membantu menyiapkan meja makan. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Pendapatnya didengar saat diskusi | Dimasakkan makanan enak | Memakai komputer sekolah | B
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Menyapu lalu sampahnya dibuang ke selokan | Ikut menyiram tanaman taman | Ikut menghias gapura kampung | A
-Di sekolah, Salsa ingin dihargai teman sekelas. Kewajiban yang harus Salsa jalankan agar haknya terpenuhi adalah .... | Menyeberang jalan sambil bermain HP | Meminta maaf jika berbuat salah | Minta liburan tapi tugas belum selesai | B
-Di rumah, Dimas ingin rumah bersih dan nyaman. Kewajiban yang harus Dimas jalankan agar haknya terpenuhi adalah .... | Mencuci piring setelah makan | Menabung dengan mengambil uang adik | Menyuruh adik menyapu sendiri | A
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Merapikan kursi sebelum pulang sekolah | Mencuci sayur sebelum dimasak | Mengerjakan PR dengan menyalin punya teman | C
-Yoga mematikan komputer setelah dipakai. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Hidup aman dan tenang | Memakai komputer sekolah | Lomba 17 Agustus yang meriah | B
-Di lingkungan tempat tinggalnya, Wulan ingin jalan raya yang tertib. Kewajiban yang harus Wulan jalankan agar haknya terpenuhi adalah .... | Memakai helm saat dibonceng | Belajar hanya kalau dijanjikan hadiah | Mencoret-coret tembok sekolah | A
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Membuang sampah di tong kelas | Tidak bermain di jalan raya | Piket kelas tapi minta dibayar teman | C
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Bersepeda untuk jarak dekat | Bermain HP saat guru menjelaskan | Tidak makan di dekat komputer | B
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Membantu mengemas barang bawaan | Membuang sampah ke sungai | Mencatat pinjaman di buku petugas | B
-Di lingkungan tempat tinggalnya, Bayu ingin memakai balai warga. Kewajiban yang harus Bayu jalankan agar haknya terpenuhi adalah .... | Merapikan kursi setelah acara warga | Mematikan komputer dengan mencabut kabelnya | Pura-pura sakit agar tidak piket | A
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Mencuci tangan sebelum makan | Menginjak tanaman di taman | Membantu panitia lomba | B
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Ikut menyiram tanaman taman | Memakai uang jajan dengan hemat | Menabung dengan mengambil uang adik | C
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Menyuruh teman mengerjakan PR kita | Merapikan kursi setelah acara warga | Merawat sepeda lama dengan baik | A
-Di sekolah, Lala ingin ikut lomba mewakili sekolah. Kewajiban yang harus Lala jalankan agar haknya terpenuhi adalah .... | Mematuhi arahan pelatih | Mengerjakan PR dengan menyalin punya teman | Menyalakan petasan dekat rumah orang | A
-Sikap berikut yang terlihat seperti menjalankan kewajiban, tetapi sebenarnya kurang tepat adalah .... | Meminta maaf jika berbuat salah | Mencatat pinjaman di buku petugas | Mematikan komputer dengan mencabut kabelnya | C
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Belajar sebelum ulangan | Merawat buku dengan baik | Pura-pura sakit agar tidak piket | C
-Hafiz tidak bermain kasar. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Bermain di lapangan sekolah | Dibantu tetangga saat kesulitan | Dibelikan buku pelajaran | A
-Di rumah, Nadia ingin dimasakkan makanan enak. Kewajiban yang harus Nadia jalankan agar haknya terpenuhi adalah .... | Mengerjakan PR dengan menyalin punya teman | Bolos saat jam pelajaran | Mencuci sayur sebelum dimasak | C
-Di rumah, Andi ingin rumah bersih dan nyaman. Kewajiban yang harus Andi jalankan agar haknya terpenuhi adalah .... | Menyapu lalu sampahnya dibuang ke selokan | Menyapu lantai rumah | Menyuruh adik menyapu sendiri | B
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Menyapu lantai rumah | Menyelesaikan tugas sekolah lebih dulu | Merusak lampu jalan | C
-Lala menjaga nama baik sekolah. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Ikut lomba mewakili sekolah | Keluarga hidup sehat | Kampung bebas banjir | A
-Bayu menghemat listrik di balai warga. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Rumah bersih dan nyaman | Memakai balai warga | Dimasakkan makanan enak | B
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Mendengarkan teman yang berbicara | Menyeberang di zebra cross | Mencoret-coret tembok sekolah | C
-Andi merawat tanaman di depan rumah. Hak yang akan terwujud jika kewajiban itu dijalankan adalah .... | Udara kampung bersih | Disayangi orang tua | Dihargai teman sekelas | A
-Di lingkungan tempat tinggalnya, Bima ingin kampung bebas banjir. Kewajiban yang harus Bima jalankan agar haknya terpenuhi adalah .... | Ikut kerja bakti hanya untuk dapat makanan | Tidak membuang sampah ke selokan | Mengambil bola sekolah untuk dibawa pulang | B
-Di lingkungan tempat tinggalnya, Reza ingin udara kampung bersih. Kewajiban yang harus Reza jalankan agar haknya terpenuhi adalah .... | Memilah sampah organik dan plastik | Menabung dengan mengambil uang adik | Membuang sampah ke sungai | A
-Di lingkungan tempat tinggalnya, Tari ingin jalan raya yang tertib. Kewajiban yang harus Tari jalankan agar haknya terpenuhi adalah .... | Mematuhi rambu lalu lintas | Menyiram tanaman taman lalu memetik bunganya | Minta liburan tapi tugas belum selesai | A
-Di lingkungan tempat tinggalnya, Sinta ingin lomba 17 Agustus yang meriah. Kewajiban yang harus Sinta jalankan agar haknya terpenuhi adalah .... | Ikut lomba tapi berbuat curang | Menolak membantu ibu karena main game | Menyemangati peserta lomba | C
-Di lingkungan tempat tinggalnya, Reza ingin taman umum yang indah. Kewajiban yang harus Reza jalankan agar haknya terpenuhi adalah .... | Kerja bakti tapi hanya duduk mengobrol | Ikut menyiram tanaman taman | Bermain HP saat guru menjelaskan | B
-Di sekolah, Hafiz ingin dihargai teman sekelas. Kewajiban yang harus Hafiz jalankan agar haknya terpenuhi adalah .... | Meminjam sepeda teman tanpa bilang | Tidak mengejek teman | Merusak lampu jalan | B
-Sikap berikut yang hanya menuntut hak atau termasuk perilaku buruk adalah .... | Menyelesaikan tugas sekolah lebih dulu | Membuang sampah dari jendela mobil | Ikut menyiram tanaman taman | B
+# Proklamasi Kemerdekaan RI — pernyataan no. 1-50 (50 BENAR + 50 SALAH)
+B: Jepang mulai menguasai Indonesia pada tahun 1942.
+B: Belanda menyerah kepada Jepang di Kalijati, Subang, Jawa Barat.
+B: Pada awalnya Jepang mengaku sebagai “saudara tua” bangsa Indonesia.
+B: Gerakan 3A berisi: Jepang Pemimpin Asia, Pelindung Asia, dan Cahaya Asia.
+B: Kerja paksa pada masa Jepang disebut romusa.
+B: Jepang mengambil hasil bumi rakyat, seperti padi, untuk keperluan perang.
+B: Putera dipimpin oleh Empat Serangkai.
+B: Empat Serangkai: Soekarno, Hatta, Ki Hajar Dewantara, dan K.H. Mas Mansur.
+B: Jepang membentuk PETA dan Heiho untuk melatih pemuda secara militer.
+B: Perdana Menteri Koiso menjanjikan kemerdekaan Indonesia pada 7 September 1944.
+B: BPUPKI diketuai dr. Radjiman Wedyodiningrat.
+B: Sidang pertama BPUPKI berlangsung 29 Mei–1 Juni 1945.
+B: Sidang pertama BPUPKI membahas dasar negara.
+B: Pada 1 Juni 1945 Ir. Soekarno berpidato tentang Pancasila.
+B: Tanggal 1 Juni diperingati sebagai Hari Lahir Pancasila.
+B: Panitia Sembilan merumuskan Piagam Jakarta pada 22 Juni 1945.
+B: Sidang kedua BPUPKI berlangsung 10–17 Juli 1945.
+B: Sidang kedua BPUPKI membahas rancangan Undang-Undang Dasar.
+B: Bom atom pertama dijatuhkan di Hiroshima pada 6 Agustus 1945.
+B: Bom atom kedua dijatuhkan di Nagasaki pada 9 Agustus 1945.
+B: BPUPKI dibubarkan dan diganti PPKI pada 7 Agustus 1945.
+B: PPKI diketuai Soekarno dengan wakil Hatta.
+B: Soekarno, Hatta, dan Radjiman menemui Marsekal Terauchi di Dalat, Vietnam.
+B: Marsekal Terauchi adalah pemimpin tentara Jepang di Asia Tenggara.
+B: Sutan Sjahrir mengetahui kekalahan Jepang lewat siaran radio luar negeri.
+B: Jepang menyerah tanpa syarat kepada Sekutu pada 14–15 Agustus 1945.
+B: Kekosongan kekuasaan terjadi karena Jepang sudah kalah, sedangkan Sekutu belum datang.
+B: Golongan muda ingin proklamasi segera dilaksanakan tanpa menunggu Jepang.
+B: Golongan tua ingin proklamasi dibahas dulu dalam rapat PPKI.
+B: Golongan tua khawatir terjadi pertumpahan darah dengan tentara Jepang.
+B: Wikana dan Darwis menemui Soekarno pada malam 15 Agustus 1945.
+B: Soekarno menolak desakan Wikana dan Darwis.
+B: Soekarno, Hatta, dan Radjiman kembali dari Dalat pada 14 Agustus 1945.
+B: Peristiwa Rengasdengklok terjadi pada 16 Agustus 1945.
+B: Rengasdengklok adalah kota kecil di Karawang, Jawa Barat.
+B: Golongan muda membawa Soekarno dan Hatta ke Rengasdengklok.
+B: Rengasdengklok dipilih karena terpencil dan dijaga pasukan PETA.
+B: Fatmawati dan putranya, Guntur, ikut dibawa ke Rengasdengklok.
+B: Soekarno dan Hatta menginap di rumah Djiaw Kie Siong.
+B: Djiaw Kie Siong adalah petani keturunan Tionghoa.
+B: Shodanco Singgih adalah anggota PETA yang berperan di Rengasdengklok.
+B: Ahmad Soebardjo menjemput Soekarno dan Hatta pada sore 16 Agustus 1945.
+B: Ahmad Soebardjo menjamin proklamasi dilaksanakan keesokan harinya.
+B: Peristiwa ini mengajarkan bahwa perbedaan pendapat diselesaikan dengan musyawarah.
+B: Teks proklamasi dirumuskan di rumah Laksamana Tadashi Maeda.
+B: Rumah Maeda berada di Jalan Imam Bonjol No. 1, Jakarta.
+B: Maeda adalah perwira Angkatan Laut Jepang yang bersimpati pada kemerdekaan Indonesia.
+B: Teks dirumuskan oleh Soekarno, Hatta, dan Ahmad Soebardjo.
+B: Soekarno menulis konsep teks dengan tulisan tangan.
+B: Sukarni, Sudiro, dan B.M. Diah menyaksikan perumusan teks.
+S: Jepang mulai menguasai Indonesia pada tahun 1945. → Tahun 1942.
+S: Belanda menyerah kepada Jepang di Surabaya. → Di Kalijati, Subang.
+S: Sejak awal Jepang mengaku sebagai musuh bangsa Indonesia. → Mengaku sebagai “saudara tua”.
+S: Gerakan 3A: Pemimpin Asia, Pelindung Asia, dan Pemimpin Dunia. → Yang ketiga: Cahaya Asia.
+S: Kerja paksa pada masa Jepang disebut Heiho. → Disebut romusa.
+S: Jepang membeli hasil bumi rakyat dengan harga tinggi sehingga rakyat makmur. → Hasil bumi diambil, rakyat kelaparan.
+S: Putera dipimpin oleh Tiga Serangkai. → Empat Serangkai.
+S: Empat Serangkai: Soekarno, Hatta, Sjahrir, dan Ki Hajar Dewantara. → Yang benar: K.H. Mas Mansur, bukan Sjahrir.
+S: PETA dibentuk oleh Belanda. → Dibentuk oleh Jepang.
+S: Perdana Menteri Tojo menjanjikan kemerdekaan pada 7 September 1944. → Perdana Menteri Koiso.
+S: BPUPKI diketuai Ir. Soekarno. → dr. Radjiman Wedyodiningrat.
+S: Sidang pertama BPUPKI berlangsung 10–17 Juli 1945. → 29 Mei–1 Juni 1945.
+S: Sidang pertama BPUPKI membahas rancangan UUD. → Membahas dasar negara.
+S: Soekarno berpidato tentang Pancasila pada 17 Agustus 1945. → Pada 1 Juni 1945.
+S: Hari Lahir Pancasila diperingati setiap 22 Juni. → Setiap 1 Juni.
+S: Panitia Sembilan merumuskan teks proklamasi. → Merumuskan Piagam Jakarta.
+S: Sidang kedua BPUPKI berlangsung 29 Mei–1 Juni 1945. → 10–17 Juli 1945.
+S: Sidang kedua BPUPKI hanya membahas dasar negara. → Membahas rancangan UUD.
+S: Bom atom pertama dijatuhkan di Nagasaki. → Di Hiroshima.
+S: Bom atom dijatuhkan oleh Jepang. → Dijatuhkan oleh Sekutu (Amerika Serikat).
+S: BPUPKI diganti oleh KNIP. → Diganti oleh PPKI.
+S: PPKI diketuai Hatta dengan wakil Soekarno. → Ketua Soekarno, wakil Hatta.
+S: Pertemuan dengan Terauchi dilakukan di Tokyo. → Di Dalat, Vietnam.
+S: Marsekal Terauchi adalah pemimpin tentara Belanda. → Pemimpin tentara Jepang di Asia Tenggara.
+S: Sjahrir tahu kekalahan Jepang dari surat kabar Belanda. → Dari siaran radio luar negeri.
+S: Jepang menyerah kepada Sekutu dengan beberapa syarat. → Menyerah tanpa syarat.
+S: Kekosongan kekuasaan terjadi karena Belanda sudah kembali berkuasa. → Jepang kalah, Sekutu belum datang.
+S: Golongan muda ingin menunggu izin Jepang dulu. → Ingin segera, tanpa menunggu Jepang.
+S: Golongan tua ingin proklamasi tanpa rapat PPKI. → Ingin dibahas dulu dalam rapat PPKI.
+S: Wikana dan Sukarni termasuk golongan tua. → Mereka golongan muda.
+S: Soekarno menerima desakan Wikana dan Darwis. → Soekarno menolak.
+S: Wikana dan Darwis menemui Soekarno pada malam 17 Agustus. → Malam 15 Agustus.
+S: Soekarno dan Hatta kembali dari Dalat pada 17 Agustus. → Pada 14 Agustus.
+S: Peristiwa Rengasdengklok terjadi pada 17 Agustus 1945. → 16 Agustus 1945.
+S: Rengasdengklok terletak di Bogor. → Di Karawang.
+S: Soekarno-Hatta dibawa ke Rengasdengklok oleh tentara Jepang. → Oleh golongan muda.
+S: Rengasdengklok dipilih karena ramai dan dijaga tentara Jepang. → Terpencil dan dijaga PETA.
+S: Fatmawati tetap di Jakarta. → Fatmawati dan Guntur ikut dibawa.
+S: Mereka menginap di rumah Laksamana Maeda. → Di rumah Djiaw Kie Siong.
+S: Djiaw Kie Siong adalah perwira Jepang. → Petani keturunan Tionghoa.
+S: Shodanco Singgih adalah anggota Heiho. → Anggota PETA.
+S: Ahmad Soebardjo menjemput pada pagi 15 Agustus. → Sore 16 Agustus.
+S: Soebardjo menjamin proklamasi seminggu kemudian. → Keesokan harinya.
+S: Rengasdengklok mengajarkan masalah diselesaikan dengan kekerasan. → Dengan musyawarah.
+S: Teks dirumuskan di rumah Soekarno di Pegangsaan Timur. → Di rumah Laksamana Maeda.
+S: Rumah Maeda berada di Jalan Pegangsaan Timur No. 56. → Jalan Imam Bonjol No. 1.
+S: Maeda perwira Angkatan Darat Jepang yang menentang kemerdekaan. → Angkatan Laut, bersimpati pada Indonesia.
+S: Perumus teks: Soekarno, Hatta, dan Sukarni. → Soekarno, Hatta, dan Ahmad Soebardjo.
+S: Konsep teks diketik langsung oleh Soekarno. → Ditulis tangan; yang mengetik Sayuti Melik.
+S: Hanya Soekarno dan Hatta yang hadir saat perumusan. → Ada Soebardjo, dan saksi Sukarni, Sudiro, B.M. Diah.
 `;
-function parseSoal(t){const out=[];t.split(/\r?\n/).forEach(l=>{l=l.trim();if(!l||l[0]==='#')return;const a=l.split('|').map(s=>s.trim());if(a.length<4)return;const o=a.slice(1,-1).slice(0,4),c='ABCD'.indexOf((a[a.length-1].toUpperCase()+' ')[0]);if(c<0||c>=o.length)return;out.push({q:a[0],o,c})});return out}
+function parseSoal(t){const out=[];t.split(/\r?\n/).forEach(l=>{l=l.trim();if(!l||l[0]==='#')return;const tf=l.match(/^([BS])\s*:\s*(.+)$/i);if(tf){const p=tf[2].split('→');out.push({q:p[0].trim(),o:['BENAR','SALAH'],c:tf[1].toUpperCase()==='B'?0:1,k:(p[1]||'').trim(),tf:1});return}const a=l.split('|').map(s=>s.trim());if(a.length<4)return;const o=a.slice(1,-1).slice(0,4),c='ABCD'.indexOf((a[a.length-1].toUpperCase()+' ')[0]);if(c<0||c>=o.length)return;out.push({q:a[0],o,c})});return out}
 let SOAL=parseSoal(SOAL_TEKS);
 const pName=i=>((cfg&&cfg.names&&cfg.names[i])||'').trim()||'Pemain '+(i+1);
 const DIFF={
@@ -346,7 +359,7 @@ const hemi=new THREE.HemisphereLight(0xdcefff,0x4f6a2c,.95);S.add(hemi);
 const sun=new THREE.DirectionalLight(0xfff0d0,1.6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
 Object.assign(sun.shadow.camera,{left:-34,right:34,top:34,bottom:-34,near:1,far:170});sun.shadow.camera.updateProjectionMatrix();sun.shadow.bias=-.0006;sun.shadow.normalBias=.04;S.add(sun,sun.target);
 const sunDir=new THREE.Vector3(.5,.8,.35).normalize();
-const dummy=new THREE.Object3D(),tmpC=new THREE.Color(),V1=new THREE.Vector3(),V2=new THREE.Vector3(),V3=new THREE.Vector3(),Q1=new THREE.Quaternion(),ZA=new THREE.Vector3(0,0,1);
+const dummy=new THREE.Object3D(),tmpC=new THREE.Color(),V1=new THREE.Vector3(),V2=new THREE.Vector3(),V3=new THREE.Vector3(),V4=new THREE.Vector3(),V5=new THREE.Vector3(),Q1=new THREE.Quaternion(),ZA=new THREE.Vector3(0,0,1);
 
 /* ---------- far: sky, mountains, volcano, clouds ---------- */
 const skyU={top:{value:C(0x3b86d8)},bot:{value:C(0xd4ecff)},hor:{value:C(0xc4dce6)}};
@@ -469,6 +482,8 @@ function makeGun(type,col){const g=new THREE.Group(),k=new THREE.Group();g.add(k
   sp=new THREE.Group();sp.position.set(0,0,-.3);k.add(sp);for(let i=0;i<6;i++){const a=i/6*TAU,o=new THREE.Mesh(CY(.032,.032,1.05,6).rotateX(PI/2),gSteel);o.position.set(Math.cos(a)*.085,Math.sin(a)*.085,-.52);sp.add(o)}
   const r1=new THREE.Mesh(CY(.14,.14,.05,12).rotateX(PI/2),gMetal);r1.position.z=-.12;sp.add(r1);const r2=r1.clone();r2.position.z=-.97;sp.add(r2);mz.position.set(0,0,-1.38)}
  else if(type==='shot'){add(B(.27,.28,.78),gMetal,0,0,-.05);[-.075,.075].forEach(x=>add(CY(.068,.068,.95,10).rotateX(PI/2),gSteel,x,.05,-.82));add(B(.22,.14,.45),gWood,0,-.1,-.6);add(B(.28,.03,.3),acc,0,.145,.1);add(B(.32,.14,.22),gOlive,.27,-.03,.05);mz.position.set(0,.05,-1.32)}
+ else if(type==='roket'){add(CY(.15,.15,1.5,12).rotateX(PI/2),gOlive,0,.05,-.45);add(CY(.18,.15,.12,12).rotateX(PI/2),gMetal,0,.05,-1.22);add(CY(.17,.17,.1,12).rotateX(PI/2),gMetal,0,.05,.32);add(B(.12,.22,.14),gMetal,0,-.17,-.2);add(B(.1,.14,.22),gMetal,.17,.15,-.3);add(B(.3,.03,.3),acc,0,.22,-.1);mz.position.set(0,.05,-1.32)}
+ else if(type==='snip'){add(B(.18,.22,.95),gWood,0,-.03,-.05);add(CY(.035,.035,1.7,8).rotateX(PI/2),gSteel,0,.05,-1.3);add(CY(.06,.06,.16,8).rotateX(PI/2),gMetal,0,.05,-2.15);add(CY(.07,.07,.6,12).rotateX(PI/2),gMetal,0,.22,-.25);add(CY(.085,.085,.08,12).rotateX(PI/2),acc,0,.22,-.58);add(B(.04,.12,.04),gMetal,0,.13,-.25);add(B(.2,.03,.3),acc,0,.1,.2);mz.position.set(0,.05,-2.25)}
  else{add(B(.22,.25,.85),gMetal,0,0,-.05);add(CY(.045,.045,1.35,8).rotateX(PI/2),gSteel,0,.04,-1.1);add(CY(.065,.065,.48,10).rotateX(PI/2),gMetal,0,.22,-.15);add(B(.05,.1,.05),gMetal,0,.15,-.15);add(CY(.08,.08,.55,10).rotateX(PI/2),gTank,0,-.16,-.45);add(B(.23,.03,.3),acc,0,.135,.15);mz.position.set(0,.04,-1.8)}
  k.add(mz);return {g,k,sp,mz}}
 
@@ -585,7 +600,7 @@ function outN(pan,dest){dest=dest||SGN;if(pan&&AC.createStereoPanner){const p=AC
 function nz(dur,f0,f1,vol,type,pan,q,t0,dest){if(!AC)return;const t=t0||AC.currentTime,s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;f.type=type||'lowpass';f.frequency.setValueAtTime(f0,t);if(f1)f.frequency.exponentialRampToValueAtTime(f1,t+dur);if(q)f.Q.value=q;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(g);g.connect(outN(pan,dest));s.start(t,Math.random()*.5);s.stop(t+dur+.03)}
 function tn(f0,f1,dur,vol,type,pan,t0,dest){if(!AC)return;const t=t0||AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(outN(pan,dest));o.start(t);o.stop(t+dur+.03)}
 const panOf=P=>np<2?0:(P.i/(np-1)*2-1)*.7;
-function sGun(P){const p=panOf(P),k=P.wk;if(k==='mini'){nz(.07,3800,700,.11,'lowpass',p);tn(160,60,.05,.06,'square',p)}else if(k==='shot'){nz(.35,2400,250,.38,'lowpass',p);tn(95,38,.28,.32,'sine',p)}else{nz(.14,5200,1400,.16,'bandpass',p,2);tn(1100,260,.14,.08,'triangle',p)}}
+function sGun(P){const p=panOf(P),k=P.wk;if(k==='mini'){nz(.07,3800,700,.11,'lowpass',p);tn(160,60,.05,.06,'square',p)}else if(k==='shot'){nz(.35,2400,250,.38,'lowpass',p);tn(95,38,.28,.32,'sine',p)}else if(k==='roket'){nz(.6,1800,250,.32,'bandpass',p,1.2);tn(260,70,.35,.22,'sawtooth',p);nz(.15,600,100,.3,'lowpass',p)}else if(k==='snip'){nz(.05,9000,3500,.4,'highpass',p);nz(.6,1600,150,.32,'lowpass',p);tn(150,40,.45,.35,'sine',p);tn(2600,2200,.05,.06,'square',p)}else{nz(.14,5200,1400,.16,'bandpass',p,2);tn(1100,260,.14,.08,'triangle',p)}}
 function sClick(P){tn(900,600,.06,.12,'square',panOf(P));tn(300,200,.08,.1,'square',panOf(P),AC&&AC.currentTime+.06)}
 function roar(size,pan){if(!AC)return;const t=AC.currentTime,d=.65+size*.4,o=AC.createOscillator(),l=AC.createOscillator(),lg=AC.createGain(),g=AC.createGain(),f=AC.createBiquadFilter(),f0=(180/size)*rnd(.9,1.12);
  o.type='sawtooth';o.frequency.setValueAtTime(f0,t);o.frequency.linearRampToValueAtTime(f0*1.3,t+d*.3);o.frequency.exponentialRampToValueAtTime(f0*.5,t+d);l.frequency.value=rnd(18,30);lg.gain.value=f0*.2;l.connect(lg);lg.connect(o.frequency);
@@ -637,9 +652,9 @@ function makePlayer(i,wk){const W=WEAP[wk],st=stations[i];const cam=new THREE.Pe
 
 /* ---------- UI: panes ---------- */
 function buildPanes(){const root=$('panes');root.innerHTML='';players.forEach((P,i)=>{const d=document.createElement('div');d.className='pane';d.style.left=(i*100/np)+'%';d.style.width=(100/np)+'%';d.style.setProperty('--pc',PCOL[i]);
- d.innerHTML='<div class="ring"></div><div class="dv"></div><div class="ptag"><i>P'+(i+1)+'</i><span class="nm">'+esc(P.name)+'</span><span>'+P.W.ic+'</span><b class="sc">0</b></div><div class="cross"></div><div class="hm"></div><div class="ammo"><i></i><b>0</b></div><div class="quiz"><div class="qh"></div><div class="qt"></div><div class="qa"></div></div><div class="arr l">◀</div><div class="arr r">▶</div><div class="pops"></div>'+
+ d.innerHTML='<div class="ring"></div><div class="dv"></div><div class="ptag"><i>P'+(i+1)+'</i><span class="nm">'+esc(P.name)+'</span><span>'+P.W.ic+'</span><b class="sc">0</b></div><div class="scp"></div><div class="cross"></div><div class="cind"><b></b><i>TEMBAK!</i></div><div class="hm"></div><div class="ammo"><i></i><b>0</b></div><div class="quiz"><div class="qh"></div><div class="qt"></div><div class="qa"></div></div><div class="arr l">◀</div><div class="arr r">▶</div><div class="pops"></div>'+
   '<div class="hint">👆 Geser di sini untuk membidik<br>🔥 Tahan tombol untuk menembak</div><div class="btn nade" data-act="nade"><b>💣</b><small>BOM BIUS</small><span class="cd"></span></div><div class="btn fire" data-act="fire"><b>'+P.W.ic+'</b><small>'+(cfg.fire==='auto'?'AUTO':'TEMBAK')+'</small></div>';
- root.appendChild(d);const q=s=>d.querySelector(s);P.el={d,sc:q('.sc'),cross:q('.cross'),hm:q('.hm'),ammo:q('.ammo'),ammoI:q('.ammo i'),ammoB:q('.ammo b'),quiz:q('.quiz'),qh:q('.qh'),qt:q('.qt'),qa:q('.qa'),arrL:q('.arr.l'),arrR:q('.arr.r'),pops:q('.pops'),dv:q('.dv'),hint:q('.hint'),nade:q('.nade'),cd:q('.nade .cd'),fire:q('.fire'),_h:-1,_c:-1,_o:null,_a:0,_f:null}})}
+ root.appendChild(d);const q=s=>d.querySelector(s);P.el={d,sc:q('.sc'),cross:q('.cross'),hm:q('.hm'),ammo:q('.ammo'),ammoI:q('.ammo i'),ammoB:q('.ammo b'),cind:q('.cind'),quiz:q('.quiz'),qh:q('.qh'),qt:q('.qt'),qa:q('.qa'),arrL:q('.arr.l'),arrR:q('.arr.r'),pops:q('.pops'),dv:q('.dv'),hint:q('.hint'),nade:q('.nade'),cd:q('.nade .cd'),fire:q('.fire'),_h:-1,_c:-1,_o:null,_a:0,_f:null}})}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function pop(P,txt,col,big){if(!P.el||P.popN>5)return;P.popN++;const d=document.createElement('div');d.className='pop'+(big?' big':'');d.textContent=txt;d.style.color=col||'#fff';d.style.marginLeft=rnd(-50,50)+'px';P.el.pops.appendChild(d);setTimeout(()=>{d.remove();P.popN--},1000)}
 function popAll(t,c,b){players.forEach(P=>pop(P,t,c,b))}
@@ -650,7 +665,7 @@ function flashDmg(P,a){P.el.dv.style.opacity=a;clearTimeout(P.dvT);P.dvT=setTime
 
 /* ---------- aiming / input ---------- */
 function clampAim(P){P.pitch=clamp(P.pitch,-.5,.78);if(P.lim<9){const d=wrap(P.yaw-P.base);P.yaw=P.base+clamp(d,-P.lim,P.lim)}}
-function aim(P,dx,dy){const k=2.7/(innerWidth/np);P.yaw-=dx*k;P.pitch-=dy*k*.85;clampAim(P);if(!P.aimed){P.aimed=true;if(P.el)P.el.hint.style.opacity=0}}
+function aim(P,dx,dy){const k=2.7/(innerWidth/np)*Math.min(1,P.cam.fov/(P.fov0||70));P.yaw-=dx*k;P.pitch-=dy*k*.85;clampAim(P);if(!P.aimed){P.aimed=true;if(P.el)P.el.hint.style.opacity=0}}
 const paneAt=x=>clamp(Math.floor(x/(innerWidth/np)),0,np-1);
 const touches=new Map();
 const panesEl=$('panes');
@@ -677,9 +692,10 @@ function pollPads(dt){if(!padsOK)return;let gs=[];try{gs=[...navigator.getGamepa
 
 /* ---------- shooting ---------- */
 const RAY={o:new THREE.Vector3(),d:new THREE.Vector3()};
+function rayHitAll(o,d,max){const out=[];for(const m of mons){if(m.dead)continue;let bt=max,hd=false,ok=false;for(const h of m.hit){const c=h.wp,ox=c.x-o.x,oy=c.y-o.y,oz=c.z-o.z,t=ox*d.x+oy*d.y+oz*d.z;if(t<0)continue;const d2=ox*ox+oy*oy+oz*oz-t*t,r2=h.r*h.r;if(d2<r2){const th=t-Math.sqrt(r2-d2);if(th>0&&th<bt){bt=th;hd=h.head;ok=true}else if(ok&&h.head&&th>0&&th<bt+1)hd=true}}if(ok)out.push({m,t:bt,head:hd})}return out.sort((a,b)=>a.t-b.t)}
 function rayHit(o,d,max){let best=max,res=null;
  for(const m of mons){if(m.dead)continue;for(const h of m.hit){const c=h.wp,ox=c.x-o.x,oy=c.y-o.y,oz=c.z-o.z,t=ox*d.x+oy*d.y+oz*d.z;if(t<0||t-h.r>best)continue;const d2=ox*ox+oy*oy+oz*oz-t*t,r2=h.r*h.r;if(d2<r2){const th=t-Math.sqrt(r2-d2);if(th>0&&th<best){best=th;res={m,head:h.head}}}}}
- for(const c of crates){if(c.dead)continue;const p=c.g.position,ox=p.x-o.x,oy=p.y-o.y,oz=p.z-o.z,t=ox*d.x+oy*d.y+oz*d.z;if(t<0||t>best)continue;const d2=ox*ox+oy*oy+oz*oz-t*t;if(d2<1.1){best=t;res={c}}}
+ for(const c of crates){if(c.dead)continue;const p=c.g.position,ox=p.x-o.x,oy=p.y-o.y,oz=p.z-o.z,t=ox*d.x+oy*d.y+oz*d.z;if(t<0||t>best)continue;const d2=ox*ox+oy*oy+oz*oz-t*t;if(d2<3.4){best=t;res={c}}}
  if(!res&&d.y<-.001){const t=-o.y/d.y;if(t<best){best=t;res={ground:1}}}
  return{res,t:best}}
 const fw=new THREE.Vector3(),rt=new THREE.Vector3(),up=new THREE.Vector3(),mzP=new THREE.Vector3();
@@ -687,6 +703,11 @@ function fire(P){const W=P.W;P.last=TT;P.recoil=1;P.stats.shots++;P.ammo--;
  const cam=P.cam;cam.getWorldPosition(RAY.o);cam.getWorldDirection(fw);rt.set(1,0,0).applyQuaternion(cam.quaternion);up.set(0,1,0).applyQuaternion(cam.quaternion);P.fp.mz.getWorldPosition(mzP);
  let hitAny=false,headAny=false;
  for(let k=0;k<W.pell;k++){const sx=(Math.random()-.5)*2*W.spr,sy=(Math.random()-.5)*2*W.spr;RAY.d.copy(fw).addScaledVector(rt,sx).addScaledVector(up,sy).normalize();
+  if(W.proj){launchRocket(P,mzP,RAY.d);break}
+  if(W.pierce){const L=rayHitAll(RAY.o,RAY.d,W.rng),h=rayHit(RAY.o,RAY.d,W.rng);let far=L.length?L[Math.min(L.length,W.pierce)-1].t:Math.min(h.t,W.rng);
+   L.slice(0,W.pierce).forEach((x,j)=>{const pt=V4.copy(RAY.o).addScaledVector(RAY.d,x.t);hitMon(x.m,P,W,x.head,x.t,pt);hitAny=true;if(x.head)headAny=true;if(j)pop(P,'🎯 TEMBUS ×'+(j+1),'#bff4ff')});
+   if(h.res&&h.res.c&&(!L.length||h.t<L[0].t))collect(h.res.c,P);if(!L.length&&!(h.res&&h.res.c))far=Math.min(h.t,W.rng);
+   tracer(mzP,V3.copy(RAY.o).addScaledVector(RAY.d,far),W.sc,.075);continue}
   const h=rayHit(RAY.o,RAY.d,W.rng),end=V3.copy(RAY.o).addScaledVector(RAY.d,Math.min(h.t,W.rng));
   if(h.res&&h.res.m){hitMon(h.res.m,P,W,h.res.head,h.t,end);hitAny=true;if(h.res.head)headAny=true}
   else if(h.res&&h.res.c){collect(h.res.c,P)}
@@ -695,10 +716,10 @@ function fire(P){const W=P.W;P.last=TT;P.recoil=1;P.stats.shots++;P.ammo--;
  if(hitAny){hitMark(P,headAny);sHit(P);P.stats.hs=(P.stats.hs||0)+1}
  sGun(P);P.pitch+=W.kick*rnd(.6,1);P.rec+=W.kick*.8;
  if(P.ammo<=0){sClick(P);openQuiz(P,'reload')}
- const mx=mzP.x,my=mzP.y,mz=mzP.z;spark(mx,my,mz,W.sc,P.wk==='shot'?6:2,3,.07,0,.08)}
+ const mx=mzP.x,my=mzP.y,mz=mzP.z;spark(mx,my,mz,W.sc,{shot:6,roket:10,snip:5}[P.wk]||2,3,.07,0,.08);if(P.wk==='roket')puff(mx,my,mz,0xaaaaaa,1,2.2,.6,.5)}
 function hitMon(m,P,W,head,dist,pt){const k=head?1.6:1;
  m.slow=Math.min(.93,m.slow+m.T.sl*W.slow*D.sk*k);if(W.sed)m.sed=Math.max(m.sed,W.sed*(head?1.4:1));
- m.stag+=W.stag*(head?2:1);if(W.push&&dist<W.rng)m.s-=W.push*(1-dist/W.rng)*(m.T.boss?.3:1);
+ m.stag+=W.stag*(head?(W.hk||2):1);if(W.push&&dist<W.rng)m.s-=W.push*(1-dist/W.rng)*(m.T.boss?.3:1);
  m.flash=.07;P.stats.hits++;if(head)P.stats.heads++;P.score+=head?3:1;
  spark(pt.x,pt.y,pt.z,P.wk==='bius'?0x7dff9a:(head?0xff5a3a:0xffd27a),head?5:3,4,.09,8,.35);
  if(P.wk==='bius')puff(pt.x,pt.y,pt.z,0x7dff9a,.6,1.6,.5,.5);
@@ -713,25 +734,43 @@ function throwNade(P){if(state!=='play'||P.nadeCD>0||P.quiz||P.qMode)return;P.na
  nades.push({m,a:V3.clone(),b:tgt,t:0,d:.7,P});tn(320,140,.18,.12,'triangle',panOf(P))}
 function updNades(dt){for(let i=nades.length-1;i>=0;i--){const n=nades[i];n.t+=dt;const k=Math.min(1,n.t/n.d);n.m.position.lerpVectors(n.a,n.b,k);n.m.position.y+=Math.sin(k*PI)*5;if(Math.random()<.6)puff(n.m.position.x,n.m.position.y,n.m.position.z,0xb58cff,.4,.9,.4,.6);
  if(k>=1){explode(n.b,n.P);S.remove(n.m);nades.splice(i,1)}}}
+const rkGeo=mergeG([[CY(.09,.09,.6,8).rotateX(PI/2),0,0,0,C(0xd8d8d8)],[CY(0,.09,.22,8).rotateX(PI/2),0,0,-.41,C(0xff4a2a)],[B(.3,.02,.14),0,0,.24,C(0x555555)],[B(.02,.3,.14),0,0,.24,C(0x555555)]]),rkMat=new THREE.MeshBasicMaterial({vertexColors:true});
+let rockets=[];
+function launchRocket(P,from,dir){const m=new THREE.Mesh(rkGeo,rkMat);m.position.copy(from);m.lookAt(V1.copy(from).sub(dir));S.add(m);rockets.push({m,p:from.clone(),d:dir.clone(),t:0,P,W:P.W})}
+function updRockets(dt){for(let i=rockets.length-1;i>=0;i--){const r=rockets[i],W=r.W,st=W.proj*dt;r.t+=dt;
+ const h=rayHit(r.p,r.d,st+.3);if(h.res&&h.res.c&&h.t<st+.3)collect(h.res.c,r.P);
+ if((h.res&&(h.res.m||h.res.ground)&&h.t<st+.3)||r.t*W.proj>W.rng||state==='menu'){const pt=r.p.clone().addScaledVector(r.d,Math.min(h.t,st));if(state!=='menu')blast(pt,r.P,W);S.remove(r.m);rockets.splice(i,1);continue}
+ r.p.addScaledVector(r.d,st);r.m.position.copy(r.p);puff(r.p.x,r.p.y,r.p.z,0x9a9a9a,.5,1.4,.6,.45);if(Math.random()<.7)spark(r.p.x,r.p.y,r.p.z,0xffb040,1,1.5,.09,0,.12)}}
+function blast(p,P,W){sBoom();shake=Math.min(1.2,shake+.35);ring(p,0xff8a2a,W.rad*1.6,.5);ring(p,0xffe08a,W.rad*.7,.3);spark(p.x,p.y,p.z,0xffb040,30,10,.16,9,.7);
+ for(let i=0;i<16;i++){const a=Math.random()*TAU,r=Math.random()*W.rad*.7;puff(p.x+Math.cos(a)*r,Math.max(.4,p.y)+rnd(0,2),p.z+Math.sin(a)*r,i%3?0x5a5048:0xff8a2a,2.5,6,rnd(1,1.8),.5,0,.6,0)}
+ let n=0,hd=false;for(const m of mons){const c=m.hit[0].wp,dd=Math.hypot(c.x-p.x,c.y-p.y,c.z-p.z)-m.hit[0].r;if(dd<W.rad){n++;const f=1-Math.max(0,dd)/W.rad*.6;m.slow=Math.min(.93,m.slow+m.T.sl*W.slow*D.sk*f);m.stag+=W.stag*f;m.s-=W.push*f*(m.T.boss?.3:1);m.flash=.1;if(m.stag>=m.stagMax&&m.down<=0)knock(m,P)}}
+ if(P){P.stats.hits+=n;P.score+=n*4;if(n){P.stats.hs=(P.stats.hs||0)+1;hitMark(P,false);sHit(P);if(n>1)pop(P,'🚀 '+n+' DINO KENA!','#ffb060',true)}}}
 function explode(p,P){sBoom();shake=Math.min(1.2,shake+.5);ring(p,0xb58cff,13,.6);ring(p,0xffffff,6,.35);spark(p.x,.5,p.z,0xd8b8ff,28,9,.16,9,.8);
  for(let i=0;i<22;i++){const a=Math.random()*TAU,r=Math.random()*7;puff(p.x+Math.cos(a)*r,rnd(.5,3),p.z+Math.sin(a)*r,i%2?0xb58cff:0x7fd0ff,3,7,rnd(1.2,2.2),.5,0,.6,0)}
  let n=0;for(const m of mons){const c=m.hit[0].wp,dd=Math.hypot(c.x-p.x,c.z-p.z)-m.hit[0].r;if(dd<9){n++;const f=1-Math.max(0,dd)/9;m.slow=Math.min(.95,m.slow+.85*f*D.sk);m.sed=Math.max(m.sed,1.8);m.stag+=12*f;m.s-=4*f*(m.T.boss?.3:1);m.flash=.12;if(m.stag>=m.stagMax&&m.down<=0)knock(m,P)}}
  if(P){P.score+=n*10;if(n)pop(P,'💣 '+n+' DINO TERBIUS!','#c9a8ff',true)}}
 
 /* ---------- crates ---------- */
-const CK={repair:{ic:'🔧',c:0x5dff7a,n:'🔧 TRUK DIPERBAIKI +30'},nitro:{ic:'⚡',c:0x4fb8ff,n:'⚡ NITRO!'},freeze:{ic:'💤',c:0xc78bff,n:'💤 SEMUA DINO TERBIUS!'}};
+const CK={repair:{ic:'🔧',c:0x5dff7a,n:'🔧 TRUK DIPERBAIKI +30',l:'PERBAIKI TRUK'},nitro:{ic:'⚡',c:0x4fb8ff,n:'⚡ NITRO!',l:'NITRO'},freeze:{ic:'💤',c:0xc78bff,n:'💤 SEMUA DINO TERBIUS!',l:'BIUS SEMUA'}};
+const hexS=c=>'#'+c.toString(16).padStart(6,'0');
 const crateGeo=mergeG([[B(1,1,1),0,0,0,C(0x9a6a36)],[B(1.04,.16,1.04),0,.3,0,C(0x6a4422)],[B(1.04,.16,1.04),0,-.3,0,C(0x6a4422)]]),crateM=new THREE.MeshPhongMaterial({vertexColors:true,shininess:10});
-const cIcons={};for(const k in CK)cIcons[k]=new THREE.SpriteMaterial({map:emojiTex(CK[k].ic,'#'+CK[k].c.toString(16).padStart(6,'0')),depthWrite:false,fog:false});
+const cIcons={};for(const k in CK)cIcons[k]=new THREE.SpriteMaterial({map:emojiTex(CK[k].ic,hexS(CK[k].c)),depthWrite:false,depthTest:false,fog:false});
+const cLbl={},cGlow={};for(const k in CK){const col=hexS(CK[k].c);
+ cLbl[k]=new THREE.SpriteMaterial({map:tex(512,128,g=>{g.fillStyle='rgba(0,0,0,.72)';g.fillRect(8,14,496,100);g.strokeStyle=col;g.lineWidth=8;g.strokeRect(8,14,496,100);g.font='900 62px Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillStyle=col;g.fillText('📦 '+CK[k].l,256,66)}),depthWrite:false,depthTest:false,fog:false});
+ cGlow[k]=new THREE.SpriteMaterial({map:tex(128,128,g=>{const r=g.createRadialGradient(64,64,0,64,64,64);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.25,col);r.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=r;g.fillRect(0,0,128,128)}),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,fog:false,opacity:.85})}
 function spawnCrate(s){const kinds=['repair','nitro','freeze'];let kind=kinds[Math.random()*3|0];if(TK.hp<TK.max*.45&&Math.random()<.6)kind='repair';
- const g=new THREE.Group(),box=new THREE.Mesh(crateGeo,crateM);box.castShadow=true;g.add(box);const ic=new THREE.Sprite(cIcons[kind]);ic.scale.set(1.3,1.3,1);ic.position.y=1.25;g.add(ic);
- const beam=new THREE.Mesh(CY(.45,.45,7,10,1,true),new THREE.MeshBasicMaterial({color:CK[kind].c,transparent:true,opacity:.22,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));beam.position.y=-.5;g.add(beam);
+ const g=new THREE.Group(),box=new THREE.Mesh(crateGeo,crateM);box.scale.setScalar(1.6);box.castShadow=true;g.add(box);
+ const gl=new THREE.Sprite(cGlow[kind]);gl.scale.set(4.2,4.2,1);g.add(gl);const ic=new THREE.Sprite(cIcons[kind]);ic.scale.set(2,2,1);ic.position.y=2;ic.renderOrder=5;g.add(ic);
+ const lb=new THREE.Sprite(cLbl[kind]);lb.scale.set(4.4,1.1,1);lb.position.y=3.5;lb.renderOrder=5;g.add(lb);
+ const beam=new THREE.Mesh(CY(.75,.75,16,12,1,true),new THREE.MeshBasicMaterial({color:CK[kind].c,transparent:true,opacity:.32,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));beam.position.y=4;g.add(beam);
+ ticker('📦 Peti '+CK[kind].ic+' '+CK[kind].l+' di depan — tembak untuk mengambil!');if(AC){const t=AC.currentTime;tn(1320,1320,.12,.08,'triangle',0,t);tn(1760,1760,.18,.08,'triangle',0,t+.1)}
  const lat=(Math.random()<.5?-1:1)*rnd(3.4,5.2);g.position.set(roadX(-s)+lat,2.6,-s);S.add(g);crates.push({g,s,lat,kind,ph:Math.random()*6})}
 function collect(c,P){if(c.dead)return;c.dead=true;const p=c.g.position;spark(p.x,p.y,p.z,CK[c.kind].c,26,7,.14,6,.8);ring(p,CK[c.kind].c,4,.4);sJingle([660,880,1320,1760],'triangle',.13);
  if(P){P.stats.crates++;P.score+=25}ticker((P?P.name+': ':'')+CK[c.kind].n);popAll(CK[c.kind].n,'#'+CK[c.kind].c.toString(16).padStart(6,'0'),true);
  if(c.kind==='repair')TK.hp=Math.min(TK.max,TK.hp+30);else if(c.kind==='nitro'){TK.nitro=4.5;tn(120,500,.8,.15,'sawtooth')}else mons.forEach(m=>{m.slow=.93;m.sed=2.6;m.flash=.15});
  S.remove(c.g)}
 function updCrates(dt){if(state==='play'&&TK.s+135>=nextCrate&&nextCrate<D.dist-60){spawnCrate(nextCrate);nextCrate+=rnd(120,170)}
- for(let i=crates.length-1;i>=0;i--){const c=crates[i];if(c.dead||TK.s-c.s>32||state==='menu'){if(!c.dead)S.remove(c.g);crates.splice(i,1);continue}c.ph+=dt;c.g.children[0].rotation.y+=dt*1.4;c.g.position.y=2.6+Math.sin(c.ph*2.2)*.25}}
+ for(let i=crates.length-1;i>=0;i--){const c=crates[i];if(c.dead||TK.s-c.s>32||state==='menu'){if(!c.dead)S.remove(c.g);crates.splice(i,1);continue}c.ph+=dt;const ch=c.g.children;ch[0].rotation.y+=dt*1.4;c.g.position.y=2.6+Math.sin(c.ph*2.2)*.25;const pz=1+Math.sin(c.ph*6)*.12;ch[1].scale.set(4.2*pz,4.2*pz,1);ch[2].scale.set(2*pz,2*pz,1)}}
 
 /* ---------- monsters: spawn & update ---------- */
 function spawnMon(key,o){o=o||{};const m=buildMon(key),T=m.T;let gap=o.gap||rnd(70,100),lane=o.lane!==undefined?o.lane:(Math.random()<.5?-1:1)*rnd(3,12);
@@ -802,7 +841,7 @@ function applyTOD(){const t={
  mtnA.color.set(t.fog).lerp(C(t.mt),.5);mtnB.color.set(t.fog).lerp(C(t.mt),.62);clouds.forEach(c=>{c.material.opacity=t.cl;c.material.color.set(cfg.tod==='senja'?0xffc8a8:0xffffff)});lavaM.color.set(t.lv);
  scMat.color.set(cfg.tod==='malam'?0xa0b0d0:0xffffff)}
 let mcam=new THREE.PerspectiveCamera(42,1,.1,820);
-function clearGame(){mons.forEach(m=>{S.remove(m.g);m.mat.dispose()});mons=[];crates.forEach(c=>S.remove(c.g));crates=[];nades.forEach(n=>S.remove(n.m));nades=[];players.forEach(P=>S.remove(P.cam));players=[];touches.clear();mouse=null;$('panes').innerHTML=''}
+function clearGame(){mons.forEach(m=>{S.remove(m.g);m.mat.dispose()});mons=[];crates.forEach(c=>S.remove(c.g));crates=[];nades.forEach(n=>S.remove(n.m));nades=[];rockets.forEach(r=>S.remove(r.m));rockets=[];players.forEach(P=>S.remove(P.cam));players=[];touches.clear();mouse=null;$('panes').innerHTML=''}
 function toMenu(){clearGame();state='menu';np=cfg.np;$('panes').style.display='none';$('hud').style.display='none';$('endO').style.display=$('pauseO').style.display='none';$('menu').style.display='block';$('banner').innerHTML='';
  TK.s=0;TK.v=13;TK.nitro=0;D=DIFF[cfg.diff];resetScenery(0);if(finish){S.remove(finish);finish=null}applyTOD();buildStations(np,cfg.w);
  for(let i=0;i<4;i++){const m=spawnMon(i===3?'rex':'raptor',{gap:rnd(12,28),lane:rnd(-6,6)});m.demoGap=[9,14,18,24][i]}intensity=.3;applyQ()}
@@ -835,7 +874,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()});
 function renderCards(){const el=$('pcards');el.innerHTML='';for(let i=0;i<cfg.np;i++){const W=WEAP[cfg.w[i]],d=document.createElement('div');d.className='pc';d.style.setProperty('--pc',PCOL[i]);
  d.innerHTML='<div class="h">P'+(i+1)+' • '+PNAME[i]+'</div><input class="nmi" maxlength="12" placeholder="Nama pemain '+(i+1)+'" value="'+esc(cfg.names[i]||'')+'"><button class="wb"><div class="wi">'+W.ic+'</div><div class="wn">'+W.n+'</div><div class="wd">'+W.d+'</div><div class="sw">🔄 ketuk untuk ganti senjata</div></button>';
  d.querySelector('input').oninput=e=>{cfg.names[i]=e.target.value;store.set('cfg',cfg)};
- d.querySelector('.wb').onclick=()=>{cfg.w[i]=WK[(WK.indexOf(cfg.w[i])+1)%3];store.set('cfg',cfg);renderCards();if(state==='menu')buildStations(np,cfg.w);tn(500,700,.08,.08,'triangle')};el.appendChild(d)}}
+ d.querySelector('.wb').onclick=()=>{cfg.w[i]=WK[(WK.indexOf(cfg.w[i])+1)%WK.length];store.set('cfg',cfg);renderCards();if(state==='menu')buildStations(np,cfg.w);tn(500,700,.08,.08,'triangle')};el.appendChild(d)}}
 function syncOpts(){document.querySelectorAll('.row[data-k]').forEach(r=>{const k=r.dataset.k;r.querySelectorAll('.opt').forEach(b=>b.classList.toggle('sel',String(cfg[k])===b.dataset.v))});$('ddesc').textContent=DIFF[cfg.diff].d}
 document.querySelectorAll('.row[data-k]').forEach(r=>r.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{au();const k=r.dataset.k;cfg[k]=k==='np'?+b.dataset.v:b.dataset.v;store.set('cfg',cfg);syncOpts();tn(600,800,.06,.07,'triangle');
  if(k==='np'){np=cfg.np;renderCards();buildStations(np,cfg.w)}if(k==='tod')applyTOD();if(k==='q')applyQ()})));
@@ -906,12 +945,12 @@ function update(dt){
  const sh=shake*shake;shake=Math.max(0,shake-dt*2.2);
  for(const P of players){P.st.g.localToWorld(P.cam.position.set(0,1.62,0));
   const sx=(Math.random()-.5)*sh*.05,sy=(Math.random()-.5)*sh*.05;P.cam.rotation.set(P.pitch+P.recoil*.006+sy,TK.yaw+P.yaw+sx,tb.rotation.z*.5);
-  const tf=(P.fov0||70)+(TK.nitro>0?8:0)+(P.wk==='bius'&&(P.fireN||P.mFire||P.pad)?-12:0);if(Math.abs(P.cam.fov-tf)>.1){P.cam.fov+=(tf-P.cam.fov)*Math.min(1,dt*6);P.cam.updateProjectionMatrix()}
+  const tf=(P.fov0||70)+(TK.nitro>0?8:0)-(P.W.zoom&&(P.fireN||P.mFire||P.pad)&&!P.qMode&&state==='play'?P.W.zoom:0);if(P.el){const sc=P.wk==='snip'&&P.cam.fov<(P.fov0||70)-18;if(sc!==P.el._sc){P.el._sc=sc;P.el.d.classList.toggle('scoped',sc)}}if(Math.abs(P.cam.fov-tf)>.1){P.cam.fov+=(tf-P.cam.fov)*Math.min(1,dt*6);P.cam.updateProjectionMatrix()}
   P.cam.updateMatrixWorld(true)}
  // players
  if(state==='play'||state==='count'){pollPads(dt);for(const P of players)playerUpdate(P,dt)}
  // world
- updMons(dt);spawnTick(dt);updCrates(dt);updNades(dt);updParts(dt);updPuffs(dt);updTracers(dt);updRings(dt);
+ updMons(dt);spawnTick(dt);updCrates(dt);updNades(dt);updRockets(dt);updParts(dt);updPuffs(dt);updTracers(dt);updRings(dt);
  updRoad(tz);updScenery(tz);ground.position.set(tx,0,tz);grassT.offset.set(tx/GTL,-tz/GTL);
  far.position.set(tx,0,tz);sun.position.set(tx+sunDir.x*90,sunDir.y*90,tz+sunDir.z*90);sun.target.position.set(tx,0,tz-6);sun.target.updateMatrixWorld();
  smoke.forEach(s=>{s.userData.t=(s.userData.t+dt*.04)%1;const k=s.userData.t;s.position.set(Math.sin(k*5+s.id)*10*k,190+k*130,0);s.scale.setScalar(30+k*110);s.material.opacity=.55*(1-k)*(cfg.tod==='malam'?.5:1)});
@@ -936,7 +975,7 @@ function playerUpdate(P,dt){const W=P.W;
  if(want&&TT-P.last>=W.rate)fire(P);
  if(want&&(P.fireN>0||P.pad)&&!P.autoW)assist(P,dt);
  P.recoil=Math.max(0,P.recoil-dt*7);if(P.rec>0){const r=Math.min(P.rec,dt*.25);P.pitch-=r;P.rec-=r}clampAim(P);
- P.fp.k.position.z=P.recoil*.07*(P.wk==='shot'?2:1);P.fp.k.rotation.x=P.recoil*.04;
+ P.fp.k.position.z=P.recoil*.07*({shot:2,roket:2.6,snip:2.2}[P.wk]||1);P.fp.k.rotation.x=P.recoil*.04;
  if(P.fp.sp){P.spin=lerp(P.spin,want&&!P.over?32:0,Math.min(1,dt*5));P.fp.sp.rotation.z+=P.spin*dt;P.st.gun.sp.rotation.z=P.fp.sp.rotation.z}
  if(GT>7&&!P.aimed){P.aimed=true;P.el.hint.style.opacity=0}
  P.fp.g.position.y=-.44+Math.sin(TT*13)*.004*(TK.v/V0);}
@@ -947,21 +986,22 @@ function assist(P,dt){const cp=P.cam.position;let best=null,bd=.13;
 /* ---------- QUIZ ---------- */
 let jam=false,jamNeed=0;
 function pickQ(P){if(!SOAL.length)SOAL=parseSoal(SOAL_TEKS);let idx,t=0;do{idx=Math.random()*SOAL.length|0;t++}while(P.seen.includes(idx)&&t<40);P.seen.push(idx);if(P.seen.length>Math.min(40,SOAL.length-1))P.seen.shift();
- const s=SOAL[idx],ord=s.o.map((_,i)=>i).sort(()=>Math.random()-.5);return{q:s.q,o:ord.map(k=>s.o[k]),c:ord.indexOf(s.c),lock:false}}
+ const s=SOAL[idx],ord=s.tf?[0,1]:s.o.map((_,i)=>i).sort(()=>Math.random()-.5);return{q:s.q,o:ord.map(k=>s.o[k]),c:ord.indexOf(s.c),k:s.k,tf:s.tf,lock:false}}
 function openQuiz(P,mode){P.qMode=mode;P.qT=0;P.fireN=0;P.mFire=false;if(P.el){P.el.fire.classList.remove('down');P.el.d.classList.add('qon')}newQ(P)}
 function newQ(P){P.quiz=pickQ(P);renderQ(P)}
 function jamHead(){return '🔒 MACET! Tim butuh <b>'+jamNeed+'</b> jawaban benar lagi (siapa saja)'}
 function renderQ(P){const e=P.el;if(!e)return;const q=P.quiz;e.quiz.classList.remove('wait');sQ(P);
  if(P.qMode==='jam')e.qh.innerHTML=jamHead();
  else e.qh.innerHTML='🔄 ISI ULANG — jawab dengan benar!'+(P.wrongS===1?' <span class="warn">⚠ Salah sekali lagi = SEMUA senjata macet!</span>':'');
- e.qt.textContent=q.q;e.qa.className='qa n'+q.o.length;e.qa.innerHTML=q.o.map((o,i)=>'<button data-ans="'+i+'"><i>'+'ABCD'[i]+'</i><span>'+esc(o)+'</span></button>').join('')}
+ e.qt.textContent=q.q;e.qa.className='qa n'+q.o.length+(q.tf?' tf':'');e.qa.innerHTML=q.o.map((o,i)=>'<button data-ans="'+i+'"><i>'+(q.tf?(i?'✘':'✔'):'ABCD'[i])+'</i><span>'+esc(o)+'</span></button>').join('')}
 function answer(P,i){const q=P.quiz;if(!q||q.lock||state!=='play'&&state!=='count')return;q.lock=true;const ok=i===q.c,bs=P.el.qa.children;bs[q.c].classList.add('ok');if(!ok&&bs[i])bs[i].classList.add('no');
  if(ok){P.stats.ok++;P.score+=20;sOk(P);P.qT=.55;P.qNext=1}
- else{P.stats.bad++;sBad(P,P.qMode==='reload'&&P.wrongS===1);P.qT=1.2;P.qNext=0}}
+ else{P.stats.bad++;sBad(P,P.qMode==='reload'&&P.wrongS===1);P.qT=1.2;P.qNext=0}
+ if(q.k){P.el.qh.innerHTML='📝 Yang benar: <b>'+esc(q.k)+'</b>';P.qT+=1.1}}
 function resolveQ(P){const ok=P.qNext===1;
  if(P.qMode==='reload'){if(ok){P.wrongS=0;closeQuiz(P);P.ammo=P.W.mag;pop(P,'✅ BENAR! Peluru penuh','#7dff9a',true)}
   else{P.wrongS++;if(P.wrongS>=2&&!jam)triggerJam(P);else{pop(P,'❌ Salah! Coba soal lain','#ff6b5a');newQ(P)}}}
- else if(P.qMode==='jam'){if(!jam){closeQuiz(P);return}if(ok){jamNeed--;pop(P,'✅ Benar! +1 untuk tim','#7dff9a',true);if(jamNeed<=0){checkUnjam(P);return}sJamStep();updJamHud();players.forEach(Q=>{if(Q.el&&Q.qMode==='jam')Q.el.qh.innerHTML=jamHead()});newQ(P)}else{pop(P,'❌ Salah! Soal lain','#ff6b5a');newQ(P)}}}
+ else if(P.qMode==='jam'){if(!jam){closeQuiz(P);return}if(ok){jamNeed--;pop(P,'✅ Benar! +1 untuk tim','#7dff9a',true);if(jamNeed<=0){checkUnjam(P);return}sJamStep();updJamHud();players.forEach(Q=>{if(Q.el&&Q.qMode==='jam'&&!(Q.quiz&&Q.quiz.lock))Q.el.qh.innerHTML=jamHead()});newQ(P)}else{pop(P,'❌ Salah! Soal lain','#ff6b5a');newQ(P)}}}
 function closeQuiz(P){P.quiz=null;P.qMode=null;P.qT=0;if(P.el)P.el.d.classList.remove('qon')}
 function triggerJam(by){jam=true;jamNeed=2;banner('🔒 SEMUA SENJATA MACET!','#ff4a3a');ticker('❌ '+by.name+' salah 2× — tim butuh 2 jawaban benar (siapa saja)!');sJam();
  players.forEach(Q=>{Q.wrongS=0;Q.ammo=0;openQuiz(Q,'jam')});$('jamI').style.display='flex';updJamHud()}
@@ -977,6 +1017,12 @@ function hud(){if(state==='menu')return;const hp=Math.round(TK.hp);if(hp!==hudHP
  for(const P of players){const e=P.el;if(!e)continue;if(P.ammo!==e._h){e._h=P.ammo;e.ammoI.style.width=(P.ammo/P.W.mag*100)+'%';e.ammoB.textContent=P.ammo+' / '+P.W.mag;e.ammo.classList.toggle('low',P.ammo<=P.W.mag*.25)}
   if(P.score!==e._c){e._c=P.score;e.sc.textContent=P.score}const cd=P.nadeCD>0?Math.round(P.nadeCD/9*100):0;if(cd!==e._a){e._a=cd;e.cd.style.setProperty('--p',cd+'%')}
   const lk=!!P.autoW;if(lk!==e._f){e._f=lk;e.cross.classList.toggle('on',lk)}
+  // crate marker
+  {let best=null;for(const c of crates){if(c.dead)continue;const ah=c.s-TK.s;if(ah>110||ah<-28)continue;if(!best||Math.abs(ah)<Math.abs(best.s-TK.s))best=c}
+   const ci=e.cind;if(!best){if(e._ci){e._ci=0;ci.className='cind'}}else{V5.copy(best.g.position);V5.y+=1;V5.project(P.cam);let x=V5.x,y=V5.y,beh=V5.z>1;if(beh){x=-x;y=-y}
+    const inside=!beh&&Math.abs(x)<.92&&Math.abs(y)<.9;if(!inside){const m=Math.max(Math.abs(x)/.86,Math.abs(y)/.8,1e-3);x/=m;y/=m;if(beh&&Math.abs(x)<.86&&Math.abs(y)<.8){x=x<0?-.86:.86}}
+    if(e._ci!==best||e._cin!==inside){e._ci=best;e._cin=inside;ci.className='cind on '+(inside?'in':'out');ci.querySelector('b').textContent=CK[best.kind].ic;ci.style.setProperty('--cc',hexS(CK[best.kind].c))}
+    ci.style.left=((x*.5+.5)*100)+'%';ci.style.top=((-y*.5+.5)*100)+'%';if(!inside)ci.style.setProperty('--rot',(Math.atan2(-y,x)*180/PI)+'deg')}}
   // threat arrows
   let L=0,Rr=0;const hf=Math.atan(Math.tan(P.cam.fov*PI/360)*P.cam.aspect)*.85,cy=TK.yaw+P.yaw,cp=P.cam.position;
   for(const m of mons){const g=TK.s-m.s-m.slot.g;if(!(m.att||g<8))continue;const c=m.hit[0].wp,rel=wrap(Math.atan2(-(c.x-cp.x),-(c.z-cp.z))-cy);if(Math.abs(rel)>hf){if(rel>0)L=1;else Rr=1}}
