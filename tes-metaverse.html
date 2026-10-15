@@ -3166,13 +3166,16 @@ async function openChat() {
   const st = S.mpOff ? 'Online dimatikan' : MP.st === 'on' ? `Tersambung · ${mpCount()} siswa online` : MP.st === 'connecting' ? 'Menyambung…' : 'Belum tersambung (main sendirian dulu)';
   const why = MP.st === 'on' || S.mpOff ? '' : ` [${MP.st}${MP.why ? ': ' + MP.why : ''}]`;
   const inZone = Object.values(MP.ps).filter(o => mpHere(o)).length;
-  await modal(`<h2>Teman online</h2><p style="font-size:13px">${esc(st + why)}${MP.st === 'on' ? ` · ${inZone} di wilayah ini` : ''}</p>
+  const row = (lk, nm, loc, here, id) => `<div style="display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:2px solid rgba(36,18,58,.12)"><div style="flex:none;width:36px;height:36px;display:grid;place-items:center">${avatarSvg(lk, 34)}</div><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nm)}</div><div style="font-size:12px;font-weight:700;color:${here ? '#1f7a52' : 'var(--sub)'}">${esc(loc)}${here ? ' · di sini' : ''}</div></div>${id ? `<button type="button" class="btn ghost" data-d="${esc(id)}" style="min-height:34px;padding:2px 10px;font-size:13px;flex:none">Tantang</button>` : ''}</div>`;
+  const others = Object.entries(MP.ps).filter(([, o]) => o.lk && o.z && ZONES[o.z]).sort((a, b) => (mpHere(b[1]) ? 1 : 0) - (mpHere(a[1]) ? 1 : 0));
+  const plist = MP.st !== 'on' ? '' : `<div class="card" style="padding:6px 8px;max-height:190px;overflow:auto"><div style="font-size:12px;font-weight:800;color:var(--sub);padding-bottom:2px">Sedang online (${others.length + 1})</div>${row(look(), S.name + ' (kamu)', ZONES[W.zone] ? ZONES[W.zone].n : '', false, '')}${others.map(([id, o]) => row(o.lk, o.n, ZONES[o.z].n, mpHere(o), mpHere(o) && !MP.duel ? id : '')).join('') || '<div style="font-size:13px;font-weight:700;color:var(--sub);padding:6px 2px">Belum ada siswa lain yang online.</div>'}</div>`;
+  await modal(`<h2>Teman online</h2><p style="font-size:13px">${esc(st + why)}${MP.st === 'on' ? ` · ${inZone} di wilayah ini` : ''}</p>${plist}
     <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">${MP_EMO.map((e, i) => `<button type="button" class="btn ghost" data-e="${i}" style="min-height:44px;font-size:22px;padding:0">${e}</button>`).join('')}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${MP_SAY.map((s, i) => `<button type="button" class="btn" data-s="${i}" style="min-height:42px;font-size:14px;padding:4px">${esc(s)}</button>`).join('')}</div>
     <div class="card" style="font-size:12.5px;font-weight:700;color:var(--sub)">Siswa lain di wilayah yang sama bisa melihat nama dan penampilanmu. Tidak ada chat bebas, hanya emote dan kalimat di atas. Ketuk pemain lain di dunia untuk menantangnya duel.</div>
     <button type="button" class="btn ${S.mpOff ? 'hot' : 'ghost'}" data-o="1" style="min-height:42px;font-size:15px">${S.mpOff ? 'Nyalakan online' : 'Matikan online (sembunyi)'}</button>`,
     [{ t: 'Tutup', cls: 'ghost' }],
-    { onOpen: m => m.querySelectorAll('[data-e],[data-s],[data-o]').forEach(b => b.onclick = ev => { ev.stopPropagation(); if (b.dataset.o) mpOff(!S.mpOff); else if (b.dataset.e !== undefined) mpSay(+b.dataset.e, -1); else mpSay(-1, +b.dataset.s); m.hidden = true; m.innerHTML = ''; }) });
+    { onOpen: m => m.querySelectorAll('[data-e],[data-s],[data-o],[data-d]').forEach(b => b.onclick = ev => { ev.stopPropagation(); if (b.dataset.d) { m.hidden = true; m.innerHTML = ''; duelAsk(b.dataset.d); return; } if (b.dataset.o) mpOff(!S.mpOff); else if (b.dataset.e !== undefined) mpSay(+b.dataset.e, -1); else mpSay(-1, +b.dataset.s); m.hidden = true; m.innerHTML = ''; }) });
 }
 
 /* ================= DUEL PEMAIN =================
@@ -3252,6 +3255,55 @@ document.addEventListener('click', e => {
   for (const id in MP.ps) { const o = MP.ps[id]; if (!mpHere(o)) continue; if (Math.abs(wx - o.x) < 14 && wy > o.y - 34 && wy < o.y + 8) { const d = Math.hypot(wx - o.x, wy - (o.y - 14)); if (d < bd) { bd = d; best = id; } } }
   if (best) duelAsk(best);
 });
+
+/* ================= KODE HADIAH =================
+   Daftar kode disimpan sebagai sidik jari (bukan teks asli). Tambah kode baru: node mkcode.js KODE-BARU, lalu masukkan hasilnya di CODES.
+   Hadiah: coins, xp, boxes {Kayu,Perak,Emas}, mon [id monster], acc [id aksesoris], admin:true (Super Admin: semua maks). */
+const cyrb53 = (str, seed = 0) => { let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed; for (let i = 0; i < str.length; i++) { const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); } h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909); return 4294967296 * (2097151 & h2) + (h1 >>> 0); };
+const codeHash = s => cyrb53(String(s).toUpperCase().replace(/[^A-Z0-9]/g, '')).toString(36);
+const CODES = {
+  '2cl28cgde5o': { admin: true },
+  '1f7sg3spcnc': { coins: 200, boxes: { Kayu: 1 } },
+  'ahwuxbixlh': { coins: 500 },
+  '1futuk10m0n': { boxes: { Perak: 1 } },
+  '9zviai7kae': { boxes: { Kayu: 3 } }
+};
+function codeApply(r) {
+  const out = [];
+  if (r.admin) {
+    S.admin = 1; S.rank = Math.max(S.rank, 20); S.xp = 0;
+    MONS.forEach(m => { S.owned[m.id] = { s: LV_MAX[m.r] }; S.bond[m.id] = BOND_AT[BOND_AT.length - 1]; });
+    SHOP.forEach(it => { if (!S.acc.own.includes(it.id)) S.acc.own.push(it.id); });
+    for (const k of Object.keys(LEG)) { const pg = prog(k); pg.open = 5; pg.lulus = [1, 2, 3, 4, 5]; pg.akhirLulus = 1; pg.legend = 1; }
+    const best = ['L', 'E', 'R', 'C'].flatMap(r => MONS.filter(m => m.r === r)); const team = []; let cost = 0;
+    for (const m of best) { if (team.length < 3 && cost + RAR[m.r].cost <= TEAM_MAX) { team.push(m.id); cost += RAR[m.r].cost; } }
+    S.team = team; S.comp = team[0]; S.coins = Math.max(S.coins, 99999); ['Kayu', 'Perak', 'Emas'].forEach(k => S.boxes[k] += 5);
+    out.push('<b>Mode Super Admin aktif!</b>', 'Semua monster Lv. maksimal dan semua aksesoris terbuka', 'Semua pulau dan Sarang Legenda terbuka', `${COIN}99.999 koin dan 5 kotak tiap jenis`);
+  }
+  if (r.coins) { S.coins += r.coins; out.push(`${COIN}+${r.coins} koin`); }
+  if (r.xp) { gainXP(r.xp); out.push(`+${r.xp} XP`); }
+  if (r.boxes) for (const k in r.boxes) { S.boxes[k] += r.boxes[k]; out.push(`Kotak ${k} ×${r.boxes[k]}`); }
+  if (r.mon) r.mon.forEach(id => { if (!M[id]) return; const d = addDup(id); out.push(d.isNew ? `Monster baru: ${M[id].n}` : d.maxed ? `${M[id].n} sudah maksimal (+${d.c} koin)` : `${M[id].n} naik ke Lv.${d.lv}`); });
+  if (r.acc) r.acc.forEach(id => { if (SH[id] && !S.acc.own.includes(id)) { S.acc.own.push(id); out.push(`Aksesoris: ${SH[id].n}`); } });
+  save(); hud(); return out;
+}
+let CODE_FAIL = 0;
+async function openCode(msg) {
+  let val = '';
+  const lockT = +(localStorage.getItem('mga-cf') || 0), locked = Date.now() < lockT;
+  const c = await modal(`<h2>Masukkan kode</h2><p style="font-size:13px">Dapatkan kode dari guru atau event. Tiap kode hanya bisa dipakai sekali.</p>
+    <input id="codeIn" type="text" maxlength="30" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="KODE-KAMU" style="width:100%;box-sizing:border-box;font:800 20px 'Pixelify Sans',monospace;text-align:center;letter-spacing:.08em;text-transform:uppercase;padding:12px;border-radius:12px;border:3px solid var(--deep);background:#fff;color:#24123a">
+    ${msg ? `<p style="margin:6px 0 0;font-weight:800;color:#c2301b;text-align:center">${msg}</p>` : ''}${locked ? `<p style="margin:6px 0 0;font-weight:800;color:#c2301b;text-align:center">Terlalu banyak salah. Coba lagi sebentar.</p>` : ''}`,
+    [{ t: 'Tutup', cls: 'ghost' }, { t: 'Tukar', cls: 'hot' }], { onOpen: m => { const i = m.querySelector('#codeIn'); if (i) { i.oninput = () => { val = i.value; }; setTimeout(() => i.focus(), 100); i.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); const b = m.querySelector('[data-i="1"]'); if (b) b.click(); } }; } } });
+  if (c !== 1) return;
+  if (Date.now() < +(localStorage.getItem('mga-cf') || 0)) return openCode();
+  const h = codeHash(val), r = val.trim() && CODES[h];
+  if (!r) { if (++CODE_FAIL >= 5) { CODE_FAIL = 0; try { localStorage.setItem('mga-cf', String(Date.now() + 60000)); } catch (e) {} } return openCode('Kode tidak ditemukan. Cek lagi tulisannya.'); }
+  if (!S.codes) S.codes = {};
+  if (S.codes[h]) return openCode('Kode ini sudah kamu pakai.');
+  S.codes[h] = 1; CODE_FAIL = 0; const lines = codeApply(r); sfx('win');
+  await modal(`<h2>Kode berhasil!</h2><div class="card" style="display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:15px">${lines.map(x => `<div>${x}</div>`).join('')}</div>`, [{ t: 'Lanjut' }]);
+}
 
 /* ---------- start ---------- */
 function openStart() {
@@ -3439,7 +3491,7 @@ async function openProf() {
   <div style="padding:0 12px 30px;display:flex;flex-direction:column;gap:12px;margin-top:-6px">
     <button type="button" class="btn" id="pAlbum">Album Pengetahuan · ${REG.filter(z => prog(z.pulau).lulus.includes(z.bab)).length}/20 halaman</button>
     <div class="card" style="display:flex;flex-direction:column;gap:8px">
-      <div class="row"><div style="flex:1;min-width:0"><div class="disp" style="font-size:28px;line-height:1">${esc(S.name)}</div><div style="font-size:13px;font-weight:800;color:var(--sub)">Metaverse School</div></div>
+      <div class="row"><div style="flex:1;min-width:0"><div class="disp" style="font-size:28px;line-height:1">${esc(S.name)}</div><div style="font-size:13px;font-weight:800;color:var(--sub)">Metaverse School${S.admin ? ' · ★ Super Admin' : ''}</div></div>
       <div style="width:58px;height:58px;border-radius:50%;background:var(--text);border:3px solid var(--sun);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sun)"><span style="font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--muted)">RANK</span><span class="disp" style="font-size:24px;line-height:1">${S.rank}</span></div></div>
       <div class="bar"><i style="width:${S.xp / need(S.rank) * 100}%"></i></div><div style="font-size:12px;font-weight:800;color:var(--sub)">${S.xp}/${need(S.rank)} XP ke Rank ${S.rank + 1}</div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center">${[[S.st.win, 'Menang'], [owned, 'Monster'], [S.st.latihan || 0, 'Latihan'], [S.st.opened, 'Kotak']].map(([v, l]) => `<div style="background:var(--soft);border-radius:12px;padding:4px 2px"><div class="disp" style="font-size:20px">${v}</div><div style="font-size:11px;font-weight:800;color:var(--sub)">${l}</div></div>`).join('')}</div>
@@ -3452,9 +3504,11 @@ async function openProf() {
     <div class="row" style="justify-content:space-between"><span class="disp" style="font-size:18px">Suara</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button type="button" class="btn ${SND.st.m ? '' : 'ghost'}" id="pMus" style="min-height:46px;font-size:15px">Musik: ${SND.st.m ? 'Nyala' : 'Mati'}</button><button type="button" class="btn ${SND.st.s ? '' : 'ghost'}" id="pSfx" style="min-height:46px;font-size:15px">Efek: ${SND.st.s ? 'Nyala' : 'Mati'}</button></div>
     <button type="button" class="btn dark" id="pReset" style="margin-top:10px">Mulai ulang dari awal</button>
+    <button type="button" class="btn hot" id="pCode" style="margin-top:10px">KODE hadiah</button>
   </div>`;
   $('#pBack').onclick = () => { show('s-world'); hud(); };
   $('#pShop').onclick = () => openShop('prof');
+  $('#pCode').onclick = async () => { await openCode(); openProf(); };
   $('#pMus').onclick = () => { sndSet('m', !SND.st.m); openProf(); };
   $('#pSfx').onclick = () => { sndSet('s', !SND.st.s); openProf(); sfx('coin'); };
   $('#pReset').onclick = async () => { const c = await modal('<h2>Mulai ulang?</h2><p>Semua monster, koin, dan aksesoris akan hilang dari perangkat ini.</p>', [{ t: 'Batal', cls: 'ghost' }, { t: 'Hapus dan mulai ulang', cls: 'hot' }]); if (c === 1) { try { localStorage.removeItem(KEY); } catch (e) {} S = null; W = null; openStart(); } };
