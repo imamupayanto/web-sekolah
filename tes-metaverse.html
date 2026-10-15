@@ -1776,14 +1776,15 @@ function spawnWild() {
     const x = 20 + Math.random() * (W.MW * TS - 40), y = 30 + Math.random() * (W.MH * TS - 140);
     if (!walkable(x, y) || Math.hypot(x - W.spawn.x, y - W.spawn.y) < 140) continue;
     const tx = Math.floor(x / TS), ty = Math.floor(y / TS);
-    const id = pick(Z.pool), h = habitOf(id), tall = TALL_T.has(W.T[ty][tx]);
+    const id = pick(envPool(Z.pool)), h = habitOf(id), tall = TALL_T.has(W.T[ty][tx]);
     if (k < 50 && !tall && W.zone !== 'cave') continue;
     if (h === 'grass' && !tall && W.zone !== 'cave') continue;
     W.wild.push({ id, h, x, y, vx: 0, vy: 0, t: 0, ph: Math.random() * 6, blink: 0 }); return;
   }
 }
 function hud() {
-  if (W && ZONES[W.zone]) $('#hLoc').innerHTML = esc(ZONES[W.zone].hl || ZONES[W.zone].n) + mpBadge() + buffTag() + (W.zone === featured() ? ' <span class="bf" style="background:#ffd23c;color:#3a2200">\u2605 Unggulan</span>' : '');
+  if (W && ZONES[W.zone]) $('#hLoc').innerHTML = esc(ZONES[W.zone].hl || ZONES[W.zone].n) + mpBadge() + envChip() + buffTag() + (W.zone === featured() ? ' <span class="bf" style="background:#ffd23c;color:#3a2200">\u2605 Unggulan</span>' : '');
+  streakNag();
   $('#hRank').innerHTML = `Rank ${S.rank} · ${S.xp}/${need(S.rank)} XP`;
   $('#hCoin').innerHTML = `${COIN}${S.coins}`;
   const nb = S.boxes.Kayu + S.boxes.Perak + S.boxes.Emas;
@@ -1809,6 +1810,7 @@ function setupInput() {
   addEventListener('keyup', e => { J.keys[e.key.toLowerCase()] = false; });
   $('#bBox').onclick = () => openBoxes();
   $('#bChat').onclick = () => openChat();
+  $('#hLoc').onclick = () => openEnv(); $('#hLoc').style.cursor = 'pointer';
   $('#bCol').onclick = () => openCol();
   $('#bProf').onclick = () => openProf();
   $('#questChip').onclick = () => toast('Bicara dengan Pak Toto di sekolah untuk mengambil hadiah misi');
@@ -1919,6 +1921,7 @@ function draw(t) {
   // weather / atmosphere
   if ((W.theme || W.zone) === 'snow') { bx.fillStyle = '#ffffff'; for (let i = 0; i < 40; i++) { const sx = (hash(i, 1) * VW + t / 40 * (0.4 + hash(i, 2))) % VW, sy = (hash(i, 3) * VH + t / 25 * (0.6 + hash(i, 4))) % VH; bx.fillRect(Math.floor(sx), Math.floor(sy), 1, 1); } }
   if (W.zone !== 'cave') { bx.fillStyle = 'rgba(20,40,60,.07)'; for (let i = 0; i < 3; i++) { const cxx = ((t / 100 + i * 220) % (W.MW * TS + 200)) - 100 - ox, cyy = 80 + i * 200 - oy, r = 60 + i * 14; for (let k = -r; k <= r; k += 2) { const hh = Math.round(Math.sqrt(1 - (k / r) ** 2) * r * .45); bx.fillRect(Math.round(cxx + k), Math.round(cyy - hh), 2, hh * 2); } } }
+  envDraw(t, ox, oy, p);
   if (W.dark) {
     const g = bx.createRadialGradient(p.x - ox, p.y - oy - 10, 18, p.x - ox, p.y - oy - 10, 95);
     g.addColorStop(0, 'rgba(6,4,14,0)'); g.addColorStop(1, 'rgba(6,4,14,.86)'); bx.fillStyle = g; bx.fillRect(0, 0, VW, VH);
@@ -2587,7 +2590,7 @@ async function practice(z) {
   const r = await runQuiz({ title: `Latihan · ${PSHORT[Z.pulau]}`, sub: `Bab ${Z.bab} · ${Z.babN}`, qs: shuffle(soalBab(Z.bank, Z.bab)).slice(0, 5), hint: hootHint(Z.bank, Z.bab) });
   S.st.latihan = (S.st.latihan || 0) + 1; save(); show('s-world'); hud();
   if (r.quit) return;
-  progress('latih');
+  progress('latih'); streakDone();
   const msg = r.ok === r.n ? 'Sempurna! Kamu siap menghadapi Kuil Ujian.' : r.ok >= 3 ? 'Bagus! Baca lagi pembahasan soal yang salah, lalu coba sekali lagi.' : 'Tidak apa-apa. Baca kartu Akademi sekali lagi, lalu coba latihan lagi.';
   await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">HASIL LATIHAN</div><div class="big" style="font-size:56px">${r.ok}/${r.n}</div><p>${msg}</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
 }
@@ -2758,7 +2761,7 @@ function startBattle(cfg) {
     show('s-battle');
     sprite('foe', true); sprite('me', true);
     renderB();
-    (async () => { await intro(cfg.title); B.busy = false; renderB(); log(cfg.habit === 'sleep' ? `${foeA().m.n} sedang tidur! Serang duluan, ia melewatkan giliran pertamanya.` : cfg.habit === 'flee' ? `${foeA().m.n} penakut. Kalau HP-nya tinggal sedikit, ia bisa kabur. Kalahkan dengan cepat!` : `Giliran kamu. Pilih jurus untuk ${meA().m.n}.`); })();
+    (async () => { await intro(cfg.title); B.busy = false; renderB(); const efx = cfg.type === 'pvp' ? [] : envFx(cfg.zone || 'school'), ev = envAt(cfg.zone || 'school'); log((efx.length ? `<small>${ENV_IC[ev.tod]}${ENV_IC[ev.w]} ${efx.join(' · ')}</small><br>` : '') + (cfg.habit === 'sleep' ? `${foeA().m.n} sedang tidur! Serang duluan, ia melewatkan giliran pertamanya.` : cfg.habit === 'flee' ? `${foeA().m.n} penakut. Kalau HP-nya tinggal sedikit, ia bisa kabur. Kalahkan dengan cepat!` : `Giliran kamu. Pilih jurus untuk ${meA().m.n}.`)); })();
   });
 }
 async function intro(t) {
@@ -2809,6 +2812,7 @@ function hitCalc(a, d, mult, sk = {}) {
   let dm = a.m.atk * (a.am || 1) * (1 + a.buff) * (1 - a.debuff) * mult * 1.6;
   const e = a.m.el === 'Netral' ? 1 : effMul(a.m.el, d.m.el);
   dm *= e;
+  if (B.cfg.type !== 'pvp') dm *= envMul(a.m.el, B.cfg.zone || 'school');
   if (sk.statusBonus && (d.poison || d.burn || d.stun || d.blind || d.debuff)) dm *= 1 + sk.statusBonus;
   if (d.guard && !sk.pierce) dm *= 0.5;
   dm *= dRr(0.9, 1.1);
@@ -3295,6 +3299,94 @@ document.addEventListener('click', e => {
   if (best) duelAsk(best);
 });
 
+/* ================= SIANG-MALAM, CUACA, dan ABSEN BELAJAR =================
+   Waktu mengikuti jam HP siswa. Cuaca acak tiap 3 jam, sama untuk semua pemain (dihitung dari jam dunia).
+   Cuaca dan waktu mengubah kekuatan elemen (bukan di duel pemain) dan monster yang muncul. */
+const ENV_SLOT = 3 * 3600e3, NIGHT_ONLY = ['owl', 'bat'], RAIN_PLUS = ['frog'];
+function envNow() {
+  const d = new Date(), h = d.getHours() + d.getMinutes() / 60;
+  const tod = h >= 5 && h < 6.5 ? 'fajar' : h >= 6.5 && h < 17.5 ? 'siang' : h >= 17.5 && h < 19 ? 'senja' : 'malam';
+  const r = sRng(Math.floor(Date.now() / ENV_SLOT) * 7919 + 13)();
+  return { tod, w: r < .5 ? 'cerah' : r < .72 ? 'berawan' : 'hujan' };
+}
+function envAt(z) {
+  const e = envNow(); if (!z || z === 'cave') return { tod: e.tod, w: 'dalam' };
+  const snow = z === 'snow' || (ZONES[z] && ZONES[z].theme === 'snow');
+  return { tod: e.tod, w: snow && e.w === 'hujan' ? 'salju' : e.w };
+}
+function envMul(el, z) {
+  const e = envAt(z); let k = 1;
+  if (e.tod === 'malam' && el === 'Racun') k *= 1.1;
+  if (e.tod === 'siang' && e.w === 'cerah' && el === 'Api') k *= 1.1;
+  if (e.w === 'hujan') { if (el === 'Api') k *= .85; if (el === 'Es') k *= 1.05; }
+  if (e.w === 'salju') { if (el === 'Es') k *= 1.15; if (el === 'Api') k *= .9; }
+  return k;
+}
+const ENV_IC = { fajar: '🌅', siang: '☀️', senja: '🌇', malam: '🌙', cerah: '', berawan: '☁️', hujan: '🌧️', salju: '❄️', dalam: '' };
+const ENV_N = { fajar: 'Fajar', siang: 'Siang', senja: 'Senja', malam: 'Malam', cerah: 'Cerah', berawan: 'Berawan', hujan: 'Hujan', salju: 'Salju', dalam: 'Dalam gua' };
+function envFx(z) {
+  const out = []; for (const el of ['Api', 'Es', 'Racun']) { const k = envMul(el, z); if (k !== 1) out.push(`${el} ${k > 1 ? '+' : '−'}${Math.round(Math.abs(k - 1) * 100)}%`); }
+  return out;
+}
+function envChip() { if (!W) return ''; const e = envAt(W.zone); return ` <span class="bf" style="background:#24123a;color:#fff">${ENV_IC[e.tod]}${ENV_IC[e.w] ? ' ' + ENV_IC[e.w] : ''}</span>`; }
+function envPool(pool) {
+  const e = envAt(W && W.zone); let p = pool.slice();
+  if (e.tod === 'malam') p = p.concat(p.filter(id => NIGHT_ONLY.includes(id))); else p = p.filter(id => !NIGHT_ONLY.includes(id));
+  if (e.w === 'hujan') p = p.concat(p.filter(id => RAIN_PLUS.includes(id)), p.filter(id => RAIN_PLUS.includes(id)));
+  return p.length ? p : pool;
+}
+const envNote = id => NIGHT_ONLY.includes(id) ? '<p style="font-size:12.5px">🌙 Hanya muncul di malam hari.</p>' : RAIN_PLUS.includes(id) ? '<p style="font-size:12.5px">🌧️ Lebih sering muncul saat hujan.</p>' : '';
+async function openEnv() {
+  const e = envAt(W && W.zone), fx = envFx(W && W.zone), left = ENV_SLOT - Date.now() % ENV_SLOT;
+  await modal(`<h2>${ENV_IC[e.tod]} ${ENV_N[e.tod]}${e.w !== 'dalam' ? ` · ${ENV_IC[e.w]} ${ENV_N[e.w]}` : ''}</h2>
+    <div class="card" style="font-size:14px;font-weight:700;display:flex;flex-direction:column;gap:4px">${fx.length ? `<b>Pengaruh ke monster sekarang:</b>${fx.map(x => `<span>${x} ATK</span>`).join('')}` : 'Tidak ada pengaruh elemen saat ini.'}</div>
+    <p style="font-size:13px">Waktu mengikuti jam HP-mu. Cuaca sama untuk semua siswa dan berganti sekitar ${Math.max(1, Math.round(left / 60000))} menit lagi.<br>Malam: Racun +10%, Burung Hantu dan Kelelawar keluar. Siang cerah: Api +10%. Hujan: Api −15%, Es +5%, Kodok sering muncul. Salju: Es +15%, Api −10%.<br>Pengaruh ini tidak berlaku di duel antar pemain.</p>`, [{ t: 'Oke' }]);
+}
+/* gambar suasana di dunia */
+function envDraw(t, ox, oy, p) {
+  if (!W || W.zone === 'cave') return; const e = envAt(W.zone);
+  if (e.w === 'berawan' || e.w === 'hujan') { bx.fillStyle = e.w === 'hujan' ? 'rgba(40,50,80,.16)' : 'rgba(60,70,90,.1)'; bx.fillRect(0, 0, VW, VH); }
+  if (e.w === 'hujan') { bx.fillStyle = 'rgba(190,210,255,.55)'; for (let i = 0; i < 70; i++) { const sx = (hash(i, 7) * (VW + 40) - t / 9 * (.5 + hash(i, 8) * .3)) % (VW + 40), sy = (hash(i, 9) * VH + t / 3.2 * (.8 + hash(i, 10) * .4)) % VH; const X = Math.floor(sx < 0 ? sx + VW + 40 : sx), Y = Math.floor(sy); bx.fillRect(X, Y, 1, 4); bx.fillRect(X - 1, Y + 4, 1, 2); } }
+  if (e.w === 'salju') { bx.fillStyle = '#ffffff'; for (let i = 0; i < 70; i++) { const sx = (hash(i, 11) * VW + Math.sin(t / 700 + i) * 6) % VW, sy = (hash(i, 12) * VH + t / 30 * (.5 + hash(i, 13))) % VH; bx.fillRect(Math.floor(sx), Math.floor(sy), 2, 2); } }
+  if (e.tod === 'senja') { bx.fillStyle = 'rgba(255,120,50,.13)'; bx.fillRect(0, 0, VW, VH); }
+  if (e.tod === 'fajar') { bx.fillStyle = 'rgba(255,175,130,.11)'; bx.fillRect(0, 0, VW, VH); }
+  if (e.tod === 'malam' && !W.dark) {
+    const g = bx.createRadialGradient(p.x - ox, p.y - oy - 10, 24, p.x - ox, p.y - oy - 10, 140);
+    g.addColorStop(0, 'rgba(10,14,50,.3)'); g.addColorStop(1, 'rgba(10,14,50,.66)'); bx.fillStyle = g; bx.fillRect(0, 0, VW, VH);
+    bx.fillStyle = 'rgba(255,240,170,.8)'; for (let i = 0; i < 6; i++) { const fx = (hash(i, 21) * VW + Math.sin(t / 900 + i * 2) * 14) % VW, fy = (hash(i, 22) * VH + Math.cos(t / 1100 + i) * 10) % VH; if (Math.sin(t / 300 + i * 1.7) > 0) bx.fillRect(Math.floor(fx), Math.floor(fy), 1, 1); }
+  }
+}
+
+/* ===== Absen belajar: 1 latihan Akademi per hari. 1 tiket libur per minggu (bolos 1 hari tidak memutus streak). ===== */
+const STREAK_RW = [{ coins: 30 }, { coins: 40 }, { box: 'Kayu' }, { coins: 60 }, { box: 'Kayu' }, { coins: 80 }, { box: 'Perak' }];
+const dNum = s => Math.round(Date.parse(s + 'T12:00:00Z') / 864e5), weekKey = s => Math.floor((dNum(s) + 3) / 7);
+const stRwText = r => r.coins ? `${COIN}${r.coins}` : `Kotak ${r.box}`;
+function streak() { if (!S.streak) S.streak = { n: 0, last: '', tw: -1 }; return S.streak; }
+function streakInfo() {
+  const st = streak(), td = today(), g = st.last ? dNum(td) - dNum(st.last) : 99;
+  const done = g === 0, alive = g <= 1 || (g === 2 && st.tw !== weekKey(td));
+  const n = done ? st.n : alive ? st.n : 0, next = done ? null : ((alive ? st.n : 0) % 7) + 1;
+  return { n, done, alive: st.n > 0 && alive, broke: st.n > 0 && !alive, next, ticket: st.tw !== weekKey(td) };
+}
+function streakDone() {
+  const st = streak(), td = today(); if (st.last === td) return;
+  const g = st.last ? dNum(td) - dNum(st.last) : 99; let used = false;
+  if (g === 1) st.n++; else if (g === 2 && st.tw !== weekKey(td)) { st.n++; st.tw = weekKey(td); used = true; } else st.n = 1;
+  st.last = td; const d = ((st.n - 1) % 7) + 1, rw = STREAK_RW[d - 1];
+  if (rw.coins) addCoins(rw.coins); if (rw.box) S.boxes[rw.box]++;
+  save(); hud(); sfx('coin');
+  setTimeout(() => toast(`🔥 Absen belajar hari ke-${st.n}! Hadiah: <b>${stRwText(rw)}</b>${used ? ' (tiket libur minggu ini terpakai)' : ''}`, 4200), 600);
+}
+function streakCard() {
+  const s = streakInfo(), cur = s.done ? ((s.n - 1) % 7) + 1 : (s.next || 1) - 1;
+  const dots = STREAK_RW.map((r, i) => { const got = i < cur, now = !s.done && i === cur; return `<div style="flex:1;text-align:center;padding:4px 0;border-radius:8px;border:2px solid ${now ? '#ff8a3c' : 'rgba(36,18,58,.2)'};background:${got ? '#ffd23c' : 'transparent'};font-size:10.5px;font-weight:800;line-height:1.2"><div>H${i + 1}</div><div style="font-size:10px">${stRwText(r)}</div></div>`; }).join('');
+  return `<div class="card" style="display:flex;flex-direction:column;gap:6px"><div class="row" style="justify-content:space-between"><b style="font-size:15px">🔥 Absen belajar: ${s.n} hari</b><small style="font-weight:800;color:${s.done ? '#1f7a52' : '#c2301b'}">${s.done ? 'Hari ini sudah ✓' : 'Hari ini belum'}</small></div>
+    <div style="display:flex;gap:4px">${dots}</div>
+    <small style="font-weight:700;color:var(--sub)">${s.broke ? 'Streak terputus. Mulai lagi dari hari 1 dengan 1 latihan Akademi. ' : ''}Selesaikan 1 latihan Akademi per hari. Tiket libur minggu ini: ${s.ticket ? 'masih ada' : 'sudah dipakai'}.</small></div>`;
+}
+let streakNagged = false;
+function streakNag() { if (streakNagged || !S || !S.name || !W) return; streakNagged = true; const s = streakInfo(); if (!s.done) setTimeout(() => toast(`🔥 Selesaikan 1 latihan Akademi hari ini untuk absen hari ke-${s.alive ? s.n + 1 : 1}`, 3800), 1500); }
+
 /* ================= KODE HADIAH =================
    Daftar kode disimpan sebagai sidik jari (bukan teks asli). Tambah kode baru: node mkcode.js KODE-BARU, lalu masukkan hasilnya di CODES.
    Hadiah: coins, xp, boxes {Kayu,Perak,Emas}, mon [id monster], acc [id aksesoris], admin:true (Super Admin: semua maks). */
@@ -3508,7 +3600,7 @@ async function monDetail(id) {
   const i = await modal(`<div style="display:flex;gap:12px;align-items:center"><div style="width:120px;height:100px;border-radius:16px;border:3px solid var(--deep);${artBg(id)};display:grid;place-items:center;flex:none">${mSvg(id)}</div>
     <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><h2>${esc(m.n)}</h2><div class="row" style="gap:6px">${rarTag(m.r)}${elTag(m.el)}<span class="stars">★${S.owned[id].s}</span></div><p style="font-size:13px">Level ${S.owned[id].s}/${LV_MAX[m.r]} · Kedekatan Lv.${bondLv(id)}<br>HP ${Math.round(m.hp * statMul(id))} · ATK ${(m.atk * statMul(id)).toFixed(1).replace('.0', '')} <span style="color:var(--sub)">(+${Math.round((statMul(id) - 1) * 100)}%)</span> · Biaya tim ${RAR[m.r].cost}</p></div></div>
     <div class="card" style="font-size:13.5px;font-weight:700;color:var(--sub)"><b style="color:var(--text)">${esc(m.sk.n)}</b> · ${m.sk.c} energi<br>${esc(m.d)}${m.weak ? `<br><span style="color:#c2301b">Kelemahan: ${esc(m.weak)}</span>` : ''}</div>
-    <p style="font-size:12.5px">${m.el === 'Netral' ? 'Netral: tidak unggul dan tidak lemah terhadap elemen mana pun.' : `Unggul melawan ${BEATS[m.el]}, lemah melawan ${Object.keys(BEATS).find(k => BEATS[k] === m.el)}.`}</p>`,
+    <p style="font-size:12.5px">${m.el === 'Netral' ? 'Netral: tidak unggul dan tidak lemah terhadap elemen mana pun.' : `Unggul melawan ${BEATS[m.el]}, lemah melawan ${Object.keys(BEATS).find(k => BEATS[k] === m.el)}.`}</p>${envNote(id)}`,
     [{ t: 'Tutup', cls: 'ghost' }, { t: inT ? 'Keluarkan dari tim' : 'Masukkan tim', cls: inT ? 'dark' : 'hot' }]);
   if (i !== 1) return;
   if (inT) { if (S.team.length <= 1) { toast('Tim minimal berisi 1 monster'); return; } S.team = S.team.filter(x => x !== id); }
@@ -3596,6 +3688,7 @@ async function openQuests() {
   const allC = dl.qs.every(q => q.c);
   const row = (q, k, d) => `<div class="qrow"><div class="row" style="justify-content:space-between"><b>${esc(q.n)}</b><small>${q.p}/${q.g}</small></div><div class="bar"><i style="width:${q.p / q.g * 100}%"></i></div><small>Hadiah: ${rwText(q.rw)}</small>${q.c ? '<small style="color:#3ccf91;font-weight:800">Sudah diambil</small>' : q.p >= q.g ? `<button type="button" class="btn hot" data-${d ? 'd' : 'q'}="${k}" style="min-height:40px;font-size:16px">Ambil hadiah</button>` : ''}</div>`;
   const i = await modal(`<h2>Papan Misi Pak Toto</h2>
+    ${streakCard()}
     <div class="card" style="font-size:13.5px;font-weight:800;display:flex;gap:8px;align-items:center"><span style="font-size:22px;color:#ffd23c">\u2605</span><span>Zona Unggulan hari ini: <b style="color:var(--sun)">${fz ? esc(fz.hl || fz.n) : '-'}</b><br><small style="font-weight:700;color:var(--sub)">Koin +50% dan peluang kotak naik di sana. Berganti besok.</small></span></div>
     <div class="disp" style="font-size:17px">Misi harian</div>
     <div style="display:flex;flex-direction:column;gap:8px">${dl.qs.map((q, k) => row(q, k, 1)).join('')}</div>
