@@ -920,7 +920,6 @@ function gainXP(n) {
   if (up) {
     const R = S.rank, bt = got.b.length ? ` dan ${got.b.length > 1 ? got.b.length + ' kotak' : 'Kotak ' + got.b[0]}` : '';
     setTimeout(() => toast(`Naik ke <b>Rank ${R}</b>! ${COIN}+${got.c}${bt}`, 3200), 400);
-    const tt = TITLES.filter(t => t[0] > r0 && t[0] <= R).pop(); if (tt) setTimeout(() => toast(`Gelar baru: <b>${tt[1]}</b>!`, 3600), 1300);
     const na = SHOP.filter(it => it.rk > r0 && it.rk <= R).length; if (na) setTimeout(() => toast(`${na} aksesoris baru terbuka di Toko Mak Sumi`, 3200), 2200);
     sfx('rank');
   }
@@ -1092,6 +1091,7 @@ function setSong(key) {
 }
 function sndWant() {
   const vis = id => { const e = document.getElementById(id); return e && !e.hidden; };
+  if (vis('s-battle') && typeof RD !== 'undefined' && RD && RD.st === 'fight') return 'legend';
   if (vis('s-battle')) { const ty = typeof B !== 'undefined' && B && B.cfg && B.cfg.type; return ty === 'pvp' || ty === 'duel' ? 'duel' : ty === 'legend' ? 'legend' : 'battle'; }
   if (vis('s-aka') || vis('s-quiz')) return 'study';
   if (vis('s-world') && typeof W !== 'undefined' && W) { const z = W.zone; if (SONGS[z]) return z; const m = /^[a-z]+/.exec(z || ''); return m && SONGS[m[0]] ? m[0] : 'school'; }
@@ -1694,37 +1694,6 @@ function makeBush(seed, snow) { const L = snow ? ['#5a7a8a', '#9ab8c8', '#d6eef8
 function makeGate(col) { return bigCanvas(80, 44, g => { for (const x of [2, 66]) { R(g, x, 10, 12, 33, col || '#c85a3d'); R(g, x, 10, 3, 33, mix(col || '#c85a3d', '#ffffff', .25)); R(g, x - 1, 6, 14, 5, '#e6dabf'); } R(g, 10, 2, 60, 10, '#1d1b46'); R(g, 10, 2, 60, 1, '#3e3a96'); }); }
 function makePortal() { return bigCanvas(40, 16, g => { E(g, 20, 8, 18, 6, ['#c97a0a', '#ffc93c', '#fff3b0', '#ffffff']); E(g, 20, 8, 13, 4, ['#3e3a96', '#5a4ad0', '#8a7aff', '#c9c0ff'], 1); }); }
 
-/* ---------- ground painter ---------- */
-function paintGround(T, MW, MH, zone) {
-  const g = grid(MW * TS, MH * TS);
-  for (let ty = 0; ty < MH; ty++) for (let tx = 0; tx < MW; tx++) {
-    const t = T[ty][tx];
-    for (let y = 0; y < TS; y++) for (let x = 0; x < TS; x++) {
-      const X = tx * TS + x, Y = ty * TS + y, h = hash(X, Y, zone.length);
-      let c;
-      if (t === GR || t === TL) { const pal = t === TL ? C.tall : (zone === 'forest' ? ['#2f7d32', '#4ea543', '#6fcf55'] : C.grass); c = h < .07 ? pal[0] : h > .93 ? pal[2] : pal[1]; }
-      else if (t === PV) { const bx = (X + ((Y >> 3) & 1) * 4) % 8, by = Y % 8; c = (bx === 0 || by === 0) ? C.pave[0] : (bx === 1 || by === 1) ? C.pave[2] : (h > .9 ? C.pave[0] : C.pave[1]); }
-      else if (t === DT) c = h < .1 ? C.dirt[0] : h > .88 ? C.dirt[2] : C.dirt[1];
-      else if (t === WA) c = h > .97 ? C.water[2] : C.water[1];
-      else if (t === RM) { const bx = (X + ((Y >> 2) & 1) * 3) % 6, by = Y % 4; c = (bx === 0 || by === 0) ? '#6a6070' : h > .6 ? '#b9b0c0' : '#9a90a6'; }
-      else if (t === SN || t === FS) c = h < .05 ? C.snow[0] : h > .9 ? '#ffffff' : C.snow[1];
-      else if (t === IC) { c = (X + Y * 2) % 23 === 0 ? '#ffffff' : h > .8 ? C.ice[2] : C.ice[1]; }
-      else if (t === CF) c = h < .08 ? C.cave[0] : h > .9 ? C.cave[2] : C.cave[1];
-      else if (t === LV) c = C.lava[1];
-      else if (t === BG) { c = (x % 5 === 0) ? C.wood[0] : (y === 0 || y === 15) ? C.wood[0] : h > .8 ? C.wood[2] : C.wood[1]; }
-      g.d[Y * g.w + X] = c;
-    }
-    if (t === GR) { const h = hash(tx, ty, 9); if (h > .8) { const fx = tx * TS + 3 + ((h * 97) % 9 | 0), fy = ty * TS + 4 + ((h * 53) % 8 | 0); const fc = h > .94 ? '#ffffff' : h > .87 ? '#ffd23c' : '#ff8ab8'; P(g, fx, fy, fc); P(g, fx + 1, fy + 1, fc); P(g, fx - 1, fy + 1, fc); P(g, fx, fy + 2, fc); P(g, fx, fy + 1, '#ffb31f'); } else if (h > .55) { const fx = tx * TS + 5, fy = ty * TS + 9; P(g, fx, fy, C.grass[3]); P(g, fx + 2, fy - 1, C.grass[3]); } }
-    if (t === TL) for (let k = 0; k < 6; k++) { const bx = tx * TS + ((k * 5 + ty * 3) % 15), by = ty * TS + ((k * 7 + tx) % 12) + 3; R(g, bx, by - 3, 1, 3, C.tall[2]); P(g, bx, by, C.tall[0]); }
-    if (t === FS) for (let k = 0; k < 5; k++) { const bx = tx * TS + ((k * 5 + ty * 3) % 15), by = ty * TS + ((k * 7 + tx) % 12) + 3; R(g, bx, by - 3, 1, 3, '#9ab8c8'); P(g, bx, by - 3, '#ffffff'); }
-    if (t === SN && hash(tx, ty, 4) > .8) { P(g, tx * TS + 6, ty * TS + 7, '#b9cce4'); P(g, tx * TS + 7, ty * TS + 7, '#b9cce4'); }
-    if (t === CF && hash(tx, ty, 5) > .85) { R(g, tx * TS + 4, ty * TS + 9, 3, 2, '#4a3d58'); }
-  }
-  for (let ty = 1; ty < MH; ty++) for (let tx = 0; tx < MW; tx++) if ((T[ty][tx] === GR || T[ty][tx] === TL) && T[ty - 1][tx] === PV) R(g, tx * TS, ty * TS, TS, 2, C.grass[0]);
-  for (let ty = 0; ty < MH; ty++) for (let tx = 0; tx < MW; tx++) if (T[ty][tx] === WA) { for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]]) { const n = T[ty + dy] && T[ty + dy][tx + dx]; if (n !== undefined && n !== WA && n !== BG && n !== RM) { if (dy === -1) R(g, tx * TS, ty * TS, TS, 2, '#2a64a8'); if (dy === 1) R(g, tx * TS, ty * TS + 14, TS, 2, '#8fd0ff'); if (dx === -1) R(g, tx * TS, ty * TS, 2, TS, '#2a64a8'); if (dx === 1) R(g, tx * TS + 14, ty * TS, 2, TS, '#2a64a8'); } } }
-  const c = document.createElement('canvas'); c.width = MW * TS; c.height = MH * TS; c.getContext('2d').drawImage(toCanvas(g), 0, 0); return c;
-}
-
 /* ---------- maps ---------- */
 const STUDENTS = [
   { n: 'Sinta', rank: 5, o: { type: 'kidh', hijab: '#ffffff', skin2: true, shirt: 'jersey', hat: 'crown' }, team: ['E', 'R', 'C'] },
@@ -1735,76 +1704,6 @@ const STUDENTS = [
 const MAPS = {};
 function blankT(MW, MH, v) { return Array.from({ length: MH }, () => Array(MW).fill(v)); }
 function setR(T, x, y, w, h, v) { for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) if (T[j] && T[j][i] !== undefined) T[j][i] = v; }
-function buildMap(z) {
-  if (ZONES[z] && ZONES[z].theme) return buildRegion(z);
-  const MW = 26, MH = z === 'school' ? 36 : 42, T = blankT(MW, MH, { school: GR, forest: GR, snow: SN, cave: CF }[z]);
-  const OBJ = [], solids = [], inter = [], signs = [], npcs = [], lights = [];
-  const add = (img, x, y, fy, solid, extra) => { OBJ.push(Object.assign({ img, x, y, fy }, extra || {})); if (solid) solids.push(solid); };
-  const R2 = srand({ school: 3, forest: 11, snow: 23, cave: 37 }[z]);
-  const freeAt = (tx, ty) => T[ty] && T[ty][tx] !== undefined && !SOLID_T.has(T[ty][tx]) && T[ty][tx] !== PV && T[ty][tx] !== BG && T[ty][tx] !== DT && !solids.some(s => tx * TS + 8 > s.x - 10 && tx * TS + 8 < s.x + s.w + 10 && ty * TS + 8 > s.y - 12 && ty * TS + 8 < s.y + s.h + 12);
-  let spawn, gate;
-  if (z === 'school') {
-    setR(T, 4, 9, 18, 12, PV); setR(T, 11, 21, 4, 15, DT); setR(T, 12, 20, 2, 16, PV); setR(T, 3, 14, 6, 6, RM); setR(T, 4, 15, 4, 4, WA); setR(T, 17, 25, 7, 6, TL);
-    add(makeSchool(), 3 * TS, 2 * TS, 9 * TS - 2, { x: 3 * TS + 6, y: 2 * TS + 2, w: 20 * TS - 12, h: 7 * TS - 4 });
-    add(null, 12.5 * TS - 6 + 8, 13 * TS - 60 + 8, 13 * TS + 6, { x: 12.5 * TS, y: 13 * TS + 2, w: 12, h: 6 }, { flag: true });
-    add(makeStall(), 18 * TS - 4, 9 * TS + 4, 9 * TS + 48, { x: 18 * TS, y: 9 * TS + 30, w: 60, h: 18 });
-    add(makeBoard(), 5 * TS, 9 * TS + 6, 9 * TS + 38, { x: 5 * TS + 4, y: 9 * TS + 30, w: 34, h: 8 });
-    for (const [x, y] of [[7, 19], [16, 19]]) add(makeBench(), x * TS, y * TS, y * TS + 13, { x: x * TS, y: y * TS + 6, w: 30, h: 7 });
-    [[0, 3], [0, 10], [0, 17], [1, 24], [0, 30], [23, 2], [24, 10], [24, 17], [8, 25], [3, 29], [7, 32], [17, 33], [22, 34], [24, 24]].forEach(([x, y], i) => add(makeTree(i + 1), x * TS - 4, y * TS - 30, y * TS + 17, { x: x * TS + 13, y: y * TS + 12, w: 10, h: 6 }));
-    [[2, 22], [9, 21], [16, 21], [4, 33], [20, 21], [14, 27]].forEach(([x, y], i) => add(makeBush(i + 5), x * TS, y * TS, y * TS + 17, { x: x * TS + 3, y: y * TS + 10, w: 20, h: 7 }));
-    add(makeGate(), 9 * TS + 8, 33 * TS - 6, 33 * TS + 38, null);
-    solids.push({ x: 9 * TS + 9, y: 33 * TS + 24, w: 14, h: 14 }, { x: 9 * TS + 74, y: 33 * TS + 24, w: 14, h: 14 });
-    signs.push({ x: 3 * TS + 160, y: 2 * TS + 64, t: 'METAVERSE SCHOOL', c: '#ffd23c' }, { x: 9 * TS + 48, y: 33 * TS + 1, t: 'PETA DUNIA', c: '#ffffff' }, { x: 18 * TS + 28, y: 9 * TS + 7, t: 'TOKO', c: '#ffffff', bg: '#c8402e' });
-    npcs.push({ x: 7.5 * TS, y: 11.6 * TS, dir: 'down', look: { type: 'kid', hair: '#8a8494', glasses: true, top: C.khaki, bottomR: ['#3a2a20', '#5a4030', '#6a5040'], long: true, skin2: true }, name: 'Pak Toto', tag: '#ffc93c', fixed: true, mark: true });
-    npcs.push({ x: 19.7 * TS, y: 12.4 * TS, dir: 'down', look: { type: 'kidh', hijab: '#f08ab8', top: ['#c9a46a', '#e8c88a', '#fff0c8'] }, name: 'Mak Sumi', tag: '#ffffff', fixed: true });
-    // siswa disebar di titik alami: tiang bendera, dua bangku, dekat toko
-    const SPOT = [[14.6, 14.2, [13.5, 13, 3, 2.5], 'left'], [9.6, 18.4, [8.5, 17.2, 3.5, 2.6], 'down'], [18.6, 18.4, [17.5, 17.2, 3.5, 2.6], 'down'], [21.6, 14.6, [20.6, 13.6, 2.4, 3], 'left']];
-    STUDENTS.forEach((st, i) => { const [sx, sy, ar, d] = SPOT[i]; npcs.push({ x: sx * TS, y: sy * TS, dir: d, look: st.o, name: `${st.n} · R${st.rank}`, tag: '#5bb8f0', area: ar, stu: st }); });
-    inter.push({ x: 7.5 * TS, y: 12.6 * TS, l: 'Bicara dengan Pak Toto', fn: openQuests });
-    inter.push({ x: 19.7 * TS, y: 13.6 * TS, l: 'Masuk Toko Aksesoris', fn: () => openShop() });
-    inter.push({ x: 12.5 * TS + 8, y: 34 * TS + 6, l: 'Pergi ke Peta Dunia', fn: openMap });
-    spawn = { x: 13 * TS, y: 23 * TS }; gate = { x: 13 * TS, y: 31.5 * TS };
-  } else {
-    // path from bottom exit up through the map
-    const pathT = z === 'snow' ? IC : z === 'cave' ? CF : DT;
-    let px = 12;
-    for (let y = MH - 1; y >= 2; y--) { if (y % 5 === 0) px = Math.max(6, Math.min(17, px + (R2() > .5 ? 2 : -2))); if (z === 'forest') setR(T, px, y, 3, 1, DT); }
-    if (z === 'forest') {
-      for (let y = 0; y < MH; y++) { const rx = 19 + Math.round(Math.sin(y / 4) * 1.4); setR(T, rx, y, 3, 1, WA); }
-      setR(T, 17, 19, 7, 2, BG); setR(T, 17, 30, 7, 2, BG);
-      for (const [x, y, w, h] of [[2, 6, 6, 5], [8, 22, 7, 5], [2, 31, 6, 5], [22, 8, 4, 6], [14, 4, 4, 4]]) setR(T, x, y, w, h, TL);
-    }
-    if (z === 'snow') {
-      for (const [cx, cy, rx, ry] of [[17, 12, 5, 3.4], [6, 26, 4, 2.6]]) for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 < 1) T[y][x] = IC;
-      for (const [x, y, w, h] of [[2, 5, 6, 4], [16, 22, 7, 5], [3, 33, 6, 4], [19, 32, 5, 4]]) setR(T, x, y, w, h, FS);
-    }
-    if (z === 'cave') {
-      for (let x = 0; x < MW; x++) { const ry = 19 + Math.round(Math.sin(x / 3) * 1); setR(T, x, ry, 1, 3, LV); }
-      setR(T, 12, 17, 3, 7, BG);
-    }
-    // scatter obstacles
-    const kinds = { forest: ['tree', 'tree', 'tree', 'bush'], snow: ['pine', 'pine', 'rockI', 'bushS'], cave: ['rock', 'rock', 'crys'] }[z];
-    for (let i = 0; i < 60; i++) {
-      const tx = Math.floor(R2() * MW), ty = 2 + Math.floor(R2() * (MH - 6));
-      if (!freeAt(tx, ty) || TALL_T.has(T[ty][tx]) || T[ty][tx] === IC || (Math.abs(tx - 13) < 2 && ty > MH - 8)) continue;
-      const k = kinds[Math.floor(R2() * kinds.length)], X = tx * TS, Y = ty * TS;
-      if (k === 'tree') add(makeTree(i, true), X - 12, Y - 30, Y + 17, { x: X + 5, y: Y + 12, w: 10, h: 6 });
-      else if (k === 'bush' || k === 'bushS') add(makeBush(i, k === 'bushS'), X - 5, Y, Y + 17, { x: X - 2, y: Y + 10, w: 20, h: 7 });
-      else if (k === 'pine') add(makePine(), X - 6, Y - 28, Y + 15, { x: X + 3, y: Y + 10, w: 10, h: 6 });
-      else if (k === 'rockI' || k === 'rock') add(makeRock(k === 'rockI' ? 'ice' : 'stone', i), X - 6, Y, Y + 19, { x: X - 4, y: Y + 8, w: 24, h: 10 });
-      else if (k === 'crys') { add(makeCrys(false), X, Y, Y + 17, { x: X + 2, y: Y + 10, w: 12, h: 7 }); lights.push({ x: X + 8, y: Y + 8, r: 26, c: 'rgba(200,140,255,' }); }
-    }
-    if (z === 'snow') for (let i = 0; i < 6; i++) { const tx = 2 + Math.floor(R2() * 22), ty = 3 + Math.floor(R2() * 30); if (freeAt(tx, ty)) add(makeCrys(true), tx * TS, ty * TS, ty * TS + 17, { x: tx * TS + 2, y: ty * TS + 10, w: 12, h: 7 }); }
-    if (z === 'cave') for (let x = 0; x < MW; x += 3) lights.push({ x: x * TS + 8, y: 20 * TS, r: 40, c: 'rgba(255,140,40,' });
-    add(makePortal(), 13 * TS - 20, (MH - 2) * TS - 4, (MH - 2) * TS - 4, null);
-    signs.push({ x: 13 * TS, y: (MH - 2) * TS - 12, t: 'KEMBALI KE PETA', c: '#ffffff', bg: '#1d1b46' });
-    inter.push({ x: 13 * TS, y: (MH - 2) * TS + 4, l: 'Kembali ke Peta Dunia', fn: openMap });
-    spawn = { x: 13 * TS, y: (MH - 4) * TS };
-  }
-  const ground = paintGround(T, MW, MH, z);
-  return { zone: z, MW, MH, T, ground, OBJ, solids, inter, signs, npcsDef: npcs, lights, spawn, gate, dark: z === 'cave' };
-}
-
 /* ---------- engine ---------- */
 let W = null, enteringFromMap = false;
 const FLAG = [];
@@ -1846,7 +1745,7 @@ function spawnWild() {
   }
 }
 function hud() {
-  if (W && ZONES[W.zone]) $('#hLoc').innerHTML = esc(ZONES[W.zone].hl || ZONES[W.zone].n) + mpBadge() + envChip() + buffTag() + (W.zone === featured() ? ' <span class="bf" style="background:#ffd23c;color:#3a2200">\u2605 Unggulan</span>' : '');
+  if (W && ZONES[W.zone]) $('#hLoc').innerHTML = esc(ZONES[W.zone].hl || ZONES[W.zone].n) + mpBadge() + envChip() + raidChip() + buffTag() + (W.zone === featured() ? ' <span class="bf" style="background:#ffd23c;color:#3a2200">\u2605 Unggulan</span>' : '');
   streakNag();
   $('#hRank').innerHTML = S.rank >= RANK_MAX ? `Rank ${S.rank} · MAKS` : `Rank ${S.rank} · ${S.xp}/${need(S.rank)} XP`;
   $('#hCoin').innerHTML = `${COIN}${S.coins}`;
@@ -1958,7 +1857,7 @@ function draw(t) {
     if (tt === WA) for (let i = 0; i < 4; i++) { const h = hash(tx * 7 + i, ty, fr); if (h > .5) { bx.fillStyle = h > .85 ? '#e6f8ff' : '#7cc8f5'; bx.fillRect(tx * TS + Math.floor(h * 13) - ox, ty * TS + Math.floor(hash(i, tx, fr) * 14) - oy, 2, 1); } }
     if (tt === LV) { for (let i = 0; i < 6; i++) { const h = hash(tx * 5 + i, ty, fr); bx.fillStyle = h > .8 ? C.lava[3] : h > .45 ? C.lava[2] : C.lava[0]; bx.fillRect(tx * TS + Math.floor(h * 14) - ox, ty * TS + Math.floor(hash(i, ty, fr) * 15) - oy, 2, 2); } }
   }
-  if (W.zone === 'school') { const kx = 6 * TS + Math.cos(t / 1400) * 18, ky = 17 * TS + Math.sin(t / 1400) * 10; bx.fillStyle = '#ff8a2a'; bx.fillRect(Math.round(kx - ox), Math.round(ky - oy), 4, 2); }
+  if (W.koi) { const kx = W.koi.x + Math.cos(t / 1400) * 18, ky = W.koi.y + Math.sin(t / 1400) * 10; bx.fillStyle = '#ff8a2a'; bx.fillRect(Math.round(kx - ox), Math.round(ky - oy), 4, 2); }
   const list = [];
   for (const o of W.OBJ) { if (o.cond && !o.cond()) continue; if (o.fy < oy - 10 || o.y - oy > VH + 4) continue; list.push({ fy: o.fy, d: () => bx.drawImage(o.flag ? FLAG[Math.floor(t / 260) % 3] : o.img, Math.round(o.x - ox), Math.round(o.y - oy)) }); }
   const person = (e, look, isMe) => () => { const x = Math.round(e.x - ox), y = Math.round(e.y - oy); shadow(x, y, 5); bx.drawImage(kidImg(look, e.dir, e.f), x - 8, y - 27 - ((e.f === 1 || e.f === 3) ? 1 : 0)); const sk = setOf(look); if (sk) { bx.fillStyle = SETS[sk].c; for (let i = 0; i < 4; i++) { const a = t / 420 + i * 1.57, r = 9 + Math.sin(t / 300 + i) * 2; if (Math.sin(t / 180 + i * 2) > -.2) bx.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y - 14 + Math.sin(a) * 13), 1, 1); } } if (e.mark) { const b = Math.round(Math.sin(t / 250) * 1.5); bx.fillStyle = '#24123a'; bx.fillRect(x - 2, y - 40 + b, 5, 8); bx.fillStyle = '#ff6a3d'; bx.fillRect(x - 1, y - 39 + b, 3, 4); bx.fillRect(x - 1, y - 34 + b, 3, 1); } };
@@ -1979,7 +1878,7 @@ function draw(t) {
     const tt = W.T[Math.floor(m.y / TS)] && W.T[Math.floor(m.y / TS)][Math.floor(m.x / TS)];
     if (TALL_T.has(tt)) for (let i = -7; i <= 7; i += 2) { const hgt = 3 + ((i + 9) * 7 % 3); bx.fillStyle = tt === FS ? ((i & 2) ? '#ffffff' : '#9ab8c8') : C.tall[(i & 2) ? 2 : 1]; bx.fillRect(x + i, y - hgt + 1, 1, hgt); }
   } });
-  mpDraw(list, person, t, ox, oy);
+  mpDraw(list, person, t, ox, oy); raidDraw(list, t, ox, oy);
   list.sort((a, b) => a.fy - b.fy).forEach(o => o.d());
   // weather / atmosphere
   if ((W.theme || W.zone) === 'snow') { bx.fillStyle = '#ffffff'; for (let i = 0; i < 40; i++) { const sx = (hash(i, 1) * VW + t / 40 * (0.4 + hash(i, 2))) % VW, sy = (hash(i, 3) * VH + t / 25 * (0.6 + hash(i, 4))) % VH; bx.fillRect(Math.floor(sx), Math.floor(sy), 1, 1); } }
@@ -2007,10 +1906,10 @@ function draw(t) {
     const x = (e.x - ox) * s, y = (e.y - oy - 35) * s, w = ctx.measureText(name).width + 12 * DPR;
     ctx.fillStyle = fill; ctx.strokeStyle = '#24123a'; ctx.lineWidth = 2 * DPR; rr(ctx, x - w / 2, y - fs * .75, w, fs * 1.5, fs * .5); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#23214a'; ctx.fillText(name, x, y + DPR);
-    if (tt) { const f2 = Math.round(8 * DPR); ctx.font = `700 ${f2}px "Pixelify Sans", monospace`; ctx.lineWidth = 3 * DPR; ctx.strokeStyle = '#24123a'; ctx.strokeText(tt[1], x, y - fs * 1.35); ctx.fillStyle = tt[1] === 'Master Metaverse' && Math.floor(performance.now() / 300) % 2 ? '#ffffff' : tt[2]; ctx.fillText(tt[1], x, y - fs * 1.35); }
+    if (tt) { const f2 = Math.round(8 * DPR); ctx.font = `700 ${f2}px "Pixelify Sans", monospace`; ctx.lineWidth = 3 * DPR; ctx.strokeStyle = '#24123a'; ctx.strokeText(tt[1], x, y - fs * 1.35); ctx.fillStyle = tt[3] === 'L' && Math.floor(performance.now() / 300) % 2 ? '#ffffff' : tt[2]; ctx.fillText(tt[1], x, y - fs * 1.35); }
   };
   for (const e of W.npcs) tag(e, e.name, e.tag);
-  tag(p, S.name, '#ffc93c', titleOf(S.rank)); mpTags(tag);
+  tag(p, S.name, '#ffc93c', myTitle()); mpTags(tag); raidTags(tag);
 }
 function petComp() {
   const c = W && W.cp; if (!c) return false; const p = W.p;
@@ -2135,6 +2034,7 @@ function terr(ty, x, y) {
 
 /* ---------- static layer ---------- */
 const OBJ = [], ANIM = [], LAB = [];
+const ISL = [[170, 64, 7], [170, 548, 6], [16, 304, 5], [324, 304, 5], [300, 236, 4], [40, 372, 4], [120, 300, 3], [222, 372, 3]];
 function buildStatic() {
   const g = { w: WW, h: WH, oy: 0, d: new Array(WW * WH).fill(null) };
   const L = new Int8Array(WW * WH).fill(-1), D = new Float32Array(WW * WH).fill(9);
@@ -2148,7 +2048,7 @@ function buildStatic() {
     if (li >= 0) {
       const I = ALL[li]; let c;
       if (I === SCH) { const r = Math.hypot(x - 170, (y - 300) * 1.3); c = r < 30 + h * 2 ? terr('pave', x, y) : terr('grass', x, y); }
-      else { const [t] = tsOf(I, x, y); c = terr(I.ter[bandOf(t + (hash(x, y, 3) - .5) * .09)], x, y); }
+      else { const [t] = tsOf(I, x, y); c = terr(I.ter[bandOf(t + (vnoise(x / 9, y / 9, I.seed) - .5) * .24 + (hash(x, y, 3) - .5) * .04)], x, y); }
       if (d > .9 && !(I.ter && I.ter[bandOf(tsOf(I, x, y)[0])] === 'wood')) c = h < .2 ? '#e0b277' : h > .85 ? '#fff1c8' : '#f0d090';
       g.d[k] = c; continue;
     }
@@ -2159,6 +2059,10 @@ function buildStatic() {
     else if (d < 1.45 + (h - .5) * .08) g.d[k] = '#3a82c8';
     else { const wave = y % 7 === 0 && (x + Math.floor(y / 7) * 9) % 23 < 3; g.d[k] = wave ? '#3f8fd6' : h > .985 ? '#24589a' : '#2a64a8'; }
   }
+  // pulau-pulau kecil hiasan di laut lepas
+  for (const isl of ISL) { const [ix, iy, ir] = isl; if (D[iy * WW + ix] < 1.7) continue; isl.ok = 1;
+    for (let y = iy - ir - 4; y <= iy + ir + 4; y++) for (let x = ix - ir - 4; x <= ix + ir + 4; x++) { if (x < 0 || y < 0 || x >= WW || y >= WH) continue; const k = y * WW + x, dd = Math.hypot(x - ix, (y - iy) * 1.25) - (hash(x, y, 7) - .5) * 1.2, h = hash(x, y, 2);
+      if (dd < ir - 2) g.d[k] = h < .12 ? C.grass[0] : h > .85 ? C.grass[2] : C.grass[1]; else if (dd < ir) g.d[k] = h > .8 ? '#fff1c8' : '#f0d090'; else if (dd < ir + 1.4) g.d[k] = h > .4 ? '#e6f8ff' : '#7cc8f5'; else if (dd < ir + 3.5) g.d[k] = h > .96 ? '#e6f8ff' : '#5ab0e8'; } }
   const isLand = (x, y) => L[Math.round(y) * WW + Math.round(x)] >= 0;
   const put = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (x >= 0 && y >= 0 && x < WW && y < WH) g.d[y * WW + x] = c; };
   // paths
@@ -2196,6 +2100,7 @@ function placeAll() {
   ANIM.push({ k: 'flag', x: 199, y: 280 });
   for (const [x, y] of [[124, 292], [218, 292], [132, 278], [210, 280], [150, 336], [192, 336], [126, 306]]) addObj(ICO.tree, x, y);
   LAB.push({ t: 'Metaverse School', x: 170, y: 248, z: 0, big: 1, col: '#ffc93c' });
+  for (const [x, y, rr, ok] of ISL.map(a => [...a, a.ok])) if (ok) { addObj(ICO.palm, x - (rr > 4 ? 1 : 0), y + 1); if (rr > 5) addObj(ICO.rock || ICO.srock, x + 4, y + 3); }
   // islands
   IS.forEach((I, ii) => {
     const fixed = [];
@@ -2214,11 +2119,11 @@ function placeAll() {
     
     // scatter
     const rnd = srand(I.seed * 97 + 13), SC = { park: ['tree', 'tree', 'bush'], grass: ['tree', 'bush', 'tree'], pave: ['bush', null, null], pave2: ['tree', null, null], stone: ['rock', 'rock', 'crys'], sand: ['palm', 'palm', 'rock'], forest: ['dtree', 'dtree', 'dtree', 'bush'], snow: ['pine', 'pine', 'srock'], cave: ['crys', 'rock', 'lava'], wood: ['crate', 'barrel', null], cobble: ['bush', 'crate', null] };
-    for (let n = 0; n < 380; n++) {
+    for (let n = 0; n < 240; n++) {
       const x = I.c[0] + (rnd() * 2 - 1) * I.R * I.E, y = I.c[1] + (rnd() * 2 - 1) * I.R * I.E * I.sq; if (dOf(I, x, y) > .82 || !isLand(x, y)) continue;
       const [t, s] = tsOf(I, x, y); if (Math.abs(s - pathS(I, t)) < .14) continue;
       const b = bandOf(t); if (TE.some(e => Math.abs(t - e) < .05)) continue;
-      if (fixed.some(([fx, fy]) => Math.hypot(fx - x, (fy - y) * 1.3) < 13)) continue;
+      if (fixed.some(([fx, fy]) => Math.hypot(fx - x, (fy - y) * 1.3) < 16)) continue;
       const k = pick2(SC[I.ter[b]], rnd); if (!k) continue;
       addObj(ICO[k], x, y); fixed.push([x, y]);
     }
@@ -2459,91 +2364,6 @@ function makeCave() {
   });
 }
 
-/* ---------- region map ---------- */
-function buildRegion(z) {
-  const Z = ZONES[z], th = Z.theme, MW = 26, MH = 42, CX = 13.5 * TS;
-  const base = { snow: SN, forest: GR, park: GR, town: GR, rock: PV, sand: DT, harbor: GR }[th];
-  const T = blankT(MW, MH, base);
-  const OBJ = [], solids = [], inter = [], signs = [], npcs = [], lights = [], pathSet = new Set();
-  const add = (img, x, y, fy, solid, extra) => { OBJ.push(Object.assign({ img, x, y, fy }, extra || {})); if (solid) solids.push(solid); };
-  const R2 = srand(z.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 7));
-  const tall = th === 'snow' ? FS : TL, pathT = { snow: IC, town: PV, sand: PV }[th] || DT;
-  if (th === 'park' || th === 'forest') { for (let y = 9; y < MH - 14; y++) setR(T, 20 + Math.round(Math.sin(y / 4) * 1.4), y, 3, 1, WA); setR(T, 18, 19, 7, 2, BG); }
-  if (th === 'harbor') { for (let y = 0; y < MH; y++) setR(T, 0, y, 4 + Math.round(Math.sin(y / 5)), 1, WA); setR(T, 0, 14, 7, 2, BG); setR(T, 0, 27, 7, 2, BG); }
-  if (th === 'snow') for (const [cx, cy, rx, ry] of [[19, 15, 4, 2.6], [6, 25, 3.5, 2.4]]) for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 < 1) T[y][x] = IC;
-  if (th === 'town') { setR(T, 3, 12, 20, 7, PV); setR(T, 4, 25, 18, 4, PV); }
-  if (th === 'sand') for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) if (((x - 20) / 3.5) ** 2 + ((y - 20) / 2.6) ** 2 < 1) T[y][x] = WA;
-  if (th === 'rock') for (const [x, y, w, h] of [[1, 9, 7, 4], [18, 28, 7, 3]]) setR(T, x, y, w, h, GR);
-  for (const [x, y, w, h] of [[2, 6, 6, 5], [17, 24, 6, 5], [2, 30, 6, 4], [18, 7, 5, 4], [6, 17, 4, 4]]) setR(T, x, y, w, h, tall);
-  // entrance character per theme
-  if (th === 'harbor') { setR(T, 5, MH - 17, 17, 16, BG); for (let y = MH - 17; y < MH; y++) setR(T, 4, y, 1, 1, WA); }
-  if (th === 'town') setR(T, 4, MH - 17, 19, 15, PV);
-  if (th === 'park') for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) { if (((x - 7) / 2.8) ** 2 + ((y - (MH - 6)) / 2) ** 2 < 1) T[y][x] = WA; if (((x - 19.5) / 2.6) ** 2 + ((y - (MH - 13)) / 2) ** 2 < 1) T[y][x] = tall; }
-  if (th === 'forest') { setR(T, 17, MH - 14, 6, 3, tall); setR(T, 6, MH - 7, 4, 3, tall); }
-  if (th === 'snow') for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) if (((x - 7) / 3) ** 2 + ((y - (MH - 7)) / 2) ** 2 < 1) T[y][x] = IC;
-  if (th === 'sand') setR(T, 18, MH - 10, 5, 3, tall);
-  let px = 12;
-  for (let y = MH - 1; y >= 9; y--) { if (y < MH - 15 && y % 6 === 0) px = Math.max(10, Math.min(14, px + (R2() > .5 ? 1 : -1))); if (y >= MH - 15) px = 12; for (let i = 0; i < 3; i++) { if (T[y][px + i] !== WA) T[y][px + i] = pathT; pathSet.add(`${px + i},${y}`); } }
-  setR(T, 9, 5, 10, 5, PV); for (let y = 4; y < 10; y++) for (let x = 9; x < 19; x++) pathSet.add(`${x},${y}`);
-  // jalan tembus ke bab berikutnya (atas kanan) dan ke bab sebelumnya (bawah kanan)
-  const road = (x0, y0, w, h) => { for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) { if (T[y] && T[y][x] !== undefined && T[y][x] !== WA) T[y][x] = pathT === PV ? DT : pathT; pathSet.add(`${x},${y}`); } };
-  road(18, 6, 4, 3); road(20, 0, 3, 9);
-  const nxId = Z.bab < 5 ? Z.pulau + (Z.bab + 1) : null, lulusNow = () => prog(Z.pulau).lulus.includes(Z.bab);
-  add(makeBarrier(), 20 * TS - 2, 5 * TS + 6, 6 * TS + 6, null, { cond: () => !lulusNow() });
-  signs.push({ x: 21.5 * TS, y: 4 * TS + 6, t: nxId ? `KE BAB ${Z.bab + 1}` : 'UJIAN AKHIR', c: '#ffffff', bg: Z.col });
-  inter.push({ x: 21.5 * TS, y: 7 * TS, get l() { return !nxId ? (lulusNow() ? 'Gerbang Ujian Akhir Pulau' : 'Jalan tertutup: lulus Kuil dulu') : lulusNow() ? `Jalan ke ${ZONES[nxId].n} (Bab ${Z.bab + 1})` : 'Jalan tertutup: lulus Kuil dulu'; }, fn: () => goNext(z) });
-  if (Z.bab > 1) {
-    road(16, MH - 3, 10, 2);
-    signs.push({ x: 21.5 * TS, y: (MH - 3) * TS - 6, t: `KE BAB ${Z.bab - 1}`, c: '#ffffff', bg: '#1d1b46' });
-    inter.push({ x: 21.5 * TS, y: (MH - 2) * TS + 2, l: `Jalan ke ${ZONES[Z.pulau + (Z.bab - 1)].n} (Bab ${Z.bab - 1})`, fn: () => { enterZone(Z.pulau + (Z.bab - 1)); toast(`Masuk ${esc(ZONES[Z.pulau + (Z.bab - 1)].n)} · Bab ${Z.bab - 1}`); } });
-  }
-  // Kuil Ujian
-  add(makeKuil(Z.col), CX - 31, 5 * TS - 8, 5 * TS + 50, { x: CX - 29, y: 5 * TS + 12, w: 58, h: 36 });
-  signs.push({ x: CX, y: 5 * TS - 14, t: 'KUIL UJIAN', c: '#ffd23c', bg: '#1d1b46' });
-  inter.push({ x: CX, y: 5 * TS + 58, l: `Masuk Kuil Ujian Bab ${Z.bab}`, fn: () => openKuil(z) });
-  // Gerbang
-  const gy = (MH - 11) * TS;
-  add(makeGate(Z.col), CX - 40, gy - 30, gy + 12, null);
-  solids.push({ x: CX - 38, y: gy, w: 12, h: 12 }, { x: CX + 26, y: gy, w: 12, h: 12 });
-  signs.push({ x: CX, y: gy - 24, t: `GERBANG BAB ${Z.bab}`, c: '#ffffff' });
-  // Akademi
-  const ak = makeAkademi(Z.col), axp = CX + 30, ayp = (MH - 8) * TS - 22;
-  add(ak, axp, ayp, ayp + ak.height, { x: axp + 4, y: ayp + 18, w: ak.width - 8, h: ak.height - 20 });
-  signs.push({ x: axp + ak.width / 2, y: ayp - 6, t: 'AKADEMI', c: '#ffffff', bg: '#3a7bd5' });
-  inter.push({ x: axp + ak.width / 2, y: ayp + ak.height + 6, l: `Masuk Akademi Bab ${Z.bab}`, fn: () => openAkademi(z) });
-  // Area rahasia
-  const cv2 = makeCave(), rx = (th === 'harbor' ? 20 : 2) * TS, ry = 20 * TS;
-  add(cv2, rx, ry, ry + 32, { x: rx + 4, y: ry + 12, w: 38, h: 18 });
-  inter.push({ x: rx + 23, y: ry + 40, l: 'Periksa area rahasia', fn: () => openSecret(z) });
-  for (let y = ry / TS - 1; y < ry / TS + 4; y++) for (let x = rx / TS - 1; x < rx / TS + 4; x++) pathSet.add(`${x},${y}`);
-  // obstacles
-  const near = (X, Y) => solids.some(s => X + 8 > s.x - 12 && X + 8 < s.x + s.w + 12 && Y + 8 > s.y - 14 && Y + 8 < s.y + s.h + 14);
-  const kinds = { snow: ['pine', 'pine', 'rockI', 'bushS'], forest: ['treeD', 'treeD', 'tree', 'bush'], park: ['tree', 'bush', 'tree', 'bench'], town: ['tree', 'bush', 'stall', 'bench'], rock: ['rock', 'rock', 'crys', 'bush'], sand: ['rock', 'bush', 'rock'], harbor: ['tree', 'bush', 'rock'] }[th];
-  let stalls = 0;
-  for (let i = 0; i < 130; i++) {
-    const tx = Math.floor(R2() * MW), ty = 3 + Math.floor(R2() * (MH - 7)), X = tx * TS, Y = ty * TS, t0 = T[ty][tx];
-    if (SOLID_T.has(t0) || (t0 === BG && th !== 'harbor') || t0 === IC || TALL_T.has(t0) || pathSet.has(`${tx},${ty}`) || pathSet.has(`${tx + 1},${ty}`) || pathSet.has(`${tx - 1},${ty}`) || near(X, Y)) continue;
-    if (ty > MH - 15 && tx > 8 && tx < 18) continue;
-    if (th === 'harbor' && T[ty][tx] === BG) continue;
-    let k = kinds[Math.floor(R2() * kinds.length)];
-    if (k === 'stall' && (stalls >= 2 || tx > 20)) k = 'tree';
-    if (k === 'tree' || k === 'treeD') add(makeTree(i, k === 'treeD'), X - 12, Y - 30, Y + 17, { x: X + 5, y: Y + 12, w: 10, h: 6 });
-    else if (k === 'bush' || k === 'bushS') add(makeBush(i, k === 'bushS'), X - 5, Y, Y + 17, { x: X - 2, y: Y + 10, w: 20, h: 7 });
-    else if (k === 'pine') add(makePine(), X - 6, Y - 28, Y + 15, { x: X + 3, y: Y + 10, w: 10, h: 6 });
-    else if (k === 'rockI' || k === 'rock') add(makeRock(k === 'rockI' ? 'ice' : 'stone', i), X - 6, Y, Y + 19, { x: X - 4, y: Y + 8, w: 24, h: 10 });
-    else if (k === 'crys') add(makeCrys(false), X, Y, Y + 17, { x: X + 2, y: Y + 10, w: 12, h: 7 });
-    else if (k === 'bench') add(makeBench(), X, Y, Y + 13, { x: X, y: Y + 6, w: 30, h: 7 });
-    else if (k === 'stall') { stalls++; add(makeStall(), X - 4, Y - 20, Y + 26, { x: X, y: Y + 8, w: 60, h: 18 }); }
-  }
-  add(makePortal(), CX - 20, (MH - 2) * TS - 4, (MH - 2) * TS - 4, null);
-  signs.push({ x: CX, y: (MH - 2) * TS - 12, t: 'KEMBALI KE PETA', c: '#ffffff', bg: '#1d1b46' });
-  inter.push({ x: CX, y: (MH - 2) * TS + 4, l: 'Kembali ke Peta Dunia', fn: openMap });
-  const stu = ISTU[z];
-  if (stu) npcs.push({ x: CX - 2.5 * TS, y: (MH - 8) * TS, dir: 'right', look: stu.o, name: `${stu.n} · R${stu.rank}`, tag: '#5bb8f0', fixed: true, stu });
-  const ground = paintGround(T, MW, MH, th);
-  return { zone: z, theme: th, gateY: gy - 2, MW, MH, T, ground, OBJ, solids, inter, signs, npcsDef: npcs, lights, spawn: { x: CX, y: (MH - 4) * TS }, gate: null, dark: false };
-}
-
 /* ---------- interactions ---------- */
 async function openSecret(z) {
   if (!S.secret) S.secret = {};
@@ -2671,7 +2491,7 @@ async function openKuil(z) {
   show('s-world'); hud();
   if (r.quit) return;
   progress('kuil');
-  const pass = r.ok >= 8;
+  const pass = r.ok >= 8; if (r.ok === 10 && !r.quit) S.st.perfect = 1;
   if (pass && !done) {
     sfx('pass'); pg.lulus.push(Z.bab); pg.open = Math.max(pg.open, Math.min(5, Z.bab + 1));
     addDup(mon);
@@ -2758,6 +2578,293 @@ function openAlbum() {
 document.addEventListener('click', e => { if (e.target.closest('#pAlbum')) openAlbum(); });
 
 document.addEventListener('click', e => { if (e.target.closest('#bMap') && !$('#s-world').hidden && $('#modal').hidden) { joyReset(); openMap(); } });
+
+/* ================= DUNIA v2: pelukis tanah alami + tata letak wilayah 1,5x =================
+   Tepi antar-medan dibuat melengkung (domain warp + noise), ada bayangan tepi, buih air, padang bunga, rumpun pohon.
+   Logika jalan/tabrakan tetap per petak 16px; hanya gambar yang dibuat alami. */
+const SD = 12, FL = 13, ST = 14, PZ = 15;
+const NAT = new Set([GR, TL, DT, WA, SN, IC, CF, LV, FS, SD, FL, ST, PV]);
+function vnoise(x, y, s, k) {
+  const gx = Math.floor(x / s), gy = Math.floor(y / s), fx = x / s - gx, fy = y / s - gy, u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+  const a = hash(gx, gy, k), b = hash(gx + 1, gy, k), c = hash(gx, gy + 1, k), d = hash(gx + 1, gy + 1, k);
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
+const RGBC = {};
+const rgbOf = h => RGBC[h] || (RGBC[h] = hx(h));
+const lerp3 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+const shade = (c, k) => [c[0] * k, c[1] * k, c[2] * k];
+function paintGround(T, MW, MH, zone) {
+  const Wp = MW * TS, Hp = MH * TS, N = Wp * Hp, tp = new Uint8Array(N), seed = (zone.length * 7 + zone.charCodeAt(0)) | 0;
+  const tAt = (tx, ty) => T[ty < 0 ? 0 : ty >= MH ? MH - 1 : ty][tx < 0 ? 0 : tx >= MW ? MW - 1 : tx];
+  for (let Y = 0; Y < Hp; Y++) for (let X = 0; X < Wp; X++) {
+    let t = T[Y >> 4][X >> 4];
+    if (NAT.has(t)) { const t2 = tAt(Math.floor((X + (vnoise(X, Y, 11, seed) - .5) * 16 + (vnoise(X, Y, 5, seed + 7) - .5) * 2.5) / TS), Math.floor((Y + (vnoise(X, Y, 11, seed + 5) - .5) * 16 + (vnoise(X, Y, 5, seed + 8) - .5) * 2.5) / TS)); if (NAT.has(t2)) t = t2; }
+    tp[Y * Wp + X] = t;
+  }
+  const dark = zone === 'forest';
+  const G0 = rgbOf(dark ? '#2f7d32' : '#4aa841'), G1 = rgbOf(dark ? '#3f9038' : '#62bd4c'), GD = rgbOf(dark ? '#246a28' : '#3f8f3a'), GL = rgbOf(dark ? '#5fb04a' : '#8ad660');
+  const TL0 = rgbOf(C.tall[0]), TL1 = rgbOf(C.tall[1]), TL2 = rgbOf(C.tall[2]);
+  const D0 = rgbOf(C.dirt[0]), D1 = rgbOf(C.dirt[1]), D2 = rgbOf(C.dirt[2]);
+  const SA = rgbOf('#e9d49c'), SB = rgbOf('#f5e5b6'), SC0 = rgbOf('#cdb27a');
+  const W0 = rgbOf('#2f74c0'), W1 = rgbOf(C.water[1]), W2 = rgbOf(C.water[2]), WF = rgbOf('#cdeeff');
+  const SN0 = rgbOf(C.snow[0]), SN1 = rgbOf(C.snow[1]), SNW = rgbOf('#ffffff');
+  const IC0 = rgbOf(C.ice[0]), IC1 = rgbOf(C.ice[1]), IC2 = rgbOf(C.ice[2]);
+  const CV0 = rgbOf(C.cave[0]), CV1 = rgbOf(C.cave[1]), CV2 = rgbOf(C.cave[2]);
+  const ST0 = rgbOf('#8a8296'), ST1 = rgbOf('#a49eb4'), ST2 = rgbOf('#c2bccf');
+  const PV0 = rgbOf(C.pave[0]), PV1 = rgbOf(C.pave[1]), PV2 = rgbOf(C.pave[2]);
+  const WD0 = rgbOf(C.wood[0]), WD1 = rgbOf(C.wood[1]), WD2 = rgbOf(C.wood[2]);
+  const LV1 = rgbOf(C.lava[1]), LV0 = rgbOf(C.lava[0]);
+  const FLC = ['#ff8ab8', '#ffd23c', '#ffffff', '#b58cff', '#ff6a5a'].map(rgbOf);
+  const col = new Float32Array(N * 3);
+  const put = (i, c) => { col[i * 3] = c[0]; col[i * 3 + 1] = c[1]; col[i * 3 + 2] = c[2]; };
+  for (let Y = 0; Y < Hp; Y++) for (let X = 0; X < Wp; X++) {
+    const i = Y * Wp + X, t = tp[i], h = hash(X, Y, seed), n = vnoise(X, Y, 26, seed + 9);
+    let c;
+    if (t === GR || t === FL) { c = lerp3(G0, G1, n); if (h < .05) c = GD; else if (h > .955) c = GL; else if (((X * 7 + Y * 3) % 11 === 0) && vnoise(X, Y, 6, seed + 2) > .62) c = GL;
+      if (t === FL) { const qx = Math.floor(X / 6), qy = Math.floor(Y / 6), fh = hash(qx, qy, seed + 3), lx = X - qx * 6 - 1 - Math.floor(fh * 3) % 2, ly = Y - qy * 6 - 1 - Math.floor(fh * 7) % 2;
+        if (fh > .3 && ((lx === 1 && ly >= 0 && ly <= 2) || (ly === 1 && lx >= 0 && lx <= 2))) c = lx === 1 && ly === 1 ? rgbOf('#ffb31f') : FLC[Math.floor(fh * 97) % FLC.length]; } }
+    else if (t === TL) { const blade = ((X + (Y >> 2) * 3) % 4 === 0) && (Y % 5) < 3; c = blade ? TL2 : lerp3(shade(TL0, .9), TL1, .25 + n * .4); if (h < .08) c = shade(TL0, .85); }
+    else if (t === DT) { c = lerp3(D1, D2, n * .5); if (h < .08) c = D0; else if (h > .975) c = shade(D0, .8); }
+    else if (t === SD) { c = lerp3(SA, SB, n); if (h < .06) c = SC0; else if (h > .985) c = rgbOf('#ffffff'); }
+    else if (t === ST) { const cr = Math.abs(vnoise(X, Y, 7, seed + 4) - .5) < .025; c = cr ? ST0 : lerp3(ST1, ST2, n * .6); if (h < .06) c = ST0; }
+    else if (t === WA) { c = lerp3(W0, W1, Math.min(1, n * 1.4)); if (h > .988) c = W2; else if ((X + Y * 3) % 17 === 0 && vnoise(X, Y, 5, seed + 6) > .7) c = W2; }
+    else if (t === SN || t === FS) { c = lerp3(SN0, SN1, .6 + n * .4); if (h > .9) c = SNW; else if (h < .03) c = SN0;
+      if (t === FS && ((X + (Y >> 2) * 3) % 4 === 0) && (Y % 5) < 3) c = rgbOf('#9ab8c8'); }
+    else if (t === IC) { c = lerp3(IC0, IC1, .55 + n * .45); if ((X + Y * 2) % 23 === 0 || h > .985) c = IC2; }
+    else if (t === CF) { c = lerp3(CV0, CV1, .5 + n * .5); if (h > .94) c = CV2; else if (h < .05) c = CV0; }
+    else if (t === LV) c = h > .9 ? LV0 : LV1;
+    else if (t === PV || t === PZ) { const bx = (X + ((Y >> 3) & 1) * 4) % 8, by = Y % 8; c = (bx === 0 || by === 0) ? PV0 : (bx === 1 || by === 1) ? PV2 : (h > .92 ? PV0 : PV1); }
+    else if (t === RM) { const bx = (X + ((Y >> 2) & 1) * 3) % 6, by = Y % 4; c = (bx === 0 || by === 0) ? rgbOf('#6a6070') : h > .6 ? rgbOf('#b9b0c0') : rgbOf('#9a90a6'); }
+    else if (t === BG) { const lx = X % TS, ly = Y % TS; c = (lx % 5 === 0) ? WD0 : (ly === 0 || ly === 15) ? WD0 : h > .8 ? WD2 : WD1; }
+    else c = G1;
+    put(i, c);
+  }
+  // tepi: buih air, bayangan tebing, bibir rumput, cahaya lava
+  const isW = t => t === WA, landy = t => t !== WA && t !== BG && t !== LV;
+  for (let Y = 1; Y < Hp - 1; Y++) for (let X = 1; X < Wp - 1; X++) {
+    const i = Y * Wp + X, t = tp[i], up = tp[i - Wp], dn = tp[i + Wp], lf = tp[i - 1], rt = tp[i + 1];
+    if (isW(t)) {
+      if (landy(up)) put(i, shade(W0, .78));
+      else if (Y > 2 && landy(tp[i - 2 * Wp])) put(i, W0);
+      else if (landy(dn) || landy(lf) || landy(rt)) put(i, WF);
+      else if (X > 2 && X < Wp - 3 && Y < Hp - 3 && (landy(tp[i + 2 * Wp]) || landy(tp[i - 2]) || landy(tp[i + 2]))) put(i, W2);
+      continue;
+    }
+    if (isW(dn) && landy(t)) { put(i, shade([col[i * 3], col[i * 3 + 1], col[i * 3 + 2]], .62)); continue; }
+    if (t === LV) continue;
+    if ((t === GR || t === FL) && (dn === DT || dn === SD || dn === PV || dn === ST)) { put(i, GD); continue; }
+    if ((t === DT || t === SD || t === ST) && (up === GR || up === FL || up === TL)) { put(i, t === DT ? D0 : t === SD ? SC0 : ST0); continue; }
+    if (t === TL && (up === GR || up === FL || lf === GR || rt === GR || dn === GR || lf === FL || rt === FL || dn === FL)) { put(i, shade(TL0, .8)); continue; }
+    if ((t === GR || t === FL) && (dn === TL)) { put(i, shade(G0, .85)); continue; }
+    if (t === IC && (up === SN || up === FS)) { put(i, IC0); continue; }
+    if (t === SN && dn === IC) { put(i, SN0); continue; }
+    if ((t === CF) && (up === LV || dn === LV || lf === LV || rt === LV)) { put(i, rgbOf('#7a3a2a')); continue; }
+    if ((t === PV || t === PZ) && (up === GR || up === FL || up === TL || up === SN || up === SD)) { put(i, PV0); continue; }
+    if ((t === GR || t === FL || t === SN) && (dn === PZ || lf === PZ || rt === PZ || up === PZ)) { put(i, t === SN ? SN0 : GD); continue; }
+  }
+  const im = new ImageData(Wp, Hp), D = im.data;
+  for (let i = 0; i < N; i++) { D[i * 4] = col[i * 3]; D[i * 4 + 1] = col[i * 3 + 1]; D[i * 4 + 2] = col[i * 3 + 2]; D[i * 4 + 3] = 255; }
+  const cnv = document.createElement('canvas'); cnv.width = Wp; cnv.height = Hp; const cx = cnv.getContext('2d'); cx.putImageData(im, 0, 0);
+  // hiasan per petak: bunga kecil, kerikil, kilau salju
+  for (let ty = 0; ty < MH; ty++) for (let tx = 0; tx < MW; tx++) {
+    const t = tp[(ty * TS + 8) * Wp + tx * TS + 8], h = hash(tx, ty, seed + 1), x0 = tx * TS, y0 = ty * TS;
+    const px = (x, y, c) => { cx.fillStyle = c; cx.fillRect(x, y, 1, 1); };
+    if (t === GR && h > .84) { const fx = x0 + 3 + Math.floor(h * 97) % 9, fy = y0 + 4 + Math.floor(h * 53) % 8, fc = h > .95 ? '#ffffff' : h > .9 ? '#ffd23c' : '#ff8ab8'; px(fx, fy, fc); px(fx + 1, fy + 1, fc); px(fx - 1, fy + 1, fc); px(fx, fy + 2, fc); px(fx, fy + 1, '#ffb31f'); }
+    else if (t === GR && h > .6) { px(x0 + 5, y0 + 9, '#8ad660'); px(x0 + 7, y0 + 8, '#8ad660'); px(x0 + 6, y0 + 10, '#3f8f3a'); }
+    if ((t === DT || t === SD) && h > .82) { cx.fillStyle = t === DT ? '#8a6a4a' : '#cdb27a'; cx.fillRect(x0 + 4 + Math.floor(h * 31) % 7, y0 + 6 + Math.floor(h * 17) % 6, 2, 1); }
+    if (t === SN && h > .8) { px(x0 + 6, y0 + 7, '#b9cce4'); px(x0 + 7, y0 + 7, '#b9cce4'); }
+    if (t === CF && h > .86) { cx.fillStyle = '#4a3d58'; cx.fillRect(x0 + 4, y0 + 9, 3, 2); }
+    if (t === ST && h > .85) { cx.fillStyle = '#6a6278'; cx.fillRect(x0 + 5, y0 + 6, 3, 2); cx.fillStyle = '#d6d0e2'; cx.fillRect(x0 + 5, y0 + 6, 1, 1); }
+  }
+  return cnv;
+}
+
+/* ---------- alat membentuk medan ---------- */
+function blobT(T, cx, cy, rx, ry, v, rnd, keep) {
+  const p1 = rnd() * 6.28, p2 = rnd() * 6.28, a1 = .14 + rnd() * .12;
+  for (let y = Math.floor(cy - ry - 2); y <= cy + ry + 2; y++) for (let x = Math.floor(cx - rx - 2); x <= cx + rx + 2; x++) {
+    if (!T[y] || T[y][x] === undefined) continue; const dx = (x + .5 - cx) / rx, dy = (y + .5 - cy) / ry, th = Math.atan2(dy, dx);
+    if (Math.hypot(dx, dy) < 1 + a1 * Math.sin(3 * th + p1) + .1 * Math.sin(5 * th + p2) && (!keep || keep(T[y][x]))) T[y][x] = v;
+  }
+}
+function curvePts(pts, step = .2) {
+  const out = []; for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || pts[i + 1];
+    for (let t = 0; t < 1; t += step / Math.max(1, Math.hypot(p2[0] - p1[0], p2[1] - p1[1]))) { const t2 = t * t, t3 = t2 * t;
+      out.push([.5 * (2 * p1[0] + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3), .5 * (2 * p1[1] + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3)]); } }
+  out.push(pts[pts.length - 1]); return out;
+}
+function strokeT(T, pts, w, v, set, onWater, keep) {
+  const r = w / 2;
+  for (const [x, y] of curvePts(pts)) for (let ty = Math.floor(y - r); ty <= y + r; ty++) for (let tx = Math.floor(x - r); tx <= x + r; tx++) {
+    if (!T[ty] || T[ty][tx] === undefined || Math.hypot(tx + .5 - x, ty + .5 - y) > r + .2) continue;
+    if (keep && !keep(T[ty][tx])) continue;
+    if ((T[ty][tx] === WA || T[ty][tx] === LV) && onWater !== undefined) T[ty][tx] = onWater; else if (T[ty][tx] !== BG) T[ty][tx] = v;
+    if (set) set.add(tx + ',' + ty);
+  }
+}
+const wig = (pts, amp, rnd) => pts.map((p, i) => i === 0 || i === pts.length - 1 ? p : [p[0] + (rnd() - .5) * amp, p[1] + (rnd() - .5) * amp * .4]);
+
+/* ---------- pembangun peta bersama ---------- */
+function mapKit(MW, MH, base, seed) {
+  const T = blankT(MW, MH, base), OBJ = [], solids = [], inter = [], signs = [], npcs = [], lights = [], keepOut = new Set(), R2 = srand(seed);
+  const add = (img, x, y, fy, solid, extra) => { OBJ.push(Object.assign({ img, x, y, fy }, extra || {})); if (solid) solids.push(solid); };
+  const reserve = (x, y, w, h) => { for (let j = Math.floor(y); j < y + h; j++) for (let i = Math.floor(x); i < x + w; i++) keepOut.add(i + ',' + j); };
+  const freeAt = (tx, ty, pad = 10) => T[ty] && T[ty][tx] !== undefined && !SOLID_T.has(T[ty][tx]) && ![PV, PZ, BG, DT, IC].includes(T[ty][tx]) && !keepOut.has(tx + ',' + ty) && !keepOut.has(tx + 1 + ',' + ty) && !keepOut.has(tx - 1 + ',' + ty) && !keepOut.has(tx + ',' + (ty + 1))
+    && !solids.some(s => tx * TS + 8 > s.x - pad && tx * TS + 8 < s.x + s.w + pad && ty * TS + 8 > s.y - pad - 2 && ty * TS + 8 < s.y + s.h + pad + 2);
+  const put = (k, tx, ty, i) => {
+    const X = tx * TS, Y = ty * TS;
+    if (k === 'tree' || k === 'treeD') add(makeTree(i, k === 'treeD'), X - 12, Y - 30, Y + 17, { x: X + 5, y: Y + 12, w: 10, h: 6 });
+    else if (k === 'bush' || k === 'bushS') add(makeBush(i, k === 'bushS'), X - 5, Y, Y + 17, { x: X - 2, y: Y + 10, w: 20, h: 7 });
+    else if (k === 'pine') add(makePine(), X - 6, Y - 28, Y + 15, { x: X + 3, y: Y + 10, w: 10, h: 6 });
+    else if (k === 'rock' || k === 'rockI') add(makeRock(k === 'rockI' ? 'ice' : 'stone', i), X - 6, Y, Y + 19, { x: X - 4, y: Y + 8, w: 24, h: 10 });
+    else if (k === 'crys' || k === 'crysI') { add(makeCrys(k === 'crysI'), X, Y, Y + 17, { x: X + 2, y: Y + 10, w: 12, h: 7 }); if (k === 'crys') lights.push({ x: X + 8, y: Y + 8, r: 26, c: 'rgba(200,140,255,' }); }
+    else if (k === 'bench') add(makeBench(), X, Y, Y + 13, { x: X, y: Y + 6, w: 30, h: 7 });
+  };
+  let seq = 0;
+  const grove = (cx, cy, r, n, kinds) => { for (let k = 0, placed = 0; k < n * 4 && placed < n; k++) { const a = R2() * 6.283, d = Math.sqrt(R2()) * r, tx = Math.round(cx + Math.cos(a) * d), ty = Math.round(cy + Math.sin(a) * d * .8); if (freeAt(tx, ty, 6) && !TALL_T.has(T[ty][tx])) { put(kinds[Math.floor(R2() * kinds.length)], tx, ty, ++seq); placed++; } } };
+  const scatter = (n, kinds, y0 = 2, y1 = MH - 3) => { for (let k = 0, placed = 0; k < n * 5 && placed < n; k++) { const tx = 1 + Math.floor(R2() * (MW - 2)), ty = y0 + Math.floor(R2() * (y1 - y0)); if (freeAt(tx, ty, 12) && !TALL_T.has(T[ty][tx])) { put(kinds[Math.floor(R2() * kinds.length)], tx, ty, ++seq); placed++; } } };
+  return { T, OBJ, solids, inter, signs, npcs, lights, keepOut, R2, add, reserve, freeAt, put, grove, scatter };
+}
+
+function buildMap(z) {
+  if (ZONES[z] && ZONES[z].theme) return buildRegion(z);
+  const MW = 38, MH = z === 'school' ? 50 : 60;
+  const K = mapKit(MW, MH, { school: GR, forest: GR, snow: SN, cave: CF }[z], { school: 3, forest: 11, snow: 23, cave: 37 }[z]);
+  const { T, OBJ, solids, inter, signs, npcs, lights, R2, add, reserve, grove, scatter } = K, path = new Set();
+  let spawn, gate, koi = null;
+  if (z === 'school') {
+    // gedung & alun-alun
+    setR(T, 7, 9, 24, 13, PZ); for (const [x, y] of [[7, 9], [30, 9], [7, 21], [30, 21]]) T[y][x] = GR;
+    add(makeSchool(), 9 * TS, 2 * TS, 9 * TS - 2, { x: 9 * TS + 6, y: 2 * TS + 2, w: 20 * TS - 12, h: 7 * TS - 4 }); reserve(8, 1, 22, 9);
+    add(null, 19 * TS - 6 + 8, 13 * TS - 60 + 8, 13 * TS + 6, { x: 19 * TS, y: 13 * TS + 2, w: 12, h: 6 }, { flag: true });
+    add(makeBoard(), 9 * TS, 9 * TS + 6, 9 * TS + 38, { x: 9 * TS + 4, y: 9 * TS + 30, w: 34, h: 8 });
+    add(makeStall(), 25 * TS - 4, 9 * TS + 4, 9 * TS + 48, { x: 25 * TS, y: 9 * TS + 30, w: 60, h: 18 });
+    for (const [x, y] of [[11, 20], [25, 20]]) add(makeBench(), x * TS, y * TS, y * TS + 13, { x: x * TS, y: y * TS + 6, w: 30, h: 7 });
+    reserve(6, 8, 26, 15);
+    // jalan utama berkelok ke gerbang + jalan setapak ke taman
+    strokeT(T, wig([[19.5, 21], [19, 27], [21, 33], [18, 39], [19.5, 47.5], [19.5, 50]], 2, R2), 3.4, DT, path);
+    strokeT(T, [[18.5, 27], [14, 29], [11, 31]], 2, DT, path); strokeT(T, [[20.5, 34], [25, 36], [28, 36.5]], 2, DT, path);
+    // taman kolam (kiri) dan taman bunga (kanan)
+    blobT(T, 7.5, 32, 3.8, 2.8, WA, R2); koi = { x: 7.5 * TS, y: 32 * TS };
+    blobT(T, 29, 37, 5, 3.4, FL, R2, t => t === GR); blobT(T, 6, 42, 4, 2.6, FL, R2, t => t === GR); blobT(T, 31, 27, 3, 2.2, FL, R2, t => t === GR);
+    blobT(T, 32, 44, 3.5, 2.6, TL, R2, t => t === GR);
+    for (const [x, y] of [[11, 30], [25, 35.5]]) add(makeBench(), x * TS, y * TS, y * TS + 13, { x: x * TS, y: y * TS + 6, w: 30, h: 7 });
+    for (const [x, y] of [[3.5, 30.5], [11.5, 33.5], [4, 34.5]]) K.put('rock', Math.round(x), Math.round(y), 3);
+    // gerbang Peta Dunia
+    const gx = 19.5 * TS - 40; add(makeGate(), gx, 47 * TS - 6, 47 * TS + 38, null); solids.push({ x: gx + 1, y: 47 * TS + 24, w: 14, h: 14 }, { x: gx + 66, y: 47 * TS + 24, w: 14, h: 14 }); reserve(16, 45, 8, 5);
+    signs.push({ x: 9 * TS + 160, y: 2 * TS + 64, t: 'METAVERSE SCHOOL', c: '#ffd23c' }, { x: 19.5 * TS, y: 47 * TS + 1, t: 'PETA DUNIA', c: '#ffffff' }, { x: 25 * TS + 28, y: 9 * TS + 7, t: 'TOKO', c: '#ffffff', bg: '#c8402e' }, { x: 7.5 * TS, y: 28.6 * TS, t: 'KOLAM IKAN', c: '#ffffff', bg: '#3a7bd5' }, { x: 29 * TS, y: 33.4 * TS, t: 'TAMAN BUNGA', c: '#ffffff', bg: '#c8507a' });
+    npcs.push({ x: 11.5 * TS, y: 11.6 * TS, dir: 'down', look: { type: 'kid', hair: '#8a8494', glasses: true, top: C.khaki, bottomR: ['#3a2a20', '#5a4030', '#6a5040'], long: true, skin2: true }, name: 'Pak Toto', tag: '#ffc93c', fixed: true, mark: true });
+    npcs.push({ x: 26.7 * TS, y: 12.4 * TS, dir: 'down', look: { type: 'kidh', hijab: '#f08ab8', top: ['#c9a46a', '#e8c88a', '#fff0c8'] }, name: 'Mak Sumi', tag: '#ffffff', fixed: true });
+    const SPOT = [[21.4, 14.2, [20.4, 13, 3, 2.5], 'left'], [12.6, 29.4, [11.6, 28.4, 3.4, 2.2], 'down'], [25.4, 18.4, [24.4, 17.4, 3.4, 2.2], 'down'], [29.4, 15, [28.4, 14, 2.2, 3], 'left']];
+    STUDENTS.forEach((st, i) => { const [sx, sy, ar, d] = SPOT[i]; npcs.push({ x: sx * TS, y: sy * TS, dir: d, look: st.o, name: `${st.n} · R${st.rank}`, tag: '#5bb8f0', area: ar, stu: st }); });
+    inter.push({ x: 11.5 * TS, y: 12.6 * TS, l: 'Bicara dengan Pak Toto', fn: openQuests });
+    inter.push({ x: 26.7 * TS, y: 13.6 * TS, l: 'Masuk Toko Aksesoris', fn: () => openShop() });
+    inter.push({ x: 19.5 * TS, y: 48 * TS + 6, l: 'Pergi ke Peta Dunia', fn: openMap });
+    // pepohonan rimbun di tepi, semak di sekitar alun-alun
+    for (const [x, y, r, n] of [[2.5, 12, 3, 5], [35, 12, 3, 5], [2.5, 22, 3, 4], [35.5, 22, 3, 4], [3, 46, 3, 5], [35, 48, 3, 5], [12, 44, 2.5, 3], [27, 44, 2.5, 3], [13, 37, 2, 2], [33, 31, 2, 2]]) grove(x, y, r, n, ['tree', 'tree', 'tree', 'bush']);
+    for (const [x, y] of [[8, 23], [13, 23], [24, 23], [29, 23], [6, 17], [32, 17]]) K.put('bush', x, y, x * 3 + y);
+    scatter(6, ['tree', 'bush'], 24, MH - 4);
+    spawn = { x: 19.5 * TS, y: 24 * TS }; gate = { x: 19.5 * TS, y: 45 * TS };
+  } else {
+    const pathT = z === 'cave' ? DT : z === 'snow' ? SN : DT, P = wig([[19.5, MH + 1], [19.5, MH - 6], [15, MH - 16], [22, MH - 26], [14, MH - 36], [21, MH - 46], [17, 4], [17, -1]], 3, R2);
+    if (z === 'forest') {
+      const RV = wig([[29, -1], [31, 10], [27, 20], [30, 30], [26, 40], [29, 50], [28, MH + 1]], 3, R2); strokeT(T, RV, 3.2, WA);
+      blobT(T, 6, 20, 2.8, 2, WA, R2);
+      for (const [x, y, rx, ry] of [[8, 10, 4, 3], [13, 25, 4.5, 3], [6, 37, 4, 3], [34, 41, 3, 3.5], [34, 14, 2.8, 3], [21, 48, 4, 2.6], [23, 14, 3, 2.4]]) blobT(T, x, y, rx, ry, TL, R2, t => t === GR);
+      for (const [x, y, rx, ry] of [[10, 50, 3, 2], [24, 32, 2.6, 1.8], [34, 26, 2.5, 2]]) blobT(T, x, y, rx, ry, FL, R2, t => t === GR);
+      strokeT(T, P, 2.6, DT, path, BG); strokeT(T, wig([[16, MH - 30], [24, MH - 33], [34, MH - 36]], 2, R2), 2, DT, path, BG);
+    }
+    if (z === 'snow') {
+      for (const [x, y, rx, ry] of [[26, 14, 5, 3.4], [8, 30, 4, 3], [28, 45, 4.5, 2.8]]) blobT(T, x, y, rx, ry, IC, R2);
+      for (const [x, y, rx, ry] of [[6, 10, 4, 3], [31, 27, 4, 3], [12, 47, 4, 3], [22, 35, 3.5, 2.6], [10, 20, 3, 2.4], [33, 52, 3, 2.2]]) blobT(T, x, y, rx, ry, FS, R2, t => t === SN);
+    }
+    if (z === 'cave') {
+      const LVp = wig([[-1, 28], [8, 26], [16, 31], [24, 27], [31, 31], [39, 29]], 3, R2); strokeT(T, LVp, 3, LV);
+      for (const [x, y, rx, ry] of [[8, 12, 3, 2], [30, 44, 3, 2.2]]) blobT(T, x, y, rx, ry, ST, R2);
+      strokeT(T, P, 2.4, DT, path, BG);
+      for (const [x, y] of curvePts(LVp, 2)) if (T[Math.round(y)] && T[Math.round(y)][Math.round(x)] === LV && Math.round(x) % 3 === 0) lights.push({ x: x * TS, y: y * TS, r: 40, c: 'rgba(255,140,40,' });
+    }
+    for (const k of path) K.keepOut.add(k);
+    reserve(15, MH - 6, 9, 6);
+    const kinds = { forest: ['treeD', 'treeD', 'tree', 'bush'], snow: ['pine', 'pine', 'rockI', 'bushS'], cave: ['rock', 'rock', 'crys'] }[z];
+    const groves = { forest: [[4, 5, 3, 6], [12, 16, 3, 5], [3, 28, 3, 6], [10, 44, 3, 5], [36, 6, 2, 3], [35, 33, 2.5, 4], [36, 55, 2.5, 4], [24, 22, 2, 3], [4, 54, 3, 5]], snow: [[4, 4, 3, 6], [14, 14, 3, 5], [3, 40, 3, 6], [33, 7, 3, 5], [35, 36, 3, 5], [20, 56, 3, 4], [16, 28, 2.5, 4]], cave: [[5, 6, 3, 5], [33, 8, 3, 5], [4, 42, 3, 5], [34, 50, 3, 5], [18, 18, 3, 4], [22, 44, 3, 4]] }[z];
+    for (const [x, y, r, n] of groves) grove(x, y, r, n + 3, kinds);
+    scatter(z === 'cave' ? 30 : 40, kinds);
+    if (z === 'snow') for (let i = 0; i < 8; i++) scatter(1, ['crysI']);
+    add(makePortal(), 19.5 * TS - 20, (MH - 2) * TS - 4, (MH - 2) * TS - 4, null);
+    signs.push({ x: 19.5 * TS, y: (MH - 2) * TS - 12, t: 'KEMBALI KE PETA', c: '#ffffff', bg: '#1d1b46' });
+    inter.push({ x: 19.5 * TS, y: (MH - 2) * TS + 4, l: 'Kembali ke Peta Dunia', fn: openMap });
+    spawn = { x: 19.5 * TS, y: (MH - 4) * TS };
+  }
+  const ground = paintGround(T, MW, MH, z);
+  return { zone: z, MW, MH, T, ground, OBJ, solids, inter, signs, npcsDef: npcs, lights, spawn, gate, koi, dark: z === 'cave' };
+}
+
+/* ---------- wilayah bab (20) ---------- */
+function buildRegion(z) {
+  const Z = ZONES[z], th = Z.theme, MW = 38, MH = 60, CX = 19.5 * TS;
+  const base = { snow: SN, forest: GR, park: GR, town: GR, rock: ST, sand: SD, harbor: GR }[th];
+  const K = mapKit(MW, MH, base, z.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 7));
+  const { T, OBJ, solids, inter, signs, npcs, lights, R2, add, reserve, grove, scatter } = K, path = new Set();
+  const pathT = { snow: IC, town: PV, sand: DT, rock: DT }[th] || DT, tallT = th === 'snow' ? FS : TL, keepBase = t => t === base;
+  // ciri khas tema
+  if (th === 'park') { blobT(T, 8, 20, 4.5, 3, WA, R2); blobT(T, 31, 42, 3, 2.2, WA, R2); for (const [x, y, rx, ry] of [[28, 24, 3.5, 2.4], [7, 46, 3, 2.2], [32, 12, 2.6, 2]]) blobT(T, x, y, rx, ry, FL, R2, keepBase); }
+  if (th === 'forest') { strokeT(T, wig([[31, -1], [33, 12], [29, 24], [32, 36], [29, 50], [30, MH + 1]], 3, R2), 3, WA); blobT(T, 9, 30, 2.5, 1.8, FL, R2, keepBase); }
+  if (th === 'snow') for (const [x, y, rx, ry] of [[27, 22, 5, 3.4], [8, 36, 4, 3]]) blobT(T, x, y, rx, ry, IC, R2);
+  if (th === 'town') { for (const [x, y, w, h] of [[3, 18, 12, 7], [25, 32, 11, 6]]) { setR(T, x, y, w, h, PZ); for (const [a, b] of [[x, y], [x + w - 1, y], [x, y + h - 1], [x + w - 1, y + h - 1]]) T[b][a] = GR; } blobT(T, 30, 16, 3, 2.2, FL, R2, keepBase); }
+  if (th === 'rock') for (const [x, y, rx, ry] of [[7, 16, 4.5, 3.2], [30, 36, 4.5, 3], [10, 44, 3.5, 2.6]]) blobT(T, x, y, rx, ry, GR, R2);
+  if (th === 'sand') { blobT(T, 8, 24, 6, 4.2, GR, R2); blobT(T, 8, 24, 3.6, 2.4, WA, R2); blobT(T, 30, 40, 4, 3, GR, R2); }
+  if (th === 'harbor') { for (let y = 0; y < MH; y++) setR(T, 0, y, 4 + Math.round(Math.sin(y / 6) * 1.5 + Math.sin(y / 2.3) * .5), 1, WA); for (let y = 0; y < MH; y++) setR(T, 4 + Math.round(Math.sin(y / 6) * 1.5 + Math.sin(y / 2.3) * .5), y, 1, 1, SD); setR(T, 0, 16, 9, 2, BG); setR(T, 0, 34, 9, 2, BG); }
+  // rumput tinggi (tempat monster) & padang bunga
+  for (const [x, y, rx, ry] of [[6, 9, 3.6, 2.6], [33, 8, 3, 2.6], [13, 30, 3.6, 2.6], [32, 28, 3.2, 2.4], [6, 52, 3.4, 2.4], [24, 16, 3, 2.2]]) blobT(T, x, y, rx, ry, tallT, R2, t => t === base || t === GR || t === SN);
+  // Kuil di atas, jalan utama berkelok dari bawah
+  setR(T, 14, 3, 12, 8, PZ); for (const [x, y] of [[14, 3], [25, 3], [14, 10], [25, 10]]) T[y][x] = base;
+  strokeT(T, wig([[19.5, MH + 1], [19.5, MH - 7], [17, MH - 17], [22, MH - 27], [16, MH - 37], [21, MH - 45], [19.5, 10]], 3, R2), 3, pathT, path, BG);
+  const RXc = 32;
+  strokeT(T, [[25, 7], [29, 7.5], [RXc, 6], [RXc, -1]], 3, pathT === PV ? DT : pathT, path, BG);
+  const nxId = Z.bab < 5 ? Z.pulau + (Z.bab + 1) : null, lulusNow = () => prog(Z.pulau).lulus.includes(Z.bab);
+  add(makeBarrier(), RXc * TS - 26, 3 * TS + 6, 4 * TS + 6, null, { cond: () => !lulusNow() });
+  signs.push({ x: RXc * TS, y: 2 * TS + 6, t: nxId ? `KE BAB ${Z.bab + 1}` : 'UJIAN AKHIR', c: '#ffffff', bg: Z.col });
+  inter.push({ x: RXc * TS, y: 5 * TS, get l() { return !nxId ? (lulusNow() ? 'Gerbang Ujian Akhir Pulau' : 'Jalan tertutup: lulus Kuil dulu') : lulusNow() ? `Jalan ke ${ZONES[nxId].n} (Bab ${Z.bab + 1})` : 'Jalan tertutup: lulus Kuil dulu'; }, fn: () => goNext(z) });
+  if (Z.bab > 1) {
+    strokeT(T, [[20, MH - 3], [27, MH - 2.6], [37.5, MH - 2.4]], 2.2, pathT === PV ? DT : pathT, path, BG);
+    signs.push({ x: 34 * TS, y: (MH - 4) * TS - 2, t: `KE BAB ${Z.bab - 1}`, c: '#ffffff', bg: '#1d1b46' });
+    inter.push({ x: 35 * TS, y: (MH - 2) * TS + 2, l: `Jalan ke ${ZONES[Z.pulau + (Z.bab - 1)].n} (Bab ${Z.bab - 1})`, fn: () => { enterZone(Z.pulau + (Z.bab - 1)); toast(`Masuk ${esc(ZONES[Z.pulau + (Z.bab - 1)].n)} · Bab ${Z.bab - 1}`); } });
+  }
+  add(makeKuil(Z.col), CX - 31, 4 * TS - 8, 4 * TS + 50, { x: CX - 29, y: 4 * TS + 12, w: 58, h: 36 });
+  signs.push({ x: CX, y: 4 * TS - 14, t: 'KUIL UJIAN', c: '#ffd23c', bg: '#1d1b46' });
+  inter.push({ x: CX, y: 4 * TS + 58, l: `Masuk Kuil Ujian Bab ${Z.bab}`, fn: () => openKuil(z) });
+  for (const [x, y] of [[15, 9], [23, 9]]) add(makeBench(), x * TS, y * TS, y * TS + 13, { x: x * TS, y: y * TS + 6, w: 30, h: 7 });
+  reserve(13, 1, 14, 11); reserve(RXc - 2, 0, 5, 9);
+  // gerbang bab + Akademi + siswa (area aman di bawah gerbang)
+  const gy = (MH - 14) * TS;
+  add(makeGate(Z.col), CX - 40, gy - 30, gy + 12, null); solids.push({ x: CX - 38, y: gy, w: 12, h: 12 }, { x: CX + 26, y: gy, w: 12, h: 12 });
+  signs.push({ x: CX, y: gy - 24, t: `GERBANG BAB ${Z.bab}`, c: '#ffffff' });
+  const ak = makeAkademi(Z.col), axp = CX + 36, ayp = (MH - 10) * TS - 22;
+  add(ak, axp, ayp, ayp + ak.height, { x: axp + 4, y: ayp + 18, w: ak.width - 8, h: ak.height - 20 });
+  signs.push({ x: axp + ak.width / 2, y: ayp - 6, t: 'AKADEMI', c: '#ffffff', bg: '#3a7bd5' });
+  inter.push({ x: axp + ak.width / 2, y: ayp + ak.height + 6, l: `Masuk Akademi Bab ${Z.bab}`, fn: () => openAkademi(z) });
+  strokeT(T, [[20, MH - 7.5], [23.5, MH - 7], [24.2, MH - 6.5]], 1.6, pathT === PV ? DT : pathT, path, BG);
+  reserve(14, MH - 16, 14, 16);
+  const stu = ISTU[z];
+  if (stu) npcs.push({ x: CX - 3 * TS, y: (MH - 9) * TS, dir: 'right', look: stu.o, name: `${stu.n} · R${stu.rank}`, tag: '#5bb8f0', fixed: true, stu });
+  // area rahasia
+  const rx = (th === 'harbor' ? 33 : 3) * TS, ry = 30 * TS, cv2 = makeCave();
+  add(cv2, rx, ry, ry + 32, { x: rx + 4, y: ry + 12, w: 38, h: 18 }); inter.push({ x: rx + 23, y: ry + 40, l: 'Periksa area rahasia', fn: () => openSecret(z) }); reserve(rx / TS - 1, ry / TS - 1, 5, 5);
+  for (const k of path) K.keepOut.add(k);
+  // pepohonan, batu, kios
+  const kinds = { snow: ['pine', 'pine', 'rockI', 'bushS'], forest: ['treeD', 'treeD', 'tree', 'bush'], park: ['tree', 'tree', 'bush'], town: ['tree', 'bush', 'bush'], rock: ['rock', 'rock', 'crys', 'bush'], sand: ['rock', 'bush', 'rock'], harbor: ['tree', 'bush', 'rock'] }[th];
+  for (const [x, y, r, n] of [[3, 3, 3.4, 8], [9, 4, 2.6, 4], [35, 17, 3, 6], [2.5, 24, 3, 6], [27, 49, 3, 6], [10, 40, 3, 5], [35, 47, 2.6, 5], [4, 57, 3.2, 6], [11, 16, 2.6, 4], [26, 36, 2.6, 4], [35, 2.5, 2.4, 4], [2.5, 37, 2.6, 4], [34, 56, 2.6, 4], [16, 22, 2.2, 3], [24, 44, 2, 3]]) grove(x, y, r, n, kinds);
+  scatter(th === 'forest' ? 44 : 32, kinds);
+  scatter(10, th === 'snow' ? ['bushS', 'rockI'] : th === 'rock' || th === 'sand' ? ['rock', 'bush'] : ['bush', 'bush', 'rock']);
+  if (th === 'town') { add(makeStall(), 5 * TS, 19 * TS, 19 * TS + 42, { x: 5 * TS + 4, y: 19 * TS + 26, w: 56, h: 18 }); add(makeStall(), 27 * TS, 33 * TS, 33 * TS + 42, { x: 27 * TS + 4, y: 33 * TS + 26, w: 56, h: 18 }); for (const [x, y] of [[10, 23], [30, 37]]) add(makeBench(), x * TS, y * TS, y * TS + 13, { x: x * TS, y: y * TS + 6, w: 30, h: 7 }); }
+  if (th === 'park') for (const [x, y] of [[12, 22], [27, 44]]) add(makeBench(), x * TS, y * TS, y * TS + 13, { x: x * TS, y: y * TS + 6, w: 30, h: 7 });
+  add(makePortal(), CX - 20, (MH - 2) * TS - 4, (MH - 2) * TS - 4, null);
+  signs.push({ x: CX, y: (MH - 2) * TS - 12, t: 'KEMBALI KE PETA', c: '#ffffff', bg: '#1d1b46' });
+  inter.push({ x: CX, y: (MH - 2) * TS + 4, l: 'Kembali ke Peta Dunia', fn: openMap });
+  const ground = paintGround(T, MW, MH, th);
+  return { zone: z, theme: th, gateY: gy - 2, MW, MH, T, ground, OBJ, solids, inter, signs, npcsDef: npcs, lights, spawn: { x: CX, y: (MH - 4) * TS }, gate: null, dark: false };
+}
 
 /* ---------- battle: 1 vs 1 active, team of up to 3, energy +1 per round (max 5) ---------- */
 let B = null;
@@ -3151,10 +3258,11 @@ function mpConnect() {
   MP.ps = {}; MP.sig = ''; MP.lastPos = '';
   const ch = MP.ch = MP.sb.channel(MP_CH, { config: { broadcast: { self: false }, presence: { key: MP.id } } });
   ch.on('presence', { event: 'sync' }, () => { if (ch === MP.ch) mpPresence(); });
-  ch.on('presence', { event: 'join' }, ({ key }) => { if (ch === MP.ch && key !== MP.id) mpSendPos(true); });
+  ch.on('presence', { event: 'join' }, ({ key }) => { if (ch === MP.ch && key !== MP.id) { mpSendPos(true); setTimeout(raidOnJoin, 1500); } });
   ch.on('broadcast', { event: 'pos' }, ({ payload }) => { if (ch === MP.ch) mpOnPos(payload); });
   ch.on('broadcast', { event: 'em' }, ({ payload }) => { if (ch === MP.ch) mpOnEm(payload); });
   ch.on('broadcast', { event: 'duel' }, ({ payload }) => { if (ch === MP.ch) mpOnDuel(payload); });
+  ch.on('broadcast', { event: 'g' }, ({ payload }) => { if (ch === MP.ch) mpOnG(payload); });
   MP.synced = 0;
   ch.subscribe((s, err) => { if (ch !== MP.ch) return; if (s === 'SUBSCRIBED') { MP.st = 'on'; MP.retry = 0; MP.sig = ''; mpSync(); } else if (s === 'CHANNEL_ERROR' || s === 'TIMED_OUT' || s === 'CLOSED') { MP.why = 'Server menolak/menutup: ' + s + (err ? ' ' + (err.message || err) : ''); mpRetry(); } });
 }
@@ -3173,7 +3281,7 @@ async function mpPresence() {
     for (const m of (st[pk] || []).slice(-4)) {
       if (!m || m.id !== pk || typeof m.ts !== 'number' || !mpZoneOk(m.z)) continue;
       const k = await mpKeyFor(pk, m.k); if (!k) continue;
-      if (await mpVerify(k, ['p', pk, m.n, m.lk, m.z, m.ts, typeof m.c === 'string' ? m.c : '', m.rk], m.sig) && (!best || m.ts > best.ts)) best = m;
+      if (await mpVerify(k, ['p', pk, m.n, m.lk, m.z, m.ts, typeof m.c === 'string' ? m.c : '', m.rk, m.ti], m.sig) && (!best || m.ts > best.ts)) best = m;
     }
     if (g !== MP.gen) return; if (!best) continue;
     const lk = mpLookSafe(best.lk); if (!lk) continue;
@@ -3181,7 +3289,7 @@ async function mpPresence() {
     if (!o) o = MP.ps[pk] = { x: 0, y: 0, tx: 0, ty: 0, dir: 'down', f: 0, ft: 0, has: false, lt: 0, le: 0, pts: 0, rp: [], re: 0 };
     if (best.ts < o.pts) continue; o.pts = best.ts;
     if (o.z !== best.z) { o.has = false; o.z = best.z; }
-    o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : ''; o.rk = mpInt(best.rk, 1, RANK_MAX);
+    o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : ''; o.rk = mpInt(best.rk, 1, RANK_MAX); o.ti = typeof best.ti === 'string' && TBY[best.ti] ? best.ti : '';
   }
   if (g !== MP.gen) return; for (const id in MP.ps) if (!seen[id]) delete MP.ps[id];
   MP.synced = 1; hud();
@@ -3206,9 +3314,9 @@ async function mpOnEm(m) {
 /* ---- kirim ---- */
 async function mpSync() {
   if (MP.st !== 'on' || !S || !MP.ch || !W) return;
-  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, c = compId() || '', rk = S.rank, sig0 = JSON.stringify([n, lk, z, c, rk]); if (sig0 === MP.sig) return; MP.sig = sig0;
-  const ts = mpNext(), ch = MP.ch, sig = await mpSign(['p', MP.id, n, lk, z, ts, c, rk]);
-  if (MP.st === 'on' && ch === MP.ch) { ch.track({ id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk }); setTimeout(() => mpSendPos(true), 600); }
+  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, c = compId() || '', rk = S.rank, ti = S.title && TBY[S.title] ? S.title : '', sig0 = JSON.stringify([n, lk, z, c, rk, ti]); if (sig0 === MP.sig) return; MP.sig = sig0;
+  const ts = mpNext(), ch = MP.ch, sig = await mpSign(['p', MP.id, n, lk, z, ts, c, rk, ti]);
+  if (MP.st === 'on' && ch === MP.ch) { ch.track({ id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti }); setTimeout(() => mpSendPos(true), 600); }
 }
 async function mpSendPos(force) {
   if (MP.st !== 'on' || !W || !W.p || $('#s-world').hidden) return;
@@ -3268,21 +3376,22 @@ function mpDraw(list, person, t, ox, oy) {
   }
   if (MP.me) list.push({ fy: W.p.y + 200, d: () => mpBubble(W.p.x - ox, W.p.y - oy, MP.me, t) });
 }
-function mpTags(tag) { if (!MP || (S && S.mpOff) || MP.st !== 'on') return; for (const o of Object.values(MP.ps)) if (mpHere(o)) tag(o, o.n, '#bfe9ff', titleOf(o.rk || 1)); }
+function mpTags(tag) { if (!MP || (S && S.mpOff) || MP.st !== 'on') return; for (const [id, o] of Object.entries(MP.ps)) if (mpHere(o)) tag(o, (inParty(id) ? '⚑ ' : '') + o.n, inParty(id) ? '#7fe3a8' : '#bfe9ff', titleRemote(o.ti)); }
 async function openChat() {
   const st = S.mpOff ? 'Online dimatikan' : MP.st === 'on' ? `Tersambung · ${mpCount()} siswa online` : MP.st === 'connecting' ? 'Menyambung…' : 'Belum tersambung (main sendirian dulu)';
   const why = MP.st === 'on' || S.mpOff ? '' : ` [${MP.st}${MP.why ? ': ' + MP.why : ''}]`;
   const inZone = Object.values(MP.ps).filter(o => mpHere(o)).length;
-  const row = (lk, nm, loc, here, id) => `<div style="display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:2px solid rgba(36,18,58,.12)"><div style="flex:none;width:36px;height:36px;display:grid;place-items:center">${avatarSvg(lk, 34)}</div><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nm)}</div><div style="font-size:12px;font-weight:700;color:${here ? '#1f7a52' : 'var(--sub)'}">${esc(loc)}${here ? ' · di sini' : ''}</div></div>${id ? `<button type="button" class="btn ghost" data-d="${esc(id)}" style="min-height:34px;padding:2px 10px;font-size:13px;flex:none">Tantang</button>` : ''}</div>`;
+  const row = (lk, nm, loc, here, id) => `<div style="display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:2px solid rgba(36,18,58,.12)"><div style="flex:none;width:36px;height:36px;display:grid;place-items:center">${avatarSvg(lk, 34)}</div><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nm)}</div><div style="font-size:12px;font-weight:700;color:${here ? '#1f7a52' : 'var(--sub)'}">${esc(loc)}${here ? ' · di sini' : ''}</div></div>${id && !inParty(id) && !(MP.party && MP.party.lead !== MP.id) ? `<button type="button" class="btn" data-p="${esc(id)}" style="min-height:34px;padding:2px 8px;font-size:13px;flex:none">Ajak</button>` : ''}${id ? `<button type="button" class="btn ghost" data-d="${esc(id)}" style="min-height:34px;padding:2px 8px;font-size:13px;flex:none">Tantang</button>` : ''}</div>`;
   const others = Object.entries(MP.ps).filter(([, o]) => o.lk && o.z && ZONES[o.z]).sort((a, b) => (mpHere(b[1]) ? 1 : 0) - (mpHere(a[1]) ? 1 : 0));
   const plist = MP.st !== 'on' ? '' : `<div class="card" style="padding:6px 8px;max-height:190px;overflow:auto"><div style="font-size:12px;font-weight:800;color:var(--sub);padding-bottom:2px">Sedang online (${others.length + 1})</div>${row(look(), S.name + ' · R' + S.rank + ' (kamu)', ZONES[W.zone] ? ZONES[W.zone].n : '', false, '')}${others.map(([id, o]) => row(o.lk, o.n + ' · R' + (o.rk || 1), ZONES[o.z].n, mpHere(o), mpHere(o) && !MP.duel ? id : '')).join('') || '<div style="font-size:13px;font-weight:700;color:var(--sub);padding:6px 2px">Belum ada siswa lain yang online.</div>'}</div>`;
-  await modal(`<h2>Teman online</h2><p style="font-size:13px">${esc(st + why)}${MP.st === 'on' ? ` · ${inZone} di wilayah ini` : ''}</p>${plist}
+  const preg = MP.party ? `<div class="card" style="padding:8px 10px;display:flex;align-items:center;gap:8px"><div style="flex:1;font-size:13.5px;font-weight:800">⚑ Regu: ${MP.party.mem.map(id => esc(id === MP.id ? S.name + ' (kamu)' : (MP.ps[id] ? MP.ps[id].n : MP.party.names[id] || '?')) + (id === MP.party.lead ? ' ★' : '')).join(', ')}</div><button type="button" class="btn ghost" data-p="-" style="min-height:34px;padding:2px 10px;font-size:13px">Keluar</button></div>` : '';
+  await modal(`<h2>Teman online</h2><p style="font-size:13px">${esc(st + why)}${MP.st === 'on' ? ` · ${inZone} di wilayah ini` : ''}</p>${preg}${plist}
     <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">${MP_EMO.map((e, i) => `<button type="button" class="btn ghost" data-e="${i}" style="min-height:44px;font-size:22px;padding:0">${e}</button>`).join('')}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${MP_SAY.map((s, i) => `<button type="button" class="btn" data-s="${i}" style="min-height:42px;font-size:14px;padding:4px">${esc(s)}</button>`).join('')}</div>
     <div class="card" style="font-size:12.5px;font-weight:700;color:var(--sub)">Siswa lain di wilayah yang sama bisa melihat nama dan penampilanmu. Tidak ada chat bebas, hanya emote dan kalimat di atas. Ketuk pemain lain di dunia untuk menantangnya duel.</div>
     <button type="button" class="btn ${S.mpOff ? 'hot' : 'ghost'}" data-o="1" style="min-height:42px;font-size:15px">${S.mpOff ? 'Nyalakan online' : 'Matikan online (sembunyi)'}</button>`,
     [{ t: 'Tutup', cls: 'ghost' }],
-    { onOpen: m => m.querySelectorAll('[data-e],[data-s],[data-o],[data-d]').forEach(b => b.onclick = ev => { ev.stopPropagation(); if (b.dataset.d) { m.hidden = true; m.innerHTML = ''; duelAsk(b.dataset.d); return; } if (b.dataset.o) mpOff(!S.mpOff); else if (b.dataset.e !== undefined) mpSay(+b.dataset.e, -1); else mpSay(-1, +b.dataset.s); m.hidden = true; m.innerHTML = ''; }) });
+    { onOpen: m => m.querySelectorAll('[data-e],[data-s],[data-o],[data-d],[data-p]').forEach(b => b.onclick = ev => { ev.stopPropagation(); if (b.dataset.d) { m.hidden = true; m.innerHTML = ''; duelAsk(b.dataset.d); return; } if (b.dataset.p) { m.hidden = true; m.innerHTML = ''; if (b.dataset.p === '-') partyLeave(); else partyInvite(b.dataset.p); return; } if (b.dataset.o) mpOff(!S.mpOff); else if (b.dataset.e !== undefined) mpSay(+b.dataset.e, -1); else mpSay(-1, +b.dataset.s); m.hidden = true; m.innerHTML = ''; }) });
 }
 
 /* ================= DUEL PEMAIN =================
@@ -3311,7 +3420,7 @@ function duelBar(html, btns) {
   b.onclick = e => { const x = e.target.closest('[data-i]'); if (x) btns[+x.dataset.i][2](); };
 }
 const duelBarOff = () => { const b = document.getElementById('duelBar'); if (b) b.remove(); };
-const duelBusy = () => MP.duel || B || !$('#modal').hidden || $('#s-world').hidden || !W || !S.team.length;
+const duelBusy = () => MP.duel || B || RD || !$('#modal').hidden || $('#s-world').hidden || !W || !S.team.length;
 async function duelAsk(id) {
   const o = MP.ps[id]; if (!o || !mpHere(o)) return;
   if (MP.duel) { toast('Kamu sedang dalam tantangan'); return; }
@@ -3354,13 +3463,13 @@ async function mpOnDuel(m) {
   if (m.k === 'bye') { D.over = true; D.why = 'bye'; for (const k in D.w) { const f = D.w[k]; delete D.w[k]; f(null); } return; }
   if ((m.k === 'act' || m.k === 'sw') && tail.length < 12) { const key = m.k + ':' + tail; if (D.w[key]) { const f = D.w[key]; delete D.w[key]; f(x); } else D.q[key] = x; }
 }
-function duelBusy2() { return B || !$('#modal').hidden || $('#s-world').hidden || !W; }
+function duelBusy2() { return B || RD || !$('#modal').hidden || $('#s-world').hidden || !W; }
 /* ketuk pemain lain di dunia untuk menantang */
 document.addEventListener('click', e => {
-  const cvs = e.target && e.target.closest && e.target.closest('#wcv'); if (!cvs || !W || MP.st !== 'on' || (S && S.mpOff) || MP.duel || B) return;
+  const cvs = e.target && e.target.closest && e.target.closest('#wcv'); if (!cvs || !W || MP.st !== 'on' || (S && S.mpOff) || MP.duel || B || RD) return;
   const r = cvs.getBoundingClientRect(), wx = W.ox + (e.clientX - r.left) / SC, wy = W.oy + (e.clientY - r.top) / SC; let best = null, bd = 1e9;
   for (const id in MP.ps) { const o = MP.ps[id]; if (!mpHere(o)) continue; if (Math.abs(wx - o.x) < 14 && wy > o.y - 34 && wy < o.y + 8) { const d = Math.hypot(wx - o.x, wy - (o.y - 14)); if (d < bd) { bd = d; best = id; } } }
-  if (best) duelAsk(best);
+  if (best) playerMenu(best);
 });
 
 /* ================= SIANG-MALAM, CUACA, dan ABSEN BELAJAR =================
@@ -3404,7 +3513,7 @@ async function openEnv() {
   const e = envAt(W && W.zone), fx = envFx(W && W.zone), left = ENV_SLOT - Date.now() % ENV_SLOT;
   await modal(`<h2>${ENV_IC[e.tod]} ${ENV_N[e.tod]}${e.w !== 'dalam' ? ` · ${ENV_IC[e.w]} ${ENV_N[e.w]}` : ''}</h2>
     <div class="card" style="font-size:14px;font-weight:700;display:flex;flex-direction:column;gap:4px">${fx.length ? `<b>Pengaruh ke monster sekarang:</b>${fx.map(x => `<span>${x} ATK</span>`).join('')}` : 'Tidak ada pengaruh elemen saat ini.'}</div>
-    <p style="font-size:13px">Waktu mengikuti jam HP-mu. Cuaca sama untuk semua siswa dan berganti sekitar ${Math.max(1, Math.round(left / 60000))} menit lagi.<br>Malam: Racun +10%, Burung Hantu dan Kelelawar keluar. Siang cerah: Api +10%. Hujan: Api −15%, Es +5%, Kodok sering muncul. Salju: Es +15%, Api −10%.<br>Pengaruh ini tidak berlaku di duel antar pemain.</p>`, [{ t: 'Oke' }]);
+    <p style="font-size:13px">Waktu mengikuti jam HP-mu. Cuaca sama untuk semua siswa dan berganti sekitar ${Math.max(1, Math.round(left / 60000))} menit lagi.<br>Malam: Racun +10%, Burung Hantu dan Kelelawar keluar. Siang cerah: Api +10%. Hujan: Api −15%, Es +5%, Kodok sering muncul. Salju: Es +15%, Api −10%.<br>Pengaruh ini tidak berlaku di duel antar pemain.</p><div class="card" style="font-size:13px;font-weight:700">🐲 <b>Monster Raksasa</b> muncul pukul 13.00, 15.00, 17.00, 19.00, 21.00 WIB selama 30 menit. ${(() => { const sl = raidSlot(); return sl ? (RG.down[sl.id] ? `Sudah dikalahkan. Berikutnya ${raidNextText()}.` : `Sekarang ada di <b>${esc(ZONES[sl.z].n)}</b> sampai ${sl.h}.${RAID_MIN}!`) : `Berikutnya ${raidNextText()}.`; })()} Butuh minimal 2 pemain dalam regu.</div>`, [{ t: 'Oke' }]);
 }
 /* gambar suasana di dunia */
 function envDraw(t, ox, oy, p) {
@@ -3436,7 +3545,7 @@ function streakDone() {
   const st = streak(), td = today(); if (st.last === td) return;
   const g = st.last ? dNum(td) - dNum(st.last) : 99; let used = false;
   if (g === 1) st.n++; else if (g === 2 && st.tw !== weekKey(td)) { st.n++; st.tw = weekKey(td); used = true; } else st.n = 1;
-  st.last = td; const d = ((st.n - 1) % 7) + 1, rw = STREAK_RW[d - 1];
+  st.best = Math.max(st.best || 0, st.n); st.last = td; const d = ((st.n - 1) % 7) + 1, rw = STREAK_RW[d - 1];
   if (rw.coins) addCoins(rw.coins); if (rw.box) S.boxes[rw.box]++;
   save(); hud(); sfx('coin');
   setTimeout(() => toast(`🔥 Absen belajar hari ke-${st.n}! Hadiah: <b>${stRwText(rw)}</b>${used ? ' (tiket libur minggu ini terpakai)' : ''}`, 4200), 600);
@@ -3450,6 +3559,389 @@ function streakCard() {
 }
 let streakNagged = false;
 function streakNag() { if (streakNagged || !S || !S.name || !W) return; streakNagged = true; const s = streakInfo(); if (!s.done) setTimeout(() => toast(`🔥 Selesaikan 1 latihan Akademi hari ini untuk absen hari ke-${s.alive ? s.n + 1 : 1}`, 3800), 1500); }
+
+/* ================= REGU & MONSTER RAKSASA =================
+   Raksasa muncul pukul 13, 15, 17, 19, 21 WIB selama 30 menit di satu wilayah berburu (bergiliran), terlihat semua pemain.
+   Regu pertama yang menyerang mengunci raksasa. Menang = raksasa hilang untuk semua sampai jadwal berikutnya.
+   Dibuat untuk minimal 2 pemain (sendirian boleh mencoba, tapi hampir mustahil). Regu maks 3.
+   Sinkron: ketua regu mengumpulkan aksi semua anggota tiap giliran lalu menyiarkannya; semua HP menghitung hasil yang sama dari benih yang sama. */
+const RAID_HOURS = [13, 15, 17, 19, 21], RAID_MIN = 30, RAID_ZONES = ['forest', 'snow', 'forest', 'cave', 'snow'];
+const RG = { down: {}, lock: null, ann: 0 };
+let RD = null;
+const BI = '<svg width="10" height="12" aria-hidden="true" style="vertical-align:-1px"><use href="#ic-bolt" fill="#ffc93c"/></svg>';
+const wibNow = () => new Date(Date.now() + 7 * 3600e3);
+function raidSlotAt(day, i) {
+  const h = RAID_HOURS[i], id = day * 24 + h, z = RAID_ZONES[i], pool = [...new Set(ZONES[z].pool.filter(x => M[x] && M[x].r !== 'L'))];
+  return { id, z, mon: pool[Math.floor(sRng(id * 131 + 7)() * pool.length)], h };
+}
+function raidSlot() {
+  if (window.RAID_FORCE) return window.RAID_FORCE;
+  const d = wibNow(), h = d.getUTCHours(), i = RAID_HOURS.indexOf(h);
+  if (i < 0 || d.getUTCMinutes() >= RAID_MIN) return null;
+  return raidSlotAt(Math.floor(d.getTime() / 864e5), i);
+}
+function raidNextText() {
+  const d = wibNow(), h = d.getUTCHours() + d.getUTCMinutes() / 60, nx = RAID_HOURS.find(x => x > h);
+  return nx ? `${String(nx).padStart(2, '0')}.00 WIB` : `besok 13.00 WIB`;
+}
+const raidLocked = sl => RG.lock && sl && RG.lock.slot === sl.id && RG.lock.by !== MP.id && Date.now() - RG.lock.t < 45000;
+const raidVisible = sl => sl && W && W.zone === sl.z && !RG.down[sl.id] && !(RD && RD.st === 'fight');
+function raidChip() { const sl = raidSlot(); return sl && !RG.down[sl.id] ? ` <span class="bf" style="background:#c8302a;color:#fff">🐲</span>` : ''; }
+function giantPos() {
+  if (W.gp && W.gp.z === W.zone) return W.gp;
+  const cx = W.MW * TS / 2, cy = W.MH * TS * .38;
+  for (let r = 0; r < 300; r += 8) for (let a = 0; a < 6.28; a += .5) { const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r; if (walkable(x, y) && walkable(x - 16, y) && walkable(x + 16, y)) return (W.gp = { z: W.zone, x, y }); }
+  return (W.gp = { z: W.zone, x: cx, y: cy });
+}
+const ELC = { Api: '255,120,60', Es: '120,200,255', Racun: '150,230,90', Netral: '255,220,120' };
+function raidDraw(list, t, ox, oy) {
+  const sl = raidSlot(); if (!raidVisible(sl)) return; const g = giantPos(), m = M[sl.mon];
+  list.push({ fy: g.y, d: () => {
+    const x = Math.round(g.x - ox), y = Math.round(g.y - oy), img = monImg(sl.mon, Math.floor(t / 2600) % 7 === 0, Math.floor(t / 260) % 2), w = img.width * 2, h = img.height * 2, bob = Math.round(Math.sin(t / 400) * 2);
+    const a = .22 + Math.sin(t / 300) * .08; bx.fillStyle = `rgba(${ELC[m.el] || ELC.Netral},${a})`; bx.beginPath(); bx.ellipse(x, y - h / 2, w * .62, h * .62, 0, 0, 6.283); bx.fill();
+    shadow(x, y, Math.round(w / 2.6)); bx.drawImage(img, x - w / 2, y - h + 4 + bob, w, h);
+    if (raidLocked(sl)) { bx.fillStyle = 'rgba(36,18,58,.35)'; bx.fillRect(x - w / 2, y - h + 4 + bob, w, h); }
+  } });
+}
+function raidTags(tag) {
+  const sl = raidSlot(); if (!raidVisible(sl)) return; const g = giantPos();
+  tag({ x: g.x, y: g.y - 30 }, raidLocked(sl) ? `Dilawan regu ${RG.lock.n}` : `${M[sl.mon].n} Raksasa`, '#ff9a8a');
+}
+/* ---- pesan bertanda tangan umum (to = id pemain, atau '*' untuk semua) ---- */
+async function gSend(to, k, x) {
+  if (MP.st !== 'on') return; const ts = mpNext(), xs = JSON.stringify(x === undefined ? 0 : x), ch = MP.ch, id = MP.id;
+  const sig = await mpSign(['g', id, to, k, xs, ts]);
+  if (MP.st === 'on' && ch === MP.ch) ch.send({ type: 'broadcast', event: 'g', payload: { id, to, k, x: xs, ts, sig } });
+}
+async function mpOnG(m) {
+  if (!m || typeof m.id !== 'string' || (m.to !== MP.id && m.to !== '*') || typeof m.ts !== 'number' || typeof m.k !== 'string' || m.k.length > 8 || typeof m.x !== 'string' || m.x.length > 1500 || !S) return;
+  const o = MP.ps[m.id], c = MP.vk[m.id]; if (!o || !c) return;
+  const now = performance.now(); o.gr = (o.gr || []).filter(t => now - t < 1000); if (o.gr.length > 12) return; o.gr.push(now);
+  if (!await mpVerify(c.key, ['g', m.id, m.to, m.k, m.x, m.ts], m.sig)) return;
+  let x; try { x = JSON.parse(m.x); } catch (e) { return; }
+  gOn(m.k, m.id, o, x);
+}
+const raidBusy = () => B || RD || MP.duel || !$('#modal').hidden || $('#s-world').hidden || !W || !S.team.length;
+function gOn(k, from, o, x) {
+  const sl = raidSlot(), P = MP.party;
+  if (k === 'glock') { if (sl && x && x.slot === sl.id) RG.lock = { slot: sl.id, by: from, n: o.n, t: Date.now() }; return; }
+  if (k === 'gfree') { if (RG.lock && RG.lock.by === from) RG.lock = null; return; }
+  if (k === 'gdown') { if (sl && x && x.slot === sl.id && !RG.down[sl.id]) { RG.down[sl.id] = 1; if (RG.lock && RG.lock.by === from) RG.lock = null; if (!RD) toast(`🐲 ${M[sl.mon].n} Raksasa sudah dikalahkan regu ${esc(o.n)}! Muncul lagi ${raidNextText()}.`, 4200); } return; }
+  // regu
+  if (k === 'pinv') {
+    if ((P && P.mem.length > 1) || raidBusy()) { gSend(from, 'pno', 0); return; }
+    sfx('alert'); let done = false; const end = ok => { if (done) return; done = true; duelBarOff(); gSend(from, ok ? 'pacc' : 'pno', 0); };
+    duelBar(`${esc(o.n)} mengajakmu masuk regu!`, [['Tolak', 'ghost', () => end(false)], ['Terima', 'hot', () => end(true)]]); setTimeout(() => end(false), 20000); return;
+  }
+  if (k === 'pno') { toast(`${esc(o.n)} tidak bisa bergabung ke regu`); return; }
+  if (k === 'pacc') { if (P && P.lead === MP.id && P.mem.length < 3 && !P.mem.includes(from)) { P.mem.push(from); P.names[from] = o.n; partyPush(); toast(`${esc(o.n)} bergabung ke regumu!`); } return; }
+  if (k === 'pset') {
+    if (x && Array.isArray(x.mem) && x.lead === from && x.mem.includes(MP.id) && x.mem.length <= 3) { const was = !!MP.party; MP.party = { lead: from, mem: x.mem.filter(i => typeof i === 'string').slice(0, 3), names: x.names || {} }; if (!was) toast(`Kamu masuk regu ${esc(o.n)}`); }
+    else if (P && P.lead === from) { MP.party = null; toast('Regu bubar'); }
+    return;
+  }
+  if (k === 'pleave') { if (P && P.lead === MP.id && P.mem.includes(from)) { P.mem = P.mem.filter(i => i !== from); toast(`${esc(o.n)} keluar dari regu`); if (P.mem.length <= 1) MP.party = null; else partyPush(); if (MP.party === null) gSend(from, 'pset', { lead: MP.id, mem: [] }); } return; }
+  // raksasa
+  if (k === 'rs') {
+    if (!P || P.lead !== from || raidBusy()) { gSend(from, 'rno', 0); return; }
+    RD = { lead: from, seed: x && x.seed, st: 'wait', q: {}, w: {} }; gSend(from, 'rok', { f: raidMine() });
+    toast('🐲 Ketua regu memulai pertarungan raksasa!', 2600);
+    setTimeout(() => { if (RD && RD.st === 'wait' && RD.lead === from) RD = null; }, 20000); return;
+  }
+  if (!RD) return;
+  if (k === 'rok' || k === 'rno') { if (RD.lead === MP.id && RD.st === 'gather') { if (k === 'rok' && x && Array.isArray(x.f)) RD.fighters[from] = { n: o.n, f: x.f }; RD.replied[from] = 1; } return; }
+  if (k === 'rgo') { if (RD.lead === from && RD.st === 'wait' && x && x.seed === RD.seed) raidRun(x); return; }
+  if (k === 'rbye') { if (RD.lead === from || (RD.order && RD.order.includes(from))) { RD.left = RD.left || {}; RD.left[from] = 1; } if (RD.lead === from) { RD.over = 'dc'; for (const kk in RD.w) { const f = RD.w[kk]; delete RD.w[kk]; f(null); } } return; }
+  if (['rqa', 'rqr', 'ract', 'rrnd'].includes(k) && x && typeof x.key === 'string') {
+    if (k === 'rqr' || k === 'rrnd') { if (from !== RD.lead) return; } else if (!RD.order || !RD.order.includes(from)) return;
+    const key = k + ':' + x.key + (k === 'rqa' || k === 'ract' ? ':' + from : '');
+    if (RD.w[key]) { const f = RD.w[key]; delete RD.w[key]; f(x); } else RD.q[key] = x;
+  }
+}
+function raidWait(key, ms) {
+  return new Promise(res => {
+    if (!RD) { res(null); return; } if (RD.q[key] !== undefined) { const v = RD.q[key]; delete RD.q[key]; res(v); return; } if (RD.over) { res(null); return; }
+    const t = setTimeout(() => { if (RD) delete RD.w[key]; res(null); }, ms);
+    RD.w[key] = v => { clearTimeout(t); res(v); };
+  });
+}
+/* ---- regu ---- */
+function partyPush() { const P = MP.party; if (!P) return; for (const id of P.mem) if (id !== MP.id) gSend(id, 'pset', { lead: P.lead, mem: P.mem, names: P.names }); }
+function partyInvite(id) {
+  const o = MP.ps[id]; if (!o) return; const P = MP.party;
+  if (P && P.lead !== MP.id) { toast('Hanya ketua regu yang bisa mengajak'); return; }
+  if (P && P.mem.length >= 3) { toast('Regu sudah penuh (maks 3)'); return; }
+  if (P && P.mem.includes(id)) { toast(`${esc(o.n)} sudah di regumu`); return; }
+  if (!P) MP.party = { lead: MP.id, mem: [MP.id], names: { [MP.id]: S.name } };
+  gSend(id, 'pinv', 0); toast(`Ajakan regu terkirim ke ${esc(o.n)}`);
+}
+function partyLeave() {
+  const P = MP.party; if (!P) return;
+  if (P.lead === MP.id) for (const id of P.mem) { if (id !== MP.id) gSend(id, 'pset', { lead: MP.id, mem: [] }); }
+  else gSend(P.lead, 'pleave', 0);
+  MP.party = null; toast('Kamu keluar dari regu');
+}
+const inParty = id => !!(MP.party && MP.party.mem.includes(id));
+async function playerMenu(id) {
+  const o = MP.ps[id]; if (!o) return;
+  const c = await modal(`<div style="display:flex;gap:12px;align-items:center">${avatarSvg(o.lk, 48)}<div><h2>${esc(o.n)}</h2><p style="font-size:13px">Rank ${o.rk || 1}${titleRemote(o.ti) ? ' · ' + titleRemote(o.ti)[1] : ''}${inParty(id) ? ' · <b>satu regu</b>' : ''}</p></div></div>`,
+    [{ t: 'Tutup', cls: 'ghost' }, { t: 'Ajak Regu', cls: '' }, { t: 'Tantang Duel', cls: 'hot' }]);
+  if (c === 1) partyInvite(id); else if (c === 2) duelAsk(id);
+}
+/* ---- mulai pertarungan raksasa ---- */
+const raidMine = () => { const id = compId() || S.team[0]; return [id, lvOf(id), bondLv(id)]; };
+async function raidEngage() {
+  const sl = raidSlot(); if (!raidVisible(sl)) return;
+  if (raidLocked(sl)) { toast(`Raksasa sedang dilawan regu ${esc(RG.lock.n)}. Tunggu hasilnya!`); return; }
+  if (!S.team.length) { toast('Timmu masih kosong'); return; }
+  const P = MP.party; if (P && P.lead !== MP.id) { toast('Hanya ketua regu yang bisa memulai. Ajak ketuamu ke sini!'); return; }
+  const mates = P ? P.mem.filter(id => id !== MP.id && MP.ps[id] && mpHere(MP.ps[id])) : [], m = M[sl.mon];
+  const c = await modal(`<div style="display:flex;gap:12px;align-items:center"><div style="width:96px;height:80px;border-radius:14px;border:3px solid var(--deep);${artBg(sl.mon)};display:grid;place-items:center;flex:none">${mSvg(sl.mon)}</div><div><h2>${esc(m.n)} Raksasa</h2><p style="font-size:13px">${elTag(m.el)} Kabur pukul ${sl.h}.${RAID_MIN} WIB</p></div></div>
+    <p>${mates.length ? `Bersama: <b>${mates.map(id => esc(MP.ps[id].n)).join(', ')}</b>. Tiap orang memakai 1 monster (pendampingnya).` : '<b style="color:#ffb072">Kamu sendirian.</b> Raksasa ini dibuat untuk minimal 2 pemain, jadi hampir mustahil dikalahkan sendirian. Ajak teman lewat menu 🌐 atau ketuk pemain lain.'}</p>
+    <p style="font-size:13px">Sebelum bertarung, tiap anggota menjawab 1 soal. Semua benar = Berkah serangan +10%.</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Lawan!', cls: 'hot' }]);
+  if (c !== 1 || !raidVisible(sl) || raidLocked(sl) || RD) return;
+  const seed = Math.random().toString(36).slice(2, 10);
+  RD = { lead: MP.id, seed, st: 'gather', fighters: { [MP.id]: { n: S.name, f: raidMine() } }, replied: {}, q: {}, w: {} };
+  RG.lock = { slot: sl.id, by: MP.id, n: S.name, t: Date.now() }; gSend('*', 'glock', { slot: sl.id });
+  if (mates.length) {
+    for (const id of mates) gSend(id, 'rs', { seed });
+    duelBar('Menunggu anggota regu…', []); const t0 = Date.now();
+    while (Date.now() - t0 < 10000 && mates.some(id => !RD.replied[id])) await wait(200);
+    duelBarOff();
+  }
+  const order = [MP.id, ...mates.filter(id => RD.fighters[id])];
+  const info = { seed, slot: sl.id, mon: sl.mon, z: sl.z, h: sl.h, order, fs: order.map(id => [id, RD.fighters[id].n, RD.fighters[id].f]) };
+  for (const id of order) if (id !== MP.id) gSend(id, 'rgo', info);
+  raidRun(info);
+}
+/* ---- inti pertarungan ---- */
+async function raidRun(info) {
+  const lead = RD.lead, me = MP.id;
+  const order = (info.order || []).filter(id => typeof id === 'string').slice(0, 3);
+  const F = {}; for (const [id, n, f] of info.fs || []) { const t = duelTeam([f]); if (t && order.includes(id)) F[id] = Object.assign(t[0], { owner: id, on: mpName(n), en: 1, guard: 0, prot: null }); }
+  if (!F[me] || !M[info.mon]) { RD = null; return; }
+  const n = order.length, bm = M[info.mon], seedNum = [...String(info.seed)].reduce((a, c) => a * 31 + c.charCodeAt(0) >>> 0, 7);
+  Object.assign(RD, { st: 'gate', order, F, rng: sRng(seedNum), info, round: 1, berkah: false, ph: 0 });
+  const boss = RD.boss = { id: info.mon, m: bm, max: Math.round(bm.hp * (n >= 3 ? 12 : 8)), atkMul: n >= 3 ? 1.3 : 1.15, rage: false }; boss.hp = boss.max;
+  stopLoop();
+  // Gerbang Regu: 1 soal per anggota (soal dipilih dari benih yang sama)
+  const qis = order.map(() => Math.floor(RD.rng() * BANK.length)), myQi = qis[order.indexOf(me)];
+  const r = await runQuiz({ title: 'Gerbang Regu', sub: `Jawab 1 soal untuk regumu · ${bm.n} Raksasa`, qs: [BANK[myQi]] });
+  const okMe = !r.quit && r.ok === 1;
+  let res;
+  if (me === lead) {
+    res = [[me, myQi, okMe]];
+    for (const id of order) if (id !== me) { const a = await raidWait(`rqa:g:${id}`, 60000); res.push([id, qis[order.indexOf(id)], !!(a && a.ok)]); }
+    for (const id of order) if (id !== me) gSend(id, 'rqr', { key: 'g', res });
+  } else {
+    gSend(lead, 'rqa', { key: 'g', ok: okMe });
+    const a = await raidWait('rqr:g', 120000); if (!a || !Array.isArray(a.res)) return raidEnd('dc');
+    res = a.res.filter(x => Array.isArray(x) && order.includes(x[0])).map(([id, , ok]) => [id, qis[order.indexOf(id)], !!ok]);
+  }
+  RD.berkah = res.length === order.length && res.every(x => x[2]);
+  await modal(`<h2>Gerbang Regu ${RD.berkah ? '· Berkah!' : ''}</h2><p>${RD.berkah ? '<b style="color:#3ccf91">Semua benar! Serangan regu +10%.</b>' : 'Tidak semua benar. Tidak apa-apa, baca pembahasannya ya.'}</p>
+    <div class="card" style="display:flex;flex-direction:column;gap:8px;font-size:13.5px;font-weight:700">${res.map(([id, qi, ok]) => `<div><b>${ok ? '✅' : '❌'} ${esc(F[id] ? F[id].on : '?')}</b>${ok ? '' : `<br><span style="color:var(--sub)">${esc(BANK[qi][2])}</span><br><span>Jawaban: ${esc(BANK[qi][3 + 'ABCD'.indexOf(BANK[qi][7])])}. ${esc(BANK[qi][8])}</span>`}</div>`).join('')}</div>`, [{ t: 'Mulai bertarung!', cls: 'hot' }]);
+  RD.st = 'fight'; raidNext(); raidRender(); show('s-battle'); raidLog(`${bm.n} Raksasa mengamuk! Pilih aksi untuk ${F[me].m.n}.`);
+  raidTurn();
+}
+function raidNext() { const al = RD.order.filter(id => RD.F[id].hp > 0), x = RD.rng(); RD.next = x < .5 ? 'hit' : x < .75 ? 'area' : 'focus'; RD.nt = al.length ? al[Math.floor(RD.rng() * al.length)] : null; }
+const RMOVE = { hit: 'Serangan', area: 'Hantaman Area', focus: 'Serangan Fokus' };
+function raidLog(t) { const l = $('#rLog'); if (l) l.innerHTML = t; }
+function raidRender(pick) {
+  const { F, boss, order } = RD, me = MP.id, f = F[me], el = $('#s-battle');
+  const tel = RD.next === 'area' ? 'Bersiap <b>Hantaman Area</b> ke semua!' : RD.next === 'focus' ? `Mengincar <b>${esc(F[RD.nt] ? F[RD.nt].on : '?')}</b> dengan Serangan Fokus!` : `Akan menyerang <b>${esc(F[RD.nt] ? F[RD.nt].on : '?')}</b>`;
+  const card = id => { const x = F[id], hp = Math.max(0, x.hp / x.max); return `<div class="card" style="flex:1;min-width:0;padding:6px;display:flex;flex-direction:column;gap:3px;align-items:center;${x.hp <= 0 ? 'opacity:.45' : ''}${id === me ? ';border-color:#ffd23c' : ''}"><div style="width:56px;height:46px;display:grid;place-items:center">${mSvg(x.id)}</div><b style="font-size:12px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.on)}${id === me ? ' (kamu)' : ''}</b><div class="bar" style="width:100%;height:8px"><i style="width:${hp * 100}%;background:${hp > .5 ? '#3ccf91' : hp > .22 ? '#ffd23c' : '#ff5d5d'}"></i></div><small style="font-weight:800">${Math.max(0, x.hp)}/${x.max} · ${BI}${x.en}${x.guard ? ' · 🛡' : ''}</small></div>`; };
+  const others = order.filter(id => id !== me && F[id].hp > 0), sk = f.m.sk, dead = f.hp <= 0;
+  const acts = pick ? `<div style="display:flex;flex-direction:column;gap:6px"><b style="font-size:14px">${pick === 'lin' ? 'Lindungi siapa?' : 'Beri semangat ke siapa?'}</b>${(pick === 'lin' ? others : order.filter(id => id !== me && F[id].hp > 0)).map(id => `<button type="button" class="btn" data-t="${esc(id)}" style="min-height:44px">${esc(F[id].on)}</button>`).join('')}<button type="button" class="btn ghost" data-t="" style="min-height:40px">Batal</button></div>`
+    : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${dead ? '' : `<button type="button" class="mv" data-a="atk"><b>Serang</b><small>Kerusakan normal</small></button>
+      <button type="button" class="mv sk" data-a="sk" ${f.en < sk.c ? 'disabled' : ''}><b>${esc(sk.n)} <span>${sk.c}${BI}</span></b><small>${sk.m ? 'Jurus kuat' : sk.heal ? 'Pulihkan HP' : 'Perkuat serangan'}</small></button>
+      <button type="button" class="mv df" data-a="def"><b>Bertahan</b><small>Kerusakan −50%, ${BI}+1</small></button>
+      <button type="button" class="mv" data-a="lin" ${others.length ? '' : 'disabled'}><b>Lindungi</b><small>Terima serangan untuk teman</small></button>`}
+      <button type="button" class="mv swp" data-a="sem" ${order.some(id => id !== me && F[id].hp > 0) ? '' : 'disabled'} style="${dead ? 'grid-column:1/3' : ''}"><b>Semangat</b><small>${BI}+1 untuk teman${dead ? ' (monstermu tumbang)' : ''}</small></button></div>`;
+  el.innerHTML = `<div class="bscene"><img class="bg" src="${arenaURL(RD.info.z)}" alt="">
+    <div style="position:absolute;left:10px;right:10px;top:10px;display:flex;flex-direction:column;gap:4px;z-index:2"><div class="card" style="padding:6px 10px"><div class="row" style="justify-content:space-between"><b>${esc(boss.m.n)} Raksasa ${boss.rage ? '<span style="color:#ff5d5d">· MENGAMUK</span>' : ''}</b><small style="font-weight:800">Giliran ${RD.round}/15</small></div>
+    <div class="bar" style="height:12px"><i style="width:${Math.max(0, boss.hp / boss.max) * 100}%;background:#ff5d5d"></i></div><small style="font-weight:800">${Math.max(0, boss.hp)}/${boss.max} · ${elTag(boss.m.el)}${RD.berkah ? ' · Berkah +10%' : ''}</small></div>
+    <div class="card" style="padding:4px 10px;font-size:13px;font-weight:700;background:#24123a;color:#fff">⚠ ${tel}</div></div>
+    <div id="rBoss" style="position:absolute;left:50%;top:52%;transform:translate(-50%,-50%) scale(1.7);width:120px">${mSvg(boss.id)}</div></div>
+    <div class="bpanel"><div style="display:flex;gap:6px">${order.map(card).join('')}</div><div id="rLog" aria-live="polite" style="min-height:38px;font-weight:700;font-size:13.5px"></div><div id="rAct">${RD.busy ? '' : acts}</div></div>`;
+  if (RD.busy) return;
+  const box = $('#rAct');
+  box.onclick = e => {
+    const b = e.target.closest('[data-a],[data-t]'); if (!b || b.disabled) return;
+    if (b.dataset.a === 'lin' || b.dataset.a === 'sem') { raidRender(b.dataset.a); RD.pending = b.dataset.a; return; }
+    if (b.dataset.t !== undefined) { if (!b.dataset.t) { raidRender(); return; } raidChoose({ t: RD.pending, to: b.dataset.t }); return; }
+    raidChoose({ t: b.dataset.a });
+  };
+}
+function raidChoose(a) { if (!RD || RD.busy) return; RD.busy = true; RD.mine = a; raidRender(); raidLog('Menunggu pilihan teman regu…'); }
+async function raidTurn() {
+  while (RD && RD.st === 'fight') {
+    RD.busy = false; RD.mine = null; raidRender(); raidLog(`Giliran ${RD.round}. Pilih aksi! (20 detik)`);
+    const me = MP.id, lead = RD.lead, rk = 'r' + RD.round, t0 = Date.now();
+    while (!RD.mine && Date.now() - t0 < 20000 && !RD.over) await wait(150);
+    if (RD.over) return raidEnd('dc');
+    const mine = RD.mine || { t: RD.F[me].hp > 0 ? 'atk' : 'skip' }; RD.busy = true; raidRender(); raidLog('Menunggu pilihan teman regu…');
+    let acts;
+    if (me === lead) {
+      acts = { [me]: mine };
+      for (const id of RD.order) if (id !== me) { const left = Math.max(1500, 22000 - (Date.now() - t0)); const a = RD.left && RD.left[id] ? null : await raidWait(`ract:${rk}:${id}`, left); acts[id] = a && a.a ? a.a : { t: RD.F[id].hp > 0 ? (RD.left && RD.left[id] ? 'def' : 'atk') : 'skip' }; }
+      for (const id of RD.order) if (id !== me) gSend(id, 'rrnd', { key: rk, acts });
+    } else {
+      gSend(lead, 'ract', { key: rk, a: mine });
+      const a = await raidWait(`rrnd:${rk}`, 45000); if (!a || !a.acts) return raidEnd('dc'); acts = a.acts;
+    }
+    const end = await raidExec(acts);
+    if (end) return raidEnd(end);
+  }
+}
+const rSane = (a, id) => { const F = RD.F, f = F[id], t = a && a.t, to = a && a.to; if (f.hp <= 0) return t === 'sem' && F[to] && to !== id && F[to].hp > 0 ? { t, to } : { t: 'skip' }; if (t === 'sk') return f.en >= f.m.sk.c ? { t } : { t: 'atk' }; if ((t === 'lin' || t === 'sem') && F[to] && to !== id && F[to].hp > 0) return { t, to }; return t === 'def' ? { t } : { t: 'atk' }; };
+async function raidExec(raw) {
+  const { F, boss, order, rng } = RD, lines = [], acts = {};
+  for (const id of order) acts[id] = rSane(raw[id], id);
+  const dmgAct = id => acts[id].t === 'atk' || (acts[id].t === 'sk' && F[id].m.sk.m);
+  const kombo = order.filter(id => F[id].hp > 0 && dmgAct(id) && BEATS[F[id].m.el] === boss.m.el).length >= 2;
+  const allyHit = (f, mult) => Math.max(1, Math.round(f.m.atk * f.am * (1 + (f.buff || 0)) * 1.6 * mult * (f.m.el === 'Netral' ? 1 : effMul(f.m.el, boss.m.el)) * (.9 + .2 * rng()) * (RD.berkah ? 1.1 : 1) * (kombo && BEATS[f.m.el] === boss.m.el ? 1.25 : 1)));
+  for (const id of order) {
+    const f = F[id], a = acts[id];
+    if (a.t === 'skip') continue;
+    if (a.t === 'sem') { F[a.to].en = Math.min(5, F[a.to].en + 1); lines.push(`${esc(f.on)} memberi semangat ke ${esc(F[a.to].on)} (${BI}+1)`); continue; }
+    if (a.t === 'def') { f.guard = 1; f.en = Math.min(5, f.en + 1); lines.push(`${esc(f.on)} bertahan`); continue; }
+    if (a.t === 'lin') { F[a.to].prot = id; lines.push(`${esc(f.on)} melindungi ${esc(F[a.to].on)}`); continue; }
+    if (a.t === 'sk') {
+      const sk = f.m.sk; f.en -= sk.c;
+      if (sk.m) { const d = allyHit(f, sk.m * (sk.hits || 1)); boss.hp -= d; lines.push(`${esc(f.on)} memakai ${esc(sk.n)}: <b>−${d}</b>`); }
+      else if (sk.heal) { const h = Math.round(f.max * .3); f.hp = Math.min(f.max, f.hp + h); lines.push(`${esc(f.on)} memakai ${esc(sk.n)}: HP +${h}`); }
+      else { f.buff = Math.min(.5, (f.buff || 0) + .25); lines.push(`${esc(f.on)} memakai ${esc(sk.n)}: serangan naik`); }
+      continue;
+    }
+    const d = allyHit(f, 1); boss.hp -= d; lines.push(`${esc(f.on)} menyerang: <b>−${d}</b>`);
+  }
+  if (kombo) lines.unshift('<b style="color:#ffd23c">SERANGAN KOMBO! +25%</b>');
+  sfx('hit'); RD.busy = true; raidRender(); raidLog(lines.join('<br>')); await wait(1300);
+  if (boss.hp <= 0) return 'win';
+  // giliran raksasa
+  const bl = [], bossHit = (t, mult) => {
+    let tgt = t; if (t.prot && F[t.prot] && F[t.prot].hp > 0) { tgt = F[t.prot]; mult *= .5; }
+    const d = Math.max(1, Math.round(boss.m.atk * boss.atkMul * 1.6 * mult * (boss.m.el === 'Netral' ? 1 : effMul(boss.m.el, tgt.m.el)) * (.9 + .2 * rng()) * (tgt.guard ? .5 : 1) * (boss.rage ? 1.3 : 1)));
+    tgt.hp -= d; bl.push(`${esc(tgt.on)} −${d}${tgt !== t ? ` (melindungi ${esc(t.on)})` : ''}${tgt.hp <= 0 ? ' · tumbang!' : ''}`);
+  };
+  const alive = order.filter(id => F[id].hp > 0);
+  if (RD.next === 'area') alive.forEach(id => bossHit(F[id], .6));
+  else { const t = F[RD.nt] && F[RD.nt].hp > 0 ? F[RD.nt] : F[alive[Math.floor(rng() * alive.length)]]; if (t) bossHit(t, RD.next === 'focus' ? 1.7 : 1); }
+  sfx(bl.some(x => x.includes('tumbang')) ? 'faint' : 'hit');
+  raidRender(); raidLog(`<b>${esc(boss.m.n)}: ${RMOVE[RD.next]}!</b><br>${bl.join('<br>')}`); await wait(1500);
+  for (const id of order) { const f = F[id]; f.guard = 0; f.prot = null; if (f.hp > 0) f.en = Math.min(5, f.en + 1); }
+  if (!boss.rage && boss.hp / boss.max < .3) { boss.rage = true; }
+  if (!order.some(id => F[id].hp > 0)) return 'lose';
+  RD.round++; if (RD.round > 15) return 'flee';
+  raidNext(); return null;
+}
+async function raidEnd(res) {
+  const D = RD; if (!D) return; D.st = 'end';
+  const sl = D.info || {}, Z = ZONES[sl.z] || ZONES.forest, rw = [];
+  if (D.lead === MP.id) gSend('*', res === 'win' ? 'gdown' : 'gfree', { slot: sl.slot });
+  if (res === 'win') {
+    RG.down[sl.slot] = 1; RG.lock = null; sfx('win');
+    const d = today(); if (!S.gw || S.gw.d !== d) S.gw = { d, n: 0 }; S.gw.n++; S.st.giant = (S.st.giant || 0) + 1;
+    if (S.gw.n <= 3) {
+      const c = Z.coins * 3 + ri(0, 15), xp = battleXP((Z.xp || 8) * 3); addCoins(c); gainXP(xp); rw.push(`${COIN}+${c} koin`, `+${xp} XP`);
+      const x = Math.random() * 100, b = x < 3 ? 'Emas' : x < 18 ? 'Perak' : x < 58 ? 'Kayu' : null; if (b) { S.boxes[b]++; rw.push(`<b>Kotak ${b}!</b>`); }
+    } else rw.push('Batas hadiah raksasa hari ini (3) sudah tercapai');
+    if (bxpNote()) rw.push(bxpNote());
+  } else if (res === 'lose') { RG.lock = null; sfx('lose'); gainXP(3); rw.push('+3 XP'); }
+  else RG.lock = null;
+  save();
+  const head = { win: ['MENANG BERSAMA!', 'Raksasa kalah! Semua anggota regu mendapat hadiah.'], lose: ['Regu kalah...', 'Raksasa masih bebas. Regu lain boleh mencoba, atau atur ulang strategi!'], flee: ['Raksasa kabur!', '15 giliran habis. Lain kali pakai kombo elemen dan Semangat.'], dc: ['Pertarungan terhenti', 'Ketua regu atau anggota terputus.'] }[res] || ['Selesai', ''];
+  await modal(`<div style="text-align:center"><div class="big" style="font-size:34px;${res === 'win' ? 'color:var(--sun)' : ''}">${head[0]}</div><p>${head[1]}</p></div>${rw.length ? `<div class="card" style="display:flex;flex-direction:column;gap:6px;align-items:center;font-weight:800">${rw.map(x => `<div>${x}</div>`).join('')}</div>` : ''}`, [{ t: 'Lanjut', cls: 'hot' }], { dismiss: false });
+  RD = null; if (W) W.safe = performance.now() + 2000; hud(); show('s-world');
+}
+/* ---- penjaga berkala ---- */
+setInterval(() => {
+  if (!S || !S.name) return; const sl = raidSlot();
+  if (sl && RG.ann !== sl.id && !RG.down[sl.id]) { RG.ann = sl.id; toast(`🐲 <b>${esc(M[sl.mon].n)} Raksasa</b> muncul di ${esc(ZONES[sl.z].n)} sampai ${sl.h}.${RAID_MIN} WIB! Ajak regumu!`, 5500); sfx('alert'); }
+  if (W && W.inter) {
+    const had = W.inter.findIndex(i => i.giant); if (had >= 0) W.inter.splice(had, 1);
+    if (raidVisible(sl) && !RD) { const g = giantPos(); W.inter.push({ giant: true, x: g.x, y: g.y + 14, l: raidLocked(sl) ? `Sedang dilawan regu ${RG.lock.n}` : `Lawan ${M[sl.mon].n} Raksasa`, fn: () => raidEngage() }); }
+  }
+  if (RD && RD.lead === MP.id && sl && RD.st !== 'end' && Date.now() - (RD.lk || 0) > 15000) { RD.lk = Date.now(); gSend('*', 'glock', { slot: sl.id }); }
+  const P = MP.party;
+  if (P && MP.st === 'on') {
+    if (P.lead === MP.id) { const gone = P.mem.filter(id => id !== MP.id && !MP.ps[id]); if (gone.length) { P.mem = P.mem.filter(id => !gone.includes(id)); if (P.mem.length <= 1) MP.party = null; else partyPush(); } }
+    else if (!MP.ps[P.lead]) { P.miss = (P.miss || 0) + 1; if (P.miss > 40) { MP.party = null; toast('Regu bubar (ketua tidak terhubung)'); } } else P.miss = 0;
+  }
+}, 500);
+function raidOnJoin() {
+  const sl = raidSlot(); if (!sl) return;
+  if (RG.down[sl.id]) gSend('*', 'gdown', { slot: sl.id });
+  if (RD && RD.lead === MP.id && RD.st !== 'end') gSend('*', 'glock', { slot: sl.id });
+}
+
+/* ================= GELAR: koleksi, syarat, pasang/copot =================
+   Hanya hiasan. Gelar terbuka otomatis saat syarat terpenuhi (notifikasi), murid memasangnya sendiri lewat Profil. */
+const TRAR = { C: ['Biasa', '#ffffff', '#3a3550'], R: ['Langka', '#8fd8ff', '#1f6fb0'], E: ['Epik', '#c9a2ff', '#6a3fc8'], L: ['Legenda', '#ffd23c', '#b86a00'] };
+const ownedN = () => Object.keys(S.owned || {}).length;
+const legN = () => ['mtk', 'ind', 'ipas', 'ing'].filter(k => S.prog && S.prog[k] && S.prog[k].legend).length;
+const bondMax = () => Math.max(1, ...Object.keys(S.owned || {}).map(bondLv));
+const TLIST = [
+  // [id, nama, kategori, rarity, syarat, () => [nilai, target]]
+  ['siswa', 'Siswa Baru', 'Rank', 'C', 'Mulai bermain', () => [1, 1]],
+  ['jelajah', 'Penjelajah', 'Rank', 'R', 'Capai Rank 5', () => [S.rank, 5]],
+  ['ksatria', 'Ksatria Ilmu', 'Rank', 'E', 'Capai Rank 10', () => [S.rank, 10]],
+  ['cendekia', 'Cendekiawan', 'Rank', 'E', 'Capai Rank 15', () => [S.rank, 15]],
+  ['master', 'Master Metaverse', 'Rank', 'L', 'Capai Rank 20', () => [S.rank, 20]],
+  ['jmtk', 'Juara Matematika', 'Belajar', 'E', 'Lulus Ujian Akhir Pulau Matematika', () => [+!!(S.prog && S.prog.mtk && S.prog.mtk.akhirLulus), 1]],
+  ['jind', 'Pujangga Muda', 'Belajar', 'E', 'Lulus Ujian Akhir Pulau B. Indonesia', () => [+!!(S.prog && S.prog.ind && S.prog.ind.akhirLulus), 1]],
+  ['jipas', 'Ilmuwan Cilik', 'Belajar', 'E', 'Lulus Ujian Akhir Pulau IPAS', () => [+!!(S.prog && S.prog.ipas && S.prog.ipas.akhirLulus), 1]],
+  ['jing', 'Fasih Berbahasa', 'Belajar', 'E', 'Lulus Ujian Akhir Pulau B. Inggris', () => [+!!(S.prog && S.prog.ing && S.prog.ing.akhirLulus), 1]],
+  ['sempurna', 'Nilai Sempurna', 'Belajar', 'R', 'Dapat 10/10 di Kuil Ujian', () => [S.st.perfect || 0, 1]],
+  ['kutubuku', 'Kutu Buku', 'Belajar', 'E', 'Selesai membaca kartu Akademi di 20 bab', () => [Object.keys(S.read || {}).length, 20]],
+  ['rajin', 'Rajin Belajar', 'Belajar', 'R', 'Absen belajar 7 hari berturut-turut', () => [Math.max((S.streak && S.streak.best) || 0, (S.streak && S.streak.n) || 0), 7]],
+  ['pantang', 'Pantang Menyerah', 'Belajar', 'L', 'Absen belajar 30 hari berturut-turut', () => [Math.max((S.streak && S.streak.best) || 0, (S.streak && S.streak.n) || 0), 30]],
+  ['pemburu', 'Pemburu Monster', 'Petualang', 'R', 'Menang lawan monster liar 50 kali', () => [S.st.wild || 0, 50]],
+  ['pemburuL', 'Pemburu Legendaris', 'Petualang', 'E', 'Menang lawan monster liar 300 kali', () => [S.st.wild || 0, 300]],
+  ['kolektor', 'Kolektor', 'Petualang', 'R', 'Punya 20 jenis monster', () => [ownedN(), 20]],
+  ['kolektorA', 'Kolektor Agung', 'Petualang', 'L', 'Punya semua 40 jenis monster', () => [ownedN(), MONS.length]],
+  ['penakluk', 'Penakluk Legenda', 'Petualang', 'L', 'Kalahkan 4 monster Legenda di Sarang', () => [legN(), 4]],
+  ['sahabat', 'Sahabat Monster', 'Petualang', 'E', 'Kedekatan maksimal (Lv.5) dengan 1 monster', () => [bondMax(), 5]],
+  ['duelis', 'Duelis', 'Sosial', 'R', 'Menang duel melawan pemain 10 kali', () => [(S.pvp && S.pvp.w) || 0, 10]],
+  ['rajaduel', 'Raja Duel', 'Sosial', 'L', 'Menang duel melawan pemain 50 kali', () => [(S.pvp && S.pvp.w) || 0, 50]],
+  ['kawan', 'Kawan Setia', 'Sosial', 'E', 'Menang melawan Monster Raksasa 5 kali', () => [S.st.giant || 0, 5]],
+  ['admin', 'Super Admin', 'Khusus', 'L', 'Dari kode khusus', () => [+!!S.admin, 1]],
+];
+const TBY = Object.fromEntries(TLIST.map(t => [t[0], t]));
+const titleInfo = id => { const t = TBY[id] || (S && S.tex && S.tex[id] ? [id, S.tex[id].n, 'Khusus', S.tex[id].r || 'E', 'Gelar event', () => [1, 1]] : null); return t ? [0, t[1], TRAR[t[3]][1], t[3], t[0]] : null; };
+const titleRemote = id => typeof id === 'string' && TBY[id] ? titleInfo(id) : null;
+function titlesInit() {
+  if (!S) return; if (!S.tgot) { S.tgot = {}; for (const t of TLIST) { const [v, g] = t[5](); if (v >= g) S.tgot[t[0]] = 1; } }
+  if (S.title === undefined) { const r = ['master', 'cendekia', 'ksatria', 'jelajah', 'siswa'].find(id => S.tgot[id]); S.title = r || 'siswa'; }
+}
+function myTitle() { titlesInit(); return S.title ? titleInfo(S.title) : null; }
+let titleT = 0;
+function titleCheck() {
+  if (!S || !S.name) return; titlesInit(); const now = performance.now(); if (now - titleT < 1500) return; titleT = now;
+  const fresh = []; for (const t of TLIST) if (!S.tgot[t[0]]) { const [v, g] = t[5](); if (v >= g) { S.tgot[t[0]] = 1; fresh.push(t); } }
+  if (fresh.length) { save(); fresh.forEach((t, i) => setTimeout(() => toast(`🏅 Gelar baru: <b style="color:${TRAR[t[3]][1]};-webkit-text-stroke:.3px #24123a">${t[1]}</b>! Pasang di Profil.`, 3600), 600 + i * 1200)); sfx('rank'); }
+}
+async function openTitles() {
+  titlesInit(); titleCheck();
+  const cats = ['Rank', 'Belajar', 'Petualang', 'Sosial', 'Khusus'], got = id => !!S.tgot[id];
+  const ex = Object.keys(S.tex || {}).map(id => [id, S.tex[id].n, 'Khusus', S.tex[id].r || 'E', 'Gelar event', () => [1, 1]]);
+  const all = TLIST.concat(ex), nGot = all.filter(t => got(t[0]) || (S.tex && S.tex[t[0]])).length;
+  const row = t => {
+    const [id, n, , r, syarat, fn] = t, has = got(id) || (S.tex && S.tex[id]), [v, g] = fn(), on = S.title === id;
+    if (!has && id === 'admin') return '';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:2px solid rgba(36,18,58,.1);${has ? '' : 'opacity:.6'}">
+      <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14.5px"><span style="color:${has ? TRAR[r][2] : '#8a84a0'}">${has ? '' : '🔒 '}${esc(n)}</span> <small style="font-weight:800;color:${TRAR[r][2]};opacity:.75">${TRAR[r][0]}</small></div>
+      <div style="font-size:12px;font-weight:700;color:var(--sub)">${esc(syarat)}${has ? '' : ` · ${Math.min(v, g)}/${g}`}</div>${has ? '' : `<div class="bar" style="height:5px;margin-top:3px"><i style="width:${Math.min(1, v / g) * 100}%"></i></div>`}</div>
+      ${has ? (on ? '<button type="button" class="btn ghost" data-t="" style="min-height:34px;padding:2px 10px;font-size:13px;flex:none">Copot</button>' : `<button type="button" class="btn" data-t="${id}" style="min-height:34px;padding:2px 10px;font-size:13px;flex:none">Pasang</button>`) : ''}</div>`;
+  };
+  const cur = myTitle();
+  const c = await modal(`<h2>🏅 Gelar</h2><p style="font-size:13px">Terkumpul ${nGot}/${all.length - (S.tgot.admin ? 0 : 1)}. Dipakai: ${cur ? `<b style="color:${cur[2]};-webkit-text-stroke:.4px #24123a">${esc(cur[1])}</b>` : '<b>tanpa gelar</b>'}. Gelar hanya hiasan dan terlihat oleh pemain lain.</p>
+    <div style="max-height:52vh;overflow:auto;display:flex;flex-direction:column;gap:2px">${cats.map(k => { const rs = all.filter(t => t[2] === k).map(row).join(''); return rs ? `<div class="disp" style="font-size:16px;margin-top:6px">${k}</div><div class="card" style="padding:2px 8px">${rs}</div>` : ''; }).join('')}</div>`,
+    [{ t: 'Tutup', cls: 'ghost' }], { onOpen: m => m.querySelectorAll('[data-t]').forEach(b => b.onclick = ev => { ev.stopPropagation(); S.title = b.dataset.t; save(); m.hidden = true; m.innerHTML = ''; toast(S.title ? `Gelar dipasang: <b>${esc(titleInfo(S.title)[1])}</b>` : 'Gelar dicopot'); openTitles(); if (typeof hud === 'function') hud(); }) });
+  if (!$('#s-prof').hidden) openProf();
+}
+setInterval(() => { if (S && S.name && W) titleCheck(); }, 2000);
 
 /* ================= KODE HADIAH =================
    Daftar kode disimpan sebagai sidik jari (bukan teks asli). Tambah kode baru: node mkcode.js KODE-BARU, lalu masukkan hasilnya di CODES.
@@ -3475,6 +3967,7 @@ function codeApply(r) {
     S.team = team; S.comp = team[0]; S.coins = Math.max(S.coins, 99999); ['Kayu', 'Perak', 'Emas'].forEach(k => S.boxes[k] += 5);
     out.push('<b>Mode Super Admin aktif!</b>', 'Semua monster Lv. maksimal dan semua aksesoris terbuka', 'Semua pulau dan Sarang Legenda terbuka', `${COIN}99.999 koin dan 5 kotak tiap jenis`);
   }
+  if (r.title && r.title.id && r.title.n) { if (!S.tex) S.tex = {}; S.tex[r.title.id] = { n: r.title.n, r: r.title.r || 'E' }; if (!S.tgot) S.tgot = {}; S.tgot[r.title.id] = 1; out.push(`Gelar khusus: <b>${esc(r.title.n)}</b>`); }
   if (r.coins) { S.coins += r.coins; out.push(`${COIN}+${r.coins} koin`); }
   if (r.xp) { gainXP(r.xp); out.push(`+${r.xp} XP`); }
   if (r.boxes) for (const k in r.boxes) { S.boxes[k] += r.boxes[k]; out.push(`Kotak ${k} ×${r.boxes[k]}`); }
@@ -3688,7 +4181,7 @@ async function openProf() {
     <div class="card" style="display:flex;flex-direction:column;gap:8px">
       <div class="row"><div style="flex:1;min-width:0"><div class="disp" style="font-size:28px;line-height:1">${esc(S.name)}</div><div style="font-size:13px;font-weight:800;color:var(--sub)">Metaverse School${S.admin ? ' · ★ Super Admin' : ''}</div></div>
       <div style="width:58px;height:58px;border-radius:50%;background:var(--text);border:3px solid var(--sun);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sun)"><span style="font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--muted)">RANK</span><span class="disp" style="font-size:24px;line-height:1">${S.rank}</span></div></div>
-      <div style="font-size:14px;font-weight:800">Gelar: <span style="color:${titleOf(S.rank)[2]};-webkit-text-stroke:.4px #24123a">${titleOf(S.rank)[1]}</span></div>${S.rank >= RANK_MAX ? '<div style="font-size:12px;font-weight:800;color:var(--sub)">Rank maksimal tercapai!</div>' : `<div class="bar"><i style="width:${S.xp / need(S.rank) * 100}%"></i></div><div style="font-size:12px;font-weight:800;color:var(--sub)">${S.xp}/${need(S.rank)} XP ke Rank ${S.rank + 1}</div>`}
+      <div class="row" style="justify-content:space-between;gap:8px"><div style="font-size:14px;font-weight:800;min-width:0">Gelar: ${myTitle() ? `<span style="color:${myTitle()[2]};-webkit-text-stroke:.5px #24123a;paint-order:stroke fill">${esc(myTitle()[1])}</span>` : '<span style="color:var(--muted)">tanpa gelar</span>'} <small style="color:var(--muted)">(${Object.keys(S.tgot || {}).length} terkumpul)</small></div><button type="button" class="btn" id="pTitle" style="min-height:34px;padding:2px 12px;font-size:13px;flex:none">🏅 Ganti</button></div>${S.rank >= RANK_MAX ? '<div style="font-size:12px;font-weight:800;color:var(--sub)">Rank maksimal tercapai!</div>' : `<div class="bar"><i style="width:${S.xp / need(S.rank) * 100}%"></i></div><div style="font-size:12px;font-weight:800;color:var(--sub)">${S.xp}/${need(S.rank)} XP ke Rank ${S.rank + 1}</div>`}
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center">${[[S.st.win, 'Menang'], [owned, 'Monster'], [S.st.latihan || 0, 'Latihan'], [S.st.opened, 'Kotak']].map(([v, l]) => `<div style="background:var(--soft);border-radius:12px;padding:4px 2px"><div class="disp" style="font-size:20px">${v}</div><div style="font-size:11px;font-weight:800;color:var(--sub)">${l}</div></div>`).join('')}</div>
     </div>
     <div class="row" style="justify-content:space-between"><span class="disp" style="font-size:18px">Dipakai</span></div>
@@ -3703,6 +4196,7 @@ async function openProf() {
   </div>`;
   $('#pBack').onclick = () => { show('s-world'); hud(); };
   $('#pShop').onclick = () => openShop('prof');
+  $('#pTitle').onclick = () => openTitles();
   $('#pCode').onclick = async () => { await openCode(); openProf(); };
   $('#pMus').onclick = () => { sndSet('m', !SND.st.m); openProf(); };
   $('#pSfx').onclick = () => { sndSet('s', !SND.st.s); openProf(); sfx('coin'); };
