@@ -52,7 +52,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-of
 .toast{background:#fff;color:var(--text);border:3px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink);padding:5px 12px;font-weight:800;font-size:14px;animation:tin .25s ease-out;text-align:center}
 @keyframes tin{from{transform:translateY(-10px);opacity:0}}
 #modal{position:absolute;inset:0;z-index:50;background:rgba(10,8,30,.6);display:flex;align-items:flex-end;justify-content:center}
-.sheet{width:100%;max-height:86%;background:var(--navy);border-top:3px solid var(--line);border-radius:22px 22px 0 0;padding:18px 16px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;animation:up .25s ease-out}
+.sheet>*{flex-shrink:0}
+.sheet{width:100%;max-height:86%;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:var(--navy);border-top:3px solid var(--line);border-radius:22px 22px 0 0;padding:18px 16px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;animation:up .25s ease-out}
 @keyframes up{from{transform:translateY(40px);opacity:.4}}
 .sheet h2{margin:0;font-family:var(--display);font-weight:400;font-size:24px;color:var(--sun)}
 .sheet p{margin:0;color:var(--muted);font-weight:600;line-height:1.4}
@@ -849,7 +850,28 @@ const SETS = {
   master: { n: 'Set Master Metaverse', c: '#ffd23c', items: [['mahkotam', 'hat', 'Mahkota Metaverse', 3000, 20], ['jubahagung', 'shirt', 'Jubah Agung', 3500, 20], ['galaksi', 'pants', 'Celana Galaksi', 3500, 20], ['cahaya', 'shoes', 'Sepatu Cahaya', 4000, 20], ['sayapnaga', 'back', 'Sayap Naga', 5000, 20]] }
 };
 for (const k in SETS) for (const [id, slot, n, p, rk] of SETS[k].items) SHOP.push({ id, slot, n, p, rk, set: k });
-const setOf = L => { for (const k in SETS) if (L && SETS[k].items.every(([id, slot]) => L[slot] === id)) return k; return null; };
+/* Khusus perempuan Rank 6-20 (bervariasi, tidak semua hijab). Hijab set menggantikan topi set agar set tetap lengkap. */
+SHOP.push(
+  { id: 'hjjelajah', slot: 'hat', n: 'Hijab Penjelajah', p: 700, rk: 6, g: 'p', hj: '#c9a46a', pin: 'kompas' },
+  { id: 'pita', slot: 'hat', n: 'Pita Rambut Besar', p: 800, rk: 7, g: 'p' },
+  { id: 'gaunbunga', slot: 'shirt', n: 'Gaun Bunga', p: 1000, rk: 8, g: 'p' },
+  { id: 'hjksatria', slot: 'hat', n: 'Hijab Ksatria', p: 1100, rk: 10, g: 'p', hj: '#9aa4b8', pin: 'bintang', trim: '#3a7bd5' },
+  { id: 'tiara', slot: 'hat', n: 'Tiara Bintang', p: 1300, rk: 11, g: 'p' },
+  { id: 'tutu', slot: 'pants', n: 'Rok Tutu', p: 1300, rk: 12, g: 'p' },
+  { id: 'balet', slot: 'shoes', n: 'Sepatu Balet', p: 1400, rk: 13, g: 'p' },
+  { id: 'hjcendekia', slot: 'hat', n: 'Hijab Cendekiawan', p: 2000, rk: 15, g: 'p', hj: '#2f8a5a', pin: 'buku', trim: '#ffd23c' },
+  { id: 'selendang', slot: 'back', n: 'Selendang Sutra', p: 2200, rk: 16, g: 'p' },
+  { id: 'kebayaemas', slot: 'shirt', n: 'Kebaya Emas', p: 2500, rk: 17, g: 'p' },
+  { id: 'sayapperi', slot: 'back', n: 'Sayap Peri', p: 2800, rk: 18, g: 'p' },
+  { id: 'hjmaster', slot: 'hat', n: 'Hijab Master', p: 3500, rk: 20, g: 'p', hj: '#fff3d0', pin: 'mahkota', trim: '#ffc93c' }
+);
+/* Eksklusif Pedagang Malam (19.00-21.00): tidak ada di toko biasa */
+SHOP.push(
+  { id: 'topitidur', slot: 'hat', n: 'Topi Tidur', p: 700, rk: 1, night: 1 }, { id: 'piyama', slot: 'shirt', n: 'Piyama Bulan', p: 900, rk: 1, night: 1 },
+  { id: 'celpiyama', slot: 'pants', n: 'Celana Piyama', p: 800, rk: 1, night: 1 }, { id: 'sandalbulan', slot: 'shoes', n: 'Sandal Bulan', p: 700, rk: 1, night: 1 }
+);
+const SET_ALT = { safari: 'hjjelajah', helmksatria: 'hjksatria', togaemas: 'hjcendekia', mahkotam: 'hjmaster' };
+const setOf = L => { for (const k in SETS) if (L && SETS[k].items.every(([id, slot]) => L[slot] === id || (SET_ALT[id] && L[slot] === SET_ALT[id]))) return k; return null; };
 const SH = Object.fromEntries(SHOP.map(s => [s.id, s]));
 
 /* ---------- save state ---------- */
@@ -1186,6 +1208,7 @@ const SHIRTS = {
   pramuka: { r: ['#6a5a32', '#a8945a', '#d4c08a'] }, kemeja: { r: ['#5a8ab0', '#9ac8ee', '#d6eeff'] }, hero: { r: ['#8a1a1a', '#e0302a', '#ff6a5a'] },
   kaosmerah: { r: ['#8a1a1a', '#e0302a', '#ff7a6a'] }, polka: { r: ['#1f4f9a', '#3a7bd5', '#7aaaf0'] }, koko: { r: ['#b8ae94', '#efe8d6', '#ffffff'] },
   kebaya: { r: ['#b03a6a', '#f06aa8', '#ffb0d0'] }, labcoat: { r: ['#a8b0c0', '#e6ecf4', '#ffffff'] },
+  piyama: { r: ['#1f2a6a', '#3a4fb0', '#7a92f0'] }, gaunbunga: { r: ['#c8507a', '#ff8ab8', '#ffd1e4'] }, kebayaemas: { r: ['#a86a0a', '#ffc93c', '#fff0b0'] },
   rompi: { r: ['#8a6a3a', '#c9a46a', '#e6c890'] }, zirah: { r: ['#6a7488', '#c9d2e0', '#eef2f8'] }, jubahc: { r: ['#1f5a3a', '#2f8a5a', '#5ac08a'] }, jubahagung: { r: ['#3a1a5a', '#5a2e8a', '#8a5ac8'] },
 };
 const PANTS = {
@@ -1195,12 +1218,14 @@ const PANTS = {
   kargo: { r: ['#4a5a2a', '#6a7a3a', '#8a9a5a'], k: 'long' }, pramukap: { r: ['#4a3a20', '#6a5a32', '#8a7a52'], k: 'long' },
   celputih: { r: ['#a8b0c0', '#e6ecf4', '#ffffff'], k: 'long' }, sarung: { r: ['#1d3f6a', '#2f6aa8', '#6a9ad8'], k: 'skirt', long: 1, check: 1 },
   rokpanjang: { r: ['#4a2a7a', '#7b4fd6', '#a88af0'], k: 'skirt', long: 1 }, rokbatik: { r: ['#6a3a1a', '#a8642a', '#d99a4a'], k: 'skirt', batik: 1 },
+  celpiyama: { r: ['#1f2a6a', '#4a5fc0', '#8aa0f8'], k: 'long' }, tutu: { r: ['#9a7ad8', '#c9b0ff', '#ece0ff'], k: 'skirt', tutu: 1 },
   celksatria: { r: ['#1d2a5a', '#2f4a8a', '#5a7ac8'], k: 'long', knee: '#c9d2e0' }, galaksi: { r: ['#120a2e', '#2e1a6a', '#4a2e9a'], k: 'long', stars: 1 },
 };
 const SHOES = {
   sneak: { c: ['#ffffff', '#e0302a'] }, sandal: { c: ['#8a5530'], sandal: 1 }, lari: { c: ['#3a7bd5', '#ff8a3c'] }, bot: { c: ['#5a3420', '#8a5530'], tall: 1 },
   neon: { c: ['#1f1a26', '#7fff5a'], neon: 1 }, emas: { c: ['#c97a0a', '#ffd23c'] }, roket: { c: ['#c8302a', '#ffd23c'], rocket: 1 }, putih: { c: ['#f3f3f8', '#9aa4b8'] },
   hitam: { c: ['#1f1a26', '#5a5468'] }, crocs: { c: ['#3fbf5a', '#1f6a2a'], holes: 1 }, botmerah: { c: ['#a81a1a', '#ff5a4a'], tall: 1 }, lampu: { c: ['#f3f3f8', '#5bb8f0'], light: 1 },
+  balet: { c: ['#ff9ac8', '#ffd1e4'], ribbon: 1 }, sandalbulan: { c: ['#3a4fb0', '#ffd23c'], sandal: 1 },
   gunung: { c: ['#6a4428', '#ff8a3c'], tall: 1 }, besi: { c: ['#9aa4b8', '#eef2f8'], tall: 1 }, bintang: { c: ['#1d1b46', '#ffd23c'], star: 1 }, cahaya: { c: ['#ffffff', '#7fe8ff'], glow: 1 },
 };
 function pxLook(o) {
@@ -1208,7 +1233,7 @@ function pxLook(o) {
   const hs = hi ? 'hijab' : o.hs || (o.type === 'kidh' ? 'hijab' : 'pendek'), hj = hs === 'hijab';
   const hc = hi ? hi.hj : o.hc || (hj ? (o.hijab || '#ffffff') : (o.hair || C.hair));
   const pd = PANTS[o.pants], skirtUni = gOf(o) === 'p';
-  return { hs, hijab: hj ? ramp(hc) : null, hjm: hi && hi.motif, hairCol: hj ? null : (o.hc || o.hair || C.hair), skin: o.sk != null ? SKINS[o.sk] : o.skin2 ? C.skin2 : C.skin, eye: o.ec || EY, glasses: o.glasses,
+  return { hs, hijab: hj ? ramp(hc) : null, hjm: hi && hi.motif, hjp: hi && hi.pin, hjt: hi && hi.trim, hairCol: hj ? null : (o.hc || o.hair || C.hair), skin: o.sk != null ? SKINS[o.sk] : o.skin2 ? C.skin2 : C.skin, eye: o.ec || EY, glasses: o.glasses,
     shirt: o.top || (SHIRTS[o.shirt] && SHIRTS[o.shirt].r) || C.white, pat: o.shirt, tie: !o.shirt && !o.top,
     bottom: o.bottomR || (pd && pd.r) || C.red, pk: pd ? pd.k : o.bottomR ? 'long' : skirtUni ? 'skirt' : 'sd', pant: o.pants, hat: hi ? null : o.hat, shoes: o.shoes, gl: o.glass || null, bk: o.back || null };
 }
@@ -1256,6 +1281,16 @@ function hat(g, h, dir) {
   } else if (h === 'wisuda') {
     R(g, 4, 2, 8, 3, '#24142c'); R(g, 0, 1, 16, 2, '#1f1a26'); R(g, 0, 1, 16, 1, '#3a3442'); P(g, 8, 1, '#ffd23c');
     if (!up) { R(g, side ? 2 : 13, 2, 1, 4, '#ffd23c'); P(g, side ? 2 : 13, 6, '#ff8a2a'); }
+  } else if (h === 'topitidur') {
+    E(g, 8, 3.2, 6.4, 3.2, ['#1f2a6a', '#3a4fb0', '#6a82e0', '#a8baff']); R(g, 2, 5, 12, 1, '#ffffff');
+    if (!up) { P(g, 6, 2, '#ffd23c'); P(g, 10, 3, '#ffd23c'); } const tx = side ? 12 : 13; R(g, tx - 3, -1, 4, 2, '#3a4fb0'); P(g, tx + 1, 0, '#3a4fb0'); E(g, tx + 1.5, 1.2, 1.3, 1.3, RP.W);
+  } else if (h === 'pita') {
+    const c = ['#a81a3a', '#e0305a', '#ff7a9a'];
+    if (up) { E(g, 8, 2.5, 2, 1.6, [c[0], c[1], c[1], c[2]]); TRI(g, 3, 0, 5, 5, c[1]); TRI(g, 8, 0, 5, 5, c[1]); }
+    else { const bx = side ? 10 : 12; TRI(g, bx - 4, -1, 4, 5, c[1]); TRI(g, bx + 1, -1, 4, 5, c[1]); E(g, bx + .5, 1.5, 1.6, 1.6, [c[0], c[1], c[2], c[2]]); P(g, bx - 3, 0, c[2]); P(g, bx + 3, 0, c[2]); R(g, bx - 1, 3, 1, 3, c[0]); R(g, bx + 2, 3, 1, 3, c[0]); }
+  } else if (h === 'tiara') {
+    R(g, 3, 2, 10, 1, '#d6dce8'); R(g, 4, 1, 8, 1, '#eef2f8');
+    if (!up) { for (const [x, c] of [[5, '#8fd8ff'], [8, '#ffd23c'], [11, '#ff8ab8']]) P(g, x, 0, c); P(g, 8, -1, '#ffd23c'); P(g, 7, 0, '#ffd23c'); P(g, 9, 0, '#ffd23c'); P(g, 8, 1, '#ffffff'); }
   } else if (h === 'safari') {
     E(g, 8, 3, 6.6, 3.4, ramp('#c9a46a')); R(g, 1, 5, 14, 1, '#8a6a3a'); R(g, 2, 4, 12, 1, '#6a4a2a'); P(g, 8, 0, '#e6c890');
   } else if (h === 'helmksatria') {
@@ -1283,6 +1318,7 @@ function shoeAt(g, o, x, y, h) {
   if (s.holes) { P(g, x, y, s.c[1]); }
   if (s.light) { P(g, x, y + h - 1, '#ff5d8f'); P(g, x + 1, y + h - 1, '#ffd23c'); }
   if (s.neon) { P(g, x, y, '#7fff5a'); P(g, x + 1, y + h - 1, '#7fff5a'); P(g, x, y + h - 1, '#2a6a1a'); }
+  if (s.ribbon) { P(g, x, y - 1, '#ff5d8f'); P(g, x + 1, y - 2, '#ff5d8f'); }
   if (s.star) P(g, x, y, '#ffd23c');
   if (s.glow) { P(g, x, y + h - 1, '#7fe8ff'); P(g, x + 1, y + h - 1, '#bff6ff'); }
   if (s.rocket && h === 1) { P(g, x, y + 1, '#ffd23c'); P(g, x + 1, y + 1, '#ff8a2a'); P(g, x, y + 2, '#ff8a2a'); }
@@ -1315,15 +1351,20 @@ function glassAt(g, o, dir) {
   if (hj) { lens(5, 8, 2, 0); lens(9, 8, 2, 1); R(g, 7, 8, 2, 1, fr); }
   else { lens(4, 7, 3, 0); lens(9, 7, 3, 1); R(g, 7, 7, 2, 1, fr); }
 }
-const BAGC = { tasmerah: ['#8a1a1a', '#e0302a', '#ff7a6a'], tasbiru: ['#1f4f9a', '#3a7bd5', '#7aaaf0'], tasberuang: ['#6a4428', '#a8743f', '#d9a066'], tasroket: ['#6a7488', '#c9d2e0', '#ffffff'], sayap: ['#a8b8d0', '#e6eef8', '#ffffff'], sayapkupu: ['#b03a6a', '#ff8ab8', '#ffd1e4'], kompas: ['#2a5a2a', '#4ea543', '#86cc5a'], perisai: ['#1f4f9a', '#3a7bd5', '#7aaaf0'], sayapbuku: ['#b8a47a', '#fff6dc', '#ffffff'], sayapnaga: ['#6a1010', '#c8302a', '#ff6a5a'] };
+const BAGC = { tasmerah: ['#8a1a1a', '#e0302a', '#ff7a6a'], tasbiru: ['#1f4f9a', '#3a7bd5', '#7aaaf0'], tasberuang: ['#6a4428', '#a8743f', '#d9a066'], tasroket: ['#6a7488', '#c9d2e0', '#ffffff'], sayap: ['#a8b8d0', '#e6eef8', '#ffffff'], sayapkupu: ['#b03a6a', '#ff8ab8', '#ffd1e4'], kompas: ['#2a5a2a', '#4ea543', '#86cc5a'], perisai: ['#1f4f9a', '#3a7bd5', '#7aaaf0'], sayapbuku: ['#b8a47a', '#fff6dc', '#ffffff'], sayapnaga: ['#6a1010', '#c8302a', '#ff6a5a'], sayapperi: ['#5ab8c8', '#bff0f8', '#ffffff'], selendang: ['#b03a6a', '#ff8ab8', '#ffd1e4'] };
 function backAt(g, o, dir, front) {
   const id = o.bk, c = BAGC[id]; if (!c) return;
-  const side = dir === 'left', up = dir === 'up', wing = id === 'sayap' || id === 'sayapkupu' || id === 'sayapbuku' || id === 'sayapnaga';
+  const side = dir === 'left', up = dir === 'up', wing = id === 'sayap' || id === 'sayapkupu' || id === 'sayapbuku' || id === 'sayapnaga' || id === 'sayapperi';
   if (wing) {
     const W = id === 'sayapnaga' ? [2, 4, 5, 6, 5, 5, 4, 3, 2, 1] : [2, 3, 4, 5, 5, 4, 3, 2, 1], wy = id === 'sayapnaga' ? 8 : 9;
-    const one = (edge, s) => W.forEach((w, i) => { const x = s < 0 ? edge - w : edge; R(g, x, wy + i, w, 1, i < 2 ? c[2] : c[1]); P(g, s < 0 ? x : x + w - 1, wy + i, c[0]); if (id === 'sayapkupu' && i === 3) P(g, s < 0 ? x + 1 : x + w - 2, wy + i, '#ffd23c'); if (id === 'sayap' && i % 2 === 0) P(g, s < 0 ? edge - 1 : edge, wy + i, '#ffffff'); if (id === 'sayapbuku' && i % 2 === 1 && w > 2) R(g, s < 0 ? x + 1 : x + 1, wy + i, w - 2, 1, '#9a8a6a'); if (id === 'sayapnaga' && i > 1 && i % 2 === 0) P(g, s < 0 ? x + Math.floor(w / 2) : x + Math.ceil(w / 2) - 1, wy + i, c[0]); if (id === 'sayapnaga' && i === 0) P(g, s < 0 ? x - 1 : x + w, wy - 1, '#ffd23c'); });
+    const one = (edge, s) => W.forEach((w, i) => { const x = s < 0 ? edge - w : edge; R(g, x, wy + i, w, 1, i < 2 ? c[2] : c[1]); P(g, s < 0 ? x : x + w - 1, wy + i, c[0]); if (id === 'sayapkupu' && i === 3) P(g, s < 0 ? x + 1 : x + w - 2, wy + i, '#ffd23c'); if (id === 'sayap' && i % 2 === 0) P(g, s < 0 ? edge - 1 : edge, wy + i, '#ffffff'); if (id === 'sayapbuku' && i % 2 === 1 && w > 2) R(g, s < 0 ? x + 1 : x + 1, wy + i, w - 2, 1, '#9a8a6a'); if (id === 'sayapnaga' && i > 1 && i % 2 === 0) P(g, s < 0 ? x + Math.floor(w / 2) : x + Math.ceil(w / 2) - 1, wy + i, c[0]); if (id === 'sayapnaga' && i === 0) P(g, s < 0 ? x - 1 : x + w, wy - 1, '#ffd23c'); if (id === 'sayapperi' && (i === 2 || i === 5)) P(g, s < 0 ? x + 1 : x + w - 2, wy + i, '#ff8ab8'); });
     if (side) { if (front) one(11, 1); return; }
     if (up ? front : !front) { one(4, -1); one(12, 1); }
+    return;
+  }
+  if (id === 'selendang') {
+    if (!front) { if (side) { R(g, 10, 12, 2, 9, c[1]); P(g, 11, 21, c[2]); } else { R(g, 2, 13, 2, 8, c[1]); R(g, 12, 13, 2, 8, c[1]); R(g, 2, 13, 1, 8, c[2]); R(g, 13, 13, 1, 8, c[0]); P(g, 2, 21, c[0]); P(g, 13, 21, c[0]); } return; }
+    if (dir === 'down') { R(g, 4, 12, 8, 1, c[1]); R(g, 4, 13, 2, 1, c[1]); R(g, 10, 13, 2, 1, c[1]); } else if (dir === 'up') { R(g, 3, 12, 10, 2, c[1]); R(g, 3, 12, 10, 1, c[2]); } else R(g, 6, 12, 5, 1, c[1]);
     return;
   }
   if (!front) return;
@@ -1355,6 +1396,7 @@ function kid(o, dir, f) {
     const sl = pd.long ? 6 : 5;
     R(g, 4, 17, 8, sl, bot[1]); R(g, 4, 17, 8, 1, bot[2]); R(g, 10, 18, 2, sl - 1, bot[0]);
     if (pd.pleat) { R(g, 6, 18, 1, 4, bot[0]); R(g, 8, 18, 1, 4, bot[0]); }
+    if (pd.tutu) { R(g, 2, 18, 12, 3, bot[1]); R(g, 2, 18, 12, 1, bot[2]); R(g, 3, 20, 10, 1, bot[0]); for (let x = 2; x < 14; x += 2) P(g, x, 21, bot[1]); P(g, 4, 19, '#ffffff'); P(g, 9, 19, '#ffffff'); }
     if (pd.check) { R(g, 6, 17, 1, sl, bot[0]); R(g, 9, 17, 1, sl, bot[0]); R(g, 4, 19, 8, 1, bot[2]); R(g, 4, 21, 8, 1, bot[0]); }
     if (pd.batik) for (const [x, y] of [[5, 18], [8, 19], [10, 18], [6, 20], [9, 21]]) { P(g, x, y, '#ffd23c'); P(g, x + 1, y, '#5a2a10'); }
     if (f === 1 || f === 3) P(g, f === 1 ? 3 : 12, 21, bot[1]);
@@ -1366,7 +1408,7 @@ function kid(o, dir, f) {
     if (pd.stars) { P(g, 5, 18, '#ffffff'); P(g, 10, 17, '#ffd23c'); P(g, 9, 19, '#7fe8ff'); }
     if (pd.knee) R(g, 4, 17, 8, 1, '#c9d2e0');
   }
-  const robe = o.pat === 'robe', tl = robe || o.pat === 'jubahc' || o.pat === 'jubahagung' ? 9 : o.pat === 'labcoat' ? 8 : o.pat === 'kebaya' ? 7 : 6;
+  const robe = o.pat === 'robe', tl = robe || o.pat === 'jubahc' || o.pat === 'jubahagung' || o.pat === 'gaunbunga' ? 9 : o.pat === 'labcoat' ? 8 : o.pat === 'kebaya' || o.pat === 'kebayaemas' ? 7 : 6;
   if (side) {
     R(g, 5, 12, 6, tl, top[1]); R(g, 5, 12, 2, tl, top[2]); R(g, 9, 13, 2, 5, top[0]);
     R(g, 7 + swing, 13, 2, 3, top[1]); R(g, 7 + swing, 16, 2, 2, sk[2]);
@@ -1388,6 +1430,8 @@ function kid(o, dir, f) {
   if (o.pat === 'kemeja' && front) { P(g, 6, 12, '#ffffff'); P(g, 9, 12, '#ffffff'); P(g, 8, 14, '#ffffff'); P(g, 8, 16, '#ffffff'); }
   if (o.pat === 'polka') for (const [x, y] of [[5, 13], [9, 13], [7, 15], [11, 15], [5, 16], [9, 17]]) { if (!side || (x > 4 && x < 11)) P(g, x, y, '#ffffff'); }
   if (o.pat === 'koko') { if (front) { R(g, 6, 12, 4, 1, '#9a8f78'); P(g, 8, 13, '#9a8f78'); P(g, 8, 15, '#9a8f78'); P(g, 6, 14, '#d4c08a'); P(g, 9, 14, '#d4c08a'); } else R(g, side ? 6 : 5, 12, side ? 4 : 6, 1, '#9a8f78'); }
+  if (o.pat === 'gaunbunga') { for (const [x, y] of [[5, 14], [9, 13], [7, 16], [10, 17], [5, 18], [8, 19], [6, 20], [10, 20]]) if (!side || (x > 4 && x < 11)) { P(g, x, y, '#ffffff'); P(g, x + 1, y, '#ffd23c'); } R(g, side ? 5 : 4, 17, side ? 6 : 8, 1, '#c8507a'); }
+  if (o.pat === 'kebayaemas') { for (let x = 4; x < 12; x += 2) if (!side || (x > 4 && x < 11)) P(g, x, 18, '#fff0b0'); if (front) { R(g, 7, 12, 2, 1, '#ffffff'); P(g, 7, 14, '#c8302a'); P(g, 8, 14, '#c8302a'); P(g, 7, 16, '#c8302a'); P(g, 8, 16, '#c8302a'); for (const [x, y] of [[5, 14], [10, 15], [5, 16]]) P(g, x, y, '#a86a0a'); } }
   if (o.pat === 'kebaya') { for (let x = 4; x < 12; x += 2) if (!side || (x > 4 && x < 11)) P(g, x, 18, '#ffffff'); if (front) { P(g, 7, 13, '#ffd23c'); P(g, 8, 13, '#ffd23c'); P(g, 7, 12, '#ffffff'); P(g, 8, 12, '#ffffff'); } }
   if (o.pat === 'labcoat') { if (front) { R(g, 7, 12, 2, 8, '#ffffff'); R(g, 8, 13, 1, 7, '#a8b0c0'); P(g, 6, 12, C.red[1]); R(g, 9, 15, 2, 2, '#c9d2e0'); P(g, 10, 14, '#3a7bd5'); } else if (side) P(g, 7, 15, '#3a7bd5'); }
   if (o.pat === 'rompi') { if (front) { R(g, 7, 12, 2, tl, '#fffaf0'); R(g, 5, 15, 2, 1, top[0]); R(g, 9, 15, 2, 1, top[0]); P(g, 6, 13, '#6a4a2a'); P(g, 9, 13, '#6a4a2a'); } else if (side) R(g, 6, 15, 3, 1, top[0]); }
@@ -1401,6 +1445,12 @@ function kid(o, dir, f) {
     const hj = o.hijab;
     E(g, 8, 7.5, 6.6, 6.8, hj); R(g, 3, 10, 10, 4, hj[1]); R(g, 3, 10, 3, 4, hj[2]);
     if (o.hjm) for (const [x, y] of [[4, 3], [10, 2], [12, 6], [3, 8], [11, 11], [5, 12], [8, 1]]) { P(g, x, y, '#ffd23c'); P(g, x + 1, y, '#ff8ab8'); }
+    if (o.hjt) { if (dir === 'up') R(g, 3, 12, 10, 1, o.hjt); else { R(g, 3, 13, 10, 1, o.hjt); if (front) { P(g, 4, 5, o.hjt); P(g, 11, 5, o.hjt); R(g, 5, 4, 6, 1, o.hjt); } } }
+    if (o.hjp && dir !== 'up') { const px = side ? 9 : 11, py = 11;
+      if (o.hjp === 'kompas') { R(g, px, py, 2, 2, '#e6c890'); P(g, px, py, '#c8302a'); P(g, px + 1, py + 1, '#24123a'); }
+      else if (o.hjp === 'bintang') { P(g, px, py - 1, '#ffd23c'); R(g, px - 1, py, 3, 1, '#ffd23c'); P(g, px, py + 1, '#ffd23c'); P(g, px, py, '#ffffff'); }
+      else if (o.hjp === 'buku') { R(g, px - 1, py, 3, 2, '#ffd23c'); P(g, px, py, '#c97a0a'); P(g, px, py + 1, '#c97a0a'); }
+      else if (o.hjp === 'mahkota') { const y0 = 0; R(g, 5, y0 + 1, 6, 2, '#ffc93c'); P(g, 5, y0, '#ffc93c'); P(g, 8, y0 - 1, '#ffc93c'); P(g, 8, y0, '#ffc93c'); P(g, 10, y0, '#ffc93c'); P(g, 8, y0 + 1, '#ff5d8f'); P(g, 6, y0 + 2, '#5bc0f8'); P(g, 10, y0 + 2, '#7fd35a'); } }
     if (front) { E(g, 8, 8, 3.6, 4, [sk[1], sk[2], sk[2], sk[2]]); eyeL(6, 8); eyeL(9, 8); P(g, 5, 10, C.blush); P(g, 10, 10, C.blush); }
     if (side) { E(g, 6, 8, 2.6, 3.8, [sk[1], sk[2], sk[2], sk[2]]); eyeL(5, 8); }
   } else {
@@ -1716,6 +1766,7 @@ function enterZone(z, at) {
   W.npcs = m.npcsDef.map(n => Object.assign({ f: 0, ft: 0, t: 0, vx: 0, vy: 0 }, n));
   W.inter = m.inter.slice();
   for (const n of W.npcs) if (n.stu) W.inter.push({ npc: n, l: n.stu.tip ? `Bicara dengan ${n.stu.n}` : `Tantang ${n.stu.n} duel`, fn: () => n.stu.tip ? talkStu(n.stu) : challenge(n.stu) });
+  W.base = W.npcs.slice(); npcApply();
   const p = at || (z === 'school' && enteringFromMap ? m.gate : m.spawn); enteringFromMap = false;
   W.p = { x: p.x, y: p.y, dir: 'up', f: 0, ft: 0 };
   W.wild = []; if (z !== 'school') for (let i = 0; i < 8; i++) spawnWild();
@@ -1814,7 +1865,7 @@ function tick(t) {
   }
   if (W.gateY && !W.gateDone && p.y < W.gateY) { gateCheck(); return; }
   for (const e of W.npcs) {
-    if (e.fixed) continue;
+    if (e.fixed || e.sleep) continue;
     e.t -= dt;
     if (e.t <= 0) { e.t = 1 + Math.random() * 2.5; const D = [['left', -1, 0], ['right', 1, 0], ['up', 0, -1], ['down', 0, 1], [e.dir, 0, 0], [e.dir, 0, 0]][Math.floor(Math.random() * 6)]; e.dir = D[0]; e.vx = D[1] * 24; e.vy = D[2] * 24; }
     const [ax, ay, aw, ah] = e.area, nx = e.x + e.vx * dt, ny = e.y + e.vy * dt;
@@ -1878,7 +1929,7 @@ function draw(t) {
     const tt = W.T[Math.floor(m.y / TS)] && W.T[Math.floor(m.y / TS)][Math.floor(m.x / TS)];
     if (TALL_T.has(tt)) for (let i = -7; i <= 7; i += 2) { const hgt = 3 + ((i + 9) * 7 % 3); bx.fillStyle = tt === FS ? ((i & 2) ? '#ffffff' : '#9ab8c8') : C.tall[(i & 2) ? 2 : 1]; bx.fillRect(x + i, y - hgt + 1, 1, hgt); }
   } });
-  mpDraw(list, person, t, ox, oy); raidDraw(list, t, ox, oy);
+  mpDraw(list, person, t, ox, oy); raidDraw(list, t, ox, oy); nightDraw(list, t, ox, oy);
   list.sort((a, b) => a.fy - b.fy).forEach(o => o.d());
   // weather / atmosphere
   if ((W.theme || W.zone) === 'snow') { bx.fillStyle = '#ffffff'; for (let i = 0; i < 40; i++) { const sx = (hash(i, 1) * VW + t / 40 * (0.4 + hash(i, 2))) % VW, sy = (hash(i, 3) * VH + t / 25 * (0.6 + hash(i, 4))) % VH; bx.fillRect(Math.floor(sx), Math.floor(sy), 1, 1); } }
@@ -1909,7 +1960,7 @@ function draw(t) {
     if (tt) { const f2 = Math.round(8 * DPR); ctx.font = `700 ${f2}px "Pixelify Sans", monospace`; ctx.lineWidth = 3 * DPR; ctx.strokeStyle = '#24123a'; ctx.strokeText(tt[1], x, y - fs * 1.35); ctx.fillStyle = tt[3] === 'L' && Math.floor(performance.now() / 300) % 2 ? '#ffffff' : tt[2]; ctx.fillText(tt[1], x, y - fs * 1.35); }
   };
   for (const e of W.npcs) tag(e, e.name, e.tag);
-  tag(p, S.name, '#ffc93c', myTitle()); mpTags(tag); raidTags(tag);
+  tag(p, S.name, '#ffc93c', myTitle()); mpTags(tag); raidTags(tag); nightTags(tag); mpBubbles(ctx, s);
 }
 function petComp() {
   const c = W && W.cp; if (!c) return false; const p = W.p;
@@ -3357,12 +3408,20 @@ function mpFrame(dt) {
     } if (mv) { o.ft += dt; if (o.ft > .13) { o.ft = 0; o.f = (o.f + 1) % 4; } } else o.f = 0;
   }
 }
-function mpBubble(x, y, b, t) {
-  const now = performance.now(); if (!b || now > b.until) return;
-  bx.font = (b.e ? 'bold 10px' : 'bold 6px') + ' "Pixelify Sans", sans-serif'; bx.textAlign = 'center'; bx.textBaseline = 'middle';
-  const w = Math.ceil(bx.measureText(b.t).width) + (b.e ? 6 : 8), h = b.e ? 14 : 10, X = Math.round(x - w / 2), Y = Math.round(y - 44 - h);
-  bx.fillStyle = '#24123a'; bx.fillRect(X - 1, Y - 1, w + 2, h + 2); bx.fillStyle = '#ffffff'; bx.fillRect(X, Y, w, h); bx.fillRect(Math.round(x) - 1, Y + h, 3, 2);
-  bx.fillStyle = '#24123a'; bx.fillText(b.t, Math.round(x), Y + h / 2 + 1); bx.textAlign = 'start'; bx.textBaseline = 'alphabetic';
+/* gelembung chat digambar di kanvas resolusi penuh (bukan buffer piksel) supaya tulisannya tajam */
+const MPBQ = [];
+function mpBubble(x, y, b) { if (b && performance.now() <= b.until) MPBQ.push({ x, y, b }); }
+function mpBubbles(ctx, s) {
+  const D = DPR;
+  for (const { x, y, b } of MPBQ) {
+    const fs = Math.round((b.e ? 17 : 12) * D); ctx.font = `${b.e ? '' : '700 '}${fs}px ${b.e ? 'sans-serif' : '"Pixelify Sans", system-ui, sans-serif'}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const w = Math.ceil(ctx.measureText(b.t).width) + 14 * D, h = fs + 10 * D, cx = x * s, by = (y - 48) * s - h;
+    ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#24123a'; ctx.lineWidth = 2.5 * D; rr(ctx, cx - w / 2, by, w, h, 7 * D); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - 6 * D, by + h - 1); ctx.lineTo(cx, by + h + 7 * D); ctx.lineTo(cx + 6 * D, by + h - 1); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(cx - 5 * D, by + h - 3 * D, 10 * D, 3 * D);
+    ctx.fillStyle = '#24123a'; ctx.fillText(b.t, cx, by + h / 2 + D);
+  }
+  MPBQ.length = 0; ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
 }
 function mpDraw(list, person, t, ox, oy) {
   if (!MP || (S && S.mpOff) || MP.st !== 'on') return; let n = 0;
@@ -3372,9 +3431,9 @@ function mpDraw(list, person, t, ox, oy) {
     if (o.cid && o.cx !== undefined) list.push({ fy: o.cy, d: () => {
       const x = Math.round(o.cx - ox), y = Math.round(o.cy - oy), bob = Math.round(Math.abs(Math.sin(o.cph || 0)) * (o.cm ? 2 : 1)), img = monImg(o.cid, false, Math.floor(t / 180) % 2, !!o.cfl);
       shadow(x, y, Math.round(img.width / 2.8)); bx.drawImage(img, x - Math.floor(img.width / 2), y - img.height - bob + 3);
-    } }); if (o.bub) list.push({ fy: o.y + 200, d: () => mpBubble(o.x - ox, o.y - oy, o.bub, t) });
+    } }); if (o.bub) mpBubble(o.x - ox, o.y - oy, o.bub);
   }
-  if (MP.me) list.push({ fy: W.p.y + 200, d: () => mpBubble(W.p.x - ox, W.p.y - oy, MP.me, t) });
+  if (MP.me) mpBubble(W.p.x - ox, W.p.y - oy, MP.me);
 }
 function mpTags(tag) { if (!MP || (S && S.mpOff) || MP.st !== 'on') return; for (const [id, o] of Object.entries(MP.ps)) if (mpHere(o)) tag(o, (inParty(id) ? '⚑ ' : '') + o.n, inParty(id) ? '#7fe3a8' : '#bfe9ff', titleRemote(o.ti)); }
 async function openChat() {
@@ -3943,6 +4002,124 @@ async function openTitles() {
 }
 setInterval(() => { if (S && S.name && W) titleCheck(); }, 2000);
 
+/* ================= NPC MENGIKUTI JAM + NPC KHUSUS WAKTU =================
+   Jam dari HP siswa. Pagi 05.00-06.30: Kakek Pagi. Malam: murid pulang/tidur, Pak Toto dan Mak Sumi berbaju malam,
+   Pedagang Malam (19.00-21.00), Monster Sekolah (sekolah, 1x/hari), Penjaga Bintang (pulau, 1x/hari). */
+const NIGHT_ITEMS = ['topitidur', 'piyama', 'celpiyama', 'sandalbulan'];
+const todH = () => { const d = new Date(); return d.getHours() + d.getMinutes() / 60; };
+const isRegion = z => /^(mtk|ind|ipas|ing)\d$/.test(z || '');
+let ntKey = '';
+function ntState() {
+  const h = todH(), tod = envNow().tod, d = today(), z = S.zone;
+  return { tod, merch: z === 'school' && h >= 19 && h < 21, kakek: z === 'school' && h >= 5 && h < 6.5, mon: z === 'school' && tod === 'malam' && !(S.ms && S.ms.d === d), star: isRegion(z) && tod === 'malam' && !(S.pb && S.pb.d === d) };
+}
+function npcSpot(x, y) {
+  for (const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2], [2, 2], [-2, 2], [2, -2], [-2, -2]]) if (walkable(x + dx * TS, y + dy * TS)) return { x: x + dx * TS, y: y + dy * TS };
+  return { x, y };
+}
+const NT_TOTO = { top: ['#2a2f5a', '#4a5a9a', '#7a8ad0'] };
+function npcApply() {
+  if (!W || !S || !S.zone) return;
+  const st = ntState(), z = S.zone, night = st.tod === 'malam', base = W.base || (W.base = W.npcs.filter(n => !n.nt));
+  ntKey = JSON.stringify(st);
+  for (const n of base) {
+    if (!n.n0) { n.n0 = n.name; n.look0 = n.look; if (n.n0 === 'Pak Toto') n.lookN = Object.assign({}, n.look, NT_TOTO); if (n.n0 === 'Mak Sumi') n.lookN = Object.assign({}, n.look, { hijab: '#7b4fd6', top: ['#3a2a7a', '#6a4fc0', '#a88af0'] }); }
+    n.sleep = night && !!n.stu && z !== 'school'; n.name = n.sleep ? n.n0 + ' zZ' : n.n0;
+    n.look = night && n.lookN ? n.lookN : n.look0; if (n.sleep) { n.vx = n.vy = 0; n.f = 0; }
+  }
+  const out = base.filter(n => !(z === 'school' && n.stu && (st.tod === 'malam' || st.tod === 'fajar')));
+  const ex = [], mk = o => Object.assign({ f: 0, ft: 0, t: 0, vx: 0, vy: 0, fixed: true, nt: true, dir: 'down' }, o), I = [];
+  if (st.merch) { const s = npcSpot(22.5 * TS, 25.5 * TS); ex.push(mk({ x: s.x, y: s.y, look: { type: 'kid', hair: '#1f1a26', shirt: 'robe', hat: 'witch', pants: 'celksatria' }, name: 'Pedagang Malam', tag: '#c9a2ff', mark: true })); I.push({ nt: true, x: s.x, y: s.y + 10, l: 'Lihat dagangan Pedagang Malam', fn: openNightShop }); }
+  if (st.kakek) { const s = npcSpot(15.5 * TS, 25.5 * TS); ex.push(mk({ x: s.x, y: s.y, look: { type: 'kid', hair: '#f3f3f8', shirt: 'koko', pants: 'sarung', hat: 'peci', glasses: true }, name: 'Kakek Pagi', tag: '#ffe0a3', mark: true })); I.push({ nt: true, x: s.x, y: s.y + 10, l: 'Sapa Kakek Pagi', fn: openKakek }); }
+  if (st.star) { const s = npcSpot(W.spawn.x + 40, W.spawn.y - 10); ex.push(mk({ x: s.x, y: s.y, look: { type: 'kid', hair: '#9b5de5', shirt: 'jubahc', hat: 'witch', pants: 'celksatria' }, name: 'Penjaga Bintang', tag: '#c9a2ff', mark: true })); I.push({ nt: true, x: s.x, y: s.y + 10, l: 'Bicara dengan Penjaga Bintang', fn: openStar }); }
+  W.ntMon = null;
+  if (st.mon) { const s = npcSpot(14.5 * TS, 19.5 * TS); W.ntMon = { x: s.x, y: s.y }; I.push({ nt: true, x: s.x, y: s.y + 6, l: 'Tanya Monster Sekolah', fn: openMonSekolah }); }
+  W.npcs = out.concat(ex);
+  W.inter = W.inter.filter(i => !i.nt && !(i.npc && !W.npcs.includes(i.npc))).concat(I);
+  for (const n of W.npcs) if (n.stu && !W.inter.some(i => i.npc === n)) W.inter.push({ npc: n, l: n.stu.tip ? `Bicara dengan ${n.stu.n}` : `Tantang ${n.stu.n} duel`, fn: () => n.stu.tip ? talkStu(n.stu) : challenge(n.stu) });
+}
+setInterval(() => { if (!S || !S.name || !W || !S.zone) return; if (JSON.stringify(ntState()) !== ntKey) npcApply(); }, 5000);
+
+function nightDraw(list, t, ox, oy) {
+  const m = W.ntMon; if (!m) return;
+  list.push({ fy: m.y, d: () => {
+    const x = Math.round(m.x - ox), y = Math.round(m.y - oy), bob = Math.round(Math.sin(t / 420) * 3 + 5), img = monImg('bat', false, Math.floor(t / 220) % 2, false);
+    bx.fillStyle = 'rgba(30,40,30,.25)'; bx.fillRect(x - 5, y, 10, 2);
+    bx.globalAlpha = .28; bx.fillStyle = '#c9a2ff'; bx.fillRect(x - 12, y - img.height - bob - 3, 24, img.height + 6); bx.globalAlpha = 1;
+    bx.drawImage(img, x - Math.floor(img.width / 2), y - img.height - bob + 3);
+    bx.fillStyle = '#ffd23c'; for (let i = 0; i < 3; i++) bx.fillRect(Math.round(x + Math.cos(t / 400 + i * 2.1) * 12), Math.round(y - img.height / 2 - bob + Math.sin(t / 330 + i * 2) * 6), 1, 1);
+  } });
+}
+function nightTags(tag) { const m = W.ntMon; if (m) tag({ x: m.x, y: m.y - 4 }, 'Monster Sekolah', '#c9a2ff'); }
+
+/* ---- Pedagang Malam ---- */
+async function openNightShop() {
+  const d = today(); if (!S.nm || S.nm.d !== d) S.nm = { d, k: 0 };
+  const r = sRng(dNum(d) * 31 + 7), pool = NIGHT_ITEMS.slice();
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const pick = pool.slice(0, 2), own = id => S.acc.own.includes(id), KP = 120, left = 3 - S.nm.k;
+  const card = id => { const it = SH[id]; return `<div class="card" style="display:flex;align-items:center;gap:8px;padding:6px 8px">${avatarSvg({ ...look(), [it.slot]: id }, 44)}<div style="flex:1;min-width:0"><b>${esc(it.n)}</b><div style="font-size:12px;font-weight:700;color:var(--sub)">Eksklusif malam</div></div><b>${own(id) ? 'Punya' : COIN + it.p}</b></div>`; };
+  const c = await modal(`<h2>Pedagang Malam</h2><p style="font-size:13px">Dagangan berganti tiap hari. Hanya buka pukul 19.00–21.00.</p>
+    <div style="display:flex;flex-direction:column;gap:6px">${pick.map(card).join('')}<div class="card" style="display:flex;align-items:center;gap:8px;padding:6px 8px"><svg width="40" height="40" aria-hidden="true"><use href="#ic-chest"/></svg><div style="flex:1"><b>Kotak Kayu</b><div style="font-size:12px;font-weight:700;color:var(--sub)">Sisa hari ini: ${left}</div></div><b>${COIN}${KP}</b></div></div>
+    <p style="font-size:13px;font-weight:800">Koinmu: ${COIN}${S.coins}</p>`,
+    [...pick.map(id => ({ t: own(id) ? `${SH[id].n} ✓` : `Beli ${SH[id].n}`, cls: own(id) ? 'ghost' : '' })), { t: `Kotak Kayu ${COIN}${KP}`, cls: left > 0 ? 'hot' : 'ghost' }, { t: 'Tutup', cls: 'dark' }]);
+  if (c < 0 || c === 3) return;
+  if (c < 2) {
+    const it = SH[pick[c]]; if (own(it.id)) { toast('Kamu sudah punya ini'); return openNightShop(); }
+    if (S.coins < it.p) { toast(`Koin kurang ${it.p - S.coins}`); return openNightShop(); }
+    S.coins -= it.p; S.acc.own.push(it.id); S.acc[it.slot] = it.id; save(); hud(); refreshPlayer(); sfx('coin'); toast(`Kamu membeli ${it.n}!`);
+  } else {
+    if (left <= 0) { toast('Kotak Kayu hari ini habis. Datang lagi besok malam!'); return openNightShop(); }
+    if (S.coins < KP) { toast(`Koin kurang ${KP - S.coins}`); return openNightShop(); }
+    S.coins -= KP; S.boxes.Kayu++; S.nm.k++; save(); hud(); sfx('coin'); toast('Kamu membeli 1 Kotak Kayu!');
+  }
+  return openNightShop();
+}
+
+/* ---- Kakek Pagi ---- */
+async function openKakek() {
+  const d = today();
+  if (S.kp && S.kp.d === d) { await modal(`<h2>Kakek Pagi</h2><p>"Hari ini sudah kuberi bekal. Besok pagi datang lagi ya, Nak."</p>`, [{ t: 'Oke' }]); return; }
+  S.kp = { d }; addCoins(25); hud();
+  await modal(`<h2>Kakek Pagi</h2><p>"Wah, rajin sekali bangun pagi! Burung saja baru bangun. Ini bekal buatmu."</p><div style="text-align:center"><div class="big" style="font-size:36px">+25 koin</div></div>`, [{ t: 'Terima kasih!', cls: 'hot' }]);
+}
+
+/* ---- soal acak untuk Monster Sekolah dan Penjaga Bintang ---- */
+function ntPool(bank) {
+  const open = {}; for (const z in ZONES) { const Z = ZONES[z]; if (!Z.bank || (bank && Z.bank !== bank)) continue; open[Z.bank] = Math.max(open[Z.bank] || 1, prog(Z.pulau).open || 1); }
+  const rows = BANK.filter(r => open[r[0]] && r[1] <= open[r[0]]); return rows.length ? rows : BANK.filter(r => r[1] === 1);
+}
+async function ntQuiz(title, sub, pool) {
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  const r = await runQuiz({ title, sub, qs: [q] }); show('s-world'); hud(); return r;
+}
+async function openMonSekolah() {
+  const c = await modal(`<h2>Monster Sekolah</h2><p>Kelelawar kecil melayang di halaman sekolah. "Cit cit! Jawab 1 teka-teki dariku, dapat hadiah acak. Aku hanya muncul satu kali setiap malam!"</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Jawab teka-teki', cls: 'hot' }]);
+  if (c !== 1) return;
+  const r = await ntQuiz('Monster Sekolah', 'Teka-teki malam', ntPool());
+  if (r.quit) return;
+  S.ms = { d: today() }; save(); npcApply();
+  if (r.ok < 1) { addCoins(10); hud(); await modal(`<h2>Belum tepat</h2><p>"Cit cit, tidak apa-apa! Ini sedikit koin hiburan. Kembali lagi besok malam."</p><div style="text-align:center"><div class="big" style="font-size:34px">+10 koin</div></div>`, [{ t: 'Oke' }]); return; }
+  const x = Math.random(); let txt, big;
+  if (x < .35) { S.boxes.Kayu++; big = '+1 Kotak Kayu'; txt = 'Buka di menu Kotak.'; save(); }
+  else if (x < .7) { const n = 40 + Math.floor(Math.random() * 61); addCoins(n); big = `+${n} koin`; txt = 'Dompetmu bertambah.'; }
+  else { const n = 20 + Math.floor(Math.random() * 21); gainXP(n); big = `+${n} XP`; txt = 'Pengalamanmu bertambah.'; }
+  hud(); sfx('pass');
+  await modal(`<h2>Benar sekali!</h2><p>"Cit cit! Kamu pintar. Ini hadiah untukmu."</p><div style="text-align:center"><div class="big" style="font-size:34px">${big}</div><p>${txt}</p></div>`, [{ t: 'Asyik!', cls: 'hot' }]);
+}
+
+/* ---- Penjaga Bintang (malam, di pulau) ---- */
+async function openStar() {
+  const c = await modal(`<h2>Penjaga Bintang</h2><p>"Malam begini bintangnya cantik. Jawab 1 soal pulau ini, kuberi cahaya bintang. Satu kali per malam saja."</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Jawab soal', cls: 'hot' }]);
+  if (c !== 1) return;
+  const r = await ntQuiz('Penjaga Bintang', 'Soal bintang malam', ntPool(ZONES[S.zone].bank));
+  if (r.quit) return;
+  S.pb = { d: today() }; save(); npcApply();
+  if (r.ok < 1) { await modal(`<h2>Belum tepat</h2><p>"Tidak apa-apa. Bintang tetap bersinar. Coba lagi malam besok."</p>`, [{ t: 'Oke' }]); return; }
+  gainXP(15); addCoins(20); hud();
+  await modal(`<h2>Benar!</h2><p>"Cahaya bintang menyertaimu."</p><div style="text-align:center"><div class="big" style="font-size:30px">+15 XP · +20 koin</div></div>`, [{ t: 'Terima kasih', cls: 'hot' }]);
+}
+
 /* ================= KODE HADIAH =================
    Daftar kode disimpan sebagai sidik jari (bukan teks asli). Tambah kode baru: node mkcode.js KODE-BARU, lalu masukkan hasilnya di CODES.
    Hadiah: coins, xp, boxes {Kayu,Perak,Emas}, mon [id monster], acc [id aksesoris], admin:true (Super Admin: semua maks). */
@@ -4209,7 +4386,7 @@ let shopTab = 'hat', shopSel = null;
 function openShop(from) {
   if (from) openShop.from = from;
   const el = $('#s-shop');
-  const items = SHOP.filter(s => s.slot === shopTab && (!s.g || s.g === gOf(S.look)));
+  const items = SHOP.filter(s => s.slot === shopTab && (!s.g || s.g === gOf(S.look)) && (!s.night || S.acc.own.includes(s.id)));
   const sel = shopSel && SH[shopSel] && SH[shopSel].slot === shopTab ? SH[shopSel] : null;
   const prev = { ...look() }; if (sel) prev[sel.slot] = sel.id;
   const own = id => S.acc.own.includes(id), worn = id => S.acc[SH[id].slot] === id;
