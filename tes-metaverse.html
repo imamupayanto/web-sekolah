@@ -1067,7 +1067,7 @@ function setSong(key) {
 }
 function sndWant() {
   const vis = id => { const e = document.getElementById(id); return e && !e.hidden; };
-  if (vis('s-battle')) { const ty = typeof B !== 'undefined' && B && B.cfg && B.cfg.type; return ty === 'duel' ? 'duel' : ty === 'legend' ? 'legend' : 'battle'; }
+  if (vis('s-battle')) { const ty = typeof B !== 'undefined' && B && B.cfg && B.cfg.type; return ty === 'pvp' || ty === 'duel' ? 'duel' : ty === 'legend' ? 'legend' : 'battle'; }
   if (vis('s-aka') || vis('s-quiz')) return 'study';
   if (vis('s-world') && typeof W !== 'undefined' && W) { const z = W.zone; if (SONGS[z]) return z; const m = /^[a-z]+/.exec(z || ''); return m && SONGS[m[0]] ? m[0] : 'school'; }
   return 'menu';
@@ -1691,11 +1691,13 @@ function buildMap(z) {
     [[2, 22], [9, 21], [16, 21], [4, 33], [20, 21], [14, 27]].forEach(([x, y], i) => add(makeBush(i + 5), x * TS, y * TS, y * TS + 17, { x: x * TS + 3, y: y * TS + 10, w: 20, h: 7 }));
     add(makeGate(), 9 * TS + 8, 33 * TS - 6, 33 * TS + 38, null);
     solids.push({ x: 9 * TS + 9, y: 33 * TS + 24, w: 14, h: 14 }, { x: 9 * TS + 74, y: 33 * TS + 24, w: 14, h: 14 });
-    signs.push({ x: 3 * TS + 160, y: 2 * TS + 64, t: 'METAVERSE GLOBAL ACADEMY', c: '#ffd23c' }, { x: 9 * TS + 48, y: 33 * TS + 1, t: 'PETA DUNIA', c: '#ffffff' }, { x: 18 * TS + 28, y: 9 * TS + 7, t: 'TOKO', c: '#ffffff', bg: '#c8402e' });
-    npcs.push({ x: 7.5 * TS, y: 11.6 * TS, dir: 'down', look: { type: 'kid', hair: '#8a8494', glasses: true, top: C.khaki, bottomR: ['#3a2a20', '#5a4030', '#6a5040'], long: true, skin2: true }, name: 'Pak Darto', tag: '#ffc93c', fixed: true, mark: true });
-    npcs.push({ x: 19.7 * TS, y: 12.4 * TS, dir: 'down', look: { type: 'kidh', hijab: '#f08ab8', top: ['#c9a46a', '#e8c88a', '#fff0c8'] }, name: 'Bu Rina', tag: '#ffffff', fixed: true });
-    STUDENTS.forEach((st, i) => npcs.push({ x: (7 + i * 3.5) * TS, y: (15 + (i % 2) * 2) * TS, dir: 'down', look: st.o, name: `${st.n} · R${st.rank}`, tag: '#5bb8f0', area: [5, 10, 16, 9], stu: st }));
-    inter.push({ x: 7.5 * TS, y: 12.6 * TS, l: 'Bicara dengan Pak Darto', fn: openQuests });
+    signs.push({ x: 3 * TS + 160, y: 2 * TS + 64, t: 'METAVERSE SCHOOL', c: '#ffd23c' }, { x: 9 * TS + 48, y: 33 * TS + 1, t: 'PETA DUNIA', c: '#ffffff' }, { x: 18 * TS + 28, y: 9 * TS + 7, t: 'TOKO', c: '#ffffff', bg: '#c8402e' });
+    npcs.push({ x: 7.5 * TS, y: 11.6 * TS, dir: 'down', look: { type: 'kid', hair: '#8a8494', glasses: true, top: C.khaki, bottomR: ['#3a2a20', '#5a4030', '#6a5040'], long: true, skin2: true }, name: 'Pak Toto', tag: '#ffc93c', fixed: true, mark: true });
+    npcs.push({ x: 19.7 * TS, y: 12.4 * TS, dir: 'down', look: { type: 'kidh', hijab: '#f08ab8', top: ['#c9a46a', '#e8c88a', '#fff0c8'] }, name: 'Mak Sumi', tag: '#ffffff', fixed: true });
+    // siswa disebar di titik alami: tiang bendera, dua bangku, dekat toko
+    const SPOT = [[14.6, 14.2, [13.5, 13, 3, 2.5], 'left'], [9.6, 18.4, [8.5, 17.2, 3.5, 2.6], 'down'], [18.6, 18.4, [17.5, 17.2, 3.5, 2.6], 'down'], [21.6, 14.6, [20.6, 13.6, 2.4, 3], 'left']];
+    STUDENTS.forEach((st, i) => { const [sx, sy, ar, d] = SPOT[i]; npcs.push({ x: sx * TS, y: sy * TS, dir: d, look: st.o, name: `${st.n} · R${st.rank}`, tag: '#5bb8f0', area: ar, stu: st }); });
+    inter.push({ x: 7.5 * TS, y: 12.6 * TS, l: 'Bicara dengan Pak Toto', fn: openQuests });
     inter.push({ x: 19.7 * TS, y: 13.6 * TS, l: 'Masuk Toko Aksesoris', fn: () => openShop() });
     inter.push({ x: 12.5 * TS + 8, y: 34 * TS + 6, l: 'Pergi ke Peta Dunia', fn: openMap });
     spawn = { x: 13 * TS, y: 23 * TS }; gate = { x: 13 * TS, y: 31.5 * TS };
@@ -1751,7 +1753,7 @@ function enterZone(z, at) {
   W = Object.assign({}, m);
   W.npcs = m.npcsDef.map(n => Object.assign({ f: 0, ft: 0, t: 0, vx: 0, vy: 0 }, n));
   W.inter = m.inter.slice();
-  for (const n of W.npcs) if (n.stu) W.inter.push({ npc: n, l: `Tantang ${n.stu.n} duel`, fn: () => challenge(n.stu) });
+  for (const n of W.npcs) if (n.stu) W.inter.push({ npc: n, l: n.stu.tip ? `Bicara dengan ${n.stu.n}` : `Tantang ${n.stu.n} duel`, fn: () => n.stu.tip ? talkStu(n.stu) : challenge(n.stu) });
   const p = at || (z === 'school' && enteringFromMap ? m.gate : m.spawn); enteringFromMap = false;
   W.p = { x: p.x, y: p.y, dir: 'up', f: 0, ft: 0 };
   W.wild = []; if (z !== 'school') for (let i = 0; i < 8; i++) spawnWild();
@@ -1788,7 +1790,7 @@ function hud() {
   $('#boxBadge').hidden = !nb; $('#boxBadge').textContent = nb;
   ensureQuests();
   const q = S.quests.find(q => q.p >= q.g) || S.quests[0];
-  $('#questChip').innerHTML = q.p >= q.g ? `<b>SELESAI</b> ${esc(q.n)} · ambil di Pak Darto` : `<b>MISI</b> ${esc(q.n)} ${q.p}/${q.g}`;
+  $('#questChip').innerHTML = q.p >= q.g ? `<b>SELESAI</b> ${esc(q.n)} · ambil di Pak Toto` : `<b>MISI</b> ${esc(q.n)} ${q.p}/${q.g}`;
 }
 function refreshPlayer() {}
 
@@ -1809,7 +1811,7 @@ function setupInput() {
   $('#bChat').onclick = () => openChat();
   $('#bCol').onclick = () => openCol();
   $('#bProf').onclick = () => openProf();
-  $('#questChip').onclick = () => toast('Bicara dengan Pak Darto di sekolah untuk mengambil hadiah misi');
+  $('#questChip').onclick = () => toast('Bicara dengan Pak Toto di sekolah untuk mengambil hadiah misi');
   addEventListener('resize', sizeCanvas);
 }
 
@@ -1969,9 +1971,19 @@ async function challenge(st) {
   if (!S.team.length) { toast('Timmu masih kosong. Buka kotak hadiah dulu'); return; }
   const c = await modal(`<div style="display:flex;gap:12px;align-items:center">${avatarSvg(st.o, 48)}<div><h2>${esc(st.n)} · Rank ${st.rank}</h2><p>"Ayo duel 3 lawan 3! Kalau kamu menang, kamu dapat ${10 + st.rank * 3} XP dan ${25 + st.rank * 8} koin."</p></div></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Duel!', cls: 'hot' }]);
   if (c !== 1) return;
+  npcDuel(st);
+}
+async function npcDuel(st) {
+  if (!S.team.length) { toast('Timmu masih kosong. Buka kotak hadiah dulu'); return; }
   stopLoop();
-  await startBattle({ type: 'duel', foe: teamFor(st), title: `Duel melawan ${st.n}`, who: st });
+  await startBattle({ type: 'duel', foe: teamFor(st), title: `Duel melawan ${st.n}`, who: st, zone: W.zone });
   W.safe = performance.now() + 1500; hud(); show('s-world');
+}
+async function talkStu(st) {
+  const c = await modal(`<div style="display:flex;gap:12px;align-items:center">${avatarSvg(st.o, 48)}<div><h2>${esc(st.n)}</h2><div style="font-size:13px;font-weight:800;color:var(--sub)">${esc(st.role)} · Rank ${st.rank}</div></div></div>
+    <div class="card" style="font-size:15px;font-weight:700;line-height:1.4">"${esc(st.tip)}"</div>
+    <p style="font-size:13px">Menang duel melawan ${esc(st.n)}: ${10 + st.rank * 3} XP dan ${25 + st.rank * 8} koin.</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Duel!', cls: 'hot' }]);
+  if (c === 1) npcDuel(st);
 }
 
 const WMAP = (() => {
@@ -2295,6 +2307,31 @@ const BABN = {
   ipas: ['Tumbuh Kembang Manusia', 'Ekosistem dan Interaksi Makhluk Hidup', 'Bumi dan Tata Surya', 'Perjuangan Menuju Kemerdekaan', 'Keragaman Sosial Budaya Indonesia'],
   ing: ['Alphabet and Greetings', 'Numbers', 'Days, Months, and Time', 'Colors and Things Around Us', 'My Family and Simple Sentences'],
 };
+/* siswa NPC per bab: penampilan khas mapel, tip pelajaran, bisa diajak duel (makin tinggi bab makin kuat) */
+const ISTU_TEAM = [['C', 'C', 'C'], ['R', 'C', 'C'], ['R', 'R', 'C'], ['E', 'R', 'C'], ['E', 'R', 'R']];
+const ISTU = {};
+[
+  ['mtk1', 'Bima', { g: 'l', hs: 'cepak', hc: '#2a1a14', sk: 1, glass: 'kbulat', shirt: 'kemeja', pants: 'jeans', shoes: 'hitam', back: 'tasbiru' }, 'Ingat: negatif kali negatif hasilnya positif! −3 × −4 = 12.'],
+  ['mtk2', 'Desi', { g: 'p', hs: 'bob', hc: '#3a2418', sk: 0, glass: 'kbulat', shirt: 'polka', pants: 'roklipit', shoes: 'putih' }, '50% itu sama dengan ½ atau 0,5. Persen artinya per seratus.'],
+  ['mtk3', 'Faris', { g: 'l', hs: 'belah', hc: '#1a1210', sk: 2, hat: 'cap', shirt: 'stripe', pants: 'kargo', shoes: 'sneak', back: 'tasmerah' }, 'KPK dari 4 dan 6 adalah 12, FPB-nya 2. Pakai pohon faktor biar gampang!'],
+  ['mtk4', 'Nadia', { g: 'p', hs: 'hijab', hc: '#3a7bd5', sk: 1, hat: 'hjbiru', shirt: 'kemeja', pants: 'rokpanjang', shoes: 'hitam', back: 'tasberuang' }, 'Volume kubus = sisi × sisi × sisi. Kubus bersisi 3 cm volumenya 27 cm³.'],
+  ['mtk5', 'Rafi', { g: 'l', hs: 'spike', hc: '#2a1a14', sk: 0, glass: 'k3d', shirt: 'hoodie', pants: 'jogger', shoes: 'lari' }, 'Modus itu data yang paling sering muncul. Median itu nilai tengah setelah data diurutkan.'],
+  ['ind1', 'Gilang', { g: 'l', hs: 'pendek', hc: '#1a1210', sk: 2, hat: 'blangkon', shirt: 'batik', pants: 'sarung', shoes: 'sandal' }, 'Cerita rakyat Malin Kundang punya amanat: jangan durhaka kepada orang tua.'],
+  ['ind2', 'Putri', { g: 'p', hs: 'kepang', hc: '#2a1a14', sk: 1, shirt: 'kebaya', pants: 'rokbatik', shoes: 'sandal' }, 'Teks laporan berisi fakta, bukan pendapat. Tulis dengan kalimat yang jelas dan runtut.'],
+  ['ind3', 'Arya', { g: 'l', hs: 'gondrong', hc: '#3a2418', sk: 1, hat: 'baret', shirt: 'kemeja', pants: 'celputih', shoes: 'hitam' }, 'Majas personifikasi membuat benda seolah hidup, misalnya "angin berbisik di telingaku".'],
+  ['ind4', 'Salsa', { g: 'p', hs: 'hijab', hc: '#f08ab8', sk: 0, hat: 'hjmotif', shirt: 'batik', pants: 'rokpanjang', shoes: 'putih', back: 'tasmerah' }, 'Surat resmi memakai bahasa baku: ada tanggal, salam pembuka, isi, dan salam penutup.'],
+  ['ind5', 'Yoga', { g: 'l', hs: 'cepak', hc: '#1a1210', sk: 2, hat: 'peci', shirt: 'koko', pants: 'celputih', shoes: 'hitam' }, 'Saat debat, sampaikan pendapat beserta alasannya, dan hormati pendapat teman.'],
+  ['ipas1', 'Lala', { g: 'p', hs: 'kuncir', hc: '#2a1a14', sk: 1, glass: 'kbulat', shirt: 'labcoat', pants: 'roklipit', shoes: 'putih' }, 'Masa pubertas itu wajar. Tubuh kita berubah karena pengaruh hormon.'],
+  ['ipas2', 'Tegar', { g: 'l', hs: 'pendek', hc: '#2a1a14', sk: 2, hat: 'petani', shirt: 'kaos', pants: 'kargo', shoes: 'bot' }, 'Tumbuhan disebut produsen karena bisa membuat makanan sendiri lewat fotosintesis.'],
+  ['ipas3', 'Orion', { g: 'l', hs: 'pendek', hc: '#1a1210', sk: 0, hat: 'astro', shirt: 'robe', pants: 'jogger', shoes: 'lampu' }, 'Bumi berotasi sekali sehari, makanya ada siang dan malam. Revolusinya sekitar 365 hari.'],
+  ['ipas4', 'Dewi', { g: 'p', hs: 'hijab', hc: '#ffffff', sk: 1, hat: 'hjputih', shirt: 'pramuka', pants: 'rokpanjang', shoes: 'hitam' }, 'Proklamasi kemerdekaan dibacakan Soekarno pada 17 Agustus 1945 di Jakarta.'],
+  ['ipas5', 'Komang', { g: 'l', hs: 'belah', hc: '#1a1210', sk: 2, shirt: 'batik', pants: 'sarung', shoes: 'sandal', back: 'tasberuang' }, 'Indonesia punya lebih dari 1.300 suku bangsa. Bhinneka Tunggal Ika: berbeda-beda tetapi tetap satu.'],
+  ['ing1', 'Kevin', { g: 'l', hs: 'poni', hc: '#3a2418', sk: 0, hat: 'capmerah', shirt: 'hoodie', pants: 'jeans', shoes: 'sneak' }, 'Hello! Pagi bilang "Good morning", siang "Good afternoon", malam "Good evening".'],
+  ['ing2', 'Amel', { g: 'p', hs: 'twintail', hc: '#2a1a14', sk: 1, shirt: 'jersey', pants: 'rok', shoes: 'lari' }, 'Jangan tertukar: thirteen itu 13, thirty itu 30!'],
+  ['ing3', 'Jordan', { g: 'l', hs: 'keriting', hc: '#1a1210', sk: 2, hat: 'beanie', shirt: 'icej', pants: 'jogger', shoes: 'sneak', glass: 'kchitam' }, '"What time is it?" artinya "Jam berapa sekarang?" Days of the week: Monday sampai Sunday.'],
+  ['ing4', 'Chika', { g: 'p', hs: 'ikal', hc: '#3a2418', sk: 0, hat: 'bando', shirt: 'polka', pants: 'rok', shoes: 'pelangi', glass: 'kbintang' }, 'Red, blue, yellow! "This is a green bag" artinya "Ini tas hijau".'],
+  ['ing5', 'Rizky', { g: 'l', hs: 'pendek', hc: '#1a1210', sk: 1, hat: 'wisuda', shirt: 'kemeja', pants: 'celputih', shoes: 'hitam' }, 'Father itu ayah, mother itu ibu. "I have one brother" artinya "Aku punya satu saudara laki-laki".']
+].forEach(([id, n, o, tip]) => { const b = +id.slice(-1), k = id.slice(0, -1); ISTU[id] = { n, o, tip, rank: b + 1, team: ISTU_TEAM[b - 1], role: `Siswa ${PSHORT[k]} · Bab ${b}` }; });
 const THEME = { snow: 'snow', forest: 'forest', park: 'park', grass: 'park', pave: 'town', pave2: 'town', cobble: 'town', stone: 'rock', sand: 'sand', wood: 'harbor', cave: 'rock' };
 const ARENA = { snow: 'snow', forest: 'forest', park: 'forest', town: 'school', rock: 'cave', sand: 'school', harbor: 'school' };
 const TEL = { snow: 'Es', forest: 'Racun', park: 'Racun', town: 'Netral', rock: 'Api', sand: 'Api', harbor: 'Es' };
@@ -2434,6 +2471,8 @@ function buildRegion(z) {
   add(makePortal(), CX - 20, (MH - 2) * TS - 4, (MH - 2) * TS - 4, null);
   signs.push({ x: CX, y: (MH - 2) * TS - 12, t: 'KEMBALI KE PETA', c: '#ffffff', bg: '#1d1b46' });
   inter.push({ x: CX, y: (MH - 2) * TS + 4, l: 'Kembali ke Peta Dunia', fn: openMap });
+  const stu = ISTU[z];
+  if (stu) npcs.push({ x: CX - 2.5 * TS, y: (MH - 8) * TS, dir: 'right', look: stu.o, name: `${stu.n} · R${stu.rank}`, tag: '#5bb8f0', fixed: true, stu });
   const ground = paintGround(T, MW, MH, th);
   return { zone: z, theme: th, gateY: gy - 2, MW, MH, T, ground, OBJ, solids, inter, signs, npcsDef: npcs, lights, spawn: { x: CX, y: (MH - 4) * TS }, gate: null, dark: false };
 }
@@ -2715,7 +2754,7 @@ function startBattle(cfg) {
       <div class="bench" id="bench"></div>
     </div>`;
     if (cfg.type !== 'wild') $('#bRun').style.width = '64px';
-    $('#bRun').onclick = async () => { if (B.busy) return; const c = await modal(`<h2>${cfg.type === 'wild' ? 'Kabur dari pertarungan?' : 'Menyerah?'}</h2><p>Kamu tidak dapat hadiah dari pertarungan ini.</p>`, [{ t: 'Lanjut bertarung', cls: 'ghost' }, { t: cfg.type === 'wild' ? 'Kabur' : 'Menyerah', cls: 'hot' }]); if (c === 1) { if (cfg.type === 'duel' && MP.duel) mpDuelSend(MP.duel.opp, 'bye', MP.duel.sid + '|', 0); finish('run'); } };
+    $('#bRun').onclick = async () => { if (B.busy) return; const c = await modal(`<h2>${cfg.type === 'wild' ? 'Kabur dari pertarungan?' : 'Menyerah?'}</h2><p>Kamu tidak dapat hadiah dari pertarungan ini.</p>`, [{ t: 'Lanjut bertarung', cls: 'ghost' }, { t: cfg.type === 'wild' ? 'Kabur' : 'Menyerah', cls: 'hot' }]); if (c === 1) { if (cfg.type === 'pvp' && MP.duel) mpDuelSend(MP.duel.opp, 'bye', MP.duel.sid + '|', 0); finish('run'); } };
     show('s-battle');
     sprite('foe', true); sprite('me', true);
     renderB();
@@ -2792,7 +2831,7 @@ function tapRing() {
 }
 async function strike(side, mult, sk = {}, ring = true) {
   const a = side === 'me' ? meA() : foeA(), d = side === 'me' ? foeA() : meA(), other = side === 'me' ? 'foe' : 'me';
-  let crit = false; if (side === 'me' && ring && B.cfg.type !== 'duel') crit = await tapRing();
+  let crit = false; if (side === 'me' && ring && B.cfg.type !== 'pvp') crit = await tapRing();
   const sp = $(side === 'me' ? '#meSpr' : '#foeSpr'), tp = $(side === 'me' ? '#foeSpr' : '#meSpr');
   sp.classList.add(side === 'me' ? 'lunge-me' : 'lunge-foe'); await wait(220); sp.classList.remove('lunge-me', 'lunge-foe');
   if (a.blind && dRf() < 0.5) { a.blind = 0; sfx('miss'); floatAt(other, 'Meleset', 'big'); log(`${a.m.n} silau, serangannya meleset!`); await wait(500); return 0; }
@@ -2871,7 +2910,7 @@ async function ko() {
   return r;
 }
 async function turn(a) {
-  if (B.cfg.type === 'duel') return duelTurn(a);
+  if (B.cfg.type === 'pvp') return duelTurn(a);
   if (B.busy) return; B.busy = true; renderB();
   await act('me', a);
   let k = await ko(); if (k === 'end') return;
@@ -2890,7 +2929,7 @@ async function turn(a) {
 async function finish(res) {
   B.busy = true; sfx(res === 'win' ? 'win' : res === 'lose' ? 'lose' : '');
   const cfg = B.cfg; let html = '', rw = [];
-  if (cfg.type === 'duel') {
+  if (cfg.type === 'pvp') {
     const P = S.pvp || (S.pvp = { w: 0, l: 0 }), D = cfg.duel;
     if (res === 'win') { P.w++; html = `<div class="big" style="color:var(--sun)">MENANG!</div><p style="text-align:center;color:var(--muted);font-weight:700">${D.why === 'bye' ? 'Lawan menyerah.' : 'Duelmu seru! Tidak ada hadiah, hanya kebanggaan.'}</p>`; }
     else if (res === 'lose') { P.l++; html = `<div class="big">Kalah...</div><p style="text-align:center;color:var(--muted);font-weight:700">Tidak apa-apa, ayo coba lagi dengan susunan tim lain.</p>`; }
@@ -3226,7 +3265,7 @@ function duelIncoming(id, o, sid, x) {
 }
 async function startDuel(D, foe) {
   duelBarOff(); D.st = 'go'; stopLoop();
-  await startBattle({ type: 'duel', title: `Duel melawan ${D.name}`, zone: W.zone, foe: foe.map(f => f.id), foeF: foe, meF: duelTeam(D.mine), duel: D });
+  await startBattle({ type: 'pvp', title: `Duel melawan ${D.name}`, zone: W.zone, foe: foe.map(f => f.id), foeF: foe, meF: duelTeam(D.mine), duel: D });
   MP.duel = null; if (W) W.safe = performance.now() + 2000; hud(); show('s-world'); startLoop();
 }
 async function mpOnDuel(m) {
@@ -3556,7 +3595,7 @@ async function openQuests() {
   ensureQuests(); const dl = ensureDaily(), fz = ZONES[dl.zone];
   const allC = dl.qs.every(q => q.c);
   const row = (q, k, d) => `<div class="qrow"><div class="row" style="justify-content:space-between"><b>${esc(q.n)}</b><small>${q.p}/${q.g}</small></div><div class="bar"><i style="width:${q.p / q.g * 100}%"></i></div><small>Hadiah: ${rwText(q.rw)}</small>${q.c ? '<small style="color:#3ccf91;font-weight:800">Sudah diambil</small>' : q.p >= q.g ? `<button type="button" class="btn hot" data-${d ? 'd' : 'q'}="${k}" style="min-height:40px;font-size:16px">Ambil hadiah</button>` : ''}</div>`;
-  const i = await modal(`<h2>Papan Misi Pak Darto</h2>
+  const i = await modal(`<h2>Papan Misi Pak Toto</h2>
     <div class="card" style="font-size:13.5px;font-weight:800;display:flex;gap:8px;align-items:center"><span style="font-size:22px;color:#ffd23c">\u2605</span><span>Zona Unggulan hari ini: <b style="color:var(--sun)">${fz ? esc(fz.hl || fz.n) : '-'}</b><br><small style="font-weight:700;color:var(--sub)">Koin +50% dan peluang kotak naik di sana. Berganti besok.</small></span></div>
     <div class="disp" style="font-size:17px">Misi harian</div>
     <div style="display:flex;flex-direction:column;gap:8px">${dl.qs.map((q, k) => row(q, k, 1)).join('')}</div>
