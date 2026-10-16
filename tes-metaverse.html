@@ -4728,19 +4728,26 @@ function oddsHtml() {
 async function openBoxes() {
   const nb = S.boxes.Kayu + S.boxes.Perak + S.boxes.Emas;
   const i = await modal(`<h2>Telur hadiah</h2><p>${nb ? 'Pilih telur yang mau ditetaskan.' : 'Belum ada telur. Kalahkan monster liar, selesaikan misi, atau naik Rank.'}</p>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${['Kayu', 'Perak', 'Emas'].map(k => `<div class="card" style="text-align:center;padding:8px"><img src="${chestURL(k)}" width="55" height="44" alt="" style="image-rendering:pixelated"><div class="disp" style="font-size:16px">${eggS(k)}</div><div style="font-weight:800;color:var(--sub)">×${S.boxes[k]}</div></div>`).join('')}</div>`,
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${['Kayu', 'Perak', 'Emas'].map(k => `<div class="card" style="text-align:center;padding:8px"><img src="${chestURL(k)}" width="55" height="44" alt="" style="image-rendering:pixelated"><div class="disp" style="font-size:16px">${eggS(k)}</div><div style="font-weight:800;color:var(--sub)">×${S.boxes[k]}</div><div style="font-size:11px;font-weight:700;color:var(--muted)">${EGG[k].n} soal ${EGG[k].lv}<br>benar ${EGG[k].pass}</div></div>`).join('')}</div>`,
     [...['Kayu', 'Perak', 'Emas'].map(k => ({ t: `Tetaskan ${eggS(k)}`, cls: S.boxes[k] ? '' : 'ghost' })), { t: 'Tutup', cls: 'dark' }]);
   const k = ['Kayu', 'Perak', 'Emas'][i];
   if (!k) return;
   if (!S.boxes[k]) { toast(`Kamu belum punya ${eggN(k)}`); return; }
   /* gerbang: 10 soal campuran dari bab yang sudah dibuka, wajib benar min. 8 agar telur menetas. Telur tidak hilang jika gagal */
-  const r = await runQuiz({ title: `Menetaskan ${eggN(k)}`, sub: 'Benar min. 8 dari 10 soal agar telur menetas', qs: shuffle(ntPool()).slice(0, 10) });
+  const E = EGG[k], r = await runQuiz({ title: `Menetaskan ${eggN(k)}`, sub: `Benar min. ${E.pass} dari ${E.n} soal ${E.lv}`, qs: eggQs(k) });
   show('s-world'); hud();
   if (r.quit) return;
-  if (r.ok < EGG_PASS) { await modal(`<h2>Telur belum menetas</h2><p>Benar ${r.ok} dari ${r.n}. Butuh minimal ${EGG_PASS}. ${eggN(k)} tetap aman, coba lagi dengan soal baru.</p>`, [{ t: 'Oke' }]); return; }
+  if (r.ok < E.pass) { await modal(`<h2>Telur belum menetas</h2><p>Benar ${r.ok} dari ${r.n}. Butuh minimal ${E.pass}. ${eggN(k)} tetap aman, coba lagi dengan soal baru.</p>`, [{ t: 'Oke' }]); return; }
   stopLoop(); await eggHatch(k); await openBox(k); show('s-world'); hud();
 }
-const EGG_PASS = 8;
+/* tingkat soal memakai nomor bab sebagai ukuran: bab awal = mudah, bab akhir yang sudah dibuka = sulit (bank soal belum punya label tingkat) */
+const EGG = { Kayu: { n: 5, pass: 4, lv: 'mudah' }, Perak: { n: 8, pass: 6, lv: 'sedang' }, Emas: { n: 10, pass: 8, lv: 'sulit' } };
+function eggQs(k) {
+  const E = EGG[k], rows = ntPool(), mx = {}; rows.forEach(r => { mx[r[0]] = Math.max(mx[r[0]] || 1, r[1]); });
+  const f = r => { const m = mx[r[0]], b = r[1]; return k === 'Kayu' ? b <= Math.ceil(m * .4) : k === 'Perak' ? b > Math.ceil(m * .2) && b <= Math.ceil(m * .8) : b > Math.ceil(m * .6); };
+  let pool = rows.filter(f); if (pool.length < E.n) pool = rows;
+  return shuffle(pool).slice(0, E.n);
+}
 function eggHatch(type) {
   return new Promise(res => {
     const el = $('#s-box');
