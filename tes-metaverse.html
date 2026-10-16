@@ -662,7 +662,7 @@ body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;margin:0;overflow:h
 <g fill="#2f5a24" opacity="0.6"><circle cx="64" cy="76" r="3"/><circle cx="96" cy="74" r="2.5"/><circle cx="118" cy="88" r="3"/></g></symbol>
 <symbol id="ic-coin" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="#ffc93c" stroke="#1f2347" stroke-width="2"/><circle cx="10" cy="10" r="5" fill="none" stroke="#e09a12" stroke-width="1.8"/><path d="M7.5 6.5 L9 5.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></symbol>
 <symbol id="ic-bolt" viewBox="0 0 11 13"><path d="M7 0 L1 7 H5 L4 13 L10 5 H6 Z" stroke="#1f2347" stroke-width="1.2" stroke-linejoin="round"/></symbol>
-<symbol id="ic-chest" viewBox="0 0 24 24"><path d="M3 10 L5 4 Q12 2 19 4 L21 10 Z" fill="#ffc93c" stroke="#1f2347" stroke-width="2" stroke-linejoin="round"/><rect x="3" y="10" width="18" height="10" rx="2" fill="#ffb31f" stroke="#1f2347" stroke-width="2"/><rect x="10" y="11" width="4" height="5" rx="1" fill="#fff0a8" stroke="#1f2347" stroke-width="1.5"/></symbol>
+<symbol id="ic-chest" viewBox="0 0 24 24"><path d="M12 2 C7 2 4 10 4 14 C4 19 8 22 12 22 C16 22 20 19 20 14 C20 10 17 2 12 2 Z" fill="#fff0c8" stroke="#1f2347" stroke-width="2" stroke-linejoin="round"/><circle cx="9" cy="14" r="1.6" fill="#e0a066"/><circle cx="14.5" cy="11" r="1.4" fill="#e0a066"/><circle cx="14" cy="17" r="1.6" fill="#e0a066"/></symbol>
 <symbol id="ic-cards" viewBox="0 0 24 24"><rect x="4" y="3" width="11" height="15" rx="2" fill="#fff" stroke="#1f2347" stroke-width="2.2"/><rect x="9" y="6" width="11" height="15" rx="2" fill="#8fdcff" stroke="#1f2347" stroke-width="2.2"/></symbol>
 <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="#ffc93c" stroke="#1f2347" stroke-width="2"/><path d="M4 21 C4 15 8 13 12 13 C16 13 20 15 20 21 Z" fill="#ff6a3d" stroke="#1f2347" stroke-width="2" stroke-linejoin="round"/></symbol>
 <symbol id="ic-back" viewBox="0 0 18 18"><path d="M11 3 L5 9 L11 15" fill="none" stroke="#1f2347" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -678,7 +678,7 @@ body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;margin:0;overflow:h
         <button id="questChip" type="button"></button>
       </div>
       <div class="btns">
-        <button class="round" id="bBox" type="button" aria-label="Kotak hadiah"><svg width="24" height="24" aria-hidden="true"><use href="#ic-chest"/></svg><span class="badge" id="boxBadge" hidden>0</span></button>
+        <button class="round" id="bBox" type="button" aria-label="Telur hadiah"><svg width="24" height="24" aria-hidden="true"><use href="#ic-chest"/></svg><span class="badge" id="boxBadge" hidden>0</span></button>
         <button class="round" id="bMap" type="button" aria-label="Peta Dunia"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z" fill="#8fd0ff" stroke="#1f2347" stroke-width="2" stroke-linejoin="round"/><path d="M9 4v14M15 6v14" stroke="#1f2347" stroke-width="2"/></svg></button>
         <button class="round" id="bCol" type="button" aria-label="Koleksi dan tim"><svg width="24" height="24" aria-hidden="true"><use href="#ic-cards"/></svg></button>
         <button class="round" id="bChat" type="button" aria-label="Teman online"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#8fd0ff" stroke="#1f2347" stroke-width="2"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="#1f2347" stroke-width="1.6"/></svg></button>
@@ -940,7 +940,7 @@ function gainXP(n) {
   }
   if (S.rank >= RANK_MAX) S.xp = 0;
   if (up) {
-    const R = S.rank, bt = got.b.length ? ` dan ${got.b.length > 1 ? got.b.length + ' kotak' : 'Kotak ' + got.b[0]}` : '';
+    const R = S.rank, bt = got.b.length ? ` dan ${got.b.length > 1 ? got.b.length + ' telur' : eggN(got.b[0])}` : '';
     setTimeout(() => toast(`Naik ke <b>Rank ${R}</b>! ${COIN}+${got.c}${bt}`, 3200), 400);
     const na = SHOP.filter(it => it.rk > r0 && it.rk <= R).length; if (na) setTimeout(() => toast(`${na} aksesoris baru terbuka di Toko Mak Sumi`, 3200), 2200);
     sfx('rank');
@@ -950,6 +950,7 @@ function gainXP(n) {
 /* XP battle per hari: 20 menang pertama penuh, 21-40 setengah, setelahnya 0 (koin tetap penuh) */
 function battleXP(n) { const d = today(); if (!S.bw || S.bw.d !== d) S.bw = { d, w: 0 }; S.bw.w++; return Math.round(n * (S.bw.w <= 20 ? 1 : S.bw.w <= 40 ? .5 : 0)); }
 const bxpNote = () => S.bw && S.bw.w > 20 ? `<small style="font-weight:700;color:var(--muted)">${S.bw.w > 40 ? 'XP battle hari ini sudah habis' : 'XP battle hari ini setengah'} (sudah ${S.bw.w} menang). Belajar tetap memberi XP penuh!</small>` : '';
+const eggS = k => k === 'Kayu' ? 'Biasa' : k, eggN = k => 'Telur ' + eggS(k);
 function teamCost(t = S.team) { return t.reduce((a, id) => a + RAR[M[id].r].cost, 0); }
 
 /* ---------- quests ---------- */
@@ -957,7 +958,7 @@ const QT = [
   { k: 'wild', n: 'Kalahkan 3 monster liar', g: 3, rw: { box: 'Kayu', coins: 40 } },
   { k: 'wild', n: 'Kalahkan 6 monster liar', g: 6, rw: { box: 'Perak' } },
   { k: 'duel', n: 'Menang 1 duel lawan siswa', g: 1, rw: { box: 'Perak' } },
-  { k: 'open', n: 'Buka 2 kotak hadiah', g: 2, rw: { coins: 120 } },
+  { k: 'open', n: 'Tetaskan 2 telur', g: 2, rw: { coins: 120 } },
   { k: 'win', n: 'Menang 5 pertarungan', g: 5, rw: { box: 'Kayu', coins: 80 } },
   { k: 'coins', n: 'Kumpulkan 150 koin dari bertarung', g: 150, rw: { box: 'Kayu' } },
 ];
@@ -972,7 +973,7 @@ function progress(k, n = 1) {
   for (const q of dl.qs) if (q.k === k && q.p < q.g) { q.p = Math.min(q.g, q.p + n); if (q.p >= q.g) toast(`Misi harian selesai: <b>${q.n}</b>. Ambil hadiah di Pak Toto`, 3000); }
   save();
 }
-const rwText = rw => [rw.box ? `Kotak ${rw.box}` : '', rw.coins ? `${rw.coins} koin` : ''].filter(Boolean).join(' + ');
+const rwText = rw => [rw.box ? eggN(rw.box) : '', rw.coins ? `${rw.coins} koin` : ''].filter(Boolean).join(' + ');
 const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
 /* ---------- misi harian + zona unggulan ---------- */
@@ -1633,16 +1634,22 @@ function arenaURL(z) {
   return (AURL[z] = c.toDataURL());
 }
 const CURL = {};
-function chestURL(type) {
+function chestURL(type) { /* telur hadiah: Biasa = krem berbintik, Perak = biru perak berpita + bintang, Emas = emas berpita + kilau */
   if (CURL[type]) return CURL[type];
-  const col = { Kayu: ['#5a3420', '#8a5530', '#b9783f', '#e0a066'], Perak: ['#5f6b85', '#9aa4b8', '#d6dcea', '#ffffff'], Emas: ['#a8641c', '#f0b030', '#ffd860', '#fff3a8'] }[type];
+  const base = { Kayu: '#f2e2bf', Perak: '#a9bde8', Emas: '#ffcc33' }[type], acc = { Kayu: '#c98a4a', Perak: '#ffffff', Emas: '#d9480f' }[type];
   const g = grid(40, 32);
-  E(g, 20, 6, 17, 6, ['#fff3a0', '#fffbe0', '#ffffff', '#ffffff'], 1);
-  R(g, 3, 4, 34, 7, col[1]); R(g, 3, 4, 34, 2, col[2]); R(g, 3, 10, 34, 1, col[0]);
-  R(g, 3, 12, 34, 18, col[1]); R(g, 3, 12, 34, 2, col[2]); R(g, 3, 27, 34, 3, col[0]);
-  for (const x of [9, 29]) R(g, x, 4, 3, 26, col[0]);
-  R(g, 17, 14, 6, 7, '#fff0a8'); R(g, 19, 16, 2, 3, '#5a3420');
-  for (const [x, y] of [[6, 1], [33, 2], [20, 0]]) P(g, x, y, '#ffffff');
+  E(g, 20, 18, 11, 14, ramp(base));
+  if (type === 'Kayu') { for (const [x, y, w, h] of [[14, 9, 3, 2], [22, 14, 3, 3], [15, 19, 4, 3], [23, 22, 3, 2], [19, 6, 2, 2]]) R(g, x, y, w, h, acc); }
+  else if (type === 'Perak') {
+    for (const y of [14, 15, 22, 23]) R(g, 9, y, 23, 1, '#5b6fb0');
+    for (const [x, y] of [[20, 10], [16, 18], [25, 18], [20, 26]]) { R(g, x - 1, y, 3, 1, acc); R(g, x, y - 1, 1, 3, acc); }
+    for (const [x, y] of [[5, 5], [35, 8], [4, 24], [36, 22]]) { R(g, x - 1, y, 3, 1, '#cfe2ff'); R(g, x, y - 1, 1, 3, '#cfe2ff'); }
+  } else {
+    for (const y of [13, 14, 21, 22]) R(g, 9, y, 23, 1, acc);
+    for (const x of [14, 19, 25]) R(g, x, 15, 1, 6, '#fff3a8');
+    for (const [x, y] of [[20, 9], [17, 18], [24, 18], [20, 26]]) { R(g, x - 1, y, 3, 1, '#fff3a8'); R(g, x, y - 1, 1, 3, '#fff3a8'); }
+    for (const [x, y] of [[4, 4], [35, 5], [3, 20], [36, 25], [20, 1]]) { R(g, x - 1, y, 3, 1, '#ffe27a'); R(g, x, y - 1, 1, 3, '#ffe27a'); }
+  }
   return (CURL[type] = toCanvas(outline(g)).toDataURL());
 }
 
@@ -1986,7 +1993,7 @@ function pressA() { if (!$('#s-world').hidden && $('#modal').hidden) { if (near)
 /* encounters + duels */
 async function encounter(m) {
   stopLoop();
-  if (!S.team.length) { toast('Timmu masih kosong. Buka kotak hadiah dulu'); W.safe = performance.now() + 2500; startLoop(); return; }
+  if (!S.team.length) { toast('Timmu masih kosong. Tetaskan telur dulu'); W.safe = performance.now() + 2500; startLoop(); return; }
   const res = await startBattle({ type: 'wild', foe: [m.id], title: m.h === 'sleep' ? `${M[m.id].n} sedang tidur...` : `${M[m.id].n} liar menyerang!`, zone: W.zone, habit: m.h });
   const i = W.wild.indexOf(m);
   if ((res === 'win' || res === 'fled') && i >= 0) { W.wild.splice(i, 1); const z = W.zone; setTimeout(() => { if (W && W.zone === z) spawnWild(); }, 15000); }
@@ -1995,13 +2002,13 @@ async function encounter(m) {
 }
 function teamFor(st) { const used = new Set(); return st.team.map(r => { let id; do { id = pick(MONS.filter(m => m.r === r)).id; } while (used.has(id)); used.add(id); return id; }); }
 async function challenge(st) {
-  if (!S.team.length) { toast('Timmu masih kosong. Buka kotak hadiah dulu'); return; }
+  if (!S.team.length) { toast('Timmu masih kosong. Tetaskan telur dulu'); return; }
   const c = await modal(`<div style="display:flex;gap:12px;align-items:center">${avatarSvg(st.o, 48)}<div><h2>${esc(st.n)} · Rank ${st.rank}</h2><p>"Ayo duel 3 lawan 3! Kalau kamu menang, kamu dapat ${10 + st.rank * 3} XP dan ${25 + st.rank * 8} koin."</p></div></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Duel!', cls: 'hot' }]);
   if (c !== 1) return;
   npcDuel(st);
 }
 async function npcDuel(st) {
-  if (!S.team.length) { toast('Timmu masih kosong. Buka kotak hadiah dulu'); return; }
+  if (!S.team.length) { toast('Timmu masih kosong. Tetaskan telur dulu'); return; }
   stopLoop();
   await startBattle({ type: 'duel', foe: teamFor(st), title: `Duel melawan ${st.n}`, who: st, zone: W.zone });
   W.safe = performance.now() + 1500; hud(); show('s-world');
@@ -2527,7 +2534,7 @@ function kartuViewer({ pk, bab, title, sub, onBack, onFinish }) {
 function openAkademi(z) {
   const Z = ZONES[z]; stopLoop();
   const back = () => { show('s-world'); hud(); };
-  kartuViewer({ pk: Z.bank, bab: Z.bab, title: `Akademi · ${PSHORT[Z.pulau]}`, sub: `Bab ${Z.bab} · ${Z.babN}`, onBack: back, onFinish: async () => {
+  kartuViewer({ pk: Z.bank, bab: Z.bab, title: `Akademi · ${PSHORT[Z.pulau]}`, sub: `Bab ${Z.bab} · ${Z.babN} · persiapan Kuil Ujian`, onBack: back, onFinish: async () => {
     if (!S.read) S.read = {}; S.read[z] = 1; save(); progress('baca');
     let cured = false; if (W && W.zone === z && W.buff === 'kutukan') { W.buff = null; cured = true; }
     back();
@@ -2549,7 +2556,7 @@ async function practice(z) {
 async function openKuil(z) {
   const Z = ZONES[z], pg = prog(Z.pulau), done = pg.lulus.includes(Z.bab), mon = KUILMON[z];
   const c = await modal(`<h2>Kuil Ujian · Bab ${Z.bab}</h2><p style="color:#fff">${esc(Z.babN)}</p>
-    <div style="display:flex;gap:12px;align-items:center"><div style="width:72px;height:60px;flex:none${done ? '' : ';filter:brightness(0);opacity:.5'}">${mSvg(mon)}</div><p>${done ? `Kamu sudah lulus Kuil ini dan mendapat <b style="color:#fff">${esc(M[mon].n)}</b>. Kamu boleh mengulang ujian untuk berlatih, tanpa hadiah tambahan.` : `Ujian <b style="color:#fff">10 soal</b> acak dari bab ini. Lulus jika benar minimal <b style="color:#fff">8</b>. Hadiah: monster bab, Kotak Perak, dan wilayah berikutnya terbuka.`}</p></div>
+    <div style="display:flex;gap:12px;align-items:center"><div style="width:72px;height:60px;flex:none${done ? '' : ';filter:brightness(0);opacity:.5'}">${mSvg(mon)}</div><p>${done ? `Kamu sudah lulus Kuil ini dan mendapat <b style="color:#fff">${esc(M[mon].n)}</b>. Kamu boleh mengulang ujian untuk berlatih, tanpa hadiah tambahan.` : `Ujian <b style="color:#fff">10 soal</b> acak dari bab ini. Lulus jika benar minimal <b style="color:#fff">8</b>. Hadiah: monster bab, Telur Perak, dan wilayah berikutnya terbuka.`}</p></div>
     <p style="font-size:13px">Mode tenang (tanpa batas waktu) aktif kecuali kamu mematikannya di layar soal.</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: done ? 'Ulangi ujian' : 'Mulai ujian', cls: 'hot' }]);
   if (c !== 1) return;
   const r = await runQuiz({ title: `Kuil Ujian · Bab ${Z.bab}`, sub: `${PSHORT[Z.pulau]} · ${Z.babN}`, qs: shuffle(soalBab(Z.bank, Z.bab)).slice(0, 10), timed: true, secs: 45 });
@@ -2565,7 +2572,7 @@ async function openKuil(z) {
     const nx = Z.bab < 5 ? ZONES[Z.pulau + (Z.bab + 1)] : null;
     const go = await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">KUIL UJIAN · BAB ${Z.bab}</div><div class="big">LULUS! ${r.ok}/10</div>
       <div style="width:110px;height:92px">${mSvg(mon)}</div><p><b style="color:#fff">${esc(M[mon].n)}</b> bergabung ke koleksimu!</p>
-      <div class="card" style="font-size:14px;font-weight:800;text-align:left;display:flex;flex-direction:column;gap:4px"><span>+ 1 Kotak Perak · + 25 XP</span><span>+ Halaman Album: ${esc(Z.babN)}</span><span>${nx ? `Wilayah terbuka: ${esc(nx.n)} (Bab ${nx.bab})` : 'Semua bab lulus! Ujian Akhir Pulau terbuka di jalan kanan atas.'}</span></div></div>`, nx ? [{ t: 'Nanti', cls: 'ghost' }, { t: `Lanjut ke ${esc(nx.n)}`, cls: 'hot' }] : [{ t: 'Hebat!', cls: 'hot' }]);
+      <div class="card" style="font-size:14px;font-weight:800;text-align:left;display:flex;flex-direction:column;gap:4px"><span>+ 1 Telur Perak · + 25 XP</span><span>+ Halaman Album: ${esc(Z.babN)}</span><span>${nx ? `Wilayah terbuka: ${esc(nx.n)} (Bab ${nx.bab})` : 'Semua bab lulus! Ujian Akhir Pulau terbuka di jalan kanan atas.'}</span></div></div>`, nx ? [{ t: 'Nanti', cls: 'ghost' }, { t: `Lanjut ke ${esc(nx.n)}`, cls: 'hot' }] : [{ t: 'Hebat!', cls: 'hot' }]);
     if (nx && go === 1) { enterZone(nx.id); toast(`Masuk ${esc(nx.n)} · Bab ${nx.bab}`, 2600); }
   } else if (pass) {
     await modal(`<div style="text-align:center"><div class="big">${r.ok}/10</div><p>Lulus lagi! Pemahamanmu tetap terjaga.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
@@ -2582,7 +2589,7 @@ async function openAkhir(z) {
   if (!pg.lulus.includes(5)) { toast('Lulus Kuil Ujian Bab 5 dulu'); return; }
   const c = await modal(`<h2>Gerbang Pulau ${esc(PSHORT[k])}</h2>
     <div style="display:flex;gap:12px;align-items:center"><div style="width:84px;height:70px;flex:none${pg.legend ? '' : ';filter:brightness(0);opacity:.55'}">${mSvg(leg)}</div>
-    <p>${ok ? `Ujian Akhir sudah lulus. ${pg.legend ? `<b style="color:#fff">${esc(M[leg].n)}</b> sudah jadi milikmu. Kamu boleh menantangnya lagi untuk berlatih.` : `Sarang Legenda terbuka! <b style="color:#fff">${esc(M[leg].n)}</b> menunggu. Jurus kuat dijawab dengan soal benar/salah. Kalah boleh coba lagi.`}` : `<b style="color:#fff">Ujian Akhir Pulau</b>: 25 soal acak dari seluruh 5 bab (125 soal). Lulus jika benar minimal <b style="color:#fff">23</b>. Lulus membuka Sarang Legenda dengan monster legenda dan Kotak Emas.`}</p></div>`,
+    <p>${ok ? `Ujian Akhir sudah lulus. ${pg.legend ? `<b style="color:#fff">${esc(M[leg].n)}</b> sudah jadi milikmu. Kamu boleh menantangnya lagi untuk berlatih.` : `Sarang Legenda terbuka! <b style="color:#fff">${esc(M[leg].n)}</b> menunggu. Jurus kuat dijawab dengan soal benar/salah. Kalah boleh coba lagi.`}` : `<b style="color:#fff">Ujian Akhir Pulau</b>: 25 soal acak dari seluruh 5 bab (125 soal). Lulus jika benar minimal <b style="color:#fff">23</b>. Lulus membuka Sarang Legenda dengan monster legenda dan Telur Emas.`}</p></div>`,
     [{ t: 'Nanti', cls: 'ghost' }, { t: ok ? 'Ulangi ujian' : 'Mulai Ujian Akhir', cls: ok ? 'ghost' : 'hot' }, { t: 'Sarang Legenda', cls: ok ? 'hot' : 'ghost' }]);
   if (c === 1) ujianAkhir(z); else if (c === 2) { if (!ok) toast('Lulus Ujian Akhir Pulau dulu untuk membuka Sarang Legenda'); else sarang(z); }
 }
@@ -2602,7 +2609,7 @@ async function ujianAkhir(z) {
 async function sarang(z) {
   const Z = ZONES[z], k = Z.pulau, pg = prog(k), leg = LEG[k];
   if (!S.team.length) { toast('Timmu masih kosong'); return; }
-  const c = await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">SARANG LEGENDA</div><div style="width:130px;height:108px">${mSvg(leg)}</div><h2>${esc(M[leg].n)}</h2><p>${esc(M[leg].d)}. Ia sangat kuat (HP +25%). Atur timmu dan manfaatkan Kritis!${pg.legend ? '' : ' Menang: monster legenda dan Kotak Emas.'}</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Tantang!', cls: 'hot' }]);
+  const c = await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">SARANG LEGENDA</div><div style="width:130px;height:108px">${mSvg(leg)}</div><h2>${esc(M[leg].n)}</h2><p>${esc(M[leg].d)}. Ia sangat kuat (HP +25%). Atur timmu dan manfaatkan Kritis!${pg.legend ? '' : ' Menang: monster legenda dan Telur Emas.'}</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Tantang!', cls: 'hot' }]);
   if (c !== 1) return;
   stopLoop();
   const res = await startBattle({ type: 'legend', foe: [leg], title: `${M[leg].n} muncul!`, zone: z, hpMul: 1.25 });
@@ -2610,7 +2617,7 @@ async function sarang(z) {
   if (res === 'win') {
     if (!pg.legend) {
       pg.legend = 1; addDup(leg); S.boxes.Emas++; save(); hud();
-      await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div class="big">LEGENDA!</div><div style="width:130px;height:108px">${mSvg(leg)}</div><p><b style="color:#fff">${esc(M[leg].n)}</b> bergabung ke koleksimu, plus 1 Kotak Emas!</p></div>`, [{ t: 'Hebat!', cls: 'hot' }]);
+      await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div class="big">LEGENDA!</div><div style="width:130px;height:108px">${mSvg(leg)}</div><p><b style="color:#fff">${esc(M[leg].n)}</b> bergabung ke koleksimu, plus 1 Telur Emas!</p></div>`, [{ t: 'Hebat!', cls: 'hot' }]);
     } else await modal(`<div style="text-align:center"><div class="big">MENANG!</div><p>Latihan melawan ${esc(M[leg].n)} berhasil.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
   } else if (res === 'lose') await modal(`<div style="text-align:center"><p>Legenda terlalu kuat kali ini. Atur tim dengan elemen unggul, lalu coba lagi kapan saja.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
 }
@@ -2620,12 +2627,12 @@ async function gateCheck() {
   stopLoop(); const Z = ZONES[W.zone], pg = prog(Z.pulau);
   const top = Math.max(Z.bab, pg.open), pool = BANK.filter(r => r[0] === Z.bank && r[1] <= top);
   await modal(`<h2>Gerbang Pemanasan</h2><p>Jawab <b style="color:#fff">3 soal</b> dari bab yang sudah terbuka untuk melewati gerbang.</p>
-    <div class="card" style="font-size:13.5px;font-weight:700;display:flex;flex-direction:column;gap:3px"><span><b style="color:#1f7a52">3 benar · Berkah</b>: koin +20%, peluang kotak naik</span><span><b style="color:#3a7bd5">2 benar · Berkah kecil</b>: koin +10%</span><span><b style="color:#c8302a">0–1 benar · Kutukan ringan</b>: energi awal 0, monster liar 10% lebih kuat. Hilang saat keluar wilayah atau setelah membaca Akademi.</span></div>`, [{ t: 'Mulai', cls: 'hot' }], { dismiss: false });
+    <div class="card" style="font-size:13.5px;font-weight:700;display:flex;flex-direction:column;gap:3px"><span><b style="color:#1f7a52">3 benar · Berkah</b>: koin +20%, peluang telur naik</span><span><b style="color:#3a7bd5">2 benar · Berkah kecil</b>: koin +10%</span><span><b style="color:#c8302a">0–1 benar · Kutukan ringan</b>: energi awal 0, monster liar 10% lebih kuat. Hilang saat keluar wilayah atau setelah membaca Akademi.</span></div>`, [{ t: 'Mulai', cls: 'hot' }], { dismiss: false });
   const r = await runQuiz({ title: 'Gerbang Pemanasan', sub: `${Z.n} · 3 soal`, qs: shuffle(pool).slice(0, 3) });
   if (r.quit) { W.p.y = W.gateY + 26; W.p.dir = 'down'; show('s-world'); toast('Gerbang belum terbuka. Jawab 3 soal untuk lewat.'); return; }
   W.gateDone = true; W.buff = r.ok === 3 ? 'berkah' : r.ok === 2 ? 'kecil' : 'kutukan'; if (r.ok === 3) progress('berkah');
   show('s-world'); hud();
-  const t = { berkah: ['Berkah!', 'Koin +20% dan peluang kotak naik selama di wilayah ini.'], kecil: ['Berkah kecil', 'Koin +10% selama di wilayah ini.'], kutukan: ['Kutukan ringan', 'Energi awal 0 dan monster liar 10% lebih kuat. Baca kartu di Akademi (dekat pintu masuk) untuk menghapusnya.'] }[W.buff];
+  const t = { berkah: ['Berkah!', 'Koin +20% dan peluang telur naik selama di wilayah ini.'], kecil: ['Berkah kecil', 'Koin +10% selama di wilayah ini.'], kutukan: ['Kutukan ringan', 'Energi awal 0 dan monster liar 10% lebih kuat. Baca kartu di Akademi (dekat pintu masuk) untuk menghapusnya.'] }[W.buff];
   toast(`<b>${r.ok}/3 · ${t[0]}</b><br>${t[1]}`, 4200);
 }
 
@@ -3193,7 +3200,7 @@ async function finish(res) {
       addCoins(c); progress('coins', c); progress('wild'); S.st.wild++; const fz = cfg.zone === featured(); if (fz) progress('zonewild');
       const bx = battleXP(Z.xp); rw.push(`${COIN}+${c} koin`, `+${bx} XP`); gainXP(bx); if (bxpNote()) rw.push(bxpNote());
       const roll = rnd(0, 100) / (W && W.buff === 'berkah' ? 1.5 : 1) / (cfg.zone === featured() ? 1.5 : 1), got = (() => { const r = M[cfg.foe[0]].r, [k, pk] = { C: [5, 0], R: [8, 1], E: [8, 3], L: [8, 3] }[r]; return roll < pk ? 'Perak' : roll < pk + k ? 'Kayu' : null; })();
-      if (got) { S.boxes[got]++; rw.push(`<b>Kotak ${got}!</b>`); }
+      if (got) { S.boxes[got]++; rw.push(`<b>${eggN(got)}!</b>`); }
     } else if (cfg.type === 'legend') {
       const bx = battleXP(40); progress('duel'); gainXP(bx); rw.push(`+${bx} XP`); if (bxpNote()) rw.push(bxpNote());
     } else {
@@ -3543,7 +3550,7 @@ const duelBusy = () => MP.duel || B || RD || !$('#modal').hidden || $('#s-world'
 async function duelAsk(id) {
   const o = MP.ps[id]; if (!o || !mpHere(o)) return;
   if (MP.duel) { toast('Kamu sedang dalam tantangan'); return; }
-  if (!S.team.length) { toast('Timmu masih kosong. Buka kotak hadiah dulu'); return; }
+  if (!S.team.length) { toast('Timmu masih kosong. Tetaskan telur dulu'); return; }
   const c = await modal(`<h2>Tantang ${esc(o.n)}?</h2><p>Duel 3 lawan 3, bergantian. Tanpa hadiah, hanya adu seru. Monster dipakai dengan level aslinya, dan tidak ada Kritis.</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Tantang!', cls: 'hot' }]);
   if (c !== 1 || MP.ps[id] !== o || MP.duel || B) return;
   const sid = Math.random().toString(36).slice(2, 10), D = MP.duel = { opp: id, name: o.n, sid, role: 'c', q: {}, w: {}, ph: 0, st: 'wait', over: false, mine: duelMine() };
@@ -3652,7 +3659,7 @@ function envDraw(t, ox, oy, p) {
 /* ===== Absen belajar: 1 latihan Akademi per hari. 1 tiket libur per minggu (bolos 1 hari tidak memutus streak). ===== */
 const STREAK_RW = [{ coins: 30 }, { coins: 40 }, { box: 'Kayu' }, { coins: 60 }, { box: 'Kayu' }, { coins: 80 }, { box: 'Perak' }];
 const dNum = s => Math.round(Date.parse(s + 'T12:00:00Z') / 864e5), weekKey = s => Math.floor((dNum(s) + 3) / 7);
-const stRwText = r => r.coins ? `${COIN}${r.coins}` : `Kotak ${r.box}`;
+const stRwText = r => r.coins ? `${COIN}${r.coins}` : eggN(r.box);
 function streak() { if (!S.streak) S.streak = { n: 0, last: '', tw: -1 }; return S.streak; }
 function streakInfo() {
   const st = streak(), td = today(), g = st.last ? dNum(td) - dNum(st.last) : 99;
@@ -3987,14 +3994,14 @@ async function raidEnd(res) {
     if (S.sb[sl.slot]) rw.push('Hadiah Bos jendela ini sudah kamu ambil');
     else {
       S.sb[sl.slot] = 1; const ks = Object.keys(S.sb).sort(); while (ks.length > 6) delete S.sb[ks.shift()];
-      const c = ri(100, 180); addCoins(c); S.boxes.Kayu++; S.st.bos = (S.st.bos || 0) + 1; rw.push(`${COIN}+${c} koin`, '<b>Kotak Kayu!</b>');
+      const c = ri(100, 180); addCoins(c); S.boxes.Kayu++; S.st.bos = (S.st.bos || 0) + 1; rw.push(`${COIN}+${c} koin`, '<b>Telur Biasa!</b>');
     }
   } else if (res === 'win') {
     RG.down[sl.slot] = 1; RG.lock = null; sfx('win');
     const d = today(); if (!S.gw || S.gw.d !== d) S.gw = { d, n: 0 }; S.gw.n++; S.st.giant = (S.st.giant || 0) + 1;
     if (S.gw.n <= 3) {
       const c = Z.coins * 3 + ri(0, 15), xp = battleXP((Z.xp || 8) * 3); addCoins(c); gainXP(xp); rw.push(`${COIN}+${c} koin`, `+${xp} XP`);
-      const x = Math.random() * 100, b = x < 3 ? 'Emas' : x < 18 ? 'Perak' : x < 58 ? 'Kayu' : null; if (b) { S.boxes[b]++; rw.push(`<b>Kotak ${b}!</b>`); }
+      const x = Math.random() * 100, b = x < 3 ? 'Emas' : x < 18 ? 'Perak' : x < 58 ? 'Kayu' : null; if (b) { S.boxes[b]++; rw.push(`<b>${eggN(b)}!</b>`); }
     } else rw.push('Batas hadiah raksasa hari ini (3) sudah tercapai');
     if (bxpNote()) rw.push(bxpNote());
   } else if (res === 'lose') { RG.lock = null; sfx('lose'); gainXP(3); rw.push('+3 XP'); }
@@ -4166,18 +4173,18 @@ async function openNightShop() {
   const pick = pool.slice(0, 2), own = id => S.acc.own.includes(id), KP = 120, left = 3 - S.nm.k;
   const card = id => { const it = SH[id]; return `<div class="card" style="display:flex;align-items:center;gap:8px;padding:6px 8px">${avatarSvg({ ...look(), [it.slot]: id }, 44)}<div style="flex:1;min-width:0"><b>${esc(it.n)}</b><div style="font-size:12px;font-weight:700;color:var(--sub)">Eksklusif malam</div></div><b>${own(id) ? 'Punya' : COIN + it.p}</b></div>`; };
   const c = await modal(`<h2>Pedagang Malam</h2><p style="font-size:13px">Dagangan berganti tiap hari. Hanya buka pukul 19.00–21.00.</p>
-    <div style="display:flex;flex-direction:column;gap:6px">${pick.map(card).join('')}<div class="card" style="display:flex;align-items:center;gap:8px;padding:6px 8px"><svg width="40" height="40" aria-hidden="true"><use href="#ic-chest"/></svg><div style="flex:1"><b>Kotak Kayu</b><div style="font-size:12px;font-weight:700;color:var(--sub)">Sisa hari ini: ${left}</div></div><b>${COIN}${KP}</b></div></div>
+    <div style="display:flex;flex-direction:column;gap:6px">${pick.map(card).join('')}<div class="card" style="display:flex;align-items:center;gap:8px;padding:6px 8px"><svg width="40" height="40" aria-hidden="true"><use href="#ic-chest"/></svg><div style="flex:1"><b>Telur Biasa</b><div style="font-size:12px;font-weight:700;color:var(--sub)">Sisa hari ini: ${left}</div></div><b>${COIN}${KP}</b></div></div>
     <p style="font-size:13px;font-weight:800">Koinmu: ${COIN}${S.coins}</p>`,
-    [...pick.map(id => ({ t: own(id) ? `${SH[id].n} ✓` : `Beli ${SH[id].n}`, cls: own(id) ? 'ghost' : '' })), { t: `Kotak Kayu ${COIN}${KP}`, cls: left > 0 ? 'hot' : 'ghost' }, { t: 'Tutup', cls: 'dark' }]);
+    [...pick.map(id => ({ t: own(id) ? `${SH[id].n} ✓` : `Beli ${SH[id].n}`, cls: own(id) ? 'ghost' : '' })), { t: `Telur Biasa ${COIN}${KP}`, cls: left > 0 ? 'hot' : 'ghost' }, { t: 'Tutup', cls: 'dark' }]);
   if (c < 0 || c === 3) return;
   if (c < 2) {
     const it = SH[pick[c]]; if (own(it.id)) { toast('Kamu sudah punya ini'); return openNightShop(); }
     if (S.coins < it.p) { toast(`Koin kurang ${it.p - S.coins}`); return openNightShop(); }
     S.coins -= it.p; S.acc.own.push(it.id); S.acc[it.slot] = it.id; save(); hud(); refreshPlayer(); sfx('coin'); toast(`Kamu membeli ${it.n}!`);
   } else {
-    if (left <= 0) { toast('Kotak Kayu hari ini habis. Datang lagi besok malam!'); return openNightShop(); }
+    if (left <= 0) { toast('Telur Biasa hari ini habis. Datang lagi besok malam!'); return openNightShop(); }
     if (S.coins < KP) { toast(`Koin kurang ${KP - S.coins}`); return openNightShop(); }
-    S.coins -= KP; S.boxes.Kayu++; S.nm.k++; save(); hud(); sfx('coin'); toast('Kamu membeli 1 Kotak Kayu!');
+    S.coins -= KP; S.boxes.Kayu++; S.nm.k++; save(); hud(); sfx('coin'); toast('Kamu membeli 1 Telur Biasa!');
   }
   return openNightShop();
 }
@@ -4209,7 +4216,7 @@ async function openStar() {
   S.pb = { d: today() }; save(); npcApply();
   if (r.ok < 1) { addCoins(10); hud(); await modal(`<h2>Belum tepat</h2><p>"Tidak apa-apa. Ini sedikit koin hiburan. Kembali lagi besok malam."</p><div style="text-align:center"><div class="big" style="font-size:34px">+10 koin</div></div>`, [{ t: 'Oke' }]); return; }
   const x = Math.random(); let txt, big;
-  if (x < .35) { S.boxes.Kayu++; big = '+1 Kotak Kayu'; txt = 'Buka di menu Kotak.'; save(); }
+  if (x < .35) { S.boxes.Kayu++; big = '+1 Telur Biasa'; txt = 'Tetaskan di menu Telur.'; save(); }
   else if (x < .7) { const n = reg ? 50 + Math.floor(Math.random() * 71) : 40 + Math.floor(Math.random() * 61); addCoins(n); big = `+${n} koin`; txt = 'Dompetmu bertambah.'; }
   else { const n = reg ? 25 + Math.floor(Math.random() * 26) : 20 + Math.floor(Math.random() * 21); gainXP(n); big = `+${n} XP`; txt = 'Pengalamanmu bertambah.'; }
   hud(); sfx('pass');
@@ -4220,11 +4227,11 @@ async function openStar() {
 function jadwalRows() {
   const h = todH(), w = wibNow(), wh = w.getUTCHours() + w.getUTCMinutes() / 60, d = today();
   const R = (t, n, where, note, win, done, wib) => ({ t, n, where, note, st: (x => x >= win[0] && x < win[1] ? 'buka' : x < win[0] ? 'nanti' : 'lewat')(wib ? wh : h), done });
-  const bos = (a, z) => R(`${a}.00–${a}.15`, 'Bos Peta', ZONES[z].n, 'Regu min. 2 anak · koin besar + Kotak Kayu', [a, a + .25], false, 1);
+  const bos = (a, z) => R(`${a}.00–${a}.15`, 'Bos Peta', ZONES[z].n, 'Regu min. 2 anak · koin besar + Telur Biasa', [a, a + .25], false, 1);
   return [
     R('05.00–06.30', 'Kakek Pagi', 'Sekolah', '+25 koin', [5, 6.5], S.kp && S.kp.d === d),
     ...BOS_H.map((h, i) => bos(h, BOS_Z[i])),
-    R('19.00–21.00', 'Pedagang Malam', 'Sekolah', 'Barang eksklusif + Kotak Kayu', [19, 21], false),
+    R('19.00–21.00', 'Pedagang Malam', 'Sekolah', 'Barang eksklusif + Telur Biasa', [19, 21], false),
     R('19.00–22.00', 'Penjaga Malam', 'Sekolah & pulau belajar', 'Soal 1x/hari · hadiah acak', [19, 22], (S.pb && S.pb.d === d) || (S.ms && S.ms.d === d)),
   ].sort((a, b) => parseFloat(a.t) - parseFloat(b.t));
 }
@@ -4361,7 +4368,7 @@ function buildGedung() {
 /* ---- guru: kartu materi, semua bab terbuka ---- */
 async function openGuru(r) {
   const rows = [1, 2, 3, 4, 5].map(b => [b, zoneOf(r.pk, b)]).filter(x => x[1]);
-  const c = await modal(`<h2>${esc(r.guru)}</h2><p style="font-size:14px">Guru ${MAPEL[r.pk]}. Pilih bab yang mau dipelajari. Semua bab terbuka di sini. Setelah itu latihan soal bersama ${esc(r.robot)}.</p>`,
+  const c = await modal(`<h2>${esc(r.guru)}</h2><p style="font-size:14px">Guru ${MAPEL[r.pk]}. Pilih bab yang mau dipelajari. Di sekolah semua bab terbuka, jadi cocok untuk mengulang dari awal. Persiapan Kuil Ujian ada di Akademi wilayah pulau. Setelah belajar, latihan soal bersama ${esc(r.robot)} untuk dapat koin.</p>`,
     [...rows.map(([b, z]) => ({ t: `Bab ${b}: ${esc(ZONES[z].babN)}${S.read && S.read[z] ? ' ✓' : ''}` })), { t: 'Tutup', cls: 'ghost' }]);
   if (c < 0 || c >= rows.length) return;
   const [b, z] = rows[c]; stopLoop();
@@ -4480,7 +4487,7 @@ async function tutStart() {
 
 /* ================= LABORATORIUM (ruang rahasia, syarat Rank 20) =================
    Pintu ada di lantai lobi gedung sekolah (BAWAH TANAH). Di dalam: Prof. Arka (cerita, Sampel Harian 1x/hari) dan Toko Langka (batas harian).
-   S.lab = { d, s (sampel diambil), pk (Kotak Perak dibeli), em (Kotak Emas dibeli), c (cerita ke-n) } */
+   S.lab = { d, s (sampel diambil), pk (Telur Perak dibeli), em (Telur Emas dibeli), c (cerita ke-n) } */
 ZONES.lab = { n: 'Laboratorium', rank: 1 };
 const LAB_RANK = RANK_MAX, LAB_PERAK = 600, LAB_EMAS = 2500;
 function labToday() { const d = today(); if (!S.lab || S.lab.d !== d) S.lab = { d, s: 0, pk: 0, em: 0, c: (S.lab && S.lab.c) || 0 }; return S.lab; }
@@ -4529,12 +4536,12 @@ async function openProf2() {
   if (c === 1) {
     if (L.s) { toast('Sampel hari ini sudah kamu ambil. Datang lagi besok!'); return openProf2(); }
     L.s = 1; S.boxes.Kayu++; addCoins(100); save(); hud(); sfx('pass');
-    await modal(`<div style="text-align:center"><h2>Sampel Harian</h2><p>"Hasil penelitian hari ini, untukmu."</p><div class="big" style="font-size:30px">${COIN}+100 koin · +1 Kotak Kayu</div></div>`, [{ t: 'Terima kasih!', cls: 'hot' }]); return openProf2();
+    await modal(`<div style="text-align:center"><h2>Sampel Harian</h2><p>"Hasil penelitian hari ini, untukmu."</p><div class="big" style="font-size:30px">${COIN}+100 koin · +1 Telur Biasa</div></div>`, [{ t: 'Terima kasih!', cls: 'hot' }]); return openProf2();
   }
   if (c === 2) return openLabShop();
 }
 async function openLabShop() {
-  const L = labToday(), items = [['pk', 'Kotak Perak', LAB_PERAK, 2, 'Perak'], ['em', 'Kotak Emas', LAB_EMAS, 1, 'Emas']];
+  const L = labToday(), items = [['pk', 'Telur Perak', LAB_PERAK, 2, 'Perak'], ['em', 'Telur Emas', LAB_EMAS, 1, 'Emas']];
   const c = await modal(`<h2>Toko Langka</h2><p style="font-size:13px">Barang langka, jumlah terbatas tiap hari. Koinmu: ${COIN}${S.coins}</p>
     <div style="display:flex;flex-direction:column;gap:6px">${items.map(([k, n, p, mx]) => `<div class="card" style="display:flex;align-items:center;gap:8px;padding:6px 10px"><div style="flex:1"><b>${n}</b><div style="font-size:12px;font-weight:700;color:var(--sub)">${COIN}${p} · sisa hari ini ${mx - L[k]}/${mx}</div></div></div>`).join('')}</div>`,
     [...items.map(([k, n, p, mx]) => ({ t: `Beli ${n}`, cls: L[k] >= mx ? 'ghost' : '' })), { t: 'Kembali', cls: 'dark' }]);
@@ -4542,7 +4549,7 @@ async function openLabShop() {
   const [k, n, p, mx, box] = items[c];
   if (L[k] >= mx) toast('Stok hari ini habis. Datang lagi besok!');
   else if (S.coins < p) toast(`Koin kurang ${p - S.coins}`);
-  else { S.coins -= p; L[k]++; S.boxes[box]++; save(); hud(); sfx('coin'); toast(`Kamu membeli ${n}! Buka di menu Kotak.`); }
+  else { S.coins -= p; L[k]++; S.boxes[box]++; save(); hud(); sfx('coin'); toast(`Kamu membeli ${n}! Tetaskan di menu Telur.`); }
   return openLabShop();
 }
 
@@ -4568,12 +4575,12 @@ function codeApply(r) {
     const best = ['L', 'E', 'R', 'C'].flatMap(r => MONS.filter(m => m.r === r)); const team = []; let cost = 0;
     for (const m of best) { if (team.length < 3 && cost + RAR[m.r].cost <= TEAM_MAX) { team.push(m.id); cost += RAR[m.r].cost; } }
     S.team = team; S.comp = team[0]; S.coins = Math.max(S.coins, 99999); ['Kayu', 'Perak', 'Emas'].forEach(k => S.boxes[k] += 5);
-    out.push('<b>Mode Super Admin aktif!</b>', 'Semua monster Lv. maksimal dan semua aksesoris terbuka', 'Semua pulau dan Sarang Legenda terbuka', `${COIN}99.999 koin dan 5 kotak tiap jenis`);
+    out.push('<b>Mode Super Admin aktif!</b>', 'Semua monster Lv. maksimal dan semua aksesoris terbuka', 'Semua pulau dan Sarang Legenda terbuka', `${COIN}99.999 koin dan 5 telur tiap jenis`);
   }
   if (r.title && r.title.id && r.title.n) { if (!S.tex) S.tex = {}; S.tex[r.title.id] = { n: r.title.n, r: r.title.r || 'E' }; if (!S.tgot) S.tgot = {}; S.tgot[r.title.id] = 1; out.push(`Gelar khusus: <b>${esc(r.title.n)}</b>`); }
   if (r.coins) { S.coins += r.coins; out.push(`${COIN}+${r.coins} koin`); }
   if (r.xp) { gainXP(r.xp); out.push(`+${r.xp} XP`); }
-  if (r.boxes) for (const k in r.boxes) { S.boxes[k] += r.boxes[k]; out.push(`Kotak ${k} ×${r.boxes[k]}`); }
+  if (r.boxes) for (const k in r.boxes) { S.boxes[k] += r.boxes[k]; out.push(`${eggN(k)} ×${r.boxes[k]}`); }
   if (r.mon) r.mon.forEach(id => { if (!M[id]) return; const d = addDup(id); out.push(d.isNew ? `Monster baru: ${M[id].n}` : d.maxed ? `${M[id].n} sudah maksimal (+${d.c} koin)` : `${M[id].n} naik ke Lv.${d.lv}`); });
   if (r.acc) r.acc.forEach(id => { if (SH[id] && !S.acc.own.includes(id)) { S.acc.own.push(id); out.push(`Aksesoris: ${SH[id].n}`); } });
   save(); hud(); return out;
@@ -4621,7 +4628,7 @@ function openStart() {
         <button type="button" class="btn ghost" id="cRand" style="min-height:40px;font-size:15px">Acak tampilan</button>
       </div>
       <button type="button" class="btn hot" id="go" style="font-size:22px;min-height:56px">Mulai main</button>
-      <p style="margin:0;text-align:center;font-size:12.5px;font-weight:700;color:var(--muted)">Semua siswa baru memakai seragam SD dan mendapat Topi SD gratis yang bisa dipakai lewat toko. Kumpulkan koin untuk membeli topi, hijab, baju, celana, rok, dan sepatu di toko. Kamu juga dapat 3 Kotak Kayu untuk memilih monster pertamamu.</p>
+      <p style="margin:0;text-align:center;font-size:12.5px;font-weight:700;color:var(--muted)">Semua siswa baru memakai seragam SD dan mendapat Topi SD gratis yang bisa dipakai lewat toko. Kumpulkan koin untuk membeli topi, hijab, baju, celana, rok, dan sepatu di toko. Kamu juga dapat 3 Telur Biasa untuk memilih monster pertamamu.</p>
     </div>`;
     const nm = $('#nm'); nm.oninput = () => L.name = nm.value;
     el.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { if (L.g !== b.dataset.g) { L.g = b.dataset.g; L.hs = HSTYLES[L.g][0][0]; } draw(); });
@@ -4657,7 +4664,7 @@ function openOne(type) {
     progress('open'); save();
     const el = $('#s-box');
     el.innerHTML = `<div class="rays"></div><div style="position:relative;height:100%;display:flex;flex-direction:column;gap:14px;padding:22px 12px calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box;align-items:center;text-align:center">
-      <div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">KOTAK HADIAH</div><div class="logo" style="font-size:30px">Kotak ${type} terbuka!</div>
+      <div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">TELUR HADIAH</div><div class="logo" style="font-size:30px">${eggN(type)} menetas!</div>
       <div style="flex:1;display:grid;place-items:center;width:100%"><div class="pk ${m.r}" style="width:220px;pointer-events:none"><span class="tag ${d.isNew ? 'new' : ''}">${tag}</span><span class="art" style="${artBg(id)};display:grid;place-items:center;height:130px;width:100%;box-sizing:border-box;border-radius:10px">${mSvg(id)}</span>${rarTag(m.r)}<span class="n">${esc(m.n)}</span>${elTag(m.el)}<span class="s"><span>HP ${m.hp}</span><span>ATK ${m.atk}</span></span></div></div>
       <div class="card" style="font-size:14px;font-weight:700;color:var(--sub);width:100%;box-sizing:border-box"><b style="color:var(--text)">${esc(m.sk.n)}</b> · ${m.sk.c} energi<br>${esc(m.d)}</div>
       <p style="margin:0;font-weight:800">${msg}</p>
@@ -4685,8 +4692,8 @@ function openBox(type, opt = {}) {
     const draw = () => {
       el.innerHTML = `<div class="rays"></div>
       <div style="position:relative;height:100%;display:flex;flex-direction:column;gap:14px;padding:22px 12px calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box">
-        <div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">${opt.label || (opt.starter ? 'HADIAH SISWA BARU' : 'KOTAK HADIAH')}</div>
-        <div class="logo" style="font-size:30px">Kotak ${type} terbuka!</div><div style="font-weight:700;color:var(--muted)">Pilih 1 dari 3 monster untuk disimpan</div></div>
+        <div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">${opt.label || (opt.starter ? 'HADIAH SISWA BARU' : 'TELUR HADIAH')}</div>
+        <div class="logo" style="font-size:30px">${eggN(type)} menetas!</div><div style="font-weight:700;color:var(--muted)">Pilih 1 dari 3 monster untuk disimpan</div></div>
         <div class="picks" style="margin-top:14px">${picks.map((id, i) => { const m = M[id], own = S.owned[id]; return `<button type="button" class="pk ${m.r}" data-i="${i}" aria-pressed="${i === sel}">
           <span class="tag ${own ? '' : 'new'}">${own ? `Punya · Lv.${own.s}` : 'BARU'}</span>
           <span class="art" style="${artBg(id)}">${mSvg(id)}</span>${rarTag(m.r)}<span class="n">${esc(m.n)}</span>${elTag(m.el)}
@@ -4713,20 +4720,36 @@ function openBox(type, opt = {}) {
   });
 }
 function oddsHtml() {
-  return `<h2>Peluang kotak hadiah</h2><p>Tiap kotak berisi 1 monster acak. Monster Legenda tidak ada di kotak, hanya dari Sarang Legenda. Monster yang sama lagi menaikkan levelnya (maks: Biasa 8, Langka 7, Epik 6, Legenda 5), dan jika sudah maksimal kamu dapat koin.</p>
-  <div class="card" style="padding:8px 10px"><table style="width:100%;border-collapse:collapse;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)"><tr style="color:var(--sub)"><th style="text-align:left">Kotak</th><th>Biasa</th><th>Langka</th><th>Epik</th><th>Legenda</th></tr>
-  ${Object.entries(BOX).map(([k, t]) => `<tr><td>${k}</td>${['C', 'R', 'E', 'L'].map(r => `<td style="text-align:center">${String(t[r]).replace('.', ',')}%</td>`).join('')}</tr>`).join('')}</table></div>
-  <p style="font-size:13px">Kotak dari monster liar: Biasa 5% Kayu; Langka 8% Kayu + 1% Perak; Epik 8% Kayu + 3% Perak. Selain itu dari misi, Kuil Ujian (Perak), Sarang Legenda (Emas), dan naik Rank.</p>`;
+  return `<h2>Peluang telur</h2><p>Tiap telur berisi 1 monster acak. Monster Legenda tidak ada di telur, hanya dari Sarang Legenda. Monster yang sama lagi menaikkan levelnya (maks: Biasa 8, Langka 7, Epik 6, Legenda 5), dan jika sudah maksimal kamu dapat koin.</p>
+  <div class="card" style="padding:8px 10px"><table style="width:100%;border-collapse:collapse;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)"><tr style="color:var(--sub)"><th style="text-align:left">Telur</th><th>Biasa</th><th>Langka</th><th>Epik</th><th>Legenda</th></tr>
+  ${Object.entries(BOX).map(([k, t]) => `<tr><td>${eggS(k)}</td>${['C', 'R', 'E', 'L'].map(r => `<td style="text-align:center">${String(t[r]).replace('.', ',')}%</td>`).join('')}</tr>`).join('')}</table></div>
+  <p style="font-size:13px">Telur dari monster liar: Biasa 5% Kayu; Langka 8% Kayu + 1% Perak; Epik 8% Kayu + 3% Perak. Selain itu dari misi, Kuil Ujian (Perak), Sarang Legenda (Emas), dan naik Rank.</p>`;
 }
 async function openBoxes() {
   const nb = S.boxes.Kayu + S.boxes.Perak + S.boxes.Emas;
-  const i = await modal(`<h2>Kotak hadiah</h2><p>${nb ? 'Pilih kotak yang mau dibuka.' : 'Belum ada kotak. Kalahkan monster liar, selesaikan misi, atau naik Rank.'}</p>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${['Kayu', 'Perak', 'Emas'].map(k => `<div class="card" style="text-align:center;padding:8px"><svg width="44" height="44" aria-hidden="true"><use href="#ic-chest"/></svg><div class="disp" style="font-size:16px">${k}</div><div style="font-weight:800;color:var(--sub)">×${S.boxes[k]}</div></div>`).join('')}</div>`,
-    [...['Kayu', 'Perak', 'Emas'].map(k => ({ t: `Buka ${k}`, cls: S.boxes[k] ? '' : 'ghost' })), { t: 'Tutup', cls: 'dark' }]);
+  const i = await modal(`<h2>Telur hadiah</h2><p>${nb ? 'Pilih telur yang mau ditetaskan.' : 'Belum ada telur. Kalahkan monster liar, selesaikan misi, atau naik Rank.'}</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${['Kayu', 'Perak', 'Emas'].map(k => `<div class="card" style="text-align:center;padding:8px"><img src="${chestURL(k)}" width="55" height="44" alt="" style="image-rendering:pixelated"><div class="disp" style="font-size:16px">${eggS(k)}</div><div style="font-weight:800;color:var(--sub)">×${S.boxes[k]}</div></div>`).join('')}</div>`,
+    [...['Kayu', 'Perak', 'Emas'].map(k => ({ t: `Tetaskan ${eggS(k)}`, cls: S.boxes[k] ? '' : 'ghost' })), { t: 'Tutup', cls: 'dark' }]);
   const k = ['Kayu', 'Perak', 'Emas'][i];
   if (!k) return;
-  if (!S.boxes[k]) { toast(`Kamu belum punya Kotak ${k}`); return; }
-  stopLoop(); await openBox(k); show('s-world'); hud();
+  if (!S.boxes[k]) { toast(`Kamu belum punya ${eggN(k)}`); return; }
+  /* gerbang: 10 soal campuran dari bab yang sudah dibuka, wajib benar min. 8 agar telur menetas. Telur tidak hilang jika gagal */
+  const r = await runQuiz({ title: `Menetaskan ${eggN(k)}`, sub: 'Benar min. 8 dari 10 soal agar telur menetas', qs: shuffle(ntPool()).slice(0, 10) });
+  show('s-world'); hud();
+  if (r.quit) return;
+  if (r.ok < EGG_PASS) { await modal(`<h2>Telur belum menetas</h2><p>Benar ${r.ok} dari ${r.n}. Butuh minimal ${EGG_PASS}. ${eggN(k)} tetap aman, coba lagi dengan soal baru.</p>`, [{ t: 'Oke' }]); return; }
+  stopLoop(); await eggHatch(k); await openBox(k); show('s-world'); hud();
+}
+const EGG_PASS = 8;
+function eggHatch(type) {
+  return new Promise(res => {
+    const el = $('#s-box');
+    el.innerHTML = `<style>@keyframes eggw{0%,100%{transform:rotate(0)}20%{transform:rotate(-9deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-6deg)}80%{transform:rotate(5deg)}}@keyframes eggp{0%{transform:scale(1);opacity:1}100%{transform:scale(2.2);opacity:0}}</style><div class="rays"></div>
+      <div style="position:relative;height:100%;display:grid;place-items:center;text-align:center"><div><img id="eggI" src="${chestURL(type)}" width="200" height="160" alt="" style="image-rendering:pixelated;animation:eggw .6s steps(6) 3"><div id="eggT" class="logo" style="font-size:26px;margin-top:10px">Telur bergetar…</div></div></div>`;
+    show('s-box'); sfx('skill');
+    setTimeout(() => { const i = $('#eggI'), t = $('#eggT'); if (!i) return res(); i.style.animation = 'eggp .5s ease-out forwards'; t.textContent = 'Retak! Menetas…'; sfx('crit'); }, 1900);
+    setTimeout(res, 2500);
+  });
 }
 
 /* ---------- collection + team ---------- */
@@ -4785,7 +4808,7 @@ async function openProf() {
       <div class="row"><div style="flex:1;min-width:0"><div class="disp" style="font-size:28px;line-height:1">${esc(S.name)}</div><div style="font-size:13px;font-weight:800;color:var(--sub)">Metaverse School${S.admin ? ' · ★ Super Admin' : ''}</div></div>
       <div style="width:58px;height:58px;border-radius:50%;background:var(--text);border:3px solid var(--sun);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sun)"><span style="font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--muted)">RANK</span><span class="disp" style="font-size:24px;line-height:1">${S.rank}</span></div></div>
       <div class="row" style="justify-content:space-between;gap:8px"><div style="font-size:14px;font-weight:800;min-width:0">Gelar: ${myTitle() ? `<span style="color:${myTitle()[2]};-webkit-text-stroke:.5px #24123a;paint-order:stroke fill">${esc(myTitle()[1])}</span>` : '<span style="color:var(--muted)">tanpa gelar</span>'} <small style="color:var(--muted)">(${Object.keys(S.tgot || {}).length} terkumpul)</small></div><button type="button" class="btn" id="pTitle" style="min-height:34px;padding:2px 12px;font-size:13px;flex:none">🏅 Ganti</button></div>${S.rank >= RANK_MAX ? '<div style="font-size:12px;font-weight:800;color:var(--sub)">Rank maksimal tercapai!</div>' : `<div class="bar"><i style="width:${S.xp / need(S.rank) * 100}%"></i></div><div style="font-size:12px;font-weight:800;color:var(--sub)">${S.xp}/${need(S.rank)} XP ke Rank ${S.rank + 1}</div>`}
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center">${[[S.st.win, 'Menang'], [owned, 'Monster'], [S.st.latihan || 0, 'Latihan'], [S.st.opened, 'Kotak']].map(([v, l]) => `<div style="background:var(--soft);border-radius:12px;padding:4px 2px"><div class="disp" style="font-size:20px">${v}</div><div style="font-size:11px;font-weight:800;color:var(--sub)">${l}</div></div>`).join('')}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center">${[[S.st.win, 'Menang'], [owned, 'Monster'], [S.st.latihan || 0, 'Latihan'], [S.st.opened, 'Telur']].map(([v, l]) => `<div style="background:var(--soft);border-radius:12px;padding:4px 2px"><div class="disp" style="font-size:20px">${v}</div><div style="font-size:11px;font-weight:800;color:var(--sub)">${l}</div></div>`).join('')}</div>
       <div style="font-size:12px;font-weight:800;color:var(--sub);text-align:center">Soal battle benar: Mtk ${tfB('mtk')} · B.Ind ${tfB('bi')} · IPAS ${tfB('ipas')} · B.Ing ${tfB('ing')}</div>
     </div>
     <div class="row" style="justify-content:space-between"><span class="disp" style="font-size:18px">Dipakai</span></div>
@@ -4853,11 +4876,11 @@ async function openQuests() {
   const row = (q, k, d) => `<div class="qrow"><div class="row" style="justify-content:space-between"><b>${esc(q.n)}</b><small>${q.p}/${q.g}</small></div><div class="bar"><i style="width:${q.p / q.g * 100}%"></i></div><small>Hadiah: ${rwText(q.rw)}</small>${q.c ? '<small style="color:#3ccf91;font-weight:800">Sudah diambil</small>' : q.p >= q.g ? `<button type="button" class="btn hot" data-${d ? 'd' : 'q'}="${k}" style="min-height:40px;font-size:16px">Ambil hadiah</button>` : ''}</div>`;
   const i = await modal(`<h2>Papan Misi Pak Toto</h2>
     ${streakCard()}
-    <div class="card" style="font-size:13.5px;font-weight:800;display:flex;gap:8px;align-items:center"><span style="font-size:22px;color:#ffd23c">\u2605</span><span>Zona Unggulan hari ini: <b style="color:var(--sun)">${fz ? esc(fz.hl || fz.n) : '-'}</b><br><small style="font-weight:700;color:var(--sub)">Koin +50% dan peluang kotak naik di sana. Berganti besok.</small></span></div>
+    <div class="card" style="font-size:13.5px;font-weight:800;display:flex;gap:8px;align-items:center"><span style="font-size:22px;color:#ffd23c">\u2605</span><span>Zona Unggulan hari ini: <b style="color:var(--sun)">${fz ? esc(fz.hl || fz.n) : '-'}</b><br><small style="font-weight:700;color:var(--sub)">Koin +50% dan peluang telur naik di sana. Berganti besok.</small></span></div>
     <div class="disp" style="font-size:17px">Misi harian</div>
     <div style="display:flex;flex-direction:column;gap:8px">${dl.qs.map((q, k) => row(q, k, 1)).join('')}</div>
-    ${allC ? (dl.bonus ? '<small style="color:#3ccf91;font-weight:800">Bonus harian sudah diambil. Kembali besok!</small>' : '<button type="button" class="btn hot" data-b="1" style="min-height:44px;font-size:17px">Ambil bonus: semua misi harian selesai</button>') : '<small style="color:var(--sub);font-weight:700">Selesaikan ketiganya untuk bonus: Kotak Kayu + 100 koin.</small>'}
-    <small style="font-weight:700;color:var(--sub)">Selesaikan dan ambil ketiga misi: bonus 1 Kotak Kayu + 100 koin langsung diberikan.</small>`,
+    ${allC ? (dl.bonus ? '<small style="color:#3ccf91;font-weight:800">Bonus harian sudah diambil. Kembali besok!</small>' : '<button type="button" class="btn hot" data-b="1" style="min-height:44px;font-size:17px">Ambil bonus: semua misi harian selesai</button>') : '<small style="color:var(--sub);font-weight:700">Selesaikan ketiganya untuk bonus: Telur Biasa + 100 koin.</small>'}
+    <small style="font-weight:700;color:var(--sub)">Selesaikan dan ambil ketiga misi: bonus 1 Telur Biasa + 100 koin langsung diberikan.</small>`,
     [{ t: 'Tutup', cls: 'ghost' }],
     { onOpen: m => m.querySelectorAll('[data-q],[data-d],[data-b]').forEach(b => b.onclick = e => { e.stopPropagation(); if (b.dataset.q !== undefined) void 0; else if (b.dataset.d !== undefined) claimDaily(+b.dataset.d); else claimBonus(); m.hidden = true; m.innerHTML = ''; openQuests(); }) });
 }
@@ -4869,7 +4892,7 @@ function claimDaily(k) {
 }
 function claimBonus() {
   const dl = ensureDaily(); if (dl.bonus || !dl.qs.every(q => q.c)) return;
-  dl.bonus = 1; S.boxes.Kayu++; S.coins += 100; save(); hud(); toast('Bonus harian: Kotak Kayu + 100 koin!', 3000);
+  dl.bonus = 1; S.boxes.Kayu++; S.coins += 100; save(); hud(); toast('Bonus harian: Telur Biasa + 100 koin!', 3000);
 }
 /* ---------- map ---------- */
 function openMap() {
