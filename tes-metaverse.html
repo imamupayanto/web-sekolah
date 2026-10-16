@@ -1769,7 +1769,7 @@ function enterZone(z, at) {
   W.base = W.npcs.slice(); npcApply();
   const p = at || (z === 'school' && enteringFromMap ? m.gate : m.spawn); enteringFromMap = false;
   W.p = { x: p.x, y: p.y, dir: 'up', f: 0, ft: 0 };
-  W.wild = []; if (z !== 'school') for (let i = 0; i < 8; i++) spawnWild();
+  W.wild = []; if (z !== 'school' && z !== 'gedung') for (let i = 0; i < 8; i++) spawnWild();
   W.cam = { x: W.p.x, y: W.p.y };
   W.safe = performance.now() + 1500;
   $('#hLoc').textContent = ZONES[z].hl || ZONES[z].n;
@@ -1933,7 +1933,7 @@ function draw(t) {
   list.sort((a, b) => a.fy - b.fy).forEach(o => o.d());
   // weather / atmosphere
   if ((W.theme || W.zone) === 'snow') { bx.fillStyle = '#ffffff'; for (let i = 0; i < 40; i++) { const sx = (hash(i, 1) * VW + t / 40 * (0.4 + hash(i, 2))) % VW, sy = (hash(i, 3) * VH + t / 25 * (0.6 + hash(i, 4))) % VH; bx.fillRect(Math.floor(sx), Math.floor(sy), 1, 1); } }
-  if (W.zone !== 'cave') { bx.fillStyle = 'rgba(20,40,60,.07)'; for (let i = 0; i < 3; i++) { const cxx = ((t / 100 + i * 220) % (W.MW * TS + 200)) - 100 - ox, cyy = 80 + i * 200 - oy, r = 60 + i * 14; for (let k = -r; k <= r; k += 2) { const hh = Math.round(Math.sqrt(1 - (k / r) ** 2) * r * .45); bx.fillRect(Math.round(cxx + k), Math.round(cyy - hh), 2, hh * 2); } } }
+  if (W.zone !== 'cave' && W.zone !== 'gedung') { bx.fillStyle = 'rgba(20,40,60,.07)'; for (let i = 0; i < 3; i++) { const cxx = ((t / 100 + i * 220) % (W.MW * TS + 200)) - 100 - ox, cyy = 80 + i * 200 - oy, r = 60 + i * 14; for (let k = -r; k <= r; k += 2) { const hh = Math.round(Math.sqrt(1 - (k / r) ** 2) * r * .45); bx.fillRect(Math.round(cxx + k), Math.round(cyy - hh), 2, hh * 2); } } }
   envDraw(t, ox, oy, p);
   if (W.dark) {
     const g = bx.createRadialGradient(p.x - ox, p.y - oy - 10, 18, p.x - ox, p.y - oy - 10, 95);
@@ -2444,7 +2444,7 @@ function runQuiz({ title, sub, qs, timed = false, secs = 45, hint = null }) {
     const answer = k => {
       if (done) return; done = true; stopT();
       const q = qs[i], good = k >= 0 && opts[k].c;
-      res[i] = good; sfx(good ? 'ok' : 'bad'); if (good) { ok++; bondAdd(1); progress('benar'); progress('benar:' + q[0]); }
+      res[i] = good; noteQ(q, good); sfx(good ? 'ok' : 'bad'); if (good) { ok++; bondAdd(1); progress('benar'); progress('benar:' + q[0]); }
       el.querySelectorAll('.qz-o').forEach((b, j) => { b.disabled = true; if (opts[j].c) b.classList.add('ok'); else if (j === k) b.classList.add('no'); });
       const fb = $('#qFb'); fb.hidden = false;
       if (!good) wrong++;
@@ -2567,7 +2567,7 @@ async function openAkhir(z) {
   if (!pg.lulus.includes(5)) { toast('Lulus Kuil Ujian Bab 5 dulu'); return; }
   const c = await modal(`<h2>Gerbang Pulau ${esc(PSHORT[k])}</h2>
     <div style="display:flex;gap:12px;align-items:center"><div style="width:84px;height:70px;flex:none${pg.legend ? '' : ';filter:brightness(0);opacity:.55'}">${mSvg(leg)}</div>
-    <p>${ok ? `Ujian Akhir sudah lulus. ${pg.legend ? `<b style="color:#fff">${esc(M[leg].n)}</b> sudah jadi milikmu. Kamu boleh menantangnya lagi untuk berlatih.` : `Sarang Legenda terbuka! <b style="color:#fff">${esc(M[leg].n)}</b> menunggu. Pertarungan murni, tanpa soal. Kalah boleh coba lagi.`}` : `<b style="color:#fff">Ujian Akhir Pulau</b>: 25 soal acak dari seluruh 5 bab (125 soal). Lulus jika benar minimal <b style="color:#fff">23</b>. Lulus membuka Sarang Legenda dengan monster legenda dan Kotak Emas.`}</p></div>`,
+    <p>${ok ? `Ujian Akhir sudah lulus. ${pg.legend ? `<b style="color:#fff">${esc(M[leg].n)}</b> sudah jadi milikmu. Kamu boleh menantangnya lagi untuk berlatih.` : `Sarang Legenda terbuka! <b style="color:#fff">${esc(M[leg].n)}</b> menunggu. Jurus kuat dijawab dengan soal benar/salah. Kalah boleh coba lagi.`}` : `<b style="color:#fff">Ujian Akhir Pulau</b>: 25 soal acak dari seluruh 5 bab (125 soal). Lulus jika benar minimal <b style="color:#fff">23</b>. Lulus membuka Sarang Legenda dengan monster legenda dan Kotak Emas.`}</p></div>`,
     [{ t: 'Nanti', cls: 'ghost' }, { t: ok ? 'Ulangi ujian' : 'Mulai Ujian Akhir', cls: ok ? 'ghost' : 'hot' }, { t: 'Sarang Legenda', cls: ok ? 'hot' : 'ghost' }]);
   if (c === 1) ujianAkhir(z); else if (c === 2) { if (!ok) toast('Lulus Ujian Akhir Pulau dulu untuk membuka Sarang Legenda'); else sarang(z); }
 }
@@ -2578,7 +2578,7 @@ async function ujianAkhir(z) {
   if (r.quit) return;
   if (r.ok >= 23) {
     const first = !pg.akhirLulus; pg.akhirLulus = 1; if (first) gainXP(60); save(); hud();
-    const c = await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">UJIAN AKHIR PULAU</div><div class="big">LULUS! ${r.ok}/25</div><p>${first ? '+ 60 XP. ' : ''}<b style="color:#fff">Sarang Legenda</b> terbuka. Hadapi ${esc(M[LEG[k]].n)} dalam pertarungan murni.</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Ke Sarang Legenda', cls: 'hot' }]);
+    const c = await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">UJIAN AKHIR PULAU</div><div class="big">LULUS! ${r.ok}/25</div><p>${first ? '+ 60 XP. ' : ''}<b style="color:#fff">Sarang Legenda</b> terbuka. Hadapi ${esc(M[LEG[k]].n)} dalam pertarungan.</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Ke Sarang Legenda', cls: 'hot' }]);
     if (c === 1) sarang(z);
   } else {
     await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">UJIAN AKHIR PULAU</div><div class="big">${r.ok}/25</div><p>Belum lulus, butuh minimal 23. Tidak ada yang hilang. Ulangi Akademi dan Kuil tiap bab, lalu coba lagi kapan saja.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
@@ -2778,6 +2778,7 @@ function mapKit(MW, MH, base, seed) {
 }
 
 function buildMap(z) {
+  if (z === 'gedung') return buildGedung();
   if (ZONES[z] && ZONES[z].theme) return buildRegion(z);
   const MW = 38, MH = z === 'school' ? 50 : 60;
   const K = mapKit(MW, MH, { school: GR, forest: GR, snow: SN, cave: CF }[z], { school: 3, forest: 11, snow: 23, cave: 37 }[z]);
@@ -2809,6 +2810,7 @@ function buildMap(z) {
     const SPOT = [[21.4, 14.2, [20.4, 13, 3, 2.5], 'left'], [12.6, 29.4, [11.6, 28.4, 3.4, 2.2], 'down'], [25.4, 18.4, [24.4, 17.4, 3.4, 2.2], 'down'], [29.4, 15, [28.4, 14, 2.2, 3], 'left']];
     STUDENTS.forEach((st, i) => { const [sx, sy, ar, d] = SPOT[i]; npcs.push({ x: sx * TS, y: sy * TS, dir: d, look: st.o, name: `${st.n} · R${st.rank}`, tag: '#5bb8f0', area: ar, stu: st }); });
     inter.push({ x: 11.5 * TS, y: 12.6 * TS, l: 'Bicara dengan Pak Toto', fn: openQuests });
+    inter.push({ x: 19 * TS, y: 9 * TS + 8, l: 'Masuk Gedung Sekolah', fn: openGedung });
     inter.push({ x: 26.7 * TS, y: 13.6 * TS, l: 'Masuk Toko Aksesoris', fn: () => openShop() });
     inter.push({ x: 19.5 * TS, y: 48 * TS + 6, l: 'Pergi ke Peta Dunia', fn: openMap });
     // pepohonan rimbun di tepi, semak di sekitar alun-alun
@@ -3005,7 +3007,7 @@ function renderB() {
   const canSw = B.me.some((x, i) => i !== B.mi && x.hp > 0);
   $('#moves').innerHTML = `
     <button type="button" class="mv" data-a="atk" ${dis}><b>Serang <span>0<svg width="11" height="13" aria-hidden="true"><use href="#ic-bolt" fill="#ffc93c"/></svg></span></b><small>100% ${f.m.el} · ketuk cincin = Kritis</small></button>
-    <button type="button" class="mv sk" data-a="sk" ${B.en < sk.c ? 'disabled' : dis}><b>${esc(sk.n)} <span>${sk.c}<svg width="11" height="13" aria-hidden="true"><use href="#ic-bolt" fill="#ffc93c"/></svg></span></b><small>${esc(f.m.d)}</small></button>
+    <button type="button" class="mv sk" data-a="sk" ${B.en < sk.c ? 'disabled' : dis}><b>${esc(sk.n)} <span>${sk.c}<svg width="11" height="13" aria-hidden="true"><use href="#ic-bolt" fill="#ffc93c"/></svg></span></b><small>${esc(f.m.d)}${sk.m ? ' · soal ' + SUBJ[f.m.el][1] : ''}</small></button>
     <button type="button" class="mv df" data-a="def" ${dis}><b>Bertahan <span>0<svg width="11" height="13" aria-hidden="true"><use href="#ic-bolt" fill="#ffc93c"/></svg></span></b><small>Kerusakan −50%, energi +1</small></button>
     <button type="button" class="mv swp" data-a="sw" ${canSw ? dis : 'disabled'}><b>Tukar monster</b><small>Pakai 1 giliran</small></button>`;
   $('#bench').innerHTML = B.me.map((x, i) => `<button type="button" class="${i === B.mi ? 'on' : ''} ${x.hp <= 0 ? 'ko' : ''}" data-i="${i}" aria-label="${esc(x.m.n)}, HP ${Math.max(0, x.hp)}">${mSvg(x.id)}<i style="width:${Math.max(0, x.hp / x.max) * 50}px"></i></button>`).join('');
@@ -3093,7 +3095,7 @@ async function act(side, a) {
   if (sk.debuff) o.debuff = Math.min(0.4, o.debuff + sk.debuff);
   if (sk.energy) { if (side === 'me') B.en = Math.min(5, B.en + sk.energy); else B.fen = Math.min(5, B.fen + sk.energy); }
   let total = 0;
-  if (sk.m) for (let i = 0; i < (sk.hits || 1); i++) { if (o.hp <= 0) break; total += await strike(side, sk.m, sk, i === 0); }
+  if (sk.m) for (let i = 0; i < (sk.hits || 1); i++) { if (o.hp <= 0) break; total += await strike(side, sk.m * (a.q || 1), sk, i === 0); }
   if (o.hp > 0 && (total || !sk.m)) {
     if (sk.poison) o.poison = Math.max(o.poison, sk.poison);
     if (sk.burn && total) o.burn = Math.max(o.burn, sk.burn);
@@ -3138,6 +3140,7 @@ async function ko() {
 async function turn(a) {
   if (B.cfg.type === 'pvp') return duelTurn(a);
   if (B.busy) return; B.busy = true; renderB();
+  if (a.t === 'sk' && skHasQ(meA()) && B.en >= meA().m.sk.c) a.q = (await tfAsk(meA().m.el)) ? 1 : TF_WRONG;
   await act('me', a);
   let k = await ko(); if (k === 'end') return;
   if (k !== 'foe') { await act('foe', aiPick()); k = await ko(); if (k === 'end') return; }
@@ -3195,7 +3198,7 @@ async function finish(res) {
 /* ===== Duel pemain: giliran bergantian, tanpa Kritis, hasil dihitung identik di kedua perangkat ===== */
 function duelSane(a, side) {
   const f = side === 'me' ? meA() : foeA(), en = side === 'me' ? B.en : B.fen, team = side === 'me' ? B.me : B.foe, ai = side === 'me' ? B.mi : B.fi, t = a && a.t;
-  if (t === 'sk') return en >= f.m.sk.c ? { t: 'sk' } : { t: 'atk' };
+  if (t === 'sk') return en >= f.m.sk.c ? { t: 'sk', q: a.q === 1 ? 1 : TF_WRONG } : { t: 'atk' };
   if (t === 'def') return { t: 'def' };
   if (t === 'sw') { const to = a.to; return Number.isInteger(to) && to >= 0 && to < team.length && to !== ai && team[to].hp > 0 ? { t: 'sw', to } : { t: 'def' }; }
   return { t: 'atk' };
@@ -3233,6 +3236,7 @@ async function duelKo() {
 }
 async function duelTurn(a) {
   const D = B.cfg.duel; if (B.busy) return; B.busy = true; renderB();
+  if (a.t === 'sk' && skHasQ(meA()) && B.en >= meA().m.sk.c) a.q = (await tfAsk(meA().m.el, 25)) ? 1 : TF_WRONG;
   const ma = duelSane(a, 'me'), rd = B.round;
   mpDuelSend(D.opp, 'act', D.sid + '|a' + rd, ma);
   log('Menunggu pilihan lawan…');
@@ -3576,7 +3580,7 @@ async function openEnv() {
 }
 /* gambar suasana di dunia */
 function envDraw(t, ox, oy, p) {
-  if (!W || W.zone === 'cave') return; const e = envAt(W.zone);
+  if (!W || W.zone === 'cave' || W.zone === 'gedung') return; const e = envAt(W.zone);
   if (e.w === 'berawan' || e.w === 'hujan') { bx.fillStyle = e.w === 'hujan' ? 'rgba(40,50,80,.16)' : 'rgba(60,70,90,.1)'; bx.fillRect(0, 0, VW, VH); }
   if (e.w === 'hujan') { bx.fillStyle = 'rgba(190,210,255,.55)'; for (let i = 0; i < 70; i++) { const sx = (hash(i, 7) * (VW + 40) - t / 9 * (.5 + hash(i, 8) * .3)) % (VW + 40), sy = (hash(i, 9) * VH + t / 3.2 * (.8 + hash(i, 10) * .4)) % VH; const X = Math.floor(sx < 0 ? sx + VW + 40 : sx), Y = Math.floor(sy); bx.fillRect(X, Y, 1, 4); bx.fillRect(X - 1, Y + 4, 1, 2); } }
   if (e.w === 'salju') { bx.fillStyle = '#ffffff'; for (let i = 0; i < 70; i++) { const sx = (hash(i, 11) * VW + Math.sin(t / 700 + i) * 6) % VW, sy = (hash(i, 12) * VH + t / 30 * (.5 + hash(i, 13))) % VH; bx.fillRect(Math.floor(sx), Math.floor(sy), 2, 2); } }
@@ -3813,7 +3817,7 @@ function raidRender(pick) {
   const others = order.filter(id => id !== me && F[id].hp > 0), sk = f.m.sk, dead = f.hp <= 0;
   const acts = pick ? `<div style="display:flex;flex-direction:column;gap:6px"><b style="font-size:14px">${pick === 'lin' ? 'Lindungi siapa?' : 'Beri semangat ke siapa?'}</b>${(pick === 'lin' ? others : order.filter(id => id !== me && F[id].hp > 0)).map(id => `<button type="button" class="btn" data-t="${esc(id)}" style="min-height:44px">${esc(F[id].on)}</button>`).join('')}<button type="button" class="btn ghost" data-t="" style="min-height:40px">Batal</button></div>`
     : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${dead ? '' : `<button type="button" class="mv" data-a="atk"><b>Serang</b><small>Kerusakan normal</small></button>
-      <button type="button" class="mv sk" data-a="sk" ${f.en < sk.c ? 'disabled' : ''}><b>${esc(sk.n)} <span>${sk.c}${BI}</span></b><small>${sk.m ? 'Jurus kuat' : sk.heal ? 'Pulihkan HP' : 'Perkuat serangan'}</small></button>
+      <button type="button" class="mv sk" data-a="sk" ${f.en < sk.c ? 'disabled' : ''}><b>${esc(sk.n)} <span>${sk.c}${BI}</span></b><small>${sk.m ? 'Jurus kuat · soal ' + SUBJ[f.m.el][1] : sk.heal ? 'Pulihkan HP' : 'Perkuat serangan'}</small></button>
       <button type="button" class="mv df" data-a="def"><b>Bertahan</b><small>Kerusakan −50%, ${BI}+1</small></button>
       <button type="button" class="mv" data-a="lin" ${others.length ? '' : 'disabled'}><b>Lindungi</b><small>Terima serangan untuk teman</small></button>`}
       <button type="button" class="mv swp" data-a="sem" ${order.some(id => id !== me && F[id].hp > 0) ? '' : 'disabled'} style="${dead ? 'grid-column:1/3' : ''}"><b>Semangat</b><small>${BI}+1 untuk teman${dead ? ' (monstermu tumbang)' : ''}</small></button></div>`;
@@ -3829,6 +3833,11 @@ function raidRender(pick) {
     const b = e.target.closest('[data-a],[data-t]'); if (!b || b.disabled) return;
     if (b.dataset.a === 'lin' || b.dataset.a === 'sem') { raidRender(b.dataset.a); RD.pending = b.dataset.a; return; }
     if (b.dataset.t !== undefined) { if (!b.dataset.t) { raidRender(); return; } raidChoose({ t: RD.pending, to: b.dataset.t }); return; }
+    if (b.dataset.a === 'sk' && skHasQ(f)) {
+      if (RD.asking) return; RD.asking = true; const rr = RD.round, secs = Math.max(4, Math.round(18 - (Date.now() - (RD.t0 || Date.now())) / 1000));
+      tfAsk(f.m.el, secs).then(ok => { RD.asking = false; if (RD && RD.round === rr && !RD.busy) raidChoose({ t: 'sk', q: ok ? 1 : TF_WRONG }); });
+      return;
+    }
     raidChoose({ t: b.dataset.a });
   };
 }
@@ -3836,7 +3845,7 @@ function raidChoose(a) { if (!RD || RD.busy) return; RD.busy = true; RD.mine = a
 async function raidTurn() {
   while (RD && RD.st === 'fight') {
     RD.busy = false; RD.mine = null; raidRender(); raidLog(`Giliran ${RD.round}. Pilih aksi! (20 detik)`);
-    const me = MP.id, lead = RD.lead, rk = 'r' + RD.round, t0 = Date.now();
+    const me = MP.id, lead = RD.lead, rk = 'r' + RD.round, t0 = Date.now(); RD.t0 = t0;
     while (!RD.mine && Date.now() - t0 < 20000 && !RD.over) await wait(150);
     if (RD.over) return raidEnd('dc');
     const mine = RD.mine || { t: RD.F[me].hp > 0 ? 'atk' : 'skip' }; RD.busy = true; raidRender(); raidLog('Menunggu pilihan teman regu…');
@@ -3853,7 +3862,7 @@ async function raidTurn() {
     if (end) return raidEnd(end);
   }
 }
-const rSane = (a, id) => { const F = RD.F, f = F[id], t = a && a.t, to = a && a.to; if (f.hp <= 0) return t === 'sem' && F[to] && to !== id && F[to].hp > 0 ? { t, to } : { t: 'skip' }; if (t === 'sk') return f.en >= f.m.sk.c ? { t } : { t: 'atk' }; if ((t === 'lin' || t === 'sem') && F[to] && to !== id && F[to].hp > 0) return { t, to }; return t === 'def' ? { t } : { t: 'atk' }; };
+const rSane = (a, id) => { const F = RD.F, f = F[id], t = a && a.t, to = a && a.to; if (f.hp <= 0) return t === 'sem' && F[to] && to !== id && F[to].hp > 0 ? { t, to } : { t: 'skip' }; if (t === 'sk') return f.en >= f.m.sk.c ? { t, q: a.q === 1 ? 1 : TF_WRONG } : { t: 'atk' }; if ((t === 'lin' || t === 'sem') && F[to] && to !== id && F[to].hp > 0) return { t, to }; return t === 'def' ? { t } : { t: 'atk' }; };
 async function raidExec(raw) {
   const { F, boss, order, rng } = RD, lines = [], acts = {};
   for (const id of order) acts[id] = rSane(raw[id], id);
@@ -3868,7 +3877,7 @@ async function raidExec(raw) {
     if (a.t === 'lin') { F[a.to].prot = id; lines.push(`${esc(f.on)} melindungi ${esc(F[a.to].on)}`); continue; }
     if (a.t === 'sk') {
       const sk = f.m.sk; f.en -= sk.c;
-      if (sk.m) { const d = allyHit(f, sk.m * (sk.hits || 1)); boss.hp -= d; lines.push(`${esc(f.on)} memakai ${esc(sk.n)}: <b>−${d}</b>`); }
+      if (sk.m) { const d = allyHit(f, sk.m * (sk.hits || 1) * (a.q || 1)); boss.hp -= d; lines.push(`${esc(f.on)} memakai ${esc(sk.n)}: <b>−${d}</b>`); }
       else if (sk.heal) { const h = Math.round(f.max * .3); f.hp = Math.min(f.max, f.hp + h); lines.push(`${esc(f.on)} memakai ${esc(sk.n)}: HP +${h}`); }
       else { f.buff = Math.min(.5, (f.buff || 0) + .25); lines.push(`${esc(f.on)} memakai ${esc(sk.n)}: serangan naik`); }
       continue;
@@ -3956,6 +3965,11 @@ const TLIST = [
   ['kutubuku', 'Kutu Buku', 'Belajar', 'E', 'Selesai membaca kartu Akademi di 20 bab', () => [Object.keys(S.read || {}).length, 20]],
   ['rajin', 'Rajin Belajar', 'Belajar', 'R', 'Absen belajar 7 hari berturut-turut', () => [Math.max((S.streak && S.streak.best) || 0, (S.streak && S.streak.n) || 0), 7]],
   ['pantang', 'Pantang Menyerah', 'Belajar', 'L', 'Absen belajar 30 hari berturut-turut', () => [Math.max((S.streak && S.streak.best) || 0, (S.streak && S.streak.n) || 0), 30]],
+  ['ahlimtk', 'Ahli Hitung', 'Belajar', 'E', 'Jawab benar 100 soal Matematika di battle', () => [tfB('mtk'), 100]],
+  ['ahlibi', 'Sastrawan Cilik', 'Belajar', 'E', 'Jawab benar 100 soal B. Indonesia di battle', () => [tfB('bi'), 100]],
+  ['ahliipas', 'Penjelajah Alam', 'Belajar', 'E', 'Jawab benar 100 soal IPAS di battle', () => [tfB('ipas'), 100]],
+  ['ahliing', 'English Star', 'Belajar', 'E', 'Jawab benar 100 soal B. Inggris di battle', () => [tfB('ing'), 100]],
+  ['otakemas', 'Otak Emas', 'Belajar', 'L', 'Jawab benar 500 soal di battle', () => [tfAll(), 500]],
   ['pemburu', 'Pemburu Monster', 'Petualang', 'R', 'Menang lawan monster liar 50 kali', () => [S.st.wild || 0, 50]],
   ['pemburuL', 'Pemburu Legendaris', 'Petualang', 'E', 'Menang lawan monster liar 300 kali', () => [S.st.wild || 0, 300]],
   ['kolektor', 'Kolektor', 'Petualang', 'R', 'Punya 20 jenis monster', () => [ownedN(), 20]],
@@ -4041,6 +4055,10 @@ function npcApply() {
 setInterval(() => { if (!S || !S.name || !W || !S.zone) return; if (JSON.stringify(ntState()) !== ntKey) npcApply(); }, 5000);
 
 function nightDraw(list, t, ox, oy) {
+  for (const b of W.bots || []) list.push({ fy: b.y, d: () => {
+    const x = Math.round(b.x - ox), y = Math.round(b.y - oy), bob = Math.round(Math.sin(t / 500 + b.x) * 1), img = monImg(b.id, Math.floor(t / 1700) % 5 === 0, Math.floor(t / 400) % 2, false);
+    bx.fillStyle = 'rgba(30,40,30,.25)'; bx.fillRect(x - 6, y, 12, 2); bx.drawImage(img, x - Math.floor(img.width / 2), y - img.height - bob + 3);
+  } });
   const m = W.ntMon; if (!m) return;
   list.push({ fy: m.y, d: () => {
     const x = Math.round(m.x - ox), y = Math.round(m.y - oy), bob = Math.round(Math.sin(t / 420) * 3 + 5), img = monImg('bat', false, Math.floor(t / 220) % 2, false);
@@ -4050,7 +4068,7 @@ function nightDraw(list, t, ox, oy) {
     bx.fillStyle = '#ffd23c'; for (let i = 0; i < 3; i++) bx.fillRect(Math.round(x + Math.cos(t / 400 + i * 2.1) * 12), Math.round(y - img.height / 2 - bob + Math.sin(t / 330 + i * 2) * 6), 1, 1);
   } });
 }
-function nightTags(tag) { const m = W.ntMon; if (m) tag({ x: m.x, y: m.y - 4 }, 'Monster Sekolah', '#c9a2ff'); }
+function nightTags(tag) { for (const b of W.bots || []) tag({ x: b.x, y: b.y - 4 }, b.name, b.col + 'dd'); const m = W.ntMon; if (m) tag({ x: m.x, y: m.y - 4 }, 'Monster Sekolah', '#c9a2ff'); }
 
 /* ---- Pedagang Malam ---- */
 async function openNightShop() {
@@ -4118,6 +4136,180 @@ async function openStar() {
   if (r.ok < 1) { await modal(`<h2>Belum tepat</h2><p>"Tidak apa-apa. Bintang tetap bersinar. Coba lagi malam besok."</p>`, [{ t: 'Oke' }]); return; }
   gainXP(15); addCoins(20); hud();
   await modal(`<h2>Benar!</h2><p>"Cahaya bintang menyertaimu."</p><div style="text-align:center"><div class="big" style="font-size:30px">+15 XP · +20 koin</div></div>`, [{ t: 'Terima kasih', cls: 'hot' }]);
+}
+
+/* ================= SOAL BENAR/SALAH untuk JURUS KUAT =================
+   Tiap monster terkunci pada 1 pelajaran lewat elemennya (sama dengan monster legenda tiap pulau):
+   Netral = Matematika, Racun = B. Indonesia, Es = IPAS, Api = B. Inggris.
+   Jurus yang menyerang (sk.m) wajib dijawab. Benar = damage penuh, salah/habis waktu = 60%.
+   Soal dibuat dari bank pilihan ganda: isian "…" diganti satu pilihan (benar atau pengecoh). */
+const TF_WRONG = .6;
+const SUBJ = { Netral: ['mtk', 'Matematika'], Racun: ['bi', 'B. Indonesia'], Es: ['ipas', 'IPAS'], Api: ['ing', 'B. Inggris'] };
+const tfB = k => (S && S.st && S.st.tf && S.st.tf[k] && S.st.tf[k].b) || 0;
+const tfAll = () => ['mtk', 'bi', 'ipas', 'ing'].reduce((a, k) => a + tfB(k), 0);
+function tfCount(el, good) { const k = (SUBJ[el] || SUBJ.Netral)[0]; if (!S.st.tf) S.st.tf = {}; const t = S.st.tf[k] || (S.st.tf[k] = { b: 0, n: 0 }); t.n++; if (good) t.b++; save(); }
+const skHasQ = f => !!(f && f.m && f.m.sk && f.m.sk.m);
+const ri2 = n => Math.floor(Math.random() * n);
+function tfEnd(s) { s = String(s).replace(/\s+/g, ' ').trim(); return /[.!?]["”']?$/.test(s) ? s : s + '.'; }
+function tfMath() {
+  const k = ri2(4); let a, b, ans, txt;
+  if (k === 0) { a = 2 + ri2(11); b = 2 + ri2(11); ans = a * b; txt = `${a} × ${b}`; }
+  else if (k === 1) { a = 20 + ri2(180); b = 10 + ri2(90); ans = a + b; txt = `${a} + ${b}`; }
+  else if (k === 2) { a = 60 + ri2(140); b = 10 + ri2(a - 30); ans = a - b; txt = `${a} − ${b}`; }
+  else { b = 2 + ri2(9); ans = 2 + ri2(12); a = b * ans; txt = `${a} ÷ ${b}`; }
+  const ok = Math.random() < .5; let sh = ans; if (!ok) { do { sh = ans + [-10, -2, -1, 1, 2, 10][ri2(6)]; } while (sh === ans || sh < 0); }
+  return { txt: `${txt} = ${sh}`, ok, exp: `${txt} = ${ans}` };
+}
+function tfFromBank(bank) {
+  let P = ntPool(bank).filter(r => r[0] === bank && (r[2].match(/…/g) || []).length === 1); if (!P.length) P = BANK.filter(r => r[0] === bank && r[1] === 1 && (r[2].match(/…/g) || []).length === 1); if (!P.length) P = BANK;
+  const r = P[ri2(P.length)], L = 'ABCD'.indexOf(r[7]), opts = [r[3], r[4], r[5], r[6]], ok = Math.random() < .5;
+  let idx = L; if (!ok) { do { idx = ri2(4); } while (idx === L); }
+  const fill = (q, o) => q.includes('…') ? q.replace('…', o) : `${q} ${o}`;
+  return { txt: tfEnd(fill(r[2], opts[idx])), ok, exp: tfEnd(fill(r[2], opts[L])) + (r[8] ? ' ' + r[8] : '') };
+}
+function tfMake(el) { const bank = (SUBJ[el] || SUBJ.Netral)[0]; return bank === 'mtk' && Math.random() < .5 ? tfMath() : tfFromBank(bank); }
+/* tampilkan soal di layar battle. Hasil: true (benar) / false (salah atau waktu habis) */
+function tfAsk(el, secs = 0) {
+  return new Promise(res => {
+    const q = tfMake(el), nm = (SUBJ[el] || SUBJ.Netral)[1], host = $('#s-battle'); let done = false, tm = null, left = secs;
+    const o = document.createElement('div'); o.id = 'overlay'; o.dataset.tf = 1;
+    const cls = 'min-height:52px;font-size:18px;flex:1';
+    o.innerHTML = `<div class="sheet" style="border-radius:22px;border:3px solid var(--line);display:flex;flex-direction:column;gap:10px;max-width:520px;width:100%">
+      <div class="row" style="justify-content:space-between"><b style="color:var(--sun)">Soal ${esc(nm)}</b><small id="tfT" style="font-weight:800">${secs ? left + ' dtk' : ''}</small></div>
+      <p style="margin:0;font-size:18px;font-weight:800;line-height:1.35">${esc(q.txt)}</p>
+      <p style="margin:0;font-size:13px;font-weight:700;color:var(--sub)">Benar atau salah? Jawaban benar membuat jurus kuat berdamage penuh.</p>
+      <div id="tfB" class="row" style="gap:8px"><button type="button" class="btn hot" data-v="1" style="${cls}">Benar</button><button type="button" class="btn" data-v="0" style="${cls}">Salah</button></div></div>`;
+    host.appendChild(o);
+    const fin = (pick) => {
+      if (done) return; done = true; clearInterval(tm);
+      const good = pick === q.ok; sfx(good ? 'ok' : 'bad'); tfCount(el, good);
+      $('#tfT').textContent = '';
+      $('#tfB').innerHTML = `<div style="width:100%;display:flex;flex-direction:column;gap:8px"><b style="color:${good ? '#3ccf91' : '#ff7a6a'}">${pick === null ? 'Waktu habis' : good ? 'Benar!' : 'Belum tepat'} · damage ${good ? 'penuh' : Math.round(TF_WRONG * 100) + '%'}</b>${good ? '' : `<span style="font-size:14px;font-weight:700">Yang benar: ${esc(q.exp)}</span>`}<button type="button" class="btn hot" id="tfN" style="min-height:48px">Serang!</button></div>`;
+      const go = () => { o.remove(); res(good); };
+      $('#tfN').onclick = go; if (good) setTimeout(go, 700);
+    };
+    o.querySelectorAll('[data-v]').forEach(b => b.onclick = () => fin(b.dataset.v === '1'));
+    if (secs) tm = setInterval(() => { left--; const t = $('#tfT'); if (t && !done) t.textContent = left + ' dtk'; if (left <= 0) fin(null); }, 1000);
+  });
+}
+
+/* ================= GEDUNG SEKOLAH (interior) =================
+   4 ruang pelajaran (guru = kartu materi, robot = latihan soal) + Perpustakaan (Buku Remedial).
+   Semua bab terbuka di sini. Latihan memberi koin kecil (3 per jawaban benar, maks 60 per hari). Tutup saat malam. */
+ZONES.gedung = { n: 'Gedung Sekolah', rank: 1 };
+const MAPEL = { mtk: 'Matematika', bi: 'B. Indonesia', ipas: 'IPAS', ing: 'B. Inggris' };
+const SR_COIN = 3, SR_CAP = 60;
+const zoneOf = (pk, b) => Object.keys(ZONES).find(z => ZONES[z].bank === pk && ZONES[z].bab === b);
+const ROOMS = [
+  { pk: 'mtk', xs: 1, col: '#3a7bd5', guru: 'Bu Nur', robot: 'Robo Hitung', look: { type: 'kidh', hijab: '#3a7bd5', shirt: 'kemeja', pants: 'rokpanjang' } },
+  { pk: 'bi', xs: 10, col: '#c8402e', guru: 'Bu Umu', robot: 'Robo Kata', look: { type: 'kidh', hijab: '#c8302a', shirt: 'kebaya', pants: 'rokpanjang' } },
+  { pk: 'ipas', xs: 19, col: '#2fa86f', guru: 'Bu Iin', robot: 'Robo Sains', look: { type: 'kidh', hijab: '#2f8a5a', shirt: 'labcoat', pants: 'celputih' } },
+  { pk: 'ing', xs: 28, col: '#e8812a', guru: 'Bu Rodli', robot: 'Robo Word', look: { type: 'kidh', hijab: '#e8812a', shirt: 'polka', pants: 'roklipit' } },
+];
+function buildGedung() {
+  const MW = 38, MH = 34, Wp = MW * TS, Hp = MH * TS, T = blankT(MW, MH, PV), solids = [], inter = [], signs = [], npcs = [], bots = [], lights = [];
+  const cv = document.createElement('canvas'); cv.width = Wp; cv.height = Hp; const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  const F = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+  const tl = (x, y, w, h) => [x * TS, y * TS, w * TS, h * TS];
+  // lantai: ubin koridor, papan kayu ruang, kayu gelap perpustakaan
+  const tiles = (x, y, w, h, a, b) => { for (let j = 0; j < h * 2; j++) for (let i = 0; i < w * 2; i++) { F(x * TS + i * 8, y * TS + j * 8, 8, 8, (i + j) & 1 ? a : b); F(x * TS + i * 8, y * TS + j * 8, 8, 1, 'rgba(0,0,0,.07)'); F(x * TS + i * 8, y * TS + j * 8, 1, 8, 'rgba(0,0,0,.07)'); } };
+  const planks = (x, y, w, h, c0, c1) => { for (let j = 0; j < h * 4; j++) { F(x * TS, y * TS + j * 4, w * TS, 4, j & 1 ? c0 : c1); F(x * TS, y * TS + j * 4 + 3, w * TS, 1, 'rgba(0,0,0,.12)'); for (let i = 0; i < w * 2; i++) if (hash(i, j, 5) > .78) F(x * TS + i * 8 + Math.floor(hash(i, j, 6) * 6), y * TS + j * 4, 1, 4, 'rgba(0,0,0,.14)'); } };
+  tiles(0, 0, MW, MH, '#d9d1bc', '#cdc4ac');
+  for (const r of ROOMS) planks(r.xs, 3, 8, 9, '#c99a62', '#be9058');
+  planks(1, 19, 17, 12, '#a8743f', '#9a6a38'); tiles(19, 19, 17, 12, '#d6deee', '#c8d2e6');
+  const wall = (x, y, w, h, top) => { solids.push({ x: x * TS, y: y * TS, w: w * TS, h: h * TS }); const [X, Y, Wd, H] = tl(x, y, w, h); F(X, Y, Wd, H, '#9a86b8'); F(X, Y, Wd, 2, '#c3b2dc'); F(X, Y + H - 3, Wd, 3, '#6a5a88'); F(X, Y, 1, H, '#b2a0cc'); F(X + Wd - 1, Y, 1, H, '#6a5a88'); if (top) { F(X, Y + H - 14, Wd, 11, '#8470a4'); F(X, Y + H - 14, Wd, 1, '#a894c8'); } };
+  // dinding luar & atas
+  wall(0, 0, MW, 3, true); wall(0, 3, 1, MH - 3); wall(36, 3, 2, MH - 3);
+  // bawah: pintu keluar di tile 27-28
+  wall(1, 31, 26, 3, true); wall(29, 31, 7, 3, true);
+  // sekat ruang (x=9,18,27) dan dinding bawah ruang dengan pintu
+  for (const x of [9, 18, 27]) wall(x, 3, 1, 10);
+  for (const r of ROOMS) { const d = r.xs + 3; wall(r.xs, 12, d - r.xs, 1); wall(d + 2, 12, r.xs + 8 - (d + 2), 1); }
+  // perpustakaan: dinding atas (pintu tile 8-9) dan sekat ke lobi (x=18)
+  wall(1, 18, 7, 1); wall(10, 18, 8, 1); wall(18, 18, 1, 13);
+  // papan tulis, guru, robot, meja murid
+  for (const r of ROOMS) {
+    const cx = (r.xs + 4) * TS;
+    F(cx - 42, 20, 84, 22, '#8a5a33'); F(cx - 40, 22, 80, 18, '#1f5a3a'); F(cx - 40, 22, 80, 1, '#2f7d4f'); F(cx - 36, 28, 22, 1, '#e8f4e8'); F(cx - 36, 32, 34, 1, '#e8f4e8'); F(cx + 14, 30, 14, 1, '#ffe08a'); F(cx - 40, 40, 80, 2, '#6a4423');
+    signs.push({ x: cx, y: 11, t: MAPEL[r.pk].toUpperCase(), c: '#ffffff', bg: r.col });
+    for (const dx of [-56, -28, 20, 48]) for (const dy of [7.4, 9.4]) { const x = cx + dx, y = dy * TS; F(x, y + 10, 8, 6, '#6a4423'); F(x + 16, y + 10, 8, 6, '#6a4423'); F(x, y, 24, 10, '#b98a50'); F(x, y, 24, 2, '#dcae72'); F(x, y + 8, 24, 2, '#8a5a33'); solids.push({ x, y: y + 2, w: 24, h: 8 }); }
+    npcs.push({ x: cx - 26, y: 5 * TS + 6, dir: 'down', look: r.look, name: r.guru, tag: r.col, fixed: true, mark: true });
+    inter.push({ x: cx - 26, y: 5 * TS + 18, l: `Belajar dengan ${r.guru}`, fn: () => openGuru(r) });
+    bots.push({ x: cx + 34, y: 5 * TS + 8, id: 'robo', name: r.robot, col: r.col });
+    inter.push({ x: cx + 34, y: 5 * TS + 20, l: `Latihan soal dengan ${r.robot}`, fn: () => openRobot(r) });
+  }
+  // perpustakaan: rak buku, karpet, meja pustakawan
+  const shelf = (x, y, w) => { const [X, Y, Wd] = tl(x, y, w, 1); F(X, Y, Wd, 22, '#6a4423'); F(X, Y, Wd, 2, '#9a6a38'); for (let i = 0; i < Wd - 4; i += 3) { F(X + 2 + i, Y + 3, 2, 8, ['#c8402e', '#3a7bd5', '#ffd23c', '#2fa86f', '#9b5de5'][Math.floor(hash(i, x, y) * 5)]); F(X + 2 + i, Y + 12, 2, 7, ['#ff8a3c', '#5bb8f0', '#c8402e', '#ffd23c', '#2fa86f'][Math.floor(hash(i, y, x) * 5)]); } F(X, Y + 11, Wd, 1, '#3a2412'); solids.push({ x: X, y: Y + 6, w: Wd, h: 16 }); };
+  shelf(1, 19, 7); shelf(10, 19, 8); shelf(2, 25, 5); shelf(12, 25, 5); shelf(2, 27.6, 5); shelf(12, 27.6, 5);
+  F(7 * TS, 22 * TS + 2, 5 * TS, 14, '#8a5a33'); F(7 * TS, 22 * TS + 2, 5 * TS, 3, '#c9955a'); solids.push({ x: 7 * TS, y: 22 * TS + 4, w: 5 * TS, h: 10 });
+  F(6 * TS, 23.6 * TS, 7 * TS, 30, '#7b4fd6'); F(6 * TS, 23.6 * TS, 7 * TS, 2, '#a88af0'); F(6 * TS + 3, 23.6 * TS + 3, 7 * TS - 6, 24, '#6a3fc0');
+  signs.push({ x: 9 * TS, y: 17.2 * TS, t: 'PERPUSTAKAAN', c: '#ffffff', bg: '#7b4fd6' });
+  npcs.push({ x: 9.4 * TS, y: 21.7 * TS, dir: 'down', look: { type: 'kid', hair: '#1f1a26', shirt: 'batik', pants: 'jeans' }, name: 'Pak Anto', tag: '#c9a2ff', fixed: true, mark: true });
+  inter.push({ x: 9.4 * TS, y: 20.4 * TS, l: 'Buku Remedial Pak Anto', fn: openPerpus });
+  // lobi: karpet, tanaman, bangku, pintu keluar
+  F(21 * TS, 22 * TS, 14 * TS, 5 * TS, '#c8402e'); F(21 * TS + 3, 22 * TS + 3, 14 * TS - 6, 5 * TS - 6, '#e0604a'); F(21 * TS + 6, 22 * TS + 6, 14 * TS - 12, 5 * TS - 12, '#c8402e');
+  for (const [x, y] of [[20, 20], [34, 20], [20, 29], [34, 29]]) { const X = x * TS, Y = y * TS; F(X + 2, Y + 8, 12, 8, '#8a5a33'); F(X + 4, Y, 8, 9, '#2fa86f'); F(X + 6, Y - 3, 4, 5, '#4ea543'); solids.push({ x: X + 2, y: Y + 6, w: 12, h: 10 }); }
+  F(27 * TS - 3, 31 * TS + 2, 2 * TS + 6, 3 * TS - 4, '#8a5a33'); F(27 * TS, 31 * TS + 5, TS - 2, 3 * TS - 10, '#b57c46'); F(28 * TS + 2, 31 * TS + 5, TS - 2, 3 * TS - 10, '#b57c46'); F(28 * TS - 3, 32.5 * TS, 3, 3, '#ffd23c'); F(28 * TS + 1, 32.5 * TS, 3, 3, '#ffd23c');
+  signs.push({ x: 28 * TS, y: 30.4 * TS, t: 'KELUAR', c: '#ffffff', bg: '#1d1b46' }, { x: 28 * TS, y: 18.7 * TS, t: 'LOBI SEKOLAH', c: '#24123a', bg: '#ffd23c' });
+  inter.push({ x: 28 * TS, y: 31 * TS + 6, l: 'Keluar ke halaman sekolah', fn: () => { enterZone('school', { x: 19 * TS, y: 10.4 * TS }); } });
+  const spawn = { x: 28 * TS, y: 28.6 * TS };
+  return { zone: 'gedung', MW, MH, T, ground: cv, OBJ: [], solids, inter, signs, npcsDef: npcs, lights, spawn, gate: null, koi: null, dark: false, bots };
+}
+
+/* ---- guru: kartu materi, semua bab terbuka ---- */
+async function openGuru(r) {
+  const rows = [1, 2, 3, 4, 5].map(b => [b, zoneOf(r.pk, b)]).filter(x => x[1]);
+  const c = await modal(`<h2>${esc(r.guru)}</h2><p style="font-size:14px">Guru ${MAPEL[r.pk]}. Pilih bab yang mau dipelajari. Semua bab terbuka di sini. Setelah itu latihan soal bersama ${esc(r.robot)}.</p>`,
+    [...rows.map(([b, z]) => ({ t: `Bab ${b}: ${esc(ZONES[z].babN)}${S.read && S.read[z] ? ' ✓' : ''}` })), { t: 'Tutup', cls: 'ghost' }]);
+  if (c < 0 || c >= rows.length) return;
+  const [b, z] = rows[c]; stopLoop();
+  kartuViewer({ pk: r.pk, bab: b, title: r.guru, sub: `Bab ${b} · ${ZONES[z].babN}`, onBack: () => { show('s-world'); hud(); }, onFinish: () => { if (!S.read) S.read = {}; S.read[z] = 1; save(); progress('baca'); show('s-world'); hud(); toast(`Kartu selesai! Latihan soal ada di ${esc(r.robot)}.`, 3200); } });
+}
+/* ---- koin latihan sekolah: kecil dan ada batas harian ---- */
+function srReward(ok) {
+  if (!S.sr || S.sr.d !== today()) S.sr = { d: today(), c: 0 };
+  const want = ok * SR_COIN, give = Math.max(0, Math.min(want, SR_CAP - S.sr.c)); S.sr.c += give; if (give) addCoins(give); hud(); save();
+  return { give, capped: give < want };
+}
+async function srResult(r, extra = '') {
+  S.st.latihan = (S.st.latihan || 0) + 1; save(); show('s-world'); hud();
+  if (r.quit) return;
+  progress('latih'); streakDone();
+  const rw = srReward(r.ok), msg = r.ok === r.n ? 'Sempurna!' : r.ok >= Math.ceil(r.n * .6) ? 'Bagus! Baca pembahasan soal yang salah.' : 'Tidak apa-apa. Belajar lagi dengan guru, lalu coba lagi.';
+  await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">HASIL LATIHAN</div><div class="big" style="font-size:52px">${r.ok}/${r.n}</div><p>${msg}</p><div style="font-weight:800">${rw.give ? `${COIN}+${rw.give} koin` : 'Koin latihan hari ini sudah penuh'}${rw.capped && rw.give ? ' (batas harian tercapai)' : ''}</div>${extra}</div>`, [{ t: 'Oke', cls: 'hot' }]);
+}
+async function openRobot(r) {
+  const rows = [1, 2, 3, 4, 5].map(b => [b, zoneOf(r.pk, b)]).filter(x => x[1]);
+  if (!S.sr || S.sr.d !== today()) S.sr = { d: today(), c: 0 };
+  const c = await modal(`<h2>${esc(r.robot)}</h2><p style="font-size:14px">Latihan 5 soal, tanpa batas waktu. Tiap jawaban benar +${SR_COIN} koin (koin sekolah hari ini: ${S.sr.c}/${SR_CAP}).</p>`,
+    [...rows.map(([b, z]) => ({ t: `Bab ${b}: ${esc(ZONES[z].babN)}` })), { t: 'Campur semua bab', cls: 'hot' }, { t: 'Tutup', cls: 'ghost' }]);
+  if (c < 0 || c > rows.length) return;
+  const mix = c === rows.length, b = mix ? 0 : rows[c][0], pool = mix ? BANK.filter(q => q[0] === r.pk) : soalBab(r.pk, b);
+  const res = await runQuiz({ title: r.robot, sub: mix ? `${MAPEL[r.pk]} · campuran` : `Bab ${b} · ${ZONES[rows[c][1]].babN}`, qs: shuffle(pool).slice(0, 5), hint: mix ? null : hootHint(r.pk, b) });
+  await srResult(res);
+}
+/* ---- perpustakaan: Buku Remedial (soal yang salah, hilang setelah benar 2 kali) ---- */
+let BIDX = null;
+function noteQ(q, good) {
+  if (!S || !S.name) return; if (!BIDX) BIDX = new Map(BANK.map((x, i) => [x, i])); const k = BIDX.get(q); if (k === undefined) return;
+  if (!S.wr) S.wr = {};
+  if (!good) S.wr[k] = 2; else if (S.wr[k]) { S.wr[k]--; if (S.wr[k] <= 0) delete S.wr[k]; }
+  save();
+}
+async function openPerpus() {
+  const keys = Object.keys(S.wr || {}).filter(k => S.wr[k] > 0 && BANK[k]), by = {}; keys.forEach(k => { const p = BANK[k][0]; by[p] = (by[p] || 0) + 1; });
+  const head = `<h2>Perpustakaan</h2><p style="font-size:14px"><b>Buku Remedial</b> menyimpan soal yang pernah salah (di latihan, Kuil, atau gerbang). Jawab benar 2 kali, soal itu hilang dari buku.</p>`;
+  if (!keys.length) { await modal(head + `<div class="card" style="text-align:center;font-weight:800">Belum ada soal yang perlu diulang. Hebat!</div>`, [{ t: 'Oke', cls: 'hot' }]); return; }
+  const c = await modal(head + `<div class="card" style="display:flex;flex-direction:column;gap:3px;font-weight:800">${Object.keys(MAPEL).map(p => `<div class="row" style="justify-content:space-between"><span>${MAPEL[p]}</span><span>${by[p] || 0} soal</span></div>`).join('')}<div class="row" style="justify-content:space-between;border-top:2px solid rgba(36,18,58,.15);padding-top:3px"><span>Total</span><span>${keys.length} soal</span></div></div>`, [{ t: 'Tutup', cls: 'ghost' }, { t: 'Latih soal sulit (maks 8)', cls: 'hot' }]);
+  if (c !== 1) return;
+  const qs = shuffle(keys.map(k => BANK[k])).slice(0, 8);
+  const res = await runQuiz({ title: 'Buku Remedial', sub: `${keys.length} soal perlu diulang`, qs });
+  await srResult(res, '<p style="font-size:13px">Soal yang benar dua kali akan hilang dari buku.</p>');
+}
+/* ---- pintu gedung dari halaman: tutup saat malam ---- */
+function openGedung() {
+  if (envNow().tod === 'malam') { toast('Gedung sekolah sudah tutup. Datang lagi pukul 05.00 pagi.', 3200); return; }
+  enterZone('gedung'); toast('Selamat datang di gedung sekolah!', 2200);
 }
 
 /* ================= KODE HADIAH =================
@@ -4360,6 +4552,7 @@ async function openProf() {
       <div style="width:58px;height:58px;border-radius:50%;background:var(--text);border:3px solid var(--sun);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sun)"><span style="font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--muted)">RANK</span><span class="disp" style="font-size:24px;line-height:1">${S.rank}</span></div></div>
       <div class="row" style="justify-content:space-between;gap:8px"><div style="font-size:14px;font-weight:800;min-width:0">Gelar: ${myTitle() ? `<span style="color:${myTitle()[2]};-webkit-text-stroke:.5px #24123a;paint-order:stroke fill">${esc(myTitle()[1])}</span>` : '<span style="color:var(--muted)">tanpa gelar</span>'} <small style="color:var(--muted)">(${Object.keys(S.tgot || {}).length} terkumpul)</small></div><button type="button" class="btn" id="pTitle" style="min-height:34px;padding:2px 12px;font-size:13px;flex:none">🏅 Ganti</button></div>${S.rank >= RANK_MAX ? '<div style="font-size:12px;font-weight:800;color:var(--sub)">Rank maksimal tercapai!</div>' : `<div class="bar"><i style="width:${S.xp / need(S.rank) * 100}%"></i></div><div style="font-size:12px;font-weight:800;color:var(--sub)">${S.xp}/${need(S.rank)} XP ke Rank ${S.rank + 1}</div>`}
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center">${[[S.st.win, 'Menang'], [owned, 'Monster'], [S.st.latihan || 0, 'Latihan'], [S.st.opened, 'Kotak']].map(([v, l]) => `<div style="background:var(--soft);border-radius:12px;padding:4px 2px"><div class="disp" style="font-size:20px">${v}</div><div style="font-size:11px;font-weight:800;color:var(--sub)">${l}</div></div>`).join('')}</div>
+      <div style="font-size:12px;font-weight:800;color:var(--sub);text-align:center">Soal battle benar: Mtk ${tfB('mtk')} · B.Ind ${tfB('bi')} · IPAS ${tfB('ipas')} · B.Ing ${tfB('ing')}</div>
     </div>
     <div class="row" style="justify-content:space-between"><span class="disp" style="font-size:18px">Dipakai</span></div>
     <div style="display:flex;flex-wrap:wrap;gap:6px">${SLOTS.map(s => S.acc[s] ? `<span class="chip" style="background:#fff;color:var(--text);border:2.5px solid var(--deep)">${esc(SH[S.acc[s]].n)}</span>` : '').join('') || '<span style="color:var(--muted);font-weight:700;font-size:13px">Belum memakai aksesoris</span>'}</div>
