@@ -4872,22 +4872,24 @@ function openShop(from) {
   const el = $('#s-shop');
   const items = SHOP.filter(s => s.slot === shopTab && (!s.g || s.g === gOf(S.look)) && (!s.night || S.acc.own.includes(s.id)));
   const sel = shopSel && SH[shopSel] && SH[shopSel].slot === shopTab ? SH[shopSel] : null;
-  const prev = { ...look() }; if (sel) prev[sel.slot] = sel.id;
   const own = id => S.acc.own.includes(id), worn = id => S.acc[SH[id].slot] === id;
+  /* dari Profil = lemari: hanya pakai/lepas yang sudah dimiliki. Membeli hanya di Toko Aksesoris (sekolah). Yang belum dimiliki tampil hitam */
+  const wr = openShop.from === 'prof';
+  const prev = { ...look() }; if (sel && (!wr || own(sel.id))) prev[sel.slot] = sel.id;
   el.innerHTML = `<div style="background:linear-gradient(#ff9a5c,#ffe0a3);padding:12px 12px 0;border-bottom:3px solid var(--deep)">
-    <div class="row"><button class="round" id="sBack" type="button" aria-label="Kembali"><svg width="18" height="18" aria-hidden="true"><use href="#ic-back"/></svg></button><div class="title">Toko Aksesoris</div><span class="chip disp" style="font-weight:400;font-size:16px;color:var(--sun)">${COIN}${S.coins}</span></div>
+    <div class="row"><button class="round" id="sBack" type="button" aria-label="Kembali"><svg width="18" height="18" aria-hidden="true"><use href="#ic-back"/></svg></button><div class="title">${wr ? 'Ganti Aksesoris' : 'Toko Aksesoris'}</div><span class="chip disp" style="font-weight:400;font-size:16px;color:var(--sun)">${COIN}${S.coins}</span></div>
     <div style="display:grid;place-items:center;padding:4px 0 0">${avatarSvg(prev, 92)}</div>
   </div>
   <div style="padding:12px 12px 30px;display:flex;flex-direction:column;gap:12px">
     <div class="tabs">${[['hat', gOf(S.look) === 'p' ? 'Topi/Hijab' : 'Topi'], ['shirt', 'Baju'], ['pants', gOf(S.look) === 'p' ? 'Celana/Rok' : 'Celana'], ['shoes', 'Sepatu'], ['glass', 'Kacamata'], ['back', 'Tas']].map(([k, n]) => `<button type="button" data-tab="${k}" aria-pressed="${shopTab === k}">${n}</button>`).join('')}</div>
     <div class="grid3">${items.map(it => { const lock = S.rank < it.rk && !own(it.id); return `<button type="button" class="item ${lock ? 'lock' : ''}" data-id="${it.id}" aria-pressed="${shopSel === it.id}">
-      ${worn(it.id) ? '<span class="tag new" style="top:-10px">Dipakai</span>' : ''}${avatarSvg({ ...look(), [it.slot]: it.id }, 36)}
-      <span class="n">${esc(it.n)}</span>${it.g ? `<span class="pill" style="background:#ffe0f0;color:var(--text);border-color:#c8507a">Khusus ${it.g === 'p' ? 'perempuan' : 'laki-laki'}</span>` : ''}${own(it.id) ? '<span class="pill" style="background:#3ccf91">Punya</span>' : lock ? `<span class="pill" style="background:var(--sun);color:var(--text)">Rank ${it.rk}</span>` : `<span class="p">${COIN}${it.p}</span>`}</button>`; }).join('')}</div>
-    ${sel ? `<div class="card" style="display:flex;flex-direction:column;gap:8px"><div class="disp" style="font-size:20px">${esc(sel.n)}</div>
-      ${own(sel.id) ? `<button type="button" class="btn ${worn(sel.id) ? 'ghost' : 'hot'}" id="sAct">${worn(sel.id) ? 'Lepas' : 'Pakai'}</button>`
+      ${worn(it.id) ? '<span class="tag new" style="top:-10px">Dipakai</span>' : ''}${wr && !own(it.id) ? `<span style="display:inline-block;filter:brightness(0)">${avatarSvg({ ...look(), [it.slot]: it.id }, 36)}</span>` : avatarSvg({ ...look(), [it.slot]: it.id }, 36)}
+      <span class="n">${wr && !own(it.id) ? '???' : esc(it.n)}</span>${it.g ? `<span class="pill" style="background:#ffe0f0;color:var(--text);border-color:#c8507a">Khusus ${it.g === 'p' ? 'perempuan' : 'laki-laki'}</span>` : ''}${own(it.id) ? '<span class="pill" style="background:#3ccf91">Punya</span>' : wr ? '<span class="pill" style="background:#4a4a5a;color:#fff">Belum punya</span>' : lock ? `<span class="pill" style="background:var(--sun);color:var(--text)">Rank ${it.rk}</span>` : `<span class="p">${COIN}${it.p}</span>`}</button>`; }).join('')}</div>
+    ${sel ? `<div class="card" style="display:flex;flex-direction:column;gap:8px"><div class="disp" style="font-size:20px">${wr && !own(sel.id) ? '???' : esc(sel.n)}</div>
+      ${wr && !own(sel.id) ? `<div style="font-weight:800;color:var(--sub)">Belum dimiliki. Beli di Toko Aksesoris, di halaman sekolah.</div>` : own(sel.id) ? `<button type="button" class="btn ${worn(sel.id) ? 'ghost' : 'hot'}" id="sAct">${worn(sel.id) ? 'Lepas' : 'Pakai'}</button>`
         : S.rank < sel.rk ? `<div style="font-weight:800;color:var(--sub)">Terbuka di Rank ${sel.rk}</div>`
         : `<button type="button" class="btn hot" id="sAct" ${S.coins < sel.p ? 'disabled' : ''}>Beli ${COIN}${sel.p}</button>${S.coins < sel.p ? `<div style="font-size:12.5px;font-weight:700;color:var(--sub)">Koin kurang ${sel.p - S.coins}. Kalahkan monster liar atau menang duel.</div>` : ''}`}</div>` : '<p style="margin:0;color:var(--muted);font-weight:700;font-size:13px">Ketuk barang untuk mencobanya di karakter.</p>'}
-    <p style="margin:0;text-align:center;font-size:12px;font-weight:700;color:var(--dim)">Koin hanya dari bermain: melawan monster, duel, dan misi. Tidak bisa dibeli dengan uang asli.</p>
+    <p style="margin:0;text-align:center;font-size:12px;font-weight:700;color:var(--dim)">${wr ? 'Beli aksesoris baru di Toko Aksesoris (halaman sekolah). ' : ''}Koin hanya dari bermain: melawan monster, duel, dan misi. Tidak bisa dibeli dengan uang asli.</p>
   </div>`;
   $('#sBack').onclick = () => { shopSel = null; if (openShop.from === 'prof') { openShop.from = null; openProf(); } else { show('s-world'); hud(); refreshPlayer(); } };
   el.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { shopTab = b.dataset.tab; shopSel = null; openShop(); });
