@@ -1764,10 +1764,14 @@ function makePortal() { return bigCanvas(40, 16, g => { E(g, 20, 8, 18, 6, ['#c9
 
 /* ---------- maps ---------- */
 const STUDENTS = [
-  { n: 'Sinta', rank: 5, o: { type: 'kidh', hijab: '#ffffff', skin2: true, shirt: 'jersey', hat: 'crown' }, team: ['E', 'R', 'C'] },
-  { n: 'Bayu', rank: 2, o: { type: 'kid', hair: '#4a2a1a', hat: 'cap', pants: 'jogger' }, team: ['R', 'C', 'C'] },
-  { n: 'Dimas', rank: 3, o: { type: 'kid', hair: '#2a1820', shirt: 'stripe', hat: 'cat' }, team: ['R', 'R', 'C'] },
-  { n: 'Rani', rank: 1, o: { type: 'kidh', hijab: '#f08ab8', shirt: 'icej' }, team: ['C', 'C', 'C'] },
+  { n: 'Sinta', rank: 5, o: { type: 'kidh', hijab: '#ffffff', skin2: true, shirt: 'jersey', hat: 'crown', back: 'selendang', shoes: 'balet' }, team: ['E', 'R', 'C'] },
+  { n: 'Bayu', rank: 2, o: { type: 'kid', hair: '#4a2a1a', hat: 'cap', pants: 'jogger', back: 'tasmerah', shoes: 'lari' }, team: ['R', 'C', 'C'] },
+  { n: 'Dimas', rank: 7, o: { type: 'kid', hair: '#2a1820', shirt: 'stripe', hat: 'cat', glass: 'kbulat', shoes: 'neon', back: 'tasroket' }, team: ['E', 'R', 'R'] },
+  { n: 'Rani', rank: 1, o: { type: 'kidh', hijab: '#f08ab8', shirt: 'icej', shoes: 'sandal' }, team: ['C', 'C', 'C'] },
+  { n: 'Fajar', rank: 4, o: { type: 'kid', hs: 'spike', hc: '#ff8a2a', sk: 3, shirt: 'hoodie', pants: 'kargo', glass: 'kchitam', shoes: 'sneak' }, team: ['R', 'R', 'C'] },
+  { n: 'Putri', rank: 6, o: { type: 'kid', g: 'p', hs: 'twintail', hc: '#9b5de5', sk: 1, shirt: 'kebayaemas', pants: 'tutu', hat: 'bando', back: 'sayapkupu', shoes: 'sandalbulan' }, team: ['E', 'R', 'C'] },
+  { n: 'Gilang', rank: 3, o: { type: 'kid', hs: 'keriting', hc: '#1f1a26', sk: 4, shirt: 'pramuka', pants: 'pramukap', hat: 'beanie', back: 'tasberuang', shoes: 'bot' }, team: ['R', 'R', 'C'] },
+  { n: 'Nadia', rank: 8, o: { type: 'kidh', hijab: '#5bb8f0', sk: 2, shirt: 'labcoat', pants: 'celputih', glass: 'k3d', back: 'tasbiru', shoes: 'lampu' }, team: ['E', 'R', 'R'] },
 ];
 const MAPS = {};
 function blankT(MW, MH, v) { return Array.from({ length: MH }, () => Array(MW).fill(v)); }
@@ -1882,9 +1886,14 @@ function tick(t) {
   }
   if (W.gateY && !W.gateDone && p.y < W.gateY) { gateCheck(); return; }
   for (const e of W.npcs) {
+    if (e.stu) npcCompTick(e, dt);
     if (e.fixed || e.sleep) continue;
     e.t -= dt;
-    if (e.t <= 0) { e.t = 1 + Math.random() * 2.5; const D = [['left', -1, 0], ['right', 1, 0], ['up', 0, -1], ['down', 0, 1], [e.dir, 0, 0], [e.dir, 0, 0]][Math.floor(Math.random() * 6)]; e.dir = D[0]; e.vx = D[1] * 24; e.vy = D[2] * 24; }
+    if (e.t <= 0) {
+      const D = [['left', -1, 0], ['right', 1, 0], ['up', 0, -1], ['down', 0, 1], ['', 0, 0], ['', 0, 0], ['', 0, 0]][Math.floor(Math.random() * 7)];
+      if (D[0]) { e.dir = D[0]; e.vx = D[1] * 22; e.vy = D[2] * 22; e.t = .8 + Math.random() * 1.6; }
+      else { e.vx = e.vy = 0; e.t = 1.5 + Math.random() * 3; if (Math.random() < .5) e.dir = ['left', 'right', 'up', 'down'][Math.floor(Math.random() * 4)]; }
+    }
     const [ax, ay, aw, ah] = e.area, nx = e.x + e.vx * dt, ny = e.y + e.vy * dt;
     if (nx > ax * TS && nx < (ax + aw) * TS && ny > ay * TS && ny < (ay + ah) * TS && walkable(nx, ny)) { e.x = nx; e.y = ny; } else e.t = 0;
     if (e.vx || e.vy) { e.ft += dt; if (e.ft > .16) { e.ft = 0; e.f = (e.f + 1) % 4; } } else e.f = 0;
@@ -1931,6 +1940,10 @@ function draw(t) {
   const person = (e, look, isMe) => () => { const x = Math.round(e.x - ox), y = Math.round(e.y - oy); shadow(x, y, 5); bx.drawImage(kidImg(look, e.dir, e.f), x - 8, y - 27 - ((e.f === 1 || e.f === 3) ? 1 : 0)); const sk = setOf(look); if (sk) { bx.fillStyle = SETS[sk].c; for (let i = 0; i < 4; i++) { const a = t / 420 + i * 1.57, r = 9 + Math.sin(t / 300 + i) * 2; if (Math.sin(t / 180 + i * 2) > -.2) bx.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y - 14 + Math.sin(a) * 13), 1, 1); } } if (e.mark) { const b = Math.round(Math.sin(t / 250) * 1.5); bx.fillStyle = '#24123a'; bx.fillRect(x - 2, y - 40 + b, 5, 8); bx.fillStyle = '#ff6a3d'; bx.fillRect(x - 1, y - 39 + b, 3, 4); bx.fillRect(x - 1, y - 34 + b, 3, 1); } };
   for (const e of W.npcs) list.push({ fy: e.y, d: person(e, e.look) });
   list.push({ fy: p.y, d: person(p, look(), true) });
+  for (const e of W.npcs) if (e.cp) { const c = e.cp; list.push({ fy: c.y, d: () => {
+    const x = Math.round(c.x - ox), y = Math.round(c.y - oy), bob = Math.round(Math.abs(Math.sin(c.ph || 0)) * (c.m ? 2 : 1)), img = monImg(c.id, c.bl > 0, Math.floor(t / 180) % 2, c.fl);
+    shadow(x, y, Math.round(img.width / 2.8)); bx.drawImage(img, x - Math.floor(img.width / 2), y - img.height - bob + 3);
+  } }); }
   if (W.cp) { const c = W.cp; list.push({ fy: c.y, d: () => {
     const lv = bondLv(c.id), x = Math.round(c.x - ox), y = Math.round(c.y - oy), bob = Math.round(Math.abs(Math.sin(c.ph || 0)) * (c.m ? 2 : 1)), img = monImg(c.id, c.bl > 0, Math.floor(t / 180) % 2, c.fl);
     shadow(x, y, Math.round(img.width / 2.8)); bx.drawImage(img, x - Math.floor(img.width / 2), y - img.height - bob + 3);
@@ -2000,10 +2013,22 @@ async function encounter(m) {
   else { const a = Math.random() * 6.28; for (let k = 0; k < 10; k++) { const nx = m.x + Math.cos(a + k) * 70, ny = m.y + Math.sin(a + k) * 70; if (walkable(nx, ny)) { m.x = nx; m.y = ny; break; } } }
   W.safe = performance.now() + 2000; hud(); show('s-world');
 }
-function teamFor(st) { const used = new Set(); return st.team.map(r => { let id; do { id = pick(MONS.filter(m => m.r === r)).id; } while (used.has(id)); used.add(id); return id; }); }
+/* pendamping NPC: monster pertama timnya, tetap sama untuk tiap siswa (dipilih dari nama) */
+function stuComp(st) {
+  if (!st._c) { let h = 0; for (const ch of st.n) h = (h * 31 + ch.charCodeAt(0)) >>> 0; const pool = MONS.filter(m => m.r === st.team[0]); st._c = pool[h % pool.length].id; }
+  return st._c;
+}
+function npcCompTick(e, dt) {
+  const cid = stuComp(e.stu); if (!e.cp) e.cp = { id: cid, x: e.x, y: e.y + 8, ph: 0, bl: 0, fl: false, m: 0 };
+  const c = e.cp, d = Math.hypot(e.x - c.x, e.y - c.y); c.m = 0;
+  if (d > 90) { c.x = e.x; c.y = e.y + 6; }
+  else if (d > 15) { const sp = Math.min(d - 15, 52 * dt), nx = c.x + (e.x - c.x) / d * sp, ny = c.y + (e.y - c.y) / d * sp; if (nx < c.x - .01) c.fl = true; else if (nx > c.x + .01) c.fl = false; if (walkable(nx, c.y)) c.x = nx; if (walkable(c.x, ny)) c.y = ny; c.m = 1; }
+  c.ph += dt * (c.m ? 9 : 3); if (Math.random() < dt * .4) c.bl = .15; c.bl = Math.max(0, c.bl - dt);
+}
+function teamFor(st) { const first = stuComp(st), used = new Set([first]); return [first, ...st.team.slice(1).map(r => { let id; do { id = pick(MONS.filter(m => m.r === r)).id; } while (used.has(id)); used.add(id); return id; })]; }
 async function challenge(st) {
   if (!S.team.length) { toast('Timmu masih kosong. Tetaskan telur dulu'); return; }
-  const c = await modal(`<div style="display:flex;gap:12px;align-items:center">${avatarSvg(st.o, 48)}<div><h2>${esc(st.n)} · Rank ${st.rank}</h2><p>"Ayo duel 3 lawan 3! Kalau kamu menang, kamu dapat ${10 + st.rank * 3} XP dan ${25 + st.rank * 8} koin."</p></div></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Duel!', cls: 'hot' }]);
+  const c = await modal(`<div style="display:flex;gap:12px;align-items:center">${avatarSvg(st.o, 48)}<div><h2>${esc(st.n)} · Rank ${st.rank}</h2><div style="font-size:12.5px;font-weight:800;color:var(--sub)">Pendamping: ${esc(M[stuComp(st)].n)}</div><p>"Ayo duel 3 lawan 3! Kalau kamu menang, kamu dapat ${10 + st.rank * 3} XP dan ${25 + st.rank * 8} koin."</p></div></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Duel!', cls: 'hot' }]);
   if (c !== 1) return;
   npcDuel(st);
 }
@@ -2014,7 +2039,7 @@ async function npcDuel(st) {
   W.safe = performance.now() + 1500; hud(); show('s-world');
 }
 async function talkStu(st) {
-  const c = await modal(`<div style="display:flex;gap:12px;align-items:center">${avatarSvg(st.o, 48)}<div><h2>${esc(st.n)}</h2><div style="font-size:13px;font-weight:800;color:var(--sub)">${esc(st.role)} · Rank ${st.rank}</div></div></div>
+  const c = await modal(`<div style="display:flex;gap:12px;align-items:center">${avatarSvg(st.o, 48)}<div><h2>${esc(st.n)}</h2><div style="font-size:13px;font-weight:800;color:var(--sub)">${esc(st.role)} · Rank ${st.rank}</div><div style="font-size:12.5px;font-weight:800;color:var(--sub)">Pendamping: ${esc(M[stuComp(st)].n)}</div></div></div>
     <div class="card" style="font-size:15px;font-weight:700;line-height:1.4">"${esc(st.tip)}"</div>
     <p style="font-size:13px">Menang duel melawan ${esc(st.n)}: ${10 + st.rank * 3} XP dan ${25 + st.rank * 8} koin.</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Duel!', cls: 'hot' }]);
   if (c === 1) npcDuel(st);
@@ -2830,7 +2855,7 @@ function buildMap(z) {
     signs.push({ x: 9 * TS + 160, y: 2 * TS + 64, t: 'METAVERSE SCHOOL', c: '#ffd23c' }, { x: 19.5 * TS, y: 47 * TS + 1, t: 'PETA DUNIA', c: '#ffffff' }, { x: 25 * TS + 28, y: 9 * TS + 7, t: 'TOKO', c: '#ffffff', bg: '#c8402e' }, { x: 7.5 * TS, y: 28.6 * TS, t: 'KOLAM IKAN', c: '#ffffff', bg: '#3a7bd5' }, { x: 29 * TS, y: 33.4 * TS, t: 'TAMAN BUNGA', c: '#ffffff', bg: '#c8507a' });
     npcs.push({ x: 11.5 * TS, y: 11.6 * TS, dir: 'down', look: { type: 'kid', hair: '#8a8494', glasses: true, top: C.khaki, bottomR: ['#3a2a20', '#5a4030', '#6a5040'], long: true, skin2: true }, name: 'Pak Toto', tag: '#ffc93c', fixed: true, mark: true });
     npcs.push({ x: 26.7 * TS, y: 12.4 * TS, dir: 'down', look: { type: 'kidh', hijab: '#f08ab8', top: ['#c9a46a', '#e8c88a', '#fff0c8'] }, name: 'Mak Sumi', tag: '#ffffff', fixed: true });
-    const SPOT = [[21.4, 14.2, [20.4, 13, 3, 2.5], 'left'], [12.6, 29.4, [11.6, 28.4, 3.4, 2.2], 'down'], [25.4, 18.4, [24.4, 17.4, 3.4, 2.2], 'down'], [29.4, 15, [28.4, 14, 2.2, 3], 'left']];
+    const SPOT = [[21.4, 14.2, [20.4, 13, 3, 2.5], 'left'], [12.6, 29.4, [11.6, 28.4, 3.4, 2.2], 'down'], [25.4, 18.4, [24.4, 17.4, 3.4, 2.2], 'down'], [29.4, 15, [28.4, 14, 2.2, 3], 'left'], [16.5, 35.3, [15.3, 34.5, 3, 2.2], 'right'], [17.5, 44.4, [16, 43.6, 3.4, 2.2], 'down'], [32.4, 24.2, [31.2, 23.4, 2.8, 2], 'left'], [16.2, 30.6, [15, 29.8, 3, 2.2], 'down']];
     STUDENTS.forEach((st, i) => { const [sx, sy, ar, d] = SPOT[i]; npcs.push({ x: sx * TS, y: sy * TS, dir: d, look: st.o, name: `${st.n} · R${st.rank}`, tag: '#5bb8f0', area: ar, stu: st }); });
     inter.push({ x: 11.5 * TS, y: 12.6 * TS, l: 'Bicara dengan Pak Toto', fn: openQuests });
     inter.push({ x: 19 * TS, y: 9 * TS + 8, l: 'Masuk Gedung Sekolah', fn: openGedung });
@@ -2923,7 +2948,7 @@ function buildRegion(z) {
   strokeT(T, [[20, MH - 7.5], [23.5, MH - 7], [24.2, MH - 6.5]], 1.6, pathT === PV ? DT : pathT, path, BG);
   reserve(14, MH - 16, 14, 16);
   const stu = ISTU[z];
-  if (stu) npcs.push({ x: CX - 3 * TS, y: (MH - 9) * TS, dir: 'right', look: stu.o, name: `${stu.n} · R${stu.rank}`, tag: '#5bb8f0', fixed: true, stu });
+  if (stu) npcs.push({ x: CX - 3 * TS, y: (MH - 9) * TS, dir: 'right', look: stu.o, name: `${stu.n} · R${stu.rank}`, tag: '#5bb8f0', area: [CX / TS - 4.4, MH - 9.8, 2.8, 1.8], stu });
   // area rahasia
   const rx = (th === 'harbor' ? 33 : 3) * TS, ry = 30 * TS, cv2 = makeCave();
   add(cv2, rx, ry, ry + 32, { x: rx + 4, y: ry + 12, w: 38, h: 18 }); inter.push({ x: rx + 23, y: ry + 40, l: 'Periksa area rahasia', fn: () => openSecret(z) }); reserve(rx / TS - 1, ry / TS - 1, 5, 5);
