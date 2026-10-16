@@ -786,6 +786,10 @@ const TITLES = [[1, 'Siswa Baru', '#8fd8ff'], [5, 'Penjelajah', '#7fe3a8'], [10,
 const titleOf = r => TITLES.filter(t => r >= t[0]).pop();
 const mSvg = (id, cls = '') => `<img class="pxm ${cls}" src="${monURL(id)}" alt="${esc(M[id].n)}">`;
 const artBg = id => `background:radial-gradient(circle at 50% 45%,${ELBG[M[id].el][0]},${ELBG[M[id].el][1]})`;
+/* peran dihitung dari data: tanpa damage = Pendukung, ATK tinggi = Penyerang, ATK rendah = Tank */
+const monRole = m => !m.sk.m ? 'Pendukung' : m.atk >= 13 ? 'Penyerang' : m.atk <= 10 ? 'Tank' : 'Seimbang';
+const ROLEC = { Pendukung: '#2fa86f', Penyerang: '#d6402a', Tank: '#3a7bd5', Seimbang: '#7a7490' };
+const roleTag = m => `<span class="el" style="background:${ROLEC[monRole(m)]};color:#fff">${monRole(m)}</span>`;
 const elTag = el => `<span class="el ${el}">${el}</span>`;
 const rarTag = r => `<span class="rar ${r}">${RAR[r].n.toUpperCase()}</span>`;
 
@@ -3056,7 +3060,7 @@ function renderB() {
   const canSw = B.me.some((x, i) => i !== B.mi && x.hp > 0);
   $('#moves').innerHTML = `
     <button type="button" class="mv" data-a="atk" ${dis}><b>Serang <span>0<svg width="11" height="13" aria-hidden="true"><use href="#ic-bolt" fill="#ffc93c"/></svg></span></b><small>100% ${f.m.el} · ketuk cincin = Kritis</small></button>
-    <button type="button" class="mv sk" data-a="sk" ${B.en < sk.c ? 'disabled' : dis}><b>${esc(sk.n)} <span>${sk.c}<svg width="11" height="13" aria-hidden="true"><use href="#ic-bolt" fill="#ffc93c"/></svg></span></b><small>${esc(f.m.d)}${sk.m ? ' · soal ' + SUBJ[f.m.el][1] : ''}</small></button>
+    <button type="button" class="mv sk" data-a="sk" ${B.en < sk.c ? 'disabled' : dis}><b>${esc(sk.n)} <span>${sk.c}<svg width="11" height="13" aria-hidden="true"><use href="#ic-bolt" fill="#ffc93c"/></svg></span></b><small>${esc(f.m.d)}${' · soal ' + SUBJ[f.m.el][1]}</small></button>
     <button type="button" class="mv df" data-a="def" ${dis}><b>Bertahan <span>0<svg width="11" height="13" aria-hidden="true"><use href="#ic-bolt" fill="#ffc93c"/></svg></span></b><small>Kerusakan −50%, energi +1</small></button>
     <button type="button" class="mv swp" data-a="sw" ${canSw ? dis : 'disabled'}><b>Tukar monster</b><small>Pakai 1 giliran</small></button>`;
   $('#bench').innerHTML = B.me.map((x, i) => `<button type="button" class="${i === B.mi ? 'on' : ''} ${x.hp <= 0 ? 'ko' : ''}" data-i="${i}" aria-label="${esc(x.m.n)}, HP ${Math.max(0, x.hp)}">${mSvg(x.id)}<i style="width:${Math.max(0, x.hp / x.max) * 50}px"></i></button>`).join('');
@@ -4142,7 +4146,7 @@ const isTutup = () => { const h = todH(); return h >= 22 || h < 5; };
 let ntKey = '';
 function ntState() {
   const h = todH(), tod = envNow().tod, d = today(), z = S.zone;
-  return { tod, tutup: isTutup(), merch: z === 'school' && h >= 19 && h < 21, kakek: z === 'school' && h >= 5 && h < 6.5, mon: false, star: (isRegion(z) || z === 'school') && tod === 'malam' && !isTutup() && !(S.pb && S.pb.d === d) && !(S.ms && S.ms.d === d) };
+  return { tod, pulang: h >= 21 || h < 6.5, tutup: isTutup(), merch: z === 'school' && h >= 19 && h < 21, kakek: z === 'school' && h >= 5 && h < 6.5, mon: false, star: (isRegion(z) || z === 'school') && tod === 'malam' && !isTutup() && !(S.pb && S.pb.d === d) && !(S.ms && S.ms.d === d) };
 }
 function npcSpot(x, y) {
   for (const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2], [2, 2], [-2, 2], [2, -2], [-2, -2]]) if (walkable(x + dx * TS, y + dy * TS)) return { x: x + dx * TS, y: y + dy * TS };
@@ -4156,10 +4160,10 @@ function npcApply() {
   ntKey = JSON.stringify(st);
   for (const n of base) {
     if (!n.n0) { n.n0 = n.name; n.look0 = n.look; if (n.n0 === 'Pak Toto') n.lookN = Object.assign({}, n.look, NT_TOTO); if (n.n0 === 'Mak Sumi') n.lookN = Object.assign({}, n.look, { hijab: '#7b4fd6', top: ['#3a2a7a', '#6a4fc0', '#a88af0'] }); }
-    n.sleep = night && !!n.stu && z !== 'school'; n.name = n.sleep ? n.n0 + ' zZ' : n.n0;
+    n.sleep = st.pulang && night && !!n.stu && z !== 'school'; n.name = n.sleep ? n.n0 + ' zZ' : n.n0;
     n.look = night && n.lookN ? n.lookN : n.look0; if (n.sleep) { n.vx = n.vy = 0; n.f = 0; }
   }
-  const out = st.tutup ? [] : base.filter(n => !(z === 'school' && n.stu && (st.tod === 'malam' || st.tod === 'fajar')));
+  const out = st.tutup ? [] : base.filter(n => !(z === 'school' && n.stu && st.pulang));
   const ex = [], mk = o => Object.assign({ f: 0, ft: 0, t: 0, vx: 0, vy: 0, fixed: true, nt: true, dir: 'down' }, o), I = [];
   if (st.merch) { const s = npcSpot(22.5 * TS, 25.5 * TS); ex.push(mk({ x: s.x, y: s.y, look: { type: 'kid', hair: '#1f1a26', shirt: 'robe', hat: 'witch', pants: 'celksatria' }, name: 'Pedagang Malam', tag: '#c9a2ff', mark: true })); I.push({ nt: true, x: s.x, y: s.y + 10, l: 'Lihat dagangan Pedagang Malam', fn: openNightShop }); }
   if (st.kakek) { const s = npcSpot(15.5 * TS, 25.5 * TS); ex.push(mk({ x: s.x, y: s.y, look: { type: 'kid', hair: '#f3f3f8', shirt: 'koko', pants: 'sarung', hat: 'peci', glasses: true }, name: 'Kakek Pagi', tag: '#ffe0a3', mark: true })); I.push({ nt: true, x: s.x, y: s.y + 10, l: 'Sapa Kakek Pagi', fn: openKakek }); }
@@ -4278,7 +4282,7 @@ const SUBJ = { Netral: ['mtk', 'Matematika'], Racun: ['bi', 'B. Indonesia'], Es:
 const tfB = k => (S && S.st && S.st.tf && S.st.tf[k] && S.st.tf[k].b) || 0;
 const tfAll = () => ['mtk', 'bi', 'ipas', 'ing'].reduce((a, k) => a + tfB(k), 0);
 function tfCount(el, good) { const k = (SUBJ[el] || SUBJ.Netral)[0]; if (!S.st.tf) S.st.tf = {}; const t = S.st.tf[k] || (S.st.tf[k] = { b: 0, n: 0 }); t.n++; if (good) t.b++; save(); }
-const skHasQ = f => !!(f && f.m && f.m.sk && f.m.sk.m);
+const skHasQ = f => !!(f && f.m && f.m.sk);
 const ri2 = n => Math.floor(Math.random() * n);
 function tfEnd(s) { s = String(s).replace(/\s+/g, ' ').trim(); return /[.!?]["”']?$/.test(s) ? s : s + '.'; }
 function tfMath() {
@@ -4307,7 +4311,7 @@ function tfAsk(el, secs = 0) {
     o.innerHTML = `<div class="sheet" style="border-radius:22px;border:3px solid var(--line);display:flex;flex-direction:column;gap:10px;max-width:520px;width:100%">
       <div class="row" style="justify-content:space-between"><b style="color:var(--sun)">Soal ${esc(nm)}</b><small id="tfT" style="font-weight:800">${secs ? left + ' dtk' : ''}</small></div>
       <p style="margin:0;font-size:18px;font-weight:800;line-height:1.35">${esc(q.txt)}</p>
-      <p style="margin:0;font-size:13px;font-weight:700;color:var(--sub)">Benar atau salah? Jawaban benar membuat jurus kuat berdamage penuh.</p>
+      <p style="margin:0;font-size:13px;font-weight:700;color:var(--sub)">Benar atau salah? Jawaban benar membuat jurusmu berhasil. Kalau salah, jurus gagal dan hanya jadi serangan biasa.</p>
       <div id="tfB" class="row" style="gap:8px"><button type="button" class="btn hot" data-v="1" style="${cls}">Benar</button><button type="button" class="btn" data-v="0" style="${cls}">Salah</button></div></div>`;
     host.appendChild(o);
     const fin = (pick) => {
@@ -4451,7 +4455,7 @@ async function openPerpus() {
 }
 /* ---- pintu gedung dari halaman: tutup saat malam ---- */
 function openGedung() {
-  if (envNow().tod === 'malam') { toast('Gedung sekolah sudah tutup. Datang lagi pukul 05.00 pagi.', 3200); return; }
+  if (isTutup()) { toast('Gedung sekolah sudah tutup. Datang lagi pukul 05.00 pagi.', 3200); return; }
   enterZone('gedung'); toast('Selamat datang di gedung sekolah!', 2200);
 }
 
@@ -4690,7 +4694,7 @@ function openOne(type) {
     const el = $('#s-box');
     el.innerHTML = `<div class="rays"></div><div style="position:relative;height:100%;display:flex;flex-direction:column;gap:14px;padding:22px 12px calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box;align-items:center;text-align:center">
       <div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">TELUR HADIAH</div><div class="logo" style="font-size:30px">${eggN(type)} menetas!</div>
-      <div style="flex:1;display:grid;place-items:center;width:100%"><div class="pk ${m.r}" style="width:220px;pointer-events:none"><span class="tag ${d.isNew ? 'new' : ''}">${tag}</span><span class="art" style="${artBg(id)};display:grid;place-items:center;height:130px;width:100%;box-sizing:border-box;border-radius:10px">${mSvg(id)}</span>${rarTag(m.r)}<span class="n">${esc(m.n)}</span>${elTag(m.el)}<span class="s"><span>HP ${m.hp}</span><span>ATK ${m.atk}</span></span></div></div>
+      <div style="flex:1;display:grid;place-items:center;width:100%"><div class="pk ${m.r}" style="width:220px;pointer-events:none"><span class="tag ${d.isNew ? 'new' : ''}">${tag}</span><span class="art" style="${artBg(id)};display:grid;place-items:center;height:130px;width:100%;box-sizing:border-box;border-radius:10px">${mSvg(id)}</span>${rarTag(m.r)}<span class="n">${esc(m.n)}</span>${elTag(m.el)}${roleTag(m)}<span class="s"><span>HP ${m.hp}</span><span>ATK ${m.atk}</span></span></div></div>
       <div class="card" style="font-size:14px;font-weight:700;color:var(--sub);width:100%;box-sizing:border-box"><b style="color:var(--text)">${esc(m.sk.n)}</b> · ${m.sk.c} energi<br>${esc(m.d)}</div>
       <p style="margin:0;font-weight:800">${msg}</p>
       <button type="button" class="btn" id="keep" style="font-size:20px;min-height:56px;width:100%">Lanjut</button></div>`;
@@ -4813,7 +4817,7 @@ function openCol() {
 async function monDetail(id) {
   const m = M[id], inT = S.team.includes(id);
   const i = await modal(`<div style="display:flex;gap:12px;align-items:center"><div style="width:120px;height:100px;border-radius:16px;border:3px solid var(--deep);${artBg(id)};display:grid;place-items:center;flex:none">${mSvg(id)}</div>
-    <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><h2>${esc(m.n)}</h2><div class="row" style="gap:6px">${rarTag(m.r)}${elTag(m.el)}<span class="stars">★${S.owned[id].s}</span></div><p style="font-size:13px">Level ${S.owned[id].s}/${LV_MAX[m.r]} · Kedekatan Lv.${bondLv(id)}<br>HP ${Math.round(m.hp * statMul(id))} · ATK ${(m.atk * statMul(id)).toFixed(1).replace('.0', '')} <span style="color:var(--sub)">(+${Math.round((statMul(id) - 1) * 100)}%)</span> · Biaya tim ${RAR[m.r].cost}</p></div></div>
+    <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><h2>${esc(m.n)}</h2><div class="row" style="gap:6px">${rarTag(m.r)}${elTag(m.el)}${roleTag(m)}<span class="stars">★${S.owned[id].s}</span></div><p style="font-size:13px">Level ${S.owned[id].s}/${LV_MAX[m.r]} · Kedekatan Lv.${bondLv(id)}<br>HP ${Math.round(m.hp * statMul(id))} · ATK ${(m.atk * statMul(id)).toFixed(1).replace('.0', '')} <span style="color:var(--sub)">(+${Math.round((statMul(id) - 1) * 100)}%)</span> · Biaya tim ${RAR[m.r].cost}</p></div></div>
     <div class="card" style="font-size:13.5px;font-weight:700;color:var(--sub)"><b style="color:var(--text)">${esc(m.sk.n)}</b> · ${m.sk.c} energi<br>${esc(m.d)}${m.weak ? `<br><span style="color:#c2301b">Kelemahan: ${esc(m.weak)}</span>` : ''}</div>
     <p style="font-size:12.5px">${m.el === 'Netral' ? 'Netral: tidak unggul dan tidak lemah terhadap elemen mana pun.' : `Unggul melawan ${BEATS[m.el]}, lemah melawan ${Object.keys(BEATS).find(k => BEATS[k] === m.el)}.`}</p>${envNote(id)}`,
     [{ t: 'Tutup', cls: 'ghost' }, { t: inT ? 'Keluarkan dari tim' : 'Masukkan tim', cls: inT ? 'dark' : 'hot' }]);
