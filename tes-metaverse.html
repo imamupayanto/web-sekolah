@@ -3529,7 +3529,8 @@ async function mpPresence() {
     for (const m of (st[pk] || []).slice(-4)) {
       if (!m || m.id !== pk || typeof m.ts !== 'number' || !mpZoneOk(m.z)) continue;
       const k = await mpKeyFor(pk, m.k); if (!k) continue;
-      if (await mpVerify(k, ['p', pk, m.n, m.lk, m.z, m.ts, typeof m.c === 'string' ? m.c : '', m.rk, m.ti], m.sig) && (!best || m.ts > best.ts)) best = m;
+      const pa = ['p', pk, m.n, m.lk, m.z, m.ts, typeof m.c === 'string' ? m.c : '', m.rk, m.ti];
+      if (await mpVerify(k, m.ev === 1 ? [...pa, 1] : pa, m.sig) && (!best || m.ts > best.ts)) best = m;
     }
     if (g !== MP.gen) return; if (!best) continue;
     const lk = mpLookSafe(best.lk); if (!lk) continue;
@@ -3537,7 +3538,7 @@ async function mpPresence() {
     if (!o) o = MP.ps[pk] = { x: 0, y: 0, tx: 0, ty: 0, dir: 'down', f: 0, ft: 0, has: false, lt: 0, le: 0, pts: 0, rp: [], re: 0, ax: 0, ay: 0, at: 0, dur: 1, pn: 0 };
     if (best.ts < o.pts) continue; o.pts = best.ts;
     if (o.z !== best.z) { o.has = false; o.z = best.z; }
-    o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : ''; o.rk = mpInt(best.rk, 1, RANK_MAX); o.ti = typeof best.ti === 'string' && TBY[best.ti] ? best.ti : '';
+    o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : ''; o.ev = best.ev === 1 ? 1 : 0; o.rk = mpInt(best.rk, 1, RANK_MAX); o.ti = typeof best.ti === 'string' && TBY[best.ti] ? best.ti : '';
   }
   if (g !== MP.gen) return; for (const id in MP.ps) if (!seen[id]) delete MP.ps[id];
   MP.synced = 1; const mt = mpMates(); if (mt > MP.mates) MP.lastPos = ''; MP.mates = mt; hud();
@@ -3565,9 +3566,9 @@ async function mpOnEm(m) {
 /* ---- kirim ---- */
 async function mpSync() {
   if (MP.st !== 'on' || !S || !MP.ch || !W) return;
-  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, c = compId() || '', rk = S.rank, ti = S.title && TBY[S.title] ? S.title : '', sig0 = JSON.stringify([n, lk, z, c, rk, ti]); if (sig0 === MP.sig) return; MP.sig = sig0;
-  const ts = mpNext(), ch = MP.ch, sig = await mpSign(['p', MP.id, n, lk, z, ts, c, rk, ti]);
-  if (MP.st === 'on' && ch === MP.ch) { ch.track({ id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti }); setTimeout(() => mpSendPos(true), 600); }
+  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, c = compId() || '', rk = S.rank, ti = S.title && TBY[S.title] ? S.title : '', ev = c && typeof evoOn === 'function' && evoOn(c) ? 1 : 0, sig0 = JSON.stringify([n, lk, z, c, rk, ti, ev]); if (sig0 === MP.sig) return; MP.sig = sig0;
+  const ts = mpNext(), ch = MP.ch, pa = ['p', MP.id, n, lk, z, ts, c, rk, ti], sig = await mpSign(ev ? [...pa, 1] : pa);
+  if (MP.st === 'on' && ch === MP.ch) { ch.track(ev ? { id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti, ev } : { id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti }); setTimeout(() => mpSendPos(true), 600); }
 }
 /* Posisi dikirim lewat channel PER WILAYAH (bukan channel utama), maks 1x/detik, dan diam kalau sendirian di wilayah itu.
    Channel utama (MP_CH) tetap dipakai untuk presence (siapa online & di mana), emote, duel, regu/raid. */
@@ -3672,7 +3673,7 @@ function mpDraw(list, person, t, ox, oy) {
     if (!mpHere(o) || n++ > 24) continue; const e = { x: o.x, y: o.y, dir: o.dir, f: o.f };
     list.push({ fy: o.y, d: person(e, o.lk) });
     if (o.cid && o.cx !== undefined) list.push({ fy: o.cy, d: () => {
-      const x = Math.round(o.cx - ox), y = Math.round(o.cy - oy), bob = Math.round(Math.abs(Math.sin(o.cph || 0)) * (o.cm ? 2 : 1)), img = monImg(o.cid, false, Math.floor(t / 180) % 2, !!o.cfl);
+      const x = Math.round(o.cx - ox), y = Math.round(o.cy - oy), bob = Math.round(Math.abs(Math.sin(o.cph || 0)) * (o.cm ? 2 : 1)), img = monImg(o.cid, false, Math.floor(t / 180) % 2, !!o.cfl, !!o.ev);
       shadow(x, y, Math.round(img.width / 2.8)); bx.drawImage(img, x - Math.floor(img.width / 2), y - img.height - bob + 3);
     } }); if (o.bub) mpBubble(o.x - ox, o.y - oy, o.bub);
   }
@@ -5591,7 +5592,7 @@ function openTitle() {
       : `<button type="button" class="btn tt-b" disabled><b>Continue</b><small>Belum ada simpanan</small></button>`}
       <button type="button" class="btn ghost tt-b" id="ttSet"><b>Setting</b><small>Pengaturan</small></button>
     </div>
-    <div class="tt-ver">v82</div>
+    <div class="tt-ver">v83</div>
   </div>`;
   if (!TT.bg) ttBuild();
   TT.cv = $('#ttCv'); TT.x = TT.cv.getContext('2d'); TT.t0 = performance.now(); TT.menu = false;
@@ -5635,7 +5636,7 @@ async function openSettings() {
   const qn = [['auto', 'Otomatis'], ['on', 'Nyala'], ['off', 'Mati']];
   const hem = `<div style="margin:10px 0 2px;font-weight:800;color:var(--sub);font-size:14px">Mode Hemat <span style="font-weight:700;font-size:12px">(HP lambat/panas: gambar sedikit kurang tajam, lebih lancar & irit baterai)</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${qn.map(([k, n]) => `<button type="button" class="btn ${Q.mode === k ? 'hot' : 'ghost'}" data-qm="${k}" style="min-height:40px;font-size:14px;padding:2px">${n}</button>`).join('')}</div>`;
   const ins = appStandalone() ? '' : `<button type="button" class="btn ghost" id="stIns" style="width:100%;margin-top:12px;min-height:42px;font-size:15px">Pasang sebagai aplikasi</button>`;
-  await modal(`<h2>Setting</h2>${row('m', 'Musik')}${row('s', 'Efek suara')}${hem}${tip}${ins}<p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Lumimon: Adventure School · v82<br>Game belajar untuk siswa SD</p>`, [{ t: 'Selesai', cls: 'hot' }], { onOpen: wire });
+  await modal(`<h2>Setting</h2>${row('m', 'Musik')}${row('s', 'Efek suara')}${hem}${tip}${ins}<p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Lumimon: Adventure School · v83<br>Game belajar untuk siswa SD</p>`, [{ t: 'Selesai', cls: 'hot' }], { onOpen: wire });
 }
 
 /* ---------- start ---------- */
