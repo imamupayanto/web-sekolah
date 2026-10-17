@@ -77,6 +77,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-of
 .tt-b{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:58px;line-height:1.1;gap:2px}.tt-b b{font-size:21px}.tt-b small{font-size:12.5px;font-weight:700;opacity:.85}
 .tt-b[disabled]{opacity:.5}.tt-cont{flex-direction:row;gap:12px}.tt-ct{display:flex;flex-direction:column;align-items:flex-start}.tt-av{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;overflow:hidden}
 @media (max-height:720px){.tt-menu{gap:7px;padding:9px;margin-bottom:3vh}.tt-b{min-height:46px}.tt-b b{font-size:18px}.tt-b small{font-size:11.5px}.tt-logo{margin-top:1.5vh}}
+.slot{position:relative}.stb{position:absolute;left:3px;bottom:3px;z-index:2;font:800 10px/1.15 sans-serif;padding:2px 5px;border-radius:999px;background:rgba(29,27,70,.88);color:#fff;border:2px solid #24123a;white-space:nowrap}.stb.tl{left:-6px;top:-8px;bottom:auto}.stb.tired{background:#7b4fd6}.stb.segar{background:#ffd23c;color:#1f2347}
 .tt-ver{position:absolute;bottom:6px;left:0;right:0;text-align:center;font:700 11px sans-serif;color:rgba(255,255,255,.65)}
 #rotOv{display:none}
 @media (orientation:landscape) and (max-height:520px) and (pointer:coarse){#rotOv{display:flex;position:fixed;inset:0;z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#1d1b46;color:#fff;text-align:center;padding:16px;font:800 20px "Pixelify Sans",sans-serif}}
@@ -971,7 +972,7 @@ function gainXP(n) {
   save(); return up;
 }
 /* XP battle per hari: 20 menang pertama penuh, 21-40 setengah, setelahnya 0 (koin tetap penuh) */
-function battleXP(n) { const d = today(); if (!S.bw || S.bw.d !== d) S.bw = { d, w: 0 }; S.bw.w++; return Math.round(n * (S.bw.w <= 20 ? 1 : S.bw.w <= 40 ? .5 : 0)); }
+function battleXP(n) { const d = today(); if (!S.bw || S.bw.d !== d) S.bw = { d, w: 0 }; S.bw.w++; return Math.round(n * (S.bw.w <= 20 ? 1 : S.bw.w <= 40 ? .5 : 0) * (typeof B !== 'undefined' && B && B.xpMul || 1)); }
 const bxpNote = () => S.bw && S.bw.w > 20 ? `<small style="font-weight:700;color:var(--muted)">${S.bw.w > 40 ? 'XP battle hari ini sudah habis' : 'XP battle hari ini setengah'} (sudah ${S.bw.w} menang). Belajar tetap memberi XP penuh!</small>` : '';
 const eggS = k => k === 'Kayu' ? 'Biasa' : k, eggN = k => 'Telur ' + eggS(k);
 function teamCost(t = S.team) { return t.reduce((a, id) => a + RAR[M[id].r].cost, 0); }
@@ -3107,6 +3108,8 @@ ${z === 'cave' ? '<path d="M0 300 C120 270 260 330 390 296 V330 H0 Z" fill="#ff7
 const bolts = n => `<span class="bolts" aria-label="${n} energi">${[0, 1, 2, 3, 4].map(i => `<svg aria-hidden="true"><use href="#ic-bolt" fill="${i < n ? '#ffc93c' : '#d6d3ea'}"/></svg>`).join('')}</span>`;
 function stTags(f) {
   const a = [];
+  if (f.tired) a.push(`<span class="st-debuff">zZ Lelah</span>`);
+  if (f.segar) a.push(`<span class="st-buff">✦ Segar</span>`);
   if (f.poison) a.push(`<span class="st-poison">Racun ${f.poison}</span>`);
   if (f.burn) a.push(`<span class="st-burn">Bakar ${f.burn}</span>`);
   if (f.stun) a.push(`<span class="st-stun">Pusing</span>`);
@@ -3136,6 +3139,7 @@ function startBattle(cfg) {
     if (cfg.tut) B.foe.forEach(f => { f.hp = f.max = Math.round((f.m.hp || 40) * .8); f.am = .6; });
     if (cfg.hpMul) { B.foe.forEach(f => { f.hp = f.max = Math.round(f.max * cfg.hpMul); }); B.fen = 2; }
     if (cfg.type === 'wild' && cfg.habit === 'sleep') B.foe[0].stun = 1;
+    if (typeof stBattleStart === 'function') stBattleStart();
     const z = cfg.zone || 'school';
     const el = $('#s-battle');
     el.innerHTML = `<div class="bscene"><img class="bg" src="${arenaURL(z)}" alt="">
@@ -3169,6 +3173,7 @@ function sprite(side, enter) {
 }
 function log(t) { $('#log').innerHTML = t; }
 function renderB() {
+  if (B && B.me[B.mi]) B.me[B.mi].used = 1;
   $('#foeCard').innerHTML = fCard(foeA(), B.fen, true);
   $('#meCard').innerHTML = fCard(meA(), B.en, false);
   $('#meSpr').classList.toggle('guard', !!meA().guard); $('#foeSpr').classList.toggle('guard', !!foeA().guard);
@@ -3328,6 +3333,7 @@ async function turn(a) {
 async function finish(res) {
   B.busy = true; sfx(res === 'win' ? 'win' : res === 'lose' ? 'lose' : '');
   const cfg = B.cfg; let html = '', rw = [];
+  const stNotes = cfg.type !== 'pvp' && typeof stFinish === 'function' ? stFinish(res) : [];
   if (cfg.type === 'pvp') {
     const P = S.pvp || (S.pvp = { w: 0, l: 0 }), D = cfg.duel;
     if (res === 'win') { P.w++; html = `<div class="big" style="color:var(--sun)">MENANG!</div><p style="text-align:center;color:var(--muted);font-weight:700">${D.why === 'bye' ? 'Lawan menyerah.' : 'Duelmu seru! Tidak ada hadiah, hanya kebanggaan.'}</p>`; }
@@ -3359,6 +3365,7 @@ async function finish(res) {
     html = `<div class="big">Kalah...</div><p style="text-align:center;color:var(--muted);font-weight:700">Lumimu dipulihkan. Coba atur tim dengan elemen yang lebih unggul.</p>`;
   } else if (res === 'fled') html = `<div class="big">Kabur!</div><p style="text-align:center;color:var(--muted);font-weight:700">Lumi penakut itu lari sebelum kalah. Lain kali pakai Kritis untuk menyelesaikannya lebih cepat.</p>`;
   else html = `<div class="big">${cfg.type === 'wild' ? 'Berhasil kabur' : 'Menyerah'}</div>`;
+  rw.push(...stNotes);
   save();
   const o = document.createElement('div'); o.id = 'overlay';
   o.innerHTML = `<div style="display:flex;flex-direction:column;gap:14px;align-items:center;width:100%">${html}${rw.length ? `<div class="card" style="display:flex;flex-direction:column;gap:6px;align-items:center;font-weight:800;font-size:16px">${rw.map(x => `<div style="display:flex;align-items:center;gap:6px">${x}</div>`).join('')}</div>` : ''}<button type="button" class="btn" id="bDone" style="min-width:200px">Lanjut</button></div>`;
@@ -3438,7 +3445,7 @@ var MP_KEY = 'sb_publishable_noV7z0rqJIq2J24M6z1nXw_y4BwW5DE';
 var MP_CH = 'mga-pilot-v1';
 const MP_EMO = ['👋', '😄', '❤️', '👍', '😮', '⭐'];
 const MP_SAY = ['Halo!', 'Ayo berburu!', 'Hebat!', 'Terima kasih', 'Ayo belajar bareng', 'Semangat!', 'Tunggu aku', 'Keren!'];
-const MP = { st: 'idle', sb: null, ch: null, id: '', kb: '', priv: null, ps: {}, vk: {}, sig: '', seq: 0, retry: 0, rt: null, gen: 0, me: null, lastPos: '', sayT: 0, synced: 0 };
+const MP = { st: 'idle', sb: null, ch: null, id: '', kb: '', priv: null, ps: {}, vk: {}, sig: '', seq: 0, retry: 0, rt: null, gen: 0, me: null, lastPos: '', sayT: 0, synced: 0, zch: null, zn: '', zst: '', zretry: 0, posT: 0, hiLast: 0, hiUntil: 0, mates: 0 };
 const mpB64 = u => { const a = new Uint8Array(u); let s = ''; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s); };
 const mpUnB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 const MP_ENC = new TextEncoder();
@@ -3496,10 +3503,10 @@ async function mpInit() {
 function mpRetry() { MP.st = 'error'; if (MP.rt) return; const d = Math.min(60, 5 * 2 ** MP.retry); MP.retry++; MP.rt = setTimeout(() => { MP.rt = null; if (S && S.mpOff) { MP.st = 'off'; return; } MP.st = 'connecting'; mpConnect(); }, d * 1000); }
 function mpConnect() {
   try { if (MP.ch) { const old = MP.ch; MP.ch = null; MP.sb.removeChannel(old); } } catch (e) {}
-  MP.ps = {}; MP.sig = ''; MP.lastPos = '';
+  MP.ps = {}; MP.sig = ''; MP.lastPos = ''; mpZoneLeave();
   const ch = MP.ch = MP.sb.channel(MP_CH, { config: { broadcast: { self: false }, presence: { key: MP.id } } });
   ch.on('presence', { event: 'sync' }, () => { if (ch === MP.ch) mpPresence(); });
-  ch.on('presence', { event: 'join' }, ({ key }) => { if (ch === MP.ch && key !== MP.id) { mpSendPos(true); setTimeout(raidOnJoin, 1500); } });
+  ch.on('presence', { event: 'join' }, ({ key }) => { if (ch === MP.ch && key !== MP.id) { setTimeout(raidOnJoin, 1500); } });
   ch.on('broadcast', { event: 'pos' }, ({ payload }) => { if (ch === MP.ch) mpOnPos(payload); });
   ch.on('broadcast', { event: 'em' }, ({ payload }) => { if (ch === MP.ch) mpOnEm(payload); });
   ch.on('broadcast', { event: 'duel' }, ({ payload }) => { if (ch === MP.ch) mpOnDuel(payload); });
@@ -3509,7 +3516,7 @@ function mpConnect() {
 }
 function mpOff(v) {
   S.mpOff = !!v; save();
-  if (v) { if (MP.rt) { clearTimeout(MP.rt); MP.rt = null; } try { if (MP.ch) { const old = MP.ch; MP.ch = null; MP.sb.removeChannel(old); } } catch (e) {} MP.ps = {}; MP.st = 'off'; }
+  if (v) { if (MP.rt) { clearTimeout(MP.rt); MP.rt = null; } try { if (MP.ch) { const old = MP.ch; MP.ch = null; MP.sb.removeChannel(old); } } catch (e) {} MP.ps = {}; mpZoneLeave(); MP.st = 'off'; }
   else { MP.st = 'idle'; mpInit(); }
   hud();
 }
@@ -3527,13 +3534,13 @@ async function mpPresence() {
     if (g !== MP.gen) return; if (!best) continue;
     const lk = mpLookSafe(best.lk); if (!lk) continue;
     seen[pk] = 1; let o = MP.ps[pk];
-    if (!o) o = MP.ps[pk] = { x: 0, y: 0, tx: 0, ty: 0, dir: 'down', f: 0, ft: 0, has: false, lt: 0, le: 0, pts: 0, rp: [], re: 0 };
+    if (!o) o = MP.ps[pk] = { x: 0, y: 0, tx: 0, ty: 0, dir: 'down', f: 0, ft: 0, has: false, lt: 0, le: 0, pts: 0, rp: [], re: 0, ax: 0, ay: 0, at: 0, dur: 1, pn: 0 };
     if (best.ts < o.pts) continue; o.pts = best.ts;
     if (o.z !== best.z) { o.has = false; o.z = best.z; }
     o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : ''; o.rk = mpInt(best.rk, 1, RANK_MAX); o.ti = typeof best.ti === 'string' && TBY[best.ti] ? best.ti : '';
   }
   if (g !== MP.gen) return; for (const id in MP.ps) if (!seen[id]) delete MP.ps[id];
-  MP.synced = 1; hud();
+  MP.synced = 1; const mt = mpMates(); if (mt > MP.mates) MP.lastPos = ''; MP.mates = mt; hud();
 }
 async function mpOnPos(m) {
   if (!m || typeof m.id !== 'string' || typeof m.ts !== 'number' || !W) return;
@@ -3542,7 +3549,8 @@ async function mpOnPos(m) {
   const x = mpInt(m.x, 0, W.MW * TS), y = mpInt(m.y, 0, W.MH * TS), d = ['up', 'down', 'left', 'right'].includes(m.d) ? m.d : 'down';
   if (!await mpVerify(c.key, ['m', m.id, m.x, m.y, m.d, m.z, m.ts], m.sig) || m.ts <= o.lt) return; o.lt = m.ts;
   if (m.z !== W.zone) return;
-  o.tx = x; o.ty = y; o.dir = d; if (!o.has || Math.hypot(x - o.x, y - o.y) > 140) { o.x = x; o.y = y; o.has = true; }
+  const nw = performance.now(); o.ax = o.x; o.ay = o.y; o.dur = Math.max(.3, Math.min(1.3, (nw - (o.pn || nw - 1000)) / 1000)); o.pn = nw; o.at = nw;
+  o.tx = x; o.ty = y; o.dir = d; if (!o.has || Math.hypot(x - o.x, y - o.y) > 140) { o.x = o.ax = x; o.y = o.ay = y; o.has = true; o.pn = 0; }
 }
 async function mpOnEm(m) {
   if (!m || typeof m.id !== 'string' || typeof m.ts !== 'number') return; const o = MP.ps[m.id], c = MP.vk[m.id]; if (!o || !c) return;
@@ -3561,12 +3569,36 @@ async function mpSync() {
   const ts = mpNext(), ch = MP.ch, sig = await mpSign(['p', MP.id, n, lk, z, ts, c, rk, ti]);
   if (MP.st === 'on' && ch === MP.ch) { ch.track({ id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti }); setTimeout(() => mpSendPos(true), 600); }
 }
+/* Posisi dikirim lewat channel PER WILAYAH (bukan channel utama), maks 1x/detik, dan diam kalau sendirian di wilayah itu.
+   Channel utama (MP_CH) tetap dipakai untuk presence (siapa online & di mana), emote, duel, regu/raid. */
+const mpMates = () => { if (!W) return 0; let n = 0; for (const id in MP.ps) if (MP.ps[id].z === W.zone) n++; return n; };
+function mpZoneLeave() { const old = MP.zch; MP.zch = null; MP.zn = ''; MP.zst = ''; MP.mates = 0; if (old && MP.sb) { try { MP.sb.removeChannel(old); } catch (e) {} } }
+function mpZoneJoin(z) {
+  mpZoneLeave(); if (!z || !MP.sb) return; MP.zn = z; MP.lastPos = ''; MP.posT = 0;
+  const zc = MP.zch = MP.sb.channel(MP_CH + '-z-' + z, { config: { broadcast: { self: false } } });
+  zc.on('broadcast', { event: 'pos' }, ({ payload }) => { if (zc === MP.zch) mpOnPos(payload); });
+  zc.on('broadcast', { event: 'hi' }, ({ payload }) => { if (zc === MP.zch) mpOnHi(payload); });
+  zc.subscribe(s => {
+    if (zc !== MP.zch) return;
+    if (s === 'SUBSCRIBED') { MP.zst = 'on'; MP.mates = mpMates(); MP.lastPos = ''; MP.hiUntil = performance.now() + 3000; try { zc.send({ type: 'broadcast', event: 'hi', payload: { id: MP.id } }); } catch (e) {} setTimeout(() => mpSendPos(true), 500); }
+    else if (s === 'CHANNEL_ERROR' || s === 'TIMED_OUT' || s === 'CLOSED') { MP.zst = 'err'; MP.zretry = performance.now() + 5000; }
+  });
+}
+/* teman baru masuk wilayah ini -> kirim posisi sekali lagi (dengan jeda acak) supaya ia langsung melihat kita */
+function mpOnHi(m) {
+  if (!m || typeof m.id !== 'string' || m.id === MP.id) return;
+  const now = performance.now(); if (now - MP.hiLast < 1500) return; MP.hiLast = now; MP.hiUntil = now + 4000;
+  setTimeout(() => mpSendPos(true), 250 + Math.random() * 400); setTimeout(() => mpSendPos(true), 2200);
+}
 async function mpSendPos(force) {
-  if (MP.st !== 'on' || !W || !W.p || $('#s-world').hidden) return;
+  const zc = MP.zch;
+  if (MP.st !== 'on' || MP.zst !== 'on' || !zc || !W || !W.p || MP.zn !== W.zone || $('#s-world').hidden) return;
+  const now = performance.now(); if (!mpMates() && now > MP.hiUntil) return;
   const x = Math.round(W.p.x), y = Math.round(W.p.y), d = W.p.dir, z = W.zone, k = x + ',' + y + ',' + d + ',' + z;
-  if (!force && k === MP.lastPos) return; MP.lastPos = k;
-  const ts = mpNext(), ch = MP.ch, sig = await mpSign(['m', MP.id, x, y, d, z, ts]);
-  if (MP.st === 'on' && ch === MP.ch) ch.send({ type: 'broadcast', event: 'pos', payload: { id: MP.id, x, y, d, z, ts, sig } });
+  if (!force) { if (now - MP.posT < 1000) return; if (k === MP.lastPos && now - MP.posT < 8000) return; }
+  MP.lastPos = k; MP.posT = now;
+  const ts = mpNext(), sig = await mpSign(['m', MP.id, x, y, d, z, ts]);
+  if (MP.st === 'on' && zc === MP.zch) zc.send({ type: 'broadcast', event: 'pos', payload: { id: MP.id, x, y, d, z, ts, sig } });
 }
 function mpSayText(raw) {
   if (MP.st !== 'on') { toast('Belum tersambung online'); return false; }
@@ -3594,7 +3626,10 @@ function mpSay(ei, si) {
 }
 setInterval(() => {
   if (MP.st === 'idle' && S && S.name && !S.mpOff && W) mpInit();
-  if (MP.st === 'on') { mpSync(); mpSendPos(); }
+  if (MP.st === 'on') {
+    if (W && W.zone && (W.zone !== MP.zn || (MP.zst === 'err' && performance.now() > MP.zretry))) mpZoneJoin(W.zone);
+    mpSync(); mpSendPos();
+  }
 }, 300);
 /* ---- tampilan ---- */
 const mpHere = o => W && o.has && o.z === W.zone && o.lk;
@@ -3607,7 +3642,7 @@ function mpFrame(dt) {
   if (!W) return; const k = Math.min(1, dt * 8);
   for (const o of Object.values(MP.ps)) {
     if (!mpHere(o)) continue; const dx = o.tx - o.x, dy = o.ty - o.y, mv = Math.hypot(dx, dy) > .8;
-    o.x += dx * k; o.y += dy * k;
+    if (o.at) { const a = Math.min(1, (performance.now() - o.at) / 1000 / (o.dur || 1)); o.x = o.ax + (o.tx - o.ax) * a; o.y = o.ay + (o.ty - o.ay) * a; } else { o.x += dx * k; o.y += dy * k; }
     if (o.cid) {
       if (o.cx === undefined || Math.hypot(o.x - o.cx, o.y - o.cy) > 120) { o.cx = o.x; o.cy = o.y + 8; }
       const cd = Math.hypot(o.x - o.cx, o.y - o.cy); o.cm = 0;
@@ -4658,6 +4693,7 @@ const TIPS = [
   { id: 'akademi', t: 'Akademi & Kuil Ujian', img: 'akademi', tx: 'Baca kartu materi di Akademi dulu, lalu latihan soal. Itu persiapan terbaik sebelum masuk Kuil Ujian.' },
   { id: 'duel', t: 'Duel teman sekolah', img: 'duel', tx: 'Tantang siswa di halaman sekolah. Menang dapat XP dan koin, dan mereka juga punya Lumi pendamping!' },
   { id: 'core', t: 'Lumi Core & Kabut Lupa', get html() { return `<div style="padding:8px;background:var(--navy);border:3px solid var(--deep);border-radius:14px;display:flex;align-items:center;gap:10px"><img src="${crystalImg(1, [true, false, true, false]).toDataURL()}" alt="" style="width:84px;image-rendering:pixelated"><div style="color:#fff;font-weight:800;font-size:13.5px;line-height:1.45;text-align:left">4 lubang = 4 Shard = 4 mapel.<br>Lulus <span style="color:var(--sun)">Ujian Akhir Pulau</span> → Shard mapel itu menyala.<br>Shard menyala → <span style="color:#9ff0ff">Kabut Lupa</span> di wilayahnya menipis.</div></div>`; }, tx: 'Lumi Core ada di kiri belakang sekolah. Kumpulkan keempat Shard dengan belajar semua mapel, dan cahaya sekolah akan pulih!' },
+  { id: 'stamina', t: 'Stamina & Lumi Segar', html: `<div style="padding:10px 12px;background:var(--navy);border:3px solid var(--deep);border-radius:14px;color:#fff;font-weight:800;line-height:1.55;text-align:left;font-size:13.5px">Tiap Lumi punya <span style="color:#4fc6ee">10 stamina</span>, tiap battle −1.<br>Habis → <span style="color:#c9a2ff">zZ Lelah</span>: HP & serangan −15%.<br>Keluarkan dari tim untuk istirahat:<br>• penuh dalam <span style="color:var(--sun)">30 menit</span><br>• atau <span style="color:var(--sun)">15 menit</span> setelah jawab 3 soal mapelnya<br>Lama istirahat → <span style="color:var(--sun)">✦ Segar</span>: XP & Kedekatan ×2!</div>`, tx: 'Jangan pakai Lumi yang itu-itu saja! Gantian supaya semua Lumimu kuat dan dapat bonus Segar. (Duel antar pemain dan bos regu tidak memakai stamina.)' },
   { id: 'evolusi', t: 'Evolusi Lumi', html: TIP_EVO, tx: 'Lumi Biasa berevolusi di Rank 10, Langka 12, Epik 14, Legenda 15. Belajar mapel Lumimu dan berteman dekat supaya ia tumbuh dewasa!' }
 ];
 const TIP = { on: false, booted: false };
@@ -5022,6 +5058,88 @@ async function openStats() {
     h.style.cssText += ';touch-action:none;cursor:default'; h.addEventListener('pointerdown', on); ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => h.addEventListener(ev, off));
   } });
   if (c === 1 && rem) await openPerpus();
+}
+
+/* ================= STAMINA LUMI & BONUS SEGAR =================
+   Tujuan: anak tidak memakai Lumi yang itu-itu saja.
+   - Tiap Lumi 10 stamina. Ikut battle (Lumi liar, duel NPC, Sarang Legenda) = -1. Stamina 0 = Lelah: HP & serangan -15% (tidak memblokir).
+   - Pulih HANYA saat di luar tim: penuh dalam 30 menit. Setelah lulus 3 soal mapel elemennya (min. 2 benar): penuh dalam 15 menit.
+   - Segar = stamina penuh & tidak battle >= 60 menit (atau belum pernah): battle itu XP x2 dan Kedekatan x2 (Lumi Segar yang ikut).
+   - Tidak berlaku: duel antar pemain, bos regu/raid, latihan, Lumi pendamping di dunia.
+   Data: S.stam[id] = { s: stamina (boleh pecahan), r: mulai istirahat (ms) atau 0, f: istirahat cepat 1/0, t: battle terakhir (ms), inT: di tim saat sinkron terakhir } */
+const ST_MAX = 10, ST_FULL = 30 * 60e3, ST_FAST = 15 * 60e3, ST_SEGAR = 60 * 60e3, ST_PEN = .85;
+const ST_TYPES = { wild: 1, duel: 1, legend: 1 };
+const EL_MP = { Netral: 'mtk', Racun: 'ind', Es: 'ipas', Api: 'ing' };
+function stMig() { if (S.stam && !S.stamV) { for (const id in S.stam) S.stam[id].s = Math.min(ST_MAX, S.stam[id].s * 2); } S.stamV = 2; }   // simpanan lama (maks 5) -> skala 10
+function stRec(id) { stMig(); const a = S.stam || (S.stam = {}); return a[id] || (a[id] = { s: ST_MAX, r: 0, f: 0, t: 0, inT: S.team.includes(id) }); }
+function stRaw(r, inT) { return Math.min(ST_MAX, (inT || !r.r) ? r.s : r.s + ST_MAX * (Date.now() - r.r) / (r.f ? ST_FAST : ST_FULL)); }
+/* catat keluar/masuk tim (dipanggil berkala & sebelum dipakai), jadi semua cara mengubah tim ikut terhitung */
+function stSync() {
+  if (!S || !S.stam) return;
+  stMig();
+  for (const id in S.stam) {
+    const r = S.stam[id], inT = S.team.includes(id); if (inT === r.inT) continue;
+    if (inT) { r.s = stRaw(r, false); r.r = 0; r.f = 0; } else r.r = Date.now();
+    r.inT = inT;
+  }
+}
+function stCur(id) { const r = S && S.stam && S.stam[id]; if (!r) return ST_MAX; stSync(); return stRaw(r, S.team.includes(id)); }
+const stN = id => Math.floor(stCur(id) + 1e-6);
+const stTired = id => stCur(id) < 1;
+function stSegar(id) { const r = S && S.stam && S.stam[id]; return stCur(id) >= ST_MAX - 1e-6 && (!r || !r.t || Date.now() - r.t >= ST_SEGAR); }
+function stLeftMin(id) { const r = S.stam && S.stam[id]; if (!r || S.team.includes(id)) return 0; return Math.ceil((ST_MAX - stCur(id)) / ST_MAX * (r.f ? ST_FAST : ST_FULL) / 60e3); }
+setInterval(() => { try { if (S && S.stam) stSync(); } catch (e) { } }, 3000);
+
+/* ---------- battle ---------- */
+function stBattleStart() {
+  if (!B || !ST_TYPES[B.cfg.type] || B.cfg.tut || B.cfg.meF) return;
+  stSync(); B.stam = 1;
+  for (const f of B.me) {
+    if (stTired(f.id)) { f.hp = f.max = Math.max(1, Math.round(f.max * ST_PEN)); f.am *= ST_PEN; f.tired = 1; }
+    else if (stSegar(f.id)) f.segar = 1;
+  }
+  if (B.me[0] && B.me[0].tired) toast(`${mnm(B.me[0].id)} sedang Lelah (−15%). Istirahatkan di luar tim, atau pakai Lumi lain!`, 3200);
+}
+/* dipanggil di awal finish(): atur pengali XP, kurangi stamina Lumi yang ikut, kembalikan catatan untuk layar hasil */
+function stFinish(res) {
+  if (!B || !B.stam) return [];
+  const used = B.me.filter(f => f.used), seg = used.filter(f => f.segar), notes = [], now = Date.now();
+  B.xpMul = res === 'win' && seg.length ? 2 : 1;
+  if (res === 'win') for (const f of seg) bondAdd(3, f.id);
+  const tired = [];
+  for (const f of used) { const r = stRec(f.id); stSync(); r.s = Math.max(0, stRaw(r, true) - 1); r.t = now; if (r.s < 1) tired.push(mnm(f.id)); }
+  if (res === 'win' && seg.length) notes.push(`<span style="color:#b07a00">✦ Segar: XP ×2 & Kedekatan ×2</span>`);
+  if (tired.length) notes.push(`<span style="font-size:13px;color:#7b4fd6">zZ ${esc(tired.join(', '))} Lelah. Keluarkan dari tim untuk istirahat.</span>`);
+  return notes;
+}
+
+/* ---------- tampilan: lencana di slot, bagian kartu Lumi, tombol pulih cepat ---------- */
+function stBadge(id, all) {
+  if (!S.owned[id]) return '';
+  const n = stN(id), rest = !S.team.includes(id) && n < ST_MAX;
+  if (stTired(id)) return `<span class="stb tired">zZ ${n}/${ST_MAX}</span>`;
+  if (stSegar(id)) return `<span class="stb segar">✦ Segar</span>`;
+  if (all || n < ST_MAX) return `<span class="stb">${n}/${ST_MAX}${rest ? ' ↑' : ''}</span>`;
+  return '';
+}
+function stSection(id) {
+  const n = stN(id), inT = S.team.includes(id), r = S.stam && S.stam[id];
+  const pips = Array.from({ length: ST_MAX }, (_, i) => `<i style="display:inline-block;width:9px;height:10px;margin-right:2px;border-radius:3px;border:2px solid var(--deep);background:${i < n ? (n <= 2 ? '#ff8a6a' : '#4fc6ee') : '#e6e3f5'}"></i>`).join('');
+  let chip, tx;
+  if (stTired(id)) { chip = '<b style="background:#7b4fd6;color:#fff;border-radius:8px;padding:1px 8px">zZ Lelah</b>'; tx = 'HP & serangan −15% di battle. '; }
+  else if (stSegar(id)) { chip = '<b style="background:#ffd23c;color:#1f2347;border-radius:8px;padding:1px 8px">✦ Segar</b>'; tx = 'Battle berikutnya: XP ×2 & Kedekatan ×2! '; }
+  else { chip = ''; tx = ''; }
+  if (n < ST_MAX) tx += inT ? 'Di tim stamina tidak pulih. Keluarkan dari tim untuk istirahat.' : `Sedang istirahat${r && r.f ? ' cepat' : ''}: penuh dalam ±${stLeftMin(id)} menit.${r && r.f ? '' : ' Jawab 3 soal ' + PSHORT[EL_MP[M[id].el]] + ' agar pulih penuh dalam 15 menit.'}`;
+  else if (!tx) tx = 'Tiap battle −1 stamina. Habis = Lelah.';
+  return `<div class="card" style="padding:8px 10px;margin-top:8px"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><b class="disp" style="font-size:15px">Stamina</b><span>${pips}</span><span style="flex:1"></span>${chip}</div><div style="font-size:12.5px;font-weight:700;color:var(--sub);margin-top:4px;line-height:1.35">${tx}</div></div>`;
+}
+function stBtn(id) { const r = S.stam && S.stam[id]; return stN(id) < ST_MAX && !S.team.includes(id) && !(r && r.f) ? { t: 'Pulihkan cepat (3 soal)', cls: '' } : null; }
+async function stFast(id) {
+  const mp = EL_MP[M[id].el], open = (S.prog && S.prog[mp] && S.prog[mp].open) || 1;
+  const pool = BANK.filter(q => q[0] === mp && q[1] <= open), qs = shuffle(pool.length >= 3 ? pool : BANK.filter(q => q[0] === mp)).slice(0, 3);
+  const res = await runQuiz({ title: `Pulihkan ${mnm(id)}`, sub: `3 soal ${PSHORT[mp]} · minimal 2 benar`, qs });
+  if (res && res.ok >= 2) { stSync(); const r = stRec(id); r.s = stRaw(r, false); r.r = Date.now(); r.f = 1; save(); sfx('heal'); toast(`${mnm(id)} istirahat cepat: penuh dalam ±${stLeftMin(id)} menit!`, 3200); }
+  else toast('Belum cukup benar (butuh 2 dari 3). Coba lagi ya!', 3000);
 }
 
 /* ================= LABORATORIUM (ruang rahasia, syarat Rank 20) =================
@@ -5473,7 +5591,7 @@ function openTitle() {
       : `<button type="button" class="btn tt-b" disabled><b>Continue</b><small>Belum ada simpanan</small></button>`}
       <button type="button" class="btn ghost tt-b" id="ttSet"><b>Setting</b><small>Pengaturan</small></button>
     </div>
-    <div class="tt-ver">v80</div>
+    <div class="tt-ver">v82</div>
   </div>`;
   if (!TT.bg) ttBuild();
   TT.cv = $('#ttCv'); TT.x = TT.cv.getContext('2d'); TT.t0 = performance.now(); TT.menu = false;
@@ -5517,7 +5635,7 @@ async function openSettings() {
   const qn = [['auto', 'Otomatis'], ['on', 'Nyala'], ['off', 'Mati']];
   const hem = `<div style="margin:10px 0 2px;font-weight:800;color:var(--sub);font-size:14px">Mode Hemat <span style="font-weight:700;font-size:12px">(HP lambat/panas: gambar sedikit kurang tajam, lebih lancar & irit baterai)</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${qn.map(([k, n]) => `<button type="button" class="btn ${Q.mode === k ? 'hot' : 'ghost'}" data-qm="${k}" style="min-height:40px;font-size:14px;padding:2px">${n}</button>`).join('')}</div>`;
   const ins = appStandalone() ? '' : `<button type="button" class="btn ghost" id="stIns" style="width:100%;margin-top:12px;min-height:42px;font-size:15px">Pasang sebagai aplikasi</button>`;
-  await modal(`<h2>Setting</h2>${row('m', 'Musik')}${row('s', 'Efek suara')}${hem}${tip}${ins}<p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Lumimon: Adventure School · v80<br>Game belajar untuk siswa SD</p>`, [{ t: 'Selesai', cls: 'hot' }], { onOpen: wire });
+  await modal(`<h2>Setting</h2>${row('m', 'Musik')}${row('s', 'Efek suara')}${hem}${tip}${ins}<p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Lumimon: Adventure School · v82<br>Game belajar untuk siswa SD</p>`, [{ t: 'Selesai', cls: 'hot' }], { onOpen: wire });
 }
 
 /* ---------- start ---------- */
@@ -5681,21 +5799,21 @@ function eggHatch(type) {
 /* ---------- collection + team ---------- */
 let colTab = 'all';
 function openCol() {
-  const el = $('#s-col');
+  const el = $('#s-col'); if (typeof stSync === 'function') stSync();
   const owned = Object.keys(S.owned).length;
   const list = MONS.filter(m => colTab === 'all' || m.r === colTab);
   el.innerHTML = `<div style="padding:12px 12px 30px;display:flex;flex-direction:column;gap:12px">
     <div class="row"><button class="round" id="cBack" type="button" aria-label="Kembali"><svg width="18" height="18" aria-hidden="true"><use href="#ic-back"/></svg></button><div class="title">Koleksi ${owned}/40</div></div>
     <div class="bar"><i style="width:${owned / 40 * 100}%"></i></div>
     <div class="row" style="justify-content:space-between"><span class="disp" style="font-size:18px">Tim kamu</span><span class="chip" style="background:${rkOk('cap') && teamCost() > TEAM_MAX ? 'var(--hot)' : 'var(--navy2)'}">Biaya ${teamCost()}${rkOk('cap') ? '/' + TEAM_MAX : ''}</span></div>
-    <div class="slots">${[0, 1, 2].map(i => { const id = S.team[i]; return id ? `<button type="button" class="slot f" data-id="${id}" style="${artBg(id)}" aria-label="${esc(mnm(id))}">${mSvg(id, '', evoOn(id))}</button>` : `<div class="slot">Kosong</div>`; }).join('')}</div>
+    <div class="slots">${[0, 1, 2].map(i => { const id = S.team[i]; return id ? `<button type="button" class="slot f" data-id="${id}" style="${artBg(id)}" aria-label="${esc(mnm(id))}">${mSvg(id, '', evoOn(id))}${stBadge(id, true)}</button>` : `<div class="slot">Kosong</div>`; }).join('')}</div>
     ${S.team.length ? `<div class="card" style="display:flex;flex-direction:column;gap:8px"><div class="disp" style="font-size:17px">Pendamping</div>
       <div style="display:flex;gap:8px">${S.team.map(id => `<button type="button" class="slot f" data-comp="${id}" aria-pressed="${compId() === id}" style="${artBg(id)};flex:1;${compId() === id ? 'outline:3px solid var(--sun)' : ''}" aria-label="Jadikan ${esc(mnm(id))} pendamping">${mSvg(id, '', evoOn(id))}</button>`).join('')}</div>
       ${(() => { const id = compId(), lv = bondLv(id), b = (S.bond && S.bond[id]) || 0, nx = BOND_AT[lv], pv = BOND_AT[lv - 1]; return `<div style="font-weight:800;font-size:14px">${esc(mnm(id))} · Kedekatan Lv.${lv}${lv < 5 ? ` <span style="color:var(--sub);font-size:12px">${b}/${nx}</span>` : ' <span style="color:var(--sun)">MAKS</span>'}</div><div class="bar"><i style="width:${lv < 5 ? (b - pv) / (nx - pv) * 100 : 100}%"></i></div>
       <p style="margin:0;font-size:12.5px;font-weight:700;color:var(--sub)">Ikut berjalan di dunia, hanya hiasan tanpa bonus. Kedekatan semua Lumi tim menambah stat sangat kecil (+0,5% per level). Naik lewat berjalan bersama (pendamping), menang bertarung (seluruh tim), dan menjawab benar. Lv.2 bisa dielus (tekan A di dekatnya), Lv.3 berkilau, Lv.4 makin dekat, Lv.5 bermahkota.</p>`; })()}</div>` : ''}
     <p style="margin:0;font-size:12.5px;font-weight:700;color:var(--muted)">Biaya: Biasa 1, Langka 2, Epik 3, Legenda 4. Ketuk Lumi untuk memasukkan atau mengeluarkannya dari tim.${rkOk('cap') ? '' : ' Batas biaya tim mulai berlaku di Rank 5.'}</p>
     <div class="tabs">${[['all', 'Semua'], ['L', 'Legenda'], ['E', 'Epik'], ['R', 'Langka'], ['C', 'Biasa']].map(([k, n]) => `<button type="button" data-tab="${k}" aria-pressed="${colTab === k}">${n}</button>`).join('')}</div>
-    <div class="grid3">${list.map(m => { const o = S.owned[m.id]; return o ? `<button type="button" class="mc" data-id="${m.id}">${S.team.includes(m.id) ? '<span class="team">TIM</span>' : ''}<div class="art" style="${artBg(m.id)}">${mSvg(m.id, '', evoOn(m.id))}</div><div class="n">${esc(mnm(m.id))}</div><div style="display:flex;gap:4px;align-items:center">${rarTag(m.r)}<span class="stars">★${o.s}</span></div></button>`
+    <div class="grid3">${list.map(m => { const o = S.owned[m.id]; return o ? `<button type="button" class="mc" data-id="${m.id}">${S.team.includes(m.id) ? '<span class="team">TIM</span>' : ''}${stBadge(m.id).replace('class="stb', 'class="stb tl')}<div class="art" style="${artBg(m.id)}">${mSvg(m.id, '', evoOn(m.id))}</div><div class="n">${esc(mnm(m.id))}</div><div style="display:flex;gap:4px;align-items:center">${rarTag(m.r)}<span class="stars">★${o.s}</span></div></button>`
       : `<div class="mc no"><div class="art">${mSvg(m.id)}</div><div class="n">???</div>${rarTag(m.r)}</div>`; }).join('')}</div>
   </div>`;
   $('#cBack').onclick = () => { show('s-world'); hud(); };
@@ -5705,13 +5823,14 @@ function openCol() {
   show('s-col');
 }
 async function monDetail(id) {
-  const m = evoOn(id) ? evoM(id) : M[id], inT = S.team.includes(id), eb = evoBtn(id);
+  const m = evoOn(id) ? evoM(id) : M[id], inT = S.team.includes(id), eb = evoBtn(id), sb = stBtn(id);
   const i = await modal(`<div style="display:flex;gap:12px;align-items:center"><div style="width:120px;height:100px;border-radius:16px;border:3px solid var(--deep);${artBg(id)};display:grid;place-items:center;flex:none">${mSvg(id, '', evoOn(id))}</div>
     <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><h2>${esc(m.n)}</h2><div class="row" style="gap:6px">${rarTag(m.r)}${elTag(m.el)}${roleTag(m)}<span class="stars">★${S.owned[id].s}</span></div><p style="font-size:13px">Level ${S.owned[id].s}/${LV_MAX[m.r]} · Kedekatan Lv.${bondLv(id)}<br>HP ${Math.round(m.hp * statMul(id))} · ATK ${(m.atk * statMul(id)).toFixed(1).replace('.0', '')} <span style="color:var(--sub)">(+${Math.round((statMul(id) - 1) * 100)}%)</span> · Biaya tim ${RAR[m.r].cost}</p></div></div>
     <div class="card" style="font-size:13.5px;font-weight:700;color:var(--sub)"><b style="color:var(--text)">${esc(m.sk.n)}</b> · ${m.sk.c} energi<br>${esc(m.d)}${m.weak ? `<br><span style="color:#c2301b">Kelemahan: ${esc(m.weak)}</span>` : ''}</div>
-    <p style="font-size:12.5px">${m.el === 'Netral' ? 'Netral: tidak unggul dan tidak lemah terhadap elemen mana pun.' : `Unggul melawan ${BEATS[m.el]}, lemah melawan ${Object.keys(BEATS).find(k => BEATS[k] === m.el)}.`}</p>${evoSection(id)}${envNote(id)}`,
-    [{ t: 'Tutup', cls: 'ghost' }, { t: inT ? 'Keluarkan dari tim' : 'Masukkan tim', cls: inT ? 'dark' : 'hot' }].concat(eb ? [eb] : []));
-  if (i === 2) { await evoFlow(id); openCol(); return monDetail(id); }
+    <p style="font-size:12.5px">${m.el === 'Netral' ? 'Netral: tidak unggul dan tidak lemah terhadap elemen mana pun.' : `Unggul melawan ${BEATS[m.el]}, lemah melawan ${Object.keys(BEATS).find(k => BEATS[k] === m.el)}.`}</p>${stSection(id)}${evoSection(id)}${envNote(id)}`,
+    [{ t: 'Tutup', cls: 'ghost' }, { t: inT ? 'Keluarkan dari tim' : 'Masukkan tim', cls: inT ? 'dark' : 'hot' }].concat(eb ? [eb] : []).concat(sb ? [sb] : []));
+  if (eb && i === 2) { await evoFlow(id); openCol(); return monDetail(id); }
+  if (sb && i === (eb ? 3 : 2)) { await stFast(id); openCol(); return monDetail(id); }
   if (i !== 1) return;
   if (inT) { if (S.team.length <= 1) { toast('Tim minimal berisi 1 Lumi'); return; } S.team = S.team.filter(x => x !== id); }
   else {
