@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v97">
+<meta name="lumimon-ver" content="v100">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -120,6 +120,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-of
 #btnA{position:absolute;right:22px;bottom:calc(40px + env(safe-area-inset-bottom,0px));width:78px;height:78px;border-radius:50%;background:var(--hot);color:#fff;border:3px solid var(--ink);box-shadow:0 5px 0 var(--ink);font-family:var(--display);font-size:28px;z-index:6}
 #bRide{position:absolute;right:30px;bottom:calc(132px + env(safe-area-inset-bottom,0px));width:62px;height:62px;border-radius:50%;background:#fff;color:var(--text);border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;line-height:1}
 #bRide span{font-size:26px}#bRide small{font-size:11px;font-weight:800;margin-top:1px}#bRide.on{background:var(--sun)}#bRide[hidden]{display:none}
+#btnA.fbite{background:#ff3b3b;animation:fbite .28s ease-in-out infinite alternate}@keyframes fbite{to{transform:scale(1.14)}}#prompt.fhot{background:#ff3b3b;color:#fff}
 #btnA:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
 #prompt{position:absolute;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:6;background:#fff;color:var(--text);border:3px solid var(--ink);border-radius:999px;box-shadow:0 4px 0 var(--ink);padding:3px 14px;font-weight:800;font-size:14px;white-space:nowrap}
 #prompt b{color:var(--hot)}
@@ -2477,7 +2478,8 @@ function tick(t) {
   near = null; let bd = 22;
   for (const it of W.inter) { const x = it.npc ? it.npc.x : it.x, y = it.npc ? it.npc.y : it.y; const d = Math.hypot(p.x - x, p.y - y); if (d < bd) { bd = d; near = it; } }
   if (!near && typeof fishNear === 'function') near = fishNear(p);
-  const pr = $('#prompt'); if (near) { pr.hidden = false; pr.innerHTML = `<b>A</b> · ${esc(near.l)}`; } else pr.hidden = true;
+  if (typeof FW !== 'undefined' && FW) near = fishTick(t, mg);
+  const pr = $('#prompt'); if (near) { pr.hidden = false; pr.innerHTML = `<b>A</b> · ${esc(near.l)}`; pr.classList.toggle('fhot', !!near.hot); } else pr.hidden = true;
   draw(t);
   raf = requestAnimationFrame(tick);
 }
@@ -2530,7 +2532,7 @@ function draw(t) {
     const tt = W.T[Math.floor(m.y / TS)] && W.T[Math.floor(m.y / TS)][Math.floor(m.x / TS)];
     if (TALL_T.has(tt)) for (let i = -7; i <= 7; i += 2) { const hgt = 3 + ((i + 9) * 7 % 3); bx.fillStyle = tt === FS ? ((i & 2) ? '#ffffff' : '#9ab8c8') : C.tall[(i & 2) ? 2 : 1]; bx.fillRect(x + i, y - hgt + 1, 1, hgt); }
   } });
-  mpDraw(list, person, t, ox, oy); raidDraw(list, t, ox, oy); nightDraw(list, t, ox, oy);
+  mpDraw(list, person, t, ox, oy); if (typeof fishDraw === 'function') fishDraw(list, t, ox, oy); raidDraw(list, t, ox, oy); nightDraw(list, t, ox, oy);
   list.sort((a, b) => a.fy - b.fy).forEach(o => o.d());
   // weather / atmosphere
   if ((W.theme || W.zone) === 'snow') { bx.fillStyle = '#ffffff'; for (let i = 0; i < 40; i++) { const sx = (hash(i, 1) * VW + t / 40 * (0.4 + hash(i, 2))) % VW, sy = (hash(i, 3) * VH + t / 25 * (0.6 + hash(i, 4))) % VH; bx.fillRect(Math.floor(sx), Math.floor(sy), 1, 1); } }
@@ -2563,7 +2565,7 @@ function draw(t) {
     if (tt) { const f2 = Math.round(8 * DPR); ctx.font = `700 ${f2}px "Pixelify Sans", monospace`; ctx.lineWidth = 3 * DPR; ctx.strokeStyle = '#24123a'; ctx.strokeText(tt[1], x, y - fs * 1.35); ctx.fillStyle = tt[3] === 'L' && Math.floor(performance.now() / 300) % 2 ? '#ffffff' : tt[2]; ctx.fillText(tt[1], x, y - fs * 1.35); }
   };
   for (const e of W.npcs) tag(e, e.name, e.stu ? rkTagC(e.stu.rank) : e.tag);
-  tag(p, S.name, rkTagC(S.rank), myTitle()); mpTags(tag); raidTags(tag); nightTags(tag); mpBubbles(ctx, s);
+  tag(p, S.name, rkTagC(S.rank), myTitle()); mpTags(tag); raidTags(tag); nightTags(tag); mpBubbles(ctx, s); if (typeof fishMark === 'function') fishMark(ctx, s, ox, oy);
 }
 function petComp() {
   const c = W && W.cp; if (!c) return false; const p = W.p;
@@ -4066,7 +4068,7 @@ async function mpPresence() {
     if (!o) o = MP.ps[pk] = { x: 0, y: 0, tx: 0, ty: 0, dir: 'down', f: 0, ft: 0, has: false, lt: 0, le: 0, pts: 0, rp: [], re: 0, ax: 0, ay: 0, at: 0, dur: 1, pn: 0 };
     if (best.ts < o.pts) continue; o.pts = best.ts;
     if (o.z !== best.z) { o.has = false; o.z = best.z; }
-    o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : ''; o.ev = best.ev === 1 ? 1 : 0; o.rk = mpInt(best.rk, 1, RANK_MAX); o.ti = typeof best.ti === 'string' && TBY[best.ti] ? best.ti : ''; o.rd = typeof best.rd === 'string' && typeof RID !== 'undefined' && RID[best.rd] ? best.rd : '';
+    o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : ''; o.ev = best.ev === 1 ? 1 : 0; o.rk = mpInt(best.rk, 1, RANK_MAX); o.ti = typeof best.ti === 'string' && TBY[best.ti] ? best.ti : ''; o.rd = typeof best.rd === 'string' && typeof RID !== 'undefined' && RID[best.rd] ? best.rd : ''; o.fs = typeof best.fs === 'string' && /^-?\d{1,2},-?\d{1,2}$/.test(best.fs) ? best.fs.split(',').map(v => Math.max(-40, Math.min(40, +v))) : null;
   }
   if (g !== MP.gen) return; for (const id in MP.ps) if (!seen[id]) delete MP.ps[id];
   MP.synced = 1; const mt = mpMates(); if (mt > MP.mates) MP.lastPos = ''; MP.mates = mt; hud();
@@ -4092,11 +4094,18 @@ async function mpOnEm(m) {
   if (ei >= 0) o.bub = { t: MP_EMO[ei], e: 1, until: performance.now() + 2500 }; else if (si >= 0) o.bub = { t: MP_SAY[si], e: 0, until: performance.now() + 4000 };
 }
 /* ---- kirim ---- */
+/* v98: Game Master (S.gm) melihat semua tapi tidak terlihat: tidak mengirim presence, posisi, chat, emote, duel, regu */
+const mpGM = () => !!(S && S.gm && S.gmHide !== 0);   // GM bisa memilih terlihat/tidak (Profil)
+function gmToggle() {
+  if (!S || !S.gm) return; S.gmHide = S.gmHide === 0 ? 1 : 0; save();
+  try { if (S.gmHide) { if (MP && MP.ch) MP.ch.untrack(); } else { MP.sig = ''; mpSync(); setTimeout(() => mpSendPos(true), 800); } } catch (e) { }
+  toast(S.gmHide ? '🕶 Mode GM: kamu TIDAK terlihat oleh pemain lain.' : '👁 Mode GM: kamu TERLIHAT oleh pemain lain (tetap tidak masuk Papan Juara).', 3500); try { hud(); } catch (e) { }
+}
 async function mpSync() {
-  if (MP.st !== 'on' || !S || !MP.ch || !W) return;
-  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, c = compId() || '', rk = S.rank, ti = S.title && TBY[S.title] ? S.title : '', ev = c && typeof evoOn === 'function' && evoOn(c) ? 1 : 0, rd = typeof rideOut === 'function' ? rideOut() : '', sig0 = JSON.stringify([n, lk, z, c, rk, ti, ev, rd]); if (sig0 === MP.sig) return; MP.sig = sig0;
+  if (MP.st !== 'on' || !S || !MP.ch || !W || mpGM()) return;
+  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, c = compId() || '', rk = S.rank, ti = S.title && TBY[S.title] ? S.title : '', ev = c && typeof evoOn === 'function' && evoOn(c) ? 1 : 0, rd = typeof rideOut === 'function' ? rideOut() : '', fs = typeof fishOut === 'function' ? fishOut() : '', sig0 = JSON.stringify([n, lk, z, c, rk, ti, ev, rd, fs]); if (sig0 === MP.sig) return; MP.sig = sig0;
   const ts = mpNext(), ch = MP.ch, pa = ['p', MP.id, n, lk, z, ts, c, rk, ti], sig = await mpSign(ev ? [...pa, 1] : pa);
-  if (MP.st === 'on' && ch === MP.ch) { ch.track(Object.assign(ev ? { id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti, ev } : { id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti }, rd ? { rd } : {})); setTimeout(() => mpSendPos(true), 600); }
+  if (MP.st === 'on' && ch === MP.ch) { ch.track(Object.assign(ev ? { id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti, ev } : { id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti }, rd ? { rd } : {}, fs ? { fs } : {})); setTimeout(() => mpSendPos(true), 600); }
 }
 /* Posisi dikirim lewat channel PER WILAYAH (bukan channel utama), maks 1x/detik, dan diam kalau sendirian di wilayah itu.
    Channel utama (MP_CH) tetap dipakai untuk presence (siapa online & di mana), emote, duel, regu/raid. */
@@ -4120,7 +4129,7 @@ function mpOnHi(m) {
   setTimeout(() => mpSendPos(true), 250 + Math.random() * 400); setTimeout(() => mpSendPos(true), 2200);
 }
 async function mpSendPos(force) {
-  const zc = MP.zch;
+  const zc = MP.zch; if (mpGM()) return;
   if (MP.st !== 'on' || MP.zst !== 'on' || !zc || !W || !W.p || MP.zn !== W.zone || $('#s-world').hidden) return;
   const now = performance.now(); if (!mpMates() && now > MP.hiUntil) return;
   const x = Math.round(W.p.x), y = Math.round(W.p.y), d = W.p.dir, z = W.zone, k = x + ',' + y + ',' + d + ',' + z;
@@ -4130,6 +4139,7 @@ async function mpSendPos(force) {
   if (MP.st === 'on' && zc === MP.zch) zc.send({ type: 'broadcast', event: 'pos', payload: { id: MP.id, x, y, d, z, ts, sig } });
 }
 function mpSayText(raw) {
+  if (mpGM()) { toast('Mode GM: kamu tidak terlihat, jadi tidak bisa kirim pesan.'); return false; }
   if (MP.st !== 'on') { toast('Belum tersambung online'); return false; }
   const tx = mpTextOk(raw);
   if (!tx) { toast(String(raw).trim() ? 'Pesan tidak terkirim: jangan pakai kata kasar, nomor HP, tautan, atau lebih dari 40 huruf.' : 'Tulis pesan dulu', 4000); return false; }
@@ -4146,6 +4156,7 @@ function mpChatBind(m) {
   snd.onclick = e => { e.stopPropagation(); go(); }; hide.onclick = e => { e.stopPropagation(); S.chatOff = !S.chatOff; save(); openChat(); };
 }
 function mpSay(ei, si) {
+  if (mpGM()) { toast('Mode GM: kamu tidak terlihat, jadi tidak bisa kirim emote.'); return false; }
   if (MP.st !== 'on') { toast('Belum tersambung online'); return false; }
   const now = performance.now(); if (now < MP.sayT) { toast('Tunggu sebentar…'); return false; } MP.sayT = now + 1200;
   sfx('pop'); const ts = mpNext(), id = MP.id, ch = MP.ch, e = ei, s = si;
@@ -4165,7 +4176,7 @@ const mpHere = o => W && o.has && o.z === W.zone && o.lk;
 function mpCount() { return Object.values(MP.ps).length + 1; }
 function mpBadge() {
   if (!MP) return ''; if (S && S.mpOff) return ' · online mati';
-  if (MP.st === 'on') return ` · 🌐\u00a0${mpCount()}`; if (MP.st === 'connecting') return ' · 🌐…'; return '';
+  if (MP.st === 'on') return ` · 🌐\u00a0${mpCount()}${mpGM() ? ' · 🕶\u00a0GM' : ''}`; if (MP.st === 'connecting') return ' · 🌐…'; return '';
 }
 function mpFrame(dt) {
   if (!W) return; const k = Math.min(1, dt * 8);
@@ -4267,6 +4278,7 @@ function duelBar(html, btns) {
 const duelBarOff = () => { const b = document.getElementById('duelBar'); if (b) b.remove(); };
 const duelBusy = () => MP.duel || B || RD || !$('#modal').hidden || $('#s-world').hidden || !W || !S.team.length;
 async function duelAsk(id) {
+  if (mpGM()) { toast('Mode GM: tidak bisa menantang duel (kamu tidak terlihat).'); return; }
   const o = MP.ps[id]; if (!o || !mpHere(o)) return;
   if (MP.duel) { toast('Kamu sedang dalam tantangan'); return; }
   if (!rkOk('duelp')) { toast('Duel dengan teman terbuka di Rank 2. Ayo naik Rank dulu!', 3500); return; }
@@ -4474,6 +4486,7 @@ function raidTags(tag) {
 }
 /* ---- pesan bertanda tangan umum (to = id pemain, atau '*' untuk semua) ---- */
 async function gSend(to, k, x) {
+  if (typeof mpGM === 'function' && mpGM()) return;
   if (MP.st !== 'on') return; const ts = mpNext(), xs = JSON.stringify(x === undefined ? 0 : x), ch = MP.ch, id = MP.id;
   const sig = await mpSign(['g', id, to, k, xs, ts]);
   if (MP.st === 'on' && ch === MP.ch) ch.send({ type: 'broadcast', event: 'g', payload: { id, to, k, x: xs, ts, sig } });
@@ -6057,6 +6070,7 @@ const cyrb53 = (str, seed = 0) => { let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 
 const codeHash = s => cyrb53(String(s).toUpperCase().replace(/[^A-Z0-9]/g, '')).toString(36);
 const CODES = {
   '2cl28cgde5o': { admin: true },
+  '1wzicc0f72l': { admin: true, gm: true },   // Game Master (v98)
   '1f7sg3spcnc': { coins: 200, boxes: { Kayu: 1 } },
   'ahwuxbixlh': { coins: 500 },
   '1futuk10m0n': { boxes: { Perak: 1 } },
@@ -6073,6 +6087,13 @@ function codeApply(r) {
     for (const m of best) { if (team.length < 3 && cost + RAR[m.r].cost <= TEAM_MAX) { team.push(m.id); cost += RAR[m.r].cost; } }
     S.team = team; S.comp = team[0]; S.coins = Math.max(S.coins, 99999); ['Kayu', 'Perak', 'Emas'].forEach(k => S.boxes[k] += 5);
     out.push('<b>Mode Super Admin aktif!</b>', 'Semua Lumi Lv. maksimal dan semua aksesoris terbuka', 'Semua pulau dan Sarang Legenda terbuka', `${COIN}99.999 koin dan 5 telur tiap jenis`);
+  }
+  if (r.gm) {
+    S.gm = 1; S.gmHide = 1; S.xp = 0; S.evo = {};   // Lumi belum evolusi
+    if (typeof RIDES !== 'undefined') { const rd = rideS(); rd.own = RIDES.map(x => x.id); rd.sel = rd.own[rd.own.length - 1]; }
+    if (typeof FOODS !== 'undefined') { const b = bagS(); FOODS.forEach(f => b.it[f.id] = (b.it[f.id] || 0) + 5); }
+    S.mm = { s: 8 }; try { if (MP && MP.ch) MP.ch.untrack(); if (MP && MP.ps) MP.sig = ''; } catch (e) { }
+    out.push('<b>Mode Game Master aktif!</b>', 'Rank 20, semua kendaraan, 5 makanan tiap jenis', 'Tidak tercatat di Papan Juara', 'Online: kamu melihat semua pemain, tetapi <b>tidak terlihat</b> oleh mereka (tanpa chat, emote, duel, regu)');
   }
   if (r.title && r.title.id && r.title.n) { if (!S.tex) S.tex = {}; S.tex[r.title.id] = { n: r.title.n, r: r.title.r || 'E' }; if (!S.tgot) S.tgot = {}; S.tgot[r.title.id] = 1; out.push(`Gelar khusus: <b>${esc(r.title.n)}</b>`); }
   if (r.coins) { S.coins += r.coins; out.push(`${COIN}+${r.coins} koin`); }
@@ -6110,9 +6131,9 @@ function lbWk() { const d = new Date(Date.now() + 7 * 3600e3); d.setUTCDate(d.ge
 function lbState() { if (!S.lb || S.lb.wk !== lbWk()) S.lb = { wk: lbWk(), b: 0, w: 0, l: 0, od: S.lb ? S.lb.od : null, pr: null }; return S.lb; }
 function lbTok() { if (!S.lbTok) { const a = new Uint8Array(24); crypto.getRandomValues(a); S.lbTok = Array.from(a, x => x.toString(16).padStart(2, '0')).join(''); save(); } return S.lbTok; }
 function lbRankUp() { LB.dirty = 1; }
-function lbSoal(n = 1) { if (!S || !S.name) return; lbState().b += n; LB.dirty = 1; }
+function lbSoal(n = 1) { if (!S || !S.name || S.gm) return; lbState().b += n; LB.dirty = 1; }
 function lbDuel(res, opp) {
-  if (!S || !['win', 'lose', 'run'].includes(res)) return;
+  if (!S || S.gm || !['win', 'lose', 'run'].includes(res)) return;
   const s = lbState(), d = today(); if (!s.od || s.od.d !== d) s.od = { d, m: {} };
   if (res === 'win') { const k = String(opp || '?').toLowerCase().slice(0, 20); if ((s.od.m[k] || 0) >= 3) return; s.od.m[k] = (s.od.m[k] || 0) + 1; s.w++; } else s.l++;
   LB.dirty = 1; save();
@@ -6125,7 +6146,7 @@ function lbSb() {
   return LB.sb;
 }
 async function lbPush(force) {
-  if (!S || !S.name || S.mpOff) return false;
+  if (!S || !S.name || S.mpOff || S.gm) return false;   // GM tidak masuk Papan Juara
   const s = lbState();
   if (!force && (!LB.dirty || Date.now() - LB.push < 300e3)) return false;
   const sb = lbSb(); if (!sb) return false; LB.push = Date.now();
@@ -6429,14 +6450,83 @@ function fishPool(z) { const Z = ZONES[z] || {}; return z === 'school' ? FPOOL.s
 function fishRoll(z) { const pp = fishPool(z || (W && W.zone)); let x = Math.random() * 100, i = 0; while (i < 3 && x >= pp[i]) { x -= pp[i]; i++; } const r = 'CREL'[i], L = FISHES.filter(f => f.r === r); return L[Math.floor(Math.random() * L.length)]; }
 const fishHere = z => fishPool(z).map((v, i) => v ? RAR_N['CREL'[i]] : '').filter(Boolean).join(' · ');
 let FG = null;
+/* v100: lempar kail lalu MENUNGGU DI PETA (tanpa panel). Pelampung kadang goyang kecil (jebakan);
+   ikan benar-benar menggigit = pelampung tenggelam + ❗ di atas kepala + HP bergetar. Tombol A = TARIK.
+   Terlalu cepat / terlambat / joystick digerakkan = ikan kabur, jatah harian TIDAK berkurang. */
+let FW = null;
+const FBITE = { C: 1.2, R: 1.0, E: .85, L: .7 };   // detik untuk menekan TARIK setelah ❗
+function fishSpot(p) {
+  const ds = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }, side = p.dir === 'left' || p.dir === 'right' ? [p.dir] : [];
+  const wa = (x, y) => { const r = W.T[Math.floor(y / TS)]; return r && r[Math.floor(x / TS)] === WA; };
+  for (const d of [...side, 'left', 'right', 'down', 'up']) { const [vx, vy] = ds[d], oy = vx ? -3 : 0, k0 = d === 'up' ? 32 : 12, k1 = d === 'up' ? 46 : 30; let best = null;
+    for (let k = k0; k <= k1; k += 2) { const x = p.x + vx * k, y = p.y + oy + vy * k; if (wa(x, y)) { best = { x, y, d }; if (k >= k0 + 8) break; } else if (best) break; }
+    if (best) return best; }
+  return null;
+}
 async function fishStart() {
-  if (FG || !S || !W) return; const b = bagS();
+  if (FG || FW || !S || !W) return; const b = bagS();
   if (S.rank < 2) { toast('Memancing terbuka di Rank 2.', 2500); return; }
   if (isTutup()) { toast('Ikan sedang tidur. Datang lagi jam 05.00, ya!', 3000); return; }
   if (b.n >= FISH_DAY) { toast(`Ikan hari ini sudah ${FISH_DAY}. Datang lagi besok!`, 3000); return; }
   if (typeof rideSet === 'function' && rideCur && rideCur()) rideSet(false, true);
-  stopLoop(); $('#prompt').hidden = true;
-  const fish = fishRoll(), ok = await fishGame(fish);
+  const sp = fishSpot(W.p); if (!sp) { toast('Mendekatlah ke air.', 2000); return; }
+  const t = performance.now(), bite = t + 3000 + Math.random() * 9000, nibs = [];
+  for (let n = ri(1, 3), i = 0; i < 30 && nibs.length < n; i++) { const x = t + 1200 + Math.random() * (bite - t - 2200); if (x < bite - 900 && nibs.every(v => Math.abs(v - x) > 1300)) nibs.push(x); }
+  W.p.dir = sp.d; W.p.f = 0;
+  FW = { z: W.zone, fish: fishRoll(), x: sp.x, y: sp.y, d: sp.d, t0: t, bite, nibs, ph: 'wait', lt: t, dl: 0 };
+  try { sfx('pop'); } catch (e) { }
+  toast('🎣 Tunggu tanda ❗, lalu TARIK!', 1800);
+}
+const fishOut = () => FW ? `${Math.round(FW.x - W.p.x)},${Math.round(FW.y - W.p.y)}` : '';
+function fishClr() { FW = null; const a = $('#btnA'); if (a) a.classList.remove('fbite'); if (W) W.safe = performance.now() + 1200; }
+function fishMiss(msg) { fishClr(); toast(`💨 ${msg} Jatah ikan tidak berkurang.`, 2800); }
+function fishPull() {
+  if (!FW) return; if (FW.ph !== 'bite') return fishMiss('Terlalu cepat! Ikan kabur.');
+  const fish = FW.fish; fishClr(); fishCatch(fish);
+}
+/* dipanggil tick() tiap frame; mengembalikan interaksi tombol A selama memancing */
+function fishTick(t, mg) {
+  if (!FW) return null;
+  if (!W || $('#s-world').hidden || W.zone !== FW.z) { fishClr(); return null; }
+  const dt = t - FW.lt; FW.lt = t;
+  if (!$('#modal').hidden) { FW.bite += dt; FW.dl += dt; FW.nibs = FW.nibs.map(v => v + dt); return null; }   // jeda selama jendela lain terbuka
+  if (mg > .15) { fishClr(); toast('Kail ditarik.', 1500); return null; }
+  W.safe = t + 1000;   // Lumi liar tidak mendekat selama memancing
+  if (FW.ph === 'wait' && t >= FW.bite) {
+    FW.ph = 'bite'; FW.dl = t + FBITE[FW.fish.r] * 1000; try { sfx('ok'); } catch (e) { }
+    try { if (navigator.vibrate) navigator.vibrate([90, 50, 140]); } catch (e) { }
+    const a = $('#btnA'); if (a) a.classList.add('fbite');
+  }
+  if (FW.ph === 'bite' && t > FW.dl) { fishMiss('Terlambat! Ikan kabur.'); return null; }
+  return FW.ph === 'bite' ? { l: '❗ TARIK!', fn: fishPull, hot: 1 } : { l: 'TARIK 🎣 (tunggu ❗)', fn: fishPull };
+}
+/* joran + tali + pelampung (dunia piksel). e = pemain; dx,dy = posisi pelampung relatif; st: 0 tenang, 1 goyang, 2 tenggelam */
+function fishRod(e, dx, dy, st, t, ox, oy) {
+  const x = Math.round(e.x - ox), y = Math.round(e.y - oy), bxp = Math.round(e.x + dx - ox), byp = Math.round(e.y + dy - oy);
+  const sx = dx > 3 ? 1 : dx < -3 ? -1 : 0, hx = x + (sx || 4), hy = y - 13, tx = hx + sx * 7 + (sx ? 0 : 1), ty = hy - (dy < -3 ? 9 : 6);
+  bx.fillStyle = '#7a4a2a'; const n = 8; for (let i = 0; i <= n; i++) bx.fillRect(Math.round(hx + (tx - hx) * i / n), Math.round(hy + (ty - hy) * i / n), 1, 1);
+  const wob = st === 1 ? Math.round(Math.sin(t / 45)) : 0, bY = byp + (st === 2 ? 2 : 0);
+  bx.fillStyle = 'rgba(255,255,255,.75)'; const L = Math.max(4, Math.round(Math.hypot(bxp - tx, bY - ty))); for (let i = 0; i <= L; i += 1) { const k = i / L; bx.fillRect(Math.round(tx + (bxp + wob - tx) * k), Math.round(ty + (bY - 2 - ty) * k + Math.sin(k * 3.14) * 2), 1, 1); }
+  if (st === 2) { bx.fillStyle = '#e6f8ff'; const r = 3 + Math.floor(t / 120) % 3; for (let a = 0; a < 12; a++) bx.fillRect(Math.round(bxp + Math.cos(a / 12 * 6.28) * r), Math.round(byp + 1 + Math.sin(a / 12 * 6.28) * r * .45), 1, 1); bx.fillStyle = '#ff4d4d'; bx.fillRect(bxp - 1, bY - 1, 3, 1); return; }
+  if (st === 1) { bx.fillStyle = '#e6f8ff'; for (let a = 0; a < 10; a++) bx.fillRect(Math.round(bxp + Math.cos(a / 10 * 6.28) * 4), Math.round(byp + 1 + Math.sin(a / 10 * 6.28) * 1.6), 1, 1); }
+  const b0 = bxp + wob, bo = Math.round(Math.sin(t / 500));
+  bx.fillStyle = '#24123a'; bx.fillRect(b0 - 2, byp - 3 + bo, 5, 5);
+  bx.fillStyle = '#ff4d4d'; bx.fillRect(b0 - 1, byp - 2 + bo, 3, 2); bx.fillStyle = '#ffffff'; bx.fillRect(b0 - 1, byp + bo, 3, 1);
+}
+function fishDraw(list, t, ox, oy) {
+  if (FW && W) { const st = FW.ph === 'bite' ? 2 : FW.nibs.some(v => t >= v && t < v + 520) ? 1 : 0; list.push({ fy: W.p.y + .1, d: () => fishRod(W.p, FW.x - W.p.x, FW.y - W.p.y, st, t, ox, oy) }); }
+  if (typeof MP !== 'undefined' && MP && MP.st === 'on' && !(S && S.mpOff)) for (const o of Object.values(MP.ps)) if (o.fs && mpHere(o)) list.push({ fy: o.y + .1, d: () => fishRod(o, o.fs[0], o.fs[1], 0, t, ox, oy) });
+}
+/* ❗ besar di atas kepala saat ikan menggigit (digambar di kanvas resolusi tinggi) */
+function fishMark(ctx, s, ox, oy) {
+  if (!FW || FW.ph !== 'bite') return; const p = W.p, j = Math.abs(Math.sin(performance.now() / 90)) * 3 * s;
+  const x = (p.x - ox) * s, y = (p.y - oy - 49) * s - j, r = 7 * s;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fillStyle = '#ff3b3b'; ctx.fill(); ctx.lineWidth = 2 * DPR; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(x - 1.2 * s, y - 4.6 * s, 2.4 * s, 5.6 * s); ctx.fillRect(x - 1.2 * s, y + 2.2 * s, 2.4 * s, 2.4 * s);
+}
+async function fishCatch(fish) {
+  const b = bagS(); stopLoop(); $('#prompt').hidden = true;
+  const ok = await fishGame(fish);
   if (!ok) { await modal(`<h2>Ikan lepas!</h2><p>Ikannya terlalu lincah. Coba lagi, tahan dan lepas tombol pelan-pelan supaya kotak hijau tetap di ikan.</p>`, [{ t: 'Oke', cls: 'hot' }]); return fishEnd(); }
   /* soal: makin langka, bab makin tinggi (bila terbuka) */
   const Z = ZONES[W.zone], pool = ntPool(Z && Z.bank ? Z.bank : undefined), mb = { C: 1, R: 2, E: 3, L: 4 }[fish.r];
@@ -6456,7 +6546,7 @@ function fishGame(fish) {
   return new Promise(res => {
     const D = FDIF[fish.r], o = document.createElement('div'); o.id = 'fishOv';
     o.style.cssText = 'position:absolute;left:0;right:0;bottom:0;top:36%;z-index:20;background:linear-gradient(#1d1b46ee,#0f0d2ef5);border-top:4px solid #24123a;display:flex;flex-direction:column;align-items:center;padding:10px 14px;gap:8px;color:#fff;font-weight:800;touch-action:none;user-select:none;-webkit-user-select:none';
-    o.innerHTML = `<div class="disp" id="fgT" style="font-size:20px;color:var(--sun)">🎣 Melempar kail…</div><div style="font-size:13px;color:#c9c4f0">Tahan tombol supaya kotak hijau tetap di ikan<br><span style="color:#8fd0ff">Di sini bisa dapat: ${esc(fishHere(W.zone))}</span></div>
+    o.innerHTML = `<div class="disp" id="fgT" style="font-size:20px;color:var(--sun)">🎣 Tarik!</div><div style="font-size:13px;color:#c9c4f0">Tahan tombol supaya kotak hijau tetap di ikan<br><span style="color:#8fd0ff">Di sini bisa dapat: ${esc(fishHere(W.zone))}</span></div>
       <div style="display:flex;gap:14px;align-items:stretch;height:min(250px,34vh)">
         <div id="fgTr" style="position:relative;width:64px;border:3px solid #24123a;border-radius:14px;background:linear-gradient(#3aa8ff,#1d5aa8);overflow:hidden">
           <div id="fgH" style="position:absolute;left:4px;right:4px;background:rgba(124,242,154,.5);border:2px solid #7cf29a;border-radius:8px"></div>
@@ -6478,7 +6568,7 @@ function fishGame(fish) {
     addEventListener('keydown', kd, true); addEventListener('keyup', ku, true);
     const done = ok => { G.go = false; G.end = true; removeEventListener('pointerup', up); removeEventListener('pointercancel', up); removeEventListener('blur', up); removeEventListener('keydown', kd, true); removeEventListener('keyup', ku, true); setTimeout(() => { o.remove(); res(ok); }, ok ? 450 : 250); };
     G.done = done;
-    setTimeout(() => { if (G.end) return; o.querySelector('#fgT').textContent = '🎣 Ada yang menarik kail!'; sfx('pop'); G.go = true; G.t0 = G.last = performance.now(); requestAnimationFrame(fr); }, 900 + Math.random() * 900);
+    setTimeout(() => { if (G.end) return; o.querySelector('#fgT').textContent = '🎣 Ikan melawan, tahan!'; G.go = true; G.t0 = G.last = performance.now(); requestAnimationFrame(fr); }, 350);
     const fh = .19;
     function fr(t) {
       if (!G.go) return; const dt = Math.min(.05, (t - G.last) / 1000); G.last = t;
@@ -7006,6 +7096,7 @@ async function openProf() {
     <div class="slots">${[0, 1, 2].map(i => { const id = S.team[i]; return id ? `<div class="slot f" style="${artBg(id)}">${mSvg(id, '', evoOn(id))}</div>` : '<div class="slot">Kosong</div>'; }).join('')}</div>
     <div class="row" style="justify-content:space-between"><span class="disp" style="font-size:18px">Suara</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button type="button" class="btn" id="pMus" style="min-height:46px;font-size:15px">Setting</button><button type="button" class="btn ghost" id="pSfx" style="min-height:46px;font-size:15px">Halaman Utama</button></div>
+    ${S.gm ? `<button type="button" class="btn ${S.gmHide === 0 ? '' : 'dark'}" id="pGM" style="margin-top:10px">${S.gmHide === 0 ? '👁 Mode GM: Terlihat (ketuk untuk sembunyi)' : '🕶 Mode GM: Tidak terlihat (ketuk untuk tampil)'}</button>` : ''}
     ${typeof akunBtn === 'function' ? akunBtn() : ''}
     <button type="button" class="btn dark" id="pReset" style="margin-top:10px">Mulai ulang dari awal</button>
     <button type="button" class="btn" id="pRank" style="margin-top:10px">Jalur Rank</button>
@@ -7022,6 +7113,7 @@ async function openProf() {
   $('#pEvo').onclick = async () => { await openStats(); openProf(); };
   $('#pTut').onclick = () => { show('s-world'); hud(); if (S.zone !== 'school') toast('Latihan dimulai dari halaman sekolah. Pulang dulu lewat Peta Dunia.', 3500); else tutStart(); };
   $('#pCode').onclick = async () => { await openCode(); openProf(); };
+  if ($('#pGM')) $('#pGM').onclick = () => { gmToggle(); openProf(); };
   if ($('#pAkun')) $('#pAkun').onclick = async () => { await openAkun(); if (!$('#s-prof').hidden || $('#s-world').hidden) openProf(); };
   $('#pMus').onclick = async () => { await openSettings(); openProf(); };
   $('#pSfx').onclick = () => { save(); openTitle(); };
