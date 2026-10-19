@@ -1,6 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
+<meta name="lumimon-ver" content="v97">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -1329,6 +1330,50 @@ async function insOffer(force) {
 /* terbuka dari ikon? (layar penuh hasil ketukan di browser juga 'fullscreen', jadi dibedakan lewat document.fullscreenElement) */
 const appStandalone = () => { try { return matchMedia('(display-mode: standalone)').matches || (matchMedia('(display-mode: fullscreen)').matches && !document.fullscreenElement) || navigator.standalone === true; } catch (e) { return false; } };
 
+/* ---------- v96: muat ulang otomatis saat ada versi baru di situs ----------
+   Saat aplikasi dibuka lagi (kembali dari latar belakang) dan tiap 10 menit: ambil ±4 KB awal halaman di server
+   (Range + berhenti membaca setelah ketemu), bandingkan <meta name="lumimon-ver">. Bila beda: tunggu saat aman
+   (bukan battle/duel/soal/memancing/jendela terbuka), simpan, lalu muat ulang. */
+const APP_VER = (() => { try { return document.querySelector('meta[name="lumimon-ver"]').content; } catch (e) { return ''; } })();
+const UPD = { busy: 0, last: 0, newV: '', go: 0 };
+async function updFetchVer() {
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 8000);
+  try {
+    const res = await fetch(location.pathname + '?v=' + Date.now(), { cache: 'no-store', headers: { Range: 'bytes=0-4095' }, signal: ctl.signal });
+    if (!res.ok && res.status !== 206) return '';
+    const rd = res.body.getReader(), dec = new TextDecoder(); let txt = '';
+    while (txt.length < 20000) { const { value, done } = await rd.read(); if (done) break; txt += dec.decode(value, { stream: true }); const m = txt.match(/name="lumimon-ver" content="([^"]+)"/); if (m) { try { rd.cancel(); } catch (e) { } return m[1]; } }
+    try { rd.cancel(); } catch (e) { } return '';
+  } catch (e) { return ''; } finally { clearTimeout(to); }
+}
+async function updCheck(force) {
+  if (!APP_VER || !appWeb() || UPD.busy || UPD.newV || !navigator.onLine) return;
+  if (!force && Date.now() - UPD.last < 60e3) return;
+  UPD.busy = 1; UPD.last = Date.now(); const v = await updFetchVer(); UPD.busy = 0;
+  if (v && v !== APP_VER) { UPD.newV = v; updTry(); }
+}
+const updSafe = () => {
+  try {
+    if (!$('#modal').hidden || document.getElementById('tipOv') || document.getElementById('fishOv')) return false;
+    if (typeof B !== 'undefined' && B && !B.ended) return false;
+    if (typeof FG !== 'undefined' && FG) return false;
+    if (typeof TUT !== 'undefined' && TUT.on) return false;
+    if (typeof MP !== 'undefined' && MP && MP.duel) return false;
+    return !$('#s-world').hidden || !$('#s-title').hidden;
+  } catch (e) { return false; }
+};
+async function updTry() {
+  if (!UPD.newV || UPD.go) return;
+  if (!updSafe()) { setTimeout(updTry, 2000); return; }
+  UPD.go = 1;
+  try { toast(`🔄 Versi baru Lumimon (${UPD.newV}) tersedia. Memuat ulang…`, 3000); } catch (e) { }
+  try { if (S) save(); } catch (e) { }
+  try { if (typeof akunPush === 'function' && S && S.akun) await Promise.race([akunPush(true), new Promise(r => setTimeout(r, 3000))]); } catch (e) { }
+  setTimeout(() => location.reload(), 1500);
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) updCheck(true); });
+setInterval(() => updCheck(false), 600e3);
+
 /* ================= pixel painter ================= */
 const hx = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 const hash = (x, y, s = 0) => { let n = (x * 374761393 + y * 668265263 + s * 982451653) | 0; n = (n ^ (n >>> 13)) * 1274126177 | 0; return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
@@ -2368,7 +2413,9 @@ function setupInput() {
 /* loop */
 let raf = null, last = 0, near = null;
 const cv = () => $('#wcv');
-let SC = 3, VW = 0, VH = 0, DPR = 1; const buf = document.createElement('canvas'); const bx = buf.getContext('2d');
+let SC = 3, VW = 0, VH = 0, DPR = 1, TOPPAD = 0;
+function topPadUpd() { try { const q = $('#questChip'), v = $('#wview'); if (!q || !v || $('#s-world').hidden) return; const r = q.getBoundingClientRect(), vr = v.getBoundingClientRect(); if (r.height) TOPPAD = Math.max(0, Math.round((r.bottom - vr.top + 4) / SC - 22)); } catch (e) { } }
+setInterval(topPadUpd, 1000); const buf = document.createElement('canvas'); const bx = buf.getContext('2d');
 function sizeCanvas() {
   const v = $('#wview'); if (!v) return; const r = v.getBoundingClientRect(); if (!r.width) return;
   DPR = typeof qDpr === 'function' ? qDpr() : Math.min(2, window.devicePixelRatio || 1); const c = cv(); c.width = Math.round(r.width * DPR); c.height = Math.round(r.height * DPR);
@@ -2444,10 +2491,12 @@ function draw(t) {
   const p = W.p, c = cv(), ctx = c.getContext('2d');
   if (!VW) sizeCanvas();
   W.cam.x += (p.x - W.cam.x) * .14; W.cam.y += (p.y - 10 - W.cam.y) * .14;
-  const ox = Math.round(Math.max(0, Math.min(W.MW * TS - VW, W.cam.x - VW / 2))), oy = Math.round(Math.max(0, Math.min(W.MH * TS - VH, W.cam.y - VH / 2)));
+  /* v97: kamera boleh naik melewati tepi atas peta setinggi HUD, supaya nama/orang di baris paling atas tidak tertutup tulisan misi */
+  const ox = Math.round(Math.max(0, Math.min(W.MW * TS - VW, W.cam.x - VW / 2))), oy = Math.round(Math.max(-TOPPAD, Math.min(W.MH * TS - VH, W.cam.y - VH / 2)));
   W.ox = ox; W.oy = oy;
   bx.imageSmoothingEnabled = false;
-  bx.fillStyle = '#000'; bx.fillRect(0, 0, VW, VH);
+  if (W.edgeC === undefined) { try { const d = W.ground.getContext('2d').getImageData(Math.floor(W.ground.width / 2), 1, 1, 1).data; W.edgeC = `rgb(${d[0]},${d[1]},${d[2]})`; } catch (e) { W.edgeC = '#000'; } }
+  bx.fillStyle = oy < 0 ? W.edgeC : '#000'; bx.fillRect(0, 0, VW, VH);
   bx.drawImage(W.ground, -ox, -oy);
   // animated water / lava pixels in view
   const tx0 = Math.floor(ox / TS), ty0 = Math.floor(oy / TS), tx1 = Math.ceil((ox + VW) / TS), ty1 = Math.ceil((oy + VH) / TS), fr = Math.floor(t / 380);
@@ -6682,7 +6731,7 @@ function openTitle() {
       <button type="button" class="btn ghost tt-b" id="ttAk"><b>🔑 Masuk Akun</b><small>Sudah punya akun / ganti HP</small></button>
       ${!appStandalone() && appWeb() && !insGet().ok ? '<button type="button" class="btn ghost tt-b" id="ttIns"><b>📲 Pasang di HP</b><small>Jadi ikon aplikasi</small></button>' : ''}
     </div>
-    <div class="tt-ver">v95</div>
+    <div class="tt-ver">${APP_VER}</div>
   </div>`;
   if (!TT.bg) ttBuild();
   TT.cv = $('#ttCv'); TT.x = TT.cv.getContext('2d'); TT.t0 = performance.now(); TT.menu = false;
@@ -6728,7 +6777,7 @@ async function openSettings() {
   const qn = [['auto', 'Otomatis'], ['on', 'Nyala'], ['off', 'Mati']];
   const hem = `<div style="margin:10px 0 2px;font-weight:800;color:var(--sub);font-size:14px">Mode Hemat <span style="font-weight:700;font-size:12px">(HP lambat/panas: gambar sedikit kurang tajam, lebih lancar & irit baterai)</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${qn.map(([k, n]) => `<button type="button" class="btn ${Q.mode === k ? 'hot' : 'ghost'}" data-qm="${k}" style="min-height:40px;font-size:14px;padding:2px">${n}</button>`).join('')}</div>`;
   const ins = appStandalone() ? '' : `<button type="button" class="btn ghost" id="stIns" style="width:100%;margin-top:12px;min-height:42px;font-size:15px">Pasang sebagai aplikasi</button>`;
-  await modal(`<h2>Setting</h2>${row('m', 'Musik')}${row('s', 'Efek suara')}${hem}${tip}${ins}<p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Lumimon: Adventure School · v95<br>Game belajar untuk siswa SD</p>`, [{ t: 'Selesai', cls: 'hot' }], { onOpen: wire });
+  await modal(`<h2>Setting</h2>${row('m', 'Musik')}${row('s', 'Efek suara')}${hem}${tip}${ins}<p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Lumimon: Adventure School · ${APP_VER}<br>Game belajar untuk siswa SD</p>`, [{ t: 'Selesai', cls: 'hot' }], { onOpen: wire });
 }
 
 /* ---------- start ---------- */
