@@ -6373,8 +6373,12 @@ function fishNear(p) { return S && S.rank >= 2 && nearWater(p) ? FISH_INTER : nu
 
 /* ---------- minigame ---------- */
 /* disetel dengan simulasi (pemain reaksi 0,3 dtk menang ±100/100/90/35%) */
-const FDIF = { C: { sp: .2, hh: .38, ag: .8 }, R: { sp: .3, hh: .33, ag: 1 }, E: { sp: .5, hh: .26, ag: 1.5 }, L: { sp: .72, hh: .22, ag: 1.9 } };
-function fishRoll() { const x = Math.random() * 100, r = x < 2 ? 'L' : x < 12 ? 'E' : x < 38 ? 'R' : 'C', L = FISHES.filter(f => f.r === r); return L[Math.floor(Math.random() * L.length)]; }
+const FDIF = { C: { sp: .32, hh: .31, ag: 1.05 }, R: { sp: .45, hh: .27, ag: 1.3 }, E: { sp: .55, hh: .25, ag: 1.6 }, L: { sp: .7, hh: .23, ag: 2 } };   // v95: lebih sulit (sim. reaksi 0,3 dtk: ±99/81/51/21%)
+/* v95: peluang kelangkaan per tempat (persen C/R/E/L). Epik mulai zona Bab 3, Legenda hanya zona Bab 5 */
+const FPOOL = { school: [85, 15, 0, 0], 1: [65, 35, 0, 0], 2: [65, 35, 0, 0], 3: [50, 38, 12, 0], 4: [42, 38, 20, 0], 5: [35, 37, 23, 5] };
+function fishPool(z) { const Z = ZONES[z] || {}; return z === 'school' ? FPOOL.school : FPOOL[Z.bab] || FPOOL[1]; }
+function fishRoll(z) { const pp = fishPool(z || (W && W.zone)); let x = Math.random() * 100, i = 0; while (i < 3 && x >= pp[i]) { x -= pp[i]; i++; } const r = 'CREL'[i], L = FISHES.filter(f => f.r === r); return L[Math.floor(Math.random() * L.length)]; }
+const fishHere = z => fishPool(z).map((v, i) => v ? RAR_N['CREL'[i]] : '').filter(Boolean).join(' · ');
 let FG = null;
 async function fishStart() {
   if (FG || !S || !W) return; const b = bagS();
@@ -6403,7 +6407,7 @@ function fishGame(fish) {
   return new Promise(res => {
     const D = FDIF[fish.r], o = document.createElement('div'); o.id = 'fishOv';
     o.style.cssText = 'position:absolute;left:0;right:0;bottom:0;top:36%;z-index:20;background:linear-gradient(#1d1b46ee,#0f0d2ef5);border-top:4px solid #24123a;display:flex;flex-direction:column;align-items:center;padding:10px 14px;gap:8px;color:#fff;font-weight:800;touch-action:none;user-select:none;-webkit-user-select:none';
-    o.innerHTML = `<div class="disp" id="fgT" style="font-size:20px;color:var(--sun)">🎣 Melempar kail…</div><div style="font-size:13px;color:#c9c4f0">Tahan tombol supaya kotak hijau tetap di ikan</div>
+    o.innerHTML = `<div class="disp" id="fgT" style="font-size:20px;color:var(--sun)">🎣 Melempar kail…</div><div style="font-size:13px;color:#c9c4f0">Tahan tombol supaya kotak hijau tetap di ikan<br><span style="color:#8fd0ff">Di sini bisa dapat: ${esc(fishHere(W.zone))}</span></div>
       <div style="display:flex;gap:14px;align-items:stretch;height:min(250px,34vh)">
         <div id="fgTr" style="position:relative;width:64px;border:3px solid #24123a;border-radius:14px;background:linear-gradient(#3aa8ff,#1d5aa8);overflow:hidden">
           <div id="fgH" style="position:absolute;left:4px;right:4px;background:rgba(124,242,154,.5);border:2px solid #7cf29a;border-radius:8px"></div>
@@ -6435,7 +6439,7 @@ function fishGame(fish) {
       const dd = G.ty - G.fy, st = D.sp * dt; G.fy += Math.abs(dd) < st ? dd : Math.sign(dd) * st;
       if (fish.r === 'L' && Math.random() < dt * 2) G.fy = Math.max(0, Math.min(1 - fh, G.fy + (Math.random() - .5) * .12));
       const fc = G.fy + fh / 2, inz = fc >= G.hy && fc <= G.hy + D.hh;
-      G.pr += (inz ? .32 : -.13) * dt; G.pr = Math.max(0, Math.min(1, G.pr));
+      G.pr += (inz ? .3 : -.15) * dt; G.pr = Math.max(0, Math.min(1, G.pr));
       hk.style.top = G.hy * 100 + '%'; hk.style.borderColor = inz ? '#7cf29a' : '#ff8a8a'; fi.style.top = G.fy * 100 + '%'; pb.style.height = G.pr * 100 + '%';
       if (G.pr >= 1) { o.querySelector('#fgT').textContent = '🎣 Tertangkap!'; fi.style.filter = ''; sfx('ok'); return done(true); }
       if (G.pr <= 0 || t - G.t0 > 40000) { o.querySelector('#fgT').textContent = 'Ikan lepas…'; return done(false); }
@@ -6678,7 +6682,7 @@ function openTitle() {
       <button type="button" class="btn ghost tt-b" id="ttAk"><b>🔑 Masuk Akun</b><small>Sudah punya akun / ganti HP</small></button>
       ${!appStandalone() && appWeb() && !insGet().ok ? '<button type="button" class="btn ghost tt-b" id="ttIns"><b>📲 Pasang di HP</b><small>Jadi ikon aplikasi</small></button>' : ''}
     </div>
-    <div class="tt-ver">v94</div>
+    <div class="tt-ver">v95</div>
   </div>`;
   if (!TT.bg) ttBuild();
   TT.cv = $('#ttCv'); TT.x = TT.cv.getContext('2d'); TT.t0 = performance.now(); TT.menu = false;
@@ -6724,7 +6728,7 @@ async function openSettings() {
   const qn = [['auto', 'Otomatis'], ['on', 'Nyala'], ['off', 'Mati']];
   const hem = `<div style="margin:10px 0 2px;font-weight:800;color:var(--sub);font-size:14px">Mode Hemat <span style="font-weight:700;font-size:12px">(HP lambat/panas: gambar sedikit kurang tajam, lebih lancar & irit baterai)</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${qn.map(([k, n]) => `<button type="button" class="btn ${Q.mode === k ? 'hot' : 'ghost'}" data-qm="${k}" style="min-height:40px;font-size:14px;padding:2px">${n}</button>`).join('')}</div>`;
   const ins = appStandalone() ? '' : `<button type="button" class="btn ghost" id="stIns" style="width:100%;margin-top:12px;min-height:42px;font-size:15px">Pasang sebagai aplikasi</button>`;
-  await modal(`<h2>Setting</h2>${row('m', 'Musik')}${row('s', 'Efek suara')}${hem}${tip}${ins}<p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Lumimon: Adventure School · v94<br>Game belajar untuk siswa SD</p>`, [{ t: 'Selesai', cls: 'hot' }], { onOpen: wire });
+  await modal(`<h2>Setting</h2>${row('m', 'Musik')}${row('s', 'Efek suara')}${hem}${tip}${ins}<p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Lumimon: Adventure School · v95<br>Game belajar untuk siswa SD</p>`, [{ t: 'Selesai', cls: 'hot' }], { onOpen: wire });
 }
 
 /* ---------- start ---------- */
