@@ -105,6 +105,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-of
 .hud{position:absolute;left:10px;right:10px;top:10px;display:flex;gap:6px;align-items:flex-start;z-index:5;pointer-events:none}
 .hud>*{pointer-events:auto}
 .hud .col{display:flex;flex-direction:column;gap:6px;align-items:flex-start;flex:1;min-width:0}
+.hud .col>.row{max-width:100%}#hLoc{max-width:100%;white-space:normal;line-height:1.5}
 .hud .btns{display:flex;flex-direction:column;gap:12px}
 #questChip.mm{white-space:normal;display:flex;align-items:center;gap:6px;text-align:left;border-left:7px solid #ffb300;padding:3px 8px}
 #questChip .mmT{flex:1;min-width:0;line-height:1.25}#questChip .mmT b{color:#d98a00}#questChip .mmT small{font-weight:700;color:var(--sub)}
@@ -115,6 +116,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-of
 #joy{position:absolute;left:18px;bottom:calc(22px + env(safe-area-inset-bottom,0px));width:136px;height:136px;border-radius:50%;background:rgba(29,27,70,.28);border:3px solid rgba(255,255,255,.7);touch-action:none;z-index:6}
 #knob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(255,255,255,.9);border:3px solid var(--ink)}
 #btnA{position:absolute;right:22px;bottom:calc(40px + env(safe-area-inset-bottom,0px));width:78px;height:78px;border-radius:50%;background:var(--hot);color:#fff;border:3px solid var(--ink);box-shadow:0 5px 0 var(--ink);font-family:var(--display);font-size:28px;z-index:6}
+#bRide{position:absolute;right:30px;bottom:calc(132px + env(safe-area-inset-bottom,0px));width:62px;height:62px;border-radius:50%;background:#fff;color:var(--text);border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;line-height:1}
+#bRide span{font-size:26px}#bRide small{font-size:11px;font-weight:800;margin-top:1px}#bRide.on{background:var(--sun)}#bRide[hidden]{display:none}
 #btnA:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
 #prompt{position:absolute;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:6;background:#fff;color:var(--text);border:3px solid var(--ink);border-radius:999px;box-shadow:0 4px 0 var(--ink);padding:3px 14px;font-weight:800;font-size:14px;white-space:nowrap}
 #prompt b{color:var(--hot)}
@@ -295,6 +298,7 @@ body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;margin:0;overflow:h
 .hud{top:calc(10px + var(--sat));left:calc(10px + var(--sal));right:calc(10px + var(--sar))}
 #joy{left:calc(20px + var(--sal))}
 #btnA{right:calc(22px + var(--sar))}
+#bRide{right:calc(30px + var(--sar))}
 #toasts{top:calc(118px + var(--sat))}
 .sheet{padding-bottom:calc(22px + var(--sab))}
 @supports (height:100dvh){.wm-wrap{max-height:calc(100dvh - 150px - var(--sat))}}
@@ -740,6 +744,7 @@ body{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;margin:0;overflow:h
     <div id="prompt" hidden></div>
     <div id="joy" aria-label="Joystick gerak"><div id="knob"></div></div>
     <button id="btnA" type="button" aria-label="Aksi">A</button>
+    <button id="bRide" type="button" hidden></button>
   </section>
   <section id="s-map" class="scr scroll" hidden></section>
   <section id="s-quiz" class="scr scroll" hidden></section>
@@ -2342,19 +2347,20 @@ function tick(t) {
   const p = W.p; let mx = J.x, my = J.y; const k = J.keys;
   if (k.a || k.arrowleft) mx = -1; if (k.d || k.arrowright) mx = 1; if (k.w || k.arrowup) my = -1; if (k.s || k.arrowdown) my = 1;
   const mg = Math.hypot(mx, my); if (mg > 1) { mx /= mg; my /= mg; }
+  p.rd = typeof rideCur === 'function' ? rideCur() : null; const rmul = p.rd ? RID[p.rd].sp : 1;
   if (mg > .15) {
-    const sp = 54, nx = p.x + mx * sp * dt, ny = p.y + my * sp * dt;
+    const sp = 54 * rmul, nx = p.x + mx * sp * dt, ny = p.y + my * sp * dt;
     if (walkable(nx, p.y)) p.x = nx; if (walkable(p.x, ny)) p.y = ny;
     p.dir = Math.abs(mx) > Math.abs(my) ? (mx < 0 ? 'left' : 'right') : (my < 0 ? 'up' : 'down');
-    p.ft += dt; if (p.ft > .13) { p.ft = 0; p.f = (p.f + 1) % 4; if (p.f % 2 === 0) sfx('step'); }
+    p.ft += dt; if (p.ft > (p.rd ? .2 : .13)) { p.ft = 0; p.f = (p.f + 1) % 4; if (p.f % 2 === 0 && !p.rd) sfx('step'); }
   } else p.f = 0;
   { const cid = compId();
     if (cid) {
       if (!W.cp || W.cp.id !== cid) W.cp = { id: cid, x: p.x, y: p.y + 8, f: 0, bl: 0, m: 0, fl: false, emo: null, last: 0 };
-      const c = W.cp, d = Math.hypot(p.x - c.x, p.y - c.y), gap = Math.max(13, 23 - bondLv(cid) * 2);
+      const c = W.cp, d = Math.hypot(p.x - c.x, p.y - c.y), gap = Math.max(13, 23 - bondLv(cid) * 2) + (p.rd ? 6 : 0);
       c.m = 0;
       if (d > 120) { c.x = p.x; c.y = p.y + 6; }
-      else if (d > gap) { const sp2 = Math.min(d - gap, (d > 60 ? 90 : 58) * dt), nx = c.x + (p.x - c.x) / d * sp2, ny = c.y + (p.y - c.y) / d * sp2; if (walkable(nx, c.y)) c.x = nx; if (walkable(c.x, ny)) c.y = ny; c.m = 1; c.fl = nx < c.x - .01 ? true : nx > c.x + .01 ? false : c.fl; }
+      else if (d > gap) { const sp2 = Math.min(d - gap, (d > 60 ? 90 : 58) * rmul * dt), nx = c.x + (p.x - c.x) / d * sp2, ny = c.y + (p.y - c.y) / d * sp2; if (walkable(nx, c.y)) c.x = nx; if (walkable(c.x, ny)) c.y = ny; c.m = 1; c.fl = nx < c.x - .01 ? true : nx > c.x + .01 ? false : c.fl; }
       c.ph = (c.ph || 0) + dt * (c.m ? 9 : 3); if (Math.random() < dt * .4) c.bl = .15; c.bl = Math.max(0, c.bl - dt);
       if (mg > .15) { W.walkAcc = (W.walkAcc || 0) + 54 * dt; if (W.walkAcc >= 120) { W.walkAcc = 0; bondWalk(); } }
     } else W.cp = null;
@@ -2377,13 +2383,13 @@ function tick(t) {
     const d = Math.hypot(p.x - m.x, p.y - m.y);
     m.t -= dt;
     if (m.h === 'sleep') { m.vx = m.vy = 0; m.t = 1; }
-    else if (d < 64 && t > W.safe) { m.vx = (p.x - m.x) / d * 34; m.vy = (p.y - m.y) / d * 34; }
+    else if (d < 64 && t > W.safe && !p.rd) { m.vx = (p.x - m.x) / d * 34; m.vy = (p.y - m.y) / d * 34; }
     else if (m.t <= 0) { m.t = 1 + Math.random() * 2.5; const a = Math.random() * 6.28, go = Math.random() > .35; m.vx = go ? Math.cos(a) * 15 : 0; m.vy = go ? Math.sin(a) * 15 : 0; }
     const nx = m.x + m.vx * dt, ny = m.y + m.vy * dt;
     if (walkable(nx, m.y)) m.x = nx; else m.t = 0;
     if (walkable(m.x, ny)) m.y = ny; else m.t = 0;
     m.ph += dt * (m.vx || m.vy ? 9 : 3); if (Math.random() < dt * .4) m.blink = .15; m.blink = Math.max(0, m.blink - dt);
-    if (d < 11 && t > W.safe) { encounter(m); return; }
+    if (d < 11 && t > W.safe && !p.rd) { encounter(m); return; }
   }
   near = null; let bd = 22;
   for (const it of W.inter) { const x = it.npc ? it.npc.x : it.x, y = it.npc ? it.npc.y : it.y; const d = Math.hypot(p.x - x, p.y - y); if (d < bd) { bd = d; near = it; } }
@@ -2412,7 +2418,7 @@ function draw(t) {
   if (W.koi) { const kx = W.koi.x + Math.cos(t / 1400) * 18, ky = W.koi.y + Math.sin(t / 1400) * 10; bx.fillStyle = '#ff8a2a'; bx.fillRect(Math.round(kx - ox), Math.round(ky - oy), 4, 2); }
   const list = [];
   for (const o of W.OBJ) { if (o.cond && !o.cond()) continue; if (o.fy < oy - 10 || o.y - oy > VH + 4) continue; list.push({ fy: o.fy, d: () => bx.drawImage(o.flag ? FLAG[Math.floor(t / 260) % 3] : (o.get ? o.get() : o.img), Math.round(o.x - ox), Math.round(o.y - oy + (o.bob ? Math.round(Math.sin(t / 900) * o.bob) : 0))) }); }
-  const person = (e, look, isMe) => () => { const x = Math.round(e.x - ox), y = Math.round(e.y - oy); shadow(x, y, 5); bx.drawImage(kidImg(look, e.dir, e.f), x - 8, y - 27 - ((e.f === 1 || e.f === 3) ? 1 : 0)); const sk = setOf(look); if (sk) { bx.fillStyle = SETS[sk].c; for (let i = 0; i < 4; i++) { const a = t / 420 + i * 1.57, r = 9 + Math.sin(t / 300 + i) * 2; if (Math.sin(t / 180 + i * 2) > -.2) bx.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y - 14 + Math.sin(a) * 13), 1, 1); } } if (e.mark) { const b = Math.round(Math.sin(t / 250) * 1.5); bx.fillStyle = '#24123a'; bx.fillRect(x - 2, y - 40 + b, 5, 8); bx.fillStyle = '#ff6a3d'; bx.fillRect(x - 1, y - 39 + b, 3, 4); bx.fillRect(x - 1, y - 34 + b, 3, 1); } };
+  const person = (e, look, isMe) => () => { const x = Math.round(e.x - ox), y0 = Math.round(e.y - oy); let y = y0; if (e.rd && typeof RID !== 'undefined' && RID[e.rd]) y = y0 - rideDraw(bx, e.rd, look, e.dir, e.f, x, y0); else { shadow(x, y, 5); bx.drawImage(kidImg(look, e.dir, e.f), x - 8, y - 27 - ((e.f === 1 || e.f === 3) ? 1 : 0)); } const sk = setOf(look); if (sk) { bx.fillStyle = SETS[sk].c; for (let i = 0; i < 4; i++) { const a = t / 420 + i * 1.57, r = 9 + Math.sin(t / 300 + i) * 2; if (Math.sin(t / 180 + i * 2) > -.2) bx.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y - 14 + Math.sin(a) * 13), 1, 1); } } if (e.mark) { const b = Math.round(Math.sin(t / 250) * 1.5); bx.fillStyle = '#24123a'; bx.fillRect(x - 2, y - 40 + b, 5, 8); bx.fillStyle = '#ff6a3d'; bx.fillRect(x - 1, y - 39 + b, 3, 4); bx.fillRect(x - 1, y - 34 + b, 3, 1); } };
   for (const e of W.npcs) list.push({ fy: e.y, d: person(e, e.look) });
   list.push({ fy: p.y, d: person(p, look(), true) });
   for (const e of W.npcs) if (e.cp) { const c = e.cp; list.push({ fy: c.y, d: () => {
@@ -2461,7 +2467,7 @@ function draw(t) {
   }
   const tag = (e, name, fill, tt) => {
     const fs = Math.round(10 * DPR); ctx.font = `700 ${fs}px "Pixelify Sans", monospace`;
-    const x = (e.x - ox) * s, y = (e.y - oy - 35) * s, w = ctx.measureText(name).width + 12 * DPR;
+    const x = (e.x - ox) * s, y = (e.y - oy - 35 - (typeof rideLift === 'function' ? rideLift(e) : 0)) * s, w = ctx.measureText(name).width + 12 * DPR;
     ctx.fillStyle = fill; ctx.strokeStyle = '#24123a'; ctx.lineWidth = 2 * DPR; rr(ctx, x - w / 2, y - fs * .75, w, fs * 1.5, fs * .5); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#23214a'; ctx.fillText(name, x, y + DPR);
     if (tt) { const f2 = Math.round(8 * DPR); ctx.font = `700 ${f2}px "Pixelify Sans", monospace`; ctx.lineWidth = 3 * DPR; ctx.strokeStyle = '#24123a'; ctx.strokeText(tt[1], x, y - fs * 1.35); ctx.fillStyle = tt[3] === 'L' && Math.floor(performance.now() / 300) % 2 ? '#ffffff' : tt[2]; ctx.fillText(tt[1], x, y - fs * 1.35); }
@@ -2478,7 +2484,7 @@ function petComp() {
   if (now - c.last > 20000) { c.last = now; bondWalk(); }
   toast(lines[lv - 1], 1800); return true;
 }
-function pressA() { if (!$('#s-world').hidden && $('#modal').hidden) { if (near) { joyReset(); near.fn(); } else petComp(); } }
+function pressA() { if (!$('#s-world').hidden && $('#modal').hidden) { if (near) { joyReset(); if (W.p.rd && typeof rideSet === 'function') rideSet(false, true); near.fn(); } else petComp(); } }
 
 /* encounters + duels */
 async function encounter(m) {
@@ -3963,7 +3969,7 @@ async function mpPresence() {
     if (!o) o = MP.ps[pk] = { x: 0, y: 0, tx: 0, ty: 0, dir: 'down', f: 0, ft: 0, has: false, lt: 0, le: 0, pts: 0, rp: [], re: 0, ax: 0, ay: 0, at: 0, dur: 1, pn: 0 };
     if (best.ts < o.pts) continue; o.pts = best.ts;
     if (o.z !== best.z) { o.has = false; o.z = best.z; }
-    o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : ''; o.ev = best.ev === 1 ? 1 : 0; o.rk = mpInt(best.rk, 1, RANK_MAX); o.ti = typeof best.ti === 'string' && TBY[best.ti] ? best.ti : '';
+    o.n = mpName(best.n); o.lk = lk; o.cid = typeof best.c === 'string' && M[best.c] ? best.c : ''; o.ev = best.ev === 1 ? 1 : 0; o.rk = mpInt(best.rk, 1, RANK_MAX); o.ti = typeof best.ti === 'string' && TBY[best.ti] ? best.ti : ''; o.rd = typeof best.rd === 'string' && typeof RID !== 'undefined' && RID[best.rd] ? best.rd : '';
   }
   if (g !== MP.gen) return; for (const id in MP.ps) if (!seen[id]) delete MP.ps[id];
   MP.synced = 1; const mt = mpMates(); if (mt > MP.mates) MP.lastPos = ''; MP.mates = mt; hud();
@@ -3991,9 +3997,9 @@ async function mpOnEm(m) {
 /* ---- kirim ---- */
 async function mpSync() {
   if (MP.st !== 'on' || !S || !MP.ch || !W) return;
-  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, c = compId() || '', rk = S.rank, ti = S.title && TBY[S.title] ? S.title : '', ev = c && typeof evoOn === 'function' && evoOn(c) ? 1 : 0, sig0 = JSON.stringify([n, lk, z, c, rk, ti, ev]); if (sig0 === MP.sig) return; MP.sig = sig0;
+  const n = mpName(S.name), lk = mpLookOut(), z = W.zone, c = compId() || '', rk = S.rank, ti = S.title && TBY[S.title] ? S.title : '', ev = c && typeof evoOn === 'function' && evoOn(c) ? 1 : 0, rd = typeof rideOut === 'function' ? rideOut() : '', sig0 = JSON.stringify([n, lk, z, c, rk, ti, ev, rd]); if (sig0 === MP.sig) return; MP.sig = sig0;
   const ts = mpNext(), ch = MP.ch, pa = ['p', MP.id, n, lk, z, ts, c, rk, ti], sig = await mpSign(ev ? [...pa, 1] : pa);
-  if (MP.st === 'on' && ch === MP.ch) { ch.track(ev ? { id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti, ev } : { id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti }); setTimeout(() => mpSendPos(true), 600); }
+  if (MP.st === 'on' && ch === MP.ch) { ch.track(Object.assign(ev ? { id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti, ev } : { id: MP.id, k: MP.kb, n, lk, z, ts, sig, c, rk, ti }, rd ? { rd } : {})); setTimeout(() => mpSendPos(true), 600); }
 }
 /* Posisi dikirim lewat channel PER WILAYAH (bukan channel utama), maks 1x/detik, dan diam kalau sendirian di wilayah itu.
    Channel utama (MP_CH) tetap dipakai untuk presence (siapa online & di mana), emote, duel, regu/raid. */
@@ -4062,7 +4068,7 @@ const mpHere = o => W && o.has && o.z === W.zone && o.lk;
 function mpCount() { return Object.values(MP.ps).length + 1; }
 function mpBadge() {
   if (!MP) return ''; if (S && S.mpOff) return ' · online mati';
-  if (MP.st === 'on') return ` · 🌐 ${mpCount()}`; if (MP.st === 'connecting') return ' · 🌐…'; return '';
+  if (MP.st === 'on') return ` · 🌐\u00a0${mpCount()}`; if (MP.st === 'connecting') return ' · 🌐…'; return '';
 }
 function mpFrame(dt) {
   if (!W) return; const k = Math.min(1, dt * 8);
@@ -4073,13 +4079,13 @@ function mpFrame(dt) {
       if (a <= 1) { o.x = o.ax + (o.tx - o.ax) * a; o.y = o.ay + (o.ty - o.ay) * a; }
       else {   /* posisi berikutnya terlambat: teruskan arah & kecepatan terakhir sebentar (maks 0,7 dtk) supaya tidak berhenti-jalan */
         const vx = (o.tx - o.ax) / du, vy = (o.ty - o.ay) / du, ex = Math.min(el - du, .7), sp = Math.hypot(vx, vy);
-        if (sp > 4 && sp < 90) { const nx = o.tx + vx * ex, ny = o.ty + vy * ex; if (typeof walkable !== 'function' || walkable(nx, ny)) { o.x = nx; o.y = ny; } } else { o.x = o.tx; o.y = o.ty; }
+        if (sp > 4 && sp < 100) { const nx = o.tx + vx * ex, ny = o.ty + vy * ex; if (typeof walkable !== 'function' || walkable(nx, ny)) { o.x = nx; o.y = ny; } } else { o.x = o.tx; o.y = o.ty; }
       }
     } else { o.x += dx * k; o.y += dy * k; }
     if (o.cid) {
       if (o.cx === undefined || Math.hypot(o.x - o.cx, o.y - o.cy) > 120) { o.cx = o.x; o.cy = o.y + 8; }
       const cd = Math.hypot(o.x - o.cx, o.y - o.cy); o.cm = 0;
-      if (cd > 18) { const sp = Math.min(cd - 18, (cd > 60 ? 90 : 58) * dt); o.cx += (o.x - o.cx) / cd * sp; o.cy += (o.y - o.cy) / cd * sp; o.cm = 1; o.cfl = o.x < o.cx; }
+      if (cd > 18) { const sp = Math.min(cd - 18, (cd > 60 ? 90 : 58) * (o.rd && RID[o.rd] ? RID[o.rd].sp : 1) * dt); o.cx += (o.x - o.cx) / cd * sp; o.cy += (o.y - o.cy) / cd * sp; o.cm = 1; o.cfl = o.x < o.cx; }
       o.cph = (o.cph || 0) + dt * (o.cm ? 9 : 3);
     } if (mv) { o.ft += dt; if (o.ft > .13) { o.ft = 0; o.f = (o.f + 1) % 4; } } else o.f = 0;
   }
@@ -4102,14 +4108,14 @@ function mpBubbles(ctx, s) {
 function mpDraw(list, person, t, ox, oy) {
   if (!MP || (S && S.mpOff) || MP.st !== 'on') return; let n = 0;
   for (const o of Object.values(MP.ps)) {
-    if (!mpHere(o) || n++ > 24) continue; const e = { x: o.x, y: o.y, dir: o.dir, f: o.f };
+    if (!mpHere(o) || n++ > 24) continue; const e = { x: o.x, y: o.y, dir: o.dir, f: o.f, rd: o.rd && !RIDE_IN.has(W.zone) ? o.rd : '' };
     list.push({ fy: o.y, d: person(e, o.lk) });
     if (o.cid && o.cx !== undefined) list.push({ fy: o.cy, d: () => {
       const x = Math.round(o.cx - ox), y = Math.round(o.cy - oy), bob = Math.round(Math.abs(Math.sin(o.cph || 0)) * (o.cm ? 2 : 1)), img = monImg(o.cid, false, Math.floor(t / 180) % 2, !!o.cfl, !!o.ev);
       shadow(x, y, Math.round(img.width / 2.8)); if (o.ev && M[o.cid]) evoDraw(bx, o.cid, img, x, y - img.height - bob + 3, t, true); else bx.drawImage(img, x - Math.floor(img.width / 2), y - img.height - bob + 3);
-    } }); if (o.bub) mpBubble(o.x - ox, o.y - oy, o.bub);
+    } }); if (o.bub) mpBubble(o.x - ox, o.y - oy - rideLift(o), o.bub);
   }
-  if (MP.me) mpBubble(W.p.x - ox, W.p.y - oy, MP.me);
+  if (MP.me) mpBubble(W.p.x - ox, W.p.y - oy - rideLift(W.p), MP.me);
 }
 function mpTags(tag) { if (!MP || (S && S.mpOff) || MP.st !== 'on') return; for (const [id, o] of Object.entries(MP.ps)) if (mpHere(o)) tag(o, (inParty(id) ? '⚑ ' : '') + o.n, inParty(id) ? '#7fe3a8' : '#bfe9ff', titleRemote(o.ti)); }
 async function openChat() {
@@ -6090,6 +6096,157 @@ async function openLB(tab) {
 }
 document.addEventListener('click', e => { if (e.target.closest('#bLB') && !$('#s-world').hidden && $('#modal').hidden) { joyReset(); openLB(); } });
 
+/* ================= KENDARAAN (v90) =================
+   Hanya tampilan + kecepatan. Tidak menambah kekuatan battle, tidak mempercepat Kedekatan (bondWalk berbasis waktu).
+   S.ride = { own: [id], sel: id|null, on: 0|1 }. Hanya dipakai di luar gedung (RIDE_IN). Selama naik:
+   Lumi liar tidak mengejar dan tidak menyerang; menekan A di dekat orang/tempat otomatis turun dulu.
+   Teman online melihat kendaraan lewat isian presence 'rd' (tidak ikut tanda tangan; versi lama mengabaikannya). */
+const RIDES = [
+  { id: 'rd_roda', n: 'Sepatu Roda', sp: 1.3, rk: 3, p: 500, ic: '🛼' },
+  { id: 'rd_skuter', n: 'Skuter', sp: 1.45, rk: 5, p: 1000, ic: '🛴' },
+  { id: 'rd_sepeda', n: 'Sepeda', sp: 1.6, rk: 8, p: 1800, ic: '🚲' }
+];
+const RID = Object.fromEntries(RIDES.map(r => [r.id, r]));
+const RIDE_IN = new Set(['gedung', 'lab']);
+for (const r of RIDES) try { (RK_INFO[r.rk] = RK_INFO[r.rk] || []).push(`Kendaraan baru: ${r.n} di Toko Mak Sumi`); } catch (e) { }
+function rideS() { if (!S.ride) S.ride = { own: [], sel: null, on: 0 }; return S.ride; }
+/* kendaraan yang sedang dinaiki sekarang (null bila jalan kaki / di dalam gedung / latihan) */
+function rideCur() {
+  if (!S || !W || !S.ride || !S.ride.on || !RID[S.ride.sel] || RIDE_IN.has(W.zone)) return null;
+  if (typeof TUT !== 'undefined' && TUT.on) return null;
+  return S.ride.sel;
+}
+const rideMul = () => { const id = rideCur(); return id ? RID[id].sp : 1; };
+const rideOut = () => (S && S.ride && S.ride.on && RID[S.ride.sel]) ? S.ride.sel : '';
+
+/* ---------- gambar (pixel art, ukuran sebanding karakter 16 px). Grid 44x40, tanah di y=38, tengah x=22 ---------- */
+const RGW = 44, RGY = 38;
+function rLine(g, x0, y0, x1, y1, col) { let dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1, e = dx + dy; for (; ;) { P(g, x0, y0, col); if (x0 === x1 && y0 === y1) break; const e2 = 2 * e; if (e2 >= dy) { e += dy; x0 += sx; } if (e2 <= dx) { e += dx; y0 += sy; } } }
+function rWheel(g, cx, cy, r, rim) { E(g, cx, cy, r, r, ramp('#4a4470')); if (r >= 3) E(g, cx, cy, r - 1.3, r - 1.3, ramp(rim)); P(g, cx, cy, '#3a3558'); P(g, cx - 1, cy - 1, '#ffffff'); }
+const R_BLU = ['#a6dcff', '#3aa8ff', '#2470c0'], R_ORG = ['#ffb184', '#ff6a3d', '#c43f12'];
+/* tiap gambar: b = di belakang badan, f = di depan badan, rx/ry = posisi kaki pengendara, sw = lebar bayangan, sit = pose duduk */
+const RDRAW = {
+  rd_roda: {
+    side(g) { R(g, 15, 34, 7, 1, '#ff6fb4'); R(g, 23, 34, 7, 1, '#ff6fb4'); R(g, 15, 33, 7, 1, '#ffc2e0'); R(g, 23, 33, 7, 1, '#ffc2e0'); for (const X of [15, 19, 23, 27]) { R(g, X, 35, 2, 2, '#ffd23c'); P(g, X, 35, '#fff3a8'); } return { rx: 22, ry: 33, sw: 9 }; },
+    front(g) { R(g, 17, 33, 4, 1, '#ff6fb4'); R(g, 24, 33, 4, 1, '#ff6fb4'); R(g, 17, 32, 4, 1, '#ffc2e0'); R(g, 24, 32, 4, 1, '#ffc2e0'); for (const X of [17, 24]) { R(g, X, 34, 2, 2, '#ffd23c'); R(g, X + 2, 34, 2, 2, '#e0a00f'); P(g, X, 34, '#fff3a8'); } return { rx: 22, ry: 32, sw: 6 }; }
+  },
+  rd_skuter: {
+    side(g) {
+      rWheel(g, 12, 35, 3, '#d5e8ff'); rWheel(g, 33, 35, 3, '#d5e8ff');
+      R(g, 9, 30, 27, 1, R_BLU[0]); R(g, 9, 31, 27, 1, R_BLU[1]); R(g, 10, 32, 25, 1, R_BLU[2]); R(g, 14, 31, 16, 1, '#3e3a6a');
+      rLine(g, 34, 30, 32, 14, '#d9e2f5'); rLine(g, 35, 30, 33, 14, '#8a9cc8');
+      R(g, 29, 13, 8, 1, '#ff6a3d'); R(g, 30, 12, 6, 1, '#ffb184'); R(g, 28, 12, 2, 3, '#4a3d6a'); R(g, 36, 12, 2, 3, '#4a3d6a');
+      R(g, 35, 19, 2, 2, '#ffe05a'); P(g, 35, 19, '#fff6b0'); return { rx: 22, ry: 30, sw: 14 };
+    },
+    front(g, f) {
+      R(g, 18, 31, 9, 1, R_BLU[0]); R(g, 18, 32, 9, 1, R_BLU[1]); R(g, 19, 33, 7, 1, R_BLU[2]);
+      R(f, 21, 25, 3, 6, '#c9d6f0'); R(f, 21, 25, 1, 6, '#eef3ff'); R(f, 23, 25, 1, 6, '#8a9cc8');
+      R(f, 14, 24, 17, 1, '#ff6a3d'); R(f, 15, 23, 15, 1, '#ffb184'); R(f, 12, 23, 3, 3, '#4a3d6a'); R(f, 30, 23, 3, 3, '#4a3d6a');
+      R(f, 21, 27, 3, 2, '#ffe05a'); P(f, 21, 27, '#fff6b0'); R(f, 20, 31, 5, 1, R_BLU[1]); E(f, 22.5, 35, 1.6, 3.2, ramp('#4a4470')); R(f, 22, 33, 1, 4, '#8d89b8');
+      return { rx: 22, ry: 31, sw: 8 };
+    }
+  },
+  rd_sepeda: {
+    side(g, f) {
+      const o = R_ORG[1], d = R_ORG[2];
+      rWheel(g, 10, 33, 5, '#e8f0ff'); rWheel(g, 33, 33, 5, '#e8f0ff');
+      rLine(g, 10, 33, 19, 33, d); rLine(g, 10, 33, 15, 24, d);
+      for (const [a, b2] of [[[15, 24], [28, 24]], [[19, 33], [28, 24]], [[15, 24], [19, 33]], [[28, 24], [29, 21]]]) rLine(g, ...a, ...b2, o);
+      rLine(g, 29, 22, 33, 33, '#b8b6e0'); rLine(g, 29, 21, 30, 18, '#b8b6e0');
+      R(g, 12, 22, 6, 1, '#5a4d8a'); R(g, 13, 23, 4, 1, '#3a2f6a');
+      R(f, 28, 17, 5, 1, '#4a3d6a'); R(f, 32, 16, 1, 3, '#2d2650');   // setang di depan tangan
+      R(f, 18, 32, 3, 3, '#ffd23c'); P(f, 19, 33, '#c98a1a'); R(f, 17, 35, 4, 1, '#4a3d6a');   // pedal di depan kaki
+      R(g, 33, 20, 2, 2, '#ffe05a'); P(g, 33, 20, '#fff6b0');
+      return { rx: 18, ry: 32, sw: 15, sit: 1 };
+    },
+    front(g, f) {
+      rLine(f, 19, 27, 21, 33, R_ORG[1]); rLine(f, 26, 27, 24, 33, R_ORG[1]);
+      R(f, 11, 23, 23, 1, '#b8b6e0'); R(f, 12, 22, 21, 1, '#e6e4ff'); R(f, 9, 22, 3, 3, '#4a3d6a'); R(f, 33, 22, 3, 3, '#4a3d6a');
+      R(f, 21, 28, 3, 2, '#ffe05a'); P(f, 21, 28, '#fff6b0'); E(f, 22.5, 34, 1.6, 4.5, ramp('#4a4470')); R(f, 22, 30, 1, 8, '#c9c6f0');
+      return { rx: 22, ry: 30, sw: 6 };
+    }
+  }
+};
+const RSPR = {};
+/* hasil: { b, f, rx, ry, sw, sit } untuk arah left/right/up/down */
+function rideSpr(id, dir) {
+  const k = id + dir; if (RSPR[k]) return RSPR[k];
+  const D = RDRAW[id], side = dir === 'left' || dir === 'right', gb = grid(RGW, 40), gf = grid(RGW, 40);
+  const cf = side ? D.side(gb, gf) : D.front(gb, gf);
+  outline(gb); outline(gf);
+  const fl = dir === 'left', hasF = gf.d.some(Boolean);
+  const o = { b: toCanvas(gb, fl), f: hasF ? toCanvas(gf, fl) : null, rx: fl ? RGW - cf.rx : cf.rx, ry: cf.ry, sw: cf.sw, sit: !!cf.sit };
+  if (dir === 'up') { const c = document.createElement('canvas'); c.width = RGW; c.height = 40; const x = c.getContext('2d'); x.drawImage(o.b, 0, 0); if (o.f) x.drawImage(o.f, 0, 0); o.b = c; o.f = null; }   // dari belakang: setang tertutup badan
+  return RSPR[k] = o;
+}
+/* gambar pengendara + kendaraan di buffer dunia; x,y = kaki di tanah. Kembalikan seberapa tinggi badan terangkat */
+function rideDraw(c, id, lk, dir, f, x, y) {
+  const s = rideSpr(id, dir), ox = x - 22, oy = y - RGY, lift = RGY - s.ry;
+  c.fillStyle = 'rgba(30,40,30,.28)'; c.fillRect(ox + 22 - s.sw, y, s.sw * 2, 1); c.fillRect(ox + 23 - s.sw, y + 1, s.sw * 2 - 2, 1);
+  c.drawImage(s.b, ox, oy);
+  const kid = kidImg(lk, dir, id === 'rd_roda' ? f : 0), kx = ox + s.rx - 8, ky = oy + s.ry - 27;
+  if (s.sit) {   // duduk di sadel: badan atas di sadel, kaki menjulur ke pedal
+    c.drawImage(kid, 0, 0, 16, 20, kx, ky + 3, 16, 20);
+    c.drawImage(kid, 0, 21, 16, 7, kx + (dir === 'left' ? -1 : 1), ky + 23, 16, 7);
+  } else c.drawImage(kid, kx, ky);
+  if (s.f) c.drawImage(s.f, ox, oy);
+  return lift;
+}
+const rideLift = e => e && e.rd && RID[e.rd] && W && !RIDE_IN.has(W.zone) ? RGY - rideSpr(e.rd, e.dir || 'down').ry : 0;
+/* gambar kecil untuk toko (tampak samping, dengan karakter) */
+const RURL = {};
+function rideURL(id) {
+  const k = id + JSON.stringify(look()); if (RURL[k]) return RURL[k];
+  const c = document.createElement('canvas'); c.width = RGW; c.height = 40; const x = c.getContext('2d');
+  rideDraw(x, id, look(), 'right', 0, 22, RGY); return RURL[k] = c.toDataURL();
+}
+const rideImg = (id, w) => `<img src="${rideURL(id)}" alt="" width="${w}" height="${Math.round(w * 40 / 44)}" style="image-rendering:pixelated;display:block">`;
+
+/* ---------- naik / turun ---------- */
+function rideSet(on, quiet) {
+  const r = rideS(); if (!r.own.length) return;
+  if (on && !RID[r.sel]) r.sel = r.own[0];
+  if (on && W && RIDE_IN.has(W.zone)) { if (!quiet) toast('Kendaraan tidak bisa dipakai di dalam gedung.', 2200); return; }
+  r.on = on ? 1 : 0; save();
+  if (!on && W) W.safe = Math.max(W.safe || 0, performance.now() + 1200);   // turun: jeda sebentar sebelum Lumi liar mendekat
+  if (!quiet) { toast(on ? `${RID[r.sel].ic} Naik ${RID[r.sel].n}. Lumi liar tidak mengejarmu selama naik.` : 'Turun dari kendaraan.', 2200); sfx('pop'); }
+  rideBtn(); try { if (typeof mpSync === 'function') mpSync(); } catch (e) { }
+}
+function rideBtn() {
+  const b = $('#bRide'); if (!b || !S) return; const r = rideS();
+  b.hidden = !r.own.length; if (!r.own.length) return;
+  const id = RID[r.sel] ? r.sel : r.own[0], on = !!rideCur();
+  b.innerHTML = `<span aria-hidden="true">${RID[id].ic}</span><small>${on ? 'Turun' : 'Naik'}</small>`;
+  b.classList.toggle('on', on); b.setAttribute('aria-label', on ? 'Turun dari kendaraan' : 'Naik ' + RID[id].n);
+}
+document.addEventListener('click', e => { if (e.target.closest('#bRide') && S && !$('#s-world').hidden && $('#modal').hidden) { joyReset(); rideSet(!rideCur()); } });
+setInterval(() => { try { if (S && W && !$('#s-world').hidden) rideBtn(); } catch (e) { } }, 1000);
+
+/* ---------- tab Kendaraan di Toko / lemari ---------- */
+function rideShopPatch(el, wr) {
+  const r = rideS(), own = id => r.own.includes(id), sel = RID[shopSel] ? RID[shopSel] : null;
+  const pv = el.querySelector('#s-shop > div > div[style*="place-items"]') || el.querySelector('div[style*="place-items:center"]');
+  if (pv) pv.innerHTML = rideImg(sel ? sel.id : RID[r.sel] ? r.sel : RIDES[0].id, 132);
+  const gEl = el.querySelector('.grid3'); if (!gEl) return;
+  gEl.innerHTML = RIDES.map(it => { const lock = S.rank < it.rk && !own(it.id), using = r.sel === it.id && r.on; return `<button type="button" class="item ${lock ? 'lock' : ''}" data-id="${it.id}" aria-pressed="${shopSel === it.id}">
+      ${using ? '<span class="tag new" style="top:-10px">Dipakai</span>' : ''}<span style="display:inline-block${wr && !own(it.id) ? ';filter:brightness(0)' : ''}">${rideImg(it.id, 66)}</span>
+      <span class="n">${wr && !own(it.id) ? '???' : esc(it.n)}</span><span class="pill" style="background:#d6ecff;color:var(--text);border-color:#2470c0">${String(it.sp).replace('.', ',')}x cepat</span>${own(it.id) ? '<span class="pill" style="background:#3ccf91">Punya</span>' : wr ? '<span class="pill" style="background:#4a4a5a;color:#fff">Belum punya</span>' : lock ? `<span class="pill">Rank ${it.rk}</span>` : `<span class="pill">${COIN}${it.p}</span>`}</button>`; }).join('');
+  const hint = gEl.nextElementSibling;
+  const card = !sel ? `<p style="margin:0;color:var(--muted);font-weight:700;font-size:13px">Kendaraan membuat jalan lebih cepat di luar gedung. Tidak menambah kekuatan battle. Selama naik, Lumi liar tidak mengejarmu.</p>`
+    : `<div class="card" style="display:flex;flex-direction:column;gap:8px"><div class="disp" style="font-size:20px">${wr && !own(sel.id) ? '???' : esc(sel.n)}</div><div style="font-weight:800;color:var(--sub);font-size:13.5px">Kecepatan ${String(sel.sp).replace('.', ',')}x jalan kaki</div>
+      ${wr && !own(sel.id) ? `<div style="font-weight:800;color:var(--sub)">Belum dimiliki. Beli di Toko Aksesoris, di halaman sekolah.</div>` : own(sel.id) ? `<button type="button" class="btn ${r.sel === sel.id && r.on ? 'ghost' : 'hot'}" id="rAct">${r.sel === sel.id && r.on ? 'Turun' : 'Naik'}</button>`
+        : S.rank < sel.rk ? `<div style="font-weight:800;color:var(--sub)">Terbuka di Rank ${sel.rk}</div>`
+        : `<button type="button" class="btn hot" id="rAct" ${S.coins < sel.p ? 'disabled' : ''}>Beli ${COIN}${sel.p}</button>${S.coins < sel.p ? `<div style="font-size:12.5px;font-weight:700;color:var(--sub)">Koin kurang ${sel.p - S.coins}. Kalahkan Lumi liar atau menang duel.</div>` : ''}`}</div>`;
+  if (hint) hint.outerHTML = card; else gEl.insertAdjacentHTML('afterend', card);
+  const a = el.querySelector('#rAct');
+  if (a) a.onclick = () => {
+    if (!own(sel.id)) { if (S.coins < sel.p || S.rank < sel.rk) return; S.coins -= sel.p; r.own.push(sel.id); r.sel = sel.id; r.on = 1; save(); toast(`Kamu membeli ${sel.n}! Ketuk tombol ${sel.ic} di layar untuk naik atau turun.`, 3800); sfx('coin'); }
+    else if (r.sel === sel.id && r.on) r.on = 0;
+    else { r.sel = sel.id; r.on = 1; }
+    save(); try { if (typeof mpSync === 'function') mpSync(); } catch (e) { } openShop();
+  };
+}
+
 /* ================= HALAMAN UTAMA: Lumimon, Adventure School =================
    Muncul setiap game dibuka. "Ketuk layar untuk mulai" (sekalian membuka suara di HP), lalu New Adventure / Continue / Setting.
    New Adventure saat sudah ada simpanan = konfirmasi dua langkah (ketik HAPUS). Simpanan tidak disentuh sebelum itu. */
@@ -6175,7 +6332,7 @@ function openTitle() {
       : `<button type="button" class="btn tt-b" disabled><b>Continue</b><small>Belum ada simpanan</small></button>`}
       <button type="button" class="btn ghost tt-b" id="ttSet"><b>Setting</b><small>Pengaturan</small></button>
     </div>
-    <div class="tt-ver">v89</div>
+    <div class="tt-ver">v90</div>
   </div>`;
   if (!TT.bg) ttBuild();
   TT.cv = $('#ttCv'); TT.x = TT.cv.getContext('2d'); TT.t0 = performance.now(); TT.menu = false;
@@ -6219,7 +6376,7 @@ async function openSettings() {
   const qn = [['auto', 'Otomatis'], ['on', 'Nyala'], ['off', 'Mati']];
   const hem = `<div style="margin:10px 0 2px;font-weight:800;color:var(--sub);font-size:14px">Mode Hemat <span style="font-weight:700;font-size:12px">(HP lambat/panas: gambar sedikit kurang tajam, lebih lancar & irit baterai)</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${qn.map(([k, n]) => `<button type="button" class="btn ${Q.mode === k ? 'hot' : 'ghost'}" data-qm="${k}" style="min-height:40px;font-size:14px;padding:2px">${n}</button>`).join('')}</div>`;
   const ins = appStandalone() ? '' : `<button type="button" class="btn ghost" id="stIns" style="width:100%;margin-top:12px;min-height:42px;font-size:15px">Pasang sebagai aplikasi</button>`;
-  await modal(`<h2>Setting</h2>${row('m', 'Musik')}${row('s', 'Efek suara')}${hem}${tip}${ins}<p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Lumimon: Adventure School · v89<br>Game belajar untuk siswa SD</p>`, [{ t: 'Selesai', cls: 'hot' }], { onOpen: wire });
+  await modal(`<h2>Setting</h2>${row('m', 'Musik')}${row('s', 'Efek suara')}${hem}${tip}${ins}<p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Lumimon: Adventure School · v90<br>Game belajar untuk siswa SD</p>`, [{ t: 'Selesai', cls: 'hot' }], { onOpen: wire });
 }
 
 /* ---------- start ---------- */
@@ -6474,7 +6631,7 @@ let shopTab = 'hat', shopSel = null;
 function openShop(from) {
   if (from) openShop.from = from;
   const el = $('#s-shop');
-  const items = SHOP.filter(s => s.slot === shopTab && (!s.g || s.g === gOf(S.look)) && (!s.night || S.acc.own.includes(s.id)));
+  const items = shopTab === 'ride' ? [] : SHOP.filter(s => s.slot === shopTab && (!s.g || s.g === gOf(S.look)) && (!s.night || S.acc.own.includes(s.id)));
   const sel = shopSel && SH[shopSel] && SH[shopSel].slot === shopTab ? SH[shopSel] : null;
   const own = id => S.acc.own.includes(id), worn = id => S.acc[SH[id].slot] === id;
   /* dari Profil = lemari: hanya pakai/lepas yang sudah dimiliki. Membeli hanya di Toko Aksesoris (sekolah). Yang belum dimiliki tampil hitam */
@@ -6485,7 +6642,7 @@ function openShop(from) {
     <div style="display:grid;place-items:center;padding:4px 0 0">${avatarSvg(prev, 92)}</div>
   </div>
   <div style="padding:12px 12px 30px;display:flex;flex-direction:column;gap:12px">
-    <div class="tabs">${[['hat', gOf(S.look) === 'p' ? 'Topi/Hijab' : 'Topi'], ['shirt', 'Baju'], ['pants', gOf(S.look) === 'p' ? 'Celana/Rok' : 'Celana'], ['shoes', 'Sepatu'], ['glass', 'Kacamata'], ['back', 'Tas']].map(([k, n]) => `<button type="button" data-tab="${k}" aria-pressed="${shopTab === k}">${n}</button>`).join('')}</div>
+    <div class="tabs">${[['ride', '🛴 Kendaraan'], ['hat', gOf(S.look) === 'p' ? 'Topi/Hijab' : 'Topi'], ['shirt', 'Baju'], ['pants', gOf(S.look) === 'p' ? 'Celana/Rok' : 'Celana'], ['shoes', 'Sepatu'], ['glass', 'Kacamata'], ['back', 'Tas']].map(([k, n]) => `<button type="button" data-tab="${k}" aria-pressed="${shopTab === k}">${n}</button>`).join('')}</div>
     <div class="grid3">${items.map(it => { const lock = S.rank < it.rk && !own(it.id); return `<button type="button" class="item ${lock ? 'lock' : ''}" data-id="${it.id}" aria-pressed="${shopSel === it.id}">
       ${worn(it.id) ? '<span class="tag new" style="top:-10px">Dipakai</span>' : ''}${wr && !own(it.id) ? `<span style="display:inline-block;filter:brightness(0)">${avatarSvg({ ...look(), [it.slot]: it.id }, 36)}</span>` : avatarSvg({ ...look(), [it.slot]: it.id }, 36)}
       <span class="n">${wr && !own(it.id) ? '???' : esc(it.n)}</span>${it.g ? `<span class="pill" style="background:#ffe0f0;color:var(--text);border-color:#c8507a">Khusus ${it.g === 'p' ? 'perempuan' : 'laki-laki'}</span>` : ''}${own(it.id) ? '<span class="pill" style="background:#3ccf91">Punya</span>' : wr ? '<span class="pill" style="background:#4a4a5a;color:#fff">Belum punya</span>' : lock ? `<span class="pill" style="background:var(--sun);color:var(--text)">Rank ${it.rk}</span>` : `<span class="p">${COIN}${it.p}</span>`}</button>`; }).join('')}</div>
@@ -6495,6 +6652,7 @@ function openShop(from) {
         : `<button type="button" class="btn hot" id="sAct" ${S.coins < sel.p ? 'disabled' : ''}>Beli ${COIN}${sel.p}</button>${S.coins < sel.p ? `<div style="font-size:12.5px;font-weight:700;color:var(--sub)">Koin kurang ${sel.p - S.coins}. Kalahkan Lumi liar atau menang duel.</div>` : ''}`}</div>` : '<p style="margin:0;color:var(--muted);font-weight:700;font-size:13px">Ketuk barang untuk mencobanya di karakter.</p>'}
     <p style="margin:0;text-align:center;font-size:12px;font-weight:700;color:var(--dim)">${wr ? 'Beli aksesoris baru di Toko Aksesoris (halaman sekolah). ' : ''}Koin hanya dari bermain: melawan Lumi, duel, dan misi. Tidak bisa dibeli dengan uang asli.</p>
   </div>`;
+  if (shopTab === 'ride') rideShopPatch(el, wr);
   $('#sBack').onclick = () => { shopSel = null; if (openShop.from === 'prof') { openShop.from = null; openProf(); } else { show('s-world'); hud(); refreshPlayer(); } };
   el.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { shopTab = b.dataset.tab; shopSel = null; openShop(); });
   el.querySelectorAll('[data-id]').forEach(b => b.onclick = () => { shopSel = b.dataset.id; openShop(); });
