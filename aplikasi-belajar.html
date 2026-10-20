@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aplikasi Belajar Kelas 6</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{--text:#1e293b;--muted:#64748b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#f0f9ff,#fef9c3);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.card{background:#fff;border-radius:26px;box-shadow:0 8px 40px #0002;padding:2rem 1.6rem;max-width:420px;width:100%;text-align:center;animation:pop .4s both}
+@keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.badge{display:inline-block;background:linear-gradient(135deg,#f43f5e,#f59e0b);color:#fff;font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:.3rem 1rem;border-radius:99px;margin-bottom:.9rem}
+h1{font-family:'Fredoka One',cursive;font-size:2.1rem;line-height:1.1;background:linear-gradient(135deg,#dc2626,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem}
+.sub{font-size:.88rem;font-weight:700;color:var(--muted);margin-bottom:1.2rem}
+input.nm{width:100%;border:2px solid #fed7aa;border-radius:14px;padding:.7rem 1rem;font-family:inherit;font-size:1rem;font-weight:700;text-align:center;outline:none;margin-bottom:.8rem}
+input.nm:focus{border-color:#f97316}
+.btn{display:flex;align-items:center;gap:.9rem;width:100%;padding:.9rem 1.2rem;border-radius:16px;border:none;cursor:pointer;font-family:inherit;font-weight:900;color:#fff;text-align:left;margin-bottom:.75rem;transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px #0003}
+.btn.center{justify-content:center;text-align:center}
+.bi{font-size:1.6rem;width:46px;height:46px;border-radius:13px;background:#ffffff26;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bt{flex:1}.bl{font-size:1rem}.bd{font-size:.72rem;font-weight:600;opacity:.9;margin-top:.1rem}
+.link{background:none;border:none;color:var(--muted);font-family:inherit;font-weight:800;font-size:.8rem;cursor:pointer;margin-top:.3rem;text-decoration:underline}
+.err{color:#e11d48;font-size:.8rem;font-weight:700;margin-top:.4rem;display:none}
+.ov{display:none;position:fixed;inset:0;background:#0008;z-index:50;align-items:stretch;justify-content:center}
+.ov.on{display:flex}
+.panel{background:#fff;width:100%;max-width:680px;display:flex;flex-direction:column}
+.ph{display:flex;align-items:center;gap:.7rem;padding:.9rem 1.2rem;border-bottom:1.5px solid #f1f5f9;flex-shrink:0}
+.pt{font-family:'Fredoka One',cursive;font-size:1.15rem;flex:1}
+.x{background:#f1f5f9;border:none;border-radius:9px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+.pb{overflow-y:auto;padding:1.1rem 1.2rem 2.5rem;flex:1}
+.rs{margin-bottom:1.1rem}
+.rt{font-family:'Fredoka One',cursive;font-size:1rem;margin-bottom:.5rem}
+.ri{background:#f8fafc;border-radius:10px;padding:.5rem .7rem;margin-bottom:.35rem;font-size:.875rem;font-weight:600;line-height:1.5}
+.ri b{font-weight:900}
+.pg{display:flex;justify-content:space-between;font-family:'Fredoka One',cursive;color:var(--muted);margin-bottom:.35rem}
+.bar{background:#f1f5f9;border-radius:99px;height:6px;overflow:hidden;margin-bottom:.8rem}
+.bar i{display:block;height:6px;background:linear-gradient(90deg,#f59e0b,#f43f5e);transition:width .3s}
+.tm{display:flex;align-items:center;gap:.6rem;background:#f8fafc;border-radius:12px;padding:.45rem .8rem;margin-bottom:.8rem;font-weight:800;font-size:.8rem;color:var(--muted)}
+.tn{font-family:'Fredoka One',cursive;font-size:1.2rem;color:#16a34a;min-width:2.2rem}
+.tm.w .tn{color:#d97706}.tm.u .tn{color:#e11d48}
+.tb{flex:1;height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden}.tb i{display:block;height:6px;background:#22c55e;transition:width 1s linear}
+.tm.w .tb i{background:#f59e0b}.tm.u .tb i{background:#f43f5e}
+.chip{display:inline-block;border-radius:99px;padding:.15rem .6rem;font-size:.68rem;font-weight:800;margin-bottom:.6rem}
+.cM{background:#dcfce7;color:#16a34a}.cS{background:#fef9c3;color:#92400e}.cK{background:#fee2e2;color:#dc2626}
+.qt{font-weight:700;font-size:.97rem;line-height:1.55;margin-bottom:.9rem}
+.op{display:flex;align-items:center;gap:.65rem;width:100%;padding:.55rem .75rem;margin-bottom:.4rem;border-radius:11px;background:#fff;border:1.8px solid #e2e8f0;cursor:pointer;font-family:inherit;font-size:.9rem;font-weight:600;text-align:left;color:var(--text)}
+.op:hover:not(:disabled){border-color:#8b5cf6;background:#f5f3ff}
+.op:disabled{cursor:default}
+.ok{flex-shrink:0;width:24px;height:24px;border-radius:7px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:.73rem;font-weight:900;color:var(--muted)}
+.op.c{border-color:#16a34a;background:#f0fdf4;color:#16a34a}.op.c .ok{background:#16a34a;color:#fff}
+.op.w{border-color:#e11d48;background:#fff1f2;color:#e11d48}.op.w .ok{background:#e11d48;color:#fff}
+.op.k{border-color:#16a34a;background:#f0fdf4}.op.k .ok{background:#16a34a;color:#fff}
+.rz{margin-top:.5rem;padding:.5rem .75rem;border-radius:10px;font-size:.85rem;font-weight:800;text-align:center}
+.rz.ok2{background:#dcfce7;color:#16a34a}.rz.no{background:#ffe4e6;color:#e11d48}
+.nv{display:flex;margin-top:1rem}
+.nb{flex:1;padding:.7rem;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-weight:900;font-size:.95rem;color:#fff;background:linear-gradient(135deg,#f59e0b,#f97316)}
+.nb:disabled{opacity:.4;cursor:default}.nb.f{background:linear-gradient(135deg,#22c55e,#0ea5e9)}
+.hs{text-align:center}.he{font-size:3.2rem}.ht{font-family:'Fredoka One',cursive;font-size:1.7rem}
+.hbox{background:linear-gradient(135deg,#fef9c3,#fff7ed);border-radius:16px;padding:1rem;margin:1rem 0}
+.hn{font-family:'Fredoka One',cursive;font-size:3rem;line-height:1}
+.hr{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem}
+.hc{background:#f8fafc;border-radius:10px;padding:.35rem .75rem;font-size:.78rem;font-weight:700;color:var(--muted)}
+.sent{font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.8rem}
+.pi{border-radius:12px;padding:.7rem .9rem;margin-bottom:.55rem;border:1.5px solid}
+.pi.a{background:#f0fdf4;border-color:#bbf7d0}.pi.b{background:#fff1f2;border-color:#fecdd3}
+.pn{font-size:.7rem;font-weight:900;color:var(--muted)}.pq{font-size:.85rem;font-weight:700;margin:.15rem 0 .3rem}
+.ps{font-size:.78rem;font-weight:800}.pi.a .ps{color:#16a34a}.pi.b .ps{color:#e11d48}
+.pf{font-size:.82rem;font-weight:600;color:var(--muted);line-height:1.5}
+.pin{position:fixed;inset:0;z-index:99;background:#000b;display:none;align-items:center;justify-content:center}
+.pin.on{display:flex}
+.pbox{background:#1a1a2e;border:1px solid #7c4dff66;border-radius:22px;padding:1.6rem;width:300px;text-align:center;color:#e8eaf6}
+.dots{display:flex;justify-content:center;gap:.5rem;margin:1rem 0}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid #c040fb88}.dot.f{background:#c040fb}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.pad button{padding:.7rem;border-radius:12px;border:1px solid #7c4dff44;background:#ffffff0d;color:#e8eaf6;font-family:'Fredoka One',cursive;font-size:1.2rem;cursor:pointer}
+
+.rprog{display:flex;align-items:center;gap:.6rem;font-size:.78rem;font-weight:800;color:var(--muted);margin-bottom:.7rem}
+.rprog .bar{flex:1;margin:0}
+.rnav{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.5rem;margin-bottom:.6rem;position:sticky;top:-1.1rem;background:#fff;z-index:2;padding-top:.3rem}
+.rchip{flex-shrink:0;border:1.5px solid #e2e8f0;background:#fff;border-radius:99px;padding:.3rem .7rem;font-family:inherit;font-weight:800;font-size:.74rem;color:var(--muted);cursor:pointer;white-space:nowrap}
+.rchip.d{background:#dcfce7;border-color:#86efac;color:#16a34a}
+.rc{border-radius:16px;margin-bottom:.7rem;border:1.5px solid color-mix(in srgb,var(--c) 30%,#fff);overflow:hidden;background:#fff}
+.rh{display:flex;align-items:center;gap:.6rem;width:100%;padding:.7rem .85rem;border:none;cursor:pointer;font-family:inherit;text-align:left;background:color-mix(in srgb,var(--c) 12%,#fff)}
+.re{font-size:1.4rem}
+.rtt{flex:1;font-family:'Fredoka One',cursive;font-size:1rem;color:var(--c)}
+.rar{transition:transform .2s;color:var(--c)}
+.rc.open .rar{transform:rotate(180deg)}
+.rbody{display:none;padding:.8rem .85rem 1rem}
+.rc.open .rbody{display:block}
+.rc .ri{border-left:4px solid var(--c)}
+.rbox{background:#fffbeb;border:1.5px dashed #f59e0b;border-radius:12px;padding:.6rem .8rem;margin:.6rem 0;font-size:.85rem;font-weight:700;line-height:1.5}
+.rbox:before{content:'💡 Ingat! ';font-weight:900;color:#d97706}
+.rtw{overflow-x:auto;margin:.6rem 0}
+.rtbl{width:100%;border-collapse:collapse;font-size:.82rem;font-weight:600}
+.rtbl th{background:var(--c);color:#fff;padding:.4rem .6rem;text-align:left}
+.rtbl td{padding:.4rem .6rem;border-bottom:1px solid #e2e8f0}
+.rtbl tr:nth-child(even) td{background:#f8fafc}
+.rex{background:#f0f9ff;border-radius:12px;padding:.65rem .8rem;margin:.6rem 0;font-size:.85rem;font-weight:600}
+.rex .eh{font-weight:900;color:#0369a1;margin-bottom:.25rem}
+.rex ol{margin:.3rem 0 .3rem 1.2rem;line-height:1.6}
+.rex .ea{font-weight:900;color:#16a34a}
+.rtrik{background:#f5f3ff;border-radius:12px;padding:.6rem .8rem;margin:.6rem 0;font-size:.85rem;font-weight:700;line-height:1.5}
+.rtrik:before{content:'🧠 Trik: ';font-weight:900;color:#7c3aed}
+.rfct{font-size:.74rem;font-weight:900;color:var(--muted);margin:.7rem 0 .3rem}
+.fcg{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.fc{border:none;border-radius:12px;padding:.6rem;min-height:70px;font-family:inherit;font-size:.78rem;font-weight:800;cursor:pointer;background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--text);line-height:1.35}
+.fc .bk{display:none;color:#16a34a}
+.fc.flip{background:#dcfce7}.fc.flip .fr{display:none}.fc.flip .bk{display:block}
+.fc:before{content:'ketuk';display:block;font-size:.6rem;color:var(--muted);margin-bottom:.15rem}
+.fc.flip:before{content:'jawaban'}
+.rdn{margin-top:.8rem;width:100%;padding:.55rem;border:none;border-radius:11px;background:linear-gradient(135deg,#22c55e,#0ea5e9);color:#fff;font-family:inherit;font-weight:900;cursor:pointer}
+@media(max-width:380px){.fcg{grid-template-columns:1fr}}
+
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin:.6rem 0}
+.stl{background:#f8fafc;border-radius:12px;padding:.5rem .3rem;text-align:center}
+.stl b{display:block;font-family:'Fredoka One',cursive;font-size:1.3rem;line-height:1.1}
+.stl span{font-size:.62rem;font-weight:800;color:var(--muted)}
+.srow{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;border-radius:12px;background:#f8fafc;margin-bottom:.4rem}
+.srow .se{font-size:1.3rem}
+.srow .sm{flex:1;min-width:0}
+.srow .sn{font-weight:900;font-size:.85rem}
+.srow .ss{font-size:.7rem;font-weight:700;color:var(--muted)}
+.srow .sv{font-family:'Fredoka One',cursive;font-size:1.2rem}
+.mini{height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin:.25rem 0}
+.mini i{display:block;height:6px;border-radius:99px}
+.schips{display:flex;gap:.4rem;overflow-x:auto;margin:.7rem 0 .4rem}
+.sch{flex-shrink:0;border:1.5px solid #e2e8f0;background:#fff;border-radius:99px;padding:.35rem .75rem;font-family:inherit;font-weight:800;font-size:.76rem;color:var(--muted);cursor:pointer}
+.sch.on{background:#1e293b;border-color:#1e293b;color:#fff}
+.sbox{border:1.5px solid #e2e8f0;border-radius:14px;padding:.7rem .8rem;margin:.6rem 0}
+.sbt{font-family:'Fredoka One',cursive;font-size:.95rem;margin-bottom:.4rem}
+.lvr{display:flex;align-items:center;gap:.5rem;font-size:.76rem;font-weight:800;margin:.3rem 0}
+.lvr .ln{width:62px}.lvr .mini{flex:1;margin:0}.lvr .lp{width:70px;text-align:right;color:var(--muted)}
+.sad{background:#fffbeb;border:1.5px dashed #f59e0b;border-radius:12px;padding:.6rem .8rem;margin:.6rem 0;font-size:.83rem;font-weight:700;line-height:1.5}
+.swr{border-radius:11px;background:#fff1f2;border:1.5px solid #fecdd3;padding:.55rem .7rem;margin-bottom:.4rem;font-size:.82rem;font-weight:700}
+.swr small{display:block;font-weight:600;color:var(--muted);margin-top:.2rem;line-height:1.45}
+.hrw{display:flex;align-items:center;gap:.5rem;padding:.4rem .2rem;border-bottom:1px solid #f1f5f9;font-size:.78rem;font-weight:700}
+.hrw .hd{width:92px;color:var(--muted);font-size:.7rem}.hrw .hm{flex:1}
+.hrw .hn2{font-family:'Fredoka One',cursive;font-size:1rem}
+.snote{font-size:.7rem;font-weight:700;color:var(--muted);text-align:center;margin-top:.8rem}
+@media(max-width:380px){.sgrid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="card" id="scr-nama">
+  <div class="badge">🎯 Aplikasi Belajar 2025/2026</div>
+  <h1>Kelas 6</h1>
+  <div class="sub">Isi namamu sekali, lalu pilih mata pelajaran 😊</div>
+  <input class="nm" id="in-nama" type="text" maxlength="40" placeholder="Tulis namamu di sini..." onkeydown="if(event.key==='Enter')mulai()">
+  <button class="btn center" style="background:linear-gradient(135deg,#dc2626,#f97316)" onclick="mulai()">Mulai Belajar 🚀</button>
+  <div class="err" id="nm-err">⚠️ Nama tidak boleh kosong!</div>
+</div>
+
+<div class="card" id="scr-menu" style="display:none">
+  <div class="badge">🎯 Aplikasi Belajar 2025/2026</div>
+  <h1>Pilih Mapel</h1>
+  <div class="sub" id="hello"></div>
+  <div id="mapel-list"></div>
+  <button class="btn" id="btn-stat" style="background:linear-gradient(135deg,#0d9488,#0ea5e9)" onclick="openStat()"><div class="bi">📊</div><div class="bt"><div class="bl">Statistik Saya</div><div class="bd">Nilai, grafik, dan progres belajar</div></div></button>
+  <button class="link" onclick="gantiNama()">Ganti nama</button>
+</div>
+
+<div class="card" id="scr-mapel" style="display:none">
+  <div style="font-size:3rem" id="m-emoji"></div>
+  <h1 id="m-judul" style="font-size:1.8rem"></h1>
+  <div class="sub" id="m-sub"></div>
+  <button class="btn" style="background:linear-gradient(135deg,#7c3aed,#6366f1)" onclick="openRangkuman()"><div class="bi">📖</div><div class="bt"><div class="bl">Rangkuman</div><div class="bd">Materi ringkas</div></div></button>
+  <button class="btn" style="background:linear-gradient(135deg,#f59e0b,#f97316)" onclick="startQuiz()"><div class="bi">✏️</div><div class="bt"><div class="bl">Soal Latihan</div><div class="bd">30 soal acak · mudah–sedang–sulit</div></div></button>
+  <button class="link" onclick="renderMenu()">← Kembali ke daftar mapel</button>
+</div>
+
+<div class="ov" id="ov"><div class="panel">
+  <div class="ph"><span class="pt" id="ov-t"></span><button class="x" onclick="closeOv()">✕</button></div>
+  <div class="pb" id="ov-b"></div>
+</div></div>
+
+<div class="pin" id="pin"><div class="pbox">
+  <div style="font-size:2rem">🔐</div>
+  <div style="font-family:'Fredoka One',cursive;font-size:1.2rem;color:#c040fb">Mode Admin</div>
+  <div style="font-size:.78rem;color:#7986cb;font-weight:700">Masukkan PIN 6 digit</div>
+  <div class="dots" id="dots"></div>
+  <div class="pad" id="pad"></div>
+  <div id="pin-err" style="color:#f43f5e;font-size:.78rem;font-weight:700;margin-top:.6rem;display:none">PIN salah.</div>
+</div></div>
+
+<script>
+const BANK={};
+const P=(lvl,q,opts,jawab,info)=>({lvl,tipe:'pg',q,opts,jawab,info});
+const B=(lvl,q,v,info)=>({lvl,tipe:'bs',q,opts:['Benar','Salah'],jawab:v?0:1,info});
+BANK.mat=[
+P('M',"125 + 237 = …",["352","362","372","462"],1,"125 + 237 = 362."),
+P('M',"1.000 − 357 = …",["633","643","653","743"],1,"1.000 − 357 = 643."),
+P('M',"25 × 12 = …",["250","300","350","320"],1,"25 × 12 = 300."),
+P('M',"144 : 12 = …",["10","11","12","14"],2,"12 × 12 = 144."),
+P('M',"KPK dari 4 dan 6 adalah …",["8","10","12","24"],2,"Kelipatan 4: 4, 8, 12; kelipatan 6: 6, 12. KPK = 12."),
+P('M',"FPB dari 12 dan 18 adalah …",["3","6","9","36"],1,"Faktor persekutuan terbesar 12 dan 18 adalah 6."),
+B('M',"−5 lebih besar daripada −2.",false,"Pada garis bilangan, makin ke kiri makin kecil, jadi −5 < −2."),
+P('M',"−3 + 8 = …",["−5","5","11","−11"],1,"Dari −3 maju 8 langkah menjadi 5."),
+P('M',"5 − 9 = …",["4","−4","14","−14"],1,"5 − 9 = −4."),
+B('M',"1/2 sama nilainya dengan 2/4.",true,"2/4 disederhanakan (dibagi 2) menjadi 1/2."),
+P('M',"1/4 + 2/4 = …",["3/8","3/4","2/4","1/2"],1,"Penyebut sama, jumlahkan pembilang: 3/4."),
+P('M',"3/5 − 1/5 = …",["2/10","4/5","2/5","3/5"],2,"3/5 − 1/5 = 2/5."),
+P('M',"Pecahan yang sama dengan 0,5 adalah …",["1/5","1/2","1/4","2/3"],1,"0,5 = 5/10 = 1/2."),
+B('M',"50% sama dengan 1/2.",true,"50/100 = 1/2."),
+P('M',"25% dari 200 adalah …",["25","50","75","100"],1,"25/100 × 200 = 50."),
+P('M',"Bentuk persen dari 0,75 adalah …",["7,5%","75%","750%","0,75%"],1,"0,75 × 100% = 75%."),
+P('M',"Volume kubus dengan rusuk 5 cm adalah … cm³",["25","75","125","150"],2,"5 × 5 × 5 = 125."),
+P('M',"Volume balok 6 cm × 4 cm × 3 cm adalah … cm³",["48","72","13","144"],1,"6 × 4 × 3 = 72."),
+P('M',"Luas persegi dengan sisi 9 cm adalah … cm²",["36","18","81","72"],2,"9 × 9 = 81."),
+P('M',"Keliling persegi panjang dengan panjang 8 cm dan lebar 5 cm adalah … cm",["13","26","40","30"],1,"2 × (8 + 5) = 26."),
+P('M',"Luas segitiga dengan alas 10 cm dan tinggi 6 cm adalah … cm²",["60","30","16","15"],1,"½ × 10 × 6 = 30."),
+P('M',"Luas lingkaran berjari-jari 7 cm (π = 22/7) adalah … cm²",["44","154","22","308"],1,"22/7 × 7 × 7 = 154."),
+P('M',"Keliling lingkaran berdiameter 14 cm (π = 22/7) adalah … cm",["44","22","88","154"],0,"π × d = 22/7 × 14 = 44."),
+B('M',"Diameter lingkaran sama dengan dua kali jari-jari.",true,"d = 2 × r."),
+P('M',"Rata-rata dari 6, 8, dan 10 adalah …",["6","8","9","10"],1,"(6 + 8 + 10) : 3 = 8."),
+P('M',"Modus dari data 2, 3, 3, 4, 5 adalah …",["2","3","4","5"],1,"Angka 3 paling sering muncul."),
+P('M',"Median dari data 3, 5, 7, 9, 11 adalah …",["5","7","9","35"],1,"Nilai tengah data yang terurut adalah 7."),
+B('M',"Mean adalah nilai yang paling sering muncul dalam data.",false,"Yang paling sering muncul adalah modus; mean adalah rata-rata."),
+P('M',"Pada peta berskala 1 : 100.000, jarak 1 cm di peta sama dengan … sebenarnya",["100 m","1 km","10 km","100 km"],1,"100.000 cm = 1.000 m = 1 km."),
+P('M',"Perbandingan kelereng Ali dan Budi 2 : 3. Jika Ali punya 10, kelereng Budi …",["12","15","20","30"],1,"10 : 2 = 5, maka Budi 3 × 5 = 15."),
+B('M',"Kecepatan = jarak : waktu.",true,"Rumus dasar kecepatan."),
+P('M',"Mobil menempuh 60 km dalam 2 jam. Kecepatannya … km/jam",["120","30","62","58"],1,"60 : 2 = 30."),
+P('M',"3 jam = … menit",["120","150","180","360"],2,"3 × 60 = 180."),
+P('M',"2,5 kg = … gram",["250","2.500","25","25.000"],1,"2,5 × 1.000 = 2.500."),
+P('M',"5 meter = … cm",["50","500","5.000","5"],1,"5 × 100 = 500."),
+P('M',"Bilangan prima di bawah ini adalah …",["9","15","7","21"],2,"7 hanya habis dibagi 1 dan 7."),
+B('M',"Bilangan 1 termasuk bilangan prima.",false,"Bilangan prima punya tepat dua faktor; 1 hanya punya satu faktor."),
+P('M',"3² = …",["6","9","8","27"],1,"3 × 3 = 9."),
+P('M',"√81 = …",["8","9","18","27"],1,"9 × 9 = 81."),
+B('M',"4³ = 12.",false,"4³ = 4 × 4 × 4 = 64."),
+P('M',"Pola 2, 4, 6, 8, … bilangan berikutnya adalah …",["9","10","12","14"],1,"Pola bertambah 2."),
+B('M',"Pada titik (3, 2), angka 3 adalah koordinat pada sumbu-x.",true,"Urutan koordinat adalah (x, y)."),
+P('M',"Jaring-jaring kubus terdiri dari … persegi yang sama",["4","5","6","8"],2,"Kubus punya 6 sisi."),
+P('M',"Banyak sisi pada balok adalah …",["4","6","8","12"],1,"Balok punya 6 sisi."),
+P('M',"Banyak rusuk pada kubus adalah …",["6","8","12","16"],2,"Kubus punya 12 rusuk."),
+B('M',"Bilangan −7 dibaca negatif tujuh.",true,"Tanda − menunjukkan bilangan negatif."),
+P('M',"0,2 + 0,3 = …",["0,05","0,5","5","0,23"],1,"2 persepuluh + 3 persepuluh = 5 persepuluh = 0,5."),
+P('M',"1,5 × 2 = …",["3","1,7","30","0,3"],0,"1,5 × 2 = 3."),
+P('M',"1/2 dari 24 adalah …",["6","12","24","48"],1,"24 : 2 = 12."),
+P('M',"Bentuk desimal dari 3/4 adalah …",["0,34","0,75","0,25","7,5"],1,"3 : 4 = 0,75."),
+// Sedang
+P('S',"KPK dari 12 dan 15 adalah …",["30","60","90","180"],1,"12 = 2²×3; 15 = 3×5; KPK = 2²×3×5 = 60."),
+P('S',"FPB dari 24 dan 36 adalah …",["6","12","18","72"],1,"24 = 2³×3; 36 = 2²×3²; FPB = 2²×3 = 12."),
+P('S',"Lampu A menyala tiap 6 detik, lampu B tiap 8 detik. Jika menyala bersama sekarang, keduanya menyala bersama lagi setelah … detik",["14","24","48","12"],1,"KPK 6 dan 8 adalah 24."),
+P('S',"−8 + 5 − (−4) = …",["−7","1","−1","17"],1,"−8 + 5 = −3; −3 − (−4) = −3 + 4 = 1."),
+P('S',"3/4 + 1/6 = …",["4/10","11/12","3/8","5/6"],1,"9/12 + 2/12 = 11/12."),
+P('S',"2/3 − 1/4 = …",["1/12","5/12","1/2","3/7"],1,"8/12 − 3/12 = 5/12."),
+P('S',"2/5 × 3/4 = …",["5/9","3/10","6/9","8/15"],1,"6/20 = 3/10."),
+P('S',"3/4 : 1/2 = …",["3/8","1 1/2","2/3","1/3"],1,"3/4 × 2/1 = 6/4 = 1 1/2."),
+P('S',"20% dari 250 adalah …",["25","50","75","500"],1,"20/100 × 250 = 50."),
+P('S',"Harga sepatu Rp50.000 didiskon 20%. Harga yang dibayar …",["Rp10.000","Rp40.000","Rp45.000","Rp30.000"],1,"Diskon Rp10.000, bayar Rp40.000."),
+P('S',"Skala peta 1 : 500.000. Jarak di peta 4 cm, jarak sebenarnya … km",["2","20","200","4"],1,"4 × 500.000 = 2.000.000 cm = 20 km."),
+P('S',"Perbandingan umur ayah dan anak 5 : 2. Jika anak 8 tahun, umur ayah … tahun",["16","20","25","40"],1,"8 : 2 = 4; ayah 5 × 4 = 20."),
+P('S',"Mobil melaju 72 km/jam selama 2,5 jam. Jarak tempuhnya … km",["144","180","720","36"],1,"72 × 2,5 = 180."),
+P('S',"Sepeda dengan kecepatan 15 km/jam menempuh 45 km. Waktu yang dibutuhkan … jam",["2","3","4","30"],1,"45 : 15 = 3."),
+P('S',"Air 120 liter mengalir selama 4 menit. Debitnya … liter/menit",["30","480","124","116"],0,"120 : 4 = 30."),
+P('S',"Volume balok dengan p = 10 cm, l = 5 cm, t = 4 cm adalah … cm³",["140","200","19","100"],1,"10 × 5 × 4 = 200."),
+P('S',"Volume kubus 1.000 cm³ memiliki rusuk … cm",["8","10","100","125"],1,"10 × 10 × 10 = 1.000."),
+P('S',"Luas permukaan kubus dengan rusuk 4 cm adalah … cm²",["64","96","16","24"],1,"6 × 4 × 4 = 96."),
+P('S',"Bangun terdiri dari persegi 6 × 6 cm dan persegi panjang 6 × 4 cm yang digabung. Luas totalnya … cm²",["48","60","72","40"],1,"36 + 24 = 60."),
+P('S',"Keliling lingkaran berjari-jari 10 cm (π = 3,14) adalah … cm",["31,4","62,8","314","6,28"],1,"2 × 3,14 × 10 = 62,8."),
+P('S',"Luas lingkaran berdiameter 20 cm (π = 3,14) adalah … cm²",["62,8","314","628","31,4"],1,"r = 10; 3,14 × 10 × 10 = 314."),
+P('S',"Rata-rata 5 nilai adalah 80. Jumlah kelima nilai itu …",["16","400","85","80"],1,"80 × 5 = 400."),
+P('S',"Median dari data 4, 6, 2, 9, 8 adalah …",["4","6","8","9"],1,"Urut: 2, 4, 6, 8, 9; tengahnya 6."),
+P('S',"Data nilai: 70, 80, 90, 80, 85, 80. Modusnya …",["70","80","85","90"],1,"80 muncul tiga kali."),
+P('S',"Volume tabung r = 7 cm, t = 10 cm (π = 22/7) adalah … cm³",["440","1.540","154","3.080"],1,"22/7 × 7 × 7 × 10 = 1.540."),
+P('S',"Prisma dengan luas alas 12 cm² dan tinggi 5 cm memiliki volume … cm³",["17","60","30","120"],1,"Luas alas × tinggi = 60."),
+P('S',"5 + 3 × 4 = …",["32","17","12","23"],1,"Perkalian dulu: 3 × 4 = 12, lalu 5 + 12 = 17."),
+P('S',"(12 − 4) × 3 : 2 = …",["12","6","24","16"],0,"8 × 3 = 24; 24 : 2 = 12."),
+P('S',"2⁴ + 3² = …",["17","25","13","72"],1,"16 + 9 = 25."),
+P('S',"Titik yang berjarak 4 satuan ke kanan dan 3 satuan ke atas dari titik asal (0,0) adalah …",["(3, 4)","(4, 3)","(−4, 3)","(4, −3)"],1,"Kanan = x positif, atas = y positif: (4, 3)."),
+// Sulit
+P('K',"KPK dari 18, 24, dan 30 adalah …",["90","180","360","720"],2,"18 = 2×3²; 24 = 2³×3; 30 = 2×3×5; KPK = 2³×3²×5 = 360."),
+P('K',"FPB dari 36, 48, dan 60 adalah …",["6","12","18","24"],1,"Faktor prima sama terkecil: 2² × 3 = 12."),
+P('K',"3 1/2 − 1 3/4 = …",["1 1/4","1 3/4","2 1/4","2 1/2"],1,"7/2 − 7/4 = 14/4 − 7/4 = 7/4 = 1 3/4."),
+P('K',"Ibu punya 4 kg gula, dipakai 1 2/5 kg. Sisa gula … kg",["2 2/5","2 3/5","3 2/5","2 1/5"],1,"4 − 1,4 = 2,6 = 2 3/5."),
+P('K',"Baju Rp80.000 didiskon 25%. Dibayar dengan uang Rp100.000, kembaliannya …",["Rp20.000","Rp40.000","Rp60.000","Rp25.000"],1,"Diskon Rp20.000, bayar Rp60.000, kembalian Rp40.000."),
+P('K',"Skala peta 1 : 2.000.000. Jarak kota A–B di peta 3,5 cm. Jarak sebenarnya … km",["7","70","700","35"],1,"3,5 × 2.000.000 = 7.000.000 cm = 70 km."),
+P('K',"Kelereng A : B : C = 2 : 3 : 5 dengan jumlah 100. Kelereng C berjumlah …",["20","30","50","25"],2,"Total bagian 10; C = 5/10 × 100 = 50."),
+P('K',"Berangkat pukul 07.30 dan tiba pukul 10.00 dengan kecepatan 48 km/jam. Jarak tempuh … km",["96","120","144","240"],1,"Waktu 2,5 jam; 48 × 2,5 = 120."),
+P('K',"Dua mobil berangkat berlawanan arah dari jarak 300 km, kecepatan 60 km/jam dan 40 km/jam. Mereka bertemu setelah … jam",["2","3","4","5"],1,"Kecepatan gabungan 100 km/jam; 300 : 100 = 3."),
+P('K',"Bak berkapasitas 1 m³ diisi dengan debit 20 liter/menit. Waktu hingga penuh … menit",["20","50","100","5"],1,"1 m³ = 1.000 liter; 1.000 : 20 = 50."),
+P('K',"Bangun terdiri dari kubus rusuk 4 cm dan balok 4 × 4 × 6 cm yang ditempel. Volume totalnya … cm³",["128","160","96","192"],1,"64 + 96 = 160."),
+P('K',"Persegi sisi 14 cm memuat lingkaran berdiameter 14 cm (π = 22/7). Luas daerah di luar lingkaran … cm²",["42","154","196","350"],0,"196 − 154 = 42."),
+P('K',"Keliling bangun setengah lingkaran berdiameter 14 cm (π = 22/7) adalah … cm",["22","36","44","58"],1,"Setengah keliling 22 + diameter 14 = 36."),
+P('K',"Rata-rata nilai 8 anak adalah 72. Setelah satu anak bernilai 81 ikut, rata-ratanya menjadi …",["72","73","74","75"],1,"(576 + 81) : 9 = 73."),
+P('K',"Rata-rata 5 bilangan adalah 12. Jika satu bilangan dibuang, rata-rata 4 bilangan sisanya 10. Bilangan yang dibuang adalah …",["10","20","22","12"],1,"60 − 40 = 20."),
+P('K',"(−12) : (−3) + 5 × (−2) = …",["−14","−6","6","14"],1,"4 + (−10) = −6."),
+P('K',"Pola 1, 3, 6, 10, 15, … bilangan berikutnya adalah …",["20","21","22","25"],1,"Selisih bertambah 1: 15 + 6 = 21."),
+B('K',"Jika jari-jari lingkaran diperbesar 2 kali, luasnya menjadi 2 kali luas semula.",false,"Luas berbanding kuadrat jari-jari, jadi menjadi 4 kali."),
+B('K',"Kecepatan 90 km/jam sama dengan 25 m/detik.",true,"90.000 m : 3.600 detik = 25 m/detik."),
+B('K',"Hasil (−4) × (−3) × (−2) adalah 24.",false,"(−4)×(−3) = 12; 12 × (−2) = −24.")
+];
+
+BANK.ipas=[
+P('M',"Organ pencernaan yang menyerap sari-sari makanan adalah …",["Lambung","Usus halus","Kerongkongan","Usus besar"],1,"Penyerapan sari makanan terjadi di usus halus."),
+P('M',"Proses pencernaan makanan dimulai dari …",["Mulut","Lambung","Usus halus","Anus"],0,"Makanan dikunyah dan dicampur air liur di mulut."),
+B('M',"Paru-paru berfungsi memompa darah ke seluruh tubuh.",false,"Yang memompa darah adalah jantung."),
+P('M',"Alat pernapasan tempat pertukaran oksigen dan karbon dioksida adalah …",["Jantung","Paru-paru","Ginjal","Hati"],1,"Pertukaran gas terjadi di paru-paru."),
+B('M',"Jantung berfungsi memompa darah.",true,"Jantung memompa darah ke seluruh tubuh."),
+P('M',"Ginjal berfungsi …",["Memompa darah","Menyaring darah dan membentuk urine","Mencerna makanan","Menghasilkan air liur"],1,"Ginjal menyaring darah dan menghasilkan urine."),
+P('M',"Organ ekskresi yang mengeluarkan keringat adalah …",["Kulit","Paru-paru","Hati","Usus"],0,"Keringat dikeluarkan melalui kulit."),
+B('M',"Karbon dioksida dikeluarkan tubuh melalui paru-paru saat mengembuskan napas.",true,"CO₂ adalah zat sisa pernapasan."),
+P('M',"Perubahan wujud es menjadi air disebut …",["Membeku","Menguap","Mencair","Mengembun"],2,"Padat menjadi cair = mencair."),
+P('M',"Air berubah menjadi uap air disebut …",["Menguap","Mencair","Membeku","Mengembun"],0,"Cair menjadi gas = menguap."),
+B('M',"Menyublim adalah perubahan wujud gas langsung menjadi padat.",false,"Menyublim adalah padat langsung menjadi gas, contohnya kapur barus."),
+P('M',"Embun pagi terbentuk karena …",["Pembekuan air","Pengembunan uap air","Penguapan air","Pencairan es"],1,"Uap air di udara dingin berubah menjadi titik air."),
+P('M',"Sumber energi utama di bumi adalah …",["Bulan","Matahari","Angin","Batu bara"],1,"Hampir semua energi di bumi berasal dari Matahari."),
+P('M',"Setrika listrik mengubah energi listrik menjadi energi …",["Cahaya","Panas","Bunyi","Gerak"],1,"Setrika menghasilkan panas."),
+B('M',"Baterai merupakan sumber energi listrik pada rangkaian sederhana.",true,"Baterai menyediakan energi listrik."),
+P('M',"Bahan penghantar listrik yang baik (konduktor) adalah …",["Karet","Plastik","Tembaga","Kayu kering"],2,"Logam seperti tembaga menghantarkan listrik."),
+B('M',"Karet termasuk bahan isolator.",true,"Karet tidak menghantarkan listrik."),
+P('M',"Gaya yang menarik benda ke pusat bumi disebut gaya …",["Gesek","Gravitasi","Magnet","Otot"],1,"Itulah gaya gravitasi."),
+B('M',"Gaya gesek dapat memperlambat gerak benda.",true,"Gesekan melawan arah gerak."),
+P('M',"Benda yang dapat ditarik magnet adalah …",["Plastik","Kayu","Paku besi","Kertas"],2,"Besi adalah benda magnetis."),
+P('M',"Rotasi bumi menyebabkan …",["Pergantian siang dan malam","Pergantian musim","Gerhana bulan","Banjir"],0,"Bumi berputar pada porosnya dalam sekitar 24 jam."),
+B('M',"Bumi berevolusi mengelilingi Matahari selama kurang lebih 365 hari.",true,"Satu kali revolusi bumi sekitar satu tahun."),
+P('M',"Planet yang paling dekat dengan Matahari adalah …",["Merkurius","Venus","Bumi","Mars"],0,"Merkurius paling dekat."),
+P('M',"Planet terbesar di tata surya adalah …",["Bumi","Mars","Jupiter","Venus"],2,"Jupiter planet terbesar."),
+P('M',"Satelit alami bumi adalah …",["Bulan","Matahari","Mars","Bintang"],0,"Bulan mengorbit bumi."),
+B('M',"Matahari adalah planet.",false,"Matahari adalah bintang."),
+P('M',"Gerhana bulan terjadi ketika posisi …",["Bulan di antara Bumi dan Matahari","Bumi di antara Matahari dan Bulan","Matahari di antara Bumi dan Bulan","Bumi, Bulan, dan Matahari saling menjauh"],1,"Bayangan bumi menutupi bulan."),
+P('M',"Dalam rantai makanan, tumbuhan hijau berperan sebagai …",["Produsen","Konsumen I","Konsumen II","Pengurai"],0,"Tumbuhan hijau membuat makanan sendiri."),
+P('M',"Hewan berikut yang termasuk herbivora adalah …",["Singa","Sapi","Elang","Ular"],1,"Sapi memakan tumbuhan."),
+B('M',"Jamur dan bakteri dapat berperan sebagai pengurai.",true,"Pengurai menguraikan sisa makhluk hidup."),
+P('M',"Hewan pemakan tumbuhan disebut …",["Herbivora","Karnivora","Omnivora","Insektivora"],0,"Herbivora = pemakan tumbuhan."),
+P('M',"Hewan pemakan tumbuhan dan daging disebut …",["Herbivora","Karnivora","Omnivora","Dekomposer"],2,"Omnivora = pemakan segala."),
+B('M',"Punuk unta berisi cadangan lemak.",true,"Lemak menjadi cadangan energi saat sulit makan."),
+P('M',"Sirip pada ikan merupakan adaptasi untuk …",["Terbang","Berenang","Memanjat","Menggali"],1,"Sirip membantu bergerak di air."),
+B('M',"Tumbuhan hijau membuat makanan melalui fotosintesis dengan bantuan cahaya matahari.",true,"Fotosintesis butuh cahaya, air, dan CO₂."),
+P('M',"Zat hijau daun disebut …",["Klorofil","Stomata","Akar","Getah"],0,"Klorofil menangkap cahaya matahari."),
+P('M',"Bagian tumbuhan yang menyerap air dari tanah adalah …",["Daun","Batang","Akar","Bunga"],2,"Akar menyerap air dan mineral."),
+P('M',"Sumber daya alam yang dapat diperbarui adalah …",["Minyak bumi","Batu bara","Hutan","Gas alam"],2,"Hutan dapat tumbuh kembali bila dijaga."),
+B('M',"Minyak bumi termasuk sumber daya alam yang tidak dapat diperbarui.",true,"Terbentuk jutaan tahun."),
+P('M',"Bencana alam akibat pergeseran lempeng bumi adalah …",["Gempa bumi","Kekeringan","Angin puting beliung","Hujan es"],0,"Gempa tektonik berasal dari pergeseran lempeng."),
+P('M',"Salah satu penyebab banjir adalah …",["Menanam pohon","Membuang sampah sembarangan","Reboisasi","Menghemat air"],1,"Sampah menyumbat saluran air."),
+B('M',"Reboisasi adalah penanaman kembali hutan yang gundul.",true,"Reboisasi = penghijauan kembali."),
+B('M',"Indonesia disebut negara kepulauan.",true,"Indonesia terdiri dari ribuan pulau."),
+P('M',"Semboyan negara Indonesia adalah …",["Bhinneka Tunggal Ika","Tut Wuri Handayani","Garuda Pancasila","Merdeka atau Mati"],0,"Berbeda-beda tetapi tetap satu."),
+P('M',"Dasar negara Indonesia adalah …",["UUD 1945","Pancasila","Bhinneka Tunggal Ika","GBHN"],1,"Dasar negara adalah Pancasila."),
+P('M',"Proklamasi kemerdekaan Indonesia dibacakan pada …",["17 Agustus 1945","17 Agustus 1954","28 Oktober 1928","20 Mei 1908"],0,"17 Agustus 1945."),
+P('M',"Proklamator kemerdekaan Indonesia adalah …",["Soekarno dan Mohammad Hatta","Soeharto dan Habibie","Ki Hajar Dewantara dan Kartini","Diponegoro dan Hasanuddin"],0,"Soekarno dan Mohammad Hatta."),
+B('M',"Keberagaman suku bangsa merupakan kekayaan bangsa Indonesia.",true,"Keberagaman perlu dihargai."),
+P('M',"Salah satu tanda pubertas pada remaja putri adalah …",["Tumbuh kumis","Mengalami menstruasi","Tumbuh jakun","Suara membesar"],1,"Menstruasi menandai pubertas putri."),
+B('M',"Menjaga kebersihan diri sangat penting saat memasuki masa pubertas.",true,"Perubahan tubuh membuat kebersihan makin penting."),
+// Sedang
+P('S',"Urutan saluran pencernaan yang benar adalah …",["Mulut – kerongkongan – lambung – usus halus – usus besar – anus","Mulut – lambung – kerongkongan – usus besar – usus halus – anus","Mulut – usus halus – lambung – kerongkongan – anus – usus besar","Kerongkongan – mulut – lambung – usus halus – anus – usus besar"],0,"Makanan melewati saluran sesuai urutan tersebut."),
+P('S',"Enzim ptialin dalam air liur membantu mencerna …",["Protein","Lemak","Karbohidrat","Vitamin"],2,"Ptialin mengubah amilum menjadi gula sederhana."),
+P('S',"Organ yang menghasilkan empedu untuk membantu mencerna lemak adalah …",["Hati","Lambung","Pankreas","Ginjal"],0,"Empedu dibuat di hati."),
+P('S',"Pertukaran oksigen dan karbon dioksida terjadi di …",["Bronkus","Alveolus","Trakea","Laring"],1,"Alveolus adalah kantung udara kecil di paru-paru."),
+P('S',"Sel darah merah berfungsi …",["Mengangkut oksigen","Melawan kuman","Membekukan darah","Menyerap makanan"],0,"Sel darah merah mengandung hemoglobin pengikat oksigen."),
+B('S',"Sel darah putih berfungsi melawan kuman penyakit.",true,"Sel darah putih bagian dari sistem kekebalan."),
+P('S',"Pembuluh yang membawa darah dari jantung ke seluruh tubuh disebut …",["Vena","Arteri","Kapiler","Alveolus"],1,"Arteri membawa darah keluar dari jantung."),
+P('S',"Contoh perubahan kimia adalah …",["Es batu mencair","Kayu terbakar menjadi abu","Air menguap","Gula larut dalam air"],1,"Pembakaran membentuk zat baru."),
+B('S',"Besi berkarat adalah perubahan fisik.",false,"Berkarat membentuk zat baru sehingga perubahan kimia."),
+P('S',"Contoh perubahan fisik adalah …",["Kertas dibakar","Singkong menjadi tapai","Es batu mencair","Besi berkarat"],2,"Mencair tidak membentuk zat baru."),
+P('S',"Pada rangkaian listrik seri, jika satu lampu putus maka …",["Semua lampu padam","Lampu lain menyala lebih terang","Hanya lampu itu yang padam","Baterai meledak"],0,"Arus hanya punya satu jalur."),
+B('S',"Pada rangkaian paralel, jika satu lampu putus lampu lainnya tetap menyala.",true,"Setiap lampu punya jalur sendiri."),
+P('S',"Kipas angin mengubah energi listrik menjadi energi …",["Gerak","Cahaya","Kimia","Pendingin"],0,"Baling-baling berputar karena energi gerak."),
+P('S',"Hasil fotosintesis adalah …",["Karbon dioksida dan air","Glukosa dan oksigen","Garam dan air","Nitrogen dan karbon"],1,"Fotosintesis menghasilkan glukosa dan oksigen."),
+P('S',"Berikut yang termasuk komponen abiotik adalah …",["Pohon","Cacing","Suhu","Jamur"],2,"Abiotik = tak hidup: suhu, air, cahaya, tanah."),
+B('S',"Jaring-jaring makanan terdiri dari beberapa rantai makanan yang saling berhubungan.",true,"Itu definisi jaring-jaring makanan."),
+P('S',"Rantai makanan yang benar adalah …",["Padi → tikus → ular → elang","Elang → ular → tikus → padi","Tikus → padi → ular → elang","Ular → padi → tikus → elang"],0,"Panah menunjukkan arah perpindahan energi."),
+P('S',"Jika populasi ular menurun drastis, populasi tikus akan …",["Menurun","Meningkat","Tetap","Hilang"],1,"Pemangsa berkurang sehingga tikus bertambah."),
+P('S',"Bulan yang tampak bulat penuh disebut bulan …",["Sabit","Purnama","Baru","Separuh"],1,"Itulah bulan purnama."),
+P('S',"Pasang surut air laut terutama dipengaruhi oleh …",["Angin","Gravitasi bulan","Gempa","Hujan"],1,"Gaya tarik bulan memengaruhi air laut."),
+P('S',"Pergantian musim terjadi karena …",["Rotasi bumi","Revolusi bumi dan kemiringan sumbu bumi","Gerhana","Pasang surut"],1,"Posisi bumi terhadap Matahari berubah sepanjang tahun."),
+B('S',"Satu kali rotasi bumi memerlukan waktu sekitar 24 jam.",true,"Itulah satu hari."),
+P('S',"Lapisan atmosfer tempat terjadinya cuaca adalah …",["Stratosfer","Troposfer","Mesosfer","Termosfer"],1,"Awan dan hujan terbentuk di troposfer."),
+P('S',"Contoh sumber energi alternatif yang ramah lingkungan adalah …",["Batu bara","Minyak bumi","Tenaga surya","Gas alam"],2,"Tenaga surya bersih dan terbarukan."),
+B('S',"Mematikan lampu saat tidak dipakai termasuk penghematan energi.",true,"Mengurangi pemakaian listrik."),
+P('S',"Dalam konsep 3R, 'reduce' berarti …",["Menggunakan kembali","Mendaur ulang","Mengurangi","Memperbaiki"],2,"Reduce = mengurangi sampah."),
+P('S',"Contoh sumber daya alam nonhayati adalah …",["Hutan","Ikan","Batu bara","Padi"],2,"Nonhayati: bukan makhluk hidup."),
+P('S',"Sumpah Pemuda diikrarkan pada tanggal …",["28 Oktober 1928","20 Mei 1908","17 Agustus 1945","10 November 1945"],0,"28 Oktober 1928."),
+B('S',"Hari Kebangkitan Nasional diperingati setiap 20 Mei.",true,"Terkait berdirinya Budi Utomo, 20 Mei 1908."),
+P('S',"Pahlawan wanita dari Aceh yang berjuang melawan Belanda adalah …",["Cut Nyak Dien","R.A. Kartini","Dewi Sartika","Martha Christina Tiahahu"],0,"Cut Nyak Dien berasal dari Aceh."),
+// Sulit
+P('K',"Urutan jalannya udara pernapasan yang benar adalah …",["Hidung – faring – laring – trakea – bronkus – alveolus","Hidung – laring – faring – bronkus – trakea – alveolus","Hidung – trakea – laring – faring – alveolus – bronkus","Hidung – bronkus – trakea – laring – faring – alveolus"],0,"Udara masuk lewat hidung lalu turun hingga alveolus."),
+P('K',"Pernyataan yang benar tentang peredaran darah kecil adalah …",["Darah mengalir dari jantung ke paru-paru lalu kembali ke jantung","Darah mengalir dari jantung ke seluruh tubuh","Darah mengalir dari ginjal ke hati","Darah mengalir dari usus ke otak"],0,"Peredaran darah kecil: jantung – paru-paru – jantung."),
+B('K',"Peredaran darah besar mengalirkan darah dari jantung ke paru-paru.",false,"Itu peredaran darah kecil; yang besar menuju seluruh tubuh."),
+P('K',"Gula larut dalam air termasuk perubahan fisik karena …",["Terbentuk zat baru yang berbeda sifat","Tidak terbentuk zat baru dan dapat dikembalikan seperti semula","Terjadi pembakaran","Zat menjadi berkarat"],1,"Ciri perubahan fisik: tidak terbentuk zat baru."),
+B('K',"Saat air mendidih pada 100 °C, kalor yang diberikan dipakai untuk mengubah air menjadi uap sehingga suhunya tidak naik lagi.",true,"Kalor dipakai untuk perubahan wujud."),
+B('K',"Dua baterai yang disusun seri membuat lampu menyala lebih terang daripada satu baterai.",true,"Tegangan seri bertambah."),
+P('K',"Rantai makanan: rumput → belalang → katak → ular → elang. Elang berperan sebagai konsumen tingkat …",["II","III","IV","V"],2,"Belalang I, katak II, ular III, elang IV."),
+B('K',"Pada piramida makanan, jumlah organisme paling banyak terdapat pada tingkat produsen.",true,"Energi berkurang di tiap tingkat."),
+P('K',"Dampak pemanasan global adalah …",["Es di kutub mencair dan permukaan laut naik","Hutan makin lebat","Suhu bumi turun drastis","Hujan tidak pernah turun"],0,"Suhu naik membuat es mencair."),
+P('K',"Penyebab utama meningkatnya efek rumah kaca adalah …",["Penanaman pohon","Gas karbon dioksida dari pembakaran bahan bakar fosil","Penggunaan sepeda","Hujan deras"],1,"Pembakaran bahan bakar fosil melepaskan CO₂."),
+P('K',"Bentuk bulan tampak berubah-ubah karena …",["Bulan membesar dan mengecil","Bagian bulan yang terkena cahaya matahari dan terlihat dari bumi berubah sesuai posisinya","Bumi menutupi bulan setiap malam","Bulan memancarkan cahaya sendiri"],1,"Bulan memantulkan cahaya dan posisinya terhadap bumi berubah."),
+B('K',"Gerhana matahari terjadi saat bulan purnama.",false,"Gerhana matahari terjadi saat bulan baru."),
+P('K',"Perbedaan rotasi dan revolusi bumi adalah …",["Rotasi mengelilingi Matahari, revolusi berputar pada porosnya","Rotasi berputar pada porosnya, revolusi mengelilingi Matahari","Keduanya sama","Rotasi terjadi setahun sekali"],1,"Rotasi = berputar pada porosnya; revolusi = mengelilingi Matahari."),
+B('K',"Bhinneka Tunggal Ika berarti berbeda-beda tetapi tetap satu.",true,"Menyatukan keberagaman bangsa."),
+P('K',"Sikap yang mencerminkan menghargai keberagaman adalah …",["Berteman tanpa membedakan suku dan agama","Hanya berteman dengan satu suku","Mengejek budaya lain","Menolak bekerja sama dengan yang berbeda"],0,"Menghargai perbedaan menjaga persatuan."),
+P('K',"Lembaga yang berwenang membuat undang-undang bersama presiden adalah …",["DPR","BPK","Mahkamah Agung","Kejaksaan"],0,"DPR memegang fungsi legislasi."),
+P('K',"Contoh dampak positif globalisasi adalah …",["Mudah memperoleh informasi melalui internet","Budaya daerah makin dilupakan","Gaya hidup konsumtif","Meningkatnya sampah plastik"],0,"Teknologi mempermudah akses informasi."),
+B('K',"Sumber daya alam tak terbarukan jumlahnya terbatas dan butuh waktu sangat lama untuk terbentuk.",true,"Contohnya minyak bumi dan batu bara."),
+P('K',"Pedagang yang menjual sayur dari petani kepada konsumen melakukan kegiatan ekonomi …",["Produksi","Distribusi","Konsumsi","Impor"],1,"Distribusi = menyalurkan barang ke konsumen."),
+B('K',"Semua remaja mengalami pubertas pada usia yang persis sama.",false,"Waktu pubertas berbeda-beda pada tiap orang.")
+];
+
+BANK.ing=[
+P('M',"Which one is a color?",["Red","Dog","Run","Table"],0,"Red = merah, termasuk warna."),
+P('M',"We say 'Good morning' in the …",["morning","afternoon","evening","night"],0,"Good morning dipakai pada pagi hari."),
+P('M',"The English word for 'buku' is …",["pen","book","bag","desk"],1,"Buku = book."),
+P('M',"I … a student.",["am","is","are","be"],0,"Subjek I memakai 'am'."),
+P('M',"She … my sister.",["am","is","are","be"],1,"She memakai 'is'."),
+P('M',"They … playing football.",["is","am","are","be"],2,"They memakai 'are'."),
+B('M',"'He are a teacher' is a correct sentence.",false,"Yang benar: He is a teacher."),
+P('M',"The plural of 'book' is …",["book","books","bookes","bookies"],1,"Tambahkan -s: books."),
+P('M',"The plural of 'child' is …",["childs","childen","children","childes"],2,"Child bentuk jamaknya tidak beraturan: children."),
+B('M',"Monday is a day of the week.",true,"Monday = hari Senin."),
+P('M',"The day after Monday is …",["Sunday","Tuesday","Friday","Wednesday"],1,"Setelah Monday adalah Tuesday."),
+P('M',"There are … days in a week.",["five","six","seven","eight"],2,"Seven = tujuh."),
+P('M',"Two + three = …",["four","five","six","seven"],1,"2 + 3 = 5 (five)."),
+P('M',"The number 'twenty' is written as …",["12","20","200","2"],1,"Twenty = 20."),
+P('M',"The opposite of 'big' is …",["tall","small","long","fat"],1,"Big >< small."),
+P('M',"The opposite of 'hot' is …",["warm","cold","wet","dry"],1,"Hot >< cold."),
+B('M',"'Happy' and 'sad' are opposites.",true,"Happy = senang, sad = sedih."),
+P('M',"The animal that says 'meow' is a …",["cat","dog","cow","duck"],0,"Cat = kucing."),
+P('M',"We use our … to see.",["ears","eyes","nose","hands"],1,"Eyes = mata."),
+P('M',"We use our ears to …",["see","smell","hear","taste"],2,"Ears = telinga untuk mendengar (hear)."),
+P('M',"A person who teaches students is a …",["teacher","farmer","driver","doctor"],0,"Teacher = guru."),
+P('M',"A person who cooks food in a restaurant is a …",["chef","pilot","farmer","driver"],0,"Chef = juru masak."),
+P('M',"A doctor works in a …",["hospital","school","market","bank"],0,"Dokter bekerja di rumah sakit (hospital)."),
+P('M',"My father's wife is my …",["mother","sister","aunt","grandmother"],0,"Mother = ibu."),
+P('M',"I have a brother and a sister. They are my …",["parents","siblings","cousins","friends"],1,"Siblings = saudara kandung."),
+P('M',"We borrow books from the …",["library","bank","market","hospital"],0,"Library = perpustakaan."),
+P('M',"The book is … the table.",["on","under","at","of"],0,"On = di atas (menempel)."),
+P('M',"The cat is … the box. (di dalam)",["in","on","under","behind"],0,"In = di dalam."),
+B('M',"'Under' means di atas.",false,"Under = di bawah."),
+P('M',"This is … apple.",["a","an","the","two"],1,"Apple diawali huruf vokal, memakai 'an'."),
+B('M',"We say 'a banana' (bukan 'an banana').",true,"Banana diawali konsonan: a banana."),
+P('M',"The question word for place is …",["when","where","who","why"],1,"Where = di mana."),
+P('M',"The question word for time is …",["when","where","who","what"],0,"When = kapan."),
+P('M',"'What is your name?' The answer is …",["I am fine.","My name is Budi.","I am ten.","Thank you."],1,"Pertanyaan nama dijawab 'My name is …'."),
+P('M',"'How are you?' The best answer is …",["I'm fine, thank you.","My name is Ani.","It's Monday.","I'm ten years old."],0,"How are you? = apa kabar?"),
+P('M',"'Thank you.' The answer is …",["You're welcome.","Good night.","I'm sorry.","See you."],0,"You're welcome = sama-sama."),
+B('M',"'Excuse me' is used to get someone's attention politely.",true,"Excuse me = permisi."),
+P('M',"We say 'I am sorry' to …",["apologize","greet","thank","say goodbye"],0,"Sorry untuk meminta maaf."),
+P('M',"We say 'Good night' when …",["we wake up","we go to sleep","we eat lunch","we go to school"],1,"Good night dipakai saat berpamitan tidur."),
+P('M',"He … apples.",["like","likes","liking","to like"],1,"Subjek he memakai verb + s: likes."),
+P('M',"I … breakfast every day.",["have","has","having","had"],0,"Subjek I memakai 'have'."),
+P('M',"She … to school by bus.",["go","goes","going","gone"],1,"She + goes."),
+B('M',"'We eat rice every day' is a simple present sentence.",true,"Kebiasaan dinyatakan dengan simple present."),
+P('M',"We write with a …",["pen","spoon","plate","shoe"],0,"Pen = pulpen."),
+P('M',"3:00 is read as …",["three o'clock","thirty","three hours","third"],0,"Pukul tepat = o'clock."),
+P('M',"Rina has long black hair. The word 'long' describes her …",["hair","name","school","age"],0,"Long menjelaskan hair."),
+P('M',"Which one is a fruit?",["orange","carrot","potato","rice"],0,"Orange = jeruk."),
+P('M',"Which one is a drink?",["bread","milk","egg","fish"],1,"Milk = susu."),
+B('M',"January is the first month of the year.",true,"January = Januari."),
+P('M',"Indonesia has two seasons: the dry season and the …",["rainy season","snow season","spring","winter"],0,"Musim hujan = rainy season."),
+// Sedang
+P('S',"My mother … in the kitchen now.",["cooks","is cooking","cooked","cook"],1,"'Now' menandakan present continuous: is cooking."),
+P('S',"The children … football yesterday.",["play","plays","played","playing"],2,"Yesterday memakai past tense: played."),
+P('S',"The past form of 'go' is …",["goed","went","gone","going"],1,"Go – went – gone."),
+P('S',"The past form of 'eat' is …",["eated","ate","eaten","eats"],1,"Eat – ate – eaten."),
+B('S',"'She buyed a book' is correct.",false,"Yang benar: She bought a book."),
+P('S',"We … to the zoo last Sunday.",["go","goes","went","going"],2,"Last Sunday = lampau: went."),
+P('S',"There … three cats in the garden.",["is","are","am","be"],1,"Jamak memakai 'there are'."),
+P('S',"There … a book on the desk.",["is","are","am","were"],0,"Tunggal memakai 'there is'."),
+P('S',"'Can you swim?' The short answer is …",["Yes, I can.","Yes, I do.","Yes, I am.","Yes, I swim."],0,"Can dijawab dengan can/can't."),
+B('S',"'She can sings' is correct.",false,"Setelah can memakai verb dasar: She can sing."),
+P('S',"This is Tono's bag. It is … bag.",["he","his","him","her"],1,"His = miliknya (laki-laki)."),
+P('S',"Sinta and I are friends. … are classmates.",["We","They","You","She"],0,"Sinta and I = we."),
+P('S',"That is my aunt. … name is Rina.",["His","Her","Their","Its"],1,"Her = miliknya (perempuan)."),
+P('S',"'How much is this pen?' asks about …",["price","time","place","age"],0,"How much = harga."),
+P('S',"'It's seven thirty.' means pukul …",["07.03","07.30","07.13","17.30"],1,"Thirty = 30."),
+P('S',"'Turn left' means …",["belok kanan","belok kiri","lurus","berhenti"],1,"Left = kiri."),
+P('S',"'Go straight' means …",["belok kiri","mundur","jalan lurus","menyeberang"],2,"Straight = lurus."),
+P('S',"'The bank is next to the post office.' means bank berada …",["di depan kantor pos","di sebelah kantor pos","di belakang kantor pos","di atas kantor pos"],1,"Next to = di sebelah."),
+B('S',"'Between' means di antara.",true,"Between = di antara."),
+P('S',"I always brush my teeth … the morning.",["in","on","at","by"],0,"In the morning."),
+P('S',"We have a party … Sunday.",["in","on","at","to"],1,"On + nama hari."),
+P('S',"The class starts … 7 o'clock.",["in","on","at","of"],2,"At + jam."),
+P('S',"A person who flies an airplane is a …",["pilot","driver","sailor","farmer"],0,"Pilot = penerbang."),
+P('S',"Dina gets up at 5 o'clock. She takes a bath at 5.30 and goes to school at 6.30. What time does Dina take a bath?",["5.00","5.30","6.00","6.30"],1,"Teks menyebut 'takes a bath at 5.30'."),
+B('S',"Dina gets up at 5 o'clock, takes a bath at 5.30, and goes to school at 6.30. → Dina goes to school at 6.00.",false,"Menurut teks, ia berangkat pukul 6.30."),
+P('S',"Which one is NOT a hobby?",["reading","swimming","singing","teacher"],3,"Teacher adalah pekerjaan."),
+P('S',"Which word is an adjective?",["run","beautiful","table","quickly"],1,"Beautiful = kata sifat."),
+P('S',"Which word is a verb?",["happy","jump","blue","school"],1,"Jump = melompat, kata kerja."),
+P('S',"Budi is … than Ali.",["tall","taller","tallest","more tall"],1,"Perbandingan dua orang: taller than."),
+P('S',"What time do you get up? — I get up … five o'clock.",["in","on","at","by"],2,"At + jam: at five o'clock."),
+// Sulit
+P('K',"Listen! The baby … .",["cries","is crying","cried","cry"],1,"'Listen!' menandakan sedang terjadi: is crying."),
+P('K',"Yesterday, my father … me a new bike.",["buy","buys","bought","buyed"],2,"Buy – bought."),
+P('K',"If it rains tomorrow, we … at home.",["will stay","stayed","staying","stays"],0,"Conditional sederhana memakai will + verb dasar."),
+P('K',"Rina is … student in our class.",["smart","smarter","the smartest","more smarter"],2,"Superlatif dengan 'the': the smartest."),
+P('K',"This bag is … than that bag.",["expensive","more expensive","most expensive","expensiver"],1,"Kata sifat panjang: more + adjective + than."),
+P('K',"Rina is good … English.",["in","on","at","for"],2,"Good at = pandai dalam."),
+P('K',"How … water do you drink every day?",["many","much","few","a few"],1,"Water tak terhitung, memakai much."),
+P('K',"Tom has a pet cat named Kitty. It is white and fluffy. It likes fish and sleeping on the sofa. What does Kitty like?",["Fish and sleeping on the sofa","Dogs and milk","Rice and chicken","Running in the garden"],0,"Teks: 'likes fish and sleeping on the sofa'."),
+B('K',"The word 'its' is used for animals and things.",true,"Its = miliknya (hewan/benda)."),
+P('K',"Which sentence is correct?",["He doesn't likes milk.","He doesn't like milk.","He don't like milk.","He not like milk."],1,"Setelah doesn't memakai verb dasar."),
+P('K',"'What are you doing?' The best answer is …",["I read a book yesterday.","I am reading a book.","I will reading a book.","I reads a book."],1,"Pertanyaan present continuous dijawab dengan am/is/are + V-ing."),
+P('K',"'Does she play the piano?' The short answer is …",["Yes, she does.","Yes, she is.","Yes, she plays.","Yes, she do."],0,"Does dijawab does/doesn't."),
+B('K',"'I am agree with you' is a correct sentence.",false,"Yang benar: I agree with you."),
+P('K',"She … her homework before dinner yesterday.",["finish","finishes","finished","finishing"],2,"Yesterday = past: finished."),
+P('K',"He checks patients and gives medicine in a hospital. He is a …",["doctor","teacher","farmer","pilot"],0,"Doctor = dokter."),
+P('K',"Arrange: is / Dina / reading / a book",["Dina reading is a book.","Dina is reading a book.","Is Dina a book reading.","A book Dina is reading."],1,"Susunan: Subject + is + V-ing + object."),
+B('K',"We say 'an apple' because 'apple' begins with a vowel sound.",true,"Gunakan 'an' sebelum bunyi vokal."),
+P('K',"They went to the market … bus.",["by","on","at","in"],0,"By bus = naik bus."),
+P('K',"Last Sunday, I went to the beach with my family. We swam and played sand. We went home at 5 p.m. Where did I go last Sunday?",["To the beach","To the zoo","To the market","To the school"],0,"Teks: 'went to the beach'."),
+P('K',"Which sentence uses the past tense correctly?",["She go to school yesterday.","She went to school yesterday.","She goes to school yesterday.","She going to school yesterday."],1,"Yesterday memakai went.")
+];
+
+BANK.ind=[
+B('M',"Gagasan pokok adalah ide utama yang mendasari sebuah paragraf.",true,"Gagasan pokok menjadi inti paragraf."),
+P('M',"Kalimat utama berisi …",["Contoh","Gagasan pokok","Kesimpulan saja","Judul"],1,"Kalimat utama memuat gagasan pokok."),
+P('M',"Penulisan kata baku yang benar adalah …",["apotik","apotek","appotek","apoteck"],1,"Baku: apotek."),
+P('M',"Penulisan kata baku yang benar adalah …",["analisa","analisis","analiza","analysis"],1,"Baku: analisis."),
+B('M',"'Kwalitas' adalah kata baku.",false,"Baku: kualitas."),
+P('M',"Kata baku yang benar adalah …",["silahkan","silakan","sillakan","silagkan"],1,"Baku: silakan."),
+B('M',"Huruf kapital dipakai pada awal kalimat.",true,"Kalimat diawali huruf kapital."),
+P('M',"Tanda baca di akhir kalimat berita adalah …",["tanda titik","tanda tanya","tanda seru","tanda koma"],0,"Kalimat berita diakhiri titik."),
+P('M',"Kalimat tanya diakhiri dengan tanda …",["titik","tanya","seru","titik dua"],1,"Kalimat tanya memakai tanda tanya (?)."),
+P('M',"Kalimat perintah atau seruan diakhiri dengan tanda …",["titik","tanya","seru","koma"],2,"Gunakan tanda seru (!)."),
+P('M',"Penggunaan koma yang tepat untuk pemerincian adalah …",["Ibu membeli apel, jeruk, dan mangga.","Ibu, membeli apel jeruk dan mangga.","Ibu membeli, apel jeruk, dan mangga.","Ibu membeli apel jeruk, dan, mangga."],0,"Koma memisahkan unsur yang diperinci."),
+P('M',"Kalimat yang penulisan huruf kapitalnya benar adalah …",["Kemarin Budi pergi ke Bandung.","kemarin budi pergi ke bandung.","Kemarin budi pergi ke Bandung.","Kemarin Budi pergi ke bandung."],0,"Awal kalimat dan nama orang/kota berhuruf kapital."),
+B('M',"Nama bulan seperti 'Agustus' diawali huruf kapital.",true,"Nama bulan diawali huruf kapital."),
+P('M',"Sinonim kata 'cantik' adalah …",["jelek","indah","besar","kecil"],1,"Cantik = indah."),
+P('M',"Sinonim kata 'pandai' adalah …",["bodoh","pintar","malas","lamban"],1,"Pandai = pintar."),
+P('M',"Antonim kata 'rajin' adalah …",["giat","tekun","malas","pintar"],2,"Rajin >< malas."),
+P('M',"Antonim kata 'tinggi' adalah …",["jauh","rendah","panjang","besar"],1,"Tinggi >< rendah."),
+B('M',"Sinonim kata 'besar' adalah 'kecil'.",false,"'Kecil' adalah antonim."),
+P('M',"Imbuhan pada kata 'membaca' adalah …",["me-","ber-","ter-","pe-"],0,"Membaca = me- + baca."),
+P('M',"Imbuhan 'ber-' terdapat pada kata …",["dimakan","berlari","makanan","menulis"],1,"Berlari = ber- + lari."),
+P('M',"Kata berimbuhan akhiran -an adalah …",["tulisan","menulis","penulis","ditulis"],0,"Tulisan = tulis + -an."),
+P('M',"Contoh kata ulang adalah …",["anak-anak","makan","sekolah","buku"],0,"Anak-anak adalah kata ulang."),
+P('M',"Contoh kata majemuk adalah …",["rumah sakit","makan","berlari","menulis"],0,"Rumah sakit = dua kata bermakna baru."),
+B('M',"Puisi tersusun atas bait dan larik.",true,"Larik = baris; bait = kelompok larik."),
+P('M',"Pada pantun, baris pertama dan kedua disebut …",["isi","sampiran","amanat","tema"],1,"Baris 1–2 sampiran, baris 3–4 isi."),
+B('M',"Pantun memiliki pola sajak a-b-a-b.",true,"Pola umum pantun adalah a-b-a-b."),
+P('M',"Surat pribadi ditulis untuk …",["instansi pemerintah","teman atau keluarga","perusahaan besar","pejabat negara"],1,"Surat pribadi untuk orang dekat."),
+P('M',"Surat resmi ditulis dengan bahasa …",["gaul","baku dan sopan","bebas","singkatan saja"],1,"Surat resmi memakai bahasa baku."),
+B('M',"Surat pribadi boleh menggunakan bahasa yang akrab.",true,"Pribadi lebih santai."),
+P('M',"Teks narasi berisi …",["cerita rangkaian peristiwa","langkah membuat sesuatu","ajakan membeli","daftar harga"],0,"Narasi menceritakan peristiwa."),
+B('M',"Tokoh adalah pelaku dalam cerita.",true,"Tokoh = pelaku cerita."),
+P('M',"Latar cerita meliputi …",["tempat, waktu, dan suasana","judul dan pengarang","tema dan amanat","kata dan kalimat"],0,"Latar: tempat, waktu, suasana."),
+P('M',"Pesan moral dalam cerita disebut …",["amanat","tokoh","latar","judul"],0,"Amanat = pesan untuk pembaca."),
+P('M',"Rangkaian peristiwa dalam cerita disebut …",["alur","latar","tokoh","tema"],0,"Alur = jalan cerita."),
+P('M',"Pokok pikiran yang mendasari cerita disebut …",["tema","amanat","alur","dialog"],0,"Tema = pokok persoalan cerita."),
+B('M',"Berita memuat unsur 5W + 1H.",true,"What, who, when, where, why, how."),
+P('M',"Unsur 'who' dalam berita menanyakan …",["siapa","kapan","di mana","mengapa"],0,"Who = siapa."),
+P('M',"Unsur 'where' dalam berita menanyakan …",["siapa","di mana","bagaimana","apa"],1,"Where = di mana."),
+P('M',"Unsur 'why' dalam berita menanyakan …",["mengapa","kapan","siapa","di mana"],0,"Why = mengapa."),
+P('M',"Unsur 'when' dalam berita menanyakan …",["kapan","apa","siapa","bagaimana"],0,"When = kapan."),
+P('M',"Teks eksposisi bertujuan …",["memaparkan informasi atau pendapat disertai fakta","menceritakan dongeng","menghibur dengan puisi","memerintahkan langkah"],0,"Eksposisi memaparkan dan menjelaskan."),
+P('M',"Teks persuasi bertujuan …",["membujuk pembaca","menceritakan pengalaman","menjelaskan proses alam","menggambarkan benda"],0,"Persuasi membujuk atau mengajak."),
+B('M',"Pidato adalah kegiatan berbicara di depan umum.",true,"Pidato disampaikan kepada pendengar."),
+P('M',"Kalimat tanya yang benar adalah …",["Siapa yang datang tadi?","Kamu datang tadi.","Datanglah tadi!","Ia datang tadi."],0,"Kalimat tanya memuat kata tanya."),
+P('M',"Kalimat perintah yang tepat adalah …",["Tolong tutup pintu itu!","Pintu itu ditutup.","Pintunya sudah tertutup.","Mengapa pintunya tertutup?"],0,"Perintah memakai kata tolong atau bentuk -lah."),
+P('M',"Kalimat seru yang tepat adalah …",["Wah, indahnya pemandangan itu!","Pemandangan itu indah.","Bagaimana pemandangannya?","Lihatlah pemandangannya."],0,"Kalimat seru mengungkapkan perasaan kuat."),
+P('M',"Arti peribahasa 'Rajin pangkal pandai' adalah …",["rajin belajar membuat pintar","pandai tetapi malas","rajin tidak berguna","pandai karena beruntung"],0,"Kerajinan membuat orang pandai."),
+P('M',"Arti peribahasa 'Berat sama dipikul, ringan sama dijinjing' adalah …",["bekerja sama","bekerja sendiri","membawa barang berat","bermalas-malasan"],0,"Pekerjaan dilakukan bersama-sama."),
+B('M',"'Sedia payung sebelum hujan' berarti bersiap sebelum terjadi sesuatu.",true,"Peribahasa tentang berjaga-jaga."),
+P('M',"Arti ungkapan 'murah hati' adalah …",["pelit","dermawan","marah","sedih"],1,"Murah hati = dermawan."),
+// Sedang
+P('S',"Membaca banyak manfaatnya. Membaca menambah wawasan. Membaca melatih konsentrasi. Membaca juga mengurangi stres. Gagasan pokok paragraf tersebut adalah …",["Membaca melatih konsentrasi","Manfaat membaca","Membaca mengurangi stres","Cara membaca cepat"],1,"Kalimat pertama memuat gagasan umum."),
+P('S',"Kalimat yang efektif adalah …",["Para siswa sedang belajar di kelas.","Para siswa-siswa sedang belajar di kelas.","Banyak para siswa belajar di kelas.","Siswa sama-sama semuanya belajar."],0,"'Para' sudah bermakna jamak sehingga tidak diulang."),
+P('S',"Penulisan kata depan yang benar adalah …",["Ibu pergi di pasar.","Ibu pergi ke pasar.","Ibu pergi kepasar.","Ibu pergi dipasar."],1,"Kata depan 'ke' dipisah dari kata tempat."),
+B('S',"Kalimat 'Buku itu di baca Ani' sudah benar penulisannya.",false,"Awalan di- disambung: dibaca."),
+P('S',"Penulisan yang benar adalah …",["Adik tidur di kamar.","Adik tidur dikamar.","Adik tidur di-kamar.","Adik tidur dikamarnya."],0,"'di' sebagai kata depan ditulis terpisah."),
+B('S',"Tanda petik dua digunakan untuk mengapit kutipan langsung.",true,"Contoh: Ayah berkata, \"Ayo berangkat.\""),
+P('S',"Penulisan kalimat langsung yang benar adalah …",[`Ibu berkata, "Ayo makan."`,`Ibu berkata "ayo makan"`,"Ibu berkata: ayo makan.",`Ibu berkata, ayo makan"`],0,"Ada koma setelah 'berkata' dan tanda petik mengapit ucapan."),
+P('S',"Kalimat tidak langsung dari 'Ibu berkata, \"Kalian harus makan\"' adalah …",["Ibu berkata bahwa kami harus makan.","Ibu berkata, kami harus makan.","Ibu berkata \"kami harus makan\".","Ibu: kami harus makan."],0,"Kalimat tidak langsung memakai kata 'bahwa' tanpa tanda petik."),
+P('S',"Arti ungkapan 'naik daun' adalah …",["semakin terkenal","memanjat pohon","daun bertambah","sedang sedih"],0,"Naik daun = makin populer."),
+P('S',"Arti ungkapan 'kepala dingin' adalah …",["demam","tenang","marah","sombong"],1,"Berpikir tenang."),
+P('S',"Arti ungkapan 'besar kepala' adalah …",["sombong","pintar","sakit kepala","dermawan"],0,"Besar kepala = sombong."),
+P('S',"Arti peribahasa 'Bagai pinang dibelah dua' adalah …",["sangat mirip","sangat berbeda","sangat jauh","sangat marah"],0,"Dua orang yang sangat mirip."),
+P('S',"Arti peribahasa 'Di mana bumi dipijak, di situ langit dijunjung' adalah …",["menyesuaikan diri dengan adat setempat","menyombongkan diri","pergi jauh","mempelajari bumi"],0,"Hormati adat tempat kita berada."),
+P('S',"Arti peribahasa 'Tong kosong nyaring bunyinya' adalah …",["orang berilmu banyak bicara","orang kurang ilmu banyak bicara","tong berisi air","orang pendiam"],1,"Yang kurang ilmu biasanya paling banyak bicara."),
+B('S',"Kalimat majemuk memiliki lebih dari satu pola subjek–predikat.",true,"Kalimat majemuk terdiri dari beberapa klausa."),
+P('S',"Konjungsi yang menyatakan pertentangan adalah …",["tetapi","karena","agar","dan"],0,"Tetapi menyatakan pertentangan."),
+P('S',"Konjungsi yang menyatakan sebab adalah …",["tetapi","karena","sehingga","atau"],1,"Karena menyatakan sebab."),
+P('S',"Konjungsi yang menyatakan tujuan adalah …",["agar","tetapi","sebab","lalu"],0,"Agar menyatakan tujuan."),
+P('S',"Bagian berita yang berisi inti informasi di awal disebut …",["teras berita","tubuh berita","penutup","ekor berita"],0,"Teras berita (lead) memuat inti berita."),
+B('S',"Teks eksposisi tidak memerlukan fakta.",false,"Eksposisi memerlukan fakta dan argumen."),
+P('S',"Ciri teks prosedur adalah …",["menggunakan kalimat perintah","menggunakan dialog tokoh","berisi puisi","berisi iklan"],0,"Contoh: 'Aduk adonan hingga rata.'"),
+B('S',"Teks prosedur memakai kata urutan seperti pertama, kedua, dan selanjutnya.",true,"Urutan langkah penting dalam prosedur."),
+P('S',"Majas dalam kalimat 'Angin berbisik di telingaku' adalah …",["personifikasi","hiperbola","simile","ironi"],0,"Angin diberi sifat manusia (berbisik)."),
+P('S',"Majas dalam kalimat 'Tangisnya membanjiri seluruh kota' adalah …",["hiperbola","personifikasi","simile","litotes"],0,"Pernyataan yang dilebih-lebihkan."),
+P('S',"Majas dalam kalimat 'Dia seperti singa saat marah' adalah …",["simile","personifikasi","hiperbola","metonimia"],0,"Perbandingan dengan kata 'seperti'."),
+P('S',"Kalau ada sumur di ladang / boleh kita menumpang mandi / Kalau ada umur panjang / boleh kita berjumpa lagi. Sampiran pantun tersebut adalah …",["baris 1 dan 2","baris 2 dan 3","baris 3 dan 4","baris 1 dan 4"],0,"Sampiran berada di baris pertama dan kedua."),
+P('S',"Isi pantun di atas mengungkapkan harapan untuk …",["bertemu kembali","membuat sumur","mandi bersama","berpisah selamanya"],0,"Baris 3–4: boleh kita berjumpa lagi."),
+P('S',"Kepanjangan 'dll.' adalah …",["dan lain-lain","dan lalu lagi","di luar lingkungan","dengan lampiran lengkap"],0,"dll. = dan lain-lain."),
+P('S',"Berikut yang termasuk akronim adalah …",["SD","TV","Pramuka","SMP"],2,"Akronim dapat dibaca sebagai kata."),
+P('S',"Penulisan waktu yang benar adalah …",["Pukul 07.30 WIB","Pukul 07:30 wib","pukul 7,30","Pukul 07-30"],0,"Penulisan waktu memakai titik: 07.30."),
+// Sulit
+P('K',"Di kelas kami ada piket harian. Setiap hari lima siswa bertugas menyapu, menghapus papan tulis, menyiram tanaman, dan merapikan meja. Dengan begitu, kelas selalu bersih. Gagasan pokok paragraf ini adalah …",["Siswa menyapu setiap hari","Piket harian menjaga kebersihan kelas","Tanaman di kelas disiram","Meja harus rapi"],1,"Semua kalimat mendukung gagasan piket menjaga kebersihan."),
+P('K',"Olahraga bermanfaat bagi tubuh. Olahraga menguatkan otot. Jantung menjadi sehat. Harga sepatu naik. Kalimat yang tidak mendukung gagasan pokok adalah …",["Olahraga menguatkan otot.","Jantung menjadi sehat.","Harga sepatu naik.","Olahraga bermanfaat bagi tubuh."],2,"Harga sepatu tidak berkaitan dengan manfaat olahraga."),
+P('K',"Kalimat yang efektif adalah …",["Adik menangis karena jatuh dari sepeda.","Adik menangis disebabkan karena jatuh dari sepeda.","Adik menangis oleh sebab karena jatuh.","Adik menangis, disebabkan karena ia jatuh."],0,"'Disebabkan karena' boros."),
+P('K',"Kata tidak baku dalam kalimat 'Ia mengerjakan tugas dengan sungguh-sungguh dan aktip' adalah …",["mengerjakan","sungguh-sungguh","aktip","tugas"],2,"Baku: aktif."),
+B('K',"Penulisan 'di' pada kalimat 'Ani pergi ke rumah nenek di kampung' sudah benar.",true,"'di' sebagai kata depan ditulis terpisah."),
+P('K',`Kalimat langsung: Rina berkata, "Aku akan membantu ibu." Kalimat tidak langsungnya adalah …`,["Rina berkata bahwa dia akan membantu ibu.","Rina berkata aku akan membantu ibu.","Rina berkata, \"dia akan membantu ibu\".","Rina akan membantu ibu bahwa."],0,"Pronomina berubah dan memakai 'bahwa'."),
+B('K',"Pada kalimat tidak langsung digunakan tanda petik dua.",false,"Tanda petik hanya untuk kalimat langsung."),
+P('K',"Dika menemukan dompet di jalan. Ia membukanya, ada uang dan kartu pelajar. Dika mengantarkannya ke alamat di kartu itu. Sifat Dika adalah …",["jujur","pelit","pemarah","sombong"],0,"Ia mengembalikan dompet."),
+P('K',"Amanat cerita tentang Dika adalah …",["Kita harus jujur dan mengembalikan barang yang bukan milik kita","Jangan berjalan di jalan","Uang lebih penting","Kartu pelajar mudah hilang"],0,"Pesan moral: kejujuran."),
+P('K',"Bagian cerita saat masalah mencapai puncak disebut …",["klimaks","pengenalan","penyelesaian","orientasi"],0,"Klimaks = puncak konflik."),
+P('K',"Kalimat yang menggunakan sudut pandang orang pertama adalah …",["Aku berlari menuju sekolah karena terlambat.","Dia berlari menuju sekolah.","Rina berlari menuju sekolah.","Mereka berlari menuju sekolah."],0,"Sudut pandang orang pertama memakai 'aku' atau 'saya'."),
+B('K',"Sudut pandang orang ketiga menggunakan kata 'dia' atau nama tokoh.",true,"Narator berada di luar cerita."),
+P('K',"Kalimat opini adalah …",["Sepak bola adalah olahraga paling menyenangkan.","Pertandingan dimulai pukul 15.00.","Lapangan itu berukuran besar.","Ada sebelas pemain dalam satu tim."],0,"Ada penilaian 'paling menyenangkan'."),
+P('K',"Berita: 'Kemarin pukul 10.00 terjadi kebakaran di Pasar Baru.' Unsur 'when' pada berita tersebut adalah …",["Kemarin pukul 10.00","kebakaran","Pasar Baru","terjadi"],0,"When = waktu kejadian."),
+P('K',"'Sedikit demi sedikit lama-lama menjadi bukit.' Arti peribahasa tersebut adalah …",["usaha kecil yang terus-menerus akan menjadi besar","bukit itu sulit didaki","menabung harus banyak","membuat bukit memerlukan waktu"],0,"Peribahasa tentang ketekunan."),
+P('K',"Arti peribahasa 'Air susu dibalas dengan air tuba' adalah …",["kebaikan dibalas dengan kejahatan","kejahatan dibalas kebaikan","susu lebih baik dari racun","membalas dengan hadiah"],0,"Air tuba = racun."),
+B('K',"Pada kalimat 'Karena hujan deras, jalanan banjir', sebabnya adalah hujan deras.",true,"Setelah 'karena' menyatakan sebab."),
+P('K',"Kalimat yang menggunakan konjungsi dengan tepat adalah …",["Walaupun lelah, Ayah tetap bekerja.","Walaupun lelah, tetapi Ayah tetap bekerja.","Meskipun lelah, namun Ayah bekerja.","Karena lelah, tetapi Ayah bekerja."],0,"Walaupun tidak digabung dengan tetapi."),
+P('K',"Salam pembuka yang tepat untuk surat resmi adalah …",["Hai kawan,","Dengan hormat,","Halo,","Woi,"],1,"Surat resmi memakai bahasa sopan."),
+B('K',"Pidato harus menggunakan bahasa santai tanpa salam pembuka.",false,"Pidato dimulai dengan salam pembuka dan memakai bahasa yang sopan.")
+];
+
+</script>
+<script>
+const GAS_URL="https://script.google.com/macros/s/AKfycbxKK1xTtO9LKZtGcRHOnOj7l8VUfRETeCqHG0jVZTflLaJAlhrSPukrgnuiRL1qCZuK/exec";
+const HC=4529771417811263,HP=4413594719508086;
+const SUBJ=[
+ {k:'mat',n:'Matematika',e:'🔢',g:'#2563eb,#0ea5e9',d:'Bilangan, geometri, data'},
+ {k:'ipas',n:'IPAS',e:'🔬',g:'#16a34a,#22c55e',d:'Sains & sosial'},
+ {k:'ing',n:'Bahasa Inggris',e:'🇬🇧',g:'#dc2626,#f97316',d:'Vocabulary & grammar'},
+ {k:'ind',n:'Bahasa Indonesia',e:'📚',g:'#7c3aed,#a855f7',d:'Teks, ejaan, sastra'}
+];
+const N=30,TIMER=45;
+let inStat=false,statK='mat';
+const $=id=>document.getElementById(id);
+let nama='',admin=false,sk=null,soal=[],cur=0,score=0,jw=[],tmr=null,left=0,selesai=false;
+
+/* ---------- util ---------- */
+const h53=s=>{let h1=0xdeadbeef,h2=0x41c6ce57;for(let i=0,c;i<s.length;i++){c=s.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0)};
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const lsGet=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const show=id=>['scr-nama','scr-menu','scr-mapel'].forEach(x=>$(x).style.display=x===id?'':'none');
+const nilaiOf=b=>Math.round(b/N*100);
+const lvlLbl={M:'🟢 Mudah',S:'🟡 Sedang',K:'🔴 Sulit'};
+
+/* ---------- rekap ke Google Sheet ---------- */
+function post(it){const p=new URLSearchParams();for(const k in it)p.append(k,it[k]);return fetch(GAS_URL,{method:'POST',mode:'no-cors',body:p})}
+async function kirim(it){try{await post(it);return true}catch(e){const q=lsGet('pra6_pending',[]);q.push(it);lsSet('pra6_pending',q);return false}}
+async function flush(){const q=lsGet('pra6_pending',[]);if(!q.length)return;const rest=[];for(const it of q){try{await post(it)}catch(e){rest.push(it)}}lsSet('pra6_pending',rest)}
+function rekap(status){
+  if(admin) return Promise.resolve(true);
+  return kirim({nama,kelas:'6',mapel:'Aplikasi Belajar '+sk.n+' Kelas 6',nilai:nilaiOf(score),benar:score,jumlah:N,hadiah:status,waktu:new Date().toLocaleString('id-ID')});
+}
+function saveProg(nilai){
+  if(admin) return;
+  const nk=nama.toLowerCase(),key='pra6_'+nk,p=lsGet(key,{}),o=p[sk.k]||{best:0,n:0};
+  o.last=nilai;o.best=Math.max(o.best,nilai);o.n++;p[sk.k]=o;lsSet(key,p);
+  const lv={M:[0,0],S:[0,0],K:[0,0]},w=[],a=[];
+  soal.forEach((q,i)=>{const ok=jw[i]===q.jawab;lv[q.lvl][1]++;if(ok)lv[q.lvl][0]++;else w.push(q._i);a.push(q._i)});
+  const hk='pra6h_'+nk,h=lsGet(hk,[]);
+  h.push({t:Date.now(),k:sk.k,n:nilai,b:score,lv,w,a});
+  lsSet(hk,h.slice(-150));
+}
+
+/* ---------- nama & admin ---------- */
+let pinBuf='';
+function buildPad(){
+  $('dots').innerHTML=Array.from({length:6},(_,i)=>`<div class="dot" id="d${i}"></div>`).join('');
+  const keys=['1','2','3','4','5','6','7','8','9','✕','0','⌫'];
+  $('pad').innerHTML=keys.map(k=>`<button onclick="pinKey('${k}')">${k}</button>`).join('');
+}
+function pinKey(k){
+  if(k==='✕'){pinBuf='';$('pin').classList.remove('on');return}
+  if(k==='⌫')pinBuf=pinBuf.slice(0,-1);
+  else if(pinBuf.length<6)pinBuf+=k;
+  for(let i=0;i<6;i++)$('d'+i).classList.toggle('f',i<pinBuf.length);
+  $('pin-err').style.display='none';
+  if(pinBuf.length===6){
+    if(h53(pinBuf)===HP){admin=true;pinBuf='';$('pin').classList.remove('on');renderMenu()}
+    else{$('pin-err').style.display='block';pinBuf='';setTimeout(()=>{for(let i=0;i<6;i++)$('d'+i).classList.remove('f')},400)}
+  }
+}
+function mulai(){
+  const v=$('in-nama').value.trim();
+  if(!v){$('nm-err').style.display='block';return}
+  nama=v;admin=false;
+  if(h53(v.toUpperCase())===HC){$('pin').classList.add('on');return}
+  lsSet('pra6_lastname',v);
+  renderMenu();
+}
+function gantiNama(){nama='';admin=false;$('in-nama').value='';show('scr-nama')}
+
+/* ---------- menu ---------- */
+function renderMenu(){
+  const p=admin?{}:lsGet('pra6_'+nama.toLowerCase(),{});
+  $('hello').textContent='Halo, '+nama+'!'+(admin?' ⚡ Mode admin (kunci jawaban tampil, data tidak dikirim)':'');
+  $('mapel-list').innerHTML=SUBJ.map(s=>{
+    const o=p[s.k];
+    const info=o?`Terakhir ${o.last} · Terbaik ${o.best} · ${o.n}x`:s.d;
+    return `<button class="btn" style="background:linear-gradient(135deg,${s.g})" onclick="openMapel('${s.k}')"><div class="bi">${s.e}</div><div class="bt"><div class="bl">${s.n}</div><div class="bd">${info}</div></div></button>`;
+  }).join('');
+  $('btn-stat').style.display=admin?'none':'';
+  show('scr-menu');
+}
+function openMapel(k){
+  sk=SUBJ.find(s=>s.k===k);
+  $('m-emoji').textContent=sk.e;$('m-judul').textContent=sk.n;$('m-sub').textContent='Kelas 6 · '+nama;
+  show('scr-mapel');
+}
+
+/* ---------- overlay ---------- */
+function openOv(t,html){$('ov-t').textContent=t;$('ov-b').innerHTML=html;$('ov').classList.add('on');$('ov-b').scrollTop=0}
+async function closeOv(){
+  stopTimer();
+  if(inStat){inStat=false;$('ov').classList.remove('on');renderMenu();return}
+  if(soal.length&&!selesai&&jw.some(x=>x!=null)){
+    const dijawab=jw.filter(x=>x!=null).length;
+    await rekap('Belum selesai ('+dijawab+'/'+N+' dijawab)');
+  }
+  soal=[];
+  $('ov').classList.remove('on');
+  renderMenu();openMapel(sk.k);
+}
+const RCOL=['#e11d48','#16a34a','#d97706','#0ea5e9','#9333ea','#0d9488','#ea580c'];
+function rKey(){return 'pra6r_'+nama.toLowerCase()+'_'+sk.k}
+function rUpd(){
+  const n=RK[sk.k].length,r=admin?[]:lsGet(rKey(),[]);
+  $('rp-t').textContent=r.length+' / '+n+' bab dibaca';
+  $('rp-b').style.width=Math.round(r.length/n*100)+'%';
+  RK[sk.k].forEach((_,i)=>{const d=r.includes(i);$('rd'+i).textContent=d?'✅':'';$('rch'+i).classList.toggle('d',d)});
+}
+function rTog(i){$('rc'+i).classList.toggle('open')}
+function rGo(i){const c=$('rc'+i);c.classList.add('open');c.scrollIntoView({behavior:'smooth',block:'start'})}
+function rMark(i){
+  if(!admin){const r=lsGet(rKey(),[]);if(!r.includes(i)){r.push(i);lsSet(rKey(),r)}}
+  rUpd();$('rc'+i).classList.remove('open');
+  const n=RK[sk.k].length;if(i+1<n)rGo(i+1);
+}
+function openRangkuman(){
+  const ch=RK[sk.k];
+  let h=`<div class="rprog"><span id="rp-t"></span><div class="bar"><i id="rp-b" style="width:0%"></i></div></div>
+  <div class="rnav">${ch.map((c,i)=>`<button class="rchip" id="rch${i}" onclick="rGo(${i})">${c.e} ${c.s||c.t}</button>`).join('')}</div>`;
+  ch.forEach((c,i)=>{
+    h+=`<div class="rc ${i===0?'open':''}" id="rc${i}" style="--c:${RCOL[i%RCOL.length]}">
+    <button class="rh" onclick="rTog(${i})"><span class="re">${c.e}</span><span class="rtt">${c.t}</span><span id="rd${i}"></span><span class="rar">▾</span></button>
+    <div class="rbody">`;
+    (c.p||[]).forEach(x=>h+=`<div class="ri">${x}</div>`);
+    if(c.box)h+=`<div class="rbox">${c.box}</div>`;
+    if(c.tbl)h+=`<div class="rtw"><table class="rtbl"><tr>${c.tbl.h.map(x=>`<th>${x}</th>`).join('')}</tr>${c.tbl.r.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</table></div>`;
+    if(c.ex)h+=`<div class="rex"><div class="eh">✏️ Contoh soal</div>${c.ex.q}<ol>${c.ex.s.map(x=>`<li>${x}</li>`).join('')}</ol><div class="ea">Jawab: ${c.ex.a}</div></div>`;
+    if(c.trik)h+=`<div class="rtrik">${c.trik}</div>`;
+    if(c.fc)h+=`<div class="rfct">🃏 Kartu kilat: ketuk untuk melihat jawaban</div><div class="fcg">${c.fc.map(f=>`<button class="fc" onclick="this.classList.toggle('flip')"><span class="fr">${f[0]}</span><span class="bk">${f[1]}</span></button>`).join('')}</div>`;
+    h+=`<button class="rdn" onclick="rMark(${i})">✔ Sudah paham bab ini</button></div></div>`;
+  });
+  soal=[];openOv('Rangkuman '+sk.n,h);rUpd();
+}
+
+/* ---------- kuis ---------- */
+function pick(){
+  const b=BANK[sk.k].map((s,i)=>({...s,_i:i}));
+  const f=(l,n)=>shuffle(b.filter(s=>s.lvl===l)).slice(0,n);
+  return shuffle([...f('M',15),...f('S',9),...f('K',6)]).map(s=>{
+    if(s.tipe==='bs')return s;
+    const sh=shuffle([0,1,2,3]);
+    return {...s,opts:sh.map(i=>s.opts[i]),jawab:sh.indexOf(s.jawab)};
+  });
+}
+function startQuiz(){
+  soal=pick();cur=0;score=0;jw=Array(N).fill(null);selesai=false;
+  openOv('Soal '+sk.n,'');renderSoal();
+}
+function renderSoal(){
+  const s=soal[cur],prev=jw[cur],K='ABCD';
+  let h=`<div class="pg"><span>Soal ${cur+1} / ${N}</span><span>📊 Nilai: ${nilaiOf(score)}</span></div>
+  <div class="bar"><i style="width:${Math.round(cur/N*100)}%"></i></div>
+  <div class="tm" id="tm"><span class="tn" id="tn">${prev!=null?'✓':TIMER}</span><div class="tb"><i id="tbi" style="width:${prev!=null?0:100}%"></i></div><span id="tl">${prev!=null?(prev===-1?'Waktu habis':'Sudah dijawab'):'detik'}</span></div>
+  <span class="chip c${s.lvl}">${lvlLbl[s.lvl]}</span>
+  <div class="qt">${s.q}</div>`;
+  s.opts.forEach((o,i)=>{
+    let c='';
+    if(prev!=null){ if(i===s.jawab)c=prev===i?'c':'k'; else if(i===prev)c='w'; }
+    else if(admin&&i===s.jawab)c='k';
+    const key=s.tipe==='bs'?(i===0?'✓':'✗'):K[i];
+    h+=`<button class="op ${c}" ${prev!=null?'disabled':''} onclick="jwb(${i})"><span class="ok">${key}</span>${o}</button>`;
+  });
+  if(prev!=null){
+    const ok=prev===s.jawab;
+    h+=`<div class="rz ${ok?'ok2':'no'}">${prev===-1?'⏰ Waktu habis':ok?'✅ Jawaban benar!':'❌ Jawaban kurang tepat'}</div>`;
+  }
+  h+=`<div class="nv">${cur===N-1
+    ?`<button class="nb f" ${prev==null?'disabled':''} onclick="showHasil()">Lihat Hasil 🎉</button>`
+    :`<button class="nb" ${prev==null?'disabled':''} onclick="cur++;renderSoal()">Lanjut →</button>`}</div>`;
+  $('ov-b').innerHTML=h;$('ov-b').scrollTop=0;
+  if(prev==null)startTimer();else stopTimer();
+}
+function startTimer(){
+  stopTimer();left=TIMER;
+  tmr=setInterval(()=>{
+    left--;
+    const tn=$('tn'),tbi=$('tbi'),tm=$('tm');
+    if(!tn){stopTimer();return}
+    tn.textContent=left;tbi.style.width=(left/TIMER*100)+'%';
+    tm.className='tm'+(left<=10?' u':left<=20?' w':'');
+    if(left<=0){stopTimer();jw[cur]=-1;playWrong();renderSoal()}
+  },1000);
+}
+function stopTimer(){if(tmr){clearInterval(tmr);tmr=null}}
+function jwb(i){
+  if(jw[cur]!=null)return;
+  stopTimer();jw[cur]=i;
+  if(i===soal[cur].jawab){score++;playOk()}else playWrong();
+  renderSoal();
+}
+
+/* ---------- hasil ---------- */
+async function showHasil(){
+  stopTimer();selesai=true;
+  const nilai=nilaiOf(score);
+  let em='😢',jd='Terus Semangat Belajar!',wr='#f43f5e';
+  if(nilai>=90){em='🏆';jd='Luar Biasa!';wr='#f59e0b'}
+  else if(nilai>=75){em='🎉';jd='Bagus Sekali!';wr='#22c55e'}
+  else if(nilai>=60){em='👍';jd='Cukup Baik!';wr='#0ea5e9'}
+  else if(nilai>=40){em='💪';jd='Masih Bisa Lebih Baik!';wr='#8b5cf6'}
+  const br=l=>{const a=soal.filter(s=>s.lvl===l);return a.filter(s=>jw[soal.indexOf(s)]===s.jawab).length+'/'+a.length};
+  let h=`<div class="hs"><div class="he">${em}</div><div class="ht" style="color:${wr}">${jd}</div>
+  <div class="sub" style="margin:.2rem 0 0">Hasil <b>${nama}</b> · ${sk.n} Kelas 6</div>
+  <div class="hbox"><div class="hn" style="color:${wr}">${nilai}</div><div style="font-size:.8rem;font-weight:700;color:#92400e">Nilai Akhir (0–100)</div><div style="font-size:.8rem;font-weight:600;color:var(--muted)">${score} benar dari ${N} soal</div></div>
+  <div class="hr"><div class="hc">🟢 Mudah ${br('M')}</div><div class="hc">🟡 Sedang ${br('S')}</div><div class="hc">🔴 Sulit ${br('K')}</div></div>
+  <div class="sent" id="sent">${admin?'Mode admin: data tidak dikirim':'⏳ Menyimpan hasil ke spreadsheet…'}</div>
+  <button class="nb" onclick="startQuiz()">🔀 Kerjakan Lagi</button>
+  <button class="link" style="margin-top:.7rem" onclick="closeOv()">Kembali ke menu mapel</button></div>
+  <hr style="border:none;border-top:1.5px solid #f1f5f9;margin:1.3rem 0">
+  <div class="rt">📝 Pembahasan Lengkap</div>`;
+  soal.forEach((s,i)=>{
+    const ok=jw[i]===s.jawab;
+    h+=`<div class="pi ${ok?'a':'b'}"><div class="pn">Soal ${i+1} · ${lvlLbl[s.lvl]}</div><div class="pq">${s.q}</div>
+    <div class="ps">${ok?'✅ Benar':'❌ Kurang tepat'}</div>
+    ${ok?'':`<div class="pf"><b>Jawaban benar:</b> ${s.opts[s.jawab]}</div>`}
+    <div class="pf">${s.info}</div></div>`;
+  });
+  $('ov-b').innerHTML=h;$('ov-b').scrollTop=0;
+  saveProg(nilai);
+  const okSent=await rekap('Selesai');
+  const el=$('sent');
+  if(el&&!admin)el.textContent=okSent?'✅ Hasil tercatat di spreadsheet':'⚠️ Gagal terkirim, akan dicoba lagi saat aplikasi dibuka';
+}
+
+/* ---------- statistik saya ---------- */
+const fmtT=t=>{const d=new Date(t);return d.toLocaleDateString('id-ID',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})};
+const histOf=()=>lsGet('pra6h_'+nama.toLowerCase(),[]);
+const nilCol=n=>n>=75?'#16a34a':n>=60?'#0ea5e9':n>=40?'#d97706':'#e11d48';
+function chartSvg(vals,color){
+  const W=300,H=140,pl=26,pr=12,pt=16,pb=20,n=vals.length;
+  const x=i=>n===1?pl+(W-pl-pr)/2:pl+i*(W-pl-pr)/(n-1),y=v=>pt+(100-v)/100*(H-pt-pb);
+  let g='';
+  [0,50,100].forEach(v=>g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="#e2e8f0"/><text x="${pl-4}" y="${y(v)+3}" font-size="8" text-anchor="end" fill="#94a3b8">${v}</text>`);
+  const pts=vals.map((v,i)=>x(i)+','+y(v)).join(' ');
+  const dots=vals.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${color}"/><text x="${x(i)}" y="${y(v)-7}" font-size="8" font-weight="700" text-anchor="middle" fill="#334155">${v}</text><text x="${x(i)}" y="${H-6}" font-size="7" text-anchor="middle" fill="#94a3b8">${i+1}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Grafik nilai">${g}${n>1?`<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`:''}${dots}</svg>`;
+}
+function openStat(){
+  if(admin)return;
+  const H=histOf();
+  if(H.length)statK=H[H.length-1].k;
+  inStat=true;soal=[];
+  openOv('Statistik '+nama,'');drawStat();
+}
+function statSel(k){statK=k;drawStat()}
+function drawStat(){
+  const nk=nama.toLowerCase(),H=histOf(),prog=lsGet('pra6_'+nk,{});
+  let h=`<div class="rt">📚 Ringkasan semua mapel</div>`;
+  SUBJ.forEach(s=>{
+    const hs=H.filter(x=>x.k===s.k),avg=hs.length?Math.round(hs.reduce((a,x)=>a+x.n,0)/hs.length):null;
+    const r=lsGet('pra6r_'+nk+'_'+s.k,[]).length,nb=RK[s.k].length,c=s.g.split(',')[0];
+    h+=`<div class="srow"><span class="se">${s.e}</span><div class="sm"><div class="sn">${s.n}</div>
+    <div class="mini"><i style="width:${avg||0}%;background:${c}"></i></div>
+    <div class="ss">${hs.length} latihan · bab dibaca ${r}/${nb}</div></div>
+    <span class="sv" style="color:${avg==null?'#94a3b8':nilCol(avg)}">${avg==null?'–':avg}</span></div>`;
+  });
+  h+=`<div class="snote" style="margin:.2rem 0 .6rem">Angka di kanan = rata-rata nilai latihan.</div>`;
+  h+=`<div class="schips">${SUBJ.map(s=>`<button class="sch ${s.k===statK?'on':''}" onclick="statSel('${s.k}')">${s.e} ${s.n}</button>`).join('')}</div>`;
+  const s=SUBJ.find(x=>x.k===statK),hs=H.filter(x=>x.k===statK);
+  if(!hs.length){
+    h+=`<div class="sbox" style="text-align:center;font-weight:700;color:var(--muted)">Belum ada latihan ${s.n}.<br>Kerjakan soal latihan dulu, nanti grafik dan analisisnya muncul di sini 💪</div>`;
+  }else{
+    const ns=hs.map(x=>x.n),last=ns[ns.length-1],best=Math.max(...ns),avg=Math.round(ns.reduce((a,b)=>a+b,0)/ns.length);
+    let tren='';
+    if(ns.length>1){const d=last-ns[ns.length-2];tren=d>0?`<span style="color:#16a34a">▲ naik ${d} dari latihan sebelumnya</span>`:d<0?`<span style="color:#e11d48">▼ turun ${-d} dari latihan sebelumnya</span>`:`<span style="color:var(--muted)">■ sama seperti sebelumnya</span>`}
+    const c=s.g.split(',')[0];
+    h+=`<div class="sgrid"><div class="stl"><b style="color:${nilCol(last)}">${last}</b><span>Terakhir</span></div><div class="stl"><b style="color:#16a34a">${best}</b><span>Terbaik</span></div><div class="stl"><b style="color:#0ea5e9">${avg}</b><span>Rata-rata</span></div><div class="stl"><b>${hs.length}</b><span>Latihan</span></div></div>`;
+    if(tren)h+=`<div style="font-size:.8rem;font-weight:800;text-align:center;margin-bottom:.4rem">${tren}</div>`;
+    const sh=hs.slice(-10);
+    h+=`<div class="sbox"><div class="sbt">📈 Grafik nilai ${s.n}${hs.length>10?' (10 terakhir)':''}</div>${chartSvg(sh.map(x=>x.n),c)}<div class="snote" style="margin:0">Angka bawah = urutan latihan</div></div>`;
+    const tot={M:[0,0],S:[0,0],K:[0,0]};
+    hs.forEach(x=>['M','S','K'].forEach(l=>{tot[l][0]+=x.lv[l][0];tot[l][1]+=x.lv[l][1]}));
+    const pct={};['M','S','K'].forEach(l=>pct[l]=tot[l][1]?Math.round(tot[l][0]/tot[l][1]*100):null);
+    const bar=(l,nm)=>pct[l]==null?'':`<div class="lvr"><span class="ln">${nm}</span><div class="mini"><i style="width:${pct[l]}%;background:${nilCol(pct[l])}"></i></div><span class="lp">${pct[l]}% (${tot[l][0]}/${tot[l][1]})</span></div>`;
+    h+=`<div class="sbox"><div class="sbt">🎯 Kekuatan per tingkat soal</div>${bar('M','🟢 Mudah')}${bar('S','🟡 Sedang')}${bar('K','🔴 Sulit')}</div>`;
+    const cnt={};
+    hs.forEach(x=>{x.a.forEach(i=>{(cnt[i]=cnt[i]||[0,0])[1]++});x.w.forEach(i=>{(cnt[i]=cnt[i]||[0,0])[0]++})});
+    const top=Object.entries(cnt).filter(([i,v])=>v[0]>0&&BANK[statK][i]).sort((a,b)=>b[1][0]-a[1][0]||(b[1][0]/b[1][1])-(a[1][0]/a[1][1])).slice(0,5);
+    if(top.length){
+      h+=`<div class="sbox"><div class="sbt">⚠️ Soal yang sering salah</div>`;
+      top.forEach(([i,v])=>{const q=BANK[statK][i];h+=`<div class="swr">${q.q}<small>Salah ${v[0]} dari ${v[1]}x muncul · Jawaban benar: <b>${q.opts[q.jawab]}</b><br>${q.info}</small></div>`});
+      h+=`</div>`;
+    }else h+=`<div class="sbox" style="text-align:center;font-weight:800;color:#16a34a">🎉 Belum ada soal yang salah. Hebat!</div>`;
+    const r=lsGet('pra6r_'+nk+'_'+statK,[]),nb=RK[statK].length,sa=[];
+    if(pct.M!=null&&pct.M<70)sa.push('Dasar masih perlu dikuatkan: baca ulang Rangkuman '+s.n+' dan latih kartu kilat.');
+    else if(pct.S!=null&&pct.S<70)sa.push('Soal sedang masih sering salah: pelajari contoh soal dan trik di rangkuman, lalu latihan lagi.');
+    else if(pct.K!=null&&pct.K<60)sa.push('Tantang dirimu dengan soal sulit: baca teliti dan kerjakan langkah demi langkah.');
+    else sa.push('Bagus! Pertahankan dengan latihan rutin dan coba pecahkan nilai terbaikmu.');
+    if(r.length<nb)sa.push('Kamu baru membaca '+r.length+' dari '+nb+' bab rangkuman.');
+    h+=`<div class="sad">🧭 <b>Saran belajar:</b><br>${sa.join('<br>')}</div>`;
+  }
+  const rw=H.slice(-15).reverse();
+  h+=`<div class="rt" style="margin-top:1rem">🕒 Riwayat latihan terakhir</div>`;
+  h+=rw.length?rw.map(x=>`<div class="hrw"><span class="hd">${fmtT(x.t)}</span><span class="hm">${SUBJ.find(m=>m.k===x.k).n}</span><span class="hn2" style="color:${nilCol(x.n)}">${x.n}</span></div>`).join(''):`<div class="snote">Belum ada riwayat.</div>`;
+  h+=`<div class="snote">Statistik tersimpan di perangkat ini untuk nama <b>${nama}</b>. Jika data browser dihapus atau pindah perangkat, statistik mulai dari awal (hasil di Google Sheet tetap aman).</div>`;
+  $('ov-b').innerHTML=h;$('ov-b').scrollTop=0;
+}
+
+/* ---------- suara ---------- */
+let ac=null;
+function tone(f,t0,d,type,v){
+  if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();
+  if(ac.state==='suspended')ac.resume();
+  const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+t0;
+  o.type=type;o.frequency.setValueAtTime(f,t);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.03);g.gain.exponentialRampToValueAtTime(.01,t+d);
+  o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.05);
+}
+function playOk(){try{[523,659,784,1047].forEach((f,i)=>tone(f,i*.08,.4,'sine',.2))}catch(e){}}
+function playWrong(){try{tone(200,0,.4,'sawtooth',.12);tone(130,.1,.4,'square',.08)}catch(e){}}
+
+/* ---------- init ---------- */
+buildPad();
+$('in-nama').value=lsGet('pra6_lastname','');
+flush();
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('ov').classList.contains('on'))closeOv()});
+</script>
+<script>
+const RK={
+mat:[
+{e:"🔢",t:"Bilangan Bulat & Operasi Hitung",s:"Bilangan bulat",
+ p:["Bilangan <b>negatif</b> ada di kiri nol. Makin ke kanan makin besar, jadi <b>−5 &lt; −2</b>.","Menambah bilangan negatif = <b>mundur</b>. Mengurangi bilangan negatif = <b>maju</b>: 5 − (−4) = 9.","Perkalian/pembagian: tanda <b>sama → positif</b>, tanda <b>beda → negatif</b>.","Pangkat: 3² = 3×3 = 9; 4³ = 64. Akar adalah kebalikannya: √81 = 9."],
+ box:"Urutan operasi: <b>① kurung → ② pangkat/akar → ③ kali/bagi → ④ tambah/kurang</b> (dari kiri ke kanan).",
+ ex:{q:"(−12) : (−3) + 5 × (−2) = …",s:["(−12) : (−3) = 4 (sama tanda → positif)","5 × (−2) = −10 (beda tanda → negatif)","4 + (−10) = −6"],a:"−6"},
+ trik:"Singkat: <b>Kurung, Pangkat, Kali-bagi, Tambah-kurang</b>. Dua negatif bertemu menjadi positif!",
+ fc:[["(−4) × (−3) = …","12 (sama tanda → positif)"],["−5 + 8 = …","3"],["√81 = …","9"],["5 + 3 × 4 = …","17 (kali dulu)"]]},
+{e:"🔗",t:"KPK & FPB",s:"KPK FPB",
+ p:["Cari faktor/kelipatan dengan <b>pohon faktor</b>, lalu tulis dalam bentuk pangkat.","Soal cerita 'menyala/bertemu bersama lagi' → <b>KPK</b>. Soal 'membagi sama banyak/sama besar' → <b>FPB</b>."],
+ tbl:{h:["","KPK","FPB"],r:[["Kepanjangan","Kelipatan Persekutuan Terkecil","Faktor Persekutuan Terbesar"],["Cara pohon faktor","Ambil <b>semua</b> faktor, pangkat <b>terbesar</b>","Ambil faktor yang <b>sama</b>, pangkat <b>terkecil</b>"],["Contoh 12 & 18","36","6"]]},
+ ex:{q:"KPK dan FPB dari 12 dan 15",s:["12 = 2² × 3; 15 = 3 × 5","KPK = 2² × 3 × 5 = 60","FPB = 3 (faktor yang sama)"],a:"KPK = 60, FPB = 3"},
+ trik:"<b>KPK = Kumpul lagi</b> (bertemu bersama). <b>FPB = Bagi rata</b>.",
+ fc:[["KPK 4 dan 6","12"],["FPB 12 dan 18","6"],["Lampu menyala tiap 6 dan 8 detik. Bersama lagi setelah …","24 detik (KPK)"]]},
+{e:"🍰",t:"Pecahan, Desimal & Persen",s:"Pecahan persen",
+ p:["Tambah/kurang: <b>samakan penyebut</b> dulu. 3/4 + 1/6 = 9/12 + 2/12 = 11/12.","Kali: pembilang × pembilang, penyebut × penyebut. Bagi: <b>kalikan dengan kebalikan</b> pecahan kedua.","Persen dari suatu jumlah: (persen/100) × jumlah.","Diskon: harga bayar = harga − diskon."],
+ box:"<b>3/4 = 0,75 = 75%</b> &nbsp;|&nbsp; <b>1/2 = 0,5 = 50%</b> &nbsp;|&nbsp; <b>1/4 = 0,25 = 25%</b>",
+ ex:{q:"Sepatu Rp50.000 didiskon 20%. Berapa yang dibayar?",s:["Diskon = 20/100 × 50.000 = 10.000","Bayar = 50.000 − 10.000 = 40.000"],a:"Rp40.000"},
+ trik:"Membagi pecahan: <b>'Salin yang pertama, balik yang kedua, lalu kalikan'</b>.",
+ fc:[["25% dari 200","50"],["3/4 : 1/2","1 1/2"],["0,2 + 0,3","0,5"]]},
+{e:"🚗",t:"Perbandingan, Skala & Kecepatan",s:"Skala kecepatan",
+ p:["Skala 1 : 500.000 artinya 1 cm di peta = 500.000 cm = <b>5 km</b> sebenarnya.","Perbandingan: cari nilai <b>1 bagian</b> dulu, lalu kalikan.","Debit = volume : waktu (liter/menit). 1 m³ = 1.000 liter."],
+ box:"Segitiga <b>J-K-W</b>: Jarak = Kecepatan × Waktu; Kecepatan = Jarak : Waktu; Waktu = Jarak : Kecepatan.",
+ tbl:{h:["Mengubah satuan","Cara"],r:[["km/jam → m/detik","dibagi 3,6 (90 km/jam = 25 m/detik)"],["jam → menit","× 60"],["cm → km","÷ 100.000"]]},
+ ex:{q:"Skala 1 : 500.000, jarak di peta 4 cm. Jarak sebenarnya?",s:["4 × 500.000 = 2.000.000 cm","2.000.000 cm : 100.000 = 20 km"],a:"20 km"},
+ trik:"Dari cm ke km: <b>coret 5 angka nol</b> di belakang (÷ 100.000).",
+ fc:[["72 km/jam selama 2,5 jam","180 km"],["Air 120 L dalam 4 menit. Debit?","30 liter/menit"],["Ayah : anak = 5 : 2, anak 8 th. Ayah?","20 tahun"]]},
+{e:"⭕",t:"Bangun Datar & Lingkaran",s:"Bangun datar",
+ p:["Luas gabungan: <b>jumlahkan</b> atau <b>kurangkan</b> luas bagian-bagiannya.","Gunakan π = <b>22/7</b> jika jari-jari kelipatan 7, selain itu π = <b>3,14</b>.","Diameter = 2 × jari-jari."],
+ tbl:{h:["Bangun","Luas","Keliling"],r:[["Persegi","s × s","4 × s"],["Persegi panjang","p × l","2 × (p + l)"],["Segitiga","½ × a × t","jumlah ketiga sisi"],["Lingkaran","π × r × r","π × d = 2 × π × r"]]},
+ ex:{q:"Luas lingkaran r = 7 cm (π = 22/7)",s:["L = π × r × r","L = 22/7 × 7 × 7 = 154"],a:"154 cm²"},
+ trik:"Luas lingkaran pakai <b>r kuadrat</b>, keliling cukup <b>π × d</b>. Jari-jari 2× → luas <b>4×</b>.",
+ fc:[["Keliling lingkaran d = 14 (22/7)","44"],["Luas segitiga a = 10, t = 6","30"],["Keliling persegi panjang 8 × 5","26"]]},
+{e:"📦",t:"Bangun Ruang",s:"Bangun ruang",
+ p:["Kubus: 6 sisi, 12 rusuk, 8 titik sudut. Balok: 6 sisi, 12 rusuk, 8 titik sudut.","Volume gabungan: hitung tiap bangun, lalu jumlahkan."],
+ tbl:{h:["Bangun","Volume"],r:[["Kubus","s × s × s (luas permukaan 6 × s²)"],["Balok","p × l × t"],["Prisma","luas alas × tinggi"],["Tabung","π × r² × t"]]},
+ ex:{q:"Volume balok p = 10, l = 5, t = 4 cm",s:["V = p × l × t","V = 10 × 5 × 4 = 200"],a:"200 cm³"},
+ trik:"<b>Volume = luas alas × tinggi</b> berlaku untuk kubus, balok, prisma, dan tabung.",
+ fc:[["Volume kubus rusuk 5","125"],["Luas permukaan kubus rusuk 4","96"],["Volume tabung r = 7, t = 10 (22/7)","1.540"]]},
+{e:"📊",t:"Data & Koordinat",s:"Data",
+ p:["Koordinat ditulis <b>(x, y)</b>: x mendatar (kanan/kiri), y tegak (atas/bawah).","Pola bilangan: cari selisih tetap atau selisih yang bertambah (1, 3, 6, 10, 15, 21)."],
+ tbl:{h:["Ukuran","Artinya"],r:[["Mean","jumlah data : banyak data"],["Median","nilai tengah data yang sudah diurutkan"],["Modus","nilai yang paling sering muncul"]]},
+ ex:{q:"Data 4, 6, 2, 9, 8. Berapa median dan mean?",s:["Urutkan: 2, 4, 6, 8, 9 → median = 6","Jumlah = 29; 29 : 5 = 5,8"],a:"Median 6, mean 5,8"},
+ trik:"<b>Modus = Mode</b>, yang paling 'ngetren' (sering). Median = <b>Medium</b> (di tengah).",
+ fc:[["Modus dari 2,3,3,4,5","3"],["Rata-rata 5 nilai = 80. Jumlahnya?","400"],["Titik 4 ke kanan, 3 ke atas dari (0,0)","(4, 3)"]]}
+],
+ipas:[
+{e:"🫀",t:"Tubuh Manusia",s:"Organ tubuh",
+ p:["Pencernaan: mulut → kerongkongan → lambung → <b>usus halus</b> (penyerapan) → usus besar → anus.","Pernapasan: hidung → faring → laring → trakea → bronkus → <b>alveolus</b> (pertukaran O₂ dan CO₂).","Peredaran darah: <b>arteri</b> keluar dari jantung, <b>vena</b> kembali ke jantung. Darah merah angkut O₂, darah putih lawan kuman."],
+ tbl:{h:["Organ","Fungsi"],r:[["Jantung","memompa darah"],["Paru-paru","bernapas (tukar gas)"],["Ginjal","menyaring darah, membentuk urine"],["Hati","menghasilkan empedu"],["Kulit","mengeluarkan keringat"]]},
+ box:"Peredaran darah <b>kecil</b>: jantung → paru-paru → jantung. Peredaran darah <b>besar</b>: jantung → seluruh tubuh → jantung.",
+ trik:"Urutan cerna: <b>Mulut → Kerongkongan → Lambung → Usus halus → Usus besar → Anus</b> (ketika makan, ikuti jalurnya).",
+ fc:[["Tempat penyerapan sari makanan","Usus halus"],["Tempat pertukaran gas di paru-paru","Alveolus"],["Pembuluh darah dari jantung ke tubuh","Arteri"]]},
+{e:"🧪",t:"Zat & Perubahannya",s:"Zat",
+ p:["Perubahan wujud: <b>mencair</b> (padat→cair), <b>membeku</b> (cair→padat), <b>menguap</b> (cair→gas), <b>mengembun</b> (gas→cair), <b>menyublim</b> (padat→gas).","Perubahan <b>fisik</b>: tidak terbentuk zat baru dan bisa kembali. Perubahan <b>kimia</b>: terbentuk zat baru."],
+ tbl:{h:["Fisik","Kimia"],r:[["Es mencair","Kayu terbakar"],["Gula larut dalam air","Besi berkarat"],["Air menguap","Singkong menjadi tapai"]]},
+ ex:{q:"Apakah lilin meleleh perubahan fisik atau kimia?",s:["Lilin hanya berubah wujud (padat → cair)","Tidak terbentuk zat baru"],a:"Perubahan fisik"},
+ trik:"Tanya: <b>'Ada zat baru?'</b> Ada → kimia (api, karat, busuk). Tidak → fisik.",
+ fc:[["Embun terbentuk karena …","pengembunan uap air"],["Menyublim adalah …","padat langsung menjadi gas"],["Besi berkarat termasuk perubahan …","kimia"]]},
+{e:"⚡",t:"Energi, Listrik & Gaya",s:"Energi",
+ p:["Energi tidak hilang, hanya <b>berubah bentuk</b>: setrika (listrik → panas), kipas (listrik → gerak).","<b>Konduktor</b> menghantar listrik (logam, tembaga). <b>Isolator</b> tidak (karet, plastik).","Gaya: gravitasi (menarik ke bumi), gesek (menghambat gerak), magnet (menarik besi), otot."],
+ tbl:{h:["Rangkaian","Jika satu lampu putus"],r:[["Seri","semua lampu padam"],["Paralel","lampu lain tetap menyala"]]},
+ box:"Baterai disusun <b>seri</b> → lampu <b>lebih terang</b>. Sumber energi utama bumi: <b>Matahari</b>.",
+ trik:"<b>Seri = Satu jalur</b> (putus satu, mati semua). <b>Paralel = Pisah jalur</b>.",
+ fc:[["Kipas angin: listrik berubah menjadi …","energi gerak"],["Contoh isolator","karet / plastik"],["Gaya yang menarik benda ke bumi","gravitasi"]]},
+{e:"🌍",t:"Bumi & Antariksa",s:"Bumi",
+ p:["<b>Rotasi</b> bumi (±24 jam) → siang dan malam. <b>Revolusi</b> bumi (±365 hari) → pergantian musim.","Gerhana bulan: bumi di antara Matahari dan Bulan. Gerhana matahari: bulan di antara Matahari dan bumi (saat bulan baru).","Pasang surut terutama dipengaruhi <b>gravitasi bulan</b>. Matahari adalah <b>bintang</b>, bukan planet."],
+ tbl:{h:["Planet","Ciri"],r:[["Merkurius","paling dekat Matahari"],["Jupiter","terbesar"],["Bumi","tempat kita, satelit alami: Bulan"]]},
+ trik:"<b>Rotasi = Ro-tasi</b> berputar di tempat (siang-malam). <b>Revolusi = Re-volusi</b> keliling Matahari (tahun).",
+ fc:[["Bulan bulat penuh","Purnama"],["Lapisan atmosfer tempat cuaca","Troposfer"],["Gerhana matahari terjadi saat bulan …","baru"]]},
+{e:"🌱",t:"Ekosistem & Lingkungan",s:"Ekosistem",
+ p:["Rantai makanan: <b>produsen</b> (tumbuhan) → konsumen I (herbivora) → konsumen II/III (karnivora/omnivora) → <b>pengurai</b> (jamur, bakteri).","Faktor <b>abiotik</b>: air, suhu, cahaya, tanah. <b>Biotik</b>: makhluk hidup.","Fotosintesis: air + CO₂ + cahaya matahari → <b>glukosa + oksigen</b> (di klorofil).","Pemanasan global: gas rumah kaca (CO₂) meningkat → es kutub mencair, laut naik. Lestarikan dengan <b>3R</b>."],
+ ex:{q:"Rumput → belalang → katak → ular → elang. Elang konsumen tingkat berapa?",s:["Belalang = konsumen I","Katak = II, ular = III","Elang = IV"],a:"Konsumen tingkat IV"},
+ trik:"Jika pemangsa berkurang (ular punah), mangsa (tikus) <b>bertambah</b>. 3R = <b>Reduce, Reuse, Recycle</b>.",
+ fc:[["Zat hijau daun","Klorofil"],["Hewan pemakan tumbuhan dan daging","Omnivora"],["Reboisasi adalah …","menanam kembali hutan"]]},
+{e:"🇮🇩",t:"Indonesia: Sejarah & Kehidupan",s:"IPS",
+ p:["Semboyan: <b>Bhinneka Tunggal Ika</b> (berbeda-beda tetapi tetap satu). Dasar negara: <b>Pancasila</b>.","Proklamasi <b>17 Agustus 1945</b> oleh Soekarno–Hatta. Sumpah Pemuda <b>28 Oktober 1928</b>. Kebangkitan Nasional <b>20 Mei</b>.","Kegiatan ekonomi: <b>produksi</b> (membuat), <b>distribusi</b> (menyalurkan), <b>konsumsi</b> (memakai). DPR membuat undang-undang."],
+ tbl:{h:["Tanggal","Peristiwa"],r:[["20 Mei 1908","Kebangkitan Nasional"],["28 Oktober 1928","Sumpah Pemuda"],["17 Agustus 1945","Proklamasi"]]},
+ trik:"Urut tahun: <b>08 → 28 → 45</b> (Kebangkitan → Sumpah Pemuda → Proklamasi).",
+ fc:[["Pahlawan wanita dari Aceh","Cut Nyak Dien"],["Pedagang termasuk kegiatan …","distribusi"],["Lembaga pembuat UU","DPR"]]},
+{e:"🧑",t:"Pubertas",s:"Pubertas",
+ p:["Pubertas adalah masa peralihan anak menjadi remaja karena <b>hormon</b>; waktunya berbeda-beda tiap orang.","Putri: menstruasi, payudara tumbuh. Putra: suara membesar, jakun tumbuh, kumis muncul.","Jaga <b>kebersihan diri</b>, makan bergizi, istirahat cukup, dan berolahraga."],
+ box:"Pubertas itu <b>normal</b>. Tidak semua anak mengalaminya pada usia yang sama.",
+ fc:[["Tanda pubertas putri","Menstruasi"],["Tanda pubertas putra","Suara membesar / jakun"]]}
+],
+ing:[
+{e:"🧍",t:"To Be (am, is, are)",s:"To be",
+ p:["Dipakai untuk menyatakan identitas, keadaan, dan tempat.","Kalimat negatif: tambah <b>not</b> (I am not, she is not). Pertanyaan: pindahkan to be ke depan (Is she a teacher?)."],
+ tbl:{h:["Subjek","To be"],r:[["I","am"],["He / She / It","is"],["You / We / They","are"]]},
+ ex:{q:"They … playing football.",s:["They = jamak","Jamak memakai are"],a:"are"},
+ trik:"<b>I am, He/She/It is, You/We/They are</b> (hafalkan sebagai nyanyian).",
+ fc:[["She … my sister.","is"],["I … a student.","am"],["'He are a teacher' benar?","Salah → He is a teacher"]]},
+{e:"📅",t:"Simple Present",s:"Present",
+ p:["Dipakai untuk <b>kebiasaan</b> dan fakta: always, usually, every day.","Subjek he/she/it → verb + <b>s/es</b>: she goes, he likes.","Negatif: <b>don't/doesn't + verb dasar</b>. Pertanyaan: Do/Does + subjek + verb dasar."],
+ tbl:{h:["Subjek","Contoh"],r:[["I / You / We / They","I have breakfast every day."],["He / She / It","She goes to school by bus."],["Negatif (he)","He doesn't like milk."]]},
+ trik:"Setelah <b>does/doesn't</b> verbnya kembali <b>polos</b> (tanpa -s): Does she <b>play</b>?",
+ fc:[["He … apples. (like)","likes"],["Does she play the piano? (jawab pendek)","Yes, she does."],["'He doesn't likes milk' benar?","Salah → doesn't like"]]},
+{e:"⏪",t:"Past Tense & Present Continuous",s:"Past",
+ p:["<b>Past</b> (yesterday, last Sunday): kejadian lampau. Regular: +ed (played). Irregular: go → <b>went</b>, eat → <b>ate</b>, buy → <b>bought</b>.","<b>Present continuous</b> (now, listen!): <b>am/is/are + V-ing</b> untuk yang sedang terjadi."],
+ tbl:{h:["Dasar","Lampau"],r:[["go","went"],["eat","ate"],["buy","bought"],["see","saw"],["play","played"]]},
+ ex:{q:"Listen! The baby …",s:["'Listen!' berarti sedang terjadi","Gunakan am/is/are + V-ing"],a:"is crying"},
+ trik:"Lihat <b>kata penanda</b>: yesterday/last → past; now/listen → V-ing.",
+ fc:[["Past dari go","went"],["My mother … in the kitchen now.","is cooking"],["Yesterday, my father … a bike.","bought"]]},
+{e:"👉",t:"There is/are, Can & Possessive",s:"There is",
+ p:["<b>There is</b> + benda tunggal. <b>There are</b> + benda jamak.","<b>Can</b> + verb dasar: She can <b>sing</b> (bukan sings). Jawab: Yes, I can.","Kepemilikan: <b>my, your, his, her, its, our, their</b>."],
+ tbl:{h:["Pronoun","Possessive"],r:[["he","his"],["she","her"],["it","its"],["we","our"],["they","their"]]},
+ trik:"<b>An</b> sebelum bunyi <b>vokal</b> (an apple); <b>a</b> sebelum konsonan (a banana).",
+ fc:[["There … three cats.","are"],["This is Tono's bag. It is … bag.","his"],["That is my aunt. … name is Rina.","Her"]]},
+{e:"📍",t:"Preposition & Question Words",s:"Preposisi",
+ p:["<b>in</b>: di dalam / pagi, siang. <b>on</b>: di atas / hari. <b>at</b>: pukul / titik.","<b>next to</b> = di sebelah, <b>between</b> = di antara, <b>under</b> = di bawah.","Arah: turn left (belok kiri), turn right (kanan), go straight (lurus)."],
+ tbl:{h:["Kata tanya","Menanyakan"],r:[["Where","tempat"],["When","waktu"],["Who","siapa"],["How much","harga"],["Why","alasan"]]},
+ trik:"<b>In the morning, On Sunday, At 7 o'clock</b> (urutan: besar → sedang → kecil).",
+ fc:[["We have a party … Sunday.","on"],["The class starts … 7 o'clock.","at"],["'Between' artinya","di antara"]]},
+{e:"📚",t:"Vocabulary & Comparison",s:"Vocabulary",
+ p:["Pekerjaan: teacher (guru), doctor (dokter), pilot, chef. Tempat: hospital, library, market.","Lawan kata: big–small, hot–cold, happy–sad.","Perbandingan: tall → <b>taller than</b> → <b>the tallest</b>. Kata sifat panjang: <b>more expensive than</b> → <b>the most expensive</b>."],
+ tbl:{h:["Dasar","Lebih","Paling"],r:[["tall","taller","the tallest"],["smart","smarter","the smartest"],["expensive","more expensive","the most expensive"]]},
+ trik:"Kata sifat <b>pendek</b> tambah <b>-er/-est</b>; <b>panjang</b> pakai <b>more/most</b>.",
+ fc:[["Opposite of big","small"],["Budi is … than Ali. (tall)","taller"],["This bag is … than that bag. (expensive)","more expensive"]]}
+],
+ind:[
+{e:"✍️",t:"Ejaan & Kata Baku",s:"Ejaan",
+ p:["<b>Kata depan</b> 'di, ke, dari' ditulis <b>terpisah</b> (di rumah). <b>Awalan</b> di- ditulis <b>serangkai</b> (dibaca).","Huruf kapital: awal kalimat, nama orang, nama kota, nama bulan, dan petikan langsung.","Tanda baca: <b>titik</b> (berita), <b>tanya</b> (?), <b>seru</b> (!), <b>koma</b> (pemerincian)."],
+ tbl:{h:["Tidak baku","Baku"],r:[["apotik","apotek"],["analisa","analisis"],["silahkan","silakan"],["kwalitas","kualitas"],["aktip","aktif"]]},
+ trik:"Kata <b>di</b> + tempat → <b>pisah</b>. Kata <b>di</b> + kerja (dibaca, dimakan) → <b>sambung</b>.",
+ fc:[["Penulisan yang benar: Adik tidur ... kamar","di kamar (dipisah)"],["Baku dari 'silahkan'","silakan"]]},
+{e:"📝",t:"Paragraf & Kalimat Efektif",s:"Paragraf",
+ p:["<b>Gagasan pokok</b> ada di <b>kalimat utama</b>; kalimat penjelas mendukungnya.","Deduktif: kalimat utama di awal. Induktif: di akhir.","Kalimat efektif: hemat kata, jelas, tidak berlebihan."],
+ ex:{q:"Mana yang efektif? (a) Para siswa-siswa belajar (b) Para siswa belajar",s:["'Para' sudah bermakna banyak","Tidak perlu diulang"],a:"(b) Para siswa belajar"},
+ trik:"Hindari <b>'disebabkan karena'</b> dan <b>'para … -nya banyak'</b>: cukup salah satu.",
+ fc:[["Gagasan pokok adalah …","ide utama paragraf"],["Kalimat penjelas fungsinya","mendukung kalimat utama"]]},
+{e:"💬",t:"Kalimat Langsung & Konjungsi",s:"Kalimat",
+ p:["<b>Langsung</b>: Ibu berkata, &quot;Ayo makan.&quot; (pakai tanda petik).","<b>Tidak langsung</b>: Ibu berkata bahwa kami harus makan. (pakai <b>bahwa</b>, tanpa tanda petik).","Konjungsi: <b>tetapi</b> (pertentangan), <b>karena</b> (sebab), <b>agar</b> (tujuan), <b>sehingga</b> (akibat)."],
+ ex:{q:"Rina berkata, &quot;Aku akan membantu ibu.&quot; → tidak langsung?",s:["Hilangkan tanda petik","Tambah 'bahwa'","'Aku' menjadi 'dia'"],a:"Rina berkata bahwa dia akan membantu ibu."},
+ trik:"Tidak langsung: <b>buang petik, tambah 'bahwa', ganti 'aku' jadi 'dia'</b>.",
+ fc:[["Konjungsi sebab","karena"],["Konjungsi tujuan","agar"],["'Walaupun lelah, tetapi …' benar?","Salah, pilih salah satu"]]},
+{e:"📰",t:"Jenis Teks",s:"Teks",
+ tbl:{h:["Teks","Tujuan / ciri"],r:[["Narasi","menceritakan rangkaian peristiwa"],["Eksposisi","memaparkan informasi + fakta"],["Persuasi","membujuk, mengajak"],["Prosedur","langkah-langkah, kalimat perintah"],["Berita","unsur 5W + 1H"]]},
+ p:["Berita: <b>what</b> (apa), <b>who</b> (siapa), <b>when</b> (kapan), <b>where</b> (di mana), <b>why</b> (mengapa), <b>how</b> (bagaimana).","Teras berita memuat inti informasi di bagian awal.","Opini memuat <b>penilaian</b> (paling, terbaik, harus); fakta bisa dibuktikan."],
+ trik:"<b>5W + 1H</b>: Apa, Siapa, Kapan, Dimana, Mengapa, Bagaimana.",
+ fc:[["Teks yang membujuk pembaca","Persuasi"],["'Sepak bola paling menyenangkan' adalah …","opini"]]},
+{e:"📖",t:"Unsur Cerita",s:"Cerita",
+ p:["<b>Tokoh</b> (pelaku), <b>latar</b> (tempat, waktu, suasana), <b>alur</b> (rangkaian peristiwa), <b>tema</b> (pokok cerita), <b>amanat</b> (pesan moral).","Alur: pengenalan → konflik → <b>klimaks</b> (puncak) → penyelesaian.","Sudut pandang: orang pertama (<b>aku</b>), orang ketiga (<b>dia/nama tokoh</b>)."],
+ ex:{q:"Dika menemukan dompet, lalu mengantarkannya ke pemiliknya. Sifat Dika?",s:["Ia tidak mengambil milik orang lain","Ia mengembalikannya"],a:"Jujur; amanat: kembalikan barang yang bukan milik kita"},
+ trik:"<b>TLATA</b>: Tokoh, Latar, Alur, Tema, Amanat.",
+ fc:[["Puncak masalah dalam cerita","Klimaks"],["Pesan moral cerita","Amanat"]]},
+{e:"🎭",t:"Puisi, Pantun & Majas",s:"Puisi",
+ p:["Puisi tersusun atas <b>bait</b> dan <b>larik</b>. Pantun: baris 1–2 <b>sampiran</b>, baris 3–4 <b>isi</b>, sajak a-b-a-b.","<b>Personifikasi</b>: benda bersifat manusia (angin berbisik). <b>Hiperbola</b>: berlebihan (tangisnya membanjiri kota). <b>Simile</b>: memakai seperti/bagai."],
+ tbl:{h:["Majas","Contoh"],r:[["Personifikasi","Angin berbisik di telingaku"],["Hiperbola","Suaranya menggelegar membelah langit"],["Simile","Dia seperti singa saat marah"]]},
+ trik:"Pantun: <b>Sampiran di atas, Isi di bawah</b> (baris 1–2 / 3–4).",
+ fc:[["Baris 1–2 pantun disebut","Sampiran"],["Majas 'Angin berbisik'","Personifikasi"]]},
+{e:"🗣️",t:"Ungkapan, Peribahasa & Surat",s:"Peribahasa",
+ tbl:{h:["Ungkapan/Peribahasa","Arti"],r:[["naik daun","makin terkenal"],["besar kepala","sombong"],["murah hati","dermawan"],["Rajin pangkal pandai","rajin membuat pintar"],["Sedia payung sebelum hujan","bersiap sebelum terjadi"],["Air susu dibalas air tuba","kebaikan dibalas kejahatan"],["Bagai pinang dibelah dua","sangat mirip"]]},
+ p:["Surat pribadi: bahasa akrab. Surat resmi: bahasa <b>baku dan sopan</b>, salam pembuka <b>'Dengan hormat,'</b>.","Pidato dibuka dengan salam pembuka dan memakai bahasa yang sopan."],
+ trik:"Peribahasa dibaca <b>maknanya</b>, bukan kata per kata.",
+ fc:[["'Tong kosong nyaring bunyinya'","orang kurang ilmu banyak bicara"],["Salam pembuka surat resmi","Dengan hormat,"]]}
+]};
+
+</script>
+</body>
+</html>
