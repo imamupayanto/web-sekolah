@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v103">
+<meta name="lumimon-ver" content="v107">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -943,15 +943,34 @@ const SH = Object.fromEntries(SHOP.map(s => [s.id, s]));
 
 /* ---------- save state ---------- */
 const KEY = 'mga-pilot-k6-v2';
+/* v107 reset musim (open beta): MUSIM = 2. Simpanan musim 1 (tanpa S.musim) diarsipkan saat dibuka. Set 0 untuk mematikan reset.
+   simpanan musim lama diarsipkan (localStorage 'mga-musim1'), pemain membuat karakter baru; akun, Kristo, gelar Pionir, dan kode terpakai dibawa. */
+const MUSIM = 2, MUSIM_ARSIP = 'mga-musim1', MUSIM_BAWA = 'mga-musim-bawa';
+function musimArsip(s) {
+  try {
+    if (!localStorage.getItem(MUSIM_ARSIP)) localStorage.setItem(MUSIM_ARSIP, JSON.stringify(s));
+    const a = s.akun && !s.akun.off ? { u: s.akun.u, tok: s.akun.tok, ver: s.akun.ver } : null;
+    localStorage.setItem(MUSIM_BAWA, JSON.stringify({ akun: a, pion: s.pion ? 1 : 0, kristo: s.owned && s.owned.kristo ? 1 : 0, codes: s.codes || {}, name: s.name || '' }));
+    localStorage.removeItem(KEY);
+  } catch (e) { }
+}
+function musimBawa() {
+  let c = null; try { c = JSON.parse(localStorage.getItem(MUSIM_BAWA)); } catch (e) { } if (!c || !S) return;
+  if (c.akun && c.akun.u) S.akun = { u: c.akun.u, tok: c.akun.tok, ver: c.akun.ver, t: Date.now() };
+  if (c.pion) { S.pion = 1; S.tgot = S.tgot || {}; S.tgot.pionir = 1; S.title = 'pionir'; }
+  if (c.kristo) S.owned.kristo = { s: 1 };
+  if (c.codes) S.codes = c.codes;
+  try { localStorage.removeItem(MUSIM_BAWA); } catch (e) { }
+}
 let S = null;
 function fresh(name, look) {
   return { v: 2, name, look, prog: {}, secret: {}, rank: 1, xp: 0, coins: 100, owned: {}, team: [], boxes: { Kayu: 0, Perak: 0, Emas: 0 }, pity: 0,
     acc: { own: ['sd'], hat: null, shirt: null, pants: null, shoes: null, glass: null, back: null }, st: { win: 0, wild: 0, duel: 0, opened: 0, latihan: 0 },
-    comp: null, bond: {}, quests: [], qn: 0, quizDay: '', quizCount: 0, zone: 'school' };
+    comp: null, bond: {}, quests: [], qn: 0, quizDay: '', quizCount: 0, zone: 'school', musim: MUSIM || 1 };
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 const ACC_RENAME = { pelangi: 'neon', jubahpelangi: 'jubahagung' };
-function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 2) { if (s.acc) { s.acc.own = (s.acc.own || []).map(id => ACC_RENAME[id] || id); for (const k in s.acc) if (typeof s.acc[k] === 'string' && ACC_RENAME[s.acc[k]]) s.acc[k] = ACC_RENAME[s.acc[k]]; } return s; } } catch (e) {} return null; }
+function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 2 && MUSIM && (s.musim || 1) < MUSIM) { musimArsip(s); return null; } if (s && s.v === 2) { if (s.acc) { s.acc.own = (s.acc.own || []).map(id => ACC_RENAME[id] || id); for (const k in s.acc) if (typeof s.acc[k] === 'string' && ACC_RENAME[s.acc[k]]) s.acc[k] = ACC_RENAME[s.acc[k]]; } return s; } } catch (e) {} return null; }
 /* ---------- Lumi pendamping ---------- */
 const BOND_AT = [0, 30, 80, 160, 300];
 function compId() { return S.team.includes(S.comp) ? S.comp : (S.team[0] || null); }
@@ -1008,7 +1027,7 @@ function gainXP(n) {
   save(); return up;
 }
 /* XP battle per hari: 20 menang pertama penuh, 21-40 setengah, setelahnya 0 (koin tetap penuh) */
-function battleXP(n) { const d = today(); if (!S.bw || S.bw.d !== d) S.bw = { d, w: 0 }; S.bw.w++; const x = Math.round(n * (S.bw.w <= 20 ? 1 : S.bw.w <= 40 ? .5 : 0) * (typeof B !== 'undefined' && B && B.xpMul || 1)); return typeof accXP === 'function' ? accXP(x) : x; }
+function battleXP(n) { const d = today(); if (!S.bw || S.bw.d !== d) S.bw = { d, w: 0 }; S.bw.w++; const x = Math.round(n * .5 * (S.bw.w <= 20 ? 1 : S.bw.w <= 40 ? .5 : 0) * (typeof B !== 'undefined' && B && B.xpMul || 1)); return typeof accXP === 'function' ? accXP(x) : x; }
 const bxpNote = () => S.bw && S.bw.w > 20 ? `<small style="font-weight:700;color:var(--muted)">${S.bw.w > 40 ? 'XP battle hari ini sudah habis' : 'XP battle hari ini setengah'} (sudah ${S.bw.w} menang). Belajar tetap memberi XP penuh!</small>` : '';
 const eggS = k => k === 'Kayu' ? 'Biasa' : k, eggN = k => 'Telur ' + eggS(k);
 function teamCost(t = S.team) { return t.reduce((a, id) => a + RAR[M[id].r].cost, 0); }
@@ -2346,8 +2365,9 @@ function setR(T, x, y, w, h, v) { for (let j = y; j < y + h; j++) for (let i = x
 let W = null, enteringFromMap = false;
 const FLAG = [];
 function enterZone(z, at) {
+  if (ZONES[z] && ZONES[z].pulau && ZONES[z].bab && typeof isOpen === 'function' && !isOpen(ZONES[z].pulau, ZONES[z].bab)) { z = 'school'; at = null; }   // v107: tanpa mode uji, zona terkunci -> sekolah
   if (!FLAG.length) for (let i = 0; i < 3; i++) FLAG.push(makeFlag(i));
-  if (!MAPS[z]) MAPS[z] = buildMap(z);
+  if (!MAPS[z]) { MAPS[z] = buildMap(z); if (typeof goaBuild === 'function') try { goaBuild(MAPS[z], z); } catch (e) { console.error(e); } }
   const m = MAPS[z];
   S.zone = z; save();
   W = Object.assign({}, m);
@@ -3159,12 +3179,12 @@ function openAkademi(z) {
 }
 async function practice(z) {
   const Z = ZONES[z];
-  const r = await runQuiz({ kc: true, title: `Latihan · ${PSHORT[Z.pulau]}`, sub: `Bab ${Z.bab} · ${Z.babN}`, qs: shuffle(soalBab(Z.bank, Z.bab)).slice(0, 5), hint: hootHint(Z.bank, Z.bab) });
+  const r = await runQuiz({ kc: true, title: `Latihan · ${PSHORT[Z.pulau]}`, sub: `Bab ${Z.bab} · ${Z.babN}`, qs: qPick(soalBab(Z.bank, Z.bab), 5), hint: hootHint(Z.bank, Z.bab) });
   S.st.latihan = (S.st.latihan || 0) + 1; save(); show('s-world'); hud();
   if (r.quit) return;
-  progress('latih'); streakDone();
+  progress('latih'); streakDone(); const lg = lxGain(r.ok);
   const msg = r.ok === r.n ? 'Sempurna! Kamu siap menghadapi Kuil Ujian.' : r.ok >= 3 ? 'Bagus! Baca lagi pembahasan soal yang salah, lalu coba sekali lagi.' : 'Tidak apa-apa. Baca kartu Akademi sekali lagi, lalu coba latihan lagi.';
-  await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">HASIL LATIHAN</div><div class="big" style="font-size:56px">${r.ok}/${r.n}</div><p>${msg}</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
+  await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">HASIL LATIHAN</div><div class="big" style="font-size:56px">${r.ok}/${r.n}</div><p>${msg}</p>${lxNote(lg)}</div>`, [{ t: 'Oke', cls: 'hot' }]);
 }
 
 /* --- Kuil Ujian --- */
@@ -3172,11 +3192,13 @@ async function openKuil(z) {
   const Z = ZONES[z], pg = prog(Z.pulau), done = pg.lulus.includes(Z.bab), mon = KUILMON[z];
   const c = await modal(`<h2>Kuil Ujian · Bab ${Z.bab}</h2><p style="color:#fff">${esc(Z.babN)}</p>
     <div style="display:flex;gap:12px;align-items:center"><div style="width:72px;height:60px;flex:none${done ? '' : ';filter:brightness(0);opacity:.5'}">${mSvg(mon)}</div><p>${done ? `Kamu sudah lulus Kuil ini dan mendapat <b style="color:#fff">${esc(M[mon].n)}</b>. Kamu boleh mengulang ujian untuk berlatih, tanpa hadiah tambahan.` : `Ujian <b style="color:#fff">10 soal</b> acak dari bab ini. Lulus jika benar minimal <b style="color:#fff">8</b>. Hadiah: Lumi bab, Telur Perak, dan wilayah berikutnya terbuka.`}</p></div>
-    <p style="font-size:13px">Mode tenang (tanpa batas waktu) aktif kecuali kamu mematikannya di layar soal.</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: done ? 'Ulangi ujian' : 'Mulai ujian', cls: 'hot' }]);
+    <p style="font-size:13px">Mode ujian: tiap soal berwaktu 45 detik, jangan pindah aplikasi. Kalau belum lulus, coba lagi setelah 30 menit.</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: done ? 'Ulangi ujian' : 'Mulai ujian', cls: 'hot' }]);
   if (c !== 1) return;
-  const r = await runQuiz({ title: `Kuil Ujian · Bab ${Z.bab}`, sub: `${PSHORT[Z.pulau]} · ${Z.babN}`, qs: shuffle(soalBab(Z.bank, Z.bab)).slice(0, 10), timed: true, secs: 45 });
+  if (await ujCD('k' + z)) return;
+  const r = await runQuiz({ title: `Kuil Ujian · Bab ${Z.bab}`, sub: `${PSHORT[Z.pulau]} · ${Z.babN}`, qs: qPick(soalBab(Z.bank, Z.bab), 10, true), timed: true, exam: true, secs: 45 });
   S.st.ujian = (S.st.ujian || 0) + 1; save();
   show('s-world'); hud();
+  if (r.quit || r.fail || r.ok < 8) ujFail('k' + z);
   if (r.quit) return;
   progress('kuil');
   const pass = r.ok >= 8; if (r.ok === 10 && !r.quit) S.st.perfect = 1;
@@ -3192,7 +3214,7 @@ async function openKuil(z) {
   } else if (pass) {
     await modal(`<div style="text-align:center"><div class="big">${r.ok}/10</div><p>Lulus lagi! Pemahamanmu tetap terjaga.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
   } else {
-    const c2 = await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">KUIL UJIAN · BAB ${Z.bab}</div><div class="big">${r.ok}/10</div><p>Belum lulus, butuh ${8 - r.ok} jawaban benar lagi. Tidak ada yang hilang. Baca kartu Akademi, lalu coba lagi kapan saja.</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Ke Akademi', cls: 'hot' }]);
+    const c2 = await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">KUIL UJIAN · BAB ${Z.bab}</div><div class="big">${r.ok}/10</div><p>Belum lulus, butuh ${8 - r.ok} jawaban benar lagi. Tidak ada yang hilang. Baca kartu Akademi, lalu coba lagi setelah 30 menit.</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Ke Akademi', cls: 'hot' }]);
     if (c2 === 1) openAkademi(z);
   }
 }
@@ -3204,37 +3226,47 @@ async function openAkhir(z) {
   if (!pg.lulus.includes(5)) { toast('Lulus Kuil Ujian Bab 5 dulu'); return; }
   const c = await modal(`<h2>Gerbang Pulau ${esc(PSHORT[k])}</h2>
     <div style="display:flex;gap:12px;align-items:center"><div style="width:84px;height:70px;flex:none${pg.legend ? '' : ';filter:brightness(0);opacity:.55'}">${mSvg(leg)}</div>
-    <p>${ok ? `Ujian Akhir sudah lulus. ${pg.legend ? `<b style="color:#fff">${esc(M[leg].n)}</b> sudah jadi milikmu. Kamu boleh menantangnya lagi untuk berlatih.` : `Sarang Legenda terbuka! <b style="color:#fff">${esc(M[leg].n)}</b> menunggu. Jurus kuat dijawab dengan soal benar/salah. Kalah boleh coba lagi.`}` : `<b style="color:#fff">Ujian Akhir Pulau</b>: 25 soal acak dari seluruh 5 bab (125 soal). Lulus jika benar minimal <b style="color:#fff">23</b>. Lulus membuka Sarang Legenda dengan Lumi legenda dan Telur Emas.`}</p></div>`,
+    <p>${ok ? `Ujian Akhir sudah lulus. ${pg.legend ? `<b style="color:#fff">${esc(M[leg].n)}</b> sudah jadi milikmu. Kamu boleh menantangnya lagi untuk berlatih.` : `Sarang Legenda terbuka! <b style="color:#fff">${esc(M[leg].n)}</b> menunggu (syarat: pernah mengevolusi 1 Lumi). Menang = peluang Telur Emas & Telur Legenda.`}` : `<b style="color:#fff">Ujian Akhir Pulau</b>: 25 soal acak dari seluruh 5 bab (125 soal). Lulus jika benar minimal <b style="color:#fff">23</b>. Lulus membuka Sarang Legenda dengan Lumi legenda dan Telur Emas.`}</p></div>`,
     [{ t: 'Nanti', cls: 'ghost' }, { t: ok ? 'Ulangi ujian' : 'Mulai Ujian Akhir', cls: ok ? 'ghost' : 'hot' }, { t: 'Sarang Legenda', cls: ok ? 'hot' : 'ghost' }]);
-  if (c === 1) ujianAkhir(z); else if (c === 2) { if (!ok) toast('Lulus Ujian Akhir Pulau dulu untuk membuka Sarang Legenda'); else sarang(z); }
+  if (c === 1) ujianAkhir(z); else if (c === 2) { if (!ok) toast('Lulus Ujian Akhir Pulau dulu untuk membuka Sarang Legenda'); else if (!legEvoOk()) await modal(`<h2>Sarang Legenda</h2><p>Legenda hanya mau melawan Keeper yang pernah mengevolusi Lumi. <b>Evolusikan 1 Lumimu dulu!</b></p><p style="font-size:13px;color:var(--sub);font-weight:700">Evolusi terbuka mulai Rank 10 (Lumi Biasa).</p>`, [{ t: 'Oke', cls: 'hot' }]); else sarang(z); }
 }
 async function ujianAkhir(z) {
   const Z = ZONES[z], k = Z.pulau, pg = prog(k);
-  const r = await runQuiz({ title: 'Ujian Akhir Pulau', sub: `${PSHORT[k]} · 25 soal dari 5 bab`, qs: shuffle(BANK.filter(q => q[0] === Z.bank)).slice(0, 25), timed: true, secs: 60 });
+  if (await ujCD('a' + k)) return;
+  const r = await runQuiz({ title: 'Ujian Akhir Pulau', sub: `${PSHORT[k]} · 25 soal dari 5 bab`, qs: qPick(BANK.filter(q => q[0] === Z.bank), 25, true), timed: true, exam: true, secs: 60 });
   S.st.ujian = (S.st.ujian || 0) + 1; save(); show('s-world'); hud();
+  if (r.quit || r.fail || r.ok < 23) ujFail('a' + k);
   if (r.quit) return;
   if (r.ok >= 23) {
     const first = !pg.akhirLulus; pg.akhirLulus = 1; const XA = accXP(60); if (first) gainXP(XA); save(); hud();
     const c = await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">UJIAN AKHIR PULAU</div><div class="big">LULUS! ${r.ok}/25</div><p>${first ? `+ ${XA} XP. ` : ''}<b style="color:#fff">Sarang Legenda</b> terbuka. Hadapi ${esc(M[LEG[k]].n)} dalam pertarungan.</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Ke Sarang Legenda', cls: 'hot' }]);
     if (c === 1) sarang(z);
   } else {
-    await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">UJIAN AKHIR PULAU</div><div class="big">${r.ok}/25</div><p>Belum lulus, butuh minimal 23. Tidak ada yang hilang. Ulangi Akademi dan Kuil tiap bab, lalu coba lagi kapan saja.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
+    await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">UJIAN AKHIR PULAU</div><div class="big">${r.ok}/25</div><p>Belum lulus, butuh minimal 23. Tidak ada yang hilang. Ulangi Akademi dan Kuil tiap bab, lalu coba lagi setelah 30 menit.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
   }
 }
 async function sarang(z) {
-  const Z = ZONES[z], k = Z.pulau, pg = prog(k), leg = LEG[k];
+  const Z = ZONES[z], k = Z.pulau, pg = prog(k), leg = LEG[k], own = !!pg.legend, d = today();
   if (!S.team.length) { toast('Timmu masih kosong'); return; }
-  const c = await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">SARANG LEGENDA</div><div style="width:130px;height:108px">${mSvg(leg)}</div><h2>${esc(M[leg].n)}</h2><p>${esc(M[leg].d)}. Ia sangat kuat (HP +25%). Atur timmu dan manfaatkan Kritis!${pg.legend ? '' : ' Menang: Lumi legenda dan Telur Emas.'}</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Tantang!', cls: 'hot' }]);
+  if (!legEvoOk()) { toast('Evolusikan 1 Lumimu dulu untuk menantang Legenda', 3000); return; }
+  const got = !own && S.legEgg && S.legEgg[k], doneToday = S.legD && S.legD[k] === d;
+  const info = own ? `<b style="color:#fff">${esc(M[leg].n)}</b> sudah jadi milikmu. Menantangnya lagi hanya latihan (+5 XP).`
+    : `Menang = hadiah sekali per hari: <b style="color:#ffd23c">Telur Emas 50%</b>${got ? '' : ` · <b style="color:#ff9ac8">Telur Legenda 15%</b> (pasti di kemenangan ke-${LEG_PITY}, sekarang ${pg.lw || 0}/${LEG_PITY})`}.${got ? '<br>Kamu sudah punya <b>Telur Legenda</b> pulau ini — tetaskan di menu Telur!' : ''}${doneToday ? '<br><i>Hadiah hari ini sudah diambil; menang lagi hanya latihan.</i>' : ''}`;
+  const c = await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">SARANG LEGENDA</div><div style="width:130px;height:108px">${mSvg(leg)}</div><h2>${esc(M[leg].n)}</h2><p>${esc(M[leg].d)}. Legenda <b>sangat kuat</b>, tahan kelemahan elemen, dan mengamuk saat nyawanya tinggal separuh. Siapkan tim terbaikmu!</p><div class="card" style="font-size:13.5px;font-weight:700">${info}</div></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Lawan!', cls: 'hot' }]);
   if (c !== 1) return;
   stopLoop();
-  const res = await startBattle({ type: 'legend', foe: [leg], title: `${M[leg].n} muncul!`, zone: z, hpMul: 1.25 });
+  const res = await startBattle({ type: 'legend', foe: [leg], title: `${M[leg].n} muncul!`, zone: z, legOwn: own });
   show('s-world'); hud();
   if (res === 'win') {
-    if (!pg.legend) {
-      pg.legend = 1; addDup(leg); S.boxes.Emas++; save(); hud();
-      await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div class="big">LEGENDA!</div><div style="width:130px;height:108px">${mSvg(leg)}</div><p><b style="color:#fff">${esc(M[leg].n)}</b> bergabung ke koleksimu, plus 1 Telur Emas!</p></div>`, [{ t: 'Hebat!', cls: 'hot' }]);
-    } else await modal(`<div style="text-align:center"><div class="big">MENANG!</div><p>Latihan melawan ${esc(M[leg].n)} berhasil.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
-  } else if (res === 'lose') await modal(`<div style="text-align:center"><p>Legenda terlalu kuat kali ini. Atur tim dengan elemen unggul, lalu coba lagi kapan saja.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
+    pg.win = 1; save();
+    if (own || doneToday) { await modal(`<div style="text-align:center"><div class="big">MENANG!</div><p>Latihan melawan ${esc(M[leg].n)} berhasil.${!own ? ' Hadiah hari ini sudah diambil, datang lagi besok!' : ''}</p></div>`, [{ t: 'Oke', cls: 'hot' }]); return; }
+    if (!S.legD) S.legD = {}; S.legD[k] = d; pg.lw = (pg.lw || 0) + 1;
+    const rw = [];
+    if (Math.random() < .5) { S.boxes.Emas++; rw.push('🥇 <b>Telur Emas!</b>'); }
+    if (!(S.legEgg && S.legEgg[k]) && (Math.random() < .15 || pg.lw >= LEG_PITY)) { if (!S.legEgg) S.legEgg = {}; S.legEgg[k] = 1; rw.push(`🌟 <b style="color:#ff9ac8">Telur Legenda ${esc(M[leg].n)}!</b> Tetaskan di menu Telur.`); }
+    save(); hud();
+    await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div class="big">MENANG!</div><div style="width:110px;height:92px">${mSvg(leg)}</div><p>${esc(M[leg].n)} mengakui kekuatanmu.</p><div class="card" style="font-weight:800;display:flex;flex-direction:column;gap:4px">${rw.length ? rw.join('<br>') : 'Kali ini tidak ada telur. Coba lagi besok!'}</div></div>`, [{ t: 'Hebat!', cls: 'hot' }]);
+  } else if (res === 'lose') await modal(`<div style="text-align:center"><p>Legenda terlalu kuat kali ini. Perkuat tim (evolusi, level, elemen unggul), lalu coba lagi kapan saja.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
 }
 
 /* --- Gerbang Pemanasan --- */
@@ -3243,7 +3275,7 @@ async function gateCheck() {
   const top = Math.max(Z.bab, pg.open), pool = BANK.filter(r => r[0] === Z.bank && r[1] <= top);
   await modal(`<h2>Gerbang Pemanasan</h2><p>Jawab <b style="color:#fff">3 soal</b> dari bab yang sudah terbuka untuk melewati gerbang.</p>
     <div class="card" style="font-size:13.5px;font-weight:700;display:flex;flex-direction:column;gap:3px"><span><b style="color:#1f7a52">3 benar · Berkah</b>: koin +20%, peluang telur naik</span><span><b style="color:#3a7bd5">2 benar · Berkah kecil</b>: koin +10%</span><span><b style="color:#c8302a">0–1 benar · Kutukan ringan</b>: energi awal 0, Lumi liar 10% lebih kuat. Hilang saat keluar wilayah atau setelah membaca Akademi.</span></div>`, [{ t: 'Mulai', cls: 'hot' }], { dismiss: false });
-  const r = await runQuiz({ title: 'Gerbang Pemanasan', sub: `${Z.n} · 3 soal`, qs: shuffle(pool).slice(0, 3) });
+  const r = await runQuiz({ title: 'Gerbang Pemanasan', sub: `${Z.n} · 3 soal`, qs: qPick(pool, 3) });
   if (r.quit) { W.p.y = W.gateY + 26; W.p.dir = 'down'; show('s-world'); toast('Gerbang belum terbuka. Jawab 3 soal untuk lewat.'); return; }
   W.gateDone = true; W.buff = r.ok === 3 ? 'berkah' : r.ok === 2 ? 'kecil' : 'kutukan'; if (r.ok === 3) progress('berkah');
   show('s-world'); hud();
@@ -3623,6 +3655,7 @@ function startBattle(cfg) {
     if (W) W.act = performance.now();
     if (typeof foodUse === 'function') try { foodUse(cfg); } catch (e) { }
     if (typeof accUse === 'function') try { accUse(cfg); } catch (e) { }
+    if (typeof legSetup === 'function') try { legSetup(cfg); } catch (e) { }
     if (typeof stBattleStart === 'function') stBattleStart();
     const z = cfg.zone || 'school';
     const el = $('#s-battle');
@@ -3692,7 +3725,7 @@ function bigText(t) { const e = document.createElement('div'); e.className = 'ef
 
 function hitCalc(a, d, mult, sk = {}) {
   let dm = a.m.atk * (a.am || 1) * (1 + a.buff) * (1 - a.debuff) * mult * 1.6;
-  const e = a.m.el === 'Netral' ? 1 : effMul(a.m.el, d.m.el);
+  let e = a.m.el === 'Netral' ? 1 : effMul(a.m.el, d.m.el); if (d.legend && e > LEG_RES) e = LEG_RES;   // v105: Perisai Legenda
   dm *= e;
   if (B.cfg.type !== 'pvp') dm *= envMul(a.m.el, B.cfg.zone || 'school');
   if (sk.statusBonus && (d.poison || d.burn || d.stun || d.blind || d.debuff)) dm *= 1 + sk.statusBonus;
@@ -3844,6 +3877,7 @@ async function turnCore(a) {
   if (!B || B.ended) return;
   await act('me', a);
   let k = await ko(); if (k === 'end' || !B || B.ended) return;
+  if (typeof legRage === 'function') legRage();
   if (k !== 'foe') { await act('foe', aiPick()); k = await ko(); if (k === 'end' || !B || B.ended) return; }
   bTick();
   if (B.cfg.habit === 'flee' && foeA().hp > 0 && foeA().hp / foeA().max < .3 && Math.random() < .5) { log(`${foeA().m.n} ketakutan dan kabur!`); $('#foeSpr').classList.add('faint'); await wait(900); await finish('fled'); return; }
@@ -3882,7 +3916,7 @@ async function finish(res) {
     } else if (cfg.type === 'boss') {
       rw.push(...bossReward(cfg));
     } else if (cfg.type === 'legend') {
-      const bx = battleXP(40); progress('duel'); gainXP(bx); rw.push(`+${bx} XP`); if (bxpNote()) rw.push(bxpNote());
+      const bx = cfg.legOwn ? 5 : battleXP(40); progress('duel'); gainXP(bx); rw.push(`+${bx} XP`); if (bxpNote()) rw.push(bxpNote());
     } else {
       const st = cfg.who, c = accCoin(25 + st.rank * 8), xp = battleXP(10 + st.rank * 3);
       addCoins(c); progress('coins', c); progress('duel'); S.st.duel++; gainXP(xp);
@@ -4279,13 +4313,15 @@ async function openChat() {
    di kedua perangkat dari benih yang sama (tanpa Kritis), jadi hanya pilihan aksi yang dikirim. */
 MP.duel = null;
 const DUEL_V = 3;   // naikkan bila aturan battle berubah: duel hanya antar versi yang sama (cegah tidak sinkron)
-const duelMine = () => S.team.slice(0, 3).map(id => [id, lvOf(id), bondLv(id)].concat(typeof foodPv === 'function' ? foodPv() : []));
+const duelMine = () => S.team.slice(0, 3).map(id => [id, lvOf(id), bondLv(id), typeof foodPv === 'function' ? foodPv()[0] || 0 : 0, typeof evoOn === 'function' && evoOn(id) ? 1 : 0, id === 'kristo' && S.rank >= 5 ? 1 : 0]);   // e[4] = evolusi (hanya tampilan)
 function duelTeam(a) {
   if (!Array.isArray(a) || !a.length || a.length > 3) return null; const out = [], used = new Set();
   for (const e of a) {
     if (!Array.isArray(e)) return null; const id = e[0]; if (typeof id !== 'string' || !M[id] || used.has(id)) return null; used.add(id);
-    const r = M[id].r, L = mpInt(e[1], 1, LV_MAX[r]), Bn = mpInt(e[2], 1, 5), k = 1 + (L - 1) * LV_STEP[r] + (Bn - 1) * .005, hp = Math.round(M[id].hp * k);
-    const u = { id, m: M[id], am: k, hp, max: hp, buff: 0, debuff: 0, poison: 0, burn: 0, stun: 0, blind: 0, guard: 0, shield: 0, reflect: 0, burnSkin: 0, noheal: 0, pstr: 0, guardNext: 0 };
+    const base = id === 'kristo' && typeof krStage === 'function' ? krStage(e[5] === 1) : M[id];   // v107: tahap Kristo ikut pemiliknya
+    const r = base.r, L = mpInt(e[1], 1, LV_MAX[r]), Bn = mpInt(e[2], 1, 5), k = 1 + (L - 1) * LV_STEP[r] + (Bn - 1) * .005, hp = Math.round(base.hp * k);
+    const ev = e[4] === 1 && typeof EVO_N !== 'undefined' && !!EVO_N[id];   // v106: bentuk evolusi tampil di duel, kekuatan tetap tanpa bonus (adil)
+    const u = { id, m: ev ? { ...base, n: EVO_N[id] } : base, evo: ev, am: k, hp, max: hp, buff: 0, debuff: 0, poison: 0, burn: 0, stun: 0, blind: 0, guard: 0, shield: 0, reflect: 0, burnSkin: 0, noheal: 0, pstr: 0, guardNext: 0 };
     if (Array.isArray(e[3]) && typeof foodApplyF === 'function') foodApplyF(u, mpInt(e[3][0], 0, 10), mpInt(e[3][1], 0, 10), mpInt(e[3][2], 0, 10));   // makanan (maks 10%)
     out.push(u);
   }
@@ -4434,7 +4470,7 @@ async function openEnv() {
   const e = envAt(W && W.zone), fx = envFx(W && W.zone), left = ENV_SLOT - Date.now() % ENV_SLOT;
   await modal(`<h2>${ENV_IC[e.tod]} ${ENV_N[e.tod]}${e.w !== 'dalam' ? ` · ${ENV_IC[e.w]} ${ENV_N[e.w]}` : ''}</h2>
     <div class="card" style="font-size:14px;font-weight:700;display:flex;flex-direction:column;gap:4px">${fx.length ? `<b>Pengaruh ke Lumi sekarang:</b>${fx.map(x => `<span>${x} ATK</span>`).join('')}` : 'Tidak ada pengaruh elemen saat ini.'}</div>
-    <p style="font-size:13px">Waktu mengikuti jam HP-mu. Cuaca sama untuk semua siswa dan berganti sekitar ${Math.max(1, Math.round(left / 60000))} menit lagi.<br>Malam: Racun +10%, Burung Hantu dan Kelelawar keluar. Siang cerah: Api +10%. Hujan: Api −15%, Es +5%, Kodok sering muncul. Salju: Es +15%, Api −10%.<br>Pengaruh ini tidak berlaku di duel antar pemain.</p><div class="card" style="font-size:13px;font-weight:700">🐲 <b>Lumi Raksasa</b> muncul pukul 13.00, 15.00, 17.00, 19.00, 21.00 WIB selama 30 menit. ${(() => { const sl = raidSlot(); return sl ? (RG.down[sl.id] ? `Sudah dikalahkan. Berikutnya ${raidNextText()}.` : `Sekarang ada di <b>${esc(ZONES[sl.z].n)}</b> sampai ${sl.h}.${RAID_MIN}!`) : `Berikutnya ${raidNextText()}.`; })()} Butuh minimal 2 pemain dalam regu.</div>`, [{ t: 'Oke' }]);
+    <p style="font-size:13px">Waktu mengikuti jam HP-mu. Cuaca sama untuk semua siswa dan berganti sekitar ${Math.max(1, Math.round(left / 60000))} menit lagi.<br>Malam: Racun +10%, Burung Hantu dan Kelelawar keluar. Siang cerah: Api +10%. Hujan: Api −15%, Es +5%, Kodok sering muncul. Salju: Es +15%, Api −10%.<br>Pengaruh ini tidak berlaku di duel antar pemain.</p><div class="card" style="font-size:13px;font-weight:700">👹 <b>Bos</b> muncul acak di pulau belajar bab 1–3 (paling sering 12.00–15.00 dan 18.00–21.00 WIB) selama 20 menit. ${(() => { const sl = bossSlot(); return sl && !bossDone(sl) ? `Sekarang ada di <b>${esc(ZONES[sl.z].hl || ZONES[sl.z].n)}</b> sampai ${sl.end} WIB!` : 'Sekarang belum ada bos.'; })()} Dilawan sendiri.</div>`, [{ t: 'Oke' }]);
 }
 /* gambar suasana di dunia */
 function envDraw(t, ox, oy, p) {
@@ -4657,8 +4693,8 @@ setInterval(() => {
 /* ================= GELAR: koleksi, syarat, pasang/copot =================
    Hanya hiasan. Gelar terbuka otomatis saat syarat terpenuhi (notifikasi), murid memasangnya sendiri lewat Profil. */
 const TRAR = { C: ['Biasa', '#ffffff', '#3a3550'], R: ['Langka', '#8fd8ff', '#1f6fb0'], E: ['Epik', '#c9a2ff', '#6a3fc8'], L: ['Legenda', '#ffd23c', '#b86a00'] };
-const ownedN = () => Object.keys(S.owned || {}).length;
-const legN = () => ['mtk', 'ind', 'ipas', 'ing'].filter(k => S.prog && S.prog[k] && S.prog[k].legend).length;
+const ownedN = () => MONS.filter(m => S.owned && S.owned[m.id]).length;   // v107: Lumi Perintis tidak dihitung
+const legN = () => ['mtk', 'ind', 'ipas', 'ing'].filter(k => S.prog && S.prog[k] && (S.prog[k].win || S.prog[k].legend)).length;   // v105: dihitung dari pernah mengalahkan
 const bondMax = () => Math.max(1, ...Object.keys(S.owned || {}).map(bondLv));
 const TLIST = [
   // [id, nama, kategori, rarity, syarat, () => [nilai, target]]
@@ -4716,14 +4752,14 @@ async function openTitles() {
   const all = TLIST.concat(ex), nGot = all.filter(t => got(t[0]) || (S.tex && S.tex[t[0]])).length;
   const row = t => {
     const [id, n, , r, syarat, fn] = t, has = got(id) || (S.tex && S.tex[id]), [v, g] = fn(), on = S.title === id;
-    if (!has && id === 'admin') return '';
+    if (!has && (id === 'admin' || id === 'pionir')) return '';
     return `<div style="display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:2px solid rgba(36,18,58,.1);${has ? '' : 'opacity:.6'}">
       <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14.5px"><span style="color:${has ? TRAR[r][2] : '#8a84a0'}">${has ? '' : '🔒 '}${esc(n)}</span> <small style="font-weight:800;color:${TRAR[r][2]};opacity:.75">${TRAR[r][0]}</small></div>
       <div style="font-size:12px;font-weight:700;color:var(--sub)">${esc(syarat)}${has ? '' : ` · ${Math.min(v, g)}/${g}`}</div>${has ? '' : `<div class="bar" style="height:5px;margin-top:3px"><i style="width:${Math.min(1, v / g) * 100}%"></i></div>`}</div>
       ${has ? (on ? '<button type="button" class="btn ghost" data-t="" style="min-height:34px;padding:2px 10px;font-size:13px;flex:none">Copot</button>' : `<button type="button" class="btn" data-t="${id}" style="min-height:34px;padding:2px 10px;font-size:13px;flex:none">Pasang</button>`) : ''}</div>`;
   };
   const cur = myTitle();
-  const c = await modal(`<h2>🏅 Gelar</h2><p style="font-size:13px">Terkumpul ${nGot}/${all.length - (S.tgot.admin ? 0 : 1)}. Dipakai: ${cur ? `<b style="color:${cur[2]};-webkit-text-stroke:.4px #24123a">${esc(cur[1])}</b>` : '<b>tanpa gelar</b>'}. Gelar hanya hiasan dan terlihat oleh pemain lain.</p>
+  const c = await modal(`<h2>🏅 Gelar</h2><p style="font-size:13px">Terkumpul ${nGot}/${all.length - (S.tgot.admin ? 0 : 1) - (all.some(t => t[0] === 'pionir') && !S.tgot.pionir ? 1 : 0)}. Dipakai: ${cur ? `<b style="color:${cur[2]};-webkit-text-stroke:.4px #24123a">${esc(cur[1])}</b>` : '<b>tanpa gelar</b>'}. Gelar hanya hiasan dan terlihat oleh pemain lain.</p>
     <div style="max-height:52vh;overflow:auto;display:flex;flex-direction:column;gap:2px">${cats.map(k => { const rs = all.filter(t => t[2] === k).map(row).join(''); return rs ? `<div class="disp" style="font-size:16px;margin-top:6px">${k}</div><div class="card" style="padding:2px 8px">${rs}</div>` : ''; }).join('')}</div>`,
     [{ t: 'Tutup', cls: 'ghost' }], { onOpen: m => m.querySelectorAll('[data-t]').forEach(b => b.onclick = ev => { ev.stopPropagation(); S.title = b.dataset.t; save(); m.hidden = true; m.innerHTML = ''; toast(S.title ? `Gelar dipasang: <b>${esc(titleInfo(S.title)[1])}</b>` : 'Gelar dicopot'); openTitles(); if (typeof hud === 'function') hud(); }) });
   if (!$('#s-prof').hidden) openProf();
@@ -4764,7 +4800,7 @@ function npcApply() {
   if (st.kakek) { const s = npcSpot(15.5 * TS, 25.5 * TS); ex.push(mk({ x: s.x, y: s.y, look: { type: 'kid', hair: '#f3f3f8', shirt: 'koko', pants: 'sarung', hat: 'peci', glasses: true }, name: 'Kakek Pagi', tag: '#ffe0a3', mark: true })); I.push({ nt: true, x: s.x, y: s.y + 10, l: 'Sapa Kakek Pagi', fn: openKakek }); }
   if (st.star) { const s = npcSpot(W.spawn.x + 40, W.spawn.y - 10); ex.push(mk({ x: s.x, y: s.y, look: { type: 'kid', hair: '#9b5de5', shirt: 'jubahc', hat: 'witch', pants: 'celksatria' }, name: 'Penjaga Malam', tag: '#c9a2ff', mark: true })); I.push({ nt: true, x: s.x, y: s.y + 10, l: 'Bicara dengan Penjaga Malam', fn: openStar }); }
   W.ntMon = null;
-  if (st.mon) { const s = npcSpot(14.5 * TS, 19.5 * TS); W.ntMon = { x: s.x, y: s.y }; I.push({ nt: true, x: s.x, y: s.y + 6, l: 'Tanya Lumi Sekolah', fn: openMonSekolah }); }
+  if (st.mon) { const s = npcSpot(14.5 * TS, 19.5 * TS); W.ntMon = { x: s.x, y: s.y }; I.push({ nt: true, x: s.x, y: s.y + 6, l: 'Tanya Lumi Sekolah', fn: () => typeof openMonSekolah === 'function' && openMonSekolah() }); }
   if (st.tutup && W.tm !== z) { W.tm = z; toast('🌙 Sekolah tutup (22.00–05.00). NPC pulang, Lumi 2x lebih kuat, dan tidak ada hadiah. Istirahat ya!', 7000); } else if (!st.tutup) W.tm = null;
   W.npcs = out.concat(ex);
   W.inter = W.inter.filter(i => !i.nt && !(i.npc && !W.npcs.includes(i.npc)) && !(st.tutup && i.fn === openQuests)).concat(I);
@@ -4827,7 +4863,7 @@ function ntPool(bank) {
   const rows = BANK.filter(r => open[r[0]] && r[1] <= open[r[0]]); return rows.length ? rows : BANK.filter(r => r[1] === 1);
 }
 async function ntQuiz(title, sub, pool) {
-  const q = pool[Math.floor(Math.random() * pool.length)];
+  const q = qPick(pool, 1)[0];
   const r = await runQuiz({ title, sub, qs: [q], kc: true }); show('s-world'); hud(); return r;
 }
 /* ---- Penjaga Malam (19.00-22.00, sekolah atau wilayah pulau belajar, 1x/hari): 1 soal, hadiah acak, di wilayah pulau sedikit lebih besar ---- */
@@ -4891,7 +4927,7 @@ function tfMath() {
 }
 function tfFromBank(bank) {
   let P = ntPool(bank).filter(r => r[0] === bank && (r[2].match(/…/g) || []).length === 1); if (!P.length) P = BANK.filter(r => r[0] === bank && r[1] === 1 && (r[2].match(/…/g) || []).length === 1); if (!P.length) P = BANK;
-  const r = P[ri2(P.length)], L = 'ABCD'.indexOf(r[7]), opts = [r[3], r[4], r[5], r[6]], ok = Math.random() < .5;
+  const r = qPick(P, 1)[0]; qSeen(r); const L = 'ABCD'.indexOf(r[7]), opts = [r[3], r[4], r[5], r[6]], ok = Math.random() < .5;
   let idx = L; if (!ok) { do { idx = ri2(4); } while (idx === L); }
   const fill = (q, o) => q.includes('…') ? q.replace('…', o) : `${q} ${o}`;
   return { txt: tfEnd(fill(r[2], opts[idx])), ok, exp: tfEnd(fill(r[2], opts[L])) + (r[8] ? ' ' + r[8] : '') };
@@ -5008,8 +5044,8 @@ async function srResult(r, extra = '') {
   S.st.latihan = (S.st.latihan || 0) + 1; save(); show('s-world'); hud();
   if (r.quit) return;
   progress('latih'); streakDone();
-  const rw = srReward(r.ok), msg = r.ok === r.n ? 'Sempurna!' : r.ok >= Math.ceil(r.n * .6) ? 'Bagus! Baca pembahasan soal yang salah.' : 'Tidak apa-apa. Belajar lagi dengan guru, lalu coba lagi.';
-  await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">HASIL LATIHAN</div><div class="big" style="font-size:52px">${r.ok}/${r.n}</div><p>${msg}</p><div style="font-weight:800">${rw.give ? `${COIN}+${rw.give} koin` : 'Koin latihan hari ini sudah penuh'}${rw.capped && rw.give ? ' (batas harian tercapai)' : ''}</div>${extra}</div>`, [{ t: 'Oke', cls: 'hot' }]);
+  const lg = lxGain(r.ok), rw = srReward(r.ok), msg = r.ok === r.n ? 'Sempurna!' : r.ok >= Math.ceil(r.n * .6) ? 'Bagus! Baca pembahasan soal yang salah.' : 'Tidak apa-apa. Belajar lagi dengan guru, lalu coba lagi.';
+  await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">HASIL LATIHAN</div><div class="big" style="font-size:52px">${r.ok}/${r.n}</div><p>${msg}</p><div style="font-weight:800">${rw.give ? `${COIN}+${rw.give} koin` : 'Koin latihan hari ini sudah penuh'}${rw.capped && rw.give ? ' (batas harian tercapai)' : ''}</div>${lxNote(lg)}${extra}</div>`, [{ t: 'Oke', cls: 'hot' }]);
 }
 async function openRobot(r) {
   const rows = [1, 2, 3, 4, 5].map(b => [b, zoneOf(r.pk, b)]).filter(x => x[1]);
@@ -5018,7 +5054,7 @@ async function openRobot(r) {
     [...rows.map(([b, z]) => ({ t: `Bab ${b}: ${esc(ZONES[z].babN)}` })), { t: 'Campur semua bab', cls: 'hot' }, { t: 'Tutup', cls: 'ghost' }]);
   if (c < 0 || c > rows.length) return;
   const mix = c === rows.length, b = mix ? 0 : rows[c][0], pool = mix ? BANK.filter(q => q[0] === r.pk) : soalBab(r.pk, b);
-  const res = await runQuiz({ kc: true, title: r.robot, sub: mix ? `${MAPEL[r.pk]} · campuran` : `Bab ${b} · ${ZONES[rows[c][1]].babN}`, qs: shuffle(pool).slice(0, 5), hint: mix ? null : hootHint(r.pk, b) });
+  const res = await runQuiz({ kc: true, title: r.robot, sub: mix ? `${MAPEL[r.pk]} · campuran` : `Bab ${b} · ${ZONES[rows[c][1]].babN}`, qs: qPick(pool, 5), hint: mix ? null : hootHint(r.pk, b) });
   await srResult(res);
 }
 /* ---- perpustakaan: Buku Remedial (soal yang salah, hilang setelah benar 2 kali) ---- */
@@ -5031,9 +5067,18 @@ function wrMigrate() {
   for (const k of Object.keys(S.wr)) if (!byId(k)) { delete S.wr[k]; ch = true; }
   if (ch) save();
 }
+/* v107: soal tidak berulang. S.qh[id] = nomor urut terakhir soal itu muncul, S.qc = penghitung.
+   Prioritas: belum pernah muncul > paling lama tidak muncul. Soal di Buku Remedial (S.wr) kembali lebih cepat (kecuali mode ujian). */
+function qSeen(q) { if (!S || !q || !q[9]) return; S.qc = (S.qc || 0) + 1; (S.qh || (S.qh = {}))[q[9]] = S.qc; }
+function qPick(pool, n, exam) {
+  const h = (S && S.qh) || {}, c = (S && S.qc) || 0, wr = (S && S.wr) || {};
+  const sc = q => { const t = h[q[9]]; if (t == null) return 1e9 + Math.random(); const age = c - t; return (!exam && wr[q[9]] && age >= 8 ? age * 3 : age) + Math.random() * 3; };
+  return shuffle(pool.map(q => [sc(q), q]).sort((a, b) => b[0] - a[0]).slice(0, n).map(x => x[1]));
+}
 function noteQ(q, good) {
   if (!S || !S.name || !q[9]) return; wrMigrate(); const k = q[9];
   if (q[1] > 0) { const b = S.bs || (S.bs = {}), kk = q[0] + '|' + q[1], t = b[kk] || (b[kk] = { b: 0, n: 0 }); t.n++; if (good) t.b++; }
+  qSeen(q);
   if (!S.wr) S.wr = {};
   if (!good) S.wr[k] = 2; else if (S.wr[k]) { S.wr[k]--; if (S.wr[k] <= 0) delete S.wr[k]; }
   save();
@@ -5192,8 +5237,8 @@ const RK_INFO = {
   1: ['Mulai petualangan: jalan, Akademi, battle, telur, toko, duel NPC'],
   2: ['Duel antar pemain: tantang teman sekelas', 'Kakek Pagi muncul di sekolah (+koin)'],
   3: ['Bos muncul acak di pulau belajar (lawan sendiri, peluang telur)', 'Pedagang Malam dan Penjaga Malam muncul'],
-  5: ['Raksasa Raid muncul (lawan bersama regu)', 'Batas biaya tim mulai berlaku'],
-  10: ['Evolusi Lumi Biasa terbuka (butuh Kedekatan, Penguasaan, Ujian)'],
+  5: ['Batas biaya tim mulai berlaku'],
+  10: ['Evolusi Lumi Biasa terbuka (butuh Kedekatan, Penguasaan, Ujian)', 'Goa Monster di tiap pulau (segera dibuka)', 'Setelah evolusi pertama: boleh menantang Lumi Legenda'],
   12: ['Evolusi Lumi Langka terbuka'],
   14: ['Evolusi Lumi Epik terbuka'],
   15: ['Evolusi Lumi Legenda terbuka'],
@@ -5447,7 +5492,7 @@ async function openStats() {
   const ex = (S.evoLog || []).slice(-6).reverse().map(e => `<div style="font-size:12.5px;font-weight:700;color:var(--sub);border-top:2px solid rgba(36,18,58,.12);padding:3px 0">${esc(e.d)} · ${esc(EVO_N[e.id] || e.id)}: ${e.ok}/${e.n} ${e.ok >= EVO_REQ[M[e.id].r].pass && !(e.fl || []).includes('pindah layar 3x') ? '✓' : ''}</div>`).join('') || '<div style="font-size:12.5px;font-weight:700;color:var(--sub)">Belum ada Ujian Evolusi.</div>';
   const flags = (S.evoLog || []).slice(-8).reverse().map(e => `<div style="font-size:12px;font-weight:700;color:var(--sub);border-top:2px solid rgba(36,18,58,.12);padding:3px 0">${esc(e.d)} · ${esc(EVO_N[e.id] || e.id)}: ${e.ok}/${e.n}${e.avg ? ` · rata-rata ${(e.avg / 1000).toFixed(1)} dtk` : ''}${e.fl && e.fl.length ? `<br><span style="color:#c2301b">Perlu dicek: ${esc(e.fl.join(', '))}</span>` : ''}</div>`).join('') || '<div style="font-size:12px;font-weight:700;color:var(--sub)">Belum ada data.</div>';
   const html = `<h2 id="stT">Statistik Saya</h2>
-    ${sec('Tanding', `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center">${tile(st.wild || 0, 'Menang Lumi liar')}${tile(st.duel || 0, 'Menang duel NPC')}${tile(st.giant || 0, 'Menang Raksasa')}</div>
+    ${sec('Tanding', `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center">${tile(st.wild || 0, 'Menang Lumi liar')}${tile(st.duel || 0, 'Menang duel NPC')}${tile((st.giant || 0) + (st.bos || 0), 'Menang Bos')}</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center">${tile(P.w || 0, 'PvP menang')}${tile(P.l || 0, 'PvP kalah')}${tile(pct(P.w || 0, pvpN), 'Persen menang PvP')}</div>
       <div style="font-size:12.5px;font-weight:800;color:var(--sub);text-align:center">Total kemenangan: ${st.win || 0}</div>`)}
     ${sec('Belajar per mapel', mp + `<div style="font-size:12.5px;font-weight:700;color:#8d89b8">Bar penuh = 80 jawaban benar. Semua soal dihitung: Akademi, telur, Kuil, raid, dan battle.</div>`)}
@@ -5541,7 +5586,7 @@ function stSection(id) {
 function stBtn(id) { const r = S.stam && S.stam[id]; return stN(id) < ST_MAX && !S.team.includes(id) && !(r && r.f) ? { t: 'Pulihkan cepat (3 soal)', cls: '' } : null; }
 async function stFast(id) {
   const mp = EL_MP[M[id].el], open = (S.prog && S.prog[mp] && S.prog[mp].open) || 1;
-  const pool = BANK.filter(q => q[0] === mp && q[1] <= open), qs = shuffle(pool.length >= 3 ? pool : BANK.filter(q => q[0] === mp)).slice(0, 3);
+  const pool = BANK.filter(q => q[0] === mp && q[1] <= open), qs = qPick(pool.length >= 3 ? pool : BANK.filter(q => q[0] === mp), 3);
   const res = await runQuiz({ kc: true, title: `Pulihkan ${mnm(id)}`, sub: `3 soal ${PSHORT[mp]} · minimal 2 benar`, qs });
   if (res && res.ok >= 2) { stSync(); const r = stRec(id); r.s = stRaw(r, false); r.r = Date.now(); r.f = 1; save(); sfx('heal'); toast(`${mnm(id)} istirahat cepat: penuh dalam ±${stLeftMin(id)} menit!`, 3200); }
   else toast('Belum cukup benar (butuh 2 dari 3). Coba lagi ya!', 3000);
@@ -5819,7 +5864,7 @@ const STORY = [
   { id: 'k3', ttl: 'Teman sekelas', who: 'Pak Toto', pic: 'toto', tx: 'Hebat, sudah 3 kemenangan, Keeper! Mulai Rank 2, kamu juga bisa menantang teman yang sedang online untuk duel. Ketuk temanmu di dunia. Menang atau kalah, yang penting saling belajar.', ok: () => false },
   { id: 'k4b', ttl: 'Keeper rajin', who: 'Mak Sumi', pic: 'sumi', tx: 'Sudah 10 soal benar! Keeper yang rajin pantas tampil keren. Mampir ke tokoku, ya, ada baju dan aksesori untukmu.', ok: () => false },
   { id: 'k5', ttl: 'Kabut Lupa', who: 'Pak Heri', pic: 'heri', tx: 'Hati-hati, Keeper. Kabut Lupa mulai turun di pulau. Lumi yang terkena kabut lupa cara bersinar. Jangan takut pada mereka. Bantu mereka ingat lagi.', ok: () => false },
-  { id: 'k6', ttl: 'Lumi Raksasa', who: 'Pak Heri', pic: 'heri', tx: 'Ada Lumi Raksasa di pulau. Ia terlalu kuat dilawan sendirian. Ajak teman-temanmu membentuk regu, lalu kalahkan bersama!', ok: () => false },
+  { id: 'k6', ttl: 'Bos Pulau', who: 'Pak Heri', pic: 'heri', tx: 'Bos Lumi sering muncul di pulau belajar, terutama siang dan sore. Kalahkan untuk dapat koin dan kadang telur! Ajak teman membentuk regu: setiap ada yang menang, teman regu ikut dapat bagian.', ok: () => false },
   { id: 'k7', ttl: 'Shard pertama', who: 'Mak Sumi', pic: 'sumi', tx: 'Lihat! Shard-nya bersinar lagi. Kamu tahu kenapa? Karena kamu belajar, bukan karena kamu menang. Cahaya ini hanya menyala untuk yang mau mengulang.', ok: () => false },
   { id: 'k8', ttl: 'Lumi bersinar', who: 'Pak Toto', pic: 'toto', tx: 'Lumimu makin besar dan terang. Aku lihat kamu berlatih tiap hari. Teruskan, sebentar lagi Lumimu bisa berevolusi!', tx2: '✦ Tumbuh itu bukan lomba. Yang penting kemarin kamu lebih sedikit tahu daripada hari ini.', ok: () => S.rank >= 10 },
   { id: 'k9', ttl: 'Rahasia Kakek Pagi', who: 'Kakek Pagi', pic: 'kakek', tx: 'Kamu pantas tahu. Aku murid pertama sekolah ini. Pemilik catatan-catatan itu tidak pernah memberiku jawaban. Ia selalu bertanya: "Menurutmu bagaimana?"', tx2: '✦ Kalau kau membaca ini, kau sudah hampir sampai.', ok: () => S.rank >= 15 },
@@ -5997,6 +6042,7 @@ async function openCode(msg) {
   if (Date.now() < +(localStorage.getItem('mga-cf') || 0)) return openCode();
   const h = codeHash(val), r = val.trim() && CODES[h];
   if (!r) { if (++CODE_FAIL >= 5) { CODE_FAIL = 0; try { localStorage.setItem('mga-cf', String(Date.now() + 60000)); } catch (e) {} } return openCode('Kode tidak ditemukan. Cek lagi tulisannya.'); }
+  if (r.until && today() > r.until) return openCode('Kode ini sudah tidak berlaku.');
   if (!S.codes) S.codes = {};
   if (S.codes[h]) return openCode('Kode ini sudah kamu pakai.');
   S.codes[h] = 1; CODE_FAIL = 0; const lines = codeApply(r); sfx('win');
@@ -6552,7 +6598,7 @@ function akunForm(title, intro, btn, confirmPin) {
   let u = '', p = '', p2 = '';
   return modal(`<h2>${title}</h2><p style="font-size:14px">${intro}</p>
     <label style="font-weight:800;font-size:13.5px">Nama pengguna <small style="color:var(--sub)">(3–16 huruf kecil/angka)</small></label>
-    <input id="akU" class="field" maxlength="16" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="contoh: budi_6a">
+    <input id="akU" class="field" maxlength="16" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="contoh: imam_6a">
     <label style="font-weight:800;font-size:13.5px;display:block;margin-top:8px">PIN 6 angka</label>
     <input id="akP" class="field" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••">
     ${confirmPin ? '<label style="font-weight:800;font-size:13.5px;display:block;margin-top:8px">Ulangi PIN</label><input id="akP2" class="field" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••">' : ''}
@@ -6591,6 +6637,11 @@ async function akunMasuk() {
   if (cur && cur.v === 2 && cur.name && !(cur.akun && cur.akun.u === f.u)) {
     const k = await modal(`<h2>Ganti petualangan di HP ini?</h2><p>Di HP ini ada petualangan <b>${esc(cur.name)}</b> (Rank ${cur.rank || 1}). Kalau masuk ke akun <b>${esc(f.u)}</b> (${esc(sv.name)}, Rank ${sv.rank || 1}), petualangan di HP ini diganti.</p>`, [{ t: 'Batal', cls: 'ghost' }, { t: 'Masuk dan ganti', cls: 'hot' }]);
     if (k !== 1) return false;
+  }
+  if (MUSIM && (sv.musim || 1) < MUSIM) {   // v107: akun dari musim lama -> karakter baru, akun tetap
+    sv.akun = { u: f.u, tok: r.tok, ver: r.ver, t: Date.now() }; musimArsip(sv);
+    await modal(`<h2>Musim baru dimulai! 🌟</h2><p>Semua Keeper mulai dari awal. Buat karaktermu lagi — akun <b>${esc(f.u)}</b> tetap dipakai dan progres barumu tersimpan ke akun ini.</p>`, [{ t: 'Buat karakter', cls: 'hot' }]);
+    openStart(); return true;
   }
   sv.akun = { u: f.u, tok: r.tok, ver: r.ver, t: Date.now() };
   try { localStorage.setItem(KEY, JSON.stringify(sv)); } catch (e) { }
@@ -6673,6 +6724,192 @@ function accBox() {
     <div style="border-top:2px dashed #e0cfa0;margin-top:4px;padding-top:4px;color:#6a5a3a">Total: <b>${tot || 'belum ada'}</b>${b.set ? `<br><b style="color:#b07a00">${esc(SETS[b.set].n)} lengkap: semua bonus +5%!</b>` : ''}${b.night ? '<br>🌙 Koin battle +10% jam 19.00–21.00.' : ''}<br><small>Tidak berlaku di duel teman.</small></div></div>`;
 }
 
+/* ================= v105: kalibrasi Legenda, ujian jujur, XP latihan, pintu Goa Monster =================
+   - Kuil Ujian & Ujian Akhir: mode ujian (exam) + jeda 30 menit setelah gagal/keluar.
+   - Sarang Legenda: syarat pernah mengevolusi 1 Lumi; Legenda diperkuat; menang = 1x/hari Telur Emas 50% + Telur Legenda 15% (pasti ke-6).
+   - Telur Legenda (S.legEgg[pulau]) ditetaskan lewat 10 soal sulit (bab 4–5), min. 9 benar, mode ujian; gagal = coba besok.
+   - XP latihan soal (Akademi, Robot, Remedial): +3/benar, maks 150/hari. XP battle dipotong separuh (a_core battleXP). */
+const LEG_PITY = 6, LEG_HP = 4, LEG_AM = 1.4,   /* disimulasikan: tim 3 Langka berevolusi lv6 menang ±50%, tim Biasa lv8 tanpa evolusi ±25% */ LEG_X = 0, LEG_RES = 1.25, UJ_CD = 30 * 60e3, LX_PER = 3, LX_CAP = 150;
+const legEvoOk = () => !!(S && S.evo && Object.keys(S.evo).length);
+/* ---- jeda ujian ---- */
+async function ujCD(key) {
+  const t = S.ujcd && S.ujcd[key]; if (!t || Date.now() >= t) return false;
+  const m = Math.ceil((t - Date.now()) / 60000);
+  await modal(`<h2>Istirahat dulu</h2><p>Ujian ini bisa dicoba lagi <b>${m} menit</b> lagi. Pakai waktunya untuk membaca kartu Akademi dan latihan soal, ya!</p>`, [{ t: 'Oke', cls: 'hot' }]);
+  return true;
+}
+function ujFail(key) { if (!S.ujcd) S.ujcd = {}; S.ujcd[key] = Date.now() + UJ_CD; save(); }
+/* ---- Legenda di battle: diperkuat, tahan kelemahan elemen, mengamuk di 50% ---- */
+function legSetup(cfg) {
+  if (!B || cfg.type !== 'legend') return;
+  B.foe.forEach(f => { f.hp = f.max = Math.round(f.m.hp * LEG_HP); f.am = LEG_AM; f.legend = 1; });
+}
+function legRage() {
+  if (!B || !B.cfg || B.cfg.type !== 'legend') return; const f = B.foe[0];
+  if (!f || f.raged || f.hp <= 0 || f.hp / f.max > .5) return;
+  f.raged = 1; f.buff = Math.min(.6, (f.buff || 0) + .2); B.fen = 5;
+  try { log(`🔥 ${f.m.n} mengamuk! Serangannya makin kuat dan energinya penuh.`); bigText('MENGAMUK!'); } catch (e) { }
+}
+/* ---- XP latihan soal ---- */
+function lxGain(ok) {
+  const d = today(); if (!S.lx || S.lx.d !== d) S.lx = { d, x: 0 };
+  const want = typeof accXP === 'function' ? accXP(ok * LX_PER) : ok * LX_PER, x = Math.max(0, Math.min(want, LX_CAP - S.lx.x));
+  if (x) { S.lx.x += x; gainXP(x); } save();
+  return { x, capped: x < want };
+}
+const lxNote = g => g.x ? `<div style="font-weight:800;color:#7fe3a8">+${g.x} XP belajar${g.capped ? ' (batas XP latihan hari ini tercapai)' : ''}</div>` : (S.lx && S.lx.x >= LX_CAP ? '<div style="font-weight:700;color:var(--sub);font-size:13px">XP latihan hari ini sudah penuh (150).</div>' : '');
+/* ---- Telur Legenda ---- */
+const legEggKeys = () => Object.keys(S.legEgg || {}).filter(k => S.legEgg[k] && LEG[k]);
+function legEggCard(k) {
+  return `<div class="card" style="text-align:center;padding:8px;border-color:#ff9ac8;background:linear-gradient(#2a1a4a,#3a2470)"><img src="${chestURL('Emas')}" width="55" height="44" alt="" style="image-rendering:pixelated;filter:hue-rotate(250deg) saturate(1.6) drop-shadow(0 0 6px #ff9ac8)"><div class="disp" style="font-size:15px;color:#ffd1e4">Telur Legenda</div><div style="font-weight:800;color:#e6ccff;font-size:12px">${esc(M[LEG[k]].n)}</div></div>`;
+}
+async function legHatch(k) {
+  const leg = LEG[k], pg = prog(k), d = today();
+  if (!S.legEgg || !S.legEgg[k]) return;
+  if (S.legHT && S.legHT[k] === d) { await modal(`<h2>Telur Legenda</h2><p>Telur ini sudah dicoba ditetaskan hari ini. Coba lagi <b>besok</b>, ya. Telurnya tetap aman.</p>`, [{ t: 'Oke', cls: 'hot' }]); return; }
+  const bank = (ZONES[k + '1'] || {}).bank;
+  let pool = BANK.filter(q => q[0] === bank && q[1] >= 4); if (pool.length < 10) pool = BANK.filter(q => q[0] === bank);
+  const c = await modal(`<h2>🌟 Telur Legenda</h2><p>Untuk menetaskan <b style="color:#fff">${esc(M[leg].n)}</b>, jawab <b>10 soal sulit</b> ${esc(PSHORT[k] || '')} (bab 4–5). Benar minimal <b>9</b>.</p><p style="font-size:13px;color:var(--sub);font-weight:700">Mode ujian: berwaktu, jangan pindah aplikasi. Kalau gagal, telur tetap aman dan bisa dicoba lagi besok.</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Mulai', cls: 'hot' }]);
+  if (c !== 1) return;
+  const r = await runQuiz({ title: 'Menetaskan Telur Legenda', sub: `${M[leg].n} · benar min. 9 dari 10`, qs: qPick(pool, 10, true), timed: true, exam: true, secs: 50 });
+  show('s-world'); hud();
+  if (r.quit || r.fail || r.ok < 9) { if (!S.legHT) S.legHT = {}; S.legHT[k] = d; save(); if (!r.quit) await modal(`<h2>Telur belum menetas</h2><p>Benar ${r.ok} dari ${r.n}. Butuh minimal 9. Telur Legenda tetap aman, coba lagi <b>besok</b>.</p>`, [{ t: 'Oke', cls: 'hot' }]); return; }
+  delete S.legEgg[k]; pg.legend = 1; pg.win = 1; addDup(leg); save(); hud(); sfx('rank');
+  await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div class="big">LEGENDA!</div><div style="width:130px;height:108px">${mSvg(leg)}</div><p><b style="color:#fff">${esc(M[leg].n)}</b> menetas dan bergabung ke koleksimu!</p></div>`, [{ t: 'Hebat!', cls: 'hot' }]);
+}
+
+/* ---- Pintu Goa Monster (v105: hanya pintu, isi menyusul) ---- */
+const GOA_RANK = 10;
+function makeGoa(th, f) {
+  const RK = th === 'sand' ? ['#6a4a2a', '#9a6a3a', '#c9915a', '#e8bd85'] : th === 'town' ? ['#4a4458', '#6e6a80', '#9a96a8', '#c9c6d4'] : th === 'snow' ? ['#6a7a90', '#9aaac0', '#c9d6e6', '#ffffff'] : ['#3e3a48', '#625a6e', '#8a8296', '#b4adbc'];
+  const GRS = th === 'sand' ? null : th === 'snow' ? ['#c9daf0', '#e6eef8', '#ffffff', '#ffffff'] : ['#2f7d32', '#4ea543', '#7fd35a', '#b5ec7a'];
+  return bigCanvas(80, 58, g => {
+    E(g, 40, 40, 36, 17, RK); E(g, 24, 30, 17, 15, RK); E(g, 56, 30, 18, 15, RK); E(g, 40, 24, 20, 14, RK);
+    for (const [x, y, c] of [[14, 40, RK[0]], [60, 22, RK[0]], [28, 18, RK[0]], [66, 42, RK[0]], [20, 26, RK[3]], [50, 16, RK[3]]]) R(g, x, y, 3, 1, c);
+    if (GRS) {
+      E(g, 40, 12, 15, 4.5, GRS); E(g, 22, 18, 10, 4, GRS); E(g, 58, 17, 11, 4, GRS); E(g, 10, 34, 5, 3, GRS); E(g, 71, 33, 5, 3, GRS);
+      if (th !== 'snow') { for (const x of [26, 30, 34, 48, 52, 56]) for (let j = 0; j < 2 + (x % 3); j++) P(g, x, 22 + j, j > 1 ? '#2f7d32' : '#4ea543'); for (const [x, y] of [[33, 8], [46, 9], [20, 14], [60, 13]]) { P(g, x, y, '#ff9ac8'); P(g, x + 1, y, '#ffd23c'); } }
+    } else { E(g, 40, 12, 15, 4, ['#c99157', '#e0b277', '#f0d09a', '#fff1d6']); for (const [x, y] of [[30, 10], [50, 11]]) { R(g, x, y - 4, 2, 5, '#4ea543'); R(g, x - 2, y - 2, 2, 1, '#4ea543'); R(g, x + 2, y - 3, 2, 1, '#4ea543'); } }
+    const cx = 40, top = 24, bot = 57, rx = 14;
+    for (let y = top; y <= bot; y++) { const t = (y - top) / (bot - top), w = Math.round(rx * Math.sqrt(Math.min(1, 1 - Math.pow(1 - t * 1.15, 2)))); for (let x = cx - w; x <= cx + w; x++) { const d = Math.abs(x - cx) / Math.max(1, w); P(g, x, y, d > .85 ? '#2a2032' : y < top + 4 ? '#1a1222' : d > .55 ? '#140d1c' : '#08050c'); } }
+    for (const x of [29, 33, 37, 41, 45, 49]) TRI(g, x, top - 1, 3, 3 + (x % 2), RK[1], false);
+    for (let i = 0; i < 3; i++) R(g, cx - 6 + i, 49 + i * 3, 13 - i * 2, 2, i % 2 ? RK[1] : RK[2]);
+    if (f % 7) { P(g, 36, 36, '#ffd23c'); P(g, 39, 36, '#ffd23c'); P(g, 44, 40, '#ff5a3a'); P(g, 46, 40, '#ff5a3a'); }
+    for (const tx of [20, 60]) { R(g, tx, 38, 2, 14, '#6a4428'); R(g, tx, 38, 1, 14, '#8a5a33'); R(g, tx - 1, 36, 4, 2, '#3a2416'); const fl = f % 2; E(g, tx + 1, 32 - fl, 2.6, 4, ['#c8301a', '#ff7a2a', '#ffd23c', '#fff3a0']); P(g, tx + 1, 29 - fl, '#fff3a0'); }
+    for (const [x, y] of [[6, 52], [72, 51], [14, 55], [64, 56]]) E(g, x, y, 3, 2, RK);
+  });
+}
+const GOA_IMG = {};
+/* dipanggil enterZone saat peta wilayah pertama kali dibangun: pintu goa di bab 5 tiap pulau, menempel di tepi atas peta */
+function goaBuild(m, z) {
+  if (!m || !ZONES[z] || !isRegion(z) || ZONES[z].bab !== 5 || m.goa) return;
+  const th = ZONES[z].theme, wk = (x, y) => { const tx = Math.floor(x / TS), ty = Math.floor(y / TS); if (!m.T[ty] || SOLID_T.has(m.T[ty][tx])) return false; return !m.solids.some(s => x + 5 > s.x && x - 5 < s.x + s.w && y > s.y && y - 3 < s.y + s.h); };
+  const ok = (tx, ty) => { for (let dy = 0; dy < 6; dy++) for (let dx = -3; dx <= 3; dx++) if (!wk((tx + dx) * TS + 8, (ty + dy) * TS + 8)) return false; return true; };
+  let best = null;
+  for (let ty = 2; ty < Math.min(m.MH - 7, 16); ty++) for (let tx = 5; tx < m.MW - 5; tx++) if (ok(tx, ty)) { const sc = ty * 3 + Math.abs(tx - m.MW * .7); if (!best || sc < best.sc) best = { tx, ty, sc }; }
+  if (!best) return;
+  const X = best.tx * TS + 8 - 40, Y = best.ty * TS - 4;
+  if (!GOA_IMG[th]) GOA_IMG[th] = [0, 1, 2, 3, 4, 5, 6].map(f => makeGoa(th, f));
+  m.goa = { x: X + 40, y: Y + 56 };
+  m.OBJ.push({ img: GOA_IMG[th][0], get: () => GOA_IMG[th][Math.floor(performance.now() / 180) % 7], x: X, y: Y, fy: Y + 50 });
+  m.signs.push({ x: X + 40, y: Y - 5, t: 'Goa Monster', c: '#ffe27a', bg: '#3a2416' });
+  m.solids.push({ x: X + 4, y: Y + 26, w: 22, h: 30 }, { x: X + 54, y: Y + 26, w: 22, h: 30 }, { x: X + 20, y: Y + 10, w: 40, h: 16 });
+  m.inter.push({ goa: true, x: X + 40, y: Y + 60, l: 'Goa Monster', fn: goaOpen });
+}
+async function goaOpen() {
+  if (S.rank < GOA_RANK) { await modal(`<h2>🕳️ Goa Monster</h2><p>Lumi liar berasal dari goa ini… Makin dalam, makin kuat Lumi-nya, dan semuanya sudah berevolusi!</p><div class="card" style="font-weight:800">🔒 Goa Monster terbuka di <b>Rank ${GOA_RANK}</b>.</div>`, [{ t: 'Oke', cls: 'hot' }]); return; }
+  await modal(`<h2>🕳️ Goa Monster</h2><p>Dari dalam terdengar suara Lumi-Lumi kuat…</p><div class="card" style="font-weight:800">⛏️ Goa sedang digali… <b>segera dibuka!</b></div><p style="font-size:13px;color:var(--sub);font-weight:700">Siapkan Lumi berevolusi. Di dalam goa, Lumi yang sudah berevolusi akan lebih kuat.</p>`, [{ t: 'Oke', cls: 'hot' }]);
+}
+
+/* ================= v107: LUMI PERINTIS "KRISTO" + GELAR PIONIR + PAKET OPEN BETA =================
+   Kristo hanya dari Kode Hadiah Paket Perintis (tidak masuk MONS: tidak ada di telur, liar, bos, NPC, hitungan koleksi 40).
+   Tahap: Kristal Mentah (setara Langka) -> Kristal Terasah otomatis di Rank 5 (setara Epik) -> Prismadrake (evolusi, syarat Epik).
+   Jurus menyerang = soal Matematika (elemen Netral). Gelar "✦ Pionir Lumimon ✦" warna pelangi, hanya hiasan. */
+const CRV = ['#5a3aa8', '#9a7ae8', '#d6c8ff', '#ffffff'];
+function krScarf(g, x, y, w) { R(g, x, y, w, 2, '#ffc93c'); R(g, x, y, w, 1, '#fff3b0'); P(g, x + Math.floor(w / 2), y + 2, '#ffc93c'); P(g, x + Math.floor(w / 2), y + 3, '#c97a0a'); }
+function krGem(g, x, y, c, hl) { P(g, x, y, hl); R(g, x - 1, y + 1, 3, 1, c); P(g, x, y + 2, c); P(g, x, y + 1, hl); }
+MS.kristo = [26, 21, (g, b) => {
+  const CR = CRV;
+  for (let i = 0; i < 6; i++) R(g, 17 + i, 15 - Math.round(i * .8), 2, 2, CR[1]); krGem(g, 23, 9, '#ff7ab6', '#ffd1e4');
+  TRI(g, 14, 4, 6, 7, '#a8d8f5'); TRI(g, 15, 6, 4, 5, '#e6f8ff'); R(g, 14, 10, 6, 1, CR[0]);
+  E(g, 13, 14, 6.6, 4.8, CR);
+  TRI(g, 10, 7, 3, 4, '#ff9ac8'); TRI(g, 13, 6, 3, 5, '#ffe27a'); TRI(g, 16, 8, 3, 3, '#7fe3a8'); P(g, 13, 6, '#fff3b0'); P(g, 10, 7, '#ffd1e4');
+  E(g, 12.5, 15.5, 3.6, 2.6, ['#a8d8f5', '#e6f8ff', '#ffffff', '#ffffff']); P(g, 11, 15, '#ff9ac8'); P(g, 13, 16, '#7fe3a8'); P(g, 12, 14, '#ffe27a');
+  R(g, 9, 18, 3, 2, CR[0]); R(g, 15, 18, 3, 2, CR[0]); P(g, 9, 19, '#ffffff'); P(g, 15, 19, '#ffffff');
+  E(g, 7, 8.5, 5.6, 4.8, CR); R(g, 1, 10, 3, 2, CR[1]); P(g, 1, 10, CR[2]);
+  TRI(g, 6, 0, 3, 5, '#e6f8ff'); P(g, 7, 0, '#ffffff'); TRI(g, 10, 2, 2, 3, '#a8d8f5');
+  if (b) { R(g, 3, 8, 3, 1, EY); R(g, 8, 8, 3, 1, EY); } else { R(g, 3, 6, 3, 4, '#ffffff'); R(g, 8, 6, 3, 4, '#ffffff'); R(g, 4, 7, 2, 3, '#2a3a7a'); R(g, 9, 7, 2, 3, '#2a3a7a'); P(g, 4, 7, '#ffffff'); P(g, 9, 7, '#ffffff'); }
+  P(g, 2, 11, '#ff9ac8'); krScarf(g, 6, 12, 5);
+}];
+MS.evo_kristo = [38, 31, (g, b) => {
+  const CR = CRV, core = ['#ff7ab6', '#ffd1e4'], W1 = mix(CR[1], '#ffffff', .25), W2 = CR[2];
+  TRI(g, 15, 0, 9, 15, W1); TRI(g, 22, 2, 8, 13, W2); TRI(g, 28, 5, 7, 10, W1);
+  for (const [x, y, h] of [[19, 3, 11], [25, 5, 9], [31, 8, 6]]) for (let j = 0; j < h; j++) P(g, x, y + j, CR[0]);
+  TRI(g, 17, 4, 4, 7, '#ffffff'); TRI(g, 24, 6, 3, 5, '#ffffff');
+  for (let i = 0; i < 11; i++) R(g, 26 + i * .95, 26 - Math.round(i * 1.1), 2, 2, i % 3 == 0 ? '#ff9ac8' : CR[1]); TRI(g, 34, 10, 3, 4, '#ff7ab6', false); P(g, 35, 11, '#ffd1e4');
+  E(g, 20, 21, 9, 6.6, CR);
+  for (const [x, y, c] of [[14, 15, '#ff9ac8'], [25, 15, '#7fe3a8'], [28, 20, '#ffe27a'], [22, 14, '#a46bf0']]) TRI(g, x, y, 3, 4, c);
+  for (const [x, y, c] of [[15, 15, '#ffd1e4'], [26, 15, '#c8fff0'], [23, 14, '#e6ccff']]) P(g, x, y, c);
+  R(g, 17, 19, 6, 6, core[0]); R(g, 18, 20, 4, 4, core[1]); R(g, 19, 21, 2, 2, '#ffffff'); for (const [x, y] of [[20, 17], [20, 26], [15, 22], [24, 22]]) P(g, x, y, core[1]);
+  R(g, 13, 26, 4, 4, CR[0]); R(g, 23, 26, 4, 4, CR[0]); for (const x of [13, 15, 23, 25]) P(g, x, 29, '#ffffff');
+  E(g, 12, 15, 3.4, 6, CR);
+  E(g, 8, 8, 6.4, 4.8, CR); R(g, 0, 10, 5, 3, CR[1]); R(g, 0, 12, 5, 1, CR[0]); P(g, 1, 13, '#ffffff'); P(g, 3, 13, '#ffffff');
+  TRI(g, 9, 0, 3, 6, '#e6f8ff'); TRI(g, 13, 1, 3, 6, '#c9e6ff'); P(g, 10, 0, '#ffffff'); TRI(g, 5, 2, 2, 3, '#e6f8ff');
+  if (b) R(g, 4, 8, 4, 1, EY); else { R(g, 4, 7, 4, 2, '#ffffff'); R(g, 5, 7, 2, 2, core[0]); P(g, 4, 7, '#ffffff'); }
+  krScarf(g, 9, 15, 5);
+}];
+
+/* ---------- data per tahap ---------- */
+const KR_D = 'Lumi Perintis · hadiah pemain pertama Lumimon';
+function krStage(terasah) {
+  return terasah
+    ? { id: 'kristo', n: 'Kristo', el: 'Netral', r: 'E', pr: 1, hp: 70, atk: 13, sk: { n: 'Pantulan Prisma', c: 3, m: .5, hits: 3, shield: .2 }, d: '3× serangan 50% + perisai 20%', weak: 'Netral: tidak pernah super efektif', tahap: 'Kristal Terasah' }
+    : { id: 'kristo', n: 'Kristo', el: 'Netral', r: 'R', pr: 1, hp: 58, atk: 12, sk: { n: 'Pantulan Prisma', c: 2, m: .35, hits: 3, shield: .15 }, d: '3× serangan 35% + perisai 15%', weak: 'Tumbuh jadi Kristal Terasah di Rank 5', tahap: 'Kristal Mentah' };
+}
+M.kristo = krStage(false);
+EVO_N.kristo = 'Prismadrake';
+let krLast = null;
+function kristoSync() {
+  const t = !!(S && S.rank >= 5);
+  if (t === krLast) return; krLast = t;
+  Object.assign(M.kristo, krStage(t));
+  delete EVM.kristo;
+  EVM.kristo = { ...M.kristo, n: 'Prismadrake', sk: { n: 'Geometri Cahaya', c: 3, m: .52, hits: 4, shield: .25, selfHeal: .05 }, d: '4× serangan 52% + perisai 25% + pulih 5%', evo: 1, bonus: ['HP dan ATK +10%', 'jurus baru Geometri Cahaya (4× serangan)', 'pulih 5% tiap memakai jurus'] };
+}
+let krBusy = false;
+async function kristoCheck() {
+  kristoSync();
+  if (krBusy || !S || !S.owned || !S.owned.kristo || S.krT || S.rank < 5) return;
+  if ((typeof B !== 'undefined' && B) || !document.getElementById('s-world') || document.getElementById('s-world').hidden || document.querySelector('#modal:not([hidden])')) return;
+  krBusy = true; S.krT = 1; save();
+  try { sfx('rank'); await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">LUMI PERINTIS</div>
+    <div style="width:120px;height:100px;filter:drop-shadow(0 0 14px #ff9ac8)">${mSvg('kristo')}</div><h2 style="margin:0">Kristo terasah!</h2>
+    <p>Kristal Mentah berubah jadi <b style="color:#fff">Kristal Terasah</b>. Sekarang setara <b style="color:#c9a2ff">Epik</b>: HP 70, jurus 3× serangan 50% + perisai 20%.</p>
+    <p style="font-size:13px">Lanjutkan belajar Matematika untuk mengevolusikannya jadi <b style="color:#ffd23c">Prismadrake</b>!</p></div>`, [{ t: 'Keren!', cls: 'hot' }]); }
+  finally { krBusy = false; }
+}
+{ const h0 = hud; hud = function () { const r = h0.apply(this, arguments); try { kristoCheck(); } catch (e) { console.error(e); } return r; }; }
+
+/* ---------- gelar Pionir: warna pelangi berganti (tier khusus 'P') ---------- */
+const PION_C = ['#ff7ab6', '#ffd23c', '#7fd8ff', '#c9a2ff'];
+TRAR.P = ['Perintis', '#ffd23c', '#b8326a'];
+Object.defineProperty(TRAR.P, 1, { get: () => PION_C[Math.floor(performance.now() / 260) % PION_C.length] });
+{ const t = ['pionir', '✦ Pionir Lumimon ✦', 'Khusus', 'P', 'Pemain pertama Lumimon (beta Oktober 2026). Tidak bisa didapat lagi.', () => [+!!(S && S.pion), 1]]; TLIST.push(t); TBY.pionir = t; }
+
+/* ---------- paket open beta (Kode Hadiah) ---------- */
+{
+  const P1 = { pion: 1, mon: ['kristo'], coins: 800, boxes: { Emas: 1, Perak: 1, Kayu: 2 } };
+  // Paket 1 · Perintis: 1 kode bersama untuk 8 beta tester (sekali pakai per simpanan)
+  CODES['1cyuzr2zby9'] = P1;
+  // Paket 2 · Penyambut: 1 kode bersama, berlaku sampai 30 Nov 2026
+  CODES['ctnt2pfhi8'] = { coins: 300, boxes: { Perak: 1, Kayu: 2 }, until: '2026-11-30' };
+}
+{ const c0 = codeApply; codeApply = function (r) {
+    const out = [];
+    if (r.pion) { S.pion = 1; if (!S.tgot) S.tgot = {}; S.tgot.pionir = 1; S.title = 'pionir'; out.push('Gelar: <b style="color:#ffd23c">✦ Pionir Lumimon ✦</b> (sudah dipasang)'); }
+    return out.concat(c0.call(this, r));
+  }; }
+
 /* ================= HALAMAN UTAMA: Lumimon, Adventure School =================
    Muncul setiap game dibuka. "Ketuk layar untuk mulai" (sekalian membuka suara di HP), lalu New Adventure / Continue / Setting.
    New Adventure saat sudah ada simpanan = konfirmasi dua langkah (ketik HAPUS). Simpanan tidak disentuh sebelum itu. */
@@ -6745,8 +6982,10 @@ function ttFrame(now) {
   for (let i = 0; i < 5; i++) { const a = t / 900 + i * 1.26, kx = ix + 48 + Math.cos(a) * 26, ky = iy + 10 + Math.sin(a * 1.3) * 22; if (Math.sin(t / 250 + i) > -.3) { x.fillStyle = ['#d9dcf5', '#b072ff', '#6ad8ff', '#ff7a45', '#ffffff'][i]; x.fillRect(Math.round(kx), Math.round(ky), 1, 1); x.fillRect(Math.round(kx) - 1, Math.round(ky), 3, 1); } }
 }
 function ttSave() { try { const s = load(); return s && s.v === 2 && s.team && s.team.length ? s : null; } catch (e) { return null; } }
+let musimInfo = false;
 function openTitle() {
   const el = $('#s-title'), sv = ttSave();
+  if (MUSIM && !sv && !musimInfo) { let c = null; try { c = JSON.parse(localStorage.getItem(MUSIM_BAWA)); } catch (e) { } if (c) { musimInfo = true; setTimeout(() => modal(`<h2>Musim baru dimulai! 🌟</h2><p>Lumimon resmi dibuka untuk semua! Semua Keeper mulai dari awal${c.name ? `, termasuk <b>${esc(c.name)}</b>` : ''}.</p><p style="font-size:13.5px">Ketuk layar → <b>Petualangan baru</b> untuk membuat karakter.${c.akun ? ` Akun <b>${esc(c.akun.u)}</b> tetap dipakai otomatis.` : ''}${c.pion ? ' Kristo dan gelar Pionir-mu ikut dibawa ✦' : ''}</p>`, [{ t: 'Siap!', cls: 'hot' }]), 400); } }
   const av = sv ? avatarSvg({ g: sv.look && sv.look.g, hs: sv.look && sv.look.hs, hc: sv.look && sv.look.hc, sk: sv.look && sv.look.sk, ec: sv.look && sv.look.ec }, 40) : '';
   el.innerHTML = `<canvas id="ttCv" width="${TT_W}" height="${TT_H}"></canvas>
   <div class="tt-ui">
@@ -6847,7 +7086,7 @@ function openStart() {
       const name = (nm.value || '').trim();
       if (!name) { toast('Tulis namamu dulu'); nm.focus(); return; }
       S = fresh(name, { g: L.g, hs: L.hs, hc: L.hc, sk: L.sk, ec: L.ec });
-      S.boxes.Kayu = 3; ensureQuests(); save();
+      S.boxes.Kayu = 3; musimBawa(); ensureQuests(); save();
       for (let i = 0; i < 3; i++) await openBox('Kayu', { starter: true });
       enterZone('school');
       toast(`Selamat datang, ${esc(name)}!`, 2500); setTimeout(() => tutOffer(), 600);
@@ -6934,10 +7173,12 @@ function oddsHtml() {
   <p style="font-size:13px">Telur dari Lumi liar: Biasa 5% Kayu; Langka 8% Kayu + 1% Perak; Epik 8% Kayu + 3% Perak. Selain itu dari misi, Kuil Ujian (Perak), Sarang Legenda (Emas), dan naik Rank.</p>`;
 }
 async function openBoxes() {
-  const nb = S.boxes.Kayu + S.boxes.Perak + S.boxes.Emas;
+  const lk = typeof legEggKeys === 'function' ? legEggKeys() : [];
+  const nb = S.boxes.Kayu + S.boxes.Perak + S.boxes.Emas + lk.length;
   const i = await modal(`<h2>Telur hadiah</h2><p>${nb ? 'Pilih telur yang mau ditetaskan.' : 'Belum ada telur. Kalahkan Lumi liar, selesaikan misi, atau naik Rank.'}</p>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${['Kayu', 'Perak', 'Emas'].map(k => `<div class="card" style="text-align:center;padding:8px"><img src="${chestURL(k)}" width="55" height="44" alt="" style="image-rendering:pixelated"><div class="disp" style="font-size:16px">${eggS(k)}</div><div style="font-weight:800;color:var(--sub)">×${S.boxes[k]}</div><div style="font-size:12px;font-weight:700;color:var(--muted)">${EGG[k].n} soal ${EGG[k].lv}<br>benar ${EGG[k].pass}</div></div>`).join('')}</div>`,
-    [...['Kayu', 'Perak', 'Emas'].map(k => ({ t: `Tetaskan ${eggS(k)}`, cls: S.boxes[k] ? '' : 'ghost' })), { t: 'Tutup', cls: 'dark' }]);
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${['Kayu', 'Perak', 'Emas'].map(k => `<div class="card" style="text-align:center;padding:8px"><img src="${chestURL(k)}" width="55" height="44" alt="" style="image-rendering:pixelated"><div class="disp" style="font-size:16px">${eggS(k)}</div><div style="font-weight:800;color:var(--sub)">×${S.boxes[k]}</div><div style="font-size:12px;font-weight:700;color:var(--muted)">${EGG[k].n} soal ${EGG[k].lv}<br>benar ${EGG[k].pass}</div></div>`).join('')}</div>${lk.length ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px">${lk.map(legEggCard).join('')}</div>` : ''}`,
+    [...['Kayu', 'Perak', 'Emas'].map(k => ({ t: `Tetaskan ${eggS(k)}`, cls: S.boxes[k] ? '' : 'ghost' })), ...lk.map(k => ({ t: `🌟 Tetaskan Telur Legenda ${M[LEG[k]].n}`, cls: 'hot' })), { t: 'Tutup', cls: 'dark' }]);
+  if (i >= 3 && i < 3 + lk.length) { await legHatch(lk[i - 3]); return; }
   const k = ['Kayu', 'Perak', 'Emas'][i];
   if (!k) return;
   if (!S.boxes[k]) { toast(`Kamu belum punya ${eggN(k)}`); return; }
@@ -6954,7 +7195,7 @@ function eggQs(k) {
   const E = EGG[k], rows = ntPool(), mx = {}; rows.forEach(r => { mx[r[0]] = Math.max(mx[r[0]] || 1, r[1]); });
   const f = r => { const m = mx[r[0]], b = r[1]; return k === 'Kayu' ? b <= Math.ceil(m * .4) : k === 'Perak' ? b > Math.ceil(m * .2) && b <= Math.ceil(m * .8) : b > Math.ceil(m * .6); };
   let pool = rows.filter(f); if (pool.length < E.n) pool = rows;
-  return shuffle(pool).slice(0, E.n);
+  return qPick(pool, E.n);
 }
 function eggHatch(type) {
   return new Promise(res => {
@@ -6971,8 +7212,8 @@ function eggHatch(type) {
 let colTab = 'all';
 function openCol() {
   const el = $('#s-col'); if (typeof stSync === 'function') stSync();
-  const owned = Object.keys(S.owned).length;
-  const list = MONS.filter(m => colTab === 'all' || m.r === colTab);
+  const owned = MONS.filter(m => S.owned[m.id]).length;
+  const list = (S.owned.kristo && M.kristo && colTab === 'all' ? [M.kristo] : []).concat(MONS.filter(m => colTab === 'all' || m.r === colTab));
   el.innerHTML = `<div style="padding:12px 12px 30px;display:flex;flex-direction:column;gap:12px">
     <div class="row"><button class="round" id="cBack" type="button" aria-label="Kembali"><svg width="18" height="18" aria-hidden="true"><use href="#ic-back"/></svg></button><div class="title">Koleksi ${owned}/40</div></div>
     <div class="bar"><i style="width:${owned / 40 * 100}%"></i></div>
@@ -7143,8 +7384,8 @@ function openMap() {
     const id = k + b, Z = ZONES[id];
     if (!isOpen(k, b)) {
       const prev = ZONES[k + (b - 1)];
-      const c = await modal(`<h2>${esc(Z.n)} masih terkunci</h2><p>Bab ${b} · ${esc(Z.babN)}</p><p>Wilayah ini terbuka setelah kamu lulus <b style="color:#fff">Kuil Ujian Bab ${b - 1}</b> di ${esc(prev.n)}.</p><div class="card" style="font-size:13px;font-weight:700;color:var(--sub)">Mode uji pilot: kamu tetap bisa masuk untuk melihat wilayahnya.</div>`, [{ t: 'Tutup', cls: 'ghost' }, { t: 'Masuk (mode uji)', cls: '' }]);
-      if (c !== 1) return;
+      await modal(`<h2>${esc(Z.n)} masih terkunci</h2><p>Bab ${b} · ${esc(Z.babN)}</p><p>Wilayah ini terbuka setelah kamu lulus <b style="color:#fff">Kuil Ujian Bab ${b - 1}</b> di ${esc(prev.n)}.</p>`, [{ t: 'Oke' }]);
+      return;   // v107: mode uji pilot dihapus, wilayah terkunci tidak bisa dimasuki
     }
     WMAP.unmount(); enterZone(id);
     toast(`Masuk ${esc(Z.n)} · Bab ${b}. Lumi liar akan mengejarmu!`, 2600);
