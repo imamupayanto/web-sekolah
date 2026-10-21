@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v107">
+<meta name="lumimon-ver" content="v110">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -64,7 +64,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-of
 @keyframes up{from{transform:translateY(40px);opacity:.4}}
 .sheet h2{margin:0;font-family:var(--display);font-weight:400;font-size:24px;color:var(--sun)}
 .sheet p{margin:0;color:var(--muted);font-weight:600;line-height:1.4}
-.row{display:flex;gap:10px;align-items:center}.row>.btn{flex:1}
+.row{display:flex;gap:10px;align-items:center}.row>.btn{flex:1}.row.stk{flex-direction:column;align-items:stretch}.row.stk>.btn{flex:none;width:100%}
 
 /* start */
 #s-start{background:radial-gradient(circle at 50% 30%,#4a35b0,#1d1b46 60%,#0f0d2e)}
@@ -842,7 +842,9 @@ const ZONES = {
   cave: { n: 'Gua Bara', rank: 4, el: 'Api', pool: ['crab', 'flick', 'fly', 'mud', 'golem', 'slug', 'lizard', 'fox', 'scorp', 'arang'], coins: 45, xp: 16, drop: { Kayu: 30, Perak: 10, Emas: 2 } },
 };
 const RANK_MAX = 20;
-const need = r => 40 + r * 20 + 5 * r * r;
+/* v109: gerbang Ujian Rank. Rank genap >= RANK_GATE (8, 10, ... 20) hanya bisa dicapai setelah lulus Ujian Rank (S.rku = Rank tertinggi yang sudah diuji). Ujian: r_ujrank.js (v110). */
+const RANK_GATE = 8, rankGate = r => r >= RANK_GATE && r % 2 === 0 && !(S && S.rku >= r);
+const need = r => (40 + r * 20 + 5 * r * r) * (r >= 10 ? 2 : 1); // v108: Rank 10+ butuh 2x XP
 const TITLES = [[1, 'Siswa Baru', '#8fd8ff'], [5, 'Penjelajah', '#7fe3a8'], [10, 'Ksatria Ilmu', '#c9a2ff'], [15, 'Cendekiawan', '#ffb072'], [20, 'Master Lumi', '#ffd23c']];
 const titleOf = r => TITLES.filter(t => r >= t[0]).pop();
 const EVCSS = { Api: '255,140,40', Es: '120,210,255', Racun: '170,90,255', Netral: '255,215,70' };
@@ -1004,7 +1006,7 @@ function toast(msg, ms = 2200) {
 function modal(html, buttons = [{ t: 'Oke', cls: '' }], opts = {}) {
   return new Promise(res => {
     const m = $('#modal'); m.hidden = false;
-    m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}<div class="row">${buttons.map((b, i) => `<button type="button" class="btn ${b.cls || ''}" data-i="${i}">${b.t}</button>`).join('')}</div></div>`;
+    m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}<div class="row${buttons.length > 3 ? ' stk' : ''}">${buttons.map((b, i) => `<button type="button" class="btn ${b.cls || ''}" data-i="${i}">${b.t}</button>`).join('')}</div></div>`;
     m.onclick = e => {
       const b = e.target.closest('[data-i]');
       if (b) { m.hidden = true; m.innerHTML = ''; res(+b.dataset.i); }
@@ -1017,12 +1019,16 @@ function addCoins(n) { S.coins += n; save(); sfx('coin'); }
 function gainXP(n) {
   if (S.rank >= RANK_MAX) { S.xp = 0; return false; }
   S.xp += n; let up = false; const r0 = S.rank, got = { c: 0, b: [] };
-  while (S.rank < RANK_MAX && S.xp >= need(S.rank)) {
+  while (S.rank < RANK_MAX && S.xp >= need(S.rank) && !rankGate(S.rank + 1)) {
     S.xp -= need(S.rank); S.rank++; up = true; if (typeof lbRankUp === 'function') lbRankUp();
     const c = 20 * S.rank, b = S.rank % 10 === 0 ? 'Emas' : S.rank % 5 === 0 ? 'Perak' : S.rank % 2 === 0 ? 'Kayu' : null;
     S.coins += c; got.c += c; if (b) { S.boxes[b]++; got.b.push(b); }
   }
   if (S.rank >= RANK_MAX) S.xp = 0;
+  if (S.rank < RANK_MAX && rankGate(S.rank + 1) && S.xp >= need(S.rank)) {   // tertahan gerbang: bar penuh, kelebihan XP tidak menumpuk
+    S.xp = need(S.rank);
+    if (!S.gt || S.gt < S.rank + 1) { S.gt = S.rank + 1; try { toast('Bar XP penuh! Naik ke Rank ' + (S.rank + 1) + ' butuh Ujian Rank. Bicara dengan Pak Toto di sekolah.', 5000); } catch (e) { } }
+  }
   if (up) rkQueue(r0, S.rank, got);
   save(); return up;
 }
@@ -2407,7 +2413,7 @@ function spawnWild() {
 function hud() {
   if (W && ZONES[W.zone]) $('#hLoc').innerHTML = esc(ZONES[W.zone].hl || ZONES[W.zone].n) + mpBadge() + envChip() + raidChip() + buffTag() + (W.zone === featured() ? ' <span class="bf" style="background:#ffd23c;color:#3a2200">\u2605 Unggulan</span>' : '');
   streakNag();
-  $('#hRank').innerHTML = S.rank >= RANK_MAX ? `Rank ${S.rank} · MAKS` : `Rank ${S.rank} · ${S.xp}/${need(S.rank)} XP`;
+  $('#hRank').innerHTML = S.rank >= RANK_MAX ? `Rank ${S.rank} · MAKS` : `Rank ${S.rank} · ${S.xp}/${need(S.rank)} XP${S.xp >= need(S.rank) && rankGate(S.rank + 1) ? ' · Siap Ujian' : ''}`;
   $('#hCoin').innerHTML = `${COIN}${S.coins}`;
   const nb = S.boxes.Kayu + S.boxes.Perak + S.boxes.Emas;
   $('#boxBadge').hidden = !nb; $('#boxBadge').textContent = nb;
@@ -3086,7 +3092,7 @@ function runQuiz({ title, sub, qs, timed = false, secs = 45, hint = null, exam =
     const stopT = () => { clearInterval(timer); timer = null; };
     const vis = () => { if (!exam || over || document.visibilityState !== 'hidden') return; leaves++; if (leaves > 2) { failTab = true; end(false); } else if (!done) answer(-1, 'tab'); };
     if (exam) document.addEventListener('visibilitychange', vis);
-    const end = quit => { over = true; document.removeEventListener('visibilitychange', vis); stopT(); try { speechSynthesis.cancel(); } catch (e) {} resolve({ ok, n: qs.length, res, quit, times, leaves, fail: failTab }); };
+    const end = quit => { over = true; document.removeEventListener('visibilitychange', vis); stopT(); try { speechSynthesis.cancel(); } catch (e) {} resolve({ ok, n: qs.length, res, qs, quit, times, leaves, fail: failTab }); };
     const startT = () => {
       stopT(); const bar = $('#qT'); if (!timed || (CALM && !exam) || !bar) return;
       const t0 = performance.now();
@@ -3182,7 +3188,7 @@ async function practice(z) {
   const r = await runQuiz({ kc: true, title: `Latihan · ${PSHORT[Z.pulau]}`, sub: `Bab ${Z.bab} · ${Z.babN}`, qs: qPick(soalBab(Z.bank, Z.bab), 5), hint: hootHint(Z.bank, Z.bab) });
   S.st.latihan = (S.st.latihan || 0) + 1; save(); show('s-world'); hud();
   if (r.quit) return;
-  progress('latih'); streakDone(); const lg = lxGain(r.ok);
+  progress('latih'); streakDone(); const lg = lxGain(r.ok, r);
   const msg = r.ok === r.n ? 'Sempurna! Kamu siap menghadapi Kuil Ujian.' : r.ok >= 3 ? 'Bagus! Baca lagi pembahasan soal yang salah, lalu coba sekali lagi.' : 'Tidak apa-apa. Baca kartu Akademi sekali lagi, lalu coba latihan lagi.';
   await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">HASIL LATIHAN</div><div class="big" style="font-size:56px">${r.ok}/${r.n}</div><p>${msg}</p>${lxNote(lg)}</div>`, [{ t: 'Oke', cls: 'hot' }]);
 }
@@ -5044,13 +5050,13 @@ async function srResult(r, extra = '') {
   S.st.latihan = (S.st.latihan || 0) + 1; save(); show('s-world'); hud();
   if (r.quit) return;
   progress('latih'); streakDone();
-  const lg = lxGain(r.ok), rw = srReward(r.ok), msg = r.ok === r.n ? 'Sempurna!' : r.ok >= Math.ceil(r.n * .6) ? 'Bagus! Baca pembahasan soal yang salah.' : 'Tidak apa-apa. Belajar lagi dengan guru, lalu coba lagi.';
+  const lg = lxGain(r.ok, r), rw = srReward(r.ok), msg = r.ok === r.n ? 'Sempurna!' : r.ok >= Math.ceil(r.n * .6) ? 'Bagus! Baca pembahasan soal yang salah.' : 'Tidak apa-apa. Belajar lagi dengan guru, lalu coba lagi.';
   await modal(`<div style="text-align:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">HASIL LATIHAN</div><div class="big" style="font-size:52px">${r.ok}/${r.n}</div><p>${msg}</p><div style="font-weight:800">${rw.give ? `${COIN}+${rw.give} koin` : 'Koin latihan hari ini sudah penuh'}${rw.capped && rw.give ? ' (batas harian tercapai)' : ''}</div>${lxNote(lg)}${extra}</div>`, [{ t: 'Oke', cls: 'hot' }]);
 }
 async function openRobot(r) {
   const rows = [1, 2, 3, 4, 5].map(b => [b, zoneOf(r.pk, b)]).filter(x => x[1]);
   if (!S.sr || S.sr.d !== today()) S.sr = { d: today(), c: 0 };
-  const c = await modal(`<h2>${esc(r.robot)}</h2><p style="font-size:14px">Latihan 5 soal, tanpa batas waktu. Tiap jawaban benar +${SR_COIN} koin.</p>`,
+  const c = await modal(`<h2>${esc(r.robot)}</h2><p style="font-size:14px">Latihan 5 soal, tanpa batas waktu. Tiap jawaban benar +${SR_COIN} koin. XP hanya untuk soal yang baru pertama kali kamu jawab benar.</p>`,
     [...rows.map(([b, z]) => ({ t: `Bab ${b}: ${esc(ZONES[z].babN)}` })), { t: 'Campur semua bab', cls: 'hot' }, { t: 'Tutup', cls: 'ghost' }]);
   if (c < 0 || c > rows.length) return;
   const mix = c === rows.length, b = mix ? 0 : rows[c][0], pool = mix ? BANK.filter(q => q[0] === r.pk) : soalBab(r.pk, b);
@@ -6751,13 +6757,16 @@ function legRage() {
   try { log(`🔥 ${f.m.n} mengamuk! Serangannya makin kuat dan energinya penuh.`); bigText('MENGAMUK!'); } catch (e) { }
 }
 /* ---- XP latihan soal ---- */
-function lxGain(ok) {
+/* v109: XP latihan hanya untuk soal yang BARU PERTAMA kali dijawab benar (S.xq[id]); mengulang soal/bab yang sama tidak memberi XP lagi */
+function lxGain(ok, r) {
   const d = today(); if (!S.lx || S.lx.d !== d) S.lx = { d, x: 0 };
-  const want = typeof accXP === 'function' ? accXP(ok * LX_PER) : ok * LX_PER, x = Math.max(0, Math.min(want, LX_CAP - S.lx.x));
+  let fresh = ok;
+  if (r && r.res && r.qs) { fresh = 0; r.res.forEach((g, i) => { const q = r.qs[i]; if (!g || !q || !q[9]) return; if (!S.xq) S.xq = {}; if (!S.xq[q[9]]) { S.xq[q[9]] = 1; fresh++; } }); }
+  const want = typeof accXP === 'function' ? accXP(fresh * LX_PER) : fresh * LX_PER, x = Math.max(0, Math.min(want, LX_CAP - S.lx.x));
   if (x) { S.lx.x += x; gainXP(x); } save();
-  return { x, capped: x < want };
+  return { x, capped: x < want, old: ok > 0 && fresh === 0 };
 }
-const lxNote = g => g.x ? `<div style="font-weight:800;color:#7fe3a8">+${g.x} XP belajar${g.capped ? ' (batas XP latihan hari ini tercapai)' : ''}</div>` : (S.lx && S.lx.x >= LX_CAP ? '<div style="font-weight:700;color:var(--sub);font-size:13px">XP latihan hari ini sudah penuh (150).</div>' : '');
+const lxNote = g => g.x ? `<div style="font-weight:800;color:#7fe3a8">+${g.x} XP belajar${g.capped ? ' (batas XP latihan hari ini tercapai)' : ''}</div>` : g.old ? '<div style="font-weight:700;color:var(--sub);font-size:13px">Soal ini sudah pernah kamu jawab benar, jadi tidak ada XP lagi. Coba soal baru, Kuil Ujian, atau misi!</div>' : (S.lx && S.lx.x >= LX_CAP ? '<div style="font-weight:700;color:var(--sub);font-size:13px">XP latihan hari ini sudah penuh (150).</div>' : '');
 /* ---- Telur Legenda ---- */
 const legEggKeys = () => Object.keys(S.legEgg || {}).filter(k => S.legEgg[k] && LEG[k]);
 function legEggCard(k) {
@@ -6909,6 +6918,59 @@ Object.defineProperty(TRAR.P, 1, { get: () => PION_C[Math.floor(performance.now(
     if (r.pion) { S.pion = 1; if (!S.tgot) S.tgot = {}; S.tgot.pionir = 1; S.title = 'pionir'; out.push('Gelar: <b style="color:#ffd23c">✦ Pionir Lumimon ✦</b> (sudah dipasang)'); }
     return out.concat(c0.call(this, r));
   }; }
+
+/* ================= v110: UJIAN RANK (Pak Toto) =================
+   Naik ke Rank 8, 10, 12, 14, 16, 18, 20 hanya setelah lulus Ujian Rank (S.rku = Rank tertinggi yang sudah lulus ujian).
+   Gerbang ada di a_core.js (rankGate). Ujian diambil lewat Pak Toto (Papan Misi). Soal: campuran 4 mapel, Bab 3-5, mode ujian. */
+const UJR = {
+  8: { n: 12, pass: 9, kuil: 2 },
+  10: { n: 12, pass: 9, kuil: 3 },
+  12: { n: 15, pass: 12, kuil: 4 },
+  14: { n: 15, pass: 12, kuil: 5 },
+  16: { n: 18, pass: 14, mast: 50 },
+  18: { n: 18, pass: 14, mast: 60, evo: 1 },
+  20: { n: 18, pass: 14, mast: 70, evo: 2 }
+};
+/* syarat: daftar {ok, t} */
+function ujrReq(t) {
+  const U = UJR[t], out = [];
+  if (U.kuil) for (const k of MAST_K) out.push({ ok: prog(PULAU_OF[k]).lulus.includes(U.kuil), t: `Lulus Kuil Ujian Bab ${U.kuil} ${MAPEL[k]}` });
+  if (U.mast) for (const k of MAST_K) { const v = Math.round(mastOf(k)); out.push({ ok: v >= U.mast, t: `Penguasaan ${MAPEL[k]} ${v}/${U.mast}` }); }
+  if (U.evo) { const n = Object.keys(S.evo || {}).length; out.push({ ok: n >= U.evo, t: `Lumi berevolusi ${n}/${U.evo}` }); }
+  return out;
+}
+function ujrSoal(n) {
+  const out = [];
+  MAST_K.forEach((k, i) => { const share = Math.floor(n / 4) + (i < n % 4 ? 1 : 0); out.push(...qPick(BANK.filter(q => q[0] === k && q[1] >= 3), share, true)); });
+  return shuffle(out);
+}
+const ujrNext = () => (S && S.rank < RANK_MAX && rankGate(S.rank + 1) && UJR[S.rank + 1]) ? S.rank + 1 : 0;
+async function rankUjian(t) {
+  const U = UJR[t]; if (!U || !S || S.rank + 1 !== t || !rankGate(t)) return;
+  const rq = ujrReq(t), lack = rq.filter(x => !x.ok);
+  const list = rq.map(x => `<div style="display:flex;gap:8px;align-items:center;font-weight:800;font-size:14px;text-align:left"><span style="color:${x.ok ? '#3ccf91' : '#ff7a7a'}">${x.ok ? '✓' : '✗'}</span><span>${esc(x.t)}</span></div>`).join('');
+  const head = `<div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">UJIAN RANK ${t}</div>`;
+  if (lack.length) {
+    await modal(`<div style="display:flex;flex-direction:column;gap:8px">${head}<h2 style="margin:0">Pak Toto</h2><p>Kamu belum siap untuk Ujian Rank ${t}. Selesaikan dulu syarat ini:</p><div class="card" style="display:flex;flex-direction:column;gap:6px">${list}</div><p style="font-size:13px">Kuil Ujian ada di tiap pulau belajar. Penguasaan naik dengan belajar dan latihan.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
+    return;
+  }
+  if (await ujCD('r' + t)) return;
+  const go = await modal(`<div style="display:flex;flex-direction:column;gap:8px">${head}<h2 style="margin:0">Pak Toto</h2><p>Semua syarat terpenuhi. Ujian Rank ${t}: <b style="color:#fff">${U.n} soal</b> campuran 4 mapel, tingkat sedang sampai sulit. Lulus kalau benar minimal <b style="color:#fff">${U.pass}</b>. Waktu 45 detik per soal dan jangan meninggalkan layar.</p><div class="card" style="display:flex;flex-direction:column;gap:6px">${list}</div><p style="font-size:13px">Kalau belum lulus, kamu bisa mencoba lagi 30 menit kemudian.</p></div>`, [{ t: 'Mulai ujian', cls: 'hot' }, { t: 'Nanti dulu', cls: 'ghost' }]);
+  if (go !== 0) return;
+  stopLoop();
+  const r = await runQuiz({ title: `Ujian Rank ${t}`, sub: 'Pak Toto · campuran 4 mapel', qs: ujrSoal(U.n), timed: true, exam: true, secs: 45 });
+  S.st.ujian = (S.st.ujian || 0) + 1; save();
+  show('s-world'); hud();
+  if (r.quit || r.fail || r.ok < U.pass) ujFail('r' + t);
+  if (r.quit) return;
+  if (r.ok >= U.pass && !r.fail) {
+    sfx('pass'); S.rku = Math.max(S.rku || 0, t); save();
+    await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center">${head}<div class="big" style="font-size:52px">${r.ok}/${r.n}</div><h2 style="margin:0">Lulus Ujian Rank ${t}!</h2><p>Pak Toto bangga padamu. Pintu menuju Rank ${t} terbuka.</p></div>`, [{ t: 'Terima kasih, Pak!', cls: 'hot' }]);
+    gainXP(0);   // naik Rank bila bar XP sudah penuh, lengkap dengan kartu naik Rank
+    hud(); return;
+  }
+  await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center">${head}<div class="big" style="font-size:52px">${r.ok}/${r.n}</div><h2 style="margin:0">Belum lulus</h2><p>Butuh minimal ${U.pass} benar${r.fail ? ' (kamu meninggalkan layar ujian)' : ''}. Belajar lagi dengan guru dan Robot, lalu coba lagi 30 menit kemudian.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
+}
 
 /* ================= HALAMAN UTAMA: Lumimon, Adventure School =================
    Muncul setiap game dibuka. "Ketuk layar untuk mulai" (sekalian membuka suara di HP), lalu New Adventure / Continue / Setting.
@@ -7353,8 +7415,9 @@ async function openQuests() {
     <div style="display:flex;flex-direction:column;gap:8px">${dl.qs.map((q, k) => row(q, k, 1)).join('')}</div>
     ${allC ? (dl.bonus ? '<small style="color:#3ccf91;font-weight:800">Bonus harian sudah diambil. Kembali besok!</small>' : '<button type="button" class="btn hot" data-b="1" style="min-height:44px;font-size:17px">Ambil bonus: semua misi harian selesai</button>') : '<small style="color:var(--sub);font-weight:700">Selesaikan ketiganya untuk bonus: Telur Biasa + 100 koin.</small>'}
     <small style="font-weight:700;color:var(--sub)">Selesaikan dan ambil ketiga misi: bonus 1 Telur Biasa + 100 koin langsung diberikan.</small>`,
-    [{ t: 'Tutup', cls: 'ghost' }],
+    ujrNext() ? [{ t: 'Ujian Rank ' + ujrNext(), cls: 'hot' }, { t: 'Tutup', cls: 'ghost' }] : [{ t: 'Tutup', cls: 'ghost' }],
     { onOpen: m => m.querySelectorAll('[data-q],[data-d],[data-b]').forEach(b => b.onclick = e => { e.stopPropagation(); if (b.dataset.q !== undefined) void 0; else if (b.dataset.d !== undefined) claimDaily(+b.dataset.d); else claimBonus(); m.hidden = true; m.innerHTML = ''; openQuests(); }) });
+  if (i === 0 && ujrNext()) await rankUjian(ujrNext());
 }
 function claimDaily(k) {
   const q = ensureDaily().qs[k]; if (!q || q.p < q.g || q.c) return;
