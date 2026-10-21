@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v110">
+<meta name="lumimon-ver" content="v111">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -4371,9 +4371,27 @@ function duelIncoming(id, o, sid, x) {
   sfx('alert'); duelBar(`${esc(o.n)} menantangmu duel!`, [['Tolak', 'ghost', end], ['Terima', 'hot', () => { if (MP.duel !== D || D.st !== 'ask') return; D.st = 'go'; duelSendR(D, 'ac', sid, { t: D.mine, v: DUEL_V }); startDuel(D, foe); }]]);
   setTimeout(end, 25000);
 }
+/* v111: awal duel tahan galat. Kalau battle gagal tampil (galat / macet), kembali ke dunia, beri tahu lawan, dan tampilkan teks galatnya. */
 async function startDuel(D, foe) {
   duelBarOff(); D.st = 'go'; stopLoop();
-  await startBattle({ type: 'pvp', title: `Duel melawan ${D.name}`, zone: W.zone, foe: foe.map(f => f.id), foeF: foe, meF: duelTeam(D.mine), duel: D });
+  const onErr = e => { D.err = String((e && (e.message || e.reason && e.reason.message || e.reason)) || e).slice(0, 110); };
+  addEventListener('error', onErr); addEventListener('unhandledrejection', onErr);
+  const started = () => !!(typeof B !== 'undefined' && B && B.cfg && B.cfg.duel === D);
+  let failed = false;
+  const bail = why => {
+    if (failed || D.over && why === 'wd') return; failed = true;
+    try { mpDuelSend(D.opp, 'bye', D.sid + '|', 0); } catch (e) { }
+    if (typeof B !== 'undefined' && B && B.cfg && B.cfg.duel === D) { try { B = null; } catch (e) { } }
+    MP.duel = null; if (W) W.safe = performance.now() + 2000;
+    try { hud(); show('s-world'); startLoop(); } catch (e) { }
+    toast('Duel gagal dimulai. Coba tantang lagi.' + (D.err ? ' (' + esc(D.err) + ')' : ''), 9000);
+  };
+  const wd = setTimeout(() => { if (MP.duel === D && !started()) bail('wd'); }, 10000);
+  try {
+    await startBattle({ type: 'pvp', title: `Duel melawan ${D.name}`, zone: W.zone, foe: foe.map(f => f.id), foeF: foe, meF: duelTeam(D.mine), duel: D });
+  } catch (e) { console.error(e); D.err = D.err || String((e && e.message) || e).slice(0, 110); bail('ex'); }
+  finally { clearTimeout(wd); removeEventListener('error', onErr); removeEventListener('unhandledrejection', onErr); }
+  if (failed) return;
   MP.duel = null; if (W) W.safe = performance.now() + 2000; hud(); show('s-world'); startLoop();
 }
 async function mpOnDuel(m) {
