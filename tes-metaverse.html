@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v128">
+<meta name="lumimon-ver" content="v129">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -149,6 +149,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-of
 .qz-dots{display:flex;gap:5px}.qz-dots i{flex:1;height:7px;border-radius:9px;background:var(--line)}.qz-dots i.ok{background:var(--leaf)}.qz-dots i.no{background:var(--hot)}.qz-dots i.now{background:var(--sun)}
 .qz-tools{display:flex;align-items:center;gap:10px}.qz-time{flex:1}
 .qz-card{background:#fff;color:var(--text);border:3px solid var(--deep);border-radius:18px;box-shadow:0 5px 0 var(--deep);padding:14px 14px 12px}
+.qz-exam,.qz-exam *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.qz-exam .qz-card{position:relative;overflow:hidden}.qz-wm{position:absolute;inset:-20px;transform:rotate(-14deg);font:800 11px monospace;line-height:22px;color:#24123a;opacity:.07;pointer-events:none;word-break:break-all}.qz-exam .qz-o span{flex:1;min-width:0}
 .qz-q{margin:0 0 10px;font-size:18px;font-weight:800;line-height:1.38}
 .qz-say{border:2px solid var(--line);background:var(--soft);color:var(--text);border-radius:999px;padding:3px 12px;font-weight:800;font-size:13px}
 .qz-opts{display:flex;flex-direction:column;gap:9px}
@@ -3417,6 +3418,19 @@ function speak(t) {
   try { if (!window.speechSynthesis) throw 0; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'id-ID'; u.rate = .95; speechSynthesis.speak(u); }
   catch (e) { toast('Fitur suara belum didukung di perangkat ini'); }
 }
+/* v129: teks soal ujian digambar ke kanvas (tidak bisa disalin/tempel ke AI) */
+function qzCanvas(root) {
+  root.querySelectorAll('[data-cv]').forEach(n => {
+    try {
+      const cs = getComputedStyle(n), w = Math.max(60, n.clientWidth || n.getBoundingClientRect().width), fs = parseFloat(cs.fontSize) || 16, lh = (parseFloat(cs.lineHeight) || fs * 1.35);
+      const font = `${cs.fontWeight} ${fs}px ${cs.fontFamily}`, dpr = Math.min(2, window.devicePixelRatio || 1), cv = document.createElement('canvas'), x = cv.getContext('2d');
+      x.font = font; const lines = []; String(n.textContent).split('\n').forEach(par => { let ln = ''; par.split(' ').forEach(wd => { const t = ln ? ln + ' ' + wd : wd; if (x.measureText(t).width > w && ln) { lines.push(ln); ln = wd; } else ln = t; }); lines.push(ln); });
+      cv.width = Math.ceil(w * dpr); cv.height = Math.ceil(lines.length * lh * dpr); cv.style.cssText = `width:${w}px;height:${lines.length * lh}px;display:block;pointer-events:none`;
+      x.scale(dpr, dpr); x.font = font; x.fillStyle = cs.color; x.textBaseline = 'middle'; lines.forEach((l, k) => x.fillText(l, 0, k * lh + lh / 2));
+      n.textContent = ''; n.appendChild(cv); n.removeAttribute('data-cv');
+    } catch (e) { }
+  });
+}
 function runQuiz({ title, sub, qs, timed = false, secs = 45, hint = null, exam = false, banner = '', kc = false }) {
   stopLoop();
   return new Promise(resolve => {
@@ -3424,11 +3438,12 @@ function runQuiz({ title, sub, qs, timed = false, secs = 45, hint = null, exam =
     const stopT = () => { clearInterval(timer); timer = null; };
     const vis = () => { if (!exam || over || document.visibilityState !== 'hidden') return; leaves++; if (leaves > 2) { failTab = true; end(false); } else if (!done) answer(-1, 'tab'); };
     if (exam) document.addEventListener('visibilitychange', vis);
-    const end = quit => { over = true; document.removeEventListener('visibilitychange', vis); stopT(); try { speechSynthesis.cancel(); } catch (e) {} resolve({ ok, n: qs.length, res, qs, quit, times, leaves, fail: failTab }); };
+    const noCopy = e => { if (exam && !over) e.preventDefault(); }; if (exam) ['copy', 'cut', 'contextmenu', 'selectstart', 'dragstart'].forEach(t => el.addEventListener(t, noCopy));
+    const end = quit => { over = true; ['copy', 'cut', 'contextmenu', 'selectstart', 'dragstart'].forEach(t => el.removeEventListener(t, noCopy)); document.removeEventListener('visibilitychange', vis); stopT(); try { speechSynthesis.cancel(); } catch (e) {} resolve({ ok, n: qs.length, res, qs, quit, times, leaves, fail: failTab }); };
     const startT = () => {
       stopT(); const bar = $('#qT'); if (!timed || (CALM && !exam) || !bar) return;
-      const t0 = performance.now();
-      timer = setInterval(() => { const left = 1 - (performance.now() - t0) / (secs * 1000); bar.style.width = Math.max(0, left * 100) + '%'; if (left <= 0) answer(-1); }, 100);
+      const t0 = performance.now(), secs1 = typeof secs === 'function' ? secs(qs[i]) : secs;
+      timer = setInterval(() => { const left = 1 - (performance.now() - t0) / (secs1 * 1000); bar.style.width = Math.max(0, left * 100) + '%'; if (left <= 0) answer(-1); }, 100);
     };
     const answer = (k, why) => {
       if (done || over) return; done = true; stopT(); times[i] = Math.round(performance.now() - q0);
@@ -3445,15 +3460,15 @@ function runQuiz({ title, sub, qs, timed = false, secs = 45, hint = null, exam =
     const draw = () => {
       const q = qs[i]; done = false; q0 = performance.now();
       opts = shuffle([0, 1, 2, 3].map(k => ({ t: q[3 + k], c: 'ABCD'[k] === q[7] })));
-      el.innerHTML = `<div class="qz">
+      el.innerHTML = `<div class="qz${exam ? ' qz-exam' : ''}">
         <div class="qz-top"><button class="round" id="qX" type="button" aria-label="Keluar"><svg width="18" height="18" aria-hidden="true"><use href="#ic-back"/></svg></button><div class="qz-tt"><b>${esc(title)}</b><small>${esc(sub)}</small></div><span class="chip">${i + 1}/${qs.length}</span></div>
         <div class="qz-dots" aria-hidden="true">${qs.map((_, k) => `<i class="${k < i ? (res[k] ? 'ok' : 'no') : k === i ? 'now' : ''}"></i>`).join('')}</div>
         ${banner}
         ${exam ? `<div class="qz-tools"><div class="bar qz-time"><i id="qT" style="width:100%"></i></div></div>` : timed ? `<div class="qz-tools"><button type="button" class="chip" id="qCalm" aria-pressed="${CALM}">Mode tenang: ${CALM ? 'aktif' : 'mati'}</button><div class="bar qz-time"${CALM ? ' hidden' : ''}><i id="qT" style="width:100%"></i></div></div>` : ''}
-        <div class="qz-card"><p class="qz-q">${esc(q[2])}</p><button type="button" class="qz-say" id="qSay">Bacakan soal</button>${kcN > 0 ? `<button type="button" class="qz-say" id="qKc" style="margin-left:6px">👓 Petunjuk (${kcN})</button>` : ''}</div>
-        <div class="qz-opts">${opts.map((o, k) => `<button type="button" class="qz-o" data-k="${k}"><b>${'ABCD'[k]}</b><span>${esc(o.t)}</span></button>`).join('')}</div>
+        <div class="qz-card">${exam ? `<div class="qz-wm" aria-hidden="true">${esc(((S && S.name) || '') + ' · ' + today() + ' · ').repeat(14)}</div>` : ''}<p class="qz-q"${exam ? ' data-cv' : ''}>${esc(q[2])}</p><button type="button" class="qz-say" id="qSay">Bacakan soal</button>${kcN > 0 ? `<button type="button" class="qz-say" id="qKc" style="margin-left:6px">👓 Petunjuk (${kcN})</button>` : ''}</div>
+        <div class="qz-opts">${opts.map((o, k) => `<button type="button" class="qz-o" data-k="${k}"><b>${'ABCD'[k]}</b><span${exam ? ' data-cv' : ''}>${esc(o.t)}</span></button>`).join('')}</div>
         <div class="qz-fb" id="qFb" aria-live="polite" hidden></div></div>`;
-      el.scrollTop = 0;
+      el.scrollTop = 0; if (exam) { const go = () => qzCanvas(el); if (el.clientWidth) go(); else requestAnimationFrame(go); }
       el.querySelectorAll('.qz-o').forEach(b => b.onclick = () => answer(+b.dataset.k));
       const kb = $('#qKc'); if (kb) kb.onclick = () => { if (done || over || kcN <= 0 || kb.disabled) return; const bad = [...el.querySelectorAll('.qz-o')].filter((b, j) => !opts[j].c && !b.disabled); if (!bad.length) return; const b = bad[Math.floor(Math.random() * bad.length)]; b.disabled = true; b.style.opacity = '.3'; b.style.textDecoration = 'line-through'; kcN--; kb.disabled = true; kb.textContent = `👓 Petunjuk dipakai (sisa ${kcN})`; sfx('pop'); };
       $('#qSay').onclick = () => speak(q[2].replace(/…/g, ' titik titik ') + '. ' + opts.map((o, k) => `${'ABCD'[k]}. ${o.t}`).join('. '));
@@ -7415,10 +7430,12 @@ async function rankUjian(t) {
     return;
   }
   if (await ujCD('r' + t)) return;
-  const go = await modal(`<div style="display:flex;flex-direction:column;gap:8px">${head}<h2 style="margin:0">Pak Toto</h2><p>Semua syarat terpenuhi. Ujian Rank ${t}: <b style="color:#fff">${U.n} soal</b> campuran 4 mapel, tingkat sedang sampai sulit. Lulus kalau benar minimal <b style="color:#fff">${U.pass}</b>. Waktu 45 detik per soal dan jangan meninggalkan layar.</p><div class="card" style="display:flex;flex-direction:column;gap:6px">${list}</div><p style="font-size:13px">Kalau belum lulus, kamu bisa mencoba lagi 30 menit kemudian.</p></div>`, [{ t: 'Mulai ujian', cls: 'hot' }, { t: 'Nanti dulu', cls: 'ghost' }]);
+  const go = await modal(`<div style="display:flex;flex-direction:column;gap:8px">${head}<h2 style="margin:0">Pak Toto</h2><p>Semua syarat terpenuhi. Ujian Rank ${t}: <b style="color:#fff">${U.n} soal</b> campuran 4 mapel, tingkat sedang sampai sulit. Lulus kalau benar minimal <b style="color:#fff">${U.pass}</b>. Waktu 30 detik per soal (Matematika 40 detik) dan jangan meninggalkan layar.</p><div class="card" style="display:flex;flex-direction:column;gap:6px">${list}</div><p style="font-size:13px">Kalau belum lulus, kamu bisa mencoba lagi 30 menit kemudian.</p></div>`, [{ t: 'Mulai ujian', cls: 'hot' }, { t: 'Nanti dulu', cls: 'ghost' }]);
   if (go !== 0) return;
   stopLoop();
-  const r = await runQuiz({ title: `Ujian Rank ${t}`, sub: 'Pak Toto · campuran 4 mapel', qs: ujrSoal(U.n), timed: true, exam: true, secs: 45 });
+  const acc0 = ujrAcc();
+  const r = await runQuiz({ title: `Ujian Rank ${t}`, sub: 'Pak Toto · campuran 4 mapel', qs: ujrSoal(U.n), timed: true, exam: true, secs: UJR_SECS });
+  try { ujrLog(t, r, acc0, U); } catch (e) { }
   S.st.ujian = (S.st.ujian || 0) + 1; save();
   show('s-world'); hud();
   if (r.quit || r.fail || r.ok < U.pass) ujFail('r' + t);
@@ -7431,6 +7448,37 @@ async function rankUjian(t) {
   }
   await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center">${head}<div class="big" style="font-size:52px">${r.ok}/${r.n}</div><h2 style="margin:0">Belum lulus</h2><p>Butuh minimal ${U.pass} benar${r.fail ? ' (kamu meninggalkan layar ujian)' : ''}. Belajar lagi dengan guru dan Robot, lalu coba lagi 30 menit kemudian.</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
 }
+
+/* ---------- v129: Ujian Rank diperketat + dicatat ke server (HANYA dicatat, guru yang memutuskan) ---------- */
+const UJR_SECS = q => (q && q[0] === 'mtk' ? 40 : 30);
+function ujrAcc() { let b = 0, n = 0; for (const k in (S.bs || {})) { b += S.bs[k].b || 0; n += S.bs[k].n || 0; } return { b, n, p: n ? Math.round(b * 100 / n) : -1 }; }
+function ujrJanggal(r, acc0) {
+  const why = [], n = r.n, p = Math.round(r.ok * 100 / n), T = r.qs.map(q => UJR_SECS(q) * 1000);
+  if (acc0.n >= 40 && p >= 90 && acc0.p >= 0 && acc0.p <= 50) why.push(`nilai ${p}% padahal latihan ${acc0.p}%`);
+  const okSlow = r.res.filter((g, i) => g && r.times[i] >= T[i] * .55).length;   // benar tapi lama (sempat memotret & bertanya)
+  if (p >= 85 && okSlow >= Math.ceil(r.ok * .7)) why.push(`${okSlow}/${r.ok} jawaban benar dijawab lambat (pola foto & tanya)`);
+  if (r.leaves > 0) why.push(`keluar layar ${r.leaves}x`);
+  return why;
+}
+let UJ_BUSY = 0;
+function ujrLog(t, r, acc0, U) {
+  if (!S || r.quit) return; const tm = r.times.filter(x => x >= 0), avg = tm.length ? Math.round(tm.reduce((a, b) => a + b, 0) / tm.length / 100) / 10 : 0;
+  const why = ujrJanggal(r, acc0), lulus = r.ok >= U.pass && !r.fail;
+  if (!S.ujQ) S.ujQ = []; S.ujQ.push({ t, ok: r.ok, n: r.n, l: lulus, a: avg, p: acc0.p, w: why.join('; ').slice(0, 150), tm: r.times.map(x => Math.round((x || 0) / 100) / 10).join(',').slice(0, 200), at: Date.now() }); S.ujQ = S.ujQ.slice(-20); save();
+  if (why.length && typeof jbFlag === 'function') jbFlag('ujian janggal', `Rank ${t}: ${r.ok}/${r.n} · ${why.join('; ')}`);
+  ujrFlush();
+}
+async function ujrFlush() {
+  if (UJ_BUSY || !S || !S.name || !S.ujQ || !S.ujQ.length) return; const sb = typeof lbSb === 'function' ? lbSb() : null; if (!sb) return; UJ_BUSY = 1;
+  try {
+    while (S.ujQ.length) {
+      const u = S.ujQ[0];
+      const { data, error } = await sb.rpc('lb_ujian', { p_tok: lbTok(), p_name: typeof mpName === 'function' ? mpName(S.name) : S.name, p_rk: u.t, p_ok: u.ok, p_n: u.n, p_lulus: u.l, p_avg: u.a, p_lat: u.p, p_why: u.w, p_tm: u.tm, p_t: u.at });
+      if (error || !data || !data.ok) break; S.ujQ.shift(); save();
+    }
+  } catch (e) { } UJ_BUSY = 0;
+}
+setInterval(() => { try { ujrFlush(); } catch (e) { } }, 90e3);
 
 /* ================= v114: BOS LEGENDA HARIAN (Sarang Legenda) =================
    Sarang Legenda = arena melingkar per pulau (zona 'sar_<pulau>'), masuk lewat Gerbang Ujian Akhir (Bab 5).
