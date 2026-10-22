@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v127">
+<meta name="lumimon-ver" content="v128">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -983,9 +983,9 @@ function fresh(name, look) {
     acc: { own: ['sd'], hat: null, shirt: null, pants: null, shoes: null, glass: null, back: null }, st: { win: 0, wild: 0, duel: 0, opened: 0, latihan: 0 },
     comp: null, bond: {}, quests: [], qn: 0, quizDay: '', quizCount: 0, zone: 'school', musim: MUSIM || 1 };
 }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function save() { try { if (S && typeof jbSeal === 'function') S._sg = jbSeal(S); localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 const ACC_RENAME = { pelangi: 'neon', jubahpelangi: 'jubahagung' };
-function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 2 && MUSIM && (s.musim || 1) < MUSIM) { musimArsip(s); return null; } if (s && s.v === 2) { if (s.acc) { s.acc.own = (s.acc.own || []).map(id => ACC_RENAME[id] || id); for (const k in s.acc) if (typeof s.acc[k] === 'string' && ACC_RENAME[s.acc[k]]) s.acc[k] = ACC_RENAME[s.acc[k]]; } return s; } } catch (e) {} return null; }
+function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 2 && MUSIM && (s.musim || 1) < MUSIM) { musimArsip(s); return null; } if (s && s.v === 2) { try { if (s._sg && typeof jbSeal === 'function' && jbSeal(s) !== s._sg) JB_LOADBAD = 'Rank ' + s.rank + ', XP ' + s.xp + ', koin ' + s.coins; } catch (e) { } if (s.acc) { s.acc.own = (s.acc.own || []).map(id => ACC_RENAME[id] || id); for (const k in s.acc) if (typeof s.acc[k] === 'string' && ACC_RENAME[s.acc[k]]) s.acc[k] = ACC_RENAME[s.acc[k]]; } return s; } } catch (e) {} return null; }
 /* ---------- Lumi pendamping ---------- */
 const BOND_AT = [0, 30, 80, 160, 300];
 function compId() { return S.team.includes(S.comp) ? S.comp : (S.team[0] || null); }
@@ -6408,7 +6408,8 @@ async function openCode(msg) {
   if (c !== 1) return;
   if (Date.now() < +(localStorage.getItem('mga-cf') || 0)) return openCode();
   const h = codeHash(val), r = val.trim() && CODES[h];
-  if (!r) { if (++CODE_FAIL >= 5) { CODE_FAIL = 0; try { localStorage.setItem('mga-cf', String(Date.now() + 60000)); } catch (e) {} } return openCode('Kode tidak ditemukan. Cek lagi tulisannya.'); }
+  if (r && r.b) codeLog(h, r, 'umpan');
+  if (!r || r.b) { if (++CODE_FAIL >= 5) { CODE_FAIL = 0; try { localStorage.setItem('mga-cf', String(Date.now() + 60000)); } catch (e) {} } return openCode('Kode tidak ditemukan. Cek lagi tulisannya.'); }
   if (r.dead) { codeLog(h, r, 'ditolak'); return openCode('Kode ini sudah tidak berlaku.'); }
   if (r.until && today() > r.until) return openCode('Kode ini sudah tidak berlaku.');
   if (!S.codes) S.codes = {};
@@ -8152,6 +8153,52 @@ function goaHud(force) {
   g.fillStyle = '#ffd166'; g.fillRect(W.p.x / TS * sx - 2, W.p.y / TS * sy - 2, 4, 4);
 }
 setInterval(() => { try { goaHud(); } catch (e) { } }, 300);
+
+/* ---------- v128: jebakan anti-curang — HANYA MENCATAT, tidak menghukum (guru yang memutuskan) ---------- */
+// 1) kode umpan (ditangani di openCode -> code_log st 'umpan')
+[['gr39q3elh3', 'U1'], ['fccmk7ny14', 'U2'], ['2a7wlph04qp', 'U3'], ['nz7lp91pkl', 'U4'], ['tpobf2hugk', 'U5'], ['t0jwhu30si', 'U6']].forEach(([h, l]) => { CODES[h] = { b: 1, lbl: l }; });
+const jbFree = () => !S || S.gm || S.admin;
+function jbFlag(k, d) {
+  try {
+    if (jbFree()) return; if (!S.flagQ) S.flagQ = []; const key = k + '|' + d + '|' + today();
+    if (S.flagQ.some(f => f.key === key) || (S.flagK || []).includes(key)) return;
+    S.flagQ.push({ key, k, d: String(d).slice(0, 150), r: S.rank || 1, x: S.xp || 0, c: S.coins || 0, t: Date.now() }); S.flagQ = S.flagQ.slice(-30); save(); jbFlush();
+  } catch (e) { }
+}
+let JB_BUSY = 0;
+async function jbFlush() {
+  if (JB_BUSY || !S || !S.name || !S.flagQ || !S.flagQ.length) return; const sb = typeof lbSb === 'function' ? lbSb() : null; if (!sb) return; JB_BUSY = 1;
+  try {
+    while (S.flagQ.length) {
+      const f = S.flagQ[0];
+      const { data, error } = await sb.rpc('lb_flag', { p_tok: lbTok(), p_name: typeof mpName === 'function' ? mpName(S.name) : S.name, p_kind: f.k, p_detail: f.d, p_rank: f.r, p_xp: f.x, p_coins: f.c, p_t: f.t });
+      if (error || !data || !data.ok) break; S.flagQ.shift(); S.flagK = (S.flagK || []).concat(f.key).slice(-20); save();
+    }
+  } catch (e) { } JB_BUSY = 0;
+}
+setInterval(() => { try { jbFlush(); } catch (e) { } }, 90e3);
+// 2) segel data simpanan: berubah di luar game -> 'data diubah'
+function jbSeal(s) { try { const o = s.owned || {}, b = s.boxes || {}; return cyrb53([s.name, s.rank, s.xp, s.coins, b.Kayu, b.Perak, b.Emas, b.Legenda, s.lgU, Object.keys(o).length, Object.values(o).reduce((a, v) => a + ((v && v.s) || 0), 0)].join('|'), 77128).toString(36); } catch (e) { return ''; } }
+var JB_LOADBAD = null;
+// 3) lonjakan instan (ubah nilai lewat konsol saat main)
+let JB_REF = null, JB_TOT = 0, JB_C = 0, JB_SKIP = 0;
+const jbTot = () => { let t = 0; for (let r = 1; r < (S.rank || 1); r++) t += need(r); return t + (S.xp || 0); };
+const _jbCodeApply = codeApply; codeApply = function (r) { JB_SKIP = Date.now() + 4000; return _jbCodeApply(r); };
+setInterval(() => {
+  try {
+    if (!S) { JB_REF = null; return; }
+    if (JB_REF !== S) { JB_REF = S; JB_TOT = jbTot(); JB_C = S.coins || 0; if (JB_LOADBAD) { jbFlag('data diubah', JB_LOADBAD); JB_LOADBAD = null; } return; }
+    const t = jbTot(), c = S.coins || 0;
+    if (Date.now() > JB_SKIP) { const dx = t - JB_TOT, dc = c - JB_C; if (dx > 800) jbFlag('lonjakan', 'XP +' + dx + ' dalam 2 detik'); if (dc > 8000) jbFlag('lonjakan', 'Koin +' + dc + ' dalam 2 detik'); }
+    JB_TOT = t; JB_C = c;
+  } catch (e) { }
+}, 2000);
+// 4) perintah konsol palsu
+(() => {
+  const fake = n => function () { try { jbFlag('konsol', n + '(' + [...arguments].map(a => String(a).slice(0, 12)).join(',') + ')'); } catch (e) { } return 'OK'; };
+  ['tambahXP', 'addXP', 'beriKoin', 'giveCoins', 'setRank', 'godMode', 'unlockAll', 'cheat'].forEach(n => { try { if (!(n in window)) window[n] = fake(n); } catch (e) { } });
+  try { console.log('%cLumimon dev', 'font:700 14px monospace;color:#7c4dff', '\nperintah: tambahXP(n) · beriKoin(n) · setRank(n) · unlockAll()'); } catch (e) { }
+})();
 
 /* ================= v115: BAKAT LEGENDA, gambar Telur Legenda, Papan Bos baru =================
    Bakat = kemampuan pasif Legenda MILIK ANAK (bukan bos), aktif di semua battle KECUALI duel pemain.
