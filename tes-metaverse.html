@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v126">
+<meta name="lumimon-ver" content="v127">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -6409,12 +6409,41 @@ async function openCode(msg) {
   if (Date.now() < +(localStorage.getItem('mga-cf') || 0)) return openCode();
   const h = codeHash(val), r = val.trim() && CODES[h];
   if (!r) { if (++CODE_FAIL >= 5) { CODE_FAIL = 0; try { localStorage.setItem('mga-cf', String(Date.now() + 60000)); } catch (e) {} } return openCode('Kode tidak ditemukan. Cek lagi tulisannya.'); }
+  if (r.dead) { codeLog(h, r, 'ditolak'); return openCode('Kode ini sudah tidak berlaku.'); }
   if (r.until && today() > r.until) return openCode('Kode ini sudah tidak berlaku.');
   if (!S.codes) S.codes = {};
   if (S.codes[h] && !r.multi) return openCode('Kode ini sudah kamu pakai.');
-  if (!r.multi) S.codes[h] = 1;   /* v126: kode multi = boleh dipakai berkali-kali */ CODE_FAIL = 0; const lines = codeApply(r); sfx('win');
+  if (!r.multi) S.codes[h] = 1;   /* v126: kode multi = boleh dipakai berkali-kali */ CODE_FAIL = 0; const xp0 = (S.rank || 1) + ':' + (S.xp || 0), lines = codeApply(r); codeLog(h, r, 'pakai', xp0); sfx('win');
   await modal(`<h2>Kode berhasil!</h2><div class="card" style="display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:15px">${lines.map(x => `<div>${x}</div>`).join('')}</div>`, [{ t: 'Lanjut' }]);
 }
+
+/* ---------- v127: catatan penukaran kode di server (tabel code_log) ----------
+   Dikirim: sidik kode (6 huruf), label hadiah, multi/tidak, Rank & XP sebelum, nama pemain. Antre di S.codeQ bila offline.
+   Kode sekali-pakai yang sudah dipakai sebelum v127 (S.codes) dikirim sekali sebagai 'lama'. */
+function codeLbl(r) {
+  if (r.lbl) return r.lbl; const a = [];
+  if (r.admin) a.push(r.gm ? 'GM' : 'ADMIN'); if (r.pion) a.push('PERINTIS'); if (r.coins) a.push('koin' + r.coins); if (r.xp) a.push('xp' + r.xp);
+  if (r.boxes) for (const k in r.boxes) a.push(k + r.boxes[k]); if (r.lgU) a.push('LegU' + r.lgU); if (r.mon) a.push('lumi'); if (r.acc) a.push('aks');
+  return a.join('+') || 'kode';
+}
+function codeLog(h, r, st, xp0) {
+  try { if (!S) return; if (!S.codeQ) S.codeQ = []; S.codeQ.push({ h: String(h).slice(0, 6), l: codeLbl(r).slice(0, 40), m: !!r.multi, s: st, x: xp0 || ((S.rank || 1) + ':' + (S.xp || 0)), t: Date.now() }); S.codeQ = S.codeQ.slice(-40); save(); codeFlush(); } catch (e) { }
+}
+let CODE_BUSY = 0;
+async function codeFlush() {
+  if (CODE_BUSY || !S || !S.name) return; const sb = typeof lbSb === 'function' ? lbSb() : null; if (!sb) return;
+  if (!S.codeOld && S.codes) { S.codeOld = 1; for (const h in S.codes) { const r = CODES[h]; if (r) { if (!S.codeQ) S.codeQ = []; S.codeQ.push({ h: h.slice(0, 6), l: codeLbl(r).slice(0, 40), m: false, s: 'lama', x: '', t: 0 }); } } save(); }
+  if (!S.codeQ || !S.codeQ.length) return; CODE_BUSY = 1;
+  try {
+    while (S.codeQ.length) {
+      const q = S.codeQ[0];
+      const { data, error } = await sb.rpc('lb_code', { p_tok: lbTok(), p_name: typeof mpName === 'function' ? mpName(S.name) : S.name, p_h: q.h, p_lbl: q.l, p_multi: q.m, p_st: q.s, p_xp: q.x, p_t: q.t || null });
+      if (error || !data || !data.ok) break; S.codeQ.shift(); save();
+    }
+  } catch (e) { } CODE_BUSY = 0;
+}
+setInterval(() => { try { codeFlush(); } catch (e) { } }, 90e3);
+setTimeout(() => { try { codeFlush(); } catch (e) { } }, 15e3);
 
 /* ================= PAPAN JUARA (mingguan, reset Senin 00.00 WIB) =================
    Dua papan: Rajin Belajar (soal benar minggu ini, dari mastAdd = semua sumber soal) dan Juara Duel (menang/kalah duel antar pemain).
@@ -7329,14 +7358,24 @@ Object.defineProperty(TRAR.P, 1, { get: () => PION_C[Math.floor(performance.now(
   CODES['23rpddorb9g'] = {xp: 200};
 }
 
-/* v126: kode KHUSUS GURU — boleh dipakai berkali-kali (multi). Teks kode disimpan terpisah, jangan dibagikan ke siswa. */
+/* v126 → v127: 6 kode GURU lama DIMATIKAN (tetap dikenali supaya percobaan memakainya tercatat di server) */
 {
-  CODES['2ah3kqoy437'] = {coins: 1000, multi: true};   // 1000 koin
-  CODES['1j5td2vq4cd'] = {xp: 150, multi: true};   // 150 XP
-  CODES['1e8n5acig0r'] = {boxes: {Kayu: 2}, multi: true};   // 2 Telur Biasa
-  CODES['1lu4n2gbgo8'] = {boxes: {Perak: 2}, multi: true};   // 2 Telur Perak
-  CODES['1jz43grepa5'] = {boxes: {Emas: 2}, multi: true};   // 2 Telur Emas
-  CODES['6gbhdw5lru'] = {lgU: 1, multi: true};   // 1 Telur Legenda Umum
+  CODES['2ah3kqoy437'] = {dead: true, lbl: 'GURU-LAMA'};
+  CODES['1j5td2vq4cd'] = {dead: true, lbl: 'GURU-LAMA'};
+  CODES['1e8n5acig0r'] = {dead: true, lbl: 'GURU-LAMA'};
+  CODES['1lu4n2gbgo8'] = {dead: true, lbl: 'GURU-LAMA'};
+  CODES['1jz43grepa5'] = {dead: true, lbl: 'GURU-LAMA'};
+  CODES['6gbhdw5lru'] = {dead: true, lbl: 'GURU-LAMA'};
+}
+
+/* v127: kode KHUSUS GURU baru (multi). Setiap penukaran tercatat di server (tabel code_log). */
+{
+  CODES['1m2vx8fotwe'] = {coins: 1000, multi: true, lbl: 'GURU-KOIN'};
+  CODES['1wcnvwofcxm'] = {xp: 150, multi: true, lbl: 'GURU-XP'};
+  CODES['pdhm7in2ou'] = {boxes: {Kayu: 2}, multi: true, lbl: 'GURU-BIASA'};
+  CODES['5oxkd3bcli'] = {boxes: {Perak: 2}, multi: true, lbl: 'GURU-PERAK'};
+  CODES['2frtxlrsri5'] = {boxes: {Emas: 2}, multi: true, lbl: 'GURU-EMAS'};
+  CODES['24629zx5skn'] = {lgU: 1, multi: true, lbl: 'GURU-LEGENDA'};
 }
 
 /* ================= v110: UJIAN RANK (Pak Toto) =================
