@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v129">
+<meta name="lumimon-ver" content="v130">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -2802,7 +2802,7 @@ function tick(t) {
   p.rd = typeof rideCur === 'function' ? rideCur() : null; const rmul = p.rd ? RID[p.rd].sp : 1;
   if (mg > .15) {
     W.act = t;
-    const sp = 54 * rmul, nx = p.x + mx * sp * dt, ny = p.y + my * sp * dt;
+    const sp = 54 * rmul * (typeof skOn === 'function' && skOn() ? .5 : 1), nx = p.x + mx * sp * dt, ny = p.y + my * sp * dt;
     if (walkable(nx, p.y)) p.x = nx; if (walkable(p.x, ny)) p.y = ny;
     p.dir = Math.abs(mx) > Math.abs(my) ? (mx < 0 ? 'left' : 'right') : (my < 0 ? 'up' : 'down');
     p.ft += dt; if (p.ft > (p.rd ? .2 : .13)) { p.ft = 0; p.f = (p.f + 1) % 4; if (p.f % 2 === 0 && !p.rd) sfx('step'); }
@@ -2901,7 +2901,7 @@ function draw(t) {
     const tt = W.T[Math.floor(m.y / TS)] && W.T[Math.floor(m.y / TS)][Math.floor(m.x / TS)];
     if (TALL_T.has(tt)) for (let i = -7; i <= 7; i += 2) { const hgt = 3 + ((i + 9) * 7 % 3); bx.fillStyle = tt === FS ? ((i & 2) ? '#ffffff' : '#9ab8c8') : C.tall[(i & 2) ? 2 : 1]; bx.fillRect(x + i, y - hgt + 1, 1, hgt); }
   } });
-  mpDraw(list, person, t, ox, oy); if (typeof fishDraw === 'function') fishDraw(list, t, ox, oy); raidDraw(list, t, ox, oy); nightDraw(list, t, ox, oy); if (typeof sarangDraw === 'function') sarangDraw(list, t, ox, oy); if (W.gv && typeof goaDraw === 'function') goaDraw(list, t, ox, oy);
+  mpDraw(list, person, t, ox, oy); if (typeof fishDraw === 'function') fishDraw(list, t, ox, oy); raidDraw(list, t, ox, oy); nightDraw(list, t, ox, oy); if (typeof sarangDraw === 'function') sarangDraw(list, t, ox, oy); if (W.gv && typeof goaDraw === 'function') goaDraw(list, t, ox, oy); if (typeof skDraw === 'function') skDraw(list, t, ox, oy);
   list.sort((a, b) => a.fy - b.fy).forEach(o => o.d());
   // weather / atmosphere
   if ((W.theme || W.zone) === 'snow') { bx.fillStyle = '#ffffff'; for (let i = 0; i < 40; i++) { const sx = (hash(i, 1) * VW + t / 40 * (0.4 + hash(i, 2))) % VW, sy = (hash(i, 3) * VH + t / 25 * (0.6 + hash(i, 4))) % VH; bx.fillRect(Math.floor(sx), Math.floor(sy), 1, 1); } }
@@ -4000,6 +4000,7 @@ const dRr = (a, b) => B && B.rng ? a + (b - a) * B.rng() : rnd(a, b), dRf = () =
 function startBattle(cfg) {
   return new Promise(resolve => {
     B = { cfg, resolve, me: cfg.meF || S.team.map(id => mkF(id, true)), foe: cfg.foeF || cfg.foe.map(mkF), mi: 0, fi: 0, en: 1, fen: 1, busy: true, round: 1 };
+    if (typeof skOn === 'function' && skOn() && !cfg.meF) B.me.forEach(f => { f.am = (f.am || 1) * .5; });
     if (cfg.duel) B.rng = duelRng(cfg.duel.sid);
     if (cfg.type === 'wild' && W && W.buff === 'kutukan') { B.en = 0; B.foe.forEach(f => { f.hp = f.max = Math.round(f.max * 1.1); f.buff = .1; }); }
     if (cfg.type === 'wild') B.foe.forEach(f => { f.hp = f.max = f.max * 3; f.am = 1.5; if (isTutup()) { f.hp = f.max = f.max * 2; f.am *= 2; } });
@@ -6576,6 +6577,7 @@ function rideS() { if (!S.ride) S.ride = { own: [], sel: null, on: 0 }; return S
 function rideCur() {
   if (!S || !W || !S.ride || !S.ride.on || !RID[S.ride.sel] || RIDE_IN.has(W.zone) || W.gv) return null;
   if (typeof TUT !== 'undefined' && TUT.on) return null;
+  if (typeof skOn === 'function' && skOn()) return null;
   return S.ride.sel;
 }
 const rideMul = () => { const id = rideCur(); return id ? RID[id].sp : 1; };
@@ -6668,6 +6670,7 @@ const rideImg = (id, w) => `<img src="${rideURL(id)}" alt="" width="${w}" height
 function rideSet(on, quiet) {
   const r = rideS(); if (!r.own.length) return;
   if (on && !RID[r.sel]) r.sel = r.own[0];
+  if (on && typeof skOn === 'function' && skOn()) { if (!quiet) toast('🌧️ Kendaraanmu mogok selama Misi Kejujuran.', 2200); return; }
   if (on && W && RIDE_IN.has(W.zone)) { if (!quiet) toast('Kendaraan tidak bisa dipakai di dalam gedung.', 2200); return; }
   r.on = on ? 1 : 0; save();
   if (!on && W) W.safe = Math.max(W.safe || 0, performance.now() + 1200);   // turun: jeda sebentar sebelum Lumi liar mendekat
@@ -8247,6 +8250,76 @@ setInterval(() => {
   ['tambahXP', 'addXP', 'beriKoin', 'giveCoins', 'setRank', 'godMode', 'unlockAll', 'cheat'].forEach(n => { try { if (!(n in window)) window[n] = fake(n); } catch (e) { } });
   try { console.log('%cLumimon dev', 'font:700 14px monospace;color:#7c4dff', '\nperintah: tambahXP(n) · beriKoin(n) · setRank(n) · unlockAll()'); } catch (e) { }
 })();
+
+/* ---------- v130: SANKSI JAHIL — hanya bila guru menandai (sanksi_beri di server). Hanya terasa oleh pemain itu.
+   Efek: awan hujan pribadi, koin licin (-20%), Prof. Hoot curiga (3 soal sebelum sebagian pertarungan),
+   jalan 50% lebih lambat, tidak bisa naik kendaraan, serangan semua Lumi -50%. Berakhir: Misi Kejujuran (30 soal benar + janji). */
+const SK_N = 30;
+const skOn = () => !!(S && S.sk && !S.sk.done);
+let SK_BUSY = 0, SK_MSG = 0, SK_HOOT = 0;
+async function skPoll() {
+  if (SK_BUSY || !S || !S.name) return; const sb = typeof lbSb === 'function' ? lbSb() : null; if (!sb) return; SK_BUSY = 1;
+  try {
+    const { data, error } = await sb.rpc('lb_sanksi', { p_tok: lbTok() });
+    if (!error && data && data.ok) {
+      if (data.on && (!S.sk || S.sk.id !== data.id)) { S.sk = { id: data.id, n: 0, t: Date.now() }; SK_MSG = 1; save(); }
+      else if (data.on && S.sk && S.sk.done) await skDone();
+      else if (!data.on && S.sk) { const cabut = !S.sk.done; S.sk = null; save(); if (cabut) SK_MSG = 2; }
+    }
+  } catch (e) { } SK_BUSY = 0;
+}
+async function skDone() {
+  try { const sb = lbSb(); const { data } = await sb.rpc('lb_sanksi_selesai', { p_tok: lbTok(), p_id: S.sk.id, p_n: S.sk.n }); if (data && data.ok) { S.sk = null; save(); } } catch (e) { }
+}
+setTimeout(() => { try { skPoll(); } catch (e) { } }, 10e3);
+setInterval(() => { try { skPoll(); } catch (e) { } }, 180e3);
+const skFree = () => S && W && !$('#s-world').hidden && $('#modal').hidden && !B;
+const HOOT_IMG = () => `<img src="${monURL('hoot')}" alt="" style="width:64px;height:64px;image-rendering:pixelated">`;
+setInterval(async () => {
+  try {
+    skChip();
+    if (!SK_MSG || !skFree()) return; const m = SK_MSG; SK_MSG = 0;
+    if (m === 1) await modal(`<div style="text-align:center">${HOOT_IMG()}</div><h2 style="text-align:center">Prof. Hoot mencatat sesuatu…</h2><p>Ada yang tidak beres dengan akunmu, jadi guru memintamu menjalani <b>Misi Kejujuran</b>.</p><div class="card" style="font-size:14px;font-weight:700;display:flex;flex-direction:column;gap:4px"><div>🌧️ Awan hujan mengikutimu, koin jadi licin</div><div>🐢 Langkahmu lebih lambat, kendaraan tidak mau jalan</div><div>💢 Serangan Lumi-mu melemah</div><div>🦉 Prof. Hoot kadang minta bukti dulu</div></div><p><b>Cara selesai:</b> jawab benar <b>${SK_N} soal</b> (latihan, kuil, atau soal Prof. Hoot), lalu ucapkan janji jujur.</p>`, [{ t: 'Aku siap', cls: 'hot' }]);
+    if (m === 2) { toast('🦉 Prof. Hoot: Misi Kejujuranmu sudah dicabut guru. Main jujur ya!', 4500); skChip(); }
+    if (m === 3) {
+      await modal(`<div style="text-align:center">${HOOT_IMG()}</div><h2 style="text-align:center">${SK_N} soal benar!</h2><p>Hebat. Sekarang ucapkan janjimu:</p><div class="card" style="font-weight:800;font-size:16px;text-align:center">"Aku akan bermain jujur, tidak curang, dan menghargai teman-temanku."</div>`, [{ t: 'Aku berjanji', cls: 'hot' }]);
+      S.sk.done = 1; save(); sfx('pass'); toast('☀️ Awan hujan pergi. Misi Kejujuran selesai!', 4500); skChip(); skDone();
+    }
+  } catch (e) { }
+}, 1500);
+function skChip() {
+  let c = document.getElementById('skChip'); const on = skOn() && S && W && !$('#s-world').hidden;
+  if (!on) { if (c) c.hidden = true; return; }
+  if (!c) { c = document.createElement('button'); c.id = 'skChip'; c.type = 'button'; c.className = 'chip'; c.style.cssText = 'position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 205px);z-index:6;background:#2b3a55;color:#cfe3ff;border:2px solid #6f8fbf;font-weight:800;font-size:12px'; c.onclick = () => { SK_MSG = 1; }; $('#s-world').appendChild(c); }
+  c.hidden = false; c.textContent = `🌧️ Misi Jujur ${Math.min(S.sk.n, SK_N)}/${SK_N}`;
+}
+// hitung soal benar
+const _skNote = noteQ; noteQ = function (q, good) { const r = _skNote(q, good); try { if (good && skOn()) { S.sk.n++; if (S.sk.n >= SK_N && !S.sk.ask) { S.sk.ask = 1; SK_MSG = 3; } save(); } } catch (e) { } return r; };
+// koin licin
+const _skCoins = addCoins; addCoins = function (n) { if (skOn() && n > 0) { const lost = Math.max(1, Math.round(n * .2)); n -= lost; if (Math.random() < .3) toast(`💧 Koinnya licin! ${lost} koin tergelincir.`, 1800); } return _skCoins(n); };
+// Prof. Hoot curiga sebelum sebagian pertarungan
+const _skBattle = startBattle;
+startBattle = async function (cfg) {
+  if (skOn() && cfg && cfg.type !== 'pvp' && !cfg.tut && (SK_HOOT || Math.random() < .35)) {
+    try {
+      const qs = shuffle(BANK.filter(q => qMid(q))).slice(0, 3);
+      const r = await runQuiz({ title: 'Prof. Hoot curiga 🦉', sub: 'Buktikan dulu! 3 soal', qs });
+      SK_HOOT = !r.quit && r.ok >= 2 ? 0 : 1;
+      if (SK_HOOT) toast('🦉 Hmm… Prof. Hoot masih curiga.', 2200);
+    } catch (e) { }
+  }
+  return _skBattle(cfg);
+};
+// awan hujan pribadi
+function skDraw(list, t, ox, oy) {
+  if (!skOn() || !W || !W.p) return; const p = W.p;
+  list.push({ fy: p.y + 400, d: () => {
+    const x = Math.round(p.x - ox), y = Math.round(p.y - oy) - 60 + Math.round(Math.sin(t / 500) * 1.5);
+    bx.fillStyle = '#5d6b82'; bx.fillRect(x - 10, y, 20, 6); bx.fillRect(x - 6, y - 4, 10, 5); bx.fillRect(x + 1, y - 6, 7, 6);
+    bx.fillStyle = '#7d8aa3'; bx.fillRect(x - 8, y - 2, 6, 3); bx.fillRect(x + 2, y - 4, 4, 3);
+    bx.fillStyle = '#8fc4ff'; for (let i = 0; i < 4; i++) { const ph = ((t / 9) + i * 7) % 26; bx.fillRect(x - 8 + i * 5, y + 7 + ph, 1, 3); }
+  } });
+}
 
 /* ================= v115: BAKAT LEGENDA, gambar Telur Legenda, Papan Bos baru =================
    Bakat = kemampuan pasif Legenda MILIK ANAK (bukan bos), aktif di semua battle KECUALI duel pemain.
