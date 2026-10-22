@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v123">
+<meta name="lumimon-ver" content="v125">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -1152,31 +1152,32 @@ function chipIR(ac) {
   for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); let s = 7 + c * 13; for (let i = 0; i < L; i++) { s = (s * 16807) % 2147483647; d[i] = ((s / 2147483647) * 2 - 1) * Math.pow(1 - i / L, 3.2); } }
   return (CHIP.ir = ir);
 }
-/* rantai efek: master → kompresor → keluar; kirim ke gema & ruang */
+/* rantai efek RINGAN (v124): tanpa reverb konvolusi & kompresor per lagu (berat di HP). Gema = 1 delay umpan-balik,
+   kirim gema memakai 3 tingkat tetap (tidak membuat node baru per nada), vibrato memakai 1 LFO bersama (detune). */
 function chipBus(ac, out) {
-  const comp = ac.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4; comp.attack.value = .004; comp.release.value = .2; comp.connect(out);
-  const dry = ac.createGain(); dry.gain.value = .9; dry.connect(comp);
-  const echo = ac.createGain(); echo.gain.value = 1;
-  const dl = ac.createDelay(1.5), fb = ac.createGain(), lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400; fb.gain.value = .38;
-  echo.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); const pan = ac.createStereoPanner ? ac.createStereoPanner() : ac.createGain(); if (pan.pan) pan.pan.value = .35; lp.connect(pan); pan.connect(comp);
-  const rv = ac.createConvolver(); rv.buffer = chipIR(ac); const rg = ac.createGain(); rg.gain.value = .32; rv.connect(rg); rg.connect(comp);
-  return { dry, echo, dl, rev: rv, comp };
+  const dry = ac.createGain(); dry.gain.value = .9; dry.connect(out);
+  const ein = ac.createGain(), dl = ac.createDelay(1.5), fb = ac.createGain(), lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200; fb.gain.value = .36; dl.delayTime.value = .3;   // v124: dulu 0 (gema 3 ms berdengung)
+  ein.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); const eo = ac.createGain(); eo.gain.value = .8; lp.connect(eo);
+  if (ac.createStereoPanner) { const pn = ac.createStereoPanner(); pn.pan.value = .35; eo.connect(pn); pn.connect(out); } else eo.connect(out);
+  const es = [.2, .38, .6].map(v => { const g = ac.createGain(); g.gain.value = v; g.connect(ein); return g; });
+  const lfo = ac.createOscillator(), vib = ac.createGain(); lfo.frequency.value = 5.6; vib.gain.value = 11; lfo.connect(vib); lfo.start();
+  return { dry, es, dl, vib, lfo };
 }
+const chipSend = (bus, e) => !e || e < .1 ? null : bus.es[e < .3 ? 0 : e < .5 ? 1 : 2];
 function chipEnv(g, t, a, d, s, r, dur, v) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.setTargetAtTime(v * s, t + a, d); g.gain.setTargetAtTime(0, t + Math.max(a, dur), r); }
-function chipTone(ac, bus, o) {   // o: {t, f, dur, wave|duty, v, a,d,s,r, vib, glide, echo, rev, pan, f2, lp}
+function chipTone(ac, bus, o) {   // o: {t, f, dur, wave|duty, v, a,d,s,r, vib, glide, echo, rev, f2}
   const osc = ac.createOscillator(), g = ac.createGain();
   if (o.duty) osc.setPeriodicWave(chipPulse(ac, o.duty)); else osc.type = o.wave || 'triangle';
   osc.frequency.setValueAtTime(o.f, o.t); if (o.f2) osc.frequency.exponentialRampToValueAtTime(o.f2, o.t + (o.glide || o.dur));
-  if (o.vib && o.dur > .2) { const l = ac.createOscillator(), lg = ac.createGain(); l.frequency.value = o.vibR || 5.6; lg.gain.setValueAtTime(0, o.t); lg.gain.linearRampToValueAtTime(o.f * o.vib, o.t + .22); l.connect(lg); lg.connect(osc.frequency); l.start(o.t); l.stop(o.t + o.dur + 1); }
+  if (o.vib && o.dur > .25 && bus.vib) bus.vib.connect(osc.detune);
   chipEnv(g, o.t, o.a || .004, o.d || .08, o.s == null ? .7 : o.s, o.r || .06, o.dur, o.v);
-  let node = osc; if (o.lp) { const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = o.lp; osc.connect(f); node = f; }
-  node.connect(g); let tail = g; if (o.pan && ac.createStereoPanner) { const p = ac.createStereoPanner(); p.pan.value = o.pan; g.connect(p); tail = p; }
-  tail.connect(bus.dry); if (o.echo) { const e = ac.createGain(); e.gain.value = o.echo; tail.connect(e); e.connect(bus.echo); } if (o.rev) { const e = ac.createGain(); e.gain.value = o.rev; tail.connect(e); e.connect(bus.rev); }
-  osc.start(o.t); osc.stop(o.t + o.dur + (o.r || .06) * 6 + .05);
+  osc.connect(g); g.connect(bus.dry); const e = chipSend(bus, Math.max(o.echo || 0, (o.rev || 0) * .8)); if (e) g.connect(e);
+  osc.start(o.t); const end = o.t + o.dur + (o.r || .06) * 5 + .05; osc.stop(end);
+  if (o.vib && o.dur > .25 && bus.vib) osc.onended = () => { try { bus.vib.disconnect(osc.detune); } catch (x) { } };
 }
 function chipNz(ac, bus, t, dur, v, type, fq, q = 1, rev = 0) {
   const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = chipNoise(ac); f.type = type; f.frequency.value = fq; f.Q.value = q;
-  g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0008, t + dur); s.connect(f); f.connect(g); g.connect(bus.dry); if (rev) { const e = ac.createGain(); e.gain.value = rev; g.connect(e); e.connect(bus.rev); }
+  g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0008, t + dur); s.connect(f); f.connect(g); g.connect(bus.dry); const e = chipSend(bus, rev); if (e) g.connect(e);
   s.start(t, Math.random() * .5); s.stop(t + dur + .02);
 }
 const CHIP_DR = {
@@ -1189,25 +1190,28 @@ const CHIP_DR = {
   hb: (ac, b, t, v) => { chipTone(ac, b, { t, f: 70, f2: 38, glide: .14, dur: .2, wave: 'sine', v: .8 * v, a: .002, d: .12, s: .2, r: .08 }); }
 };
 /* susun satu lagu: kembalikan lama lagu (detik). bars = jumlah birama yang dijadwalkan mulai dari t0 */
+/* jadwalkan satu langkah (1/16) birama b yang dimulai pada T; dipakai penjadwal game (merata, tidak menumpuk per birama) */
+function chipStep(ac, bus, song, T, b, i) {
+  const sp = 60 / song.bpm / 4, c = song.chords[b], I = song.ins || {}, t = T + i * sp, lite = bus.lite;
+  const at = pat => { if (!pat) return null; const s = pat.length <= 4 ? pat[b % pat.length] : pat[b]; if (!s) return null; const ch = s[i]; if (!ch || ch === '.' || ch === '-') return null; let len = 1; while (s[i + len] === '-') len++; return [ch, len * sp]; };
+  let x;
+  if ((x = at(song.lead))) { const dg = CHIP_DG.indexOf(x[0]) - 6, L = I.lead || {}; chipTone(ac, bus, { t, f: chipF(chipNote(song, dg, L.oct || 1)), dur: x[1] * .92, duty: L.duty || .25, v: L.v || .13, a: .006, d: .12, s: .62, r: .07, vib: L.vib == null ? 1 : L.vib, echo: L.echo == null ? .35 : L.echo, rev: L.rev || .15 }); }
+  if (!lite && (x = at(song.lead2))) { const dg = CHIP_DG.indexOf(x[0]) - 6, L = I.lead2 || {}; chipTone(ac, bus, { t, f: chipF(chipNote(song, dg, L.oct || 1)), dur: x[1] * .9, duty: L.duty || .125, v: L.v || .07, a: .005, d: .1, s: .55, r: .06, echo: .25 }); }
+  if ((x = at(song.bass))) { const B = I.bass || {}, m = { r: [0, -2], R: [0, -1], f: [4, -2], F: [4, -1], t: [2, -2], T: [2, -1] }[x[0]]; if (m) chipTone(ac, bus, { t, f: chipF(chipNote(song, c + m[0], m[1])), dur: x[1] * .9, wave: B.wave || 'triangle', duty: B.duty, v: B.v || .3, a: .004, d: .1, s: B.s == null ? .8 : B.s, r: .04 }); }
+  if ((!lite || i % 2 === 0) && (x = at(song.arp))) { const A = I.arp || {}, k = { 1: 0, 3: 2, 5: 4, 8: 7 }[x[0]]; if (k != null) chipTone(ac, bus, { t, f: chipF(chipNote(song, c + k, A.oct == null ? 1 : A.oct)), dur: Math.min(x[1], sp * 1.2), duty: A.duty || .125, v: A.v || .045, a: .002, d: .05, s: .3, r: .04, echo: A.echo == null ? .3 : A.echo }); }
+  if (i === 0 && song.pad) { const P = song.pad; if (!P.every || b % P.every === 0) for (const k of [0, 2, 4]) chipTone(ac, bus, { t, f: chipF(chipNote(song, c + k, P.oct || 0)), dur: 16 * sp * (P.every || 1) * .98, wave: 'triangle', v: (P.v || .025) * 1.6, a: P.a || .4, d: 1, s: .8, r: .5, rev: P.rev || .4 }); }
+  if (song.drum) for (const k in song.drum) if (!(lite && (k === 'h' || k === 'o') && i % 2) && (x = at(song.drum[k]))) (CHIP_DR[x[0] === 'x' ? k : x[0]] || CHIP_DR[k])(ac, bus, t, (song.dv || {})[k] || 1);
+  if (i === 0 && song.fx && !lite) song.fx(ac, bus, T, 16 * sp, b);
+}
 function chipPlay(ac, bus, song, t0, fromBar = 0, nBars) {
-  const sp = 60 / song.bpm / 4, n = nBars || song.chords.length, I = song.ins || {};
-  for (let bi = 0; bi < n; bi++) {
-    const b = (fromBar + bi) % song.chords.length, c = song.chords[b], T = t0 + bi * 16 * sp;
-    const run = (pat, fn) => { if (!pat) return; const s = pat.length <= 4 ? pat[b % pat.length] : pat[b]; if (!s) return; for (let i = 0; i < 16; i++) { const ch = s[i]; if (!ch || ch === '.' || ch === '-') continue; let len = 1; while (s[i + len] === '-') len++; fn(ch, T + i * sp, len * sp, i); } };
-    run(song.lead, (ch, t, d) => { const dg = CHIP_DG.indexOf(ch) - 6; const L = I.lead || {}; chipTone(ac, bus, { t, f: chipF(chipNote(song, dg, L.oct || 1)), dur: d * .92, duty: L.duty || .25, v: L.v || .13, a: .006, d: .12, s: .62, r: .07, vib: L.vib == null ? .006 : L.vib, echo: L.echo == null ? .35 : L.echo, rev: L.rev || .15, pan: L.pan || 0 }); });
-    run(song.lead2, (ch, t, d) => { const dg = CHIP_DG.indexOf(ch) - 6; const L = I.lead2 || {}; chipTone(ac, bus, { t, f: chipF(chipNote(song, dg, L.oct || 1)), dur: d * .9, duty: L.duty || .125, v: L.v || .07, a: .005, d: .1, s: .55, r: .06, vib: .004, echo: .25, rev: .15, pan: L.pan || -.3 }); });
-    run(song.bass, (ch, t, d) => { const B = I.bass || {}; const m = { r: [0, -2], R: [0, -1], f: [4, -2], F: [4, -1], t: [2, -2], T: [2, -1] }[ch]; if (!m) return; chipTone(ac, bus, { t, f: chipF(chipNote(song, c + m[0], m[1])), dur: d * .9, wave: B.wave || 'triangle', duty: B.duty, v: B.v || .3, a: .004, d: .1, s: B.s == null ? .8 : B.s, r: .04, lp: B.lp }); });
-    run(song.arp, (ch, t, d) => { const A = I.arp || {}; const k = { 1: 0, 3: 2, 5: 4, 8: 7 }[ch]; if (k == null) return; chipTone(ac, bus, { t, f: chipF(chipNote(song, c + k, A.oct == null ? 1 : A.oct)), dur: Math.min(d, sp * 1.2), duty: A.duty || .125, v: A.v || .045, a: .002, d: .05, s: .3, r: .04, echo: A.echo == null ? .3 : A.echo, rev: A.rev || .1, pan: A.pan == null ? -.25 : A.pan }); });
-    if (song.pad) { const P = song.pad; if (!P.every || b % P.every === 0) for (const k of [0, 2, 4]) chipTone(ac, bus, { t: T, f: chipF(chipNote(song, c + k, P.oct || 0)), dur: 16 * sp * (P.every || 1) * .98, duty: .5, v: P.v || .025, a: P.a || .4, d: 1, s: .8, r: .5, lp: P.lp || 1100, rev: P.rev || .4, pan: k === 2 ? .3 : k === 4 ? -.3 : 0 }); }
-    if (song.drum) for (const k in song.drum) run(song.drum[k], (ch, t) => (CHIP_DR[ch === 'x' ? k : ch] || CHIP_DR[k])(ac, bus, t, (song.dv || {})[k] || 1));
-    if (song.fx) song.fx(ac, bus, T, 16 * sp, b);
-  }
+  const sp = 60 / song.bpm / 4, n = nBars || song.chords.length;
+  for (let bi = 0; bi < n; bi++) { const b = (fromBar + bi) % song.chords.length, T = t0 + bi * 16 * sp; for (let i = 0; i < 16; i++) chipStep(ac, bus, song, T, b, i); }
   return n * 16 * sp;
 }
 /* ---------- lagu (v123) ---------- */
 function chipDrip(ac, bus, T, dur, b, n, p) { let s = 1000 + b * 77 + Math.floor(T * 10); const r = () => (s = (s * 16807) % 2147483647) / 2147483647; for (let i = 0; i < n; i++) if (r() < p) { const t = T + r() * dur, f = 1300 + r() * 900; chipTone(ac, bus, { t, f, f2: f * 1.7, glide: .06, dur: .07, wave: 'sine', v: .07, a: .001, d: .04, s: .1, r: .05, echo: .5, rev: .9, pan: r() * 1.6 - .8 }); } }
 /* versi malam: lebih pelan, tanpa drum, lebih bergema */
-function chipNight(sg) { const I = JSON.parse(JSON.stringify(sg.ins || {})); I.lead = Object.assign({}, I.lead, { duty: .5, v: ((I.lead || {}).v || .13) * .7, echo: .55, rev: .4 }); if (I.arp) I.arp.v = (I.arp.v || .045) * .7; I.bass = Object.assign({}, I.bass, { v: ((I.bass || {}).v || .3) * .8 }); return Object.assign({}, sg, { bpm: Math.round(sg.bpm * .85), drum: null, ins: I, pad: sg.pad || { v: .03, lp: 900, a: .8, rev: .5 }, lead2: null }); }
+function chipNight(sg) { const I = JSON.parse(JSON.stringify(sg.ins || {})); I.lead = Object.assign({}, I.lead, { duty: .5, v: ((I.lead || {}).v || .13) * .7, echo: .55, rev: .4 }); if (I.arp) I.arp.v = (I.arp.v || .045) * .7; I.bass = Object.assign({}, I.bass, { v: ((I.bass || {}).v || .3) * .8 }); return Object.assign({}, sg, { bpm: Math.round(sg.bpm * .85), drum: null, ins: I, pad: sg.pad || { v: .03, a: .8, rev: .5 }, lead2: null }); }
 const CHIP_SONGS = {
   school: { bpm: 120, root: 60, sc: 'MAJ', chords: [0, 4, 5, 3, 0, 4, 5, 3, 3, 4, 2, 5, 3, 4, 0, 0],
     lead: ['4-..2.4.7---6.4.', '5-..4.2.4---....', '2-..0.2.5---4.2.', '3-..2.0.1---....', '4-..2.4.7---8.9.', '8---7.6.7---....', '9-..8.7.8.7.5.4.', '5---4---3---1...',
@@ -1319,7 +1323,7 @@ Object.assign(CHIP_SONGS, {
 
 /* ================= SUARA: musik dan efek Chiptune+ (v123), dibuat lewat kode (tanpa file audio) =================
    Web Audio dimulai setelah sentuhan pertama (aturan browser HP). Musik dan efek bisa dimatikan terpisah.
-   Musik memakai mesin f_chip.js (pola 16 langkah per birama, dijadwalkan birama demi birama). Tiap zona punya lagu sendiri,
+   Musik memakai mesin f_chip.js (pola 16 langkah per birama, dijadwalkan langkah demi langkah; v124 versi ringan). Tiap zona punya lagu sendiri,
    ditambah versi malam (19.00–05.00) untuk zona luar ruangan & gedung. */
 const SND = { ac: null, mg: null, sg: null, nz: null, srev: null, st: { m: 2, s: 2 }, duck: 0, key: '', song: null, bus: null, bar: 0, next: 0, last: '' };
 /* level 0 Mati, 1 Pelan, 2 Sedang, 3 Keras. Simpanan lama (0/1) dibaca sebagai Mati/Sedang. */
@@ -1329,16 +1333,24 @@ const SND_MV = [0, .2, .38, .56], SND_SV = [0, .42, .75, 1];
 const sRng = s => () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 const mFreq = n => 440 * Math.pow(2, (n - 69) / 12);
 /* kenyaringan per lagu (kalibrasi t213.js: RMS sama rata) */
-const CHIP_G = {school:  1.11,  goa:  1.34,  lboss:  0.63,  battle:  0.81,  title:  0.75,  menu:  1.45,  study:  1.69,  mtk:  1,  ind:  1.47,  ipas:  1.14,  ing:  0.87,  forest:  1.49,  snow:  1.71,  cave:  0.88,  gedung:  1.74,  lab:  1.03,  sarang:  0.91,  duel:  0.66,  legend:  0.66,  goabattle:  0.7,  penjaga:  0.59};
+const CHIP_G = {school:  1.13,  goa:  1.35,  lboss:  0.61,  battle:  0.81,  title:  0.73,  menu:  1.57,  study:  1.78,  mtk:  1,  ind:  1.57,  ipas:  1.16,  ing:  0.87,  forest:  1.52,  snow:  1.81,  cave:  0.87,  gedung:  1.79,  lab:  1.04,  sarang:  0.92,  duel:  0.64,  legend:  0.65,  goabattle:  0.69,  penjaga:  0.59};
+/* HP ringan (RAM <= 3 GB atau <= 4 inti): musik versi hemat (tanpa melodi kedua, arpeggio & hi-hat setengah) */
+SND.liteAuto = (() => { try { const n = navigator; return (n.deviceMemory && n.deviceMemory <= 3) || (n.hardwareConcurrency && n.hardwareConcurrency <= 4); } catch (e) { return false; } })();
+/* v125: Mode HP RAM 3 GB (Setting) = selalu hemat; 'Mati' (selalu tajam) = musik penuh; selain itu otomatis */
+const sndLite = () => { const m = typeof Q !== 'undefined' ? Q.mode : 'auto'; return m === 'ram3' || m === 'on' ? true : m === 'off' ? false : !!SND.liteAuto; };
+function sndLiteSet() { if (SND.bus) SND.bus.lite = sndLite(); }
 const SND_NIGHT = new Set(['school', 'mtk', 'ind', 'ipas', 'ing', 'forest', 'snow', 'cave', 'gedung', 'lab']);
 function sndInit() {
   if (SND.ac) return SND.ac.state === 'suspended' ? (SND.ac.resume(), 1) : 1;
   const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return 0;
-  const ac = SND.ac = new AC(); SND.mg = ac.createGain(); SND.sg = ac.createGain(); SND.mg.connect(ac.destination); SND.sg.connect(ac.destination);
+  /* v124: buffer audio lebih besar (latencyHint 'playback') supaya tidak pecah di HP; 1 pembatas di ujung untuk musik + efek */
+  let ac; try { ac = new AC({ latencyHint: 'playback' }); } catch (e) { ac = new AC(); } SND.ac = ac;
+  const lim = ac.createDynamicsCompressor(); lim.threshold.value = -6; lim.knee.value = 6; lim.ratio.value = 12; lim.attack.value = .003; lim.release.value = .25; lim.connect(ac.destination);
+  SND.mg = ac.createGain(); SND.sg = ac.createGain(); SND.mg.connect(lim); SND.sg.connect(lim);
   SND.nz = chipNoise(ac);
-  try { const rv = ac.createConvolver(); rv.buffer = chipIR(ac); const g = ac.createGain(); g.gain.value = .3; rv.connect(g); g.connect(SND.sg); SND.srev = rv; } catch (e) { }
+  try { const ein = ac.createGain(), dl = ac.createDelay(1), fb = ac.createGain(); dl.delayTime.value = .16; fb.gain.value = .3; ein.connect(dl); dl.connect(fb); fb.connect(dl); const o = ac.createGain(); o.gain.value = .45; dl.connect(o); o.connect(SND.sg); SND.srev = ein; } catch (e) { }
   sndVol(); if (ac.state === 'suspended') ac.resume();
-  setInterval(sndSched, 40); return 1;
+  setInterval(sndSched, 50); return 1;
 }
 function sndVol() { if (!SND.ac) return; const t = SND.ac.currentTime; SND.mg.gain.setTargetAtTime(SND_MV[SND.st.m] * (SND.duck ? .35 : 1), t, .12); SND.sg.gain.setTargetAtTime(SND_SV[SND.st.s], t, .05); }
 function sndLvl(k, l) { SND.st[k] = Math.max(0, Math.min(3, l | 0)); try { localStorage.setItem('mga-snd', JSON.stringify({ m: SND.st.m, s: SND.st.s, v: 2 })); } catch (e) {} sndVol(); if (k === 'm' && SND.st.m) { SND.key = ''; sndAuto(); } }
@@ -1411,14 +1423,19 @@ function sfx(k) {
 const sndSong = key => { const [b, n] = key.split('@'), s = CHIP_SONGS[b]; return s ? (n ? chipNight(s) : s) : null; };
 function sndSched() {
   const ac = SND.ac; if (!ac || ac.state !== 'running' || !SND.song || !SND.st.m) return;
-  const s = SND.song, bd = 60 / s.bpm / 4 * 16; let k = 0;
-  while (SND.next < ac.currentTime + .35 && k++ < 4) { try { chipPlay(ac, SND.bus, s, SND.next, SND.bar, 1); } catch (e) { } SND.next += bd; SND.bar = (SND.bar + 1) % s.chords.length; }
+  const s = SND.song, sp = 60 / s.bpm / 4; let k = 0;
+  if (SND.next < ac.currentTime - .3) { SND.next = ac.currentTime + .05; }   // tertinggal (layar sibuk) → lompat, jangan menumpuk
+  while (SND.next < ac.currentTime + .5 && k++ < 12) {
+    try { chipStep(ac, SND.bus, s, SND.next - SND.st16 * sp, SND.bar, SND.st16); } catch (e) { }
+    SND.next += sp; if (++SND.st16 >= 16) { SND.st16 = 0; SND.bar = (SND.bar + 1) % s.chords.length; }
+  }
 }
 function setSong(key) {
   const ac = SND.ac, s = sndSong(key); if (!ac || !s) return; const t = ac.currentTime;
   if (SND.sg2) { const old = SND.sg2; old.gain.cancelScheduledValues(t); old.gain.setValueAtTime(old.gain.value, t); old.gain.linearRampToValueAtTime(0, t + .6); setTimeout(() => { try { old.disconnect(); } catch (e) {} }, 5000); }
   const g = SND.sg2 = ac.createGain(), base = key.split('@')[0]; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime((CHIP_G[base] || 1) * (key.includes('@') ? .9 : 1), t + .8); g.connect(SND.mg);
-  SND.bus = chipBus(ac, g); SND.song = s; SND.bar = 0; SND.next = t + .12; SND.key = key;
+  const ob = SND.bus; if (ob) setTimeout(() => { try { ob.lfo.stop(); ob.dry.disconnect(); } catch (e) { } }, 5000);
+  SND.bus = chipBus(ac, g); SND.bus.lite = sndLite(); try { SND.bus.dl.delayTime.value = Math.min(1.2, 60 / s.bpm * .75); } catch (e) { } SND.song = s; SND.bar = 0; SND.st16 = 0; SND.next = t + .12; SND.key = key;
 }
 const sndNight = () => { const h = typeof todH === 'function' ? todH() : new Date().getHours(); return h >= 19 || h < 5; };
 function sndWant() {
@@ -1460,14 +1477,16 @@ setInterval(sndAuto, 400);
    Mode 'on' (Hemat): DPR 1, dunia & halaman utama 30 fps, partikel hujan/kabut dikurangi. Mode 'off': selalu tajam. */
 var Q = { mode: 'auto', dpr: 2, acc: 0, n: 0, sk: false, low: false };
 (function () {
-  try { const v = JSON.parse(localStorage.getItem('mga-q') || 'null'); if (v) { Q.mode = ['auto', 'on', 'off'].includes(v.mode) ? v.mode : 'auto'; Q.dpr = +v.dpr || 2; return; } } catch (e) { }
+  try { const v = JSON.parse(localStorage.getItem('mga-q') || 'null'); if (v) { Q.mode = ['auto', 'on', 'off', 'ram3'].includes(v.mode) ? v.mode : 'auto'; Q.dpr = +v.dpr || 2; return; } } catch (e) { }
   const mem = navigator.deviceMemory || 4, cpu = navigator.hardwareConcurrency || 4;
   Q.low = mem <= 3 || cpu <= 4; Q.dpr = Q.low ? 1.5 : 2;
 })();
 function qSave() { try { localStorage.setItem('mga-q', JSON.stringify({ mode: Q.mode, dpr: Q.dpr })); } catch (e) { } }
-function qDpr() { const dev = window.devicePixelRatio || 1; return Math.min(Q.mode === 'on' ? 1 : Q.mode === 'off' ? 2 : Q.dpr, dev, 2); }
-function qHemat() { return Q.mode === 'on' || (Q.mode === 'auto' && Q.dpr <= 1); }
-function qSet(mode) { Q.mode = mode; if (mode === 'auto') Q.dpr = Q.low ? 1.5 : 2; Q.acc = Q.n = 0; qSave(); qCls(); if (typeof sizeCanvas === 'function' && W) sizeCanvas(); }
+function qDpr() { const dev = window.devicePixelRatio || 1; return Math.min(Q.mode === 'on' || Q.mode === 'ram3' ? 1 : Q.mode === 'off' ? 2 : Q.dpr, dev, 2); }
+function qHemat() { return Q.mode === 'on' || Q.mode === 'ram3' || (Q.mode === 'auto' && Q.dpr <= 1); }
+/* v125 Mode HP RAM 3 GB: Hemat (gambar) + musik versi hemat + efek layar dikurangi */
+const qRam3 = () => Q.mode === 'ram3';
+function qSet(mode) { Q.mode = mode; if (mode === 'auto') Q.dpr = Q.low ? 1.5 : 2; Q.acc = Q.n = 0; qSave(); qCls(); if (typeof sizeCanvas === 'function' && W) sizeCanvas(); if (typeof sndLiteSet === 'function') sndLiteSet(); }
 /* dipanggil tiap frame dunia (ms sejak frame lalu) */
 function qFrame(ms) {
   if (Q.mode !== 'auto' || ms > 250 || ms <= 0) return;
@@ -1477,7 +1496,7 @@ function qFrame(ms) {
   if (fps < 45 && Q.dpr > 1) { Q.dpr = Q.dpr > 1.5 ? 1.5 : 1; qSave(); qCls(); sizeCanvas(); }
 }
 /* 30 fps saat hemat: kembalikan true bila frame ini dilewati */
-function qCls() { try { const h = document.documentElement; h.classList.toggle('hemat', qHemat()); h.classList.toggle('lowfx', !!Q.low && Q.mode !== 'off'); } catch (e) { } }
+function qCls() { try { const h = document.documentElement; h.classList.toggle('hemat', qHemat()); h.classList.toggle('lowfx', (!!Q.low && Q.mode !== 'off') || Q.mode === 'ram3'); h.classList.toggle('ram3', Q.mode === 'ram3'); } catch (e) { } }
 qCls();
 function qSkip() { if (!qHemat()) return false; Q.sk = !Q.sk; return Q.sk; }
 
@@ -7295,6 +7314,20 @@ Object.defineProperty(TRAR.P, 1, { get: () => PION_C[Math.floor(performance.now(
   CODES['10x6dalhiml'] = {boxes: {Kayu: 3}};
 }
 
+/* v125: kode hadiah XP instan (sekali pakai per akun; teks kode disimpan terpisah) */
+{
+  CODES['1nw6qia7qb5'] = {xp: 100};
+  CODES['wag7mb22jv'] = {xp: 100};
+  CODES['2ch1v8pmiho'] = {xp: 100};
+  CODES['1oqgagunq0f'] = {xp: 100};
+  CODES['v7koo157tu'] = {xp: 100};
+  CODES['ggxb5t3ji4'] = {xp: 200};
+  CODES['vkv61nk9w'] = {xp: 200};
+  CODES['ncuss3bi7c'] = {xp: 200};
+  CODES['2gceqhhieu'] = {xp: 200};
+  CODES['23rpddorb9g'] = {xp: 200};
+}
+
 /* ================= v110: UJIAN RANK (Pak Toto) =================
    Naik ke Rank 8, 10, 12, 14, 16, 18, 20 hanya setelah lulus Ujian Rank (S.rku = Rank tertinggi yang sudah lulus ujian).
    Gerbang ada di a_core.js (rankGate). Ujian diambil lewat Pak Toto (Papan Misi). Soal: campuran 4 mapel, Bab 3-5, mode ujian. */
@@ -8016,7 +8049,7 @@ function goaBuy() {
 /* ---------- gambar: gelap + obor, Penjaga, tangga, mata air ---------- */
 let GDK = null;
 function goaDark(t, ox, oy) {
-  const G = W.gv, p = W.p, Q = 2, w = Math.ceil(VW / Q), h = Math.ceil(VH / Q);
+  const G = W.gv, p = W.p, Q = typeof qRam3 === 'function' && qRam3() ? 3 : 2, w = Math.ceil(VW / Q), h = Math.ceil(VH / Q);
   if (!GDK) GDK = document.createElement('canvas'); if (GDK.width !== w || GDK.height !== h) { GDK.width = w; GDK.height = h; }
   const g = GDK.getContext('2d'); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(4,2,12,.88)'; g.fillRect(0, 0, w, h);
   g.globalCompositeOperation = 'destination-out';
@@ -8252,8 +8285,8 @@ async function openSettings() {
     const ib = md.querySelector('#stIns'); if (ib) ib.onclick = e => { e.stopPropagation(); appInstallAsk(); };
     md.querySelectorAll('[data-tp]').forEach(b => b.onclick = e => { e.stopPropagation(); S.tipOff = b.dataset.tp === '0'; save(); md.querySelectorAll('[data-tp]').forEach(q => q.className = 'btn ' + (q === b ? 'hot' : 'ghost')); });
   };
-  const qn = [['auto', 'Otomatis'], ['on', 'Nyala'], ['off', 'Mati']];
-  const hem = `<div style="margin:10px 0 2px;font-weight:800;color:var(--sub);font-size:14px">Mode Hemat <span style="font-weight:700;font-size:12px">(HP lambat/panas: gambar sedikit kurang tajam, lebih lancar & irit baterai)</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${qn.map(([k, n]) => `<button type="button" class="btn ${Q.mode === k ? 'hot' : 'ghost'}" data-qm="${k}" style="min-height:40px;font-size:14px;padding:2px">${n}</button>`).join('')}</div>`;
+  const qn = [['auto', 'Otomatis'], ['on', 'Nyala'], ['off', 'Mati'], ['ram3', 'HP RAM 3 GB']];
+  const hem = `<div style="margin:10px 0 2px;font-weight:800;color:var(--sub);font-size:14px">Mode Hemat <span style="font-weight:700;font-size:12px">(HP lambat/panas: gambar sedikit kurang tajam, lebih lancar & irit baterai)</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${qn.map(([k, n]) => `<button type="button" class="btn ${Q.mode === k ? 'hot' : 'ghost'}" data-qm="${k}" style="min-height:40px;font-size:14px;padding:2px${k === 'ram3' ? ';grid-column:1/-1' : ''}">${k === 'ram3' ? '📱 ' : ''}${n}</button>`).join('')}</div><div style="font-size:12px;font-weight:700;color:var(--muted);margin-top:4px">📱 HP RAM 3 GB: paling ringan — gambar hemat, musik versi hemat, efek layar dikurangi. Cocok untuk HP yang lag atau suaranya pecah.</div>`;
   const ins = appStandalone() ? '' : `<button type="button" class="btn ghost" id="stIns" style="width:100%;margin-top:12px;min-height:42px;font-size:15px">Pasang sebagai aplikasi</button>`;
   await modal(`<h2>Setting</h2>${row('m', 'Musik')}${row('s', 'Efek suara')}${hem}${tip}${ins}<p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">Lumimon: Adventure School · ${APP_VER}<br>Game belajar untuk siswa SD</p>`, [{ t: 'Selesai', cls: 'hot' }], { onOpen: wire });
 }
