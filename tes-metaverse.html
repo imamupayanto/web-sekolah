@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v121">
+<meta name="lumimon-ver" content="v122">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -7525,11 +7525,14 @@ setInterval(() => {
     if (S.lbsB && W && !W.sar && !$('#s-world').hidden && !B) { delete S.lbsB; save(); }
     lbsBar();
     if (inS && Date.now() - LBS.poll > 12000) { LBS.poll = Date.now(); lbsPoll(); }
-    if (!UPD_SEEN && !window.NO_UPD && (S.tut || 0) >= 1 && !B && !$('#s-world').hidden && $('#modal').hidden) { UPD_SEEN = 1; S.upd = UPD_V; S.lbsAnn = 1; save(); updShow(); }
+    if (UPD_WHO !== S) { UPD_WHO = S; UPD_SEEN = 0; }   // tiap masuk akun (login / ganti akun) = tampil lagi
+    if (!UPD_SEEN && !window.NO_UPD && ((S.tut || 0) >= 1 || (S.rank || 1) >= 2) && !B && !$('#s-world').hidden && $('#modal').hidden) { UPD_SEEN = 1; S.upd = UPD_V; S.lbsAnn = 1; save(); updShow(); }
   } catch (e) { }
 }, 1000);
-/* Kabar Update (v121): 2 pengumuman (Goa Monster, Bos Legenda), muncul setiap kali pemain masuk game; bisa ditutup */
-const UPD_V = 'v121'; let UPD_SEEN = 0;
+/* Kabar Update (v121–v122): 2 pengumuman (Goa Monster, Bos Legenda), muncul setiap kali pemain masuk game (buka halaman, login, atau kembali ke aplikasi setelah 5 menit); bisa ditutup */
+const UPD_V = 'v122'; let UPD_SEEN = 0, UPD_WHO = null, UPD_HID = 0;
+/* aplikasi dibuka lagi dari latar belakang (HP) setelah >= 5 menit = dianggap buka game lagi */
+document.addEventListener('visibilitychange', () => { if (document.hidden) UPD_HID = Date.now(); else if (UPD_HID && Date.now() - UPD_HID >= 5 * 60000) { UPD_HID = 0; UPD_SEEN = 0; } });
 async function updShow() {
   const it = (ic, t, d) => `<div style="display:flex;gap:10px;align-items:flex-start;text-align:left;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:8px 10px"><div style="font-size:22px;line-height:1">${ic}</div><div><b style="font-family:var(--display);font-size:15px">${t}</b><div style="font-size:12.5px;opacity:.85;line-height:1.35">${d}</div></div></div>`;
   const head = (n, t, sub) => `<div style="text-align:center"><span style="font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--sun)">✨ KABAR UPDATE · ${n}/2 ✨</span><h2 style="margin:2px 0 0">${t}</h2><div style="font-size:12.5px;opacity:.85">${sub}</div></div>`;
