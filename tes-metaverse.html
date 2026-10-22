@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v125">
+<meta name="lumimon-ver" content="v126">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -6391,6 +6391,7 @@ function codeApply(r) {
   if (r.title && r.title.id && r.title.n) { if (!S.tex) S.tex = {}; S.tex[r.title.id] = { n: r.title.n, r: r.title.r || 'E' }; if (!S.tgot) S.tgot = {}; S.tgot[r.title.id] = 1; out.push(`Gelar khusus: <b>${esc(r.title.n)}</b>`); }
   if (r.coins) { S.coins += r.coins; out.push(`${COIN}+${r.coins} koin`); }
   if (r.xp) { gainXP(r.xp); out.push(`+${r.xp} XP`); }
+  if (r.lgU) { S.lgU = (S.lgU || 0) + r.lgU; out.push(`🌟 Telur Legenda Umum ×${r.lgU}`); }
   if (r.boxes) for (const k in r.boxes) { S.boxes[k] += r.boxes[k]; out.push(`${eggN(k)} ×${r.boxes[k]}`); }
   if (r.mon) r.mon.forEach(id => { if (!M[id]) return; const d = addDup(id); out.push(d.isNew ? `Lumi baru: ${M[id].n}` : d.maxed ? `${M[id].n} sudah maksimal (+${d.c} koin)` : `${M[id].n} naik ke Lv.${d.lv}`); });
   if (r.acc) r.acc.forEach(id => { if (SH[id] && !S.acc.own.includes(id)) { S.acc.own.push(id); out.push(`Aksesoris: ${SH[id].n}`); } });
@@ -6410,8 +6411,8 @@ async function openCode(msg) {
   if (!r) { if (++CODE_FAIL >= 5) { CODE_FAIL = 0; try { localStorage.setItem('mga-cf', String(Date.now() + 60000)); } catch (e) {} } return openCode('Kode tidak ditemukan. Cek lagi tulisannya.'); }
   if (r.until && today() > r.until) return openCode('Kode ini sudah tidak berlaku.');
   if (!S.codes) S.codes = {};
-  if (S.codes[h]) return openCode('Kode ini sudah kamu pakai.');
-  S.codes[h] = 1; CODE_FAIL = 0; const lines = codeApply(r); sfx('win');
+  if (S.codes[h] && !r.multi) return openCode('Kode ini sudah kamu pakai.');
+  if (!r.multi) S.codes[h] = 1;   /* v126: kode multi = boleh dipakai berkali-kali */ CODE_FAIL = 0; const lines = codeApply(r); sfx('win');
   await modal(`<h2>Kode berhasil!</h2><div class="card" style="display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:15px">${lines.map(x => `<div>${x}</div>`).join('')}</div>`, [{ t: 'Lanjut' }]);
 }
 
@@ -7326,6 +7327,16 @@ Object.defineProperty(TRAR.P, 1, { get: () => PION_C[Math.floor(performance.now(
   CODES['ncuss3bi7c'] = {xp: 200};
   CODES['2gceqhhieu'] = {xp: 200};
   CODES['23rpddorb9g'] = {xp: 200};
+}
+
+/* v126: kode KHUSUS GURU — boleh dipakai berkali-kali (multi). Teks kode disimpan terpisah, jangan dibagikan ke siswa. */
+{
+  CODES['2ah3kqoy437'] = {coins: 1000, multi: true};   // 1000 koin
+  CODES['1j5td2vq4cd'] = {xp: 150, multi: true};   // 150 XP
+  CODES['1e8n5acig0r'] = {boxes: {Kayu: 2}, multi: true};   // 2 Telur Biasa
+  CODES['1lu4n2gbgo8'] = {boxes: {Perak: 2}, multi: true};   // 2 Telur Perak
+  CODES['1jz43grepa5'] = {boxes: {Emas: 2}, multi: true};   // 2 Telur Emas
+  CODES['6gbhdw5lru'] = {lgU: 1, multi: true};   // 1 Telur Legenda Umum
 }
 
 /* ================= v110: UJIAN RANK (Pak Toto) =================
