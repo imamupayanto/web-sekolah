@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v119">
+<meta name="lumimon-ver" content="v121">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -2511,7 +2511,7 @@ function enterZone(z, at) {
   W.base = W.npcs.slice(); npcApply();
   const p = at || (z === 'school' && enteringFromMap ? m.gate : m.spawn); enteringFromMap = false;
   W.p = { x: p.x, y: p.y, dir: 'up', f: 0, ft: 0 };
-  W.wild = []; if (z !== 'school' && z !== 'gedung' && z !== 'lab' && !(ZONES[z] && ZONES[z].sarang)) for (let i = 0; i < 8; i++) spawnWild();
+  W.wild = []; if (z !== 'school' && z !== 'gedung' && z !== 'lab' && !(ZONES[z] && (ZONES[z].sarang || ZONES[z].goa))) for (let i = 0; i < 8; i++) spawnWild();
   W.cam = { x: W.p.x, y: W.p.y };
   W.safe = performance.now() + 1500;
   $('#hLoc').textContent = ZONES[z].hl || ZONES[z].n;
@@ -2631,7 +2631,7 @@ function tick(t) {
   for (const m of W.wild) {
     const d = Math.hypot(p.x - m.x, p.y - m.y);
     m.t -= dt;
-    if (m.h === 'sleep') { m.vx = m.vy = 0; m.t = 1; }
+    if (m.h === 'sleep' || m.boss) { m.vx = m.vy = 0; m.t = 1; }
     else if (d < 64 && t > W.safe && !p.rd) { m.vx = (p.x - m.x) / d * 34; m.vy = (p.y - m.y) / d * 34; }
     else if (m.t <= 0) { m.t = 1 + Math.random() * 2.5; const a = Math.random() * 6.28, go = Math.random() > .35; m.vx = go ? Math.cos(a) * 15 : 0; m.vy = go ? Math.sin(a) * 15 : 0; }
     const nx = m.x + m.vx * dt, ny = m.y + m.vy * dt;
@@ -2690,22 +2690,23 @@ function draw(t) {
     if (c.emo && t < c.emo.until) { const ey = y - img.height - 6 - Math.round((c.emo.until - t) / 200); bx.fillStyle = '#ff5a8a'; bx.font = 'bold 9px sans-serif'; bx.fillText(c.emo.s, x - 4, ey); }
   } }); }
   for (const m of W.wild) list.push({ fy: m.y, d: () => {
-    if (m.h === 'grass' && Math.hypot(p.x - m.x, p.y - m.y) > 80) return;
-    const x = Math.round(m.x - ox), y = Math.round(m.y - oy), bob = Math.round(Math.abs(Math.sin(m.ph)) * 2), img = monImg(m.id, m.blink > 0, Math.floor(t / 180) % 2, m.vx > 1);
-    shadow(x, y, Math.round(img.width / 2.8)); bx.drawImage(img, x - Math.floor(img.width / 2), y - img.height - bob + 3);
+    if (m.boss || (m.h === 'grass' && Math.hypot(p.x - m.x, p.y - m.y) > 80)) return;
+    const x = Math.round(m.x - ox), y = Math.round(m.y - oy), bob = Math.round(Math.abs(Math.sin(m.ph)) * 2), img = monImg(m.id, m.blink > 0, Math.floor(t / 180) % 2, m.vx > 1, !!m.evo);
+    shadow(x, y, Math.round(img.width / 2.8)); if (m.evo) evoDraw(bx, m.id, img, x, y - img.height - bob + 3, t, true); else bx.drawImage(img, x - Math.floor(img.width / 2), y - img.height - bob + 3);
     if (m.h === 'sleep') { bx.fillStyle = '#ffffff'; bx.font = 'bold 8px sans-serif'; bx.fillText('z', x + 6, y - img.height - Math.round(Math.sin(t / 300) * 2)); bx.fillText('Z', x + 11, y - img.height - 6 - Math.round(Math.sin(t / 300 + 1) * 2)); }
     const tt = W.T[Math.floor(m.y / TS)] && W.T[Math.floor(m.y / TS)][Math.floor(m.x / TS)];
     if (TALL_T.has(tt)) for (let i = -7; i <= 7; i += 2) { const hgt = 3 + ((i + 9) * 7 % 3); bx.fillStyle = tt === FS ? ((i & 2) ? '#ffffff' : '#9ab8c8') : C.tall[(i & 2) ? 2 : 1]; bx.fillRect(x + i, y - hgt + 1, 1, hgt); }
   } });
-  mpDraw(list, person, t, ox, oy); if (typeof fishDraw === 'function') fishDraw(list, t, ox, oy); raidDraw(list, t, ox, oy); nightDraw(list, t, ox, oy); if (typeof sarangDraw === 'function') sarangDraw(list, t, ox, oy);
+  mpDraw(list, person, t, ox, oy); if (typeof fishDraw === 'function') fishDraw(list, t, ox, oy); raidDraw(list, t, ox, oy); nightDraw(list, t, ox, oy); if (typeof sarangDraw === 'function') sarangDraw(list, t, ox, oy); if (W.gv && typeof goaDraw === 'function') goaDraw(list, t, ox, oy);
   list.sort((a, b) => a.fy - b.fy).forEach(o => o.d());
   // weather / atmosphere
   if ((W.theme || W.zone) === 'snow') { bx.fillStyle = '#ffffff'; for (let i = 0; i < 40; i++) { const sx = (hash(i, 1) * VW + t / 40 * (0.4 + hash(i, 2))) % VW, sy = (hash(i, 3) * VH + t / 25 * (0.6 + hash(i, 4))) % VH; bx.fillRect(Math.floor(sx), Math.floor(sy), 1, 1); } }
-  if (W.zone !== 'cave' && W.zone !== 'gedung' && W.zone !== 'lab' && !W.sar) { bx.fillStyle = 'rgba(20,40,60,.07)'; for (let i = 0; i < 3; i++) { const cxx = ((t / 100 + i * 220) % (W.MW * TS + 200)) - 100 - ox, cyy = 80 + i * 200 - oy, r = 60 + i * 14; for (let k = -r; k <= r; k += 2) { const hh = Math.round(Math.sqrt(1 - (k / r) ** 2) * r * .45); bx.fillRect(Math.round(cxx + k), Math.round(cyy - hh), 2, hh * 2); } } }
+  if (W.zone !== 'cave' && W.zone !== 'gedung' && W.zone !== 'lab' && !W.sar && !W.gv) { bx.fillStyle = 'rgba(20,40,60,.07)'; for (let i = 0; i < 3; i++) { const cxx = ((t / 100 + i * 220) % (W.MW * TS + 200)) - 100 - ox, cyy = 80 + i * 200 - oy, r = 60 + i * 14; for (let k = -r; k <= r; k += 2) { const hh = Math.round(Math.sqrt(1 - (k / r) ** 2) * r * .45); bx.fillRect(Math.round(cxx + k), Math.round(cyy - hh), 2, hh * 2); } } }
   if (typeof fogDraw === 'function') fogDraw(t, ox, oy);
   envDraw(t, ox, oy, p);
   if (typeof storyGlow === 'function') storyGlow(t, ox, oy);
-  if (W.dark) {
+  if (W.gv && typeof goaDark === 'function') goaDark(t, ox, oy);
+  else if (W.dark) {
     const g = bx.createRadialGradient(p.x - ox, p.y - oy - 10, 18, p.x - ox, p.y - oy - 10, 95);
     g.addColorStop(0, 'rgba(6,4,14,0)'); g.addColorStop(1, 'rgba(6,4,14,.86)'); bx.fillStyle = g; bx.fillRect(0, 0, VW, VH);
     bx.globalCompositeOperation = 'lighter';
@@ -3584,6 +3585,7 @@ function buildMap(z) {
   if (z === 'gedung') return buildGedung();
   if (z === 'lab') return buildLab();
   if (ZONES[z] && ZONES[z].sarang && typeof buildSarang === 'function') return buildSarang(z);
+  if (ZONES[z] && ZONES[z].goa && typeof buildGoa === 'function') return buildGoa(z);
   if (ZONES[z] && ZONES[z].theme) return buildRegion(z);
   const MW = 38, MH = z === 'school' ? 50 : 60;
   const K = mapKit(MW, MH, { school: GR, forest: GR, snow: SN, cave: CF }[z], { school: 3, forest: 11, snow: 23, cave: 37 }[z]);
@@ -3799,7 +3801,7 @@ function startBattle(cfg) {
     el.innerHTML = `<div class="bscene"><img class="bg" src="${arenaURL(z)}" alt="">
       <div class="fcard" id="foeCard"></div>
       <div class="spr" id="foeSpr"></div><div class="spr" id="meSpr"></div>
-      <button class="round" id="bRun" type="button" aria-label="Kabur" style="position:absolute;right:10px;top:12px;width:42px;height:42px;font-weight:800;font-size:12px">${cfg.type === 'wild' ? 'Kabur' : 'Menyerah'}</button>
+      <button class="round" id="bRun" type="button" aria-label="Kabur" style="position:absolute;right:10px;top:12px;width:42px;height:42px;font-weight:800;font-size:12px">${cfg.type === 'wild' || cfg.type === 'goa' ? 'Kabur' : 'Menyerah'}</button>
     </div>
     <div class="bpanel">
       <div class="fcard" id="meCard"></div>
@@ -3807,7 +3809,7 @@ function startBattle(cfg) {
       <div class="moves" id="moves"></div>
       <div class="bench" id="bench"></div>
     </div>`;
-    if (cfg.type !== 'wild') $('#bRun').style.width = '64px';
+    if (cfg.type !== 'wild' && cfg.type !== 'goa') $('#bRun').style.width = '64px';
     $('#bRun').onclick = async () => { if (!B || B.ended || !$('#modal').hidden) return; if (B.busy && cfg.type !== 'pvp' && Date.now() - (B.busyT || 0) < 12000) return; const c = await modal(`<h2>${cfg.type === 'wild' ? 'Kabur dari pertarungan?' : 'Menyerah?'}</h2><p>Kamu tidak dapat hadiah dari pertarungan ini.</p>`, [{ t: 'Lanjut bertarung', cls: 'ghost' }, { t: cfg.type === 'wild' ? 'Kabur' : 'Menyerah', cls: 'hot' }]); if (c === 1) { if (cfg.type === 'pvp' && MP.duel) mpDuelSend(MP.duel.opp, 'bye', MP.duel.sid + '|', 0); finish('run'); } };
     show('s-battle');
     sprite('foe', true); sprite('me', true);
@@ -4035,6 +4037,7 @@ async function finish(res) {
     if (res === 'win' || res === 'lose' || res === 'draw') [1500, 4000, 8000, 13000, 20000].forEach(ms => setTimeout(() => { for (const o of D.out || []) mpDuelSend(D.opp, o.k, o.r, o.x); }, ms)); }
   let stNotes = []; try { if (cfg.type !== 'pvp' && typeof stFinish === 'function') stNotes = stFinish(res) || []; } catch (e) { console.error(e); }
   if (cfg.type === 'lboss' && typeof lbsFinish === 'function') { ({ html, rw } = lbsFinish(res)); }
+  else if (cfg.type === 'goa' && typeof goaFinish === 'function') { ({ html, rw } = goaFinish(res, cfg)); }
   else if (cfg.type === 'pvp') {
     const P = S.pvp || (S.pvp = { w: 0, l: 0 }), D = cfg.duel;
     if (typeof lbDuel === 'function') lbDuel(res, D && D.name);
@@ -4369,7 +4372,8 @@ function mpSay(ei, si) {
 setInterval(() => {
   if (MP.st === 'idle' && S && S.name && !S.mpOff && W) mpInit();
   if (MP.st === 'on') {
-    if (W && W.zone && (W.zone !== MP.zn || (MP.zst === 'err' && performance.now() > MP.zretry))) mpZoneJoin(W.zone);
+    if (W && W.zone && ZONES[W.zone] && ZONES[W.zone].solo) { if (MP.zch) mpZoneLeave(); }
+    else if (W && W.zone && (W.zone !== MP.zn || (MP.zst === 'err' && performance.now() > MP.zretry))) mpZoneJoin(W.zone);
     mpSync(); mpSendPos(); mpRoomsSync();
   }
 }, 300);
@@ -5397,7 +5401,7 @@ const RK_INFO = {
   2: ['Duel antar pemain: tantang teman sekelas', 'Kakek Pagi muncul di sekolah (+koin)'],
   3: ['Bos muncul acak di pulau belajar (lawan sendiri, peluang telur)', 'Pedagang Malam dan Penjaga Malam muncul'],
   5: ['Batas biaya tim mulai berlaku'],
-  10: ['Evolusi Lumi Biasa terbuka (butuh Kedekatan, Penguasaan, Ujian)', 'Goa Monster di tiap pulau (segera dibuka)', 'Setelah evolusi pertama: boleh menantang Lumi Legenda'],
+  10: ['Evolusi Lumi Biasa terbuka (butuh Kedekatan, Penguasaan, Ujian)', 'Goa Monster di tiap pulau (lantai 1–10)', 'Setelah evolusi pertama: boleh menantang Lumi Legenda'],
   12: ['Evolusi Lumi Langka terbuka'],
   14: ['Evolusi Lumi Epik terbuka'],
   15: ['Evolusi Lumi Legenda terbuka'],
@@ -5961,7 +5965,7 @@ function fogSprites() {
   });
 }
 function fogDraw(t, ox, oy) {
-  if (!W || !S || W.zone === 'school' || W.zone === 'gedung' || W.zone === 'lab' || W.sar) return;
+  if (!W || !S || W.zone === 'school' || W.zone === 'gedung' || W.zone === 'lab' || W.sar || W.gv) return;
   const mp = fogMapel(W.zone), lit = mp && S.prog && S.prog[mp] && S.prog[mp].akhirLulus, a = lit ? .1 : .3;
   if (!FOG.s) FOG.s = fogSprites();
   if (!FOG.c || FOG.c.width !== VW || FOG.c.height !== VH) { FOG.c = document.createElement('canvas'); FOG.c.width = VW; FOG.c.height = VH; }
@@ -6321,7 +6325,7 @@ for (const r of RIDES) try { (RK_INFO[r.rk] = RK_INFO[r.rk] || []).push(`Kendara
 function rideS() { if (!S.ride) S.ride = { own: [], sel: null, on: 0 }; return S.ride; }
 /* kendaraan yang sedang dinaiki sekarang (null bila jalan kaki / di dalam gedung / latihan) */
 function rideCur() {
-  if (!S || !W || !S.ride || !S.ride.on || !RID[S.ride.sel] || RIDE_IN.has(W.zone)) return null;
+  if (!S || !W || !S.ride || !S.ride.on || !RID[S.ride.sel] || RIDE_IN.has(W.zone) || W.gv) return null;
   if (typeof TUT !== 'undefined' && TUT.on) return null;
   return S.ride.sel;
 }
@@ -6703,7 +6707,7 @@ async function openTika(tab = 'buy') {
   const buyRow = it => `<div style="display:flex;gap:8px;align-items:center;padding:6px;border-radius:12px;background:#fff;border:2px solid var(--line)"><span style="width:42px;display:grid;place-items:center">${itemImg(it.id, 38)}</span><div style="flex:1;min-width:0"><b style="color:var(--text)">${esc(it.n)}</b>${b.it[it.id] ? ` <span style="font-size:12px;font-weight:800;color:var(--sub)">punya ${b.it[it.id]}</span>` : ''}<div style="font-size:12.5px;color:var(--sub);font-weight:700">${efTxt(it.ef)} · 1 battle</div></div><button type="button" class="btn hot" data-buy="${it.id}" ${S.coins < it.p ? 'disabled' : ''} style="min-height:38px;font-size:14px;padding:0 10px">${COIN}${it.p}</button></div>`;
   const fish = Object.keys(b.it).filter(id => ITEM[id] && ITEM[id].k === 'fish' && b.it[id] > 0), left = SELL_CAP - b.c;
   const sellRow = id => { const it = ITEM[id], pr = SELL[it.r]; return `<div style="display:flex;gap:8px;align-items:center;padding:6px;border-radius:12px;background:#fff;border:2px solid var(--line)"><span style="width:44px;display:grid;place-items:center">${itemImg(id, 40)}</span><div style="flex:1;min-width:0"><b style="color:var(--text)">${esc(it.n)}</b> <b style="color:var(--text)">×${b.it[id]}</b><div style="font-size:12.5px;color:var(--sub);font-weight:700">${RAR_N[it.r]}</div></div><button type="button" class="btn" data-sell="${id}" ${left < pr ? 'disabled' : ''} style="min-height:38px;font-size:14px;padding:0 10px">Jual +${pr}</button></div>`; };
-  const body = tab === 'buy' ? FOODS.map(buyRow).join('') : (fish.map(sellRow).join('') || '<p style="margin:4px 0;font-weight:700;color:var(--sub)">Belum ada ikan untuk dijual.</p>');
+  const body = tab === 'buy' ? (typeof goaTikaRow === 'function' ? goaTikaRow() : '') + FOODS.map(buyRow).join('') : (fish.map(sellRow).join('') || '<p style="margin:4px 0;font-weight:700;color:var(--sub)">Belum ada ikan untuk dijual.</p>');
   const html = `<div style="display:flex;gap:10px;align-items:center"><span style="display:block">${avatarSvg(TIKA_LOOK, 40)}</span><div><h2 style="margin:0">Toko Umum</h2><div style="font-weight:800;color:var(--sub);font-size:13px">Mak Tika: "Perut kenyang, Lumi semangat!"</div></div><span class="chip" style="margin-left:auto">${COIN}${S.coins}</span></div>
     <div class="tabs" style="margin:8px 0 6px"><button type="button" data-tab="buy" aria-pressed="${tab === 'buy'}">Beli</button><button type="button" data-tab="sell" aria-pressed="${tab === 'sell'}">Jual Ikan</button></div>
     <div style="display:flex;flex-direction:column;gap:6px;max-height:48vh;overflow:auto">${body}</div>
@@ -6712,11 +6716,13 @@ async function openTika(tab = 'buy') {
   await modal(html, [{ t: 'Tutup', cls: 'ghost' }], { onOpen: m => {
     const close = () => { const cl = [...m.querySelectorAll('button')].pop(); if (cl) cl.click(); };
     m.querySelectorAll('[data-tab]').forEach(x => x.onclick = e => { e.stopPropagation(); act = ['tab', x.dataset.tab]; close(); });
+    m.querySelectorAll('[data-goabuy]').forEach(x => x.onclick = e => { e.stopPropagation(); act = ['goa']; close(); });
     m.querySelectorAll('[data-buy]').forEach(x => x.onclick = e => { e.stopPropagation(); act = ['buy', x.dataset.buy]; close(); });
     m.querySelectorAll('[data-sell]').forEach(x => x.onclick = e => { e.stopPropagation(); act = ['sell', x.dataset.sell]; close(); });
   } });
   if (!act) return;
   if (act[0] === 'tab') return openTika(act[1]);
+  if (act[0] === 'goa') { goaBuy(); return openTika('buy'); }
   const it = ITEM[act[1]];
   if (act[0] === 'buy') { if (S.coins < it.p) return openTika('buy'); S.coins -= it.p; b.it[it.id] = (b.it[it.id] || 0) + 1; save(); hud(); sfx('coin'); toast(`Kamu membeli ${it.n}! Makan dari Tas 🎒 sebelum battle.`, 3000); return openTika('buy'); }
   if (act[0] === 'sell') { const pr = SELL[it.r]; if (!b.it[it.id] || b.c + pr > SELL_CAP) return openTika('sell'); b.it[it.id]--; if (b.it[it.id] <= 0) delete b.it[it.id]; b.c += pr; addCoins(pr); hud(); return openTika('sell'); }
@@ -7164,7 +7170,7 @@ async function rankUjian(t) {
    Syarat menyerang: Rank 5 + lulus Ujian Akhir pulau itu. 2 kesempatan per hari. Bar HP bersama per jam muncul.
    Server (bos-legenda.sql): lbs_state / lbs_hit / lbs_claim. Tanpa server: Sarang tetap bisa dikunjungi, bos "segera hadir".
    Telur Legenda Umum (S.lgU): 10% Legenda acak (dobel = naik level), 90% Epik acak, pasti Legenda di telur ke-10 (S.lgUp). */
-const LBS_K = ['mtk', 'ipas', 'ind', 'ing'], LBS_RANK = 5, LBS_TRY = 2, LBS_AM = 1.5;
+const LBS_K = ['mtk', 'ipas', 'ind', 'ing'], LBS_RANK = 5, LBS_TRY = 3, LBS_AM = 1.5;
 const LBS_TH = {
   mtk: { arena: 'forest', fl: ['#2f7a68', '#276a5a', '#3a8c78'], rim: ['#164a3e', '#0e3329'], vd: ['#0b1030', '#1a1f4a'], pil: '#c9a46a', pilT: '#fff3b0', orb: '#ffc93c', aura: '255,201,60', pc: ['#ffc93c', '#fff3b0', '#7ff5ff'] },
   ipas: { arena: 'snow', fl: ['#cfe6ff', '#b9daf5', '#e6f4ff'], rim: ['#7cb4e0', '#4a86c0'], vd: ['#0a2448', '#16407a'], pil: '#9fd8ff', pilT: '#ffffff', orb: '#ffffff', aura: '127,210,255', pc: ['#ffffff', '#bfe6ff', '#ffe27a'] },
@@ -7192,7 +7198,9 @@ function lbsNow() {
 }
 const lbsFmt = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}` : `${m}:${String(x).padStart(2, '0')}`; };
 const lbsLegN = k => M[LEG[k]].n;
-function lbsTries() { const d = lbsWib().day; const loc = S.lbs && S.lbs.d === d ? S.lbs.n : 0; const sv = LBS.st && LBS.st.me && LBS.st.day === d ? LBS.st.me.nt : (LBS.st && LBS.st.nt) || 0; return Math.max(loc, sv || 0); }
+/* v121: kesempatan jadi 3/hari; hitungan hari ini direset sekali (server memakai lbs_try_adj) */
+const LBS_RESET = 'r121';
+function lbsTries() { if (S && S.lbsR !== LBS_RESET) { S.lbsR = LBS_RESET; if (S.lbs) S.lbs.n = 0; } const d = lbsWib().day; const loc = S.lbs && S.lbs.d === d ? S.lbs.n : 0; const sv = LBS.st && LBS.st.me && LBS.st.day === d ? LBS.st.me.nt : (LBS.st && LBS.st.nt) || 0; return Math.max(loc, sv || 0); }
 /* keadaan gabungan: data server bila ada, jam lokal untuk hitung mundur */
 function lbsView() {
   const n = lbsNow(), st = LBS.st, age = (Date.now() - LBS.at) / 1000;
@@ -7495,7 +7503,7 @@ const LBS_BF = { berkah: [.15, 'Berkah', 'Serangan timmu +15% melawan Bos Legend
 async function sarang(z) {
   const k = ZONES[z].pulau, bank = (ZONES[k + '1'] || {}).bank;
   let pool = BANK.filter(q => q[0] === bank && qMid(q)); if (pool.length < 5) pool = BANK.filter(q => q[0] === bank);
-  const c = await modal(`<h2>Gerbang Sarang Legenda</h2><p>Jawab <b>5 soal</b> ${esc(PSHORT[k])} tingkat sedang–sulit (tingkat sedang–sulit) untuk masuk.</p>
+  const c = await modal(`<h2>Gerbang Sarang Legenda</h2><p>Jawab <b>5 soal</b> ${esc(PSHORT[k])} tingkat sedang–sulit untuk masuk.</p>
     <div class="card" style="font-size:13.5px;font-weight:700;display:flex;flex-direction:column;gap:3px"><span><b style="color:#1f7a52">5 benar · Berkah</b>: serangan +15% melawan bos</span><span><b style="color:#3a7bd5">4 benar · Berkah kecil</b>: serangan +8%</span><span><b style="color:#c2301b">Kurang dari 4 · Kutukan</b>: serangan −10% dan energi awal 0</span></div>
     <p style="font-size:12px;color:var(--sub);font-weight:700">Efek berlaku selama kamu di Sarang. Keluar lalu masuk lagi = ujian lagi.</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Mulai', cls: 'hot' }]);
   if (c !== 1) return;
@@ -7517,26 +7525,363 @@ setInterval(() => {
     if (S.lbsB && W && !W.sar && !$('#s-world').hidden && !B) { delete S.lbsB; save(); }
     lbsBar();
     if (inS && Date.now() - LBS.poll > 12000) { LBS.poll = Date.now(); lbsPoll(); }
-    if (S.upd !== UPD_V && !window.NO_UPD && (S.tut || 0) >= 1 && !B && !$('#s-world').hidden && $('#modal').hidden) { S.upd = UPD_V; S.lbsAnn = 1; save(); updShow(); }
+    if (!UPD_SEEN && !window.NO_UPD && (S.tut || 0) >= 1 && !B && !$('#s-world').hidden && $('#modal').hidden) { UPD_SEEN = 1; S.upd = UPD_V; S.lbsAnn = 1; save(); updShow(); }
   } catch (e) { }
 }, 1000);
-/* Kabar Update: muncul sekali per versi untuk semua siswa (termasuk akun baru, setelah latihan) */
-const UPD_V = 'v119';
-function updShow() {
+/* Kabar Update (v121): 2 pengumuman (Goa Monster, Bos Legenda), muncul setiap kali pemain masuk game; bisa ditutup */
+const UPD_V = 'v121'; let UPD_SEEN = 0;
+async function updShow() {
   const it = (ic, t, d) => `<div style="display:flex;gap:10px;align-items:flex-start;text-align:left;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:8px 10px"><div style="font-size:22px;line-height:1">${ic}</div><div><b style="font-family:var(--display);font-size:15px">${t}</b><div style="font-size:12.5px;opacity:.85;line-height:1.35">${d}</div></div></div>`;
+  const head = (n, t, sub) => `<div style="text-align:center"><span style="font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--sun)">✨ KABAR UPDATE · ${n}/2 ✨</span><h2 style="margin:2px 0 0">${t}</h2><div style="font-size:12.5px;opacity:.85">${sub}</div></div>`;
+  const gm = ['wolf', 'golem', 'bat'].filter(i => M[i]).map(i => `<div style="width:64px;height:64px">${mSvg(i, '', true)}</div>`).join('');
+  const c = await modal(`<div class="updbox updgoa" style="display:flex;flex-direction:column;gap:7px">
+ ${head(1, 'Goa Monster Dibuka!', 'Jelajahi goa gelap di tiap pulau')}
+ <div style="display:flex;justify-content:center;align-items:flex-end;gap:6px;padding:8px 0 4px;border-radius:16px;background:radial-gradient(circle at 50% 60%,rgba(255,150,50,.35),rgba(10,6,20,.9) 62%)">${gm}</div>
+ ${it('🔓', 'Syarat masuk', `Rank ${typeof GOA_RANK !== 'undefined' ? GOA_RANK : 10}+ · pintu Goa di area Bab 5 tiap pulau`)}
+ ${it('🔥', 'Obor', '3 obor per hari (1 obor = 1 kali masuk) · beli lagi di Toko Mak Tika')}
+ ${it('🌑', 'Gelap & luas', 'Hanya obormu yang menerangi. Semua Lumi di dalamnya sudah berevolusi!')}
+ ${it('🪜', 'Tangga 5 soal', 'Kalahkan semua Lumi, jawab 5 soal → berkah atau kutukan')}
+ ${it('👑', 'Lantai 10: Penjaga Goa', 'Telur Perak + Batu Penanda · XP Goa tanpa batas harian!')}
+ </div>`, [{ t: 'Tutup', cls: 'ghost' }, { t: 'Berikutnya ›', cls: 'hot' }]);
+  if (c !== 1) return;
   const L = [['ilmu', 'Senin'], ['badai', 'Selasa'], ['bayang', 'Rabu'], ['lahar', 'Kamis']].filter(x => M[x[0]]);
   const legs = L.map(([i, h]) => `<div style="text-align:center;width:72px"><div style="width:60px;height:60px;margin:auto">${mSvg(i)}</div><div style="font-size:10px;font-weight:800;margin-top:2px">${h}</div></div>`).join('');
-  modal(`<div class="updbox" style="display:flex;flex-direction:column;gap:7px">
- <div style="text-align:center"><span style="font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--sun)">✨ UPDATE ${UPD_V} ✨</span><h2 style="margin:2px 0 0">Bos Legenda Muncul!</h2><div style="font-size:12.5px;opacity:.85">Lawan 1 bos bareng satu sekolah</div></div>
+  await modal(`<div class="updbox updbos" style="display:flex;flex-direction:column;gap:7px">
+ ${head(2, 'Bos Legenda Muncul!', 'Lawan 1 bos bareng satu sekolah')}
  <div style="display:flex;justify-content:center;gap:2px;margin:2px 0">${legs}</div>
  <div style="text-align:center;font-size:11.5px;opacity:.8;margin-top:-4px">Jumat–Minggu: bos acak!</div>
- ${it('⏰', 'Jam muncul', '13.00–14.00 dan 19.00–20.00 · 2 kesempatan menyerang')}
+ ${it('⏰', 'Jam muncul', `13.00–14.00 dan 19.00–20.00 · <b>${LBS_TRY} kesempatan</b> per hari`)}
  ${it('🔓', 'Syarat masuk', `Rank ${LBS_RANK}+ dan lulus Ujian Akhir · masuk lewat area Bab 5`)}
  ${it('📝', 'Ujian gerbang', '5 soal: benar semua = berkah, salah banyak = kutukan 😱')}
  ${it('🥚', 'Hadiah', 'Koin, telur, gelar penakluk, dan peluang Telur Legenda!')}
- ${it('📚', '300+ soal baru', 'Ujian Rank sekarang lebih menantang. Ayo belajar!')}
  </div>`, [{ t: 'Siap, ayo main!', cls: 'hot' }]);
 }
+
+/* ================= v120: Goa Monster (solo, gelap, lantai 1–10) =================
+   Zona 'goa_<pulau>' dibangun ulang tiap lantai dari benih percobaan. Semua dijalankan di HP siswa (tanpa Supabase).
+   S.goa  = { d: tanggal, ob: obor terpakai, buy: obor dibeli, best:{k}, mark:{k}, pj:{k: tanggal hadiah Penjaga} }
+   S.goaR = percobaan aktif { k, fl, hp:{id: rasio HP}, eff: 'b'|'s'|'c'|null, sd, mon:[{id,x,y,boss}], used:[id soal], air }
+   Lantai: 2–3 Lumi berevolusi → tangga terbuka → 5 soal sedang–sulit (berkah/kutukan untuk lantai berikutnya).
+   Lantai 5 Mata Air Ilmu (3 soal). Lantai 10 Penjaga Goa → Batu Penanda. Semua pingsan = keluar. */
+const GOA_OB = 3, GOA_BUY = 2, GOA_PRICE = 1000, GOA_MAX = 10, GOA_AIR = [5, 15, 25], GOA_PJ = [10, 20, 30], GOA_TR = 56;
+const GOA_TH = {
+  mtk: { cr: ['#1d6fb0', '#4fb8ec', '#a8ecff', '#effdff'], gl: '95,208,255', fl: ['#3e3760', '#3a3359', '#48416e', '#2f2a4c'], wa: ['#7a6aa8', '#5b4c86', '#45386c', '#2b2046', '#1a1229'] },
+  ind: { cr: ['#7a2fb0', '#b065ec', '#e2b8ff', '#fbf0ff'], gl: '200,130,255', fl: ['#42324f', '#3d2e4a', '#4d3b5c', '#30253c'], wa: ['#8a6a9a', '#674c7a', '#4f3a60', '#301f40', '#1d1228'] },
+  ipas: { cr: ['#2a8fb0', '#6fd6ec', '#c8f4ff', '#ffffff'], gl: '140,230,255', fl: ['#34465a', '#304155', '#3d5268', '#283646'], wa: ['#7f9ab4', '#5c7690', '#465e76', '#2a3a4c', '#18222e'] },
+  ing: { cr: ['#b04a1d', '#ec8a3f', '#ffcf9a', '#fff4e6'], gl: '255,160,80', fl: ['#4a3530', '#45312c', '#563d36', '#382824'], wa: ['#a07a68', '#7c5a4a', '#5e4438', '#3a2820', '#221612'] },
+};
+for (const k of ['mtk', 'ipas', 'ind', 'ing']) ZONES['goa_' + k] = { n: 'Goa Monster', hl: 'Goa Monster · ' + (PSHORT[k] || k), rank: GOA_RANK, goa: k, solo: 1, arena: 'cave' };
+const goaBank = k => (ZONES[k + '1'] || {}).bank;
+function goaS() {
+  const d = today(); if (!S.goa) S.goa = { d, ob: 0, buy: 0, best: {}, mark: {}, pj: {} };
+  const g = S.goa; if (g.d !== d) { g.d = d; g.ob = 0; g.buy = 0; } for (const x of ['best', 'mark', 'pj']) if (!g[x]) g[x] = {}; return g;
+}
+const goaLeft = () => { const g = goaS(); return Math.max(0, GOA_OB + g.buy - g.ob); };
+const goaStart = k => { const m = goaS().mark[k] || 0; return m >= GOA_MAX ? 1 : m + 1; };
+/* kumpulan Lumi goa per pulau: semua Lumi non-Legenda yang punya bentuk evolusi */
+function goaPool(k, fl) {
+  const ids = new Set(); for (let b = 1; b <= 5; b++) for (const id of ((ZONES[k + b] || {}).pool || [])) if (M[id] && M[id].r !== 'L' && EVO_N[id]) ids.add(id);
+  const all = [...ids], want = fl <= 3 ? ['C', 'R'] : fl <= 6 ? ['R', 'E', 'C'] : ['E', 'R'];
+  const f = all.filter(id => want.includes(M[id].r)); return f.length >= 3 ? f : all;
+}
+const goaBoss = k => { const p = goaPool(k, 10); return p.slice().sort((a, b) => (M[b].hp * M[b].atk) - (M[a].hp * M[a].atk))[0]; };
+const goaFoeK = (fl, boss) => ({ hp: (1.6 + .1 * (fl - 1)) * (boss ? 2.1 : 1), am: (1 + .035 * (fl - 1)) * (boss ? 1.2 : 1) });
+const goaXP = (k, fl, boss) => Math.round(((ZONES[k + '5'] || {}).xp || 17) * (1 + fl * .15) * (boss ? 3 : 1));
+const goaCoin = (k, fl, boss) => Math.round((((ZONES[k + '5'] || {}).coins || 38) + fl * 4) * (boss ? 4 : 1));
+const goaEffN = { b: ['Berkah Obor', '#ffd166', 'Cahaya obor lebih luas · ATK tim +15%'], s: ['Berkah Kecil', '#7fd6ff', 'Cahaya obor sedikit lebih luas · ATK tim +8%'], c: ['Kutukan Gelap', '#ff5d8f', 'Cahaya obor menyempit · ATK Lumi liar +10%'] };
+const goaTorchR = () => { const e = S.goaR && S.goaR.eff; return GOA_TR * (e === 'b' ? 1.3 : e === 's' ? 1.15 : e === 'c' ? .7 : 1); };
+
+/* ---------- peta lantai ---------- */
+function buildGoa(z) {
+  const k = ZONES[z].goa, R0 = S.goaR || { fl: 1, sd: 1 }, fl = R0.fl, th = GOA_TH[k], pj = GOA_PJ.includes(fl), air = GOA_AIR.includes(fl);
+  const MW = pj ? 22 : 30, MH = pj ? 32 : 46;
+  let sd = ((R0.sd * 7919 + fl * 104729 + k.length * 31) % 2147483646) + 1; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+  let F = []; for (let y = 0; y < MH; y++) { F[y] = []; for (let x = 0; x < MW; x++) F[y][x] = x < 2 || y < 2 || x > MW - 3 || y > MH - 3 ? 0 : (rnd() < .44 ? 1 : 0); }
+  for (let it = 0; it < 5; it++) { const N = F.map(r => r.slice()); for (let y = 1; y < MH - 1; y++) for (let x = 1; x < MW - 1; x++) { let n = 0; for (let a = -1; a < 2; a++) for (let c = -1; c < 2; c++) n += F[y + a][x + c]; N[y][x] = n >= 5 ? 1 : n <= 3 ? 0 : F[y][x]; } F = N; }
+  const inb = (x, y) => x > 1 && y > 1 && x < MW - 2 && y < MH - 2;
+  const carve = (cx, cy, rx, ry) => { for (let y = Math.floor(cy - ry - 1); y <= cy + ry + 1; y++) for (let x = Math.floor(cx - rx - 1); x <= cx + rx + 1; x++) if (inb(x, y) && ((x - cx) / (rx + .3)) ** 2 + ((y - cy) / (ry + .3)) ** 2 < 1 + rnd() * .25) F[y][x] = 1; };
+  let rooms;
+  if (pj) { for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) F[y][x] = 0; rooms = [[11, 4, 2.5, 2], [11, 18, 8.5, 9.5]]; carve(11, 18, 8.5, 9.5); carve(11, 4, 2.5, 2); for (let y = 4; y < 10; y++) for (let x = 10; x <= 12; x++) F[y][x] = 1; }
+  else {
+    const n = 7; rooms = []; for (let i = 0; i < n; i++) { const y = 4 + Math.round(i * (MH - 9) / (n - 1)), x = i === 0 ? 15 : (i % 2 ? 6 + Math.floor(rnd() * 7) : MW - 7 - Math.floor(rnd() * 7)); rooms.push([x, y, 3 + rnd() * 2.2, 2.5 + rnd() * 1.6]); }
+    rooms.forEach(([x, y, rx, ry], i) => { carve(x, y, rx, ry); if (i) { let [px, py] = rooms[i - 1]; px = Math.round(px); py = Math.round(py); while (px !== Math.round(x) || py !== Math.round(y)) { if (px !== Math.round(x) && (py === Math.round(y) || rnd() < .55)) px += Math.sign(Math.round(x) - px); else py += Math.sign(Math.round(y) - py); carve(px, py, 1.2, 1.2); } } });
+  }
+  // buang lantai yang tidak tersambung ke ruang awal
+  const sx0 = Math.round(rooms[0][0]), sy0 = Math.round(rooms[0][1]), seen = new Uint8Array(MW * MH), st = [[sx0, sy0]]; seen[sy0 * MW + sx0] = 1;
+  while (st.length) { const [x, y] = st.pop(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (F[ny] && F[ny][nx] && !seen[ny * MW + nx]) { seen[ny * MW + nx] = 1; st.push([nx, ny]); } } }
+  for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) if (F[y][x] && !seen[y * MW + x]) F[y][x] = 0;
+  const fl_ = (x, y) => !!(F[y] && F[y][x]);
+  const T = blankT(MW, MH, PV); for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) if (!F[y][x]) T[y][x] = RM;
+  // ---- gambar ----
+  const cv = document.createElement('canvas'); cv.width = MW * TS; cv.height = MH * TS; const g = cv.getContext('2d');
+  const P = (x, y, c, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); };
+  const lights = [];
+  for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
+    const X = x * TS, Y = y * TS;
+    if (F[y][x]) {
+      P(X, Y, (x + y) % 2 ? th.fl[0] : th.fl[1], TS, TS);
+      for (let i = 0; i < 6; i++) P(X + Math.floor(rnd() * 15), Y + Math.floor(rnd() * 15), rnd() < .5 ? th.fl[2] : th.fl[3], 2, 1);
+      if (rnd() < .12) { const a = X + 2 + Math.floor(rnd() * 9), b = Y + 3 + Math.floor(rnd() * 9); P(a, b, th.fl[3], 4, 1); P(a + 3, b + 1, th.fl[3], 3, 1); }
+      if (rnd() < .06) { const a = X + 3 + Math.floor(rnd() * 8), b = Y + 4 + Math.floor(rnd() * 8); P(a, b, th.wa[1], 4, 3); P(a, b, th.wa[0], 3, 1); P(a, b + 3, th.fl[3], 4, 1); }
+      if (!fl_(x, y - 1)) { P(X, Y, 'rgba(0,0,0,.45)', TS, 3); P(X, Y + 3, 'rgba(0,0,0,.2)', TS, 2); }
+    } else {
+      const d1 = fl_(x, y + 1), d2 = !d1 && fl_(x, y + 2);
+      if (d1) {
+        P(X, Y, th.wa[1], TS, TS); P(X, Y, th.wa[0], TS, 2); P(X, Y + 13, th.wa[2], TS, 3);
+        for (let i = 0; i < 3; i++) { const cx = X + 1 + Math.floor(rnd() * 13); P(cx, Y + 3 + Math.floor(rnd() * 4), th.wa[2], 1, 3 + Math.floor(rnd() * 5)); }
+        if (rnd() < .5) P(X + Math.floor(rnd() * 12), Y + 4, th.wa[0], 3, 1);
+      } else if (d2) { P(X, Y, th.wa[2], TS, TS); P(X, Y + 14, th.wa[1], TS, 2); P(X, Y, th.wa[3], TS, 3); if (rnd() < .5) P(X + Math.floor(rnd() * 12), Y + 7, th.wa[3], 3, 3); }
+      else {
+        P(X, Y, th.wa[4], TS, TS); for (let i = 0; i < 4; i++) P(X + Math.floor(rnd() * 14), Y + Math.floor(rnd() * 14), th.wa[3], 2, 2);
+        if (fl_(x - 1, y) || fl_(x + 1, y) || fl_(x, y - 1)) { P(X, Y, th.wa[3], TS, TS); for (let i = 0; i < 5; i++) P(X + Math.floor(rnd() * 14), Y + Math.floor(rnd() * 14), th.wa[2], 2, 2); if (fl_(x, y - 1)) P(X, Y, th.wa[2], TS, 2); if (fl_(x - 1, y)) P(X, Y, th.wa[2], 2, TS); if (fl_(x + 1, y)) P(X + 14, Y, th.wa[2], 2, TS); }
+      }
+    }
+  }
+  // dekorasi: kristal di dinding, jamur menyala, stalagmit
+  const crys = (X, Y, s) => { const c = th.cr; for (const [dx, h, w] of [[0, 11, 3], [-4, 7, 3], [4, 8, 3], [-7, 4, 2], [7, 5, 2]]) { const hh = Math.round(h * s), x = X + dx; P(x, Y - hh, c[0], w, hh); P(x, Y - hh, c[1], Math.max(1, w - 1), hh - 1); P(x, Y - hh, c[2], 1, Math.max(1, hh - 3)); P(x, Y - hh, c[3], 1, 1); } lights.push({ x: X, y: Y - 6, r: 34 * s, c: th.gl }); };
+  const mush = (X, Y) => { for (const [dx, dy] of [[0, 0], [5, 2], [-4, 3]]) { P(X + dx, Y + dy - 3, '#d8f5ee', 2, 4); P(X + dx - 2, Y + dy - 5, '#3fe0b4', 6, 2); P(X + dx - 1, Y + dy - 6, '#a5ffe8', 4, 1); } lights.push({ x: X, y: Y - 3, r: 22, c: '64,240,192' }); };
+  const stal = (X, Y) => { P(X - 4, Y - 2, th.wa[2], 9, 3); P(X - 3, Y - 7, th.wa[1], 7, 5); P(X - 1, Y - 12, th.wa[0], 4, 5); P(X, Y - 14, th.fl[2], 2, 2); P(X - 4, Y + 1, 'rgba(0,0,0,.35)', 10, 1); };
+  const far = (X, Y, d) => !lights.some(l => Math.hypot(l.x - X, l.y - Y) < d);
+  let nc = 0, nm = 0, ns = 0;
+  for (let i = 0; i < 3000 && (nc < 12 || nm < 7 || ns < 10); i++) {
+    const x = 2 + Math.floor(rnd() * (MW - 4)), y = 2 + Math.floor(rnd() * (MH - 4));
+    if (nc < (pj ? 10 : 12) && !F[y][x] && fl_(x, y + 1) && fl_(x, y + 2) && far(x * TS, y * TS, 90)) { crys(x * TS + 8, y * TS + 15, .8 + rnd() * .5); nc++; }
+    else if (nm < 7 && F[y][x] && fl_(x - 1, y) && fl_(x + 1, y) && !fl_(x, y - 2) && far(x * TS, y * TS, 70)) { mush(x * TS + 8, y * TS + 12); nm++; }
+    else if (ns < 10 && F[y][x] && fl_(x, y - 1) && fl_(x - 1, y) && fl_(x + 1, y) && fl_(x, y + 1)) { stal(x * TS + 8, y * TS + 13); ns++; }
+  }
+  // tangga naik (keluar) di ruang awal
+  const sx = Math.round(rooms[0][0]) * TS + 8, sy = Math.round(rooms[0][1] - 1) * TS + 4, inter = [], signs = [];
+  for (let i = 0; i < 4; i++) P(sx - 12 + i * 2, sy - 2 - i * 4, ['#2a2046', '#4b3e72', '#6c5d98', '#9a8ac8'][i], 24 - i * 4, 4);
+  lights.push({ x: sx, y: sy - 8, r: 30, c: '255,214,140' });
+  inter.push({ x: sx, y: sy + 6, l: 'Keluar dari Goa', fn: goaExit });
+  const spawn = { x: sx, y: sy + 38 };
+  let stairs = null, pool = null;
+  if (!pj) {
+    const L = rooms[rooms.length - 1], tx = Math.round(L[0]), ty = Math.round(L[1]); stairs = { x: tx * TS + 8, y: ty * TS + 8 };
+    const X = stairs.x, Y = stairs.y; P(X - 14, Y - 10, '#0a0614', 28, 22); for (let i = 0; i < 4; i++) P(X - 12 + i * 3, Y - 8 + i * 5, ['#9a8ac0', '#776a9e', '#594c7c', '#3d3258'][i], 24 - i * 6, 4);
+    P(X - 15, Y - 11, th.wa[0], 30, 1); P(X - 15, Y - 11, th.wa[0], 1, 23); P(X + 14, Y - 11, th.wa[0], 1, 23);
+    inter.push({ x: X, y: Y + 12, get l() { const n = S.goaR && S.goaR.mon ? S.goaR.mon.length : 0; return n ? `Tangga terkunci · sisa ${n} Lumi` : `Turun ke Lantai ${fl + 1} (5 soal)`; }, fn: goaStairs });
+    lights.push({ x: X, y: Y, r: 26, c: '180,160,255' });
+  }
+  if (air) {
+    const A = rooms[Math.floor(rooms.length / 2)], X = Math.round(A[0]) * TS + 8, Y = Math.round(A[1]) * TS + 8; pool = { x: X, y: Y };
+    for (let y = -9; y <= 9; y++) for (let x = -18; x <= 18; x++) if ((x / 18) ** 2 + (y / 9) ** 2 < 1) P(X + x, Y + y, y < -6 ? '#7fd8ff' : (x + y) % 5 ? '#1f6fb0' : '#2f86c8');
+    P(X - 10, Y - 3, '#d8f6ff', 8, 1); P(X + 3, Y + 2, '#a8e4ff', 6, 1); for (let y = -10; y <= 10; y++) for (let x = -19; x <= 19; x++) { const d = (x / 19) ** 2 + (y / 10) ** 2; if (d >= 1 && d < 1.25) P(X + x, Y + y, th.wa[1]); }
+    lights.push({ x: X, y: Y, r: 46, c: '90,190,255' });
+    inter.push({ x: X, y: Y + 14, get l() { return S.goaR && S.goaR.air ? 'Mata Air Ilmu (sudah dipakai)' : 'Mata Air Ilmu · 3 soal'; }, fn: goaAir });
+  }
+  signs.push({ x: sx, y: sy - 24, t: `LANTAI ${fl}`, c: '#ffe27a', bg: '#2a1f3a' });
+  const floorCells = []; for (let y = 3; y < MH - 3; y++) for (let x = 3; x < MW - 3; x++) if (F[y][x] && F[y - 1][x] && F[y + 1][x] && F[y][x - 1] && F[y][x + 1]) floorCells.push([x, y]);
+  return { zone: z, MW, MH, T, ground: cv, OBJ: [], solids: [], inter, signs, npcsDef: [], lights: [], spawn, gate: null, koi: null, dark: false, theme: undefined,
+    gv: { k, fl, pj, air, stairs, pool, lights, rooms, floorCells, seen: new Uint8Array(MW * MH), sd: R0.sd } };
+}
+
+/* ---------- isi lantai: Lumi berevolusi (disimpan di S.goaR.mon agar tetap sama setelah dibuka ulang) ---------- */
+function goaPopulate() {
+  const R = S.goaR, G = W.gv; if (!R || !G) return;
+  if (!R.mon || R.monFl !== R.fl) {
+    let sd = (R.sd * 31 + R.fl * 977) % 2147483646 + 1; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+    R.monFl = R.fl;
+    if (G.pj) { const r = G.rooms[1]; R.mon = [{ id: goaBoss(R.k), x: Math.round(r[0]) * TS + 8, y: Math.round(r[1]) * TS + 8, boss: 1 }]; }
+
+    else {
+      const n = R.fl <= 5 ? 2 : 3, pool = goaPool(R.k, R.fl), out = [];
+      for (let i = 0; i < 400 && out.length < n; i++) { const c = G.floorCells[Math.floor(rnd() * G.floorCells.length)]; if (!c) break; const x = c[0] * TS + 8, y = c[1] * TS + 10;
+        if (Math.hypot(x - W.spawn.x, y - W.spawn.y) < 150 || out.some(o => Math.hypot(o.x - x, o.y - y) < 110) || (G.stairs && Math.hypot(G.stairs.x - x, G.stairs.y - y) < 40)) continue;
+        out.push({ id: pool[Math.floor(rnd() * pool.length)], x, y }); }
+      R.mon = out;
+    }
+    save();
+  }
+  for (const o of R.mon) if (o.boss && !G.lights.some(l => l.boss)) G.lights.push({ x: o.x, y: o.y - 22, r: 70, c: '255,70,110', boss: 1 });
+  W.wild = R.mon.map(o => ({ id: o.id, h: null, x: o.x, y: o.y, vx: 0, vy: 0, t: 0, ph: Math.random() * 6, blink: 0, evo: 1, boss: o.boss, ref: o }));
+}
+const goaDoorAt = k => { const z = k + '5'; if (!MAPS[z]) { MAPS[z] = buildMap(z); try { goaBuild(MAPS[z], z); } catch (e) { } } const m = MAPS[z]; return m && m.goa ? { x: m.goa.x, y: m.goa.y + 14 } : null; };
+{ const _ez = enterZone; enterZone = function (z, at) {
+  const G = ZONES[z] && ZONES[z].goa;
+  if (G) { if (!S.goaR || S.goaR.k !== G) { const r = _ez.call(this, G + '5', goaDoorAt(G)); if (W) W.gateDone = true; return r; } delete MAPS[z]; }
+  else if (S.goaR) { S.goaR = null; save(); }   // pindah wilayah lewat cara lain = percobaan selesai
+  const r = _ez.call(this, z, at);
+  if (W && W.gv) { goaPopulate(); W.safe = performance.now() + 1800; }
+  return r;
+}; }
+function goaEnd(why) { const k = S.goaR && S.goaR.k; S.goaR = null; save(); if (k) { enterZone(k + '5', goaDoorAt(k)); if (W) W.gateDone = true; } }
+const goaAlive = () => S.team.filter(id => { const h = S.goaR.hp[id]; return h == null || h > 0; });
+function goaTeamF() {
+  const R = S.goaR, e = R.eff === 'b' ? .15 : R.eff === 's' ? .08 : 0;
+  const out = S.team.map(id => { const f = mkF(id, true); if (f.evo) { f.fatk = (f.fatk || 0) + .15; f.fdef = (f.fdef || 0) + .15; } if (e) f.fatk = (f.fatk || 0) + e; const h = R.hp[id]; f.hp = h == null ? f.max : Math.max(0, Math.min(f.max, Math.round(f.max * h))); return f; });
+  return out.filter(f => f.hp > 0).concat(out.filter(f => f.hp <= 0));
+}
+
+/* ---------- pertarungan ---------- */
+{ const _enc = encounter; encounter = async function (m) { if (W && W.gv) return goaFight(m); return _enc(m); }; }
+async function goaFight(m) {
+  stopLoop(); const R = S.goaR; if (!R) { show('s-world'); return; }
+  if (!S.team.length || !goaAlive().length) return goaWipe();
+  const meF = goaTeamF(), f = mkF(m.id), s = goaFoeK(R.fl, m.boss);
+  f.m = evoM(m.id); f.evo = true; f.hp = f.max = Math.round(f.max * s.hp); f.am = s.am; if (R.eff === 'c') f.fatk = (f.fatk || 0) + .1;
+  const res = await startBattle({ type: 'goa', foe: [m.id], foeF: [f], meF, title: m.boss ? `Penjaga Goa: ${f.m.n}!` : `${f.m.n} menghadang di kegelapan!`, zone: 'cave', gv: { k: R.k, fl: R.fl, boss: !!m.boss } });
+  if (!S.goaR) return;
+  for (const x of meF) R.hp[x.id] = Math.max(0, x.hp) / x.max;
+  if (res === 'win') {
+    const i = W.wild.indexOf(m); if (i >= 0) W.wild.splice(i, 1); R.mon = R.mon.filter(o => o !== m.ref); save();
+    if (m.boss) return goaPjWin();
+    if (!R.mon.length) { setTimeout(() => toast('🪜 Semua Lumi kalah. <b>Tangga terbuka!</b>', 3200), 300); sfx('pass'); }
+  } else if (res === 'lose' || !goaAlive().length) { save(); return goaWipe(); }
+  else { const a = Math.random() * 6.28; for (let k = 0; k < 10; k++) { const nx = m.x + Math.cos(a + k) * 70, ny = m.y + Math.sin(a + k) * 70; if (walkable(nx, ny)) { m.x = nx; m.y = ny; break; } } }
+  save(); W.safe = performance.now() + 2000; hud(); show('s-world');
+}
+/* dipanggil finish() di c_battle.js */
+function goaFinish(res, cfg) {
+  const G = cfg.gv || {}, rw = []; let html;
+  if (res === 'win') {
+    S.st.win++; progress('win'); S.team.forEach(id => bondAdd(3, id));
+    const c = accCoin(goaCoin(G.k, G.fl, G.boss)), xp = goaXP(G.k, G.fl, G.boss); addCoins(c); progress('coins', c); gainXP(xp);
+    rw.push(`${COIN}+${c} koin`, `+${xp} XP <small style="font-weight:700;color:var(--muted)">(XP Goa tidak memakai batas harian)</small>`);
+    html = `<div class="big" style="color:var(--sun)">MENANG!</div><p style="text-align:center;color:var(--muted);font-weight:700">HP Lumimu tidak pulih di dalam goa. Hati-hati!</p>`;
+  } else if (res === 'lose') html = `<div class="big">Semua Lumi pingsan…</div><p style="text-align:center;color:var(--muted);font-weight:700">Kamu keluar dari goa. Lanjut lagi dari Batu Penanda terakhir.</p>`;
+  else html = `<div class="big">Berhasil kabur</div><p style="text-align:center;color:var(--muted);font-weight:700">Lumi itu masih menunggu di kegelapan.</p>`;
+  return { html, rw };
+}
+async function goaWipe() {
+  const R = S.goaR, k = R && R.k, fl = R && R.fl; goaEnd('kalah'); const g = goaS();
+  await modal(`<h2>🕯️ Obor padam…</h2><p>Semua Lumimu pingsan di <b>Lantai ${fl}</b>. Kamu dibawa keluar goa.</p><div class="card" style="font-weight:800">Lantai terdalam: ${g.best[k] || fl} · Mulai berikutnya: Lantai ${goaStart(k)}</div>`, [{ t: 'Oke', cls: 'hot' }]);
+}
+async function goaPjWin() {
+  const R = S.goaR, k = R.k, g = goaS(), d = today(); g.mark[k] = Math.max(g.mark[k] || 0, R.fl); g.best[k] = Math.max(g.best[k] || 0, R.fl);
+  const egg = g.pj[k] !== d; if (egg) { g.pj[k] = d; S.boxes.Perak++; }
+  goaEnd('penjaga'); sfx('pass');
+  await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:44px">🗿✨</div><h2 style="margin:0">Batu Penanda menyala!</h2><p>Kamu mengalahkan <b>Penjaga Goa</b> Lantai ${R.fl}.${egg ? ' Hadiah: <b>Telur Perak</b>!' : ' (Telur Perak sudah diambil hari ini.)'}</p><div class="card" style="font-weight:800">⛏️ Lantai 11–20 sedang digali… <b>segera dibuka!</b><br><small style="color:var(--sub)">Sampai saat itu, kamu boleh menjelajah lagi dari Lantai 1.</small></div></div>`, [{ t: 'Mantap!', cls: 'hot' }]);
+  hud();
+}
+
+/* ---------- tangga: 5 soal → berkah / kutukan ---------- */
+function goaQs(n) {
+  const R = S.goaR, bank = goaBank(R.k); let pool = BANK.filter(q => q[0] === bank && qMid(q) && !R.used.includes(q[9]));
+  if (pool.length < n) pool = BANK.filter(q => q[0] === bank && qMid(q)); if (pool.length < n) pool = BANK.filter(q => q[0] === bank);
+  return qPick(pool, n, true);
+}
+async function goaStairs() {
+  const R = S.goaR; if (!R) return;
+  if (R.mon && R.mon.length) { toast(`🔒 Kalahkan semua Lumi dulu (sisa ${R.mon.length})`, 2600); return; }
+  if (R.fl >= GOA_MAX) return;
+  const c = await modal(`<h2>🪜 Tangga ke Lantai ${R.fl + 1}</h2><p>Jawab <b>5 soal ${esc(PSHORT[R.k])}</b> tingkat sedang–sulit untuk turun.</p>
+    <div class="card" style="font-size:13.5px;font-weight:700;display:flex;flex-direction:column;gap:3px"><span><b style="color:#b07a00">5 benar · Berkah Obor</b>: cahaya lebih luas, ATK +15%, pulih 20% HP</span><span><b style="color:#3a7bd5">4 benar · Berkah Kecil</b>: cahaya sedikit lebih luas, ATK +8%</span><span><b style="color:#c2301b">0–3 benar · Kutukan Gelap</b>: cahaya menyempit, Lumi liar ATK +10%</span></div>
+    <p style="font-size:12px;color:var(--sub);font-weight:700">Efek berlaku di lantai berikutnya. Soal yang salah masuk Remedial.</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Mulai', cls: 'hot' }]);
+  if (c !== 1 || !S.goaR) return;
+  const qs = goaQs(5), r = await runQuiz({ title: 'Gerbang Tangga', sub: `Lantai ${R.fl} → ${R.fl + 1} · ${PSHORT[R.k]}`, qs, timed: true, secs: 45 });
+  if (r.quit) { show('s-world'); toast('Belum turun. Datangi tangga lagi kapan saja.'); return; }
+  qs.forEach(q => R.used.push(q[9])); R.used = R.used.slice(-120);
+  const e = r.ok >= 5 ? 'b' : r.ok >= 4 ? 's' : 'c';
+  if (e === 'b') for (const id of S.team) { const h = R.hp[id]; if (h != null && h > 0) R.hp[id] = Math.min(1, h + .2); }
+  R.fl++; R.eff = e; R.mon = null; R.air = 0; const g = goaS(); g.best[R.k] = Math.max(g.best[R.k] || 0, R.fl); save();
+  enterZone('goa_' + R.k); sfx(e === 'c' ? '' : 'pass');
+  const E = goaEffN[e];
+  await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div class="big" style="font-size:44px">${r.ok}/5</div><h2 style="margin:0;color:${e === 'c' ? '#c2301b' : e === 'b' ? '#b07a00' : '#3a7bd5'}">${e === 'c' ? '💀' : e === 'b' ? '🔥' : '🕯️'} ${E[0]}</h2><p>${E[2]}${e === 'b' ? ' · HP tim pulih 20%' : ''}</p><div class="card" style="font-weight:800">Selamat datang di Lantai ${R.fl}${GOA_PJ.includes(R.fl) ? ' · <b style="color:#c2301b">Penjaga Goa menunggu!</b>' : GOA_AIR.includes(R.fl) ? ' · ada <b>Mata Air Ilmu</b>' : ''}</div></div>`, [{ t: 'Jelajahi', cls: 'hot' }]);
+}
+async function goaAir() {
+  const R = S.goaR; if (!R) return; if (R.air) { toast('Mata Air sudah dipakai di lantai ini'); return; }
+  const c = await modal(`<h2>💧 Mata Air Ilmu</h2><p>Jawab <b>3 soal</b>. Tiap jawaban benar memulihkan HP tim. 3 benar = pulih penuh dan Lumi pingsan bangkit!</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Minum', cls: 'hot' }]);
+  if (c !== 1 || !S.goaR) return;
+  const qs = goaQs(3), r = await runQuiz({ title: 'Mata Air Ilmu', sub: `${PSHORT[R.k]} · 3 soal`, qs, timed: true, secs: 45 });
+  if (r.quit) { show('s-world'); return; }
+  qs.forEach(q => R.used.push(q[9])); R.air = 1;
+  const add = [0, .3, .6, 1][r.ok] || 0;
+  for (const id of S.team) { const h = R.hp[id] == null ? 1 : R.hp[id]; R.hp[id] = r.ok >= 3 ? 1 : h > 0 ? Math.min(1, h + add) : 0; }
+  save(); show('s-world'); toast(r.ok ? `💧 ${r.ok}/3 benar · HP tim pulih ${r.ok >= 3 ? 'penuh' : Math.round(add * 100) + '%'}` : '💧 0/3 benar · airnya tidak terasa apa-apa…', 3200); goaHud(true);
+}
+async function goaExit() {
+  const R = S.goaR; if (!R) return;
+  const c = await modal(`<h2>Keluar dari Goa?</h2><p>Kemajuan di Lantai ${R.fl} akan hilang. Berikutnya kamu mulai dari <b>Lantai ${goaStart(R.k)}</b>. Obor yang sudah dipakai tidak kembali.</p>`, [{ t: 'Tetap di Goa', cls: 'ghost' }, { t: 'Keluar', cls: 'hot' }]);
+  if (c === 1) goaEnd('keluar');
+}
+
+/* ---------- pintu goa (menggantikan pesan "segera dibuka") ---------- */
+goaOpen = async function () {
+  const z = W && W.zone, k = ZONES[z] && ZONES[z].pulau; if (!k || !GOA_TH[k]) return;
+  if (S.rank < GOA_RANK) { await modal(`<h2>🕳️ Goa Monster</h2><p>Lumi liar berasal dari goa ini… Makin dalam, makin kuat Lumi-nya, dan semuanya sudah berevolusi!</p><div class="card" style="font-weight:800">🔒 Goa Monster terbuka di <b>Rank ${GOA_RANK}</b>.</div>`, [{ t: 'Oke', cls: 'hot' }]); return; }
+  if (isTutup()) { await modal(`<h2>🕳️ Goa Monster</h2><div class="card" style="font-weight:800">🌙 Goa tutup pukul 22.00–05.00. Istirahat dulu ya!</div>`, [{ t: 'Oke', cls: 'hot' }]); return; }
+  const g = goaS(), left = goaLeft(), st = goaStart(k), mk = g.mark[k] || 0;
+  const c = await modal(`<h2>🕳️ Goa Monster · ${esc(PSHORT[k])}</h2><p style="margin:4px 0">Goa yang <b>luas dan gelap</b>. Hanya obormu yang menerangi. Semua Lumi di dalamnya sudah berevolusi!</p>
+    <div class="card" style="font-size:13.5px;font-weight:700;display:flex;flex-direction:column;gap:3px">
+      <span>🔥 Obor hari ini: <b>${left}</b> (1 obor = 1 kali masuk)</span><span>🏔️ Lantai terdalam: <b>${g.best[k] || 0}</b> · 🗿 Batu Penanda: <b>${mk ? 'Lantai ' + mk : 'belum ada'}</b></span>
+      <span>▶️ Mulai dari <b>Lantai ${st}</b></span></div>
+    <div style="font-size:12.5px;font-weight:700;color:var(--sub);display:flex;flex-direction:column;gap:2px;margin-top:6px"><span>• Kalahkan semua Lumi → tangga terbuka → jawab 5 soal untuk turun.</span><span>• HP Lumi <b>tidak pulih</b> antar lantai. Lantai 5: Mata Air Ilmu.</span><span>• Lantai 10: Penjaga Goa (Telur Perak + Batu Penanda).</span><span>• Semua Lumi pingsan = keluar goa.</span>${mk >= GOA_MAX ? '<span style="color:#b07a00">• Lantai 11–20 segera dibuka!</span>' : ''}</div>
+    ${left ? '' : `<p style="font-weight:800;color:#c2301b;margin:6px 0 0">Obor habis. Beli Obor di Toko Umum Mak Tika (${GOA_PRICE} koin, maks ${GOA_BUY}/hari).</p>`}`,
+    left ? [{ t: 'Nanti', cls: 'ghost' }, { t: '🔥 Masuk', cls: 'hot' }] : [{ t: 'Oke', cls: 'hot' }]);
+  if (!left || c !== 1) return;
+  if (!S.team.length) { toast('Timmu masih kosong'); return; }
+  g.ob++; S.goaR = { k, fl: st, hp: {}, eff: null, sd: (Date.now() % 1000003) + 1, mon: null, used: [], air: 0 }; g.best[k] = Math.max(g.best[k] || 0, st); save();
+  enterZone('goa_' + k); toast(`🔥 Masuk Goa Monster · Lantai ${st}`, 2600);
+};
+
+/* ---------- Obor di Toko Umum Mak Tika ---------- */
+function goaTikaRow() {
+  if (!S || S.rank < GOA_RANK) return '';
+  const g = goaS(), sisa = GOA_BUY - g.buy, no = sisa <= 0 || S.coins < GOA_PRICE;
+  return `<div style="display:flex;gap:8px;align-items:center;padding:6px;border-radius:12px;background:#fff8e6;border:2px solid #ffd166"><span style="width:42px;display:grid;place-items:center;font-size:28px">🔥</span><div style="flex:1;min-width:0"><b style="color:var(--text)">Obor Goa</b> <span style="font-size:12px;font-weight:800;color:var(--sub)">sisa obor ${goaLeft()}</span><div style="font-size:12.5px;color:var(--sub);font-weight:700">+1 kali masuk Goa Monster · beli maks ${GOA_BUY}/hari (sisa ${Math.max(0, sisa)})</div></div><button type="button" class="btn hot" data-goabuy="1" ${no ? 'disabled' : ''} style="min-height:38px;font-size:14px;padding:0 10px">${COIN}${GOA_PRICE}</button></div>`;
+}
+function goaBuy() {
+  const g = goaS(); if (g.buy >= GOA_BUY || S.coins < GOA_PRICE) return false;
+  S.coins -= GOA_PRICE; g.buy++; save(); hud(); sfx('coin'); toast(`🔥 Obor Goa dibeli! Sisa obor hari ini: ${goaLeft()}`, 2800); return true;
+}
+
+/* ---------- gambar: gelap + obor, Penjaga, tangga, mata air ---------- */
+let GDK = null;
+function goaDark(t, ox, oy) {
+  const G = W.gv, p = W.p, Q = 2, w = Math.ceil(VW / Q), h = Math.ceil(VH / Q);
+  if (!GDK) GDK = document.createElement('canvas'); if (GDK.width !== w || GDK.height !== h) { GDK.width = w; GDK.height = h; }
+  const g = GDK.getContext('2d'); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(4,2,12,.88)'; g.fillRect(0, 0, w, h);
+  g.globalCompositeOperation = 'destination-out';
+  const R0 = goaTorchR() * (1 + Math.sin(t / 140) * .025 + Math.sin(t / 57) * .015), px = (p.x - ox) / Q, py = (p.y - oy - 12) / Q;
+  const ring = (x, y, r, a) => { g.fillStyle = `rgba(0,0,0,${a})`; g.beginPath(); g.arc(x, y, Math.max(1, r), 0, 6.3); g.fill(); };
+  ring(px, py, R0 / Q, .2); ring(px, py, R0 * .78 / Q, .27); ring(px, py, R0 * .56 / Q, .45); ring(px, py, R0 * .36 / Q, 1);
+  for (const l of G.lights) { const lx = (l.x - ox) / Q, ly = (l.y - oy) / Q; if (lx < -40 || ly < -40 || lx > w + 40 || ly > h + 40) continue; ring(lx, ly, l.r / Q, .2); ring(lx, ly, l.r * .5 / Q, .28); }
+  g.globalCompositeOperation = 'source-over';
+  bx.imageSmoothingEnabled = false; bx.drawImage(GDK, 0, 0, w * Q, h * Q);
+  bx.globalCompositeOperation = 'lighter';
+  const tx = p.x - ox, ty = p.y - oy - 12, gg = bx.createRadialGradient(tx, ty, 2, tx, ty, R0); gg.addColorStop(0, 'rgba(255,140,40,.2)'); gg.addColorStop(1, 'rgba(255,140,40,0)'); bx.fillStyle = gg; bx.fillRect(tx - R0, ty - R0, R0 * 2, R0 * 2);
+  for (const l of G.lights) { const lx = l.x - ox, ly = l.y - oy; if (lx < -40 || ly < -40 || lx > VW + 40 || ly > VH + 40) continue; const q = bx.createRadialGradient(lx, ly, 1, lx, ly, l.r * .8); q.addColorStop(0, `rgba(${l.c},.32)`); q.addColorStop(1, `rgba(${l.c},0)`); bx.fillStyle = q; bx.fillRect(lx - l.r, ly - l.r, l.r * 2, l.r * 2); }
+  bx.globalCompositeOperation = 'source-over';
+  // tandai petak yang sudah terlihat (peta mini)
+  const rr = Math.ceil(R0 * .8 / TS), cx = Math.floor(p.x / TS), cy = Math.floor(p.y / TS);
+  for (let y = cy - rr; y <= cy + rr; y++) for (let x = cx - rr; x <= cx + rr; x++) if (x >= 0 && y >= 0 && x < W.MW && y < W.MH && (x - cx) ** 2 + (y - cy) ** 2 <= rr * rr) G.seen[y * W.MW + x] = 1;
+}
+function goaDraw(list, t, ox, oy) {
+  if (!W || !W.gv) return; const G = W.gv, p = W.p, R = S.goaR;
+  // obor di tangan
+  list.push({ fy: p.y + 1, d: () => { const x = Math.round(p.x - ox) + (p.dir === 'left' ? -9 : 6), y = Math.round(p.y - oy) - 17, f = Math.floor(t / 110) % 3;
+    bx.fillStyle = '#6b4423'; bx.fillRect(x, y + 4, 2, 7); bx.fillStyle = '#e2451d'; bx.fillRect(x - 1, y - 1 - f % 2, 4, 5); bx.fillStyle = '#ff9d2e'; bx.fillRect(x, y - 2 - (f === 1 ? 1 : 0), 2, 5); bx.fillStyle = '#fff6a8'; bx.fillRect(x, y + 1, 2, 2); } });
+  // Penjaga Goa (2x, aura merah)
+  for (const m of W.wild) if (m.boss) list.push({ fy: m.y, d: () => {
+    const img = monImg(m.id, m.blink > 0, Math.floor(t / 260) % 2, false, true), sc = 2, w = img.width * sc, h = img.height * sc, x = Math.round(m.x - ox), y = Math.round(m.y - oy), bob = Math.round(Math.sin(t / 520) * 2);
+    const gr = bx.createRadialGradient(x, y - h / 2, 4, x, y - h / 2, w * .8); gr.addColorStop(0, 'rgba(255,60,90,.35)'); gr.addColorStop(1, 'rgba(255,60,90,0)'); bx.fillStyle = gr; bx.fillRect(x - w, y - h * 1.3, w * 2, h * 1.6);
+    shadow(x, y, Math.round(w / 2.6)); bx.drawImage(img, x - w / 2, y - h + bob + 3, w, h);
+  } });
+  // tangga: gembok bila masih ada Lumi
+  if (G.stairs && R && R.mon && R.mon.length) { const s = G.stairs; list.push({ fy: s.y - 20, d: () => { const x = Math.round(s.x - ox), y = Math.round(s.y - oy) - 4; bx.fillStyle = '#24123a'; bx.fillRect(x - 5, y - 3, 10, 9); bx.fillStyle = '#ffd23c'; bx.fillRect(x - 4, y - 2, 8, 7); bx.fillStyle = '#24123a'; bx.fillRect(x - 1, y, 2, 3); bx.strokeStyle = '#ffd23c'; bx.lineWidth = 2; bx.beginPath(); bx.arc(x, y - 3, 3, Math.PI, 0); bx.stroke(); } }); }
+  if (G.pool && R && !R.air) { const s = G.pool; for (let i = 0; i < 4; i++) { const a = t / 600 + i * 1.6; bx.fillStyle = i % 2 ? '#e6fbff' : '#8fdcff'; bx.fillRect(Math.round(s.x - ox + Math.cos(a) * 14), Math.round(s.y - oy - 6 - ((t / 40 + i * 9) % 14)), 1, 2); } }
+}
+
+/* ---------- HUD + peta mini ---------- */
+function goaHud(force) {
+  let el = $('#goaHud'); const qc = $('#questChip'), inG = !!(W && W.gv) && !$('#s-world').hidden;
+  if (!inG) { if (el) el.hidden = true; if (qc && qc.dataset.goa) { qc.style.display = ''; delete qc.dataset.goa; } return; }
+  if (!el && qc) { el = document.createElement('div'); el.id = 'goaHud'; el.style.cssText = 'display:flex;gap:6px;align-items:flex-start;pointer-events:none;max-width:100%'; el.innerHTML = `<div id="goaInfo" style="background:rgba(14,8,26,.88);color:#fff;border:2px solid #4a3c6e;border-radius:12px;padding:5px 8px;font-weight:800;font-size:12.5px;line-height:1.35"></div><canvas id="goaMini" width="60" height="92" style="width:48px;height:74px;border:2px solid #4a3c6e;border-radius:8px;background:rgba(10,6,20,.9);image-rendering:pixelated"></canvas>`; qc.parentNode.insertBefore(el, qc.nextSibling); }
+  if (!el) return; el.hidden = false; if (qc) { qc.style.display = 'none'; qc.dataset.goa = 1; }
+  const R = S.goaR; if (!R) return; const n = R.mon ? R.mon.length : 0, E = R.eff && goaEffN[R.eff];
+  const pills = S.team.map(id => { const h = R.hp[id] == null ? 1 : R.hp[id]; return `<span style="display:inline-flex;align-items:center;gap:2px;margin-right:3px"><img src="${monURL(id, evoOn(id))}" style="width:18px;image-rendering:pixelated;${h <= 0 ? 'filter:grayscale(1);opacity:.5' : ''}" alt=""><i style="display:inline-block;width:26px;height:5px;border-radius:3px;background:#2a2238;overflow:hidden"><b style="display:block;height:100%;width:${Math.round(h * 100)}%;background:${h > .5 ? '#5ee08a' : h > .25 ? '#ffd166' : '#ff5d6c'}"></b></i></span>`; }).join('');
+  const html = `<span style="color:#7fd6ff">🕳️ LANTAI ${R.fl}</span>${W.gv.pj ? ' · <span style="color:#ff8fb0">Penjaga Goa!</span>' : ` · ${n ? `Lumi tersisa <b>${n}</b>` : '<span style="color:#7fe3a8">🪜 Tangga terbuka</span>'}`}${E ? `<br><span style="color:${E[1]}">${E[0]}</span>` : ''}<br>${pills}`;
+  const info = $('#goaInfo'); if (force || info.dataset.h !== html) { info.innerHTML = html; info.dataset.h = html; }
+  // peta mini
+  const c = $('#goaMini'), G = W.gv; if (!c) return; const g = c.getContext('2d'), sx = c.width / W.MW, sy = c.height / W.MH; g.clearRect(0, 0, c.width, c.height);
+  g.fillStyle = '#8f84c4'; for (let y = 0; y < W.MH; y++) for (let x = 0; x < W.MW; x++) if (G.seen[y * W.MW + x] && W.T[y][x] === PV) g.fillRect(x * sx, y * sy, Math.ceil(sx), Math.ceil(sy));
+  if (G.stairs) { g.fillStyle = n ? '#a99ad8' : '#7fe3a8'; g.fillRect(G.stairs.x / TS * sx - 2, G.stairs.y / TS * sy - 2, 4, 4); }
+  if (G.pool) { g.fillStyle = '#5fd0ff'; g.fillRect(G.pool.x / TS * sx - 2, G.pool.y / TS * sy - 1, 4, 3); }
+  g.fillStyle = '#ff5d8f'; for (const m of W.wild) g.fillRect(m.x / TS * sx - 1.5, m.y / TS * sy - 1.5, m.boss ? 5 : 3, m.boss ? 5 : 3);
+  g.fillStyle = '#ffd166'; g.fillRect(W.p.x / TS * sx - 2, W.p.y / TS * sy - 2, 4, 4);
+}
+setInterval(() => { try { goaHud(); } catch (e) { } }, 300);
 
 /* ================= v115: BAKAT LEGENDA, gambar Telur Legenda, Papan Bos baru =================
    Bakat = kemampuan pasif Legenda MILIK ANAK (bukan bos), aktif di semua battle KECUALI duel pemain.
