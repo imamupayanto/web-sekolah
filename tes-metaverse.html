@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v133">
+<meta name="lumimon-ver" content="v134">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -1321,6 +1321,8 @@ Object.assign(CHIP_SONGS, {
     ins: { lead: { duty: .5, v: .13 }, lead2: { oct: 0, duty: .25, v: .06, pan: .2 }, bass: { v: .27 } },
     drum: { k: ['x.x.x.x.x.x.x.xx'], s: ['....x.......x...'], h: ['x.x.x.x.x.x.x.x.'], X: ['X...............', null] }, dv: { k: .8, h: .6, X: .6 } }
 });
+/* v134: musik tegang saat Bos Legenda turun ke sekolah (event): tema Sarang dipercepat + drum */
+CHIP_SONGS.evboss = Object.assign({}, CHIP_SONGS.sarang, { bpm: 116, drum: CHIP_SONGS.sarang.drum || (CHIP_SONGS.legend && CHIP_SONGS.legend.drum) });
 
 /* ================= SUARA: musik dan efek Chiptune+ (v123), dibuat lewat kode (tanpa file audio) =================
    Web Audio dimulai setelah sentuhan pertama (aturan browser HP). Musik dan efek bisa dimatikan terpisah.
@@ -1449,6 +1451,7 @@ function sndWant() {
   }
   if (vis('s-aka') || vis('s-quiz')) return 'study';
   if (vis('s-world') && typeof W !== 'undefined' && W) {
+    if (typeof lbsSchOn === 'function' && lbsSchOn()) return 'evboss';   // v134: Bos Legenda di sekolah (event)
     const z = W.zone || ''; let k;
     if (/^goa_/.test(z)) k = 'goa'; else if (/^sar_/.test(z)) k = 'sarang'; else if (CHIP_SONGS[z]) k = z; else { const m = /^[a-z]+/.exec(z); k = m && CHIP_SONGS[m[0]] ? m[0] : 'school'; }
     return SND_NIGHT.has(k) && sndNight() ? k + '@n' : k;
