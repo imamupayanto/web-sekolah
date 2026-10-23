@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v130">
+<meta name="lumimon-ver" content="v131">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -4287,7 +4287,11 @@ async function finish(res) {
     }
     html = `<div class="big" style="color:var(--sun)">MENANG!</div>`;
   } else if (res === 'lose') {
-    if (!isTutup() && !cfg.tut) { gainXP(3); rw.push('+3 XP'); }
+    if (!isTutup() && !cfg.tut) {   // v131: XP hiburan kalah maks 5x/hari (tutup celah "sengaja kalah")
+      if (!S.klh || S.klh.d !== today()) S.klh = { d: today(), n: 0 };
+      if (S.klh.n < 5) { S.klh.n++; gainXP(3); rw.push(`+3 XP <small style="font-weight:700;color:var(--muted)">(hiburan ${S.klh.n}/5 hari ini)</small>`); }
+      else rw.push('<small style="font-weight:700;color:var(--muted)">XP hiburan kalah hari ini sudah habis (5/5). Menang memberi XP lebih banyak!</small>');
+    }
     html = `<div class="big">Kalah...</div><p style="text-align:center;color:var(--muted);font-weight:700">Lumimu dipulihkan. Coba atur tim dengan elemen yang lebih unggul.</p>`;
   } else if (res === 'fled') html = `<div class="big">Kabur!</div><p style="text-align:center;color:var(--muted);font-weight:700">Lumi penakut itu lari sebelum kalah. Lain kali pakai Kritis untuk menyelesaikannya lebih cepat.</p>`;
   else html = `<div class="big">${cfg.type === 'wild' ? 'Berhasil kabur' : 'Menyerah'}</div>`;
