@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v131">
+<meta name="lumimon-ver" content="v133">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -2901,7 +2901,7 @@ function draw(t) {
     const tt = W.T[Math.floor(m.y / TS)] && W.T[Math.floor(m.y / TS)][Math.floor(m.x / TS)];
     if (TALL_T.has(tt)) for (let i = -7; i <= 7; i += 2) { const hgt = 3 + ((i + 9) * 7 % 3); bx.fillStyle = tt === FS ? ((i & 2) ? '#ffffff' : '#9ab8c8') : C.tall[(i & 2) ? 2 : 1]; bx.fillRect(x + i, y - hgt + 1, 1, hgt); }
   } });
-  mpDraw(list, person, t, ox, oy); if (typeof fishDraw === 'function') fishDraw(list, t, ox, oy); raidDraw(list, t, ox, oy); nightDraw(list, t, ox, oy); if (typeof sarangDraw === 'function') sarangDraw(list, t, ox, oy); if (W.gv && typeof goaDraw === 'function') goaDraw(list, t, ox, oy); if (typeof skDraw === 'function') skDraw(list, t, ox, oy);
+  mpDraw(list, person, t, ox, oy); if (typeof fishDraw === 'function') fishDraw(list, t, ox, oy); raidDraw(list, t, ox, oy); nightDraw(list, t, ox, oy); if (typeof sarangDraw === 'function') sarangDraw(list, t, ox, oy); if (W.gv && typeof goaDraw === 'function') goaDraw(list, t, ox, oy); if (typeof skDraw === 'function') skDraw(list, t, ox, oy); if (typeof lbsSchDraw === 'function') lbsSchDraw(list, t, ox, oy);
   list.sort((a, b) => a.fy - b.fy).forEach(o => o.d());
   // weather / atmosphere
   if ((W.theme || W.zone) === 'snow') { bx.fillStyle = '#ffffff'; for (let i = 0; i < 40; i++) { const sx = (hash(i, 1) * VW + t / 40 * (0.4 + hash(i, 2))) % VW, sy = (hash(i, 3) * VH + t / 25 * (0.6 + hash(i, 4))) % VH; bx.fillRect(Math.floor(sx), Math.floor(sy), 1, 1); } }
@@ -5107,7 +5107,7 @@ const TLIST = [
   ['pemburuL', 'Pemburu Legendaris', 'Petualang', 'E', 'Menang lawan Lumi liar 300 kali', () => [S.st.wild || 0, 300]],
   ['kolektor', 'Kolektor', 'Petualang', 'R', 'Punya 20 jenis Lumi', () => [ownedN(), 20]],
   ['kolektorA', 'Kolektor Agung', 'Petualang', 'L', 'Punya semua 40 jenis Lumi', () => [ownedN(), MONS.length]],
-  ['penakluk', 'Penakluk Legenda', 'Petualang', 'L', 'Ikut menumbangkan 4 Bos Legenda berbeda', () => [legN(), 4]],
+  ['penakluk', 'Pemburu Empat Legenda', 'Petualang', 'L', 'Ikut menumbangkan 4 Bos Legenda berbeda', () => [legN(), 4]],
   ['sahabat', 'Sahabat Lumi', 'Petualang', 'E', 'Kedekatan maksimal (Lv.5) dengan 1 Lumi', () => [bondMax(), 5]],
   ['duelis', 'Duelis', 'Sosial', 'R', 'Menang duel melawan pemain 10 kali', () => [(S.pvp && S.pvp.w) || 0, 10]],
   ['rajaduel', 'Raja Duel', 'Sosial', 'L', 'Menang duel melawan pemain 50 kali', () => [(S.pvp && S.pvp.w) || 0, 50]],
@@ -7568,7 +7568,7 @@ function buildSarang(z) {
   // 12 pilar (digambar per bingkai supaya bisa di depan/belakang pemain)
   const pillars = [];
   for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6 + Math.PI / 12, x = cx + Math.cos(a) * (RX - 12), y = cy + Math.sin(a) * (RY - 10); if (Math.abs(x - cx) < 24 && y > cy) continue; pillars.push({ x, y }); solids.push({ x: x - 5, y: y - 4, w: 10, h: 6 }); }
-  inter.push({ x: cx, y: cy + 22, get l() { return lbsLabel(); }, fn: lbsTap });
+  inter.push({ x: cx, y: cy + 22, get l() { return lbsLabel(); }, fn: () => lbsTap() });
   inter.push({ x: cx, y: (MH - 1.2) * TS, l: 'Kembali ke Gerbang Pulau', fn: () => enterZone(k + '5') });
   signs.push({ x: cx, y: (MH - 3.2) * TS, t: 'SARANG LEGENDA', c: '#24123a', bg: '#ffd23c' });
   return { zone: z, MW, MH, T, ground: cv, OBJ: [], solids, inter, signs, npcsDef: [], lights: [], spawn: { x: cx, y: (MH - 2.2) * TS }, gate: null, koi: null, dark: false, theme: k === 'ipas' ? 'snow' : undefined, sar: { k, cx, cy, RX, RY, pillars } };
@@ -7608,11 +7608,12 @@ function lbsLabel() {
 /* ---- HUD bar di atas layar ---- */
 function lbsBar() {
   let el = $('#lbsBar'); const qc = $('#questChip');
-  const inS = !!(W && W.sar) && !$('#s-world').hidden;
+  const inS = (!!(W && W.sar) || lbsSchOn()) && !$('#s-world').hidden;
   if (!inS) { if (el) el.hidden = true; if (qc && qc.dataset.lbs) { qc.style.display = ''; delete qc.dataset.lbs; } return; }
   if (!el && qc) { el = document.createElement('div'); el.id = 'lbsBar'; el.style.cssText = 'background:#fffaf0;color:#24123a;border:2.5px solid var(--ink);border-radius:12px;box-shadow:0 3px 0 var(--ink);padding:4px 9px;font-weight:800;font-size:13px;max-width:100%;box-sizing:border-box;pointer-events:auto'; qc.parentNode.insertBefore(el, qc.nextSibling); el.onclick = () => { if (!$('#modal').hidden) return; const v = lbsView(); if (v.on && W && W.sar && v.k === W.sar.k && !LBS.off) lbsBoard(); else lbsInfo(); }; }
   if (!el) return; el.hidden = false; if (qc) { qc.style.display = 'none'; qc.dataset.lbs = 1; }
-  const k = W.sar.k, v = lbsView();
+  const v = lbsView(), k = W.sar ? W.sar.k : v.k;
+  if (W.sar && v.on && !v.done && lbsAtNow() === 'school') { el.innerHTML = `<b style="color:#c2301b">🌟 EVENT: BOS DI SEKOLAH</b><br><small>${esc(lbsLegN(v.k))} · sisa ${lbsFmt(v.ends)} · ayo ke halaman sekolah!</small>`; return; }
   if (LBS.off) { el.innerHTML = `<b style="color:#c2301b">SARANG ${esc(lbsLegN(k).toUpperCase())}</b> · Bos Legenda segera hadir`; return; }
   if (!v.on) { el.innerHTML = `<b style="color:#c2301b">BOS BERIKUTNYA</b> ${esc(lbsLegN(v.k))} · ${esc(PSHORT[v.k])}<br><small>muncul dalam ${lbsFmt(v.nxt)} · jadwal 13.00–14.00 &amp; 19.00–20.00</small>`; return; }
   if (v.k !== k) { el.innerHTML = `<b style="color:#c2301b">BOS SEDANG MUNCUL</b> di Sarang ${esc(PSHORT[v.k])}<br><small>${esc(lbsLegN(v.k))} · sisa ${lbsFmt(v.ends)}</small>`; return; }
@@ -7666,7 +7667,11 @@ async function lbsGive(wid, rw) {
   addCoins(rw.coins); out.push(`${COIN}+${rw.coins} koin`);
   if (rw.egg === 'LegU') { S.lgU = (S.lgU || 0) + 1; out.push('🌟 <b style="color:#ff9ac8">Telur Legenda Umum!</b>'); }
   else if (rw.egg) { S.boxes[rw.egg]++; out.push(`${eggN(rw.egg)}`); }
-  if (rw.extra) { S.boxes[rw.extra]++; out.push(`${eggN(rw.extra)} (3 penyumbang teratas)`); }
+  if (rw.extra) { S.boxes[rw.extra]++; out.push(`${eggN(rw.extra)} (bonus juara ${rw.rk === 1 ? '1' : '2–3'})`); }
+  if (rw.xp) { gainXP(rw.xp); out.push(`⭐ +${rw.xp} XP`); }
+  if (rw.kecil) out.push(`<small style="font-weight:700">Kerusakanmu di bawah ${rw.ev ? 3 : 2}% HP bos, jadi kamu dapat hadiah peserta (tanpa telur & XP).</small>`);
+  if (rw.ev) out.push('<small style="font-weight:700;color:#b86a00">🌟 Hadiah Event Pembukaan Sarang</small>');
+  if (rw.done && rw.rk === 1) { const id = 'pkl1'; if (!S.tex) S.tex = {}; if (!S.tex[id]) { S.tex[id] = { n: 'Penakluk Legenda', r: 'L' }; if (!S.tgot) S.tgot = {}; S.tgot[id] = 1; out.push('👑 Gelar baru: <b style="color:#b86a00">Penakluk Legenda</b> (juara 1 kerusakan!)'); } }
   if (rw.done && prog(k)) prog(k).win = 1;
   if (rw.done) { const id = 'pk_' + k; if (!S.tex) S.tex = {}; if (!S.tex[id]) { S.tex[id] = { n: 'Penakluk ' + nm, r: 'L' }; if (!S.tgot) S.tgot = {}; S.tgot[id] = 1; out.push(`Gelar baru: <b>Penakluk ${esc(nm)}</b>`); } }
   const ks = Object.keys(S.lbsW).sort(); if (ks.length > 12) for (const x of ks.slice(0, ks.length - 12)) delete S.lbsW[x];
@@ -7732,13 +7737,14 @@ async function lbsInfo() {
     <div class="card" style="font-size:14px;font-weight:700;display:flex;flex-direction:column;gap:3px">${rows}<div>Jumat–Minggu: <b>acak</b></div></div>
     <p style="font-size:13px">Hari ini (${LBS_HARI[t.w]}): <b>${esc(lbsLegN(v.k))}</b> di ${esc(PSHORT[v.k])}. Syarat menyerang: Rank ${LBS_RANK} dan lulus Ujian Akhir pulau itu. Tiap anak ${LBS_TRY} kesempatan per hari. Kalau bos tumbang, semua yang ikut dapat koin dan telur acak, kadang <b style="color:#ff9ac8">Telur Legenda Umum</b>.</p>`, [{ t: 'Oke', cls: 'hot' }]);
 }
-async function lbsTap() {
-  if (!W || !W.sar) return; const k = W.sar.k, v = lbsView();
+async function lbsTap(kk, sch) {
+  const k = kk || (W && W.sar && W.sar.k); if (!k) return; const v = lbsView();
+  if (!sch && v.on && !v.done && lbsAtNow() === 'school') { await modal(`<h2>🌟 Event Pembukaan Sarang!</h2><p>Saat ini <b>${esc(lbsLegN(v.k))}</b> sedang muncul <b>di Sekolah</b>. Ayo ke halaman sekolah untuk melawannya bersama!</p>`, [{ t: 'Oke', cls: 'hot' }]); return; }
   if (LBS.off) { await modal(`<h2>Sarang Legenda</h2><p>Altar ini masih tenang. <b>Bos Legenda segera hadir!</b> Nanti seluruh sekolah bisa melawan Legenda bersama-sama setiap hari.</p>`, [{ t: 'Oke', cls: 'hot' }]); return; }
   if (!v.on || v.k !== k) return lbsInfo();
   if (v.done) { await modal(`<h2>Bos sudah tumbang!</h2><p>${esc(lbsLegN(k))} sudah dikalahkan bersama. Hadiah dibagikan otomatis. Bos berikutnya muncul jam ${lbsWib().m < 840 ? '19.00' : '13.00 besok'}.</p>`, [{ t: 'Oke', cls: 'hot' }]); return; }
   if (S.rank < LBS_RANK) { await modal(`<h2>${esc(lbsLegN(k))}</h2><p>Aura Legenda terlalu kuat. Kamu butuh <b>Rank ${LBS_RANK}</b> untuk ikut menyerang. Rank-mu sekarang ${S.rank}.</p>`, [{ t: 'Oke', cls: 'hot' }]); return; }
-  if (!prog(k).akhirLulus) { await modal(`<h2>${esc(lbsLegN(k))}</h2><p>Lulus <b>Ujian Akhir ${esc(PSHORT[k])}</b> dulu untuk melawan Legenda pulau ini.</p>`, [{ t: 'Oke', cls: 'hot' }]); return; }
+  if (!sch && !prog(k).akhirLulus) { await modal(`<h2>${esc(lbsLegN(k))}</h2><p>Lulus <b>Ujian Akhir ${esc(PSHORT[k])}</b> dulu untuk melawan Legenda pulau ini.</p>`, [{ t: 'Oke', cls: 'hot' }]); return; }
   if (!S.team.length) { toast('Timmu masih kosong'); return; }
   const left = LBS_TRY - lbsTries();
   if (left <= 0) { await modal(`<h2>Kesempatan habis</h2><p>Kamu sudah memakai ${LBS_TRY} kesempatan hari ini. Semangati temanmu, dan datang lagi besok!</p>`, [{ t: 'Oke', cls: 'hot' }]); return; }
@@ -7805,6 +7811,7 @@ function lgUCard() {
 }
 async function lgUHatch() {
   if (!(S.lgU > 0)) return; const d = today();
+  if ((S.rank || 1) < 10) { await modal(`<h2>🌟 Telur Legenda Umum</h2><p>Telur ini terlalu kuat untuk ditetaskan sekarang. Telur Legenda hanya bisa ditetaskan di <b>Rank 10</b>. Rank-mu sekarang ${S.rank}.</p><p style="font-size:13px;color:var(--sub);font-weight:700">Telurnya tetap tersimpan aman. Terus naik rank, ya!</p>`, [{ t: 'Oke', cls: 'hot' }]); return; }
   if (S.lgUd === d) { await modal(`<h2>Telur Legenda Umum</h2><p>Sudah dicoba ditetaskan hari ini. Coba lagi <b>besok</b>, ya. Telurnya tetap aman.</p>`, [{ t: 'Oke', cls: 'hot' }]); return; }
   let pool = BANK.filter(qHard); if (pool.length < 10) pool = BANK.filter(qMid); if (pool.length < 10) pool = BANK.slice();
   const c = await modal(`<h2>🌟 Telur Legenda Umum</h2><p>Isinya <b style="color:#ff9ac8">10% Lumi Legenda</b> atau 90% Lumi Epik. Jawab <b>10 soal sulit</b> campuran, benar minimal <b>9</b>.</p><p style="font-size:13px;color:var(--sub);font-weight:700">Mode ujian. Kalau gagal, telur tetap aman dan bisa dicoba besok. Telur ke-10 pasti Legenda (sekarang ${(S.lgUp || 0)}/9 tanpa Legenda).</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Tetaskan', cls: 'hot' }]);
@@ -7842,7 +7849,8 @@ const lbsBuff = () => (W && W.sar && S.lbsB && S.lbsB.k === W.sar.k) ? S.lbsB.b 
 setInterval(() => {
   try {
     if (!S || !S.name) return;
-    const inS = !!(W && W.sar) && !$('#s-world').hidden;
+    const inS = (!!(W && W.sar) || lbsSchOn()) && !$('#s-world').hidden;
+    lbsEvTick();
     if (inS && !LBS.inZ) { LBS.inZ = true; LBS.poll = 0; }
     if (!inS) LBS.inZ = false;
     if (S.lbsB && W && !W.sar && !$('#s-world').hidden && !B) { delete S.lbsB; save(); }
@@ -7882,6 +7890,88 @@ async function updShow() {
  ${it('🥚', 'Hadiah', 'Koin, telur, gelar penakluk, dan peluang Telur Legenda!')}
  </div>`, [{ t: 'Siap, ayo main!', cls: 'hot' }]);
 }
+
+/* ================= v132: EVENT PEMBUKAAN SARANG LEGENDA (Jum-Min 23-25 Okt 2026) =================
+   Bos Legenda (acak) muncul di halaman SEKOLAH pada jadwal tertentu (sama dengan lbs_ev di server). Syarat: Rank 5, tanpa Ujian Akhir & tanpa ujian gerbang. */
+const LBS_EV = { '2026-10-23': { a: 'school', b: 'sarang' }, '2026-10-24': { a: 'sarang', b: 'school' }, '2026-10-25': { a: 'school', b: 'school' } };
+const lbsEvDay = (d = lbsWib().day) => !!LBS_EV[d];
+const lbsAtNow = () => { const n = lbsNow(); return n.slot && LBS_EV[n.day] ? LBS_EV[n.day][n.slot] : 'sarang'; };
+const lbsSchOn = () => { if (!W || W.zone !== 'school' || LBS.off) return false; const v = lbsView(); return v.on && !v.done && lbsAtNow() === 'school'; };
+function lbsSchPos() {
+  if (W.lgp && W.lgp.z === W.zone) return W.lgp; const g = typeof giantPos === 'function' ? giantPos() : null;
+  const cx = W.MW * TS / 2, cy = W.MH * TS * .55;
+  for (let r = 0; r < 320; r += 8) for (let a = 0; a < 6.28; a += .5) { const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r; if (walkable(x, y) && walkable(x - 24, y) && walkable(x + 24, y) && (!g || Math.hypot(x - g.x, y - g.y) > 90)) return (W.lgp = { z: W.zone, x, y }); }
+  return (W.lgp = { z: W.zone, x: cx, y: cy });
+}
+function lbsSchDraw(list, t, ox, oy) {
+  if (!lbsSchOn() || B) return; const v = lbsView(), id = LEG[v.k]; if (!id || !M[id]) return; const g = lbsSchPos();
+  list.push({ fy: g.y, d: () => {
+    const x = Math.round(g.x - ox), y = Math.round(g.y - oy), img = monImg(id, Math.floor(t / 2600) % 7 === 0, Math.floor(t / 260) % 2), sc = Math.min(1.6, 64 / Math.max(1, img.width)), w = Math.round(img.width * sc), h = Math.round(img.height * sc), bob = Math.round(Math.sin(t / 420) * 2);
+    const a = .25 + Math.sin(t / 300) * .1; bx.fillStyle = `rgba(255,154,200,${a})`; bx.beginPath(); bx.ellipse(x, y - h / 2, w * .7, h * .7, 0, 0, 6.283); bx.fill();
+    bx.fillStyle = `rgba(255,210,60,${a * .8})`; bx.beginPath(); bx.ellipse(x, y - 2, w * .55, 7, 0, 0, 6.283); bx.fill();
+    shadow(x, y, Math.round(w / 2.6)); bx.drawImage(img, x - w / 2, y - h + 4 + bob, w, h);
+    const pct = v.max ? Math.max(0, v.hp / v.max) : 1, bw = 44; bx.fillStyle = '#24123a'; bx.fillRect(x - bw / 2 - 1, y - h - 6, bw + 2, 5); bx.fillStyle = '#e8453c'; bx.fillRect(x - bw / 2, y - h - 5, Math.round(bw * pct), 3);
+  } });
+}
+let LBS_EVANN = '';
+function lbsEvTick() {
+  if (!W || !W.inter) return;
+  for (let i = W.inter.length - 1; i >= 0; i--) if (W.inter[i].lgs) W.inter.splice(i, 1);
+  if (lbsSchOn()) { const g = lbsSchPos(), v = lbsView(); W.inter.push({ lgs: true, x: g.x, y: g.y + 16, l: `🌟 Lawan ${lbsLegN(v.k)}`, fn: () => lbsTap(v.k, true) }); }
+  const n = lbsNow(); if (n.slot && lbsAtNow() === 'school' && !LBS.off && (S.rank || 1) >= LBS_RANK && LBS_EVANN !== n.day + n.slot && !$('#s-world').hidden) {
+    LBS_EVANN = n.day + n.slot; toast(`🌟 <b>EVENT!</b> Bos Legenda <b>${esc(lbsLegN(n.k))}</b> muncul DI SEKOLAH sampai ${n.slot === 'a' ? '14.00' : '20.00'}! Hadiah spesial event.`, 6000); try { sfx('roar'); } catch (e) { }
+  }
+}
+function lbsEvNext() {   // kemunculan bos di sekolah berikutnya (ms) atau yang sedang berlangsung
+  const now = Date.now(), out = [];
+  for (const [d, s] of Object.entries(LBS_EV)) for (const sl of ['a', 'b']) if (s[sl] === 'school') { const [y, m, dd] = d.split('-').map(Number), h = sl === 'a' ? 13 : 19, t0 = Date.UTC(y, m - 1, dd, h - 7), t1 = t0 + 3600e3; if (t1 > now) out.push({ t0, t1, d, sl }); }
+  return out.sort((a, b) => a.t0 - b.t0)[0] || null;
+}
+async function lbsEvShow() {
+  const today = lbsWib().day, nx = lbsEvNext(), legs = ['ilmu', 'badai', 'bayang', 'lahar'].filter(i => M[i]);
+  const sil = legs.map((id, i) => `<div class="evleg" style="animation-delay:${i * .25}s"><div style="width:54px;height:54px;filter:brightness(0) drop-shadow(0 0 6px #ff9ac8)">${mSvg(id)}</div><b>?</b></div>`).join('');
+  const day = (d, s) => { const w = LBS_HARI[new Date(d + 'T00:00:00Z').getUTCDay()], c = x => x === 'school' ? '<span class="evsch">🏫 SEKOLAH</span>' : '<span class="evsar">⛰️ Sarang</span>';
+    return `<div class="evday${d === today ? ' now' : ''}">${d === today ? '<i>HARI INI</i>' : ''}<b>${w}</b><div>☀️ 13.00<br>${c(s.a)}</div><div>🌙 19.00<br>${c(s.b)}</div></div>`; };
+  const egg = (u, t) => `<div class="evegg"><img src="${u}" alt="" width="40" height="32"><span>${t}</span></div>`;
+  const legU = typeof legEggURL === 'function' ? legEggURL() : chestURL('Emas');
+  const html = `<style>
+  .evbox{display:flex;flex-direction:column;gap:8px}
+  .evtag{display:inline-block;font-size:10.5px;font-weight:900;letter-spacing:.16em;padding:3px 10px;border-radius:99px;color:#24123a;background:linear-gradient(90deg,#ffd23c,#ff9ac8,#7ff5ff,#ffd23c);background-size:300% 100%;animation:evsh 3s linear infinite}
+  @keyframes evsh{to{background-position:300% 0}}
+  .evttl{margin:4px 0 0;font-size:24px;line-height:1.1;background:linear-gradient(#fff3b0,#ffc93c);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #7a3a00)}
+  .evlegs{display:flex;justify-content:center;gap:4px;padding:8px 0 2px;border-radius:16px;background:radial-gradient(circle at 50% 70%,rgba(255,154,200,.35),rgba(20,8,40,.9) 70%)}
+  .evleg{position:relative;animation:evbob 1.6s ease-in-out infinite}.evleg b{position:absolute;left:0;right:0;top:12px;text-align:center;font-size:22px;color:#ffd23c;text-shadow:0 2px 0 #7a3a00}
+  @keyframes evbob{50%{transform:translateY(-5px)}}
+  .evlive{border-radius:14px;padding:8px 10px;text-align:center;font-weight:900;font-size:14px}
+  .evlive.on{background:#c2301b;color:#fff;animation:evpulse 1s ease-in-out infinite}.evlive.off{background:rgba(255,255,255,.08);border:2px dashed rgba(255,210,60,.6)}
+  @keyframes evpulse{50%{box-shadow:0 0 0 6px rgba(232,69,60,.35)}}
+  .evlive big{display:block;font-size:22px;letter-spacing:.04em}
+  .evdays{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+  .evday{position:relative;border-radius:12px;padding:6px 4px;text-align:center;font-size:11px;font-weight:800;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);display:flex;flex-direction:column;gap:3px}
+  .evday.now{border-color:#ffd23c;background:rgba(255,210,60,.12)}.evday i{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-style:normal;font-size:9px;background:#ffd23c;color:#24123a;padding:1px 6px;border-radius:99px}
+  .evday b{font-size:13px}.evsch{color:#ffd23c}.evsar{opacity:.7}
+  .evrw{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+  .evegg{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:800;text-align:center;padding:5px 3px;border-radius:12px;background:rgba(255,255,255,.06)}.evegg img{image-rendering:pixelated}
+  .evcrown{border-radius:12px;padding:7px 10px;font-size:12.5px;font-weight:800;background:linear-gradient(90deg,rgba(255,210,60,.25),rgba(255,154,200,.2));border:2px solid #ffd23c}
+  .evsm{font-size:11px;opacity:.8;font-weight:700;text-align:center}
+  </style><div class="evbox">
+  <div style="text-align:center"><span class="evtag">🌟 EVENT SPESIAL · 3 HARI SAJA 🌟</span><h2 class="evttl">Pembukaan Sarang Legenda!</h2><div style="font-size:12.5px;opacity:.9;font-weight:700">Bos Legenda <b>acak</b> turun ke sekolah. Siapa yang akan muncul?</div></div>
+  <div class="evlegs">${sil}</div>
+  <div id="evLive" class="evlive off"></div>
+  <div class="evdays">${Object.entries(LBS_EV).map(([d, s]) => day(d, s)).join('')}</div>
+  <div class="evrw">${egg(legU, 'Telur Legenda<br><b style="color:#ff9ac8">lebih sering</b>')}${egg(chestURL('Emas'), 'Telur Emas<br><b>lebih sering</b>')}${egg(chestURL('Perak'), 'Koin & XP<br><b>×1,5</b>')}</div>
+  <div class="evcrown">👑 <b>Juara 1 kerusakan</b>: bonus Telur Emas + gelar <b style="color:#ffd23c">Penakluk Legenda</b><br>🥈🥉 Juara 2–3: bonus Telur Perak · XP besar untuk juara!</div>
+  <div class="evsm">Di sekolah cukup Rank ${LBS_RANK} (tanpa Ujian Akhir) · ${LBS_TRY} kesempatan per hari · hadiah penuh bila kerusakanmu ≥ 3% HP bos</div></div>`;
+  let tick = null;
+  const live = () => { const e = document.getElementById('evLive'); if (!e) return; const n = lbsEvNext(), now = Date.now();
+    if (n && now >= n.t0) e.className = 'evlive on', e.innerHTML = `🔴 SEDANG BERLANGSUNG DI SEKOLAH!<big>sisa ${lbsFmt((n.t1 - now) / 1000)}</big>`;
+    else if (n) e.className = 'evlive off', e.innerHTML = `⏳ Bos turun ke sekolah dalam<big>${lbsFmt((n.t0 - now) / 1000)}</big>`;
+    else e.className = 'evlive off', e.innerHTML = 'Event selesai. Terima kasih sudah ikut!'; };
+  const c = await modal(html, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Ikut! ⚔️', cls: 'hot' }], { onOpen: () => { live(); tick = setInterval(live, 1000); } });
+  clearInterval(tick);
+  if (c === 1) { const n = lbsEvNext(); if (n && Date.now() >= n.t0 && (S.rank || 1) >= LBS_RANK) { if (W && W.zone !== 'school') enterZone('school'); toast('🌟 Bos Legenda ada di halaman sekolah. Dekati dan tekan A!', 4000); } else if ((S.rank || 1) < LBS_RANK) toast(`Butuh Rank ${LBS_RANK} untuk ikut. Ayo naik rank dulu!`, 3500); else toast('⏰ Datang lagi saat bos turun ke sekolah, ya!', 3500); }
+}
+{ const _upd = updShow; updShow = async function () { if (lbsEvDay()) await lbsEvShow(); return _upd(); }; }
 
 /* ================= v120: Goa Monster (solo, gelap, lantai 1–10) =================
    Zona 'goa_<pulau>' dibangun ulang tiap lantai dari benih percobaan. Semua dijalankan di HP siswa (tanpa Supabase).
