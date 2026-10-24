@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v139">
+<meta name="lumimon-ver" content="v140">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -6965,59 +6965,71 @@ function fishGame(fish) {
 }
 
 /* ---------- Tas ---------- */
-/* v137: Tas = satu daftar berjudul bagian (Makanan · Telur · Aksesoris (bisa dilipat) · Lainnya). Bagian kosong disembunyikan. */
-let BAG_ACC = false;   // bagian Aksesoris terbuka?
+/* v140: Tas = satu kotak IKON (ikan, makanan, telur, aksesoris, barang lain). Ketuk ikon → detail + 1 tombol aksi.
+   Aksesoris boleh dobel: salinan ekstra di S.acc.dup {id: n} (disimpan untuk Trade). */
+const ACC_CROP = { hat: [0, 0, 16, 12], shirt: [0, 11, 16, 9], pants: [0, 17, 16, 9], shoes: [0, 21, 16, 7], glass: [0, 4, 16, 6], back: [0, 6, 16, 14] }, ACC_IC_C = {};
+function accIcon(id) {
+  if (ACC_IC_C[id]) return ACC_IC_C[id]; const it = SH[id]; if (!it) return '';
+  const o = { g: it.g || 'p', hs: 'pendek', hc: '#3a2a1a', sk: 1, ec: EYES[1], [it.slot]: it.id }, c = kidImg(o, it.slot === 'back' ? 'up' : 'down', 0);
+  const [x, y, w, h] = it.hj ? [0, 0, 16, 14] : ACC_CROP[it.slot], k = document.createElement('canvas'); k.width = w; k.height = h;
+  k.getContext('2d').drawImage(c, x, y + 4, w, h, 0, 0, w, h); return (ACC_IC_C[id] = k.toDataURL());
+}
+const accDup = id => (S.acc && S.acc.dup && S.acc.dup[id]) || 0;
+const EGG_C = { Kayu: '#b08a5a', Perak: '#9aa4b8', Emas: '#e0a800' };
 async function openBag() {
   if (!S || !$('#modal').hidden) return; joyReset(); const b = bagS();
-  const ids = Object.keys(b.it).filter(id => b.it[id] > 0 && ITEM[id]).sort((x, y) => (ITEM[x].k === ITEM[y].k ? 0 : ITEM[x].k === 'fish' ? -1 : 1) || 'FCREL'.indexOf(ITEM[y].r) - 'FCREL'.indexOf(ITEM[x].r));
-  const row = id => { const it = ITEM[id]; return `<div style="display:flex;gap:8px;align-items:center;padding:6px;border-radius:12px;background:#fff;border:2px solid var(--line)"><span style="width:44px;display:grid;place-items:center">${itemImg(id, 40)}</span><div style="flex:1;min-width:0"><b style="color:var(--text)">${esc(it.n)}</b> <span style="font-size:11.5px;font-weight:800;color:#fff;background:${it.k === 'fish' ? RAR_C[it.r] : '#3ccf91'};border-radius:8px;padding:0 6px">${it.k === 'fish' ? RAR_N[it.r] : 'Toko'}</span> <b style="color:var(--text)">×${b.it[id]}</b><div style="font-size:12.5px;color:var(--sub);font-weight:700">${efTxt(it.ef)}</div></div><button type="button" class="btn hot" data-eat="${id}" style="min-height:38px;font-size:14px;padding:0 12px">Makan</button></div>`; };
+  const T = [], tile = (key, img, cnt, col, mark) => T.push(`<button type="button" data-t="${key}" style="position:relative;background:${mark ? '#fff4d6' : '#fff'};border:2.5px solid ${col};border-radius:14px;aspect-ratio:1;display:grid;place-items:center;box-shadow:0 2px 0 ${col};padding:0;font:inherit">${img}${cnt > 1 ? `<b style="position:absolute;right:4px;bottom:2px;font:900 12px system-ui;color:#24123a;background:#ffffffcc;border-radius:6px;padding:0 3px">×${cnt}</b>` : ''}${mark ? '<span style="position:absolute;left:3px;top:2px;font-size:10px">✅</span>' : ''}</button>`);
+  const im = (src, w) => `<img src="${src}" alt="" style="width:${w}%;image-rendering:pixelated">`;
+  Object.keys(b.it).filter(id => b.it[id] > 0 && ITEM[id]).sort((x, y) => (ITEM[x].k === ITEM[y].k ? 0 : ITEM[x].k === 'fish' ? -1 : 1) || 'FCREL'.indexOf(ITEM[y].r) - 'FCREL'.indexOf(ITEM[x].r))
+    .forEach(id => tile('i:' + id, `<span style="width:78%;display:grid;place-items:center">${itemImg(id, 40)}</span>`, b.it[id], ITEM[id].k === 'fish' ? RAR_C[ITEM[id].r] : '#3ccf91'));
+  ['Kayu', 'Perak', 'Emas'].forEach(k => { if (S.boxes[k] > 0) tile('e:' + k, im(chestURL(k), 72), S.boxes[k], EGG_C[k]); });
+  const nLeg = (typeof legEggKeys === 'function' ? legEggKeys().length : 0) + (S.lgU > 0 ? S.lgU : 0); if (nLeg) tile('l:', '<span style="font-size:30px">🌟</span>', nLeg, '#d69a12');
+  (S.acc && S.acc.own || []).filter(id => SH[id] && SH[id].slot && id !== 'sd').forEach(id => tile('a:' + id, im(accIcon(id), 80), 1 + accDup(id), SH[id].tk ? '#ff6a3d' : '#7b4fd6', S.acc[SH[id].slot] === id));
+  if (typeof goaLeft === 'function' && S.rank >= GOA_RANK) tile('o:', '<span style="font-size:30px">🔥</span>', goaLeft(), '#e05a1a');
   const act = ITEM[b.act];
-  const H = (t, n) => `<div style="font:900 14px system-ui;color:#fff;margin:6px 2px 0;display:flex;justify-content:space-between"><span>${t}</span>${n !== undefined ? `<span style="color:var(--sun)">${n}</span>` : ''}</div>`;
-  const sec = [];
-  /* Makanan */
-  if (ids.length || act) sec.push(H('🍖 Makanan') + `<div class="card" style="font-weight:800;font-size:13px">${act ? `Sedang aktif: <span style="color:#e05a1a">🍖 ${esc(act.n)}</span><div style="font-size:12px;color:var(--sub)">${efTxt(act.ef)} · battle berikutnya</div>` : 'Belum ada makanan aktif.'}
-      <div style="font-size:11.5px;color:var(--sub);font-weight:700;margin-top:2px">Berlaku untuk seluruh tim, 1 battle. Maks. 1 makanan aktif. Duel teman: tiap efek maks. +10%. Tidak berlaku di Raid &amp; Bos.</div></div>` + ids.map(row).join('') +
-    `<div style="text-align:center;font-size:12px;font-weight:800;color:var(--sub)">Ikan hari ini: ${b.n}/${FISH_DAY}</div>`);
-  /* Telur */
-  const lk = typeof legEggKeys === 'function' ? legEggKeys() : [], eg = ['Kayu', 'Perak', 'Emas'].filter(k => S.boxes[k] > 0);
-  const nLeg = lk.length + (S.lgU > 0 ? S.lgU : 0);
-  if (eg.length || nLeg) {
-    const er = (img, n, k, sub) => `<div style="display:flex;gap:8px;align-items:center;padding:6px;border-radius:12px;background:#fff;border:2px solid var(--line)"><span style="width:44px;display:grid;place-items:center">${img}</span><div style="flex:1;min-width:0"><b style="color:var(--text)">${n}</b> <b style="color:var(--text)">×${k}</b><div style="font-size:12px;color:var(--sub);font-weight:700">${sub}</div></div></div>`;
-    sec.push(H('🥚 Telur', `${eg.reduce((a, k) => a + S.boxes[k], 0) + nLeg}`) + eg.map(k => er(`<img src="${chestURL(k)}" width="44" height="35" alt="" style="image-rendering:pixelated">`, eggN(k), S.boxes[k], `Jawab ${EGG[k].pass} dari ${EGG[k].n} soal ${EGG[k].lv} untuk menetaskan`)).join('') +
-      (nLeg ? er('<span style="font-size:30px">🌟</span>', 'Telur Legenda', nLeg, S.rank >= 10 ? 'Siap ditetaskan' : 'Bisa ditetaskan di Rank 10') : '') +
-      `<button type="button" class="btn hot" data-egg="1" style="min-height:38px;font-size:14px">🥚 Tetaskan telur</button>`);
-  }
-  /* Aksesoris (bisa dilipat) */
-  const L = look(), acc = (S.acc && S.acc.own || []).filter(id => SH[id] && SH[id].slot && id !== 'sd');
-  if (acc.length) {
-    const worn = id => S.acc[SH[id].slot] === id;
-    const grid = BAG_ACC ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${acc.map(id => `<button type="button" data-acc="${id}" style="position:relative;background:#fff;border:2px solid ${worn(id) ? '#3ccf91' : 'var(--line)'};border-radius:12px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;font:inherit;color:var(--text)">${worn(id) ? '<span style="position:absolute;top:2px;left:4px;font-size:10px;font-weight:900;color:#1f7a52">Dipakai</span>' : ''}${avatarSvg({ ...L, [SH[id].slot]: id }, 36)}<b style="font-size:11.5px;line-height:1.1">${esc(SH[id].n)}</b>${SH[id].tk ? `<span style="font-size:9.5px;font-weight:900;color:#fff;background:${TK_SETS[SH[id].tset].c};border-radius:6px;padding:0 4px">Taklukan</span>` : ''}</button>`).join('')}</div><div style="font-size:11.5px;color:var(--sub);font-weight:700;text-align:center">Ketuk untuk memakai atau melepas.</div>` : '';
-    sec.push(`<button type="button" data-acct="1" style="all:unset;cursor:pointer;display:block">${H(`👕 Aksesoris ${BAG_ACC ? '▲' : '▼'}`, acc.length)}</button>` + grid);
-  }
-  /* Lainnya */
-  const oth = [];
-  if (typeof goaLeft === 'function' && S.rank >= GOA_RANK) oth.push(`<div style="display:flex;gap:8px;align-items:center;padding:6px;border-radius:12px;background:#fff;border:2px solid var(--line)"><span style="width:44px;text-align:center;font-size:28px">🔥</span><div style="flex:1"><b style="color:var(--text)">Obor Goa</b><div style="font-size:12px;color:var(--sub);font-weight:700">Gratis ${GOA_OB} tiap hari · beli di Mak Tika</div></div><b style="color:var(--text);font-size:15px">${goaLeft()} sisa</b></div>`);
-  if (typeof tkAlbum === 'function') oth.push(`<button type="button" data-album="1" style="display:flex;gap:8px;align-items:center;padding:6px;border-radius:12px;background:#fff;border:2px solid #7b4fd6;font:inherit;text-align:left;color:var(--text)"><span style="width:44px;text-align:center;font-size:28px">📖</span><div style="flex:1"><b>Album Taklukan</b><div style="font-size:12px;color:var(--sub);font-weight:700">Aksesoris langka dari monster · ${TK_ITEMS.filter(it => S.acc.own.includes(it.id)).length}/60</div></div><b style="color:#7b4fd6">Lihat ›</b></button>`);
-  if (oth.length) sec.push(H('📦 Lainnya') + oth.join(''));
-  const html = `<h2>🎒 Tas</h2><div style="display:flex;flex-direction:column;gap:6px;max-height:58vh;overflow:auto">${sec.join('') || `<p style="margin:4px 0;font-weight:700;color:var(--sub)">Tas masih kosong. Pancing ikan di tepi kolam atau danau${S.rank < 2 ? ' (mulai Rank 2)' : ''}, atau beli makanan di Toko Umum Mak Tika.</p>`}</div>`;
+  const html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">🎒 Tas</h2>${typeof tkAlbum === 'function' ? '<button class="btn" type="button" data-album="1" style="min-height:34px;padding:0 10px;font-size:13px;background:#7b4fd6;color:#fff">📖 Album</button>' : ''}</div>
+    ${act ? `<div style="display:flex;gap:6px;align-items:center;background:#fff4d6;border:2px solid #e0a800;border-radius:12px;padding:5px 8px;margin-bottom:8px;font:800 12.5px system-ui;color:#24123a">🍖 <span>Aktif: <b>${esc(act.n)}</b> · ${efTxt(act.ef)} · battle berikutnya</span></div>` : ''}
+    ${T.length ? `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-height:56vh;overflow:auto;padding:2px">${T.join('')}</div>` : `<p style="margin:4px 0;font-weight:700;color:var(--sub)">Tas masih kosong. Pancing ikan di tepi kolam atau danau${S.rank < 2 ? ' (mulai Rank 2)' : ''}, beli makanan di Toko Umum Mak Tika, atau kalahkan Lumi liar.</p>`}
+    <div style="text-align:center;font:700 11.5px system-ui;color:#c9bde6;margin-top:8px">Ketuk barang untuk melihat &amp; memakai · Ikan hari ini ${b.n}/${FISH_DAY}</div>`;
   let pick = null;
-  await modal(html, [{ t: 'Tutup', cls: 'ghost' }], { onOpen: m => {
-    const go = v => e => { e.stopPropagation(); pick = v; const cl = [...m.querySelectorAll('button')].pop(); if (cl) cl.click(); };
-    m.querySelectorAll('[data-eat]').forEach(x => x.onclick = go({ eat: x.dataset.eat }));
-    m.querySelectorAll('[data-egg]').forEach(x => x.onclick = go({ egg: 1 }));
-    m.querySelectorAll('[data-acc]').forEach(x => x.onclick = go({ acc: x.dataset.acc }));
-    m.querySelectorAll('[data-acct]').forEach(x => x.onclick = go({ acct: 1 }));
-    m.querySelectorAll('[data-album]').forEach(x => x.onclick = go({ album: 1 }));
-  } });
+  await modal(html, [{ t: 'Tutup', cls: 'ghost' }], { onOpen: m => m.querySelectorAll('[data-t],[data-album]').forEach(x => x.onclick = e => { e.stopPropagation(); pick = x.dataset.album ? 'album' : x.dataset.t; const cl = [...m.querySelectorAll('.btn')].pop(); if (cl) cl.click(); }) });
   if (!pick) return;
-  if (pick.acct) { BAG_ACC = !BAG_ACC; return openBag(); }
-  if (pick.album) { await tkAlbum(); return openBag(); }
-  if (pick.egg) { await openBoxes(); return; }
-  if (pick.acc) { stopLoop(); shopTab = SH[pick.acc].slot; shopSel = pick.acc; openShop('bag'); return; }
-  const it = ITEM[pick.eat]; if (!it) return;
-  if (b.act && ITEM[b.act]) { const k = await modal(`<h2>Ganti makanan?</h2><p><b>${esc(ITEM[b.act].n)}</b> sedang aktif. Kalau makan <b>${esc(it.n)}</b>, yang lama hilang.</p>`, [{ t: 'Batal', cls: 'ghost' }, { t: 'Makan', cls: 'hot' }]); if (k !== 1) return openBag(); }
-  b.it[pick.eat]--; if (b.it[pick.eat] <= 0) delete b.it[pick.eat]; b.act = pick.eat; save(); sfx('ok');
-  toast(`🍖 ${it.n} dimakan! ${efTxt(it.ef)} di battle berikutnya.`, 3200); openBag();
+  if (pick === 'album') { await tkAlbum(); return openBag(); }
+  return bagItem(pick);
+}
+/* detail satu barang + 1 tombol aksi */
+async function bagItem(key) {
+  const [t, id] = [key.slice(0, 1), key.slice(2)], b = bagS();
+  const big = (img, col) => `<div style="width:84px;height:84px;flex:none;border:3px solid ${col};border-radius:16px;background:#fff;display:grid;place-items:center">${img}</div>`;
+  const head = (img, col, n, sub, extra) => `<div style="display:flex;gap:12px;align-items:center">${big(img, col)}<div><h2 style="margin:0">${n}</h2><div style="font:800 12px system-ui;color:${col}">${sub}</div>${extra ? `<div style="font:700 12.5px system-ui;margin-top:3px">${extra}</div>` : ''}</div></div>`;
+  if (t === 'i') {
+    const it = ITEM[id]; if (!it || !(b.it[id] > 0)) return openBag(); const col = it.k === 'fish' ? RAR_C[it.r] : '#3ccf91';
+    const c = await modal(head(`<span style="width:80%;display:grid;place-items:center">${itemImg(id, 64)}</span>`, col, esc(it.n), `${it.k === 'fish' ? '🐟 Ikan ' + RAR_N[it.r] : '🍖 Makanan'} · ×${b.it[id]}`, efTxt(it.ef)) +
+      `<div class="card" style="margin-top:8px;font-size:12px;font-weight:700">Untuk seluruh tim, 1 battle berikutnya. Maks. 1 makanan aktif. Duel teman: tiap efek maks. +10%. Tidak berlaku di Raid &amp; Bos.</div>`, [{ t: 'Kembali', cls: 'ghost' }, { t: 'Makan', cls: 'hot' }]);
+    if (c !== 1) return openBag();
+    if (b.act && ITEM[b.act]) { const k = await modal(`<h2>Ganti makanan?</h2><p><b>${esc(ITEM[b.act].n)}</b> sedang aktif. Kalau makan <b>${esc(it.n)}</b>, yang lama hilang.</p>`, [{ t: 'Batal', cls: 'ghost' }, { t: 'Makan', cls: 'hot' }]); if (k !== 1) return openBag(); }
+    b.it[id]--; if (b.it[id] <= 0) delete b.it[id]; b.act = id; save(); sfx('ok'); toast(`🍖 ${it.n} dimakan! ${efTxt(it.ef)} di battle berikutnya.`, 3200); return openBag();
+  }
+  if (t === 'e' || t === 'l') {
+    const leg = t === 'l', col = leg ? '#d69a12' : EGG_C[id], img = leg ? '<span style="font-size:44px">🌟</span>' : `<img src="${chestURL(id)}" alt="" style="width:80%;image-rendering:pixelated">`;
+    const n = leg ? (typeof legEggKeys === 'function' ? legEggKeys().length : 0) + (S.lgU || 0) : S.boxes[id];
+    const sub = leg ? (S.rank >= 10 ? 'Siap ditetaskan' : 'Bisa ditetaskan di Rank 10') : `Jawab ${EGG[id].pass} dari ${EGG[id].n} soal ${EGG[id].lv} untuk menetaskan`;
+    const c = await modal(head(img, col, leg ? 'Telur Legenda' : eggN(id), `🥚 Telur · ×${n}`, sub), [{ t: 'Kembali', cls: 'ghost' }, { t: 'Tetaskan', cls: 'hot' }]);
+    if (c === 1) return openBoxes(); return openBag();
+  }
+  if (t === 'a') {
+    const it = SH[id]; if (!it || !S.acc.own.includes(id)) return openBag(); const col = it.tk ? '#ff6a3d' : '#7b4fd6', worn = S.acc[it.slot] === id, d = accDup(id);
+    const SN = { hat: 'Topi', shirt: 'Baju', pants: 'Celana', shoes: 'Sepatu', glass: 'Kacamata', back: 'Punggung' };
+    const set = it.tk && typeof TK_SETS !== 'undefined' ? TK_SETS[it.tset] : null;
+    const c = await modal(head(`<img src="${accIcon(id)}" alt="" style="width:80%;image-rendering:pixelated">`, col, esc(it.n), `${it.tk ? '👕 Aksesoris Taklukan' : '👕 Aksesoris'} · ${SN[it.slot]}${d ? ` · ×${1 + d}` : ''}`, typeof accLabel === 'function' ? accLabel(it) || 'Tanpa bonus' : '') +
+      (set ? `<div class="card" style="margin-top:8px;font-size:12.5px;font-weight:700">${set.ic} ${esc(set.n)} ${tkN(it.tset)}/3 · set lengkap di Goa: heal tangga ${it.tset === 'frost' ? 20 : 10}% + ${esc(set.fx)}</div>` : '') +
+      (d ? `<div class="card" style="margin-top:6px;font-size:12.5px;font-weight:700;color:#7b4fd6">🔁 Dobel ×${d}: disimpan untuk <b>Trade</b> (segera hadir)</div>` : ''),
+      [{ t: 'Kembali', cls: 'ghost' }, { t: worn ? 'Lepas' : 'Pakai', cls: 'hot' }]);
+    if (c === 1) { S.acc[it.slot] = worn ? null : id; save(); refreshPlayer(); sfx('ok'); toast(worn ? `${it.n} dilepas` : `${it.n} dipakai!`, 1800); }
+    return openBag();
+  }
+  if (t === 'o') { await modal(head('<span style="font-size:44px">🔥</span>', '#e05a1a', 'Obor Goa', `Sisa hari ini: ${goaLeft()}`, `Gratis ${GOA_OB} tiap hari · beli di Mak Tika`), [{ t: 'Kembali', cls: 'ghost' }]); return openBag(); }
+  return openBag();
 }
 
 /* ---------- Toko Umum Mak Tika ---------- */
@@ -7218,7 +7230,7 @@ const TK_SOON = {"blaze": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAA
 /* ================= AKSESORIS TAKLUKAN (v138) — Fase 1: Set Dasar =================
    Hanya dari monster (tidak dijual). Set Dasar: dari Lumi liar dengan elemen yang sama.
    Drop 20% per menang, hanya untuk 20 menang pertama tiap hari (sama dengan batas XP battle). Pity: pasti dapat di menang ke-15 tanpa drop.
-   Bagian dobel diganti 50 koin. Bonus per bagian: topi +4% XP, baju +4% HP, celana +4% DEF (lewat accVal, tidak berlaku PvP).
+   Bagian dobel disimpan di Tas (S.acc.dup, untuk Trade) — v140. Bonus per bagian: topi +4% XP, baju +4% HP, celana +4% DEF (lewat accVal, tidak berlaku PvP).
    Set lengkap 3/3 (khusus di Goa): heal tiap turun tangga 10% + efek khas (Ember obor +25%, Frost heal 20%, Moss tangkal 1 kutukan per masuk, Rookie koin Goa +15%).
    Fase berikut: Set Elemen (Bos Zona) dan Set Naga (Bos Legenda) — tampil terkunci di Album. */
 const TK_RATE = 20, TK_PITY = 15, TK_DUP = 50;   // v138: 8% → 20% (permintaan Bapak)
@@ -7249,7 +7261,7 @@ function tkWild(cfg) {
   if (bo) t.b--; else t.p = (t.p || 0) + 1;
   if (!bo && Math.random() * 100 >= TK_RATE * (typeof hhMul === 'function' ? hhMul('drop') : 1) && t.p < TK_PITY) return [];   // v139: Happy Hour drop ×2
   t.p = 0; const set = TK_SETS[k], [id, , n] = set.items[Math.floor(Math.random() * set.items.length)];
-  if (tkHas(id)) { addCoins(TK_DUP); progress('coins', TK_DUP); return [`👕 ${esc(n)} (sudah punya) → ${COIN}+${TK_DUP} koin`]; }
+  if (tkHas(id)) { if (!S.acc.dup) S.acc.dup = {}; S.acc.dup[id] = (S.acc.dup[id] || 0) + 1; sfx('ok'); return [`👕 ${esc(n)} (dobel) · tersimpan di Tas ×${1 + S.acc.dup[id]} <small>(untuk Trade nanti)</small>`]; }   // v140: dobel disimpan
   S.acc.own.push(id); sfx('ok');
   return [`<b style="color:#c2301b">👕 Aksesoris Taklukan: ${esc(n)}!</b>${bo ? ` <small>✨ boost (sisa ${t.b})</small>` : ''}<br><small style="font-weight:700">${set.ic} ${esc(set.n)} ${tkN(k)}/3 · cek di Tas 🎒</small>`];
 }
