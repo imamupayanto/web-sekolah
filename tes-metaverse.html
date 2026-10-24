@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v136">
+<meta name="lumimon-ver" content="v137">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -6940,22 +6940,55 @@ function fishGame(fish) {
 }
 
 /* ---------- Tas ---------- */
+/* v137: Tas = satu daftar berjudul bagian (Makanan · Telur · Aksesoris (bisa dilipat) · Lainnya). Bagian kosong disembunyikan. */
+let BAG_ACC = false;   // bagian Aksesoris terbuka?
 async function openBag() {
   if (!S || !$('#modal').hidden) return; joyReset(); const b = bagS();
   const ids = Object.keys(b.it).filter(id => b.it[id] > 0 && ITEM[id]).sort((x, y) => (ITEM[x].k === ITEM[y].k ? 0 : ITEM[x].k === 'fish' ? -1 : 1) || 'FCREL'.indexOf(ITEM[y].r) - 'FCREL'.indexOf(ITEM[x].r));
   const row = id => { const it = ITEM[id]; return `<div style="display:flex;gap:8px;align-items:center;padding:6px;border-radius:12px;background:#fff;border:2px solid var(--line)"><span style="width:44px;display:grid;place-items:center">${itemImg(id, 40)}</span><div style="flex:1;min-width:0"><b style="color:var(--text)">${esc(it.n)}</b> <span style="font-size:11.5px;font-weight:800;color:#fff;background:${it.k === 'fish' ? RAR_C[it.r] : '#3ccf91'};border-radius:8px;padding:0 6px">${it.k === 'fish' ? RAR_N[it.r] : 'Toko'}</span> <b style="color:var(--text)">×${b.it[id]}</b><div style="font-size:12.5px;color:var(--sub);font-weight:700">${efTxt(it.ef)}</div></div><button type="button" class="btn hot" data-eat="${id}" style="min-height:38px;font-size:14px;padding:0 12px">Makan</button></div>`; };
   const act = ITEM[b.act];
-  const html = `<h2>🎒 Tas</h2>
-    <div class="card" style="font-weight:800;font-size:13.5px;margin-bottom:8px">${act ? `Sedang aktif: <span style="color:#e05a1a">🍖 ${esc(act.n)}</span><div style="font-size:12.5px;color:var(--sub)">${efTxt(act.ef)} · battle berikutnya</div>` : 'Belum ada makanan aktif.'}
-      <div style="font-size:12px;color:var(--sub);font-weight:700;margin-top:2px">Berlaku untuk seluruh tim, 1 battle. Maks. 1 makanan aktif. Duel teman: tiap efek maks. +10%. Tidak berlaku di Raid & Bos.</div></div>
-    <div style="display:flex;flex-direction:column;gap:6px;max-height:46vh;overflow:auto">${ids.map(row).join('') || `<p style="margin:4px 0;font-weight:700;color:var(--sub)">Tas masih kosong. Pancing ikan di tepi kolam atau danau${S.rank < 2 ? ' (mulai Rank 2)' : ''}, atau beli makanan di Toko Umum Mak Tika.</p>`}</div>
-    <div style="text-align:center;font-size:12.5px;font-weight:800;color:var(--sub);margin-top:6px">Ikan hari ini: ${b.n}/${FISH_DAY}</div>`;
+  const H = (t, n) => `<div style="font:900 14px system-ui;color:#fff;margin:6px 2px 0;display:flex;justify-content:space-between"><span>${t}</span>${n !== undefined ? `<span style="color:var(--sun)">${n}</span>` : ''}</div>`;
+  const sec = [];
+  /* Makanan */
+  if (ids.length || act) sec.push(H('🍖 Makanan') + `<div class="card" style="font-weight:800;font-size:13px">${act ? `Sedang aktif: <span style="color:#e05a1a">🍖 ${esc(act.n)}</span><div style="font-size:12px;color:var(--sub)">${efTxt(act.ef)} · battle berikutnya</div>` : 'Belum ada makanan aktif.'}
+      <div style="font-size:11.5px;color:var(--sub);font-weight:700;margin-top:2px">Berlaku untuk seluruh tim, 1 battle. Maks. 1 makanan aktif. Duel teman: tiap efek maks. +10%. Tidak berlaku di Raid &amp; Bos.</div></div>` + ids.map(row).join('') +
+    `<div style="text-align:center;font-size:12px;font-weight:800;color:var(--sub)">Ikan hari ini: ${b.n}/${FISH_DAY}</div>`);
+  /* Telur */
+  const lk = typeof legEggKeys === 'function' ? legEggKeys() : [], eg = ['Kayu', 'Perak', 'Emas'].filter(k => S.boxes[k] > 0);
+  const nLeg = lk.length + (S.lgU > 0 ? S.lgU : 0);
+  if (eg.length || nLeg) {
+    const er = (img, n, k, sub) => `<div style="display:flex;gap:8px;align-items:center;padding:6px;border-radius:12px;background:#fff;border:2px solid var(--line)"><span style="width:44px;display:grid;place-items:center">${img}</span><div style="flex:1;min-width:0"><b style="color:var(--text)">${n}</b> <b style="color:var(--text)">×${k}</b><div style="font-size:12px;color:var(--sub);font-weight:700">${sub}</div></div></div>`;
+    sec.push(H('🥚 Telur', `${eg.reduce((a, k) => a + S.boxes[k], 0) + nLeg}`) + eg.map(k => er(`<img src="${chestURL(k)}" width="44" height="35" alt="" style="image-rendering:pixelated">`, eggN(k), S.boxes[k], `Jawab ${EGG[k].pass} dari ${EGG[k].n} soal ${EGG[k].lv} untuk menetaskan`)).join('') +
+      (nLeg ? er('<span style="font-size:30px">🌟</span>', 'Telur Legenda', nLeg, S.rank >= 10 ? 'Siap ditetaskan' : 'Bisa ditetaskan di Rank 10') : '') +
+      `<button type="button" class="btn hot" data-egg="1" style="min-height:38px;font-size:14px">🥚 Tetaskan telur</button>`);
+  }
+  /* Aksesoris (bisa dilipat) */
+  const L = look(), acc = (S.acc && S.acc.own || []).filter(id => SH[id] && SH[id].slot && id !== 'sd');
+  if (acc.length) {
+    const worn = id => S.acc[SH[id].slot] === id;
+    const grid = BAG_ACC ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${acc.map(id => `<button type="button" data-acc="${id}" style="position:relative;background:#fff;border:2px solid ${worn(id) ? '#3ccf91' : 'var(--line)'};border-radius:12px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;font:inherit;color:var(--text)">${worn(id) ? '<span style="position:absolute;top:2px;left:4px;font-size:10px;font-weight:900;color:#1f7a52">Dipakai</span>' : ''}${avatarSvg({ ...L, [SH[id].slot]: id }, 36)}<b style="font-size:11.5px;line-height:1.1">${esc(SH[id].n)}</b></button>`).join('')}</div><div style="font-size:11.5px;color:var(--sub);font-weight:700;text-align:center">Ketuk untuk memakai atau melepas.</div>` : '';
+    sec.push(`<button type="button" data-acct="1" style="all:unset;cursor:pointer;display:block">${H(`👕 Aksesoris ${BAG_ACC ? '▲' : '▼'}`, acc.length)}</button>` + grid);
+  }
+  /* Lainnya */
+  const oth = [];
+  if (typeof goaLeft === 'function' && S.rank >= GOA_RANK) oth.push(`<div style="display:flex;gap:8px;align-items:center;padding:6px;border-radius:12px;background:#fff;border:2px solid var(--line)"><span style="width:44px;text-align:center;font-size:28px">🔥</span><div style="flex:1"><b style="color:var(--text)">Obor Goa</b><div style="font-size:12px;color:var(--sub);font-weight:700">Gratis ${GOA_OB} tiap hari · beli di Mak Tika</div></div><b style="color:var(--text);font-size:15px">${goaLeft()} sisa</b></div>`);
+  if (oth.length) sec.push(H('📦 Lainnya') + oth.join(''));
+  const html = `<h2>🎒 Tas</h2><div style="display:flex;flex-direction:column;gap:6px;max-height:58vh;overflow:auto">${sec.join('') || `<p style="margin:4px 0;font-weight:700;color:var(--sub)">Tas masih kosong. Pancing ikan di tepi kolam atau danau${S.rank < 2 ? ' (mulai Rank 2)' : ''}, atau beli makanan di Toko Umum Mak Tika.</p>`}</div>`;
   let pick = null;
-  const c = await modal(html, [{ t: 'Tutup', cls: 'ghost' }], { onOpen: m => m.querySelectorAll('[data-eat]').forEach(x => x.onclick = e => { e.stopPropagation(); pick = x.dataset.eat; const cl = [...m.querySelectorAll('button')].pop(); if (cl) cl.click(); }) });
+  await modal(html, [{ t: 'Tutup', cls: 'ghost' }], { onOpen: m => {
+    const go = v => e => { e.stopPropagation(); pick = v; const cl = [...m.querySelectorAll('button')].pop(); if (cl) cl.click(); };
+    m.querySelectorAll('[data-eat]').forEach(x => x.onclick = go({ eat: x.dataset.eat }));
+    m.querySelectorAll('[data-egg]').forEach(x => x.onclick = go({ egg: 1 }));
+    m.querySelectorAll('[data-acc]').forEach(x => x.onclick = go({ acc: x.dataset.acc }));
+    m.querySelectorAll('[data-acct]').forEach(x => x.onclick = go({ acct: 1 }));
+  } });
   if (!pick) return;
-  const it = ITEM[pick];
+  if (pick.acct) { BAG_ACC = !BAG_ACC; return openBag(); }
+  if (pick.egg) { await openBoxes(); return; }
+  if (pick.acc) { stopLoop(); shopTab = SH[pick.acc].slot; shopSel = pick.acc; openShop('bag'); return; }
+  const it = ITEM[pick.eat]; if (!it) return;
   if (b.act && ITEM[b.act]) { const k = await modal(`<h2>Ganti makanan?</h2><p><b>${esc(ITEM[b.act].n)}</b> sedang aktif. Kalau makan <b>${esc(it.n)}</b>, yang lama hilang.</p>`, [{ t: 'Batal', cls: 'ghost' }, { t: 'Makan', cls: 'hot' }]); if (k !== 1) return openBag(); }
-  b.it[pick]--; if (b.it[pick] <= 0) delete b.it[pick]; b.act = pick; save(); sfx('ok');
+  b.it[pick.eat]--; if (b.it[pick.eat] <= 0) delete b.it[pick.eat]; b.act = pick.eat; save(); sfx('ok');
   toast(`🍖 ${it.n} dimakan! ${efTxt(it.ef)} di battle berikutnya.`, 3200); openBag();
 }
 
@@ -8871,7 +8904,7 @@ function openShop(from) {
   const sel = shopSel && SH[shopSel] && SH[shopSel].slot === shopTab ? SH[shopSel] : null;
   const own = id => S.acc.own.includes(id), worn = id => S.acc[SH[id].slot] === id;
   /* dari Profil = lemari: hanya pakai/lepas yang sudah dimiliki. Membeli hanya di Toko Aksesoris (sekolah). Yang belum dimiliki tampil hitam */
-  const wr = openShop.from === 'prof';
+  const wr = openShop.from === 'prof' || openShop.from === 'bag';   // v137: dari Tas = lemari juga
   const prev = { ...look() }; if (sel && (!wr || own(sel.id))) prev[sel.slot] = sel.id;
   el.innerHTML = `<div style="background:linear-gradient(#ff9a5c,#ffe0a3);padding:12px 12px 0;border-bottom:3px solid var(--deep)">
     <div class="row"><button class="round" id="sBack" type="button" aria-label="Kembali"><svg width="18" height="18" aria-hidden="true"><use href="#ic-back"/></svg></button><div class="title">${wr ? 'Ganti Aksesoris' : 'Toko Aksesoris'}</div><span class="chip disp" style="font-weight:400;font-size:16px;color:var(--sun)">${COIN}${S.coins}</span></div>
@@ -8889,7 +8922,7 @@ function openShop(from) {
     <p style="margin:0;text-align:center;font-size:12px;font-weight:700;color:var(--dim)">${wr ? 'Beli aksesoris baru di Toko Aksesoris (halaman sekolah). ' : ''}Koin hanya dari bermain: melawan Lumi, duel, dan misi. Tidak bisa dibeli dengan uang asli.</p>
   </div>`;
   if (shopTab === 'ride') rideShopPatch(el, wr); else if (typeof accShopPatch === 'function') accShopPatch(el, sel && (!wr || own(sel.id)) ? sel : null);
-  $('#sBack').onclick = () => { shopSel = null; if (openShop.from === 'prof') { openShop.from = null; openProf(); } else { show('s-world'); hud(); refreshPlayer(); } };
+  $('#sBack').onclick = () => { shopSel = null; if (openShop.from === 'prof') { openShop.from = null; openProf(); } else if (openShop.from === 'bag') { openShop.from = null; show('s-world'); hud(); refreshPlayer(); setTimeout(openBag, 60); } else { show('s-world'); hud(); refreshPlayer(); } };
   el.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { shopTab = b.dataset.tab; shopSel = null; openShop(); });
   el.querySelectorAll('[data-id]').forEach(b => b.onclick = () => { shopSel = b.dataset.id; openShop(); });
   const a = $('#sAct');
