@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v138">
+<meta name="lumimon-ver" content="v139">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -6403,7 +6403,8 @@ const cyrb53 = (str, seed = 0) => { let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 
 const codeHash = s => cyrb53(String(s).toUpperCase().replace(/[^A-Z0-9]/g, '')).toString(36);
 const CODES = {
   '2cl28cgde5o': { admin: true },
-  '1wzicc0f72l': { admin: true, gm: true },   // Game Master (v98)
+  '1wzicc0f72l': { dead: true, lbl: 'GM-LAMA' },   // Game Master lama (v98), diganti v138
+  '1dwrhiwvjyu': { admin: true, gm: true, lbl: 'GM' },   // Game Master (v138)
   '1f7sg3spcnc': { coins: 200, boxes: { Kayu: 1 } },
   'ahwuxbixlh': { coins: 500 },
   '1futuk10m0n': { boxes: { Perak: 1 } },
@@ -6422,11 +6423,17 @@ function codeApply(r) {
     out.push('<b>Mode Super Admin aktif!</b>', 'Semua Lumi Lv. maksimal dan semua aksesoris terbuka', 'Semua pulau dan Sarang Legenda terbuka', `${COIN}99.999 koin dan 5 telur tiap jenis`);
   }
   if (r.gm) {
-    S.gm = 1; S.gmHide = 1; S.xp = 0; S.evo = {};   // Lumi belum evolusi
+    S.gm = 1; S.gmHide = 1; S.xp = 0;
+    /* v138: GM punya SEMUA: semua Lumi berevolusi, semua Aksesoris Taklukan, semua gelar, ikan, Telur Legenda */
+    if (typeof EVO_N !== 'undefined') { S.evo = {}; for (const id in EVO_N) if (M[id]) S.evo[id] = Date.now(); }
+    if (typeof TK_ITEMS !== 'undefined') TK_ITEMS.forEach(it => { if (!S.acc.own.includes(it.id)) S.acc.own.push(it.id); });
+    if (typeof TLIST !== 'undefined') { if (!S.tgot) S.tgot = {}; TLIST.forEach(t => S.tgot[t[0]] = 1); }
+    if (typeof FISHES !== 'undefined') { const b = bagS(); FISHES.forEach(f => b.it[f.id] = (b.it[f.id] || 0) + 5); }
+    S.lgU = (S.lgU || 0) + 3;
     if (typeof RIDES !== 'undefined') { const rd = rideS(); rd.own = RIDES.map(x => x.id); rd.sel = rd.own[rd.own.length - 1]; }
     if (typeof FOODS !== 'undefined') { const b = bagS(); FOODS.forEach(f => b.it[f.id] = (b.it[f.id] || 0) + 5); }
     S.mm = { s: 8 }; try { if (MP && MP.ch) MP.ch.untrack(); if (MP && MP.ps) MP.sig = ''; } catch (e) { }
-    out.push('<b>Mode Game Master aktif!</b>', 'Rank 20, semua kendaraan, 5 makanan tiap jenis', 'Tidak tercatat di Papan Juara', 'Online: kamu melihat semua pemain, tetapi <b>tidak terlihat</b> oleh mereka (tanpa chat, emote, duel, regu)');
+    out.push('<b>Mode Game Master aktif!</b>', 'Rank 20, semua kendaraan, 5 makanan & 5 ikan tiap jenis', 'Semua Lumi berevolusi, semua Aksesoris Taklukan & gelar, 3 Telur Legenda Umum', 'Tidak tercatat di Papan Juara', 'Online: kamu melihat semua pemain, tetapi <b>tidak terlihat</b> oleh mereka (tanpa chat, emote, duel, regu)');
   }
   if (r.title && r.title.id && r.title.n) { if (!S.tex) S.tex = {}; S.tex[r.title.id] = { n: r.title.n, r: r.title.r || 'E' }; if (!S.tgot) S.tgot = {}; S.tgot[r.title.id] = 1; out.push(`Gelar khusus: <b>${esc(r.title.n)}</b>`); }
   if (r.coins) { S.coins += r.coins; out.push(`${COIN}+${r.coins} koin`); }
@@ -7169,7 +7176,7 @@ function accBonus() {
 const accNight = () => typeof todH === 'function' && todH() >= 19 && todH() < 21;
 /* pengali koin battle & XP */
 function accCoin(c) { const b = accBonus(); return Math.round(c * (1 + (b.coin + (b.night && accNight() ? 10 : 0)) / 100)); }
-const accXP = n => n > 0 ? Math.round(n * (1 + accBonus().xp / 100)) : n;
+const accXP = n => n > 0 ? Math.round(n * (1 + accBonus().xp / 100) * (typeof hhMul === 'function' ? hhMul('xp') : 1)) : n;   // v139: Happy Hour XP +20%
 /* dipanggil startBattle setelah makanan */
 function accUse(cfg) {
   if (!B || cfg.tut || !['wild', 'duel', 'legend', 'boss'].includes(cfg.type)) return;
@@ -7240,7 +7247,7 @@ function tkWild(cfg) {
   const t = tkS(), bo = (t.b || 0) > 0;   // boost dari kode hadiah: pasti dapat, tetap jalan walau lewat 20 menang
   if (!bo && (!S.bw || S.bw.w > 20)) return [];
   if (bo) t.b--; else t.p = (t.p || 0) + 1;
-  if (!bo && Math.random() * 100 >= TK_RATE && t.p < TK_PITY) return [];
+  if (!bo && Math.random() * 100 >= TK_RATE * (typeof hhMul === 'function' ? hhMul('drop') : 1) && t.p < TK_PITY) return [];   // v139: Happy Hour drop ×2
   t.p = 0; const set = TK_SETS[k], [id, , n] = set.items[Math.floor(Math.random() * set.items.length)];
   if (tkHas(id)) { addCoins(TK_DUP); progress('coins', TK_DUP); return [`👕 ${esc(n)} (sudah punya) → ${COIN}+${TK_DUP} koin`]; }
   S.acc.own.push(id); sfx('ok');
@@ -7793,6 +7800,7 @@ async function lbsClaimAll() {
 async function lbsGive(wid, rw) {
   if (!S.lbsW) S.lbsW = {}; if (S.lbsW[wid]) return; S.lbsW[wid] = 1;
   const k = rw.k, nm = M[LEG[k]] ? M[LEG[k]].n : 'Legenda', out = [];
+  if (rw.gm) { save(); toast(`🕶 ${rw.done ? 'Bos tumbang!' : 'Bos kabur.'} Akun GM membantu diam-diam: tidak tercatat & tanpa hadiah.`, 3500); return; }   // v139b
   addCoins(rw.coins); out.push(`${COIN}+${rw.coins} koin`);
   if (rw.egg === 'LegU') { S.lgU = (S.lgU || 0) + 1; out.push('🌟 <b style="color:#ff9ac8">Telur Legenda Umum!</b>'); }
   else if (rw.egg) { S.boxes[rw.egg]++; out.push(`${eggN(rw.egg)}`); }
@@ -8111,6 +8119,136 @@ async function lbsEvShow() {
   if (c === 1) { const n = lbsEvNext(); if (n && Date.now() >= n.t0 && (S.rank || 1) >= LBS_RANK) { if (W && W.zone !== 'school') enterZone('school'); toast('🌟 Bos Legenda ada di halaman sekolah. Dekati dan tekan A!', 4000); } else if ((S.rank || 1) < LBS_RANK) toast(`Butuh Rank ${LBS_RANK} untuk ikut. Ayo naik rank dulu!`, 3500); else toast('⏰ Datang lagi saat bos turun ke sekolah, ya!', 3500); }
 }
 { const _upd = updShow; updShow = async function () { if (lbsEvDay()) await lbsEvShow(); return _upd(); }; }
+
+/* ================= MENU GM (v139): Kirim Hadiah & Happy Hour (sebutan untuk siswa: "Admin") =================
+   Semua aksi lewat server (gm-v139.sql) dan dikunci SANDI GM yang hanya ada di server. Sandi disimpan di memori selama game terbuka.
+   Siswa: cek hadiah & Happy Hour tiap 60 detik (hadiah_ambil, hh_now). Happy Hour: drop Aksesoris Taklukan ×2 atau XP +20% (lewat accXP). */
+let GM_PW = null;
+const HH = { kind: null, end: 0, was: null };
+const GM_KIND = { coins: ['🪙', 'Koin', 1000, 100], Kayu: ['🥚', 'Telur Biasa', 3, 1], Perak: ['🥈', 'Telur Perak', 3, 1], Emas: ['🥇', 'Telur Emas', 3, 1], tkb: ['👕', 'Boost Aksesoris', 2, 1], xp: ['⭐', 'XP', 300, 50] };
+const gmRpc = (fn, args) => lbsRpc(fn, args);
+const hhOn = () => HH.kind && Date.now() < HH.end;
+function hhMul(k) { if (!hhOn()) return 1; return k === 'drop' && HH.kind === 'drop' ? 2 : k === 'xp' && HH.kind === 'xp' ? 1.2 : 1; }
+const hhTxt = k => k === 'drop' ? '🎁 Drop Aksesoris ×2' : '⭐ XP +20%';
+const fmtMS = ms => { const s = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+
+/* ---------- bar Happy Hour (layar dunia) ---------- */
+function hhBar() {
+  let el = $('#hhBar'); const qc = $('#questChip');
+  const on = hhOn() && S && !$('#s-world').hidden;
+  if (!on) { if (el) el.hidden = true; return; }
+  if (!el && qc) { el = document.createElement('div'); el.id = 'hhBar'; el.style.cssText = 'background:linear-gradient(90deg,#7b4fd6,#ff5d8f);color:#fff;border:2.5px solid var(--ink);border-radius:12px;box-shadow:0 3px 0 var(--ink);padding:4px 9px;font-weight:900;font-size:12.5px;max-width:100%;box-sizing:border-box'; qc.parentNode.insertBefore(el, qc); }
+  if (!el) return; el.hidden = false;
+  el.innerHTML = `🎉 HAPPY HOUR dari Admin · ${hhTxt(HH.kind)}<br><small style="font-weight:800">sisa ${fmtMS(HH.end - Date.now())} · ${HH.kind === 'drop' ? 'ayo lawan Lumi liar!' : 'ayo latihan & bertarung!'}</small>`;
+}
+setInterval(() => { try { hhBar(); if (S && S.gq && S.gq.length) giftShow(); } catch (e) { } }, 1000);
+
+/* ---------- cek server tiap 60 detik ---------- */
+async function gmTick() {
+  if (!S) return;
+  if (S.gm && typeof TK_ITEMS !== 'undefined') { let ch = 0; TK_ITEMS.forEach(it => { if (!S.acc.own.includes(it.id)) { S.acc.own.push(it.id); ch = 1; } }); if (ch) save(); }   // GM punya semua Aksesoris Taklukan (termasuk set baru)
+  if (typeof lbSb !== 'function' || !lbSb()) return;
+  try { const h = await gmRpc('hh_now', {}); if (h && h.on) { HH.kind = h.kind; HH.end = Date.now() + h.left * 1000; } else { HH.kind = null; HH.end = 0; }
+    if (hhOn() && HH.was !== HH.kind + Math.round(HH.end / 60000)) { const first = HH.was === null; HH.was = HH.kind + Math.round(HH.end / 60000); toast(`🎉 <b>Happy Hour dari Admin!</b> ${hhTxt(HH.kind)} · sisa ${fmtMS(HH.end - Date.now())}`, 4200); if (!first) sfx('rank'); }
+  } catch (e) { }
+  try { const g = await gmRpc('hadiah_ambil', { p_tok: lbTok() }); if (Array.isArray(g) && g.length) giftApply(g); } catch (e) { }
+  giftShow();
+}
+setTimeout(gmTick, 8000); setInterval(gmTick, 60000);
+
+/* ---------- hadiah untuk siswa ---------- */
+function giftApply(list) {
+  if (!S.gq) S.gq = [];
+  for (const x of list) {
+    const K = GM_KIND[x.kind], n = Math.max(0, Math.min(Number(x.n) || 0, K ? K[2] : 0)); if (!K || !n) continue;
+    let line = '';
+    if (x.kind === 'coins') { addCoins(n); line = `${COIN}+${n} koin`; }
+    else if (x.kind === 'xp') { gainXP(n); line = `⭐ +${n} XP`; }
+    else if (x.kind === 'tkb') { const t = S.tk || (S.tk = { p: 0 }); t.b = (t.b || 0) + n; line = `👕 Boost Aksesoris: ${n} menang lawan Lumi liar pasti dapat`; }
+    else { S.boxes[x.kind] = (S.boxes[x.kind] || 0) + n; line = `${eggN(x.kind)} ×${n}`; }
+    S.gq.push({ l: line, k: x.kind, m: String(x.msg || '').slice(0, 80) });
+  }
+  S.gq = S.gq.slice(-10); save(); hud();
+}
+async function giftShow() {
+  if (!S || !S.gq || !S.gq.length || !$('#modal').hidden || $('#s-world').hidden || (typeof B !== 'undefined' && B)) return;
+  const g = S.gq.shift(); save(); sfx('win');
+  const img = ['Kayu', 'Perak', 'Emas'].includes(g.k) ? `<img src="${chestURL(g.k)}" width="56" height="45" alt="" style="image-rendering:pixelated;vertical-align:middle"> ` : '';
+  await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">KIRIMAN KHUSUS</div><div style="font-size:54px;line-height:1">🎁</div><h2 style="margin:0">Hadiah dari Admin!</h2>
+    <div class="card" style="width:100%;font-weight:800;font-size:15px">${img}${g.l}</div>${g.m ? `<div class="card" style="width:100%;font-style:italic;font-weight:700">"${esc(g.m)}"<div style="font-style:normal;font-size:11.5px;color:var(--sub);margin-top:2px">— Admin</div></div>` : ''}</div>`, [{ t: 'Terima kasih!', cls: 'hot' }]);
+  setTimeout(giftShow, 400);
+}
+
+/* ---------- Menu GM ---------- */
+async function gmLogin(msg) {
+  let val = '';
+  const c = await modal(`<h2>🛠️ Menu GM</h2><p style="font-size:13px">Masukkan <b>Sandi GM</b>. Sandi diperiksa server dan hanya berlaku selama game terbuka.</p>
+    <input id="gmPw" type="password" maxlength="60" autocomplete="off" style="width:100%;box-sizing:border-box;font:800 18px monospace;padding:8px;border:2.5px solid var(--ink);border-radius:12px">
+    ${msg ? `<p style="margin:6px 0 0;font-weight:800;color:#c2301b;text-align:center">${msg}</p>` : ''}`,
+    [{ t: 'Batal', cls: 'ghost' }, { t: 'Masuk', cls: 'hot' }], { onOpen: m => { const i = m.querySelector('#gmPw'); if (i) { i.oninput = () => { val = i.value; }; setTimeout(() => i.focus(), 100); } } });
+  if (c !== 1) return false;
+  try { const r = await gmRpc('gm_cek', { p_pass: val }); if (r && r.ok) { GM_PW = val; try { await gmRpc('gm_daftar', { p_pass: val, p_tok: lbTok() }); } catch (e2) { } return true; }   /* v139b: akun ini disembunyikan dari papan */ return gmLogin(r && r.why === 'kunci' ? 'Terlalu banyak salah. Coba lagi 1 jam lagi.' : 'Sandi salah.'); }
+  catch (e) { return gmLogin('Tidak terhubung ke server. Cek internet.'); }
+}
+async function gmMenu() {
+  if (!S || !S.gm) return;
+  if (!GM_PW && !(await gmLogin())) return;
+  let rw = null; try { rw = await gmRpc('gm_riwayat', { p_pass: GM_PW }); } catch (e) { }
+  if (rw && rw.ok === false) { GM_PW = null; return gmMenu(); }
+  const KN = { coins: 'koin', Kayu: 'Telur Biasa', Perak: 'Telur Perak', Emas: 'Telur Emas', tkb: 'Boost Aksesoris', xp: 'XP', hh_drop: 'Drop ×2', hh_xp: 'XP +20%' };
+  const hist = rw && rw.list && rw.list.length ? rw.list.map(x => x.n === 'Happy Hour' ? `${x.j} · 🎉 Happy Hour ${KN[x.k] || x.k}` : `${x.j} · ${esc(x.n)} · ${x.q} ${KN[x.k] || x.k} · ${x.ok ? '✓ diambil' : '⏳ menunggu'}`).join('<br>') : 'Belum ada.';
+  let pick = null;
+  await modal(`<h2>🛠️ Menu GM</h2><div class="card" style="font-size:12.5px;font-weight:700">Masuk sebagai <b>Admin</b> · ✓ sandi aktif sampai game ditutup.${hhOn() ? `<br><b style="color:#7b4fd6">🎉 Happy Hour berjalan: ${hhTxt(HH.kind)} · sisa ${fmtMS(HH.end - Date.now())}</b>` : ''}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><button class="btn hot" type="button" data-g="kirim" style="min-height:66px;font-size:15px">🎁<br>Kirim Hadiah</button><button class="btn hot" type="button" data-g="hh" style="min-height:66px;font-size:15px;background:#7b4fd6">🎉<br>Happy Hour</button></div>
+    <div class="card" style="margin-top:8px;font-size:12.5px;font-weight:700"><b>Riwayat hari ini</b><div style="color:var(--sub);margin-top:2px">${hist}</div></div>`, [{ t: 'Tutup', cls: 'ghost' }],
+    { onOpen: m => m.querySelectorAll('[data-g]').forEach(b => b.onclick = e => { e.stopPropagation(); pick = b.dataset.g; [...m.querySelectorAll('button')].pop().click(); }) });
+  if (pick === 'kirim') return gmKirim();
+  if (pick === 'hh') return gmHH();
+}
+async function gmKirim(msg) {
+  const st = { name: null, kind: 'coins', n: 100, msg: '' }; let tmr = null, ok = false;
+  const kinds = Object.entries(GM_KIND).map(([k, v]) => `<button type="button" data-k="${k}" style="border:2.5px solid var(--line);background:#fff;border-radius:10px;padding:5px 2px;font:800 12px system-ui;color:var(--text)"><div style="font-size:20px">${v[0]}</div>${v[1]}</button>`).join('');
+  const c = await modal(`<h2>🎁 Kirim Hadiah</h2>${msg ? `<p style="margin:0 0 6px;font-weight:800;color:#c2301b">${msg}</p>` : ''}
+    <div class="card"><b>Penerima</b><input id="gmQ" placeholder="ketik nama siswa" autocomplete="off" style="width:100%;box-sizing:border-box;margin-top:4px;font:800 16px system-ui;padding:6px;border:2px solid var(--ink);border-radius:10px"><div id="gmL" style="display:flex;flex-direction:column;gap:3px;margin-top:4px;font-weight:800;font-size:13px"></div></div>
+    <div class="card" style="margin-top:8px"><b>Hadiah</b><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:5px;text-align:center">${kinds}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:800">Jumlah <button class="btn ghost" type="button" data-q="-1" style="min-height:30px;padding:0 12px">−</button><b id="gmN" style="font-size:18px;min-width:40px;text-align:center">100</b><button class="btn ghost" type="button" data-q="1" style="min-height:30px;padding:0 12px">+</button><span id="gmC" style="font-size:11.5px;color:var(--sub)"></span></div>
+      <div style="margin-top:6px"><b>Pesan</b> <span style="font-size:11.5px;color:var(--sub)">(opsional)</span><input id="gmM" maxlength="80" autocomplete="off" style="width:100%;box-sizing:border-box;margin-top:3px;font:700 14px system-ui;padding:6px;border:2px solid var(--line);border-radius:10px"></div></div>`,
+    [{ t: 'Batal', cls: 'ghost' }, { t: 'Kirim 🎁', cls: 'hot' }], { onOpen: m => {
+      const L = m.querySelector('#gmL'), N = m.querySelector('#gmN'), C = m.querySelector('#gmC');
+      const drawK = () => { m.querySelectorAll('[data-k]').forEach(b => { const on = b.dataset.k === st.kind; b.style.borderColor = on ? '#7b4fd6' : 'var(--line)'; b.style.background = on ? '#efe6ff' : '#fff'; }); N.textContent = st.n; C.textContent = `maks ${GM_KIND[st.kind][2]}`; };
+      const drawL = list => { L.innerHTML = list.length ? list.map(x => `<button type="button" data-n="${esc(x.n)}" style="text-align:left;border:2px solid ${st.name === x.n ? '#3ccf91' : 'var(--line)'};background:${st.name === x.n ? '#d8f5e6' : '#fff'};border-radius:8px;padding:4px 6px;font:800 13px system-ui;color:var(--text)">${st.name === x.n ? '✓ ' : ''}${esc(x.n)} · Rank ${x.rk || '?'}</button>`).join('') : '<span style="color:var(--sub)">Tidak ditemukan.</span>';
+        L.querySelectorAll('[data-n]').forEach(b => b.onclick = e => { e.stopPropagation(); st.name = b.dataset.n; drawL(list); }); };
+      m.querySelector('#gmQ').oninput = e => { const q = e.target.value.trim(); clearTimeout(tmr); if (q.length < 2) { L.innerHTML = ''; return; } tmr = setTimeout(async () => { try { const r = await gmRpc('gm_cari', { p_pass: GM_PW, p_q: q }); if (r && r.ok) drawL(r.list || []); } catch (e2) { L.innerHTML = '<span style="color:#c2301b">Gagal mencari (internet?)</span>'; } }, 400); };
+      m.querySelectorAll('[data-k]').forEach(b => b.onclick = e => { e.stopPropagation(); st.kind = b.dataset.k; st.n = GM_KIND[st.kind][3]; drawK(); });
+      m.querySelectorAll('[data-q]').forEach(b => b.onclick = e => { e.stopPropagation(); const K = GM_KIND[st.kind], step = K[3]; st.n = Math.max(step, Math.min(K[2], st.n + Number(b.dataset.q) * step)); drawK(); });
+      m.querySelector('#gmM').oninput = e => { st.msg = e.target.value; };
+      drawK();
+    } });
+  if (c !== 1) return gmMenu();
+  if (!st.name) return gmKirim('Pilih penerima dari daftar dulu.');
+  try { const r = await gmRpc('gm_kirim', { p_pass: GM_PW, p_name: st.name, p_kind: st.kind, p_n: st.n, p_msg: st.msg }); ok = r && r.ok;
+    if (!ok) return gmKirim(r && r.why === 'sandi' ? 'Sandi tidak berlaku lagi.' : r && r.why === 'nama' ? 'Nama tidak ditemukan.' : 'Jumlah tidak valid.'); }
+  catch (e) { return gmKirim('Tidak terhubung ke server.'); }
+  toast(`🎁 Terkirim ke <b>${esc(st.name)}</b>: ${st.n} ${GM_KIND[st.kind][1]}. Diambil saat dia online.`, 3600); return gmMenu();
+}
+async function gmHH(msg) {
+  const st = { kind: 'drop', min: 30 };
+  const opt = (a, k, v, h) => `<button type="button" data-${a}="${k}" style="border:2.5px solid var(--line);background:#fff;border-radius:12px;padding:8px 4px;font:800 13px system-ui;color:var(--text)">${v}${h ? `<div style="font-size:11px;color:var(--sub)">${h}</div>` : ''}</button>`;
+  const c = await modal(`<h2>🎉 Happy Hour</h2>${msg ? `<p style="margin:0 0 6px;font-weight:800;color:#c2301b">${msg}</p>` : ''}<div class="card" style="font-size:12.5px;font-weight:700">Bonus untuk <b>semua siswa yang online</b>. Siswa yang baru masuk tetap kebagian. Maks <b>2×</b> sehari.</div>
+    <div class="card" style="margin-top:8px"><b>Jenis</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px;text-align:center">${opt('k', 'drop', '<div style="font-size:26px">🎁</div>Drop Aksesoris ×2', '20% → 40%')}${opt('k', 'xp', '<div style="font-size:26px">⭐</div>XP +20%', 'XP dari soal & battle')}</div>
+      <div style="margin-top:8px"><b>Durasi</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">${opt('m', '30', '30 menit')}${opt('m', '60', '60 menit')}</div></div></div>`,
+    [{ t: 'Batal', cls: 'ghost' }, { t: 'Mulai Happy Hour', cls: 'hot' }], { onOpen: m => {
+      const draw = () => { m.querySelectorAll('[data-k],[data-m]').forEach(b => { const on = b.dataset.k ? b.dataset.k === st.kind : Number(b.dataset.m) === st.min; b.style.borderColor = on ? '#7b4fd6' : 'var(--line)'; b.style.background = on ? '#efe6ff' : '#fff'; }); };
+      m.querySelectorAll('[data-k]').forEach(b => b.onclick = e => { e.stopPropagation(); st.kind = b.dataset.k; draw(); });
+      m.querySelectorAll('[data-m]').forEach(b => b.onclick = e => { e.stopPropagation(); st.min = Number(b.dataset.m); draw(); });
+      draw();
+    } });
+  if (c !== 1) return gmMenu();
+  try { const r = await gmRpc('gm_hh_mulai', { p_pass: GM_PW, p_kind: st.kind, p_min: st.min });
+    if (!r || !r.ok) return gmHH(r && r.why === 'aktif' ? 'Masih ada Happy Hour yang berjalan.' : r && r.why === 'batas' ? 'Sudah 2× Happy Hour hari ini.' : 'Sandi tidak berlaku lagi.'); }
+  catch (e) { return gmHH('Tidak terhubung ke server.'); }
+  await gmTick(); toast(`🎉 Happy Hour dimulai: ${hhTxt(st.kind)} · ${st.min} menit`, 3600); return gmMenu();
+}
 
 /* ================= v120: Goa Monster (solo, gelap, lantai 1–10) =================
    Zona 'goa_<pulau>' dibangun ulang tiap lantai dari benih percobaan. Semua dijalankan di HP siswa (tanpa Supabase).
@@ -8974,6 +9112,7 @@ async function openProf() {
     <div class="slots">${[0, 1, 2].map(i => { const id = S.team[i]; return id ? `<div class="slot f" style="${artBg(id)}">${mSvg(id, '', evoOn(id))}</div>` : '<div class="slot">Kosong</div>'; }).join('')}</div>
     <div class="row" style="justify-content:space-between"><span class="disp" style="font-size:18px">Suara</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button type="button" class="btn" id="pMus" style="min-height:46px;font-size:15px">Setting</button><button type="button" class="btn ghost" id="pSfx" style="min-height:46px;font-size:15px">Halaman Utama</button></div>
+    ${S.gm ? '<button type="button" class="btn hot" id="pGMM" style="margin-top:10px">🛠️ Menu GM</button>' : ''}
     ${S.gm ? `<button type="button" class="btn ${S.gmHide === 0 ? '' : 'dark'}" id="pGM" style="margin-top:10px">${S.gmHide === 0 ? '👁 Mode GM: Terlihat (ketuk untuk sembunyi)' : '🕶 Mode GM: Tidak terlihat (ketuk untuk tampil)'}</button>` : ''}
     ${typeof akunBtn === 'function' ? akunBtn() : ''}
     <button type="button" class="btn dark" id="pReset" style="margin-top:10px">Mulai ulang dari awal</button>
@@ -8992,6 +9131,7 @@ async function openProf() {
   $('#pTut').onclick = () => { show('s-world'); hud(); if (S.zone !== 'school') toast('Latihan dimulai dari halaman sekolah. Pulang dulu lewat Peta Dunia.', 3500); else tutStart(); };
   $('#pCode').onclick = async () => { await openCode(); openProf(); };
   if ($('#pGM')) $('#pGM').onclick = () => { gmToggle(); openProf(); };
+  if ($('#pGMM')) $('#pGMM').onclick = () => { if (typeof gmMenu === 'function') gmMenu(); };
   if ($('#pAkun')) $('#pAkun').onclick = async () => { await openAkun(); if (!$('#s-prof').hidden || $('#s-world').hidden) openProf(); };
   $('#pMus').onclick = async () => { await openSettings(); openProf(); };
   $('#pSfx').onclick = () => { save(); openTitle(); };
