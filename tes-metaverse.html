@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v140">
+<meta name="lumimon-ver" content="v149">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -1446,7 +1446,7 @@ function sndWant() {
   if (vis('s-title')) return 'title';
   if (vis('s-battle')) {
     const c = typeof B !== 'undefined' && B && B.cfg, ty = c && c.type;
-    if (ty === 'pvp' || ty === 'duel') return 'duel'; if (ty === 'boss' || ty === 'legend') return 'legend'; if (ty === 'lboss') return 'lboss';
+    if (ty === 'pvp' || ty === 'duel') return 'duel'; if (ty === 'boss' || ty === 'zboss' || ty === 'legend') return 'legend'; if (ty === 'lboss') return 'lboss';
     if (ty === 'goa') return c.gv && c.gv.boss ? 'penjaga' : 'goabattle'; return 'battle';
   }
   if (vis('s-aka') || vis('s-quiz')) return 'study';
@@ -1467,7 +1467,7 @@ function sndAuto() {
   const sc = sndScreen(); if (sc !== SND.last) {
     SND.last = sc;
     if (sc === 's-box') { sfx('box'); setTimeout(() => { const pk = document.querySelector('#s-box .pk'); if (pk) { const r = ['L', 'E', 'R', 'C'].find(x => pk.classList.contains(x)) || 'C'; sfx('rev' + r); } }, 900); }
-    if (sc === 's-battle' && typeof B !== 'undefined' && B && B.cfg) { const c = B.cfg; if (c.type === 'lboss' || c.type === 'legend' || (c.type === 'goa' && c.gv && c.gv.boss)) sfx('roar'); else if (c.type === 'wild' || c.type === 'goa') sfx('encounter'); }
+    if (sc === 's-battle' && typeof B !== 'undefined' && B && B.cfg) { const c = B.cfg; if (c.type === 'lboss' || c.type === 'zboss' || c.type === 'legend' || (c.type === 'goa' && c.gv && c.gv.boss)) sfx('roar'); else if (c.type === 'wild' || c.type === 'goa') sfx('encounter'); }
   }
 }
 ['pointerdown', 'touchend', 'keydown', 'click'].forEach(ev => addEventListener(ev, () => { if (!SND.ac || SND.ac.state !== 'running') sndInit(); }, { passive: true, capture: true }));
@@ -1721,8 +1721,8 @@ function pxLook(o) {
   const hc = hi ? hi.hj : o.hc || (hj ? (o.hijab || '#ffffff') : (o.hair || C.hair));
   const pd = PANTS[o.pants], skirtUni = gOf(o) === 'p';
   return { hs, hijab: hj ? ramp(hc) : null, hjm: hi && hi.motif, hjp: hi && hi.pin, hjt: hi && hi.trim, hairCol: hj ? null : (o.hc || o.hair || C.hair), skin: o.sk != null ? SKINS[o.sk] : o.skin2 ? C.skin2 : C.skin, eye: o.ec || EY, glasses: o.glasses,
-    shirt: o.top || (SHIRTS[o.shirt] && SHIRTS[o.shirt].r) || C.white, pat: (typeof SHIRT_PAT !== 'undefined' && SHIRT_PAT[o.shirt]) || o.shirt, tie: !o.shirt && !o.top,
-    bottom: o.bottomR || (pd && pd.r) || C.red, pk: pd ? pd.k : o.bottomR ? 'long' : skirtUni ? 'skirt' : 'sd', pant: o.pants, hat: hi ? null : o.hat, shoes: o.shoes, gl: o.glass || null, bk: o.back || null };
+    shirt: o.top || (SHIRTS[o.shirt] && SHIRTS[o.shirt].r) || C.white, pat: (typeof SHIRT_PAT !== 'undefined' && SHIRT_PAT[o.shirt]) || o.shirt, sid: o.shirt || null, tie: !o.shirt && !o.top,
+    bottom: o.bottomR || (pd && pd.r) || C.red, pk: pd ? pd.k : o.bottomR ? 'long' : skirtUni ? 'skirt' : 'sd', pant: o.pants, hat: hi ? null : o.hat, shoes: o.shoes, gl: (typeof EL_GL !== 'undefined' && EL_GL[o.glass]) || o.glass || null, bk: o.back || null };
 }
 function hat(g, h, dir) {
   if (typeof TK_HAT !== 'undefined' && TK_HAT[h]) return TK_HAT[h](g, dir);   // v138 Aksesoris Taklukan
@@ -2191,6 +2191,142 @@ const TK_HAT = {
   h_rookie(g, dir) { const up = dir === 'up', lf = dir === 'left'; E(g, 8, 3, 6.6, 3, ['#4a4a52', '#6a6a72', '#8a8a92', '#b8b8c0']); R(g, 2, 4, 12, 1, '#4a4a52');
     if (up) return; if (lf) R(g, 0, 4, 5, 2, '#3a3a42'); else { R(g, 3, 5, 10, 1, '#3a3a42'); R(g, 4, 6, 8, 1, '#2a2a32'); P(g, 8, 2, '#ffd23c'); P(g, 7, 2, '#ffd23c'); } }
 };
+
+/* ================= v143: sprite AKSESORIS TAKLUKAN · Set Elemen (helm, baju, celana, sepatu, kacamata, punggung) ================= */
+Object.assign(SHIRTS, { s_blaze: { r: ['#5a1408', '#c8302a', '#ff6a3d'] }, s_glacier: { r: ['#3a7ab0', '#8fdcff', '#e6f8ff'] }, s_venom: { r: ['#2a4a1a', '#4e7a2a', '#86b84a'] }, s_wander: { r: ['#8a7a5a', '#c9b890', '#efe6cc'] } });
+Object.assign(PANTS, { p_blaze: { r: ['#1f1a26', '#3a2a2a', '#5a4038'], k: 'long' }, p_glacier: { r: ['#24406a', '#5aa0d0', '#bfe6ff'], k: 'long' }, p_venom: { r: ['#2a3a1a', '#4a5a2a', '#6a7a3a'], k: 'long' }, p_wander: { r: ['#5a4a32', '#8a7a52', '#b8a880'], k: 'long' } });
+Object.assign(SHIRT_PAT, { s_blaze: 'hoodie', s_glacier: 'jubahc', s_venom: 'rompi', s_wander: 'rompi' });
+Object.assign(SHOES, { f_blaze: { c: ['#3a1a10', '#ff6a3d'], tall: 1 }, f_glacier: { c: ['#e6f8ff', '#5aa0d0'], tall: 1 }, f_venom: { c: ['#4a3a20', '#7fd35a'], tall: 1 }, f_wander: { c: ['#c9a46a', '#8a6a3a'], sandal: 1 } });
+Object.assign(BAGC, { b_blaze: ['#5a1408', '#c8302a', '#ffb03c'], b_venom: ['#3a1a5a', '#7b4fd6', '#7fd35a'], b_wander: ['#8a6a3a', '#c9a46a', '#efe6cc'] });
+const EL_GL = { g_blaze: 'kchitam', g_glacier: 'kgunung', g_venom: 'kbulat', g_wander: 'teropong' };
+const EL_WING = { w_glacier: ['#5aa0d0', '#bfe6ff', '#ffffff'] };   /* sayap es: pakai bentuk sayap malaikat dengan warna es */
+const _backAtEL = backAt;
+backAt = function (g, o, dir, front) {
+  const w = o.bk && EL_WING[o.bk];
+  if (w) { const keep = BAGC.sayap; BAGC.sayap = w; try { return _backAtEL(g, Object.assign({}, o, { bk: 'sayap' }), dir, front); } finally { BAGC.sayap = keep; } }
+  return _backAtEL(g, o, dir, front);
+};
+(function () {
+  const HB = (g, up, lf, c, rim, cheek = 1) => { if (up) { E(g, 8, 3, 6.8, 4.2, c); R(g, 2, 5, 12, 4, c[1]); R(g, 2, 5, 12, 1, rim); return; } E(g, 8, 3, 6.8, 3.6, c); R(g, 2, 5, 12, 1, rim); if (!cheek) return;
+    if (lf) { R(g, 9, 5, 3, 4, c[1]); R(g, 9, 5, 3, 1, c[2]); } else { R(g, 2, 5, 2, 4, c[1]); R(g, 12, 5, 2, 4, c[1]); P(g, 2, 5, c[2]); P(g, 13, 5, c[2]); R(g, 7, 5, 2, 2, c[0]); } };
+  Object.assign(TK_HAT, {
+    h_blaze(g, dir) { const up = dir === 'up', lf = dir === 'left'; HB(g, up, lf, ['#3a0a04', '#7a1a08', '#c8302a', '#ff6a3d'], '#ffc93c');
+      const xs = lf ? [4, 5, 6, 7, 8, 9, 10, 11] : [5, 6, 7, 8, 9, 10], hs = lf ? [2, 3, 4, 5, 5, 4, 3, 2] : [3, 4, 5, 5, 4, 3];
+      xs.forEach((x, i) => { for (let y = 0; y < hs[i]; y++) P(g, x, -1 - y, y == hs[i] - 1 ? '#fff3b0' : y > 1 ? '#ffb03c' : '#ff6a3d'); }); if (!up && !lf) { P(g, 8, 2, '#ffc93c'); P(g, 7, 2, '#ffc93c'); } },
+    h_glacier(g, dir) { const up = dir === 'up', lf = dir === 'left'; HB(g, up, lf, ['#24406a', '#3a7ab0', '#8fdcff', '#e6f8ff'], '#ffffff');
+      for (const [x, t] of (lf ? [[6, 2], [8, 4], [10, 2]] : [[4, 2], [8, 4], [12, 2]])) { for (let y = 0; y < t; y++) P(g, x, -y, y == t - 1 ? '#ffffff' : '#bfe6ff'); P(g, x - 1, 0, '#8fdcff'); P(g, x + 1, 0, '#8fdcff'); } if (!up && !lf) P(g, 8, 2, '#ffffff'); },
+    h_venom(g, dir) { const up = dir === 'up', lf = dir === 'left'; HB(g, up, lf, ['#1a3a1a', '#2a5a2a', '#4e8a3a', '#86b84a'], '#7b4fd6');
+      for (const [x, y] of [[4, 0], [6, -1], [8, -2], [10, -1], [12, 0]]) if (!lf || (x > 4 && x < 12)) { P(g, x, y, '#c9a0ff'); P(g, x, y + 1, '#7b4fd6'); }
+      if (!up && !lf) { P(g, 8, 2, '#c9a0ff'); P(g, 7, 2, '#7b4fd6'); P(g, 9, 2, '#7b4fd6'); } const mx = lf ? 3 : 12; R(g, mx, -1, 3, 2, '#a83a6a'); P(g, mx + 1, -1, '#ffffff'); P(g, mx + 1, 1, '#efe6cc'); },
+    h_wander(g, dir) { const up = dir === 'up', lf = dir === 'left'; E(g, 8, 2.6, 6, 3.4, ['#8a7a5a', '#b8a880', '#d9cba0', '#efe6cc']); R(g, 3, 4, 10, 1, '#6a5a3a'); R(g, lf ? 1 : 0, 5, lf ? 14 : 16, 1, '#a8946a'); R(g, lf ? 1 : 0, 6, lf ? 14 : 16, 1, '#8a7a5a'); P(g, 8, -1, '#6a5a3a');
+      if (!up && !lf) { R(g, 5, 2, 2, 2, '#3a3a42'); R(g, 9, 2, 2, 2, '#3a3a42'); P(g, 5, 2, '#7fd3ff'); P(g, 9, 2, '#7fd3ff'); R(g, 7, 3, 2, 1, '#3a3a42'); } }
+  });
+})();
+/* hiasan baju/celana/punggung Set Elemen digambar di atas anak (setelah garis tepi) */
+const _kidEL = kid;
+kid = function (o, dir, f) {
+  const g = _kidEL(o, dir, f), sh = o.sid, pa = o.pant, bk = o.bk;
+  if (!(sh && /^s_(blaze|glacier|venom|wander)$/.test(sh)) && !(pa && /^p_(blaze|glacier|venom|wander)$/.test(pa)) && !(bk && /^b_(blaze|venom|wander)$/.test(bk))) return g;
+  const up = dir === 'up', sd = dir === 'left', fr = !up && !sd;
+  const M2 = (pts, c) => pts.forEach(([x, y]) => { P(g, x, y, c); if (!sd) P(g, 15 - x, y, c); });
+  if (sh === 's_blaze') { const hs = [2, 3, 1, 3, 2, 3, 1, 2]; for (let x = sd ? 5 : 4; x < (sd ? 11 : 12); x++) { const h = hs[x - 4] || 2; for (let y = 0; y < h; y++) P(g, x, 17 + y, y == h - 1 ? '#fff3b0' : y ? '#ffb03c' : '#ff6a3d'); }
+    R(g, sd ? 6 : 5, 11, sd ? 4 : 6, 1, '#2a0a04');
+    if (sd) { R(g, 7, 11, 3, 2, '#5a1408'); P(g, 8, 10, '#ff6a3d'); P(g, 8, 9, '#ffd23c'); } else { M2([[1, 11], [2, 11], [3, 11], [1, 12], [2, 12], [3, 12]], '#5a1408'); M2([[1, 11], [2, 11], [3, 11]], '#8a2a10'); M2([[1, 10], [3, 10]], '#ff6a3d'); M2([[2, 10], [2, 9]], '#ffb03c'); M2([[2, 8], [1, 9]], '#fff3b0'); }
+    if (fr) { R(g, 8, 12, 1, 5, '#ffd23c'); P(g, 6, 14, '#ffb03c'); P(g, 10, 15, '#ffb03c'); } if (up) { P(g, 7, 14, '#ffb03c'); P(g, 8, 13, '#ffd23c'); P(g, 8, 14, '#ff6a3d'); P(g, 9, 14, '#ffb03c'); } }
+  if (pa === 'p_blaze') { for (const [x, y, c] of [[5, 20, '#ff6a3d'], [10, 20, '#ffb03c'], [6, 21, '#ffd23c']]) P(g, x, y, c); if (!sd) { M2([[3, 23], [3, 22]], '#ff6a3d'); M2([[3, 21]], '#ffd23c'); } else { P(g, 12, 23, '#ff6a3d'); P(g, 12, 22, '#ffb03c'); P(g, 13, 23, '#ffd23c'); } }
+  if (bk === 'b_blaze') { const x = sd ? 11 : 13; for (const [dx, dy, c] of [[0, 10, '#6b4423'], [0, 9, '#6b4423'], [0, 8, '#ff6a3d'], [0, 7, '#ff6a3d'], [0, 6, '#ffb03c'], [0, 5, '#ffd23c'], [0, 4, '#fff3b0'], [-1, 7, '#ff9a2a'], [1, 7, '#ff9a2a'], [1, 6, '#ffb03c'], [-1, 5, '#ff6a3d']]) P(g, x + dx, dy, c); }
+  if (sh === 's_glacier') { R(g, sd ? 5 : 3, 11, sd ? 6 : 10, 2, '#ffffff'); for (const x of [4, 6, 9, 11]) P(g, x, 12, '#d6f0ff');
+    if (sd) { P(g, 8, 10, '#bfe6ff'); P(g, 8, 9, '#ffffff'); P(g, 9, 8, '#e6f8ff'); } else { M2([[2, 11], [1, 10], [2, 10]], '#8fdcff'); M2([[1, 9], [0, 8]], '#ffffff'); M2([[0, 9]], '#bfe6ff'); }
+    for (const [x, l] of [[4, 2], [6, 1], [8, 2], [9, 1], [11, 2]]) if (!sd || (x > 4 && x < 11)) for (let y = 0; y < l; y++) P(g, x, 21 + y, y ? '#ffffff' : '#bfe6ff');
+    if (fr) { P(g, 6, 15, '#ffffff'); P(g, 5, 15, '#bfe6ff'); P(g, 7, 15, '#bfe6ff'); P(g, 6, 14, '#bfe6ff'); P(g, 6, 16, '#bfe6ff'); } }
+  if (pa === 'p_glacier') { for (const [x, y] of [[5, 19], [6, 18], [10, 19], [9, 20]]) P(g, x, y, '#e6f8ff'); }
+  if (sh === 's_venom') { if (sd) { R(g, 6, 10, 4, 2, '#a83a6a'); P(g, 7, 10, '#ffffff'); P(g, 8, 12, '#efe6cc'); } else { M2([[1, 10], [2, 10], [3, 10], [4, 10], [1, 11], [2, 11], [3, 11], [4, 11]], '#a83a6a'); M2([[2, 9], [3, 9]], '#e05a8a'); M2([[2, 10]], '#ffffff'); M2([[3, 12]], '#efe6cc'); }
+    M2([[0, 15], [1, 17], [0, 9]], '#c9a0ff'); M2([[1, 14]], '#9a6ae0'); if (sd) { P(g, 13, 13, '#c9a0ff'); P(g, 14, 16, '#9a6ae0'); P(g, 2, 14, '#c9a0ff'); }
+    if (fr) { P(g, 12, 14, '#4e7a2a'); P(g, 13, 15, '#86b84a'); P(g, 12, 16, '#4e7a2a'); P(g, 13, 17, '#86b84a'); }
+    if (!sd) for (const [x, y] of [[5, 14], [10, 13], [6, 16], [10, 16]]) { P(g, x, y, '#9a6ae0'); P(g, x, y - 1, '#d8c0ff'); } }
+  if (pa === 'p_venom') { for (const x of [5, 7, 10]) { P(g, x, 21, '#7fd35a'); P(g, x, 22, '#5aa83a'); } P(g, 7, 23, '#7fd35a'); P(g, 11, 20, '#7fd35a'); }
+  if (bk === 'b_venom' && !up) { const x = sd ? 10 : 11; R(g, x, 17, 2, 3, '#7b4fd6'); P(g, x, 16, '#4a3a20'); P(g, x, 17, '#c9a0ff'); P(g, x + 1, 18, '#d8c0ff'); }
+  if (sh === 's_wander') { const c = o.shirt;
+    if (!sd) { for (let y = 12; y <= 17; y++) { const w = y < 14 ? 12 : 14; R(g, 8 - w / 2, y, w, 1, c[1]); } R(g, 2, 12, 12, 1, c[2]); for (let x = 1; x < 15; x += 2) { P(g, x, 15, '#8a2a1a'); P(g, x + 1, 15, '#c9a46a'); } for (let x = 1; x < 15; x += 2) P(g, x, 18, c[0]); }
+    else { for (let y = 12; y <= 17; y++) R(g, 4, y, 8, 1, c[1]); for (let x = 4; x < 12; x += 2) { P(g, x, 15, '#8a2a1a'); P(g, x, 18, c[0]); } }
+    if (!up) { R(g, sd ? 6 : 5, 11, sd ? 4 : 6, 1, '#c8302a'); const tx = sd ? [11, 12, 13, 14, 15] : [12, 13, 14, 15]; tx.forEach((x, i) => { P(g, x, 11 + i % 2, '#c8302a'); P(g, x, 12 + i % 2, i % 2 ? '#a82418' : '#c8302a'); }); }
+    else { R(g, 5, 11, 6, 1, '#c8302a'); P(g, 10, 12, '#c8302a'); P(g, 11, 13, '#a82418'); P(g, 12, 13, '#c8302a'); } }
+  if (pa === 'p_wander') { R(g, 5, 19, 2, 2, '#c9a46a'); P(g, 5, 19, '#8a6a3a'); R(g, 9, 20, 2, 1, '#6a8ac8'); }
+  if (bk === 'b_wander') { if (!sd) { R(g, 0, 10, 3, 2, '#c9b890'); R(g, 13, 10, 3, 2, '#c9b890'); P(g, 0, 10, '#8a6a3a'); P(g, 15, 10, '#8a6a3a'); } else R(g, 2, 10, 4, 2, '#c9b890');
+    if (!up) { const x = sd ? 11 : 13; P(g, x, 17, '#4a3a20'); R(g, x, 18, 2, 2, '#ffd23c'); P(g, x, 18, '#fff3b0'); P(g, x, 20, '#4a3a20'); } }
+  return g;
+};
+
+/* ================= v144: sprite AKSESORIS TAKLUKAN · Set Naga (helm, armor, greaves, cakar, topeng, sayap & ekor) ================= */
+/* palet naga: d=gelap, m=utama, l=terang, h=tanduk, b=perut, e=mata, a=aksen */
+const NG_D = {
+  sage: { d: '#1a2a5a', m: '#2f4fa8', l: '#5a8ae0', h: '#ffd23c', h2: '#fff3b0', b: '#fff3b0', e: '#ffd23c', a: '#ffd23c' },
+  wyvern: { d: '#163a3a', m: '#2fa8a0', l: '#7ff5d0', h: '#e6f8ff', h2: '#bfe6ff', b: '#bfe6ff', e: '#8fdcff', a: '#e6f8ff' },
+  shadow: { d: '#1a0e2e', m: '#3e2a66', l: '#6a4aa8', h: '#8a6ac8', h2: '#c9a2ff', b: '#8a6ac8', e: '#e6ccff', a: '#b07bff' },
+  crimson: { d: '#5a0a04', m: '#c8241a', l: '#ff6a3d', h: '#efe6cc', h2: '#ffffff', b: '#ffc93c', e: '#ffe14a', a: '#ffc93c' }
+};
+const NG_ID = {};
+for (const k in NG_D) { const s = NG_D[k]; ['dh_', 'ds_', 'dp_', 'df_', 'dg_', 'dw_'].forEach(pr => { NG_ID[pr + k] = k; });
+  SHIRTS['ds_' + k] = { r: [s.d, s.m, s.l] }; PANTS['dp_' + k] = { r: [s.d, s.m, s.l], k: 'long' }; SHOES['df_' + k] = { c: [s.d, s.m], tall: 1 }; }
+const _pxNG = pxLook;
+pxLook = function (o) { const r = _pxNG(o);
+  if (NG_ID[o.shirt]) { r.pat = 'zirah'; r.dsk = NG_ID[o.shirt]; r.tie = false; }
+  if (NG_ID[o.glass]) { r.gl = 'dg'; r.dge = NG_ID[o.glass]; }
+  return r; };
+const NG_WS = { sage: 'sayapbuku', wyvern: 'sayap', shadow: 'sayapnaga', crimson: 'sayapnaga' };
+const _backNG = backAt;
+backAt = function (g, o, dir, front) { const k = NG_ID[o.bk];
+  if (k) { const s = NG_D[k], sh = NG_WS[k], keep = BAGC[sh]; BAGC[sh] = k === 'sage' ? [s.m, s.l, s.b] : [s.d, s.m, s.l];
+    try { return _backNG(g, Object.assign({}, o, { bk: sh }), dir, front); } finally { BAGC[sh] = keep; } }
+  return _backNG(g, o, dir, front); };
+const _glNG = glassAt;
+glassAt = function (g, o, dir) { if (o.gl === 'dg') return; return _glNG(g, o, dir); };
+const _hatNG = hat;
+hat = function (g, h, dir) { const k = NG_ID[h]; if (!k) return _hatNG(g, h, dir); const s = NG_D[k], up = dir === 'up', side = dir === 'left';
+  if (k === 'shadow') { E(g, 8, 3.6, 7.6, 4.6, [s.d, s.m, s.l, s.l]); if (!up) { R(g, 1, 5, 2, 6, s.m); R(g, 13, 5, 2, 6, s.m); for (const [x, y] of [[1, 11], [2, 10], [13, 10], [14, 11]]) P(g, x, y, s.d); } else R(g, 2, 5, 12, 4, s.m);
+    for (let i = 0; i < 5; i++) { P(g, 4 - i, 1 - (i >> 1), s.h); P(g, 11 + i, 1 - (i >> 1), s.h); } P(g, 0, -1, s.h2); P(g, 15, -1, s.h2); P(g, 8, -1, s.h2); P(g, 8, -2, s.l); return; }
+  E(g, 8, 3.2, 6.8, 3.4, [s.d, s.m, s.l, s.l]); R(g, 2, 5, 12, 1, s.d); for (const x of [4, 7, 10]) P(g, x, 3, s.d); for (const x of [5, 8, 11]) P(g, x, 1, s.l);
+  const H = (x0, dx) => { P(g, x0, 1, s.h); P(g, x0 + dx, 0, s.h); P(g, x0 + dx, -1, s.h); P(g, x0 + 2 * dx, -2, s.h2); P(g, x0 + 2 * dx, -3, s.h2); };
+  if (k === 'sage') { H(3, -1); H(12, 1); P(g, 0, -2, s.h2); P(g, 15, -2, s.h2); P(g, 2, -4, s.h); P(g, 13, -4, s.h); P(g, 3, -5, s.h2); P(g, 12, -5, s.h2);
+    for (const [x, y] of [[5, -5], [8, -6], [11, -5], [6, -4], [10, -4]]) P(g, x, y, y === -6 ? '#ffffff' : s.a); }
+  else if (k === 'wyvern') { for (const [x, hh] of [[4, 2], [6, 4], [8, 5], [10, 4], [12, 2]]) { for (let y = 0; y < hh; y++) P(g, x, 1 - y, y === hh - 1 ? '#ffffff' : s.h2); P(g, x + 1, 1, s.h); } }
+  else { H(3, -1); H(12, 1); P(g, 2, -3, s.h); P(g, 13, -3, s.h); P(g, 1, -4, s.h2); P(g, 14, -4, s.h2); P(g, 1, -5, s.h2); P(g, 14, -5, s.h2);
+    for (const [x, y, c] of [[1, 4, '#ff6a3d'], [0, 3, '#ffb03c'], [1, 2, '#ffe14a'], [14, 4, '#ff6a3d'], [15, 3, '#ffb03c'], [14, 2, '#ffe14a'], [8, -1, '#ffb03c'], [8, -2, '#ffe14a']]) P(g, x, y, c); }
+  if (!up) { R(g, 4, 5, 8, 1, s.m); if (!side) { P(g, 4, 6, s.d); P(g, 11, 6, s.d); } } };
+/* lapisan naga digambar sebelum garis tepi (perut bersisik, cakar, ekor, topeng) */
+let NG_CUR = null;
+const _kidNG = kid;
+kid = function (L, dir, f) { NG_CUR = { L, dir }; try { return _kidNG(L, dir, f); } finally { NG_CUR = null; } };
+const _olNG = outline;
+outline = function (g) {
+  if (NG_CUR) { const L = NG_CUR.L, dir = NG_CUR.dir, up = dir === 'up', side = dir === 'left';
+    const ks = L.dsk || null, kp = NG_ID[L.pant], kf = NG_ID[L.shoes], kb = NG_ID[L.bk], kd = L.dge || null;
+    if (ks) { const s = NG_D[ks];
+      if (!up && !side) { R(g, 6, 12, 4, 1, s.d); for (let y = 13; y <= 19; y++) { R(g, 6, y, 4, 1, y % 2 ? s.b : s.a); P(g, 6, y, s.d); P(g, 9, y, s.d); } } else if (side) { for (let y = 13; y <= 19; y += 2) P(g, 5, y, s.b); } else { for (let y = 12; y <= 19; y += 2) P(g, 8, y, s.a); }
+      if (ks === 'sage') { if (!up) { P(g, 7, 14, '#ffffff'); P(g, 8, 16, '#ffffff'); } R(g, 3, 12, 1, 8, s.a); R(g, 12, 12, 1, 8, s.a); }
+      if (ks === 'wyvern') { for (const [x, y] of [[2, 11], [1, 12], [2, 12], [13, 11], [14, 12], [13, 12]]) P(g, x, y, '#ffffff'); P(g, 1, 11, s.h2); P(g, 14, 11, s.h2); }
+      if (ks === 'shadow') { for (const x of [3, 5, 10, 12]) P(g, x, 21, s.d); for (const x of [2, 13]) R(g, x, 15, 1, 6, s.m); P(g, 2, 21, s.d); P(g, 13, 21, s.d); if (!up) { P(g, 7, 20, s.e); P(g, 8, 21, s.e); } }
+      if (ks === 'crimson') { for (const [x, y, c] of [[2, 11, '#ff6a3d'], [1, 10, '#ffb03c'], [2, 10, '#ffe14a'], [13, 11, '#ff6a3d'], [14, 10, '#ffb03c'], [13, 10, '#ffe14a']]) P(g, x, y, c); if (!up) { P(g, 7, 13, '#ffe14a'); P(g, 8, 15, '#ff6a3d'); } }
+    }
+    if (kp) { const s = NG_D[kp]; for (let y = 21; y <= 25; y += 2) { P(g, 5, y, s.l); P(g, 10, y, s.l); } if (kp === 'crimson') { P(g, 6, 23, '#ffe14a'); P(g, 9, 22, '#ffe14a'); } }
+    if (kf) { const s = NG_D[kf]; if (!up) { const xs = side ? [3, 5] : [4, 6, 9, 11]; for (const x of xs) P(g, x, 27, kf === 'wyvern' ? '#bfe6ff' : '#ffffff');
+      if (kf === 'crimson') for (const x of side ? [4] : [5, 10]) P(g, x, 26, '#ffb03c'); if (kf === 'shadow') for (const x of side ? [2, 7] : [3, 12]) P(g, x, 27, s.e); if (kf === 'sage') for (const x of side ? [4] : [5, 10]) P(g, x, 26, s.a); } }
+    if (kb) { const s = NG_D[kb], TIP = { sage: '#ffffff', wyvern: '#ffffff', shadow: s.e, crimson: '#ffe14a' }[kb];
+      const tip = (x, y) => { if (kb === 'sage') { P(g, x, y, TIP); P(g, x - 1, y, s.a); P(g, x + 1, y, s.a); P(g, x, y - 1, s.a); P(g, x, y + 1, s.a); } else if (kb === 'wyvern') { P(g, x, y, TIP); P(g, x + 1, y - 1, '#bfe6ff'); P(g, x + 1, y + 1, '#bfe6ff'); P(g, x - 1, y - 1, '#bfe6ff'); } else if (kb === 'shadow') { P(g, x, y, TIP); P(g, x - 1, y - 1, s.l); P(g, x - 1, y + 1, s.l); } else { P(g, x, y, '#ffe14a'); P(g, x, y - 1, '#ff6a3d'); P(g, x + 1, y - 1, '#ffb03c'); P(g, x, y - 2, '#ffe14a'); } };
+      if (up) { for (let y = 20; y <= 26; y++) R(g, 7 + (y > 23 ? 1 : 0), y, 2, 1, s.m); tip(9, 27); } else if (side) { [[12, 19], [13, 20], [14, 21], [14, 22]].forEach(([x, y], i) => { R(g, x, y, 1, 1, s.m); P(g, x, y - 1, i % 2 ? s.a : s.l); }); tip(15, 23); } else { [[13, 22], [14, 23], [14, 24]].forEach(([x, y]) => R(g, x, y, 1, 1, s.m)); tip(15, 25); }
+      if (kb === 'shadow' && !up) { for (const [x, y] of [[1, 14], [14, 14], [0, 16], [15, 16]]) P(g, x, y, '#0b0618'); } }
+    if (kd && dir !== 'up') { const s = NG_D[kd], k = kd;
+      if (!side) { R(g, 3, 6, 10, 3, s.m); R(g, 3, 6, 10, 1, s.l); R(g, 4, 9, 8, 1, s.d); R(g, 7, 5, 2, 5, s.d); P(g, 7, 5, s.a); P(g, 8, 5, s.a); R(g, 7, 10, 2, 1, s.m);
+        for (const x of [4, 9]) { R(g, x, 7, 3, 2, '#1f1a26'); R(g, x + 1, 7, 1, 2, s.e); P(g, x, 7, s.e); }
+        P(g, 2, 6, s.a); P(g, 1, 5, s.a); P(g, 13, 6, s.a); P(g, 14, 5, s.a); P(g, 5, 10, '#ffffff'); P(g, 10, 10, '#ffffff'); for (const x of [3, 12]) P(g, x, 8, s.d);
+        if (k === 'sage') { P(g, 7, 4, s.a); P(g, 8, 4, s.a); for (const [x, y] of [[3, 10], [2, 11], [1, 12], [12, 10], [13, 11], [14, 12]]) P(g, x, y, s.a); }
+        if (k === 'wyvern') { R(g, 3, 6, 10, 1, '#e6f8ff'); for (const x of [3, 12]) { P(g, x, 5, '#ffffff'); P(g, x, 4, s.h2); } R(g, 6, 10, 4, 1, '#bfe6ff'); }
+        if (k === 'shadow') { R(g, 4, 9, 8, 2, s.d); R(g, 5, 11, 6, 1, s.d); for (const x of [5, 7, 9]) P(g, x, 10, s.m); P(g, 4, 6, s.e); P(g, 11, 6, s.e); }
+        if (k === 'crimson') { for (const [x, y, c] of [[4, 5, '#ff6a3d'], [5, 4, '#ffb03c'], [11, 5, '#ff6a3d'], [10, 4, '#ffb03c'], [6, 5, '#ffe14a'], [9, 5, '#ffe14a']]) P(g, x, y, c); P(g, 7, 11, '#ffb03c'); P(g, 8, 11, '#ffe14a'); }
+      } else { R(g, 1, 6, 8, 3, s.m); R(g, 1, 6, 8, 1, s.l); R(g, 0, 8, 2, 2, s.m); P(g, 0, 10, '#ffffff'); R(g, 1, 9, 7, 1, s.d); R(g, 3, 7, 2, 2, '#1f1a26'); P(g, 3, 7, s.e); P(g, 4, 8, s.e); P(g, 9, 5, s.a); P(g, 10, 4, s.a); }
+    }
+  }
+  return _olNG(g); };
 
 /* ================= LUMI v84: gambar halus (UI) + bentuk dewasa + efek evolusi =================
    UI (koleksi, battle, kartu): monHD = resolusi 2x, tepi dihaluskan (Scale2x), detail wajah dijaga, kilau mata, kilap tubuh, cahaya tepi.
@@ -4032,6 +4168,7 @@ function startBattle(cfg) {
     if (typeof accUse === 'function') try { accUse(cfg); } catch (e) { }
     if (typeof legSetup === 'function') try { legSetup(cfg); } catch (e) { }
     if (cfg.type === 'lboss' && typeof lbsSetup === 'function') try { lbsSetup(cfg); } catch (e) { console.error(e); }
+    if (cfg.type === 'zboss' && typeof zbSetup === 'function') try { zbSetup(cfg); } catch (e) { console.error(e); }
     if (typeof bakatStart === 'function') try { bakatStart(cfg); } catch (e) { }
     if (typeof stBattleStart === 'function') stBattleStart();
     const z = cfg.zone || 'school';
@@ -4274,7 +4411,8 @@ async function finish(res) {
     /* lawan mungkin belum menerima pesan terakhir kita: kirim ulang sebentar setelah selesai */
     if (res === 'win' || res === 'lose' || res === 'draw') [1500, 4000, 8000, 13000, 20000].forEach(ms => setTimeout(() => { for (const o of D.out || []) mpDuelSend(D.opp, o.k, o.r, o.x); }, ms)); }
   let stNotes = []; try { if (cfg.type !== 'pvp' && typeof stFinish === 'function') stNotes = stFinish(res) || []; } catch (e) { console.error(e); }
-  if (cfg.type === 'lboss' && typeof lbsFinish === 'function') { ({ html, rw } = lbsFinish(res)); }
+  if (cfg.type === 'zboss' && typeof zbFinish === 'function') { ({ html, rw } = zbFinish(res)); }
+  else if (cfg.type === 'lboss' && typeof lbsFinish === 'function') { ({ html, rw } = lbsFinish(res)); }
   else if (cfg.type === 'goa' && typeof goaFinish === 'function') { ({ html, rw } = goaFinish(res, cfg)); }
   else if (cfg.type === 'pvp') {
     const P = S.pvp || (S.pvp = { w: 0, l: 0 }), D = cfg.duel;
@@ -4876,7 +5014,7 @@ async function openEnv() {
   const e = envAt(W && W.zone), fx = envFx(W && W.zone), left = ENV_SLOT - Date.now() % ENV_SLOT;
   await modal(`<h2>${ENV_IC[e.tod]} ${ENV_N[e.tod]}${e.w !== 'dalam' ? ` · ${ENV_IC[e.w]} ${ENV_N[e.w]}` : ''}</h2>
     <div class="card" style="font-size:14px;font-weight:700;display:flex;flex-direction:column;gap:4px">${fx.length ? `<b>Pengaruh ke Lumi sekarang:</b>${fx.map(x => `<span>${x} ATK</span>`).join('')}` : 'Tidak ada pengaruh elemen saat ini.'}</div>
-    <p style="font-size:13px">Waktu mengikuti jam HP-mu. Cuaca sama untuk semua siswa dan berganti sekitar ${Math.max(1, Math.round(left / 60000))} menit lagi.<br>Malam: Racun +10%, Burung Hantu dan Kelelawar keluar. Siang cerah: Api +10%. Hujan: Api −15%, Es +5%, Kodok sering muncul. Salju: Es +15%, Api −10%.<br>Pengaruh ini tidak berlaku di duel antar pemain.</p><div class="card" style="font-size:13px;font-weight:700">👹 <b>Bos</b> muncul acak di pulau belajar bab 1–3 (paling sering 12.00–15.00 dan 18.00–21.00 WIB) selama 20 menit. ${(() => { const sl = bossSlot(); return sl && !bossDone(sl) ? `Sekarang ada di <b>${esc(ZONES[sl.z].hl || ZONES[sl.z].n)}</b> sampai ${sl.end} WIB!` : 'Sekarang belum ada bos.'; })()} Dilawan sendiri.</div>`, [{ t: 'Oke' }]);
+    <p style="font-size:13px">Waktu mengikuti jam HP-mu. Cuaca sama untuk semua siswa dan berganti sekitar ${Math.max(1, Math.round(left / 60000))} menit lagi.<br>Malam: Racun +10%, Burung Hantu dan Kelelawar keluar. Siang cerah: Api +10%. Hujan: Api −15%, Es +5%, Kodok sering muncul. Salju: Es +15%, Api −10%.<br>Pengaruh ini tidak berlaku di duel antar pemain.</p><div class="card" style="font-size:13px;font-weight:700">👹 <b>Bos Zona</b> muncul acak di pulau belajar bab 1–3 (12.00–21.00 WIB, paling sering 12–15 dan 19–21; hari Minggu pasti muncul tiap jam 05.00–22.00) selama 30 menit, dilawan bareng satu sekolah. ${(() => { const sl = bossSlot(); return sl && !bossDone(sl) ? `Sekarang ada di <b>${esc(ZONES[sl.z].hl || ZONES[sl.z].n)}</b> sampai ${sl.end} WIB!` : 'Sekarang belum ada bos.'; })()} Dilawan sendiri.</div>`, [{ t: 'Oke' }]);
 }
 /* gambar suasana di dunia */
 function envDraw(t, ox, oy, p) {
@@ -4927,30 +5065,16 @@ function streakNag() { if (streakNagged || !S || !S.name || !W) return; streakNa
    Regu maks 3. Tidak ada lagi pertarungan bersama (raid lama dihapus: sering macet).
    Anggota yang MENANG melawan Lumi liar / Bos membagikan TAMBAHAN 25% koin & XP-nya ke teman regu
    (pemenang tetap 100%). Penerima harus di area yang sama, aktif <= 2 menit terakhir; batas 300 koin + 300 XP per hari.
-   Bos: muncul acak per 30 menit (jam ramai 12-15 & 18-21 WIB peluang 80%, jam lain 20%, sekolah tutup 22-05 tidak ada),
-   bertahan 20 menit di satu area bab 1-3. Semua HP menghitung bos yang sama dari jam (tanpa internet). Dilawan SENDIRI. */
+   Bos (v142): jadwal & HP bersama dari server (r_zb.js). */
 const BOS_P = { peak: .8, low: .2 }, BOS_DUR = 20, PSHARE = .25, PCAP = 300;
 const RG = { annB: 0 };
 let RD = null;   // sisa sistem lama (selalu null); beberapa layar masih memeriksanya
 const wibNow = () => new Date(Date.now() + 7 * 3600e3);
 const bosPeak = h => (h >= 12 && h < 15) || (h >= 18 && h < 21);
 const BOS_ZS = () => Object.keys(ZONES).filter(z => isRegion(z) && ZONES[z].bab <= 3);
-/* bos pada jendela 30 menit ke-n (n = menit WIB sejak 1970 / 30) */
-function bossAt(n) {
-  const h = Math.floor((n % 48) / 2); if (h >= 22 || h < 5) return null;
-  const r = sRng(n * 977 + 3); if (r() >= (bosPeak(h) ? BOS_P.peak : BOS_P.low)) return null;
-  const zs = BOS_ZS(); if (!zs.length) return null; const z = zs[Math.floor(r() * zs.length)];
-  const pool = [...new Set(ZONES[z].pool.filter(x => M[x] && M[x].r !== 'L'))]; if (!pool.length) return null;
-  const m0 = (n % 2) * 30, end = `${String(h).padStart(2, '0')}.${String(m0 + BOS_DUR).padStart(2, '0')}`;
-  return { id: 'b' + n, z, mon: pool[Math.floor(r() * pool.length)], h, end, peak: bosPeak(h), boss: 1 };
-}
-function bossSlot() {
-  if (window.BOSS_FORCE) return window.BOSS_FORCE;
-  const t = wibNow(), mins = Math.floor(t.getTime() / 60000), n = Math.floor(mins / 30);
-  if (mins - n * 30 >= BOS_DUR) return null;
-  return bossAt(n);
-}
-const bossDone = sl => !!(sl && S && S.sb && S.sb[sl.id]);
+/* v142: jadwal bos kini dari server (zb_state) — lihat r_zb.js */
+function bossSlot() { if (window.BOSS_FORCE) return window.BOSS_FORCE; return typeof zbSlot === 'function' ? zbSlot() : null; }
+const bossDone = sl => !!(sl && S && ((S.sb && S.sb[sl.id]) || (typeof zbMine === 'function' && zbMine(sl.id))));
 const raidSlots = () => [bossSlot()].filter(Boolean);
 const slName = sl => `${M[sl.mon].n} · Bos`;
 const raidVisible = sl => sl && rkOk('bos') && W && W.zone === sl.z && !bossDone(sl) && !B;
@@ -4975,21 +5099,11 @@ function raidDraw(list, t, ox, oy) {
     } });
   }
 }
-function raidTags(tag) { for (const sl of raidSlots()) { if (!raidVisible(sl)) continue; const g = giantPos(); tag({ x: g.x, y: g.y - 30 }, '👹 ' + slName(sl), '#e0b0ff'); } }
+function raidTags(tag) { for (const sl of raidSlots()) { if (!raidVisible(sl)) continue; const g = giantPos(); tag({ x: g.x, y: g.y - 30 }, '👹 ' + slName(sl) + (typeof ZB !== 'undefined' && ZB.st && ZB.st.wid === sl.id && ZB.st.max ? ' · ' + Math.round(ZB.st.hp / ZB.st.max * 100) + '%' : ''), '#e0b0ff'); } }
 function raidOnJoin() { }
 
-/* ---- lawan bos (sendiri) ---- */
-async function bossEngage(sl) {
-  if (!raidVisible(sl)) return; if (!S.team.length) { toast('Timmu masih kosong'); return; }
-  const m = M[sl.mon];
-  const c = await modal(`<div style="display:flex;gap:12px;align-items:center"><div style="width:96px;height:80px;border-radius:14px;border:3px solid var(--deep);${artBg(sl.mon)};display:grid;place-items:center;flex:none">${mSvg(sl.mon)}</div><div><h2>👹 Bos ${esc(m.n)}</h2><p style="font-size:13px">Elemen ${esc(m.el)} · pergi pukul ${sl.end} WIB</p></div></div>
-    <p>Bos <b>dilawan sendiri</b> dengan timmu. HP-nya sangat besar dan serangannya kuat, jadi pilih elemen yang unggul!</p>
-    <div class="card" style="font-size:13.5px;font-weight:800">Hadiah menang: koin 100–180 + XP besar · peluang Telur Biasa 20% / Telur Perak 5%${sl.peak ? ' <span style="color:#3ccf91">(jam ramai: peluang ×1,5)</span>' : ''}<br><small style="color:var(--sub)">Sekali per bos. Kalah? Boleh coba lagi selama bos masih ada.</small></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Lawan!', cls: 'hot' }]);
-  if (c !== 1 || !raidVisible(sl) || B) return;
-  stopLoop();
-  await startBattle({ type: 'boss', foe: [sl.mon], zone: sl.z, title: `Bos ${m.n} mengamuk!`, boss: sl });
-  if (W) W.safe = performance.now() + 2000; hud(); show('s-world'); startLoop();
-}
+/* ---- lawan bos (bersama, v142): lihat zbEngage di r_zb.js ---- */
+async function bossEngage(sl) { return zbEngage(sl); }
 /* dipanggil finish() saat menang melawan bos; mengembalikan baris hadiah */
 function bossReward(cfg) {
   const sl = cfg.boss || {}, Z = ZONES[cfg.zone] || {}, rw = [];
@@ -5084,7 +5198,7 @@ async function playerMenu(id) {
 setInterval(() => {
   if (!S || !S.name) return;
   const bs = bossSlot();
-  if (bs && RG.annB !== bs.id && !bossDone(bs) && rkOk('bos')) { RG.annB = bs.id; toast(`👹 <b>Bos ${esc(M[bs.mon].n)}</b> muncul di ${esc(ZONES[bs.z].hl || ZONES[bs.z].n)} sampai ${bs.end} WIB! Lawan sendiri, ada peluang telur.`, 5500); sfx('alert'); }
+  if (bs && RG.annB !== bs.id && !bossDone(bs) && rkOk('bos')) { RG.annB = bs.id; toast(`👹 <b>Bos ${esc(M[bs.mon].n)}</b> muncul di ${esc(ZONES[bs.z].hl || ZONES[bs.z].n)} sampai ${bs.end} WIB! HP bos dipakai bersama satu sekolah, 1 kesempatan per anak.`, 5500); sfx('alert'); }
   if (W && W.inter) {
     for (let i = W.inter.length - 1; i >= 0; i--) if (W.inter[i].giant) W.inter.splice(i, 1);
     for (const q of raidSlots()) if (raidVisible(q)) { const g = giantPos(); W.inter.push({ giant: true, x: g.x, y: g.y + 14, l: `Lawan ${slName(q)}`, fn: () => bossEngage(q) }); }
@@ -5292,20 +5406,45 @@ async function openStar() {
 /* ---- Jadwal Hari Ini (ketuk judul lokasi) ---- */
 function jadwalRows() {
   const h = todH(), w = wibNow(), wh = w.getUTCHours() + w.getUTCMinutes() / 60, d = today();
-  const R = (t, n, where, note, win, done, wib) => ({ t, n, where, note, st: (x => x >= win[0] && x < win[1] ? 'buka' : x < win[0] ? 'nanti' : 'lewat')(wib ? wh : h), done });
-  return [
+  const R = (t, n, where, note, win, done, wib, x) => ({ t, n, where, note, st: (y => y >= win[0] && y < win[1] ? 'buka' : y < win[0] ? 'nanti' : 'lewat')(wib ? wh : h), done, ...(x || {}) });
+  const rows = [
     R('05.00–06.30', 'Kakek Pagi', 'Sekolah', '+25 koin', [5, 6.5], S.kp && S.kp.d === d),
-    R('12.00–15.00', 'Bos (sering muncul)', 'Pulau belajar bab 1–3', 'Acak · lawan sendiri · peluang telur', [12, 15], false, 1),
-    R('18.00–21.00', 'Bos (sering muncul)', 'Pulau belajar bab 1–3', 'Acak · lawan sendiri · peluang telur', [18, 21], false, 1),
     R('19.00–21.00', 'Pedagang Malam', 'Sekolah', 'Barang eksklusif + Telur Biasa', [19, 21], false),
     R('19.00–22.00', 'Penjaga Malam', 'Sekolah & pulau belajar', 'Soal 1x/hari · hadiah acak', [19, 22], (S.pb && S.pb.d === d) || (S.ms && S.ms.d === d)),
-  ].map(r => { const f = /^Bos/.test(r.n) ? 'bos' : /Malam/.test(r.n) ? 'malam' : r.n === 'Kakek Pagi' ? 'jadwal' : ''; return f && !rkOk(f) ? { ...r, lock: RK_F[f] } : r; }).sort((a, b) => parseFloat(a.t) - parseFloat(b.t));
+  ].map(r => { const f = /Malam/.test(r.n) ? 'malam' : r.n === 'Kakek Pagi' ? 'jadwal' : ''; return f && !rkOk(f) ? { ...r, lock: RK_F[f] } : r; });
+  /* v147: Bos Zona (server, bareng satu sekolah) */
+  const sun = typeof zbSun === 'function' && zbSun(), zs = typeof zbSlot === 'function' ? zbSlot() : null;
+  const zr = R(sun ? '05.00–22.00' : '12.00–21.00', sun ? '👹 Bos Zona · Minggu Bos!' : '👹 Bos Zona', zs ? `Sekarang di ${ZONES[zs.z] ? ZONES[zs.z].n : 'pulau belajar'} · sampai ${zs.end}` : 'Pulau belajar bab 1–3', sun ? `Bareng satu sekolah · pasti muncul tiap jam · 30 menit · hadiah penuh ${ZB.st && ZB.st.lim || 6} bos pertama` : 'Bareng satu sekolah · muncul acak (paling sering 12–15 & 19–21) · 30 menit', sun ? [5, 22] : [12, 21], !!(zs && bossDone(zs)), 1, { drop: 'el' });
+  if (zs) zr.st = 'buka'; else if (zr.st === 'buka') zr.st = 'tunggu';
+  rows.push(rkOk('bos') ? zr : { ...zr, lock: RK_F.bos });
+  /* v147: Bos Legenda (13.00 & 19.00) */
+  if (typeof lbsKof === 'function') {
+    const day = lbsWib().day, k = lbsKof(day), ev = typeof LBS_EV !== 'undefined' && LBS_EV[day];
+    for (const [sl, t, win] of [['a', '13.00–14.00', [13, 14]], ['b', '19.00–20.00', [19, 20]]]) {
+      const where = ev ? (ev[sl] === 'school' ? 'Halaman Sekolah (event)' : 'Sarang Legenda') : 'Sarang Legenda · area Bab 5';
+      const r = R(t, `🐲 Bos Legenda: ${lbsLegN(k)}`, where, `Bareng satu sekolah · ${LBS_TRY} kesempatan${ev ? '' : ' · lulus Ujian Akhir'}`, win, false, 1, { drop: 'ng', ngk: k });
+      rows.push(S.rank < LBS_RANK ? { ...r, lock: LBS_RANK } : r);
+    }
+  }
+  /* v147: Happy Hour dari Admin (saat aktif) */
+  if (typeof hhOn === 'function' && hhOn()) { const e = new Date(HH.end + 7 * 3600e3); rows.push({ t: `sampai ${String(e.getUTCHours()).padStart(2, '0')}.${String(e.getUTCMinutes()).padStart(2, '0')}`, n: '🎉 Happy Hour dari Admin', where: 'Semua tempat', note: `${hhTxt(HH.kind)} · sisa ${fmtMS(HH.end - Date.now())}`, st: 'buka', hh: 1 }); }
+  return rows.sort((a, b) => (b.hh || 0) - (a.hh || 0) || parseFloat(a.t) - parseFloat(b.t));
+}
+/* chip kecil: set aksesori yang bisa didapat */
+function jadwalDrop(r) {
+  if (!r.drop || typeof EL_SETS === 'undefined') return '';
+  const ids = r.drop === 'el' ? Object.values(EL_SETS).map(s => s.items[0][0]) : [NG_SETS[NG_BYK[r.ngk]]].filter(Boolean).flatMap(s => s.items.slice(0, 3).map(x => x[0]));
+  const lbl = r.drop === 'el' ? 'Set Elemen' : `Set Naga · ${NG_SETS[NG_BYK[r.ngk]] ? NG_SETS[NG_BYK[r.ngk]].n.replace(' Set', '') : ''}`;
+  return `<span style="display:inline-flex;align-items:center;gap:2px;margin-top:3px;background:#f1eaff;border:1.5px solid #cdb8f5;border-radius:99px;padding:1px 8px 1px 4px;font:800 11px system-ui;color:#5a3a9a">${ids.map(i => `<img src="${accIcon(i)}" alt="" style="height:16px;width:16px;object-fit:contain;image-rendering:pixelated">`).join('')}<span style="margin-left:3px">🎁 ${esc(lbl)}</span></span>`;
 }
 async function openJadwal() {
-  const col = { buka: '#3ccf91', nanti: 'var(--sub)', lewat: '#6a6a7a' }, lb = { buka: 'BUKA', nanti: 'Nanti', lewat: 'Lewat' };
-  const rows = jadwalRows().map(r => `<div class="card" style="display:flex;gap:8px;align-items:center;padding:6px 10px;${r.st === 'lewat' || r.lock ? 'opacity:.55' : ''}"><div style="flex:1;min-width:0"><b>${esc(r.n)}</b> <small style="font-weight:700;color:var(--sub)">· ${esc(r.where)}</small><div style="font-size:12.5px;font-weight:700;color:var(--sub)">${esc(r.t)} WIB · ${esc(r.note)}</div></div><b style="color:${r.lock || r.done ? 'var(--sub)' : col[r.st]};font-size:13px">${r.lock ? 'Rank ' + r.lock : r.done ? 'Sudah ✓' : lb[r.st]}</b></div>`).join('');
-  await modal(`<h2>Jadwal Hari Ini</h2><div style="display:flex;flex-direction:column;gap:6px;max-height:60vh;overflow:auto">${rows}</div>
-    <p style="font-size:12.5px;font-weight:700;color:var(--sub)">Bos muncul acak (paling sering jam 12–15 & 18–21) selama 20 menit, dilawan sendiri, 1 hadiah per bos. Jam 22.00–05.00 sekolah tutup: NPC pulang, Lumi 2x lebih kuat, tidak ada hadiah. Waktu mengikuti jam HP.</p>`, [{ t: 'Tutup', cls: 'hot' }]);
+  const col = { buka: '#3ccf91', nanti: 'var(--sub)', lewat: '#6a6a7a', tunggu: '#c98a1a' }, lb = { buka: 'BUKA', nanti: 'Nanti', lewat: 'Lewat', tunggu: 'Belum muncul' };
+  const rows = jadwalRows().map(r => `<div class="card" style="display:flex;gap:8px;align-items:center;padding:6px 10px;${r.hh ? 'border-color:#7b4fd6;background:#f6f0ff;' : ''}${r.st === 'lewat' || r.lock ? 'opacity:.55' : ''}"><div style="flex:1;min-width:0"><b>${esc(r.n)}</b> <small style="font-weight:700;color:var(--sub)">· ${esc(r.where)}</small><div style="font-size:12.5px;font-weight:700;color:var(--sub)">${esc(r.t)} WIB · ${esc(r.note)}</div>${r.lock ? '' : jadwalDrop(r)}</div><b style="color:${r.lock || r.done ? 'var(--sub)' : col[r.st]};font-size:13px;text-align:right">${r.lock ? 'Rank ' + r.lock : r.done ? 'Sudah ✓' : lb[r.st]}</b></div>`).join('');
+  const tk = typeof tkHow === 'function';
+  const c = await modal(`<h2>Jadwal Hari Ini</h2><div style="display:flex;flex-direction:column;gap:6px;max-height:58vh;overflow:auto">${rows}</div>
+    <div style="font-size:12px;font-weight:700;color:var(--sub);margin-top:6px;line-height:1.4">🎁 Lumi liar juga menjatuhkan <b>Set Dasar</b> (20 menang pertama tiap hari) dan Penjaga Goa Lantai 10 menjatuhkan <b>Set Elemen</b>.<br>🌙 Jam 22.00–05.00 sekolah tutup: NPC pulang, Lumi 2x lebih kuat, tidak ada hadiah. Waktu bos mengikuti jam WIB.</div>`,
+    tk ? [{ t: '❓ Cara dapat aksesori', cls: 'ghost' }, { t: 'Tutup', cls: 'hot' }] : [{ t: 'Tutup', cls: 'hot' }]);
+  if (tk && c === 0) { await tkHow(); return openJadwal(); }
 }
 document.addEventListener('click', e => { const t = e.target; if (t && t.closest && t.closest('#hLoc') && S && S.name && !B && !RD) openJadwal(); });
 
@@ -5580,7 +5719,7 @@ const TIPS = [
   { id: 'dekat', t: 'Kedekatan', img: 'dekat', tx: 'Ajak Lumi pendampingmu berjalan, menjawab benar, dan menang battle. Makin dekat, statnya sedikit makin kuat.' },
   { id: 'tim', t: 'Tim & biaya', img: 'tim', tx: 'Tiap Lumi punya biaya: Biasa 1, Langka 2, Epik 3, Legenda 4. Tim punya batas biaya, jadi pilih yang paling cocok.' },
   { id: 'peta', t: 'Peta, Rank & pulau', img: 'peta', tx: 'Naikkan Rank untuk membuka pulau dan wilayah baru. Ketuk angka wilayah di Peta Dunia untuk pergi ke sana.' },
-  { id: 'jadwal', t: 'Jadwal & Bos', img: 'jadwal', tx: 'Cek Jadwal Hari Ini. Bos muncul acak, paling sering jam 12–15 dan 18–21, dilawan sendiri dan bisa menjatuhkan telur. Jam 22.00–05.00 sekolah tutup.' },
+  { id: 'jadwal', t: 'Jadwal & Bos', img: 'jadwal', tx: 'Cek Jadwal Hari Ini. Bos Zona muncul acak jam 12–21 (Minggu: tiap jam 05–22) dan Bos Legenda jam 13 & 19, dilawan bareng satu sekolah. Bos bisa menjatuhkan telur dan aksesori. Jam 22.00–05.00 sekolah tutup.' },
   { id: 'toko', t: 'Koin & Toko', img: 'toko', tx: 'Kumpulkan koin dari belajar dan battle, lalu beli aksesori di Toko Aksesoris untuk mengubah penampilanmu.' },
   { id: 'akademi', t: 'Akademi & Kuil Ujian', img: 'akademi', tx: 'Baca kartu materi di Akademi dulu, lalu latihan soal. Itu persiapan terbaik sebelum masuk Kuil Ujian.' },
   { id: 'duel', t: 'Duel teman sekolah', img: 'duel', tx: 'Tantang siswa di halaman sekolah. Menang dapat XP dan koin, dan mereka juga punya Lumi pendamping!' },
@@ -5642,8 +5781,8 @@ const capOk = r => !rkOk('cap') || teamCost() + RAR[r].cost <= TEAM_MAX;
 const RK_INFO = {
   1: ['Mulai petualangan: jalan, Akademi, battle, telur, toko, duel NPC'],
   2: ['Duel antar pemain: tantang teman sekelas', 'Kakek Pagi muncul di sekolah (+koin)'],
-  3: ['Bos muncul acak di pulau belajar (lawan sendiri, peluang telur)', 'Pedagang Malam dan Penjaga Malam muncul'],
-  5: ['Batas biaya tim mulai berlaku'],
+  3: ['Bos Zona muncul acak di pulau belajar (lawan bareng satu sekolah, hadiah telur & Set Elemen)', 'Pedagang Malam dan Penjaga Malam muncul'],
+  5: ['Batas biaya tim mulai berlaku', 'Bos Legenda jam 13.00 & 19.00 (setelah lulus Ujian Akhir, hadiah Set Naga)'],
   10: ['Evolusi Lumi Biasa terbuka (butuh Kedekatan, Penguasaan, Ujian)', 'Goa Monster di tiap pulau (lantai 1–10)', 'Setelah evolusi pertama: boleh menantang Lumi Legenda'],
   12: ['Evolusi Lumi Langka terbuka'],
   14: ['Evolusi Lumi Epik terbuka'],
@@ -6784,7 +6923,7 @@ function foodApplyF(f, hp, atk, def) {
 function foodUse(cfg) {
   if (!S || !S.bag || !ITEM[S.bag.act] || cfg.tut) return;
   if (cfg.type === 'pvp') { if (B.me.some(f => f.food)) { const n = ITEM[S.bag.act].n; S.bag.act = null; save(); setTimeout(() => { try { log(`🍖 ${esc(n)} dimakan: timmu lebih kuat di duel ini.`); } catch (e) { } }, 300); } return; }
-  if (!['wild', 'duel', 'legend', 'boss'].includes(cfg.type)) return;
+  if (!['wild', 'duel', 'legend', 'boss', 'zboss'].includes(cfg.type)) return;
   const e = foodEf(false), n = ITEM[S.bag.act].n; B.me.forEach(f => foodApplyF(f, e.hp, e.atk, e.def));
   S.bag.act = null; save(); setTimeout(() => { try { log(`🍖 ${esc(n)} dimakan: ${efTxt(e)}.`); } catch (e2) { } }, 300);
 }
@@ -7020,9 +7159,9 @@ async function bagItem(key) {
   if (t === 'a') {
     const it = SH[id]; if (!it || !S.acc.own.includes(id)) return openBag(); const col = it.tk ? '#ff6a3d' : '#7b4fd6', worn = S.acc[it.slot] === id, d = accDup(id);
     const SN = { hat: 'Topi', shirt: 'Baju', pants: 'Celana', shoes: 'Sepatu', glass: 'Kacamata', back: 'Punggung' };
-    const set = it.tk && typeof TK_SETS !== 'undefined' ? TK_SETS[it.tset] : null;
-    const c = await modal(head(`<img src="${accIcon(id)}" alt="" style="width:80%;image-rendering:pixelated">`, col, esc(it.n), `${it.tk ? '👕 Aksesoris Taklukan' : '👕 Aksesoris'} · ${SN[it.slot]}${d ? ` · ×${1 + d}` : ''}`, typeof accLabel === 'function' ? accLabel(it) || 'Tanpa bonus' : '') +
-      (set ? `<div class="card" style="margin-top:8px;font-size:12.5px;font-weight:700">${set.ic} ${esc(set.n)} ${tkN(it.tset)}/3 · set lengkap di Goa: heal tangga ${it.tset === 'frost' ? 20 : 10}% + ${esc(set.fx)}</div>` : '') +
+    const set = it.tk && typeof tkSetOf === 'function' ? tkSetOf(it.tset) : null, el6 = it.tk === 'elemen' || it.tk === 'naga';
+    const c = await modal(head(`<img src="${accIcon(id)}" alt="" style="width:80%;image-rendering:pixelated">`, col, esc(it.n), `${it.tk ? (it.tk === 'elemen' ? '🛡️ Aksesoris Taklukan · Elemen' : it.tk === 'naga' ? '🐲 Aksesoris Taklukan · Naga' : '👕 Aksesoris Taklukan') : '👕 Aksesoris'} · ${SN[it.slot]}${d ? ` · ×${1 + d}` : ''}`, typeof accLabel === 'function' ? accLabel(it) || 'Tanpa bonus' : '') +
+      (set ? `<div class="card" style="margin-top:8px;font-size:12.5px;font-weight:700">${set.ic} ${esc(set.n)} ${tkN(it.tset)}/${el6 ? 6 : 3} · ${el6 ? `dari ${it.tk === 'naga' ? 'Bos Legenda ' + esc(set.day) : 'Bos Zona ' + esc(set.el)} · ${esc(tkFxT(it))}` : `set lengkap di Goa: heal tangga ${it.tset === 'frost' ? 20 : 10}% + ${esc(set.fx)}`}</div>` : '') +
       (d ? `<div class="card" style="margin-top:6px;font-size:12.5px;font-weight:700;color:#7b4fd6">🔁 Dobel ×${d}: disimpan untuk <b>Trade</b> (segera hadir)</div>` : ''),
       [{ t: 'Kembali', cls: 'ghost' }, { t: worn ? 'Lepas' : 'Pakai', cls: 'hot' }]);
     if (c === 1) { S.acc[it.slot] = worn ? null : id; save(); refreshPlayer(); sfx('ok'); toast(worn ? `${it.n} dilepas` : `${it.n} dipakai!`, 1800); }
@@ -7177,7 +7316,7 @@ const ACC_IC = { xp: '🎩', hp: '👕', def: '👖', atk: '👟', coin: '🎒',
 const ACC_TX = { xp: 'XP', hp: 'HP', def: 'DEF', atk: 'ATK', coin: 'koin' };
 function accVal(it) { if (it && it.tk) return it.tv || 0;   /* v138 Aksesoris Taklukan */
   if (!it || (it.rk === 1 && !it.night)) return 0; const p = it.p; return p <= 300 ? 2 : p <= 600 ? 3 : p <= 1000 ? 5 : p <= 2000 ? 7 : p <= 3000 ? 9 : 10; }
-const accHintN = it => it && it.slot === 'glass' && accVal(it) ? (it.p <= 1000 ? 1 : it.p <= 3000 ? 2 : 3) : 0;
+const accHintN = it => it && it.slot === 'glass' && accVal(it) ? (it.tk ? (it.th || 1) : it.p <= 1000 ? 1 : it.p <= 3000 ? 2 : 3) : 0;   // v143: Kacamata Taklukan Elemen = 2x
 function accBonus() {
   const o = { hp: 0, def: 0, atk: 0, xp: 0, coin: 0, hint: 0, night: 0, set: null }; if (!S || !S.acc) return o;
   const L = look();
@@ -7191,7 +7330,7 @@ function accCoin(c) { const b = accBonus(); return Math.round(c * (1 + (b.coin +
 const accXP = n => n > 0 ? Math.round(n * (1 + accBonus().xp / 100) * (typeof hhMul === 'function' ? hhMul('xp') : 1)) : n;   // v139: Happy Hour XP +20%
 /* dipanggil startBattle setelah makanan */
 function accUse(cfg) {
-  if (!B || cfg.tut || !['wild', 'duel', 'legend', 'boss'].includes(cfg.type)) return;
+  if (!B || cfg.tut || !['wild', 'duel', 'legend', 'boss', 'zboss'].includes(cfg.type)) return;
   const b = accBonus(); if (!(b.hp || b.atk || b.def)) return;
   B.me.forEach(f => { if (b.hp) f.hp = f.max = Math.round(f.max * (1 + b.hp / 100)); f.fatk = (f.fatk || 0) + b.atk / 100; f.fdef = (f.fdef || 0) + b.def / 100; });
 }
@@ -7224,9 +7363,6 @@ function accBox() {
     <div style="border-top:2px dashed #e0cfa0;margin-top:4px;padding-top:4px;color:#6a5a3a">Total: <b>${tot || 'belum ada'}</b>${b.set ? `<br><b style="color:#b07a00">${esc(SETS[b.set].n)} lengkap: semua bonus +5%!</b>` : ''}${b.night ? '<br>🌙 Koin battle +10% jam 19.00–21.00.' : ''}<br><small>Tidak berlaku di duel teman.</small></div></div>`;
 }
 
-/* v138: siluet Set Elemen & Naga (segera hadir) — sprite 16x28, ditampilkan gelap di Album */
-const TK_SOON = {"blaze": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcCAYAAABoMT8aAAAC0ElEQVR4AZyTT0hUURTGvzehEpqKWiC4soLUTAyjPyOom5AWYZuK3LhwERImQhhMlAi6sqhIUQiUMIoQmgyCpKiIiXQM+qMIWlOBWkmJZi5S4XW/8+bemTcOs0je795zvnPON9eZdz2I89dwqs62l/227S93UDG1OK3YYMDGrt4a4GlnpF/F1FiLiE60wQDj00DLZWDYckONNWfOrC6Dhj1e21TiBAsLqziZt8/VYww43FXuAYmeHXn1C5qmnBWQyq2FxkQM9LAe1APctcZ9aD4EcigphKKMAjHx6GE2a9hM9vdmgXCIUNNkrE2LiYf/Fwd1gTubie/YGAg18nxxnRv0zsRzdyZoXf2ZKkfjEGFBo5uj98CPQSwl7cTE0qQl3wGbj27L54b2+2UGPUQt8OwAhLqDwOdOFG9Jk34x+P53RU5Apei4+oIU3qrXTAXGWvf5g0AIuHMjRWpiIFF4qaltxcpaGmYz8w2VTd2iUW9vVSflSza/IBMbDG73R17hqeEOkGjN16o+Xo1W+dSiHjHY5S3DpeEB4V1TvQxxUNXledNXD8Jac18bzkzNYcfeQql5uPb4b1lnLwwxxOYj6ogSAW8fDQnhFOslOgJuPh5UlwWR2xhtsjzrHHN7yW6QyBhw/sooup58srQmJ9DJ4tgkkruvobH2IrSJrlH72NKPPxNftSS7MeAt40URVS3ZDx4i+/A5gYNKwvWZkFwm9jInxoDJ/5DQYKS0CCSRsTHILCtA6UCb6a29F5Qj89hEF9jDXp0bAy3wZjbm5SMWXY/djYH+GZtXAc2J+XUQ5l/UZSN8X9irjYwBhZejk9wSEtvjMpiYC1pLi6kIVGYLm9bSQSTvyAJr7In+BJeB/b7crshJduqnbVTnpggiqBvIGnskDy8uA/RYePHtN7z+D/BWj0tscqUxZk94Vja3gUjOEqgpRkVuupOoNTZXkjz/AAAA///J7InNAAAABklEQVQDABg2Zx7Tmk0/AAAAAElFTkSuQmCC", "glacier": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcCAYAAABoMT8aAAACpklEQVR4AZRUT0iTcRh+9h0MxS4JgSg0nRphsIgiSGp0GdhlwZJFRZBUh+2QB0csq4PUIugQ1DyUWNHF/hhth0a7aKyCkHJDuuTQQtdA6CCSLZFWz7u9+1srB8/vfX/P+zzP7+Pbx8/AP37uE75MNUnVAJoD9/1g/VtIRYCKe4/7MumfwEQKSHwr2HWuTEmA3enL8ETWy8N+EBR2X/ODHKFz8kQ+gCdSyBNZOXy4wDULcoTOGcaJBNDM01zNwNZNpAE1x1aye66PR4IYuBUE6+z7GCkYaqZBIZPc0meBGGjKUdmypQVtLd0ZY+F74bTspGCgqWsgqDQW30Sk18qNERm7agqfO58/hSYOFCour/g8h8Rc2CTvgOKeXgcLXl9x5KEmcjPjARCb99rhGQ6gdecO0UtA8lNKnoBMp7kJRPsBD7cC9uQIEnxKethLABtFTziJ5Q2N+PHlLWoWJwTHhgLCkVed1oqAkUO7dIapR4OCYi4/zDUSUFdfh/Gja4LpUy4knvoEOQ2mbroEnIVsH0HQw7mx2+bOtJ88g5pOJ/eoPdgqlUvseQgEe2LNyhVosHtBD70Gm9N2K/iJashyclaUFut2ELLJLTRTSw+9BpvcTEK+tjnR0BiChuiM3AOLVzTK0SvvQAn97lMdUazavBJEE9E12i9/tWrUY9yJxLVfd6XXmLl7G2yquftW9lWM6aHXmHw5ZGJDwp0eqxCSuFEXZRFQQy099Mo7YENCFP+xUEsPpRLAhsTZCyG2VUENtSrKB5BYrW9i+SOeXHIIH50vsaBkp5dL+c3k+n3VHR4MSkD5UhKgl8vkqzgIz8UMeNn0j8Zh7jBj6cUzfHh3z1QcUhLAQXMtcP2IVZDeuB/F+z3bGikpQUWATnnq9PySblG+18EvAAAA//9JepwnAAAABklEQVQDAPBBT7jzB/JKAAAAAElFTkSuQmCC", "venom": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcCAYAAABoMT8aAAAC5ElEQVR4AaRUXUhTYRh+NqKoXTQrhTBz9oM4CzdKCoWsFKQQsehGKXMSBhaW0UXLfkDUm34kISgQtb+LSrJGGEVQCcpMYociRhQ50XlhYSfCi0g4neer7/Mch3aR+Hzv+z7v8zyfbmdz4j9//hlQXhA05rtjzgAaC4sLjOOBFvi35hmcGVSavsuorQwarJxtATRQyEpjYb0LoZ4o0vYCnBlUkZqBqzdawMoQFUATDRSy0sgb3uUfYlFBHO7mH2EREAHSTIbG8FsdNLKSIzh/0kw++SiKu6sRjA8gNPLE4ZRmigkKaSA29rejIaUfrDST63HtQ/7JSvxMnUBGus9wTn7/BRq5lKCYoDjwLBus3OkxnQWycnBGwgOO0QcADRJcSEjx7LoonoLhEc0hXgOK1/ncLNgz1a0gTeQCyc9BuD1ubC7zwL1yidCLgCnz3+DtZHq0IhCdX4o4CrAnR5Cglh72IoCNhNvlwZ3BODy6xwZy3EmdrAkBXFwoyWDBi3snBDhIjr0VImBnZhYipxsFeqvK0Nl1URkpDrWWoa25Ftz1HawCsW11OlcQAdce3nQcOxMSxOLda0TlofWGQLAnpnN4Aqcuv0b7024HJxHAxhryI/6ZFNbmbBAQw9/DaialAjgMjkZxaawDpQENMoQ8Qa76VRfefB3hqKAC/JtyjbTiKbU4d6ULy3fUCLDngm8fNdRyJlQABytW1XnUOOZTbUIzZ8DtNk2JebMaZjUqYEtaFu5XNIp1SYeO/XUz1/Ix130vzQdrodBQK4TmoQLMXvyG+2KQEITlOF8zjMYGr4XBn+eAjHwbp2OARPZ2LwjOHrdbfCsdqM8CtfQQtr8g/CFKbl7carVrbAFadMgxHnEhN+gTmDY/84ScFzQ1ofmR12G9wRbARVLmUhaB8sdepPpXiJ5H39kJFhsSAr5FJvHxfQxDhwdE5WztbW5zSAgwOeht48i9nof12TMPE/sk/zKubfgNAAD//3sF1JkAAAAGSURBVAMAkaxaY/cTzJcAAAAASUVORK5CYII=", "wanderer": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcCAYAAABoMT8aAAACwUlEQVR4AbSUXUhTYRzGnx2oHEEO8yLCcOVVH+TqomKII8M+SRbFqIREY8siUkMjShZIdiHhFxVRESLURRexBgk2qRxSIBg2ogtjeTANMahpmSuC055X35ezOSGQxn7/r/f/POews03DIl//z8DrOW0Q53qnceJgqbHQjSbdAQWSptaTII4twGV/MWhCDhe5k8yUAYUUSCbG3omLVtX4RKYJ8focMJsIAymWotQ8HNWFicxmE2Hwa2YKZtHDjDKUV3Uq0euNV1QvhqYgDGQvrxA6tUuMaNLQHobsI5EhSKYmf4gdraRgnxH79hWHjlxCMPgMbS134LDH06LrOvQEHQ9ewmpdAmq140fXgvjr3Ch0Ov4J7lJDtJHPMSwGLdQ9ARJ41AO9/w0KG/1467GLmjOSbk4N0UIDPZa8NavxInBLfCidxW5k1j4WNWeEjXkevFmL3GwbqE16Ci2tV3FtdwWYCYWkoa4ChGfMnEm0pjNOo7xyKwZHR8XMun+dyAyDXUEQ1uRPPiMQNZbCW1MAajVXiWd2mohV9cFEBL6PfRQ5L38TiGjmwsXm/rkKoFbbvrfaIpmcieNnlh33nwSUidzmjFeehga5z6w+g2N7PEZ1jVPuw9/WgZU7fQLWPOgN94M73GVPlAEbM433Zn8LnJWd8zGlZUGDuzealYBXVk1KoQwyrRlw5OSIY299O7xnz4uawVW4DbDZWYod7oomEZRBohbvoUgfJGKQJoxMhNVUGdwOdFr4GHvDYUhK3UUg7IF4QhQHd552t8KIFIi/NmWQOEX00+yXCbFxuDas4mgeYmf4uponGYQGnltC3TG4nA6x8GFoCYhuuwDCM+4cqByFZXOfhUtJBhyQ3vfjILbM5SD2WBMIz0jXK12IWc8zyF6xDLz9CtcO5GZnIbWnyMw8A3kY/aJj+ve0bJHay4O/AAAA///nWaqyAAAABklEQVQDANu0jCgn43yHAAAAAElFTkSuQmCC", "sage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcCAYAAABoMT8aAAAC3UlEQVR4AXyUTUgVURiG3zmLJDAS+wEJJCMjEcTAQDJEDEKIUlxIZIGbCDQqISICV0KLCrLIC9XGKCNaSAqKhIlIlwyDVLgaCd4SLPrb6UKipnk+mOk64h145/t73++c+ebMOAVX66kW35857LfWV/lBKOxGcVQLNHAd4u77DWrr8JXoT3oksRvFYQ0NWoeDKA6Imbl4TA2tazv3QqC707OtH6y86GcDjwAXDXCJpz2eVuZpaChubFc2GIlboEFrQ5z8VqHm4SeiM7VsgFPecV6jc3uM5tguKxLRBJuJVHLCQixATCKn5Jj27zvj2w5IhBjruSaIxPhY4h/zA7gGfLC6/FVucuKOl5dsjkQ7ik8YCdHSs0VNdd6zmBsigN9Q/FnpLyOeC6dKIVwRQhw0BmGeWaB1vF8ODavVtFxXaVVlhF0nCwUyc3DgokFrMxh5s6LS4wv2GL11pwWSXUfDxSwOczwaXDQQrEHtoTK9H7wrHmN33Xfya5CZgzP+4JKqD+w1jjUYm7VvSOnnjfqdV2HbxhojuOHzKNiZ2+VBRnqd3mzW8S55p4+GRrXpb5c1WUr1mmVoABE57LaCAfVNfxIatA6HIZ2tm7HTSNtfL29i9Kp10UAQ5jhscNGgdW1V4zakh8NlZtnFhekmFTX1qax9KsKRRKFYnWGGXLRuTFdsZSwrsQIWLL1tEsBneMwBHy48rOO11OiGgOJXbr2UvhXPCi5A61bnBtWdrBbdFL+W+6Wiy/Gs4KJB6z58fOzh0E3xi9XZRSwPFw1aRw2HBL6GGmQgYHV2Efg1O2cFAldw0eBbA5zakgWMUluvGixgByAIMvMhN0grakCwDuwArCv8T0QNEv1Jjy+M7VHmBPLTBPjkqMGBSwyiBgQUtuTn2+dMPPrujwA+J48aHI4wObCmAYmfiynxY+Hg8MsC+OSoIeYIY+Gva7C9sFT8NNh2Tm4BHAM5akyfRwmb/AMAAP//ILqY4gAAAAZJREFUAwB4pMjn+9U8PAAAAABJRU5ErkJggg==", "wyvern": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcCAYAAABoMT8aAAAC4klEQVR4AYSUT0hUURTGz7zIQgIhoxgk8k8w0T+nZSqTmQpSgdDS0IhQc1FD0CIRMghdCCFWSkMEA7kYKBAjDA0T0RZt1KIyKqysJDLDFqaLcXq/M93nzPhK8bv3nO9833d998mzZI2fhupLsf9J/hmAEdwMtwg7cAtyDUCMcXZRZGgmbqOHj3cr66oARK+j82r8vn5elaZnZ67k38UJOFzVEAOcFAjV6thtZ3765Mq9aABGxIA/uW5dvga47cyv3m6RXSVVermWMavDXoYyJuRWdELMHhwOa89e0RMWs2+oLdMQ/Qtsn/PbVdYgPQ/GtaemoJ/pCFEqqMHi+ymxnnR3eqbrImoqns8X77n482MytbrsBVN7oMauRI7lHpIPH596LC6EZ2JY7NWZs/RV1giAIAwYDR681p27rZ6mM40yPjgqM0uiBkwAI6A2QIMWD169g5H+Pin1ZUmFfUmRzyLgYK5P/CWFCnoAhwYtHsI1oKRgv4w97BAeoz3gg09CIodmOBSUwIGdqtGAR2PvtJkOXZDf2VuktbpQdyXtJZF7dbnSZkQeT37V3creURBbyBJpyYknEvJtdFQi95IBZ8zXi8oFD16LAnFzer6k7TmhqT/626Rg7r7se9HmAI5hZvlFQYsHr5X4avyRsKQttwsnbK+9Jruv9Dg48nOrZHp7BQ1BvE68egeQgEFz3g02BacAGi5vW/0ypYYYvcVAWZfFt1kEuIyUwmulfxF9fcqkLG/mREAKrS1mvBb/zxQQz/Zu0qFZOB2Ynh0NWjx49Q4oIBC8PXpKADWnA+rStAUB1GjxUGsABcT5pl55WR9UwHE6oDY8GrRwwAmgGfoVZXPA6cAh7CJVkxQwOdjtWQoN2DLR70JXsFEA7xuSGRpqg6QASK83QyqP+ynl+ewnBQ0cM2rzPaReFTA1Mi58yrhpPlmAGo4ZZvM9dA3IKfLL2YFOfYSNeTloFHDMeAQexYT8AQAA///zVGy6AAAABklEQVQDACS6mxGp/lviAAAAAElFTkSuQmCC", "shadow": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcCAYAAABoMT8aAAACuklEQVR4AaSUT0hUURTGjzeoqaD8Q4klMZDoRtIissKFGEoQRLXIAiNyI/SHrFWJuJAYWoUQBLYQamW1qIbcFFmQREmhUy1qGnCKoUjIEckyoqb3O73zeDNBLpL33XPOd77v3DvXN+PkP/8WHLC96lDuX3u4g01n/xJgMtRX7xLLCwfhdV0dMWnZ0JkDJsRkOHygTSy3PlqA1/UPdktL4xGFCcM7XRm6FpTWNz1e9y6TkXQ6rYhGoxL1EDgKEnrgzsNBAS+T45J3iWl/UNj3Kj2iJRETUMJb5r5Ni+NYXp73IIYojHBhfP85L24iORzmZCFTKvNE9cQliyLiyosrpXVjmxrNrApvOb13QABirxSL5JdOJKR+/Q5xbz+My4WbnSqsjTbL0NUBIYKjF+sE7GnsVu7ZSELIGYoHb3CJEHaCnr42GZ7oZSMFNdi2u0ZPilYb3uLmvJv0oj4cEZEWoSXMobEWXsdNGjH5uFd+fInI5uY6jcaHuRc32o0WvK6qcqsS4cnGFUYVeotp6esdQFC07L8rnILa0wW3bjW77zuVErTG6QDEhsW/+vWmrbaIqawibmUQdQBNY46dOW6pdLVfVkCw49rGWVKFeRyN56l4cFzt+kt1SYMAvwxC2OOcFMnKyGr9XIHCT5LZpwL8Mgjsjgevy85/Et5puveutxICsDsICC8xDR68riRSLsuXlnqtP8/M1/MCqNgdkDdtcgLIAR68LjObKIIAJ3vikpnaoqBmd0BuPBpqgNeRGEbHpizVyO5AC38p1OQN4N2ennmvUi6qvaNBXmduBxdMD40K/EUHQPKv4d1esWyVfnXp9/R1y7neGKly6NCgJaehAyazY0XcKvj4+Y3cGo3pe/Hg0X1hCAY4DGg4HZdIrQNIGAIqymr0VTYRQ+jzQ0IPDR+ltHid1K7ZmfsNAAD//8mrvkUAAAAGSURBVAMAadh4b0k9OFgAAAAASUVORK5CYII=", "crimson": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcCAYAAABoMT8aAAADD0lEQVR4AYyVW0hUURSG12xQApNCYaheEkMoirAHHUUpetDHLhAiTWQRPTQDk0EUSW+J0Q2GgbEousKE9JIpvUxEEkTaPBg9KOUFgggbSCyTCsPT/tbMnktSNMzPWutf/7/m7H3O2WNCB894fI62HfPkPz9o8eA1znMxekRouNrF0L4dRYPRoHX93IBTnTflxoOrPtcgYo5fKRMiNUCDlhyY3nvnfeGOLmEq00NbmzwHefdLZPSrEB2HBi0evHoFiz/mGKaINxsphCR9xbWqRJxHB5Qsjcnq7hN6Fdn+XwO//nb7LsGDyIRamjzWScEQYiFGklNaEgFmCDx4TTxs9+3CPJwieOelIKQgJ1LHPqZJFeTBTUnBa8LxzF1CRDeyzi+By9U6hBwOJO43CEag9aFGwWtkhS07PG3yi4HWDTJycloCT2slkKjOwOZwCWuy6szXevCa3sEXvnCPJ4lnDeIEDBG7rODOYQHkylkrGrR48JrQbruJ53yyuW1aL1tOlwuo6v9k5dlvAcdS0catB69JDc1K+IAno49juoyqxsmsKx8KOfbg+fVO9eA1NYsT+qAgv/2qT5rmpoUdJsIBcsfFHvZAqQev0Z1u9aS0/JY2GJJYWBQiPYAJjoiocuOQiPXQ0yeRHWajRvdE6Mvn5CWN3E7uBoXjJsNRQase29ABrIvNsbWULkWl8tGgHK5vl+B+exfsAxPZ2yUYK9cOINHNxkOhA7gUCsU1+2RqIpIYb9XbS4kh2DBMqnAeQwPGRfIcZuyrnCvyidMSzURJjd4+NzEvy2Z381eUZQQtZrwm9WXcRwKxrT/mNPnII5uvBA1aPHh1D0gg0AXH5gWQF6F+iwiwJFo8NhUdQAJx/OyARD6kFXCFcDwatK6XGwAxN/yG8E/8qSka0Dfz2hf95tcBbFS42xNADkkPDblD0QDICn+ZuFd3NrUgAB6OHnn7mtrMKWSLZQNS72eFg4Wdnvr+UyqaV+nhAkcPc+fKtBD5v1g2oG59hR4sPIV1LX5JPUnr28lBQo8lsBSGcLD+BgAA///FlfAiAAAABklEQVQDAPTfr/s6QxMhAAAAAElFTkSuQmCC"};
-
 /* ================= AKSESORIS TAKLUKAN (v138) — Fase 1: Set Dasar =================
    Hanya dari monster (tidak dijual). Set Dasar: dari Lumi liar dengan elemen yang sama.
    Drop 20% per menang, hanya untuk 20 menang pertama tiap hari (sama dengan batas XP battle). Pity: pasti dapat di menang ke-15 tanpa drop.
@@ -7243,14 +7379,37 @@ const TK_SETS = {
 const TK_EL = { Api: 'ember', Es: 'frost', Racun: 'moss', Netral: 'rookie' };
 const TK_ITEMS = [];
 for (const k in TK_SETS) for (const [id, slot, n] of TK_SETS[k].items) { const it = { id, slot, n, p: 0, rk: 1, tk: 'dasar', tset: k, tv: 4 }; TK_ITEMS.push(it); SH[id] = it; }
+/* v143: Set Elemen (dari Bos Zona; kepemilikan juga dicatat di server) */
+const EL_SETS = {
+  blaze: { n: 'Blaze Set', el: 'Api', ic: '🔥', c: '#ff6a3d', items: [['h_blaze', 'hat', 'Blaze Helm'], ['s_blaze', 'shirt', 'Blaze Jacket'], ['p_blaze', 'pants', 'Ash Pants'], ['f_blaze', 'shoes', 'Lava Boots'], ['g_blaze', 'glass', 'Smoke Shades'], ['b_blaze', 'back', 'Torch Pack']] },
+  glacier: { n: 'Glacier Set', el: 'Es', ic: '❄️', c: '#8fdcff', items: [['h_glacier', 'hat', 'Glacier Helm'], ['s_glacier', 'shirt', 'Crystal Coat'], ['p_glacier', 'pants', 'Frozen Pants'], ['f_glacier', 'shoes', 'Ice Boots'], ['g_glacier', 'glass', 'Frost Goggles'], ['w_glacier', 'back', 'Ice Wings']] },
+  venom: { n: 'Venom Set', el: 'Racun', ic: '☠️', c: '#7fd35a', items: [['h_venom', 'hat', 'Venom Helm'], ['s_venom', 'shirt', 'Moss Vest'], ['p_venom', 'pants', 'Swamp Pants'], ['f_venom', 'shoes', 'Mud Boots'], ['g_venom', 'glass', 'Frog Specs'], ['b_venom', 'back', 'Venom Pouch']] },
+  wanderer: { n: 'Wanderer Set', el: 'Netral', ic: '⚪', c: '#e6dcc8', items: [['h_wander', 'hat', 'Explorer Helm'], ['s_wander', 'shirt', 'Wind Poncho'], ['p_wander', 'pants', 'Cloth Pants'], ['f_wander', 'shoes', 'Straw Sandals'], ['g_wander', 'glass', 'Dust Goggles'], ['b_wander', 'back', 'Travel Bundle']] }
+};
+for (const k in EL_SETS) for (const [id, slot, n] of EL_SETS[k].items) { const it = { id, slot, n, p: 0, rk: 1, tk: 'elemen', tset: k, tv: 8, th: 2 }; TK_ITEMS.push(it); SH[id] = it; }
+/* v144: Set Naga (dari Bos Legenda; dobel boleh, dicatat di server) */
+const NG_SETS = {
+  sage: { n: 'Sage Dragon Set', k: 'mtk', leg: 'ilmu', ic: '🐲', c: '#ffd23c', day: 'Senin', items: [['dh_sage', 'hat', 'Sage Dragon Helm'], ['ds_sage', 'shirt', 'Starscale Armor'], ['dp_sage', 'pants', 'Starscale Greaves'], ['df_sage', 'shoes', 'Golden Claws'], ['dg_sage', 'glass', 'Sage Dragon Mask'], ['dw_sage', 'back', 'Celestial Wings & Tail']] },
+  wyvern: { n: 'Frost Wyvern Set', k: 'ipas', leg: 'badai', ic: '🐲', c: '#7ff5d0', day: 'Selasa', items: [['dh_wyvern', 'hat', 'Wyvern Helm'], ['ds_wyvern', 'shirt', 'Frostscale Armor'], ['dp_wyvern', 'pants', 'Frostscale Greaves'], ['df_wyvern', 'shoes', 'Ice Talons'], ['dg_wyvern', 'glass', 'Wyvern Mask'], ['dw_wyvern', 'back', 'Frost Wings & Tail']] },
+  shadow: { n: 'Shadow Dragon Set', k: 'ind', leg: 'bayang', ic: '🐲', c: '#a46bf0', day: 'Rabu', items: [['dh_shadow', 'hat', 'Shadow Dragon Helm'], ['ds_shadow', 'shirt', 'Voidscale Armor'], ['dp_shadow', 'pants', 'Voidscale Greaves'], ['df_shadow', 'shoes', 'Shadow Claws'], ['dg_shadow', 'glass', 'Void Dragon Mask'], ['dw_shadow', 'back', 'Shadow Wings & Tail']] },
+  crimson: { n: 'Crimson Dragon Set', k: 'ing', leg: 'lahar', ic: '🐲', c: '#ff5a4a', day: 'Kamis', items: [['dh_crimson', 'hat', 'Crimson Dragon Helm'], ['ds_crimson', 'shirt', 'Magmascale Armor'], ['dp_crimson', 'pants', 'Magmascale Greaves'], ['df_crimson', 'shoes', 'Inferno Claws'], ['dg_crimson', 'glass', 'Crimson Dragon Mask'], ['dw_crimson', 'back', 'Crimson Wings & Tail']] }
+};
+const NG_BYK = { mtk: 'sage', ipas: 'wyvern', ind: 'shadow', ing: 'crimson' };
+for (const k in NG_SETS) for (const [id, slot, n] of NG_SETS[k].items) { const it = { id, slot, n, p: 0, rk: 1, tk: 'naga', tset: k, tv: 12, th: 3 }; TK_ITEMS.push(it); SH[id] = it; }
+const TK_FX = { blaze: 'Obor +50% (3 bagian) · seluruh lantai terlihat (6)', glacier: 'Heal tangga 30% (3) · 40% + 1 Lumi bangkit (6)', venom: 'Kutukan separuh (3) · kebal kutukan (6)', wanderer: 'Panah ke tangga (3) · 4 soal benar = Berkah Besar (6)', sage: 'Heal 20%/25% · soal tangga: 1 salah diampuni (6)', wyvern: 'Heal 20%/25% · musuh Goa beku 1 giliran (6)', shadow: 'Heal 20%/25% · lewati 1 Lumi tiap lantai (6)', crimson: 'Heal 20%/25% · ATK +25%, +40% saat HP <30% (6)' };
+const tkFxT = it => { const k = it.tset; return TK_FX[k] ? `Efek di Goa: heal tangga + ${TK_FX[k]}. Bonus (3 bagian satu set), penuh di 6 bagian.` : ''; };
+const tkSetOf = k => TK_SETS[k] || EL_SETS[k] || NG_SETS[k];
 const tkS = () => (S.tk || (S.tk = { p: 0 }));
 const tkHas = id => !!(S && S.acc && S.acc.own.includes(id));
-const tkN = k => TK_SETS[k].items.filter(([id]) => tkHas(id)).length;
+const tkN = k => tkSetOf(k).items.filter(([id]) => tkHas(id)).length;
 /* set Taklukan yang sedang dipakai lengkap (null bila tidak ada) */
 function tkSetOn() { if (!S || !S.acc) return null; const L = look(); for (const k in TK_SETS) if (TK_SETS[k].items.every(([id, slot]) => L[slot] === id)) return k; return null; }
 /* efek set di Goa */
-const tkGoaHeal = () => { const k = tkSetOn(); return !k ? 0 : k === 'frost' ? .2 : .1; };
-const tkTorch = () => tkSetOn() === 'ember' ? 1.25 : 1;
+/* v145: efek Set Elemen / Naga (3 dari 6 atau 6 dari 6 bagian dipakai, set yang sama) */
+function tkXs() { if (!S || !S.acc) return null; const L = look(); let b = null; for (const [T, t] of [[EL_SETS, 'el'], [NG_SETS, 'ng']]) for (const k in T) { const n = T[k].items.filter(([id, sl]) => L[sl] === id).length; if (n >= 3 && (!b || n > b.n)) b = { k, n, t, el: T[k].el }; } return b; }
+const tkXk = (k, n) => { const x = tkXs(); return !!x && x.k === k && x.n >= (n || 3); };
+const tkGoaHeal = () => { const k = tkSetOn(), x = tkXs(), a = !k ? 0 : k === 'frost' ? .2 : .1; const b = !x ? 0 : x.t === 'ng' ? (x.n >= 6 ? .25 : .2) : x.k === 'glacier' ? (x.n >= 6 ? .4 : .3) : (x.n >= 6 ? .2 : .15); return Math.max(a, b); };
+const tkTorch = () => Math.max(tkSetOn() === 'ember' ? 1.25 : 1, tkXk('blaze') ? 1.5 : 1);
 const tkGoaCoin = () => tkSetOn() === 'rookie' ? 1.15 : 1;
 /* menang melawan Lumi liar → peluang bagian Set Dasar sesuai elemen */
 function tkWild(cfg) {
@@ -7269,14 +7428,27 @@ function tkWild(cfg) {
 const _tkAccDesc = accDesc;
 accDesc = function (it) {
   if (!it || !it.tk) return _tkAccDesc(it);
-  const set = TK_SETS[it.tset];
+  const set = tkSetOf(it.tset);
+  if (it.tk === 'naga') return _tkAccDesc(it) + `<br><span style="color:${set.c}">🐲 <b>${esc(set.n)}</b> · Aksesoris Taklukan (Naga) · ${tkN(it.tset)}/6${accDup(it.id) ? ` · dimiliki ×${1 + accDup(it.id)}` : ''}</span><br><small>Dari Bos Legenda ${esc(set.day)}. ${tkFxT(it)}</small>`;
+  if (it.tk === 'elemen') return _tkAccDesc(it) + `<br><span style="color:${set.c}">${set.ic} <b>${esc(set.n)}</b> · Aksesoris Taklukan (Elemen) · ${tkN(it.tset)}/6</span><br><small>Dari Bos Zona ${esc(set.el)}. ${tkFxT(it)}</small>`;
   return _tkAccDesc(it) + `<br><span style="color:${set.c}">${set.ic} <b>${esc(set.n)}</b> · Aksesoris Taklukan (Dasar) · ${tkN(it.tset)}/3</span><br><small>Set lengkap, khusus di Goa: heal tiap turun tangga 10% + ${esc(set.fx)}.</small>`;
 };
 /* ---- set yang segera hadir: siluet gelap + petunjuk sumber ---- */
-const TK_UP = { el: [['blaze', '#ff6a3d', 'Bos Zona · Api'], ['glacier', '#8fdcff', 'Bos Zona · Es'], ['venom', '#7fd35a', 'Bos Zona · Racun'], ['wanderer', '#e6dcc8', 'Bos Zona · Netral']],
-  ng: [['sage', '#ffd23c', 'Bos Legenda · Senin'], ['wyvern', '#7ff5d0', 'Bos Legenda · Selasa'], ['shadow', '#a46bf0', 'Bos Legenda · Rabu'], ['crimson', '#ff5a4a', 'Bos Legenda · Kamis']] };
-const tkSil = (k, c, h) => typeof TK_SOON !== 'undefined' && TK_SOON[k] ? `<img src="${TK_SOON[k]}" alt="" style="height:${h}px;width:${Math.round(h * 16 / 28)}px;image-rendering:pixelated;filter:brightness(0) drop-shadow(0 0 3px ${c}) drop-shadow(0 0 6px ${c})">` : '';
-const tkSoon = (tier, h = 70) => `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px">${TK_UP[tier].map(([k, c, src]) => `<div style="background:radial-gradient(circle at 50% 45%,${c}33,#120a26 70%);border:2px solid ${c}66;border-radius:12px;padding:5px 2px;text-align:center;color:#fff"><div style="display:grid;place-items:center;height:${h + 4}px">${tkSil(k, c, h)}</div><b style="font-size:12px">???</b><div style="font-size:9.5px;font-weight:700;color:${c};line-height:1.15">${src}</div></div>`).join('')}</div>`;
+/* v145: infografis "Semua Lumi drop aksesori" (halaman 1 kabar update, tombol di Album, dan PNG kelas) */
+function tkDropInfo() {
+  const av = (h, sh, pa) => `<div style="display:flex;flex-direction:column;align-items:center;gap:0;width:26px">${[h, sh, pa].map(id => `<img src="${accIcon(id)}" alt="" style="height:19px;max-width:26px;object-fit:contain;image-rendering:pixelated">`).join('')}</div>`;
+  const ms = i => `<div style="width:48px;height:48px;flex:none">${typeof mSvg === 'function' && M[i] ? mSvg(i) : ''}</div>`;
+  const ds = Object.values(TK_SETS)[0], row = (c, mon, set, ic, t, d, ch) => `<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:2.5px solid ${c};border-radius:16px;padding:5px 8px">
+    ${mon}<div style="font:900 20px/1 system-ui;color:${c}">➜</div>${set}<div style="flex:1;min-width:0;text-align:left"><b style="font-family:var(--display);font-size:14px;display:block;line-height:1.15">${ic} ${t}</b><span style="font-size:11.5px;opacity:.88;line-height:1.25;display:block">${d}</span><span style="display:inline-block;margin-top:2px;background:${c};color:#24123a;font:900 11px system-ui;border-radius:99px;padding:1px 8px">${ch}</span></div></div>`;
+  return `<div style="display:flex;flex-direction:column;gap:6px">
+    <div style="text-align:center"><div style="font:900 22px/1.1 var(--display);color:var(--sun)">Semua Lumi<br>Drop Aksesori! 🎁</div><div style="font-size:12px;opacity:.85;margin-top:2px">Kalahkan Lumi, kumpulkan set, pakai di Lemari</div></div>
+    ${row('#7fd35a', ms('wolf'), av(ds.items[0][0], ds.items[1][0], ds.items[2][0]), '🌿', 'Lumi Liar', 'Dapat <b>Set Dasar</b> (topi, baju, celana)', '20% · 20 menang pertama/hari')}
+    ${row('#ff8a4a', ms('golem'), av(EL_SETS.blaze.items[0][0], EL_SETS.blaze.items[1][0], EL_SETS.blaze.items[2][0]), '👹', 'Bos Zona', '<b>Set Elemen</b> · 12–21 (Minggu tiap jam 05–22), bareng teman', 'sampai 30% · juara paling besar')}
+    ${row('#ffd23c', ms('ilmu'), av(NG_SETS.sage.items[0][0], NG_SETS.sage.items[1][0], NG_SETS.sage.items[2][0]), '🐲', 'Bos Legenda', '<b>Set Naga</b> · 13.00 dan 19.00', 'sampai 15% · langka!')}
+    ${row('#a46bf0', ms('bat'), av(EL_SETS.venom.items[0][0], EL_SETS.venom.items[1][0], EL_SETS.venom.items[2][0]), '🕳️', 'Penjaga Goa', '<b>Set Elemen</b> sesuai elemennya · Lantai 10', '35% · 1× per pulau/hari')}
+    <div style="text-align:center;font:900 13px system-ui;color:#fff;background:rgba(255,210,60,.16);border-radius:12px;padding:5px">👕 Pakai di Lemari · 🌟 Set lengkap = kekuatan di Goa!</div></div>`;
+}
+async function tkHow() { await modal(`<div class="updbox" style="display:flex;flex-direction:column;gap:7px">${tkDropInfo()}</div>`, [{ t: 'Oke!', cls: 'hot' }]); }
 /* ---- Album Taklukan ---- */
 async function tkAlbum() {
   const L = look(), own = TK_ITEMS.filter(it => tkHas(it.id)).length;
@@ -7284,11 +7456,15 @@ async function tkAlbum() {
     return `<div style="flex:1;min-width:0;text-align:center;background:#fff;border:2px solid ${o ? '#3ccf91' : 'var(--line)'};border-radius:10px;padding:3px 2px"><div style="${o ? '' : 'filter:brightness(0);opacity:.35'}">${sv}</div><b style="font-size:10.5px;color:var(--text);display:block;line-height:1.1">${o ? esc(it.n) : '???'}</b></div>`; };
   const sets = Object.entries(TK_SETS).map(([k, s]) => `<div style="border:2.5px solid ${s.c};border-radius:14px;padding:6px;background:#fffaf0"><div style="display:flex;justify-content:space-between;font-weight:900;font-size:13.5px;color:#24123a"><span>${s.ic} ${esc(s.n)}</span><span>${tkN(k)}/3</span></div>
     <div style="display:flex;gap:4px;margin:4px 0">${TK_ITEMS.filter(it => it.tset === k).map(part).join('')}</div><div style="font-size:11px;font-weight:700;color:#5a4a6a">Dari Lumi liar ${s.el} · Set lengkap di Goa: heal tangga 10% + ${esc(s.fx)}</div></div>`).join('');
-  const lock = (tier, d) => `<div style="border:2.5px dashed #9a8ab8;border-radius:14px;padding:6px;background:#0b0618">${tkSoon(tier)}<div style="text-align:center;font-size:11.5px;font-weight:800;color:#c9bde6;margin-top:5px">🔒 Segera hadir · ${d}</div></div>`;
-  await modal(`<h2>📖 Album Taklukan</h2><div class="card" style="font-size:12.5px;font-weight:700">Terkumpul <b>${own}/60</b> bagian. Peluang drop ${TK_RATE}% dari 20 menang pertama tiap hari. Jaminan: <b>${tkS().p || 0}/${TK_PITY}</b> menang (pasti dapat di menang ke-${TK_PITY} tanpa drop).${tkS().b ? `<br><b style="color:#c2301b">✨ Boost aktif: ${tkS().b} menang lagi pasti dapat!</b>` : ''}</div>
+  const elPart = (it, dp) => { const o = tkHas(it.id), d = dp && accDup(it.id); return `<div style="text-align:center;background:#fff;border:2px solid ${o ? '#3ccf91' : 'var(--line)'};border-radius:10px;padding:3px 2px;min-width:0"><img src="${accIcon(it.id)}" alt="" style="height:30px;max-width:92%;object-fit:contain;image-rendering:pixelated;${o ? '' : 'filter:brightness(0);opacity:.35'}"><b style="font-size:10px;color:var(--text);display:block;line-height:1.1">${o ? esc(it.n) : '???'}${d ? ` ×${1 + d}` : ''}</b></div>`; };
+  const elSets = Object.entries(EL_SETS).map(([k, s]) => `<div style="border:2.5px solid ${s.c};border-radius:14px;padding:6px;background:#fffaf0"><div style="display:flex;justify-content:space-between;font-weight:900;font-size:13.5px;color:#24123a"><span>${s.ic} ${esc(s.n)}</span><span>${tkN(k)}/6</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:4px 0">${TK_ITEMS.filter(it => it.tset === k).map(elPart).join('')}</div><div style="font-size:11px;font-weight:700;color:#5a4a6a">Dari Bos Zona ${esc(s.el)} · peluang juara 1–3 30% · 4–10 20% · lainnya 10% · bagian acak, tanpa dobel<br>🕳️ Efek Goa: ${esc(TK_FX[k])}</div></div>`).join('');
+  const ngSets = Object.entries(NG_SETS).map(([k, s]) => `<div style="border:2.5px solid ${s.c};border-radius:14px;padding:6px;background:#fffaf0"><div style="display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:13.5px;color:#24123a"><span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:30px;height:26px">${typeof mSvg === 'function' ? mSvg(s.leg) : ''}</span>${esc(s.n)}</span><span>${tkN(k)}/6</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:4px 0">${TK_ITEMS.filter(it => it.tset === k).map(it => elPart(it, true)).join('')}</div><div style="font-size:11px;font-weight:700;color:#5a4a6a">Dari Bos Legenda ${esc(s.day)} · juara 1 15% · juara 2–3 10% · 4–10 5% · lainnya 2% (event ×1,5) · dobel disimpan untuk Trade<br>🕳️ Efek Goa: ${esc(TK_FX[k])}</div></div>`).join('');
+  await modal(`<h2>📖 Album Taklukan</h2><button type="button" id="tkHowB" style="font:900 12px system-ui;border:0;border-radius:99px;padding:4px 12px;background:#ffd23c;color:#24123a;margin-bottom:4px" onclick="tkHow()">❓ Cara dapat</button><div class="card" style="font-size:12.5px;font-weight:700">Terkumpul <b>${own}/60</b> bagian. Set Dasar dari Lumi liar, Set Elemen dari Bos Zona, Set Naga dari Bos Legenda. Peluang drop ${TK_RATE}% dari 20 menang pertama tiap hari. Jaminan: <b>${tkS().p || 0}/${TK_PITY}</b> menang (pasti dapat di menang ke-${TK_PITY} tanpa drop).${tkS().b ? `<br><b style="color:#c2301b">✨ Boost aktif: ${tkS().b} menang lagi pasti dapat!</b>` : ''}</div>
     <div style="display:flex;flex-direction:column;gap:6px;max-height:56vh;overflow:auto;margin-top:6px"><div style="font:900 13px system-ui;color:#fff">Tingkat 1 · Set Dasar</div>${sets}
-    <div style="font:900 13px system-ui;color:#fff">Tingkat 2 · Set Elemen</div>${lock('el', '4 set × 6 bagian, dari Bos Zona')}
-    <div style="font:900 13px system-ui;color:#fff">Tingkat 3 · Set Naga</div>${lock('ng', '4 set naga × 6 bagian, dari Bos Legenda')}</div>`, [{ t: 'Tutup', cls: 'ghost' }]);
+    <div style="font:900 13px system-ui;color:#fff">Tingkat 2 · Set Elemen</div>${elSets}
+    <div style="font:900 13px system-ui;color:#fff">Tingkat 3 · Set Naga</div>${ngSets}</div>`, [{ t: 'Tutup', cls: 'ghost' }]);
 }
 
 /* ================= v105: kalibrasi Legenda, ujian jujur, XP latihan, pintu Goa Monster =================
@@ -7818,6 +7994,9 @@ async function lbsGive(wid, rw) {
   else if (rw.egg) { S.boxes[rw.egg]++; out.push(`${eggN(rw.egg)}`); }
   if (rw.extra) { S.boxes[rw.extra]++; out.push(`${eggN(rw.extra)} (bonus juara ${rw.rk === 1 ? '1' : '2–3'})`); }
   if (rw.xp) { gainXP(rw.xp); out.push(`⭐ +${rw.xp} XP`); }
+  if (rw.ngi && SH[rw.ngi]) { const it = SH[rw.ngi], set = tkSetOf(it.tset), dup = S.acc.own.includes(it.id);   // v144 Set Naga (dobel boleh, dicatat server)
+    if (!dup) S.acc.own.push(it.id); else { if (!S.acc.dup) S.acc.dup = {}; S.acc.dup[it.id] = Math.max(accDup(it.id), (rw.ngn || 2) - 1); }
+    out.push(`<b style="color:#ff5d8f">🐲 Aksesoris Taklukan: ${esc(it.n)}!</b><br><small style="font-weight:700">${esc(set.n)} ${tkN(it.tset)}/6${dup ? ` · dobel ×${1 + accDup(it.id)} (disimpan untuk Trade)` : ''} · cek di Tas 🎒</small>`); }
   if (rw.kecil) out.push(`<small style="font-weight:700">Kerusakanmu di bawah ${rw.ev ? 3 : 2}% HP bos, jadi kamu dapat hadiah peserta (tanpa telur & XP).</small>`);
   if (rw.ev) out.push('<small style="font-weight:700;color:#b86a00">🌟 Hadiah Event Pembukaan Sarang</small>');
   if (rw.done && rw.rk === 1) { const id = 'pkl1'; if (!S.tex) S.tex = {}; if (!S.tex[id]) { S.tex[id] = { n: 'Penakluk Legenda', r: 'L' }; if (!S.tgot) S.tgot = {}; S.tgot[id] = 1; out.push('👑 Gelar baru: <b style="color:#b86a00">Penakluk Legenda</b> (juara 1 kerusakan!)'); } }
@@ -7902,6 +8081,7 @@ async function lbsTap(kk, sch) {
     <div style="width:100%;height:14px;border:2px solid #24123a;border-radius:8px;background:#3a2a5c;position:relative;overflow:hidden"><i style="position:absolute;left:0;top:0;bottom:0;width:${pct}%;background:#e8453c"></i><b style="position:absolute;left:60%;top:0;bottom:0;border-left:2px dashed #ffd23c"></b><b style="position:absolute;left:30%;top:0;bottom:0;border-left:2px dashed #ffd23c"></b></div>
     <p style="font-size:13px">HP bersama ${pct}% · ${v.np} anak ikut · sisa ${lbsFmt(v.ends)}</p>
     ${v.top && v.top.length ? `<div class="card" style="width:100%;text-align:left;font-size:13px;font-weight:800;display:flex;flex-direction:column;gap:2px">${v.top.map((x, i) => `<div${x.me ? ' style="color:#1f7a52"' : ''}>${i + 1}. ${esc(x.n)} · ${x.d}</div>`).join('')}</div>` : ''}
+    <p style="font-size:12.5px;font-weight:800;background:#fff4d6;border:2px solid #c9a03a;border-radius:10px;padding:5px 8px;color:#3a2a10">🐲 Peluang bagian <b>${esc(NG_SETS[NG_BYK[k]].n)}</b> (kamu punya ${tkN(NG_BYK[k])}/6): juara 1 15% · juara 2–3 10% · 4–10 5% · lainnya 2%${lbsEvDay() ? ' · event ×1,5' : ''}. Bagian acak, dobel boleh.</p>
     <p style="font-size:13px">Kesempatanmu untuk bos ini: <b>${left} dari ${LBS_TRY}</b> (bos berikutnya dapat ${LBS_TRY} lagi). Satu kesempatan selesai saat timmu tumbang. Di bawah 60% bos marah, di bawah 30% muncul <b>soal kilat</b>: jawab benar supaya serangannya meleset!</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Serang!', cls: 'hot' }]);
   if (c !== 1) return;
   await lbsFight(k);
@@ -8014,40 +8194,37 @@ const UPD_V = 'v122'; let UPD_SEEN = 0, UPD_WHO = null, UPD_HID = 0;
 /* aplikasi dibuka lagi dari latar belakang (HP) setelah >= 5 menit = dianggap buka game lagi */
 document.addEventListener('visibilitychange', () => { if (document.hidden) UPD_HID = Date.now(); else if (UPD_HID && Date.now() - UPD_HID >= 5 * 60000) { UPD_HID = 0; UPD_SEEN = 0; } });
 async function updShow() {
-  const it = (ic, t, d) => `<div style="display:flex;gap:10px;align-items:flex-start;text-align:left;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:8px 10px"><div style="font-size:22px;line-height:1">${ic}</div><div><b style="font-family:var(--display);font-size:15px">${t}</b><div style="font-size:12.5px;opacity:.85;line-height:1.35">${d}</div></div></div>`;
-  const head = (n, t, sub) => `<div style="text-align:center"><span style="font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--sun)">✨ KABAR UPDATE · ${n}/3 ✨</span><h2 style="margin:2px 0 0">${t}</h2><div style="font-size:12.5px;opacity:.85">${sub}</div></div>`;
-  const gm = ['wolf', 'golem', 'bat'].filter(i => M[i]).map(i => `<div style="width:64px;height:64px">${mSvg(i, '', true)}</div>`).join('');
-  const c = await modal(`<div class="updbox updgoa" style="display:flex;flex-direction:column;gap:7px">
- ${head(1, 'Goa Monster Dibuka!', 'Jelajahi goa gelap di tiap pulau')}
- <div style="display:flex;justify-content:center;align-items:flex-end;gap:6px;padding:8px 0 4px;border-radius:16px;background:radial-gradient(circle at 50% 60%,rgba(255,150,50,.35),rgba(10,6,20,.9) 62%)">${gm}</div>
- ${it('🔓', 'Syarat masuk', `Rank ${typeof GOA_RANK !== 'undefined' ? GOA_RANK : 10}+ · pintu Goa di area Bab 5 tiap pulau`)}
- ${it('🔥', 'Obor', '3 obor per hari + beli 1 lagi di Toko Mak Tika · XP penuh 2 kali masuk pertama, lalu ½')}
- ${it('🌑', 'Gelap & luas', 'Hanya obormu yang menerangi. Semua Lumi di dalamnya sudah berevolusi!')}
- ${it('🪜', 'Tangga 5 soal', 'Kalahkan semua Lumi, jawab 5 soal → berkah atau kutukan')}
- ${it('👑', 'Lantai 10: Penjaga Goa', 'Telur Perak + Batu Penanda · XP Goa besar!')}
- </div>`, [{ t: 'Tutup', cls: 'ghost' }, { t: 'Berikutnya ›', cls: 'hot' }]);
-  if (c !== 1) return;
-  const L = [['ilmu', 'Senin'], ['badai', 'Selasa'], ['bayang', 'Rabu'], ['lahar', 'Kamis']].filter(x => M[x[0]]);
-  const legs = L.map(([i, h]) => `<div style="text-align:center;width:72px"><div style="width:60px;height:60px;margin:auto">${mSvg(i)}</div><div style="font-size:10px;font-weight:800;margin-top:2px">${h}</div></div>`).join('');
-  if (await modal(`<div class="updbox updbos" style="display:flex;flex-direction:column;gap:7px">
- ${head(2, 'Bos Legenda Muncul!', 'Lawan 1 bos bareng satu sekolah')}
- <div style="display:flex;justify-content:center;gap:2px;margin:2px 0">${legs}</div>
- <div style="text-align:center;font-size:11.5px;opacity:.8;margin-top:-4px">Jumat–Minggu: bos acak!</div>
- ${it('⏰', 'Jam muncul', `13.00–14.00 dan 19.00–20.00 · <b>${LBS_TRY} kesempatan</b> tiap bos muncul`)}
- ${it('🔓', 'Syarat masuk', `Rank ${LBS_RANK}+ dan lulus Ujian Akhir · masuk lewat area Bab 5`)}
- ${it('📝', 'Ujian gerbang', '5 soal: benar semua = berkah, salah banyak = kutukan 😱')}
- ${it('🥚', 'Hadiah', 'Koin, telur, gelar penakluk, dan peluang Telur Legenda!')}
- </div>`, [{ t: 'Tutup', cls: 'ghost' }, { t: 'Berikutnya ›', cls: 'hot' }]) !== 1) return;
-  /* v138: halaman 3 · Aksesoris Taklukan */
-  const av = typeof TK_SETS !== 'undefined' ? Object.values(TK_SETS).map(st => `<div style="text-align:center;width:70px"><div style="display:grid;place-items:center">${avatarSvg({ ...look(), hat: st.items[0][0], shirt: st.items[1][0], pants: st.items[2][0] }, 56)}</div><div style="font-size:10px;font-weight:800;color:${st.c}">${st.ic} ${esc(st.n.replace(' Set', ''))}</div></div>`).join('') : '';
-  await modal(`<div class="updbox updtk" style="display:flex;flex-direction:column;gap:7px">
- ${head(3, 'Aksesoris Taklukan!', 'Aksesoris langka yang hanya didapat dari monster')}
- <div style="display:flex;justify-content:center;gap:2px;padding:6px 0 2px;border-radius:16px;background:radial-gradient(circle at 50% 60%,rgba(255,106,61,.28),rgba(10,6,20,.9) 65%)">${av}</div>
- ${it('⚔️', 'Cara dapat', 'Kalahkan Lumi liar: peluang 20% bagian set sesuai elemen Lumi (Api, Es, Racun, Netral) · 20 menang pertama tiap hari · pasti dapat di menang ke-15')}
- ${it('👕', 'Bonus', 'Topi +4% XP · Baju +4% HP · Celana +4% DEF · tidak dijual di toko!')}
- ${it('🕳️', 'Set lengkap di Goa', 'Heal tiap turun tangga + efek khas: obor lebih terang, heal lebih besar, tangkal kutukan, atau koin lebih banyak')}
- ${it('📖', 'Album Taklukan', 'Lihat koleksimu di Tas 🎒 → Album. Segera: Set Elemen dari Bos Zona & Set Naga dari Bos Legenda!')}
- </div>`, [{ t: 'Siap, ayo main!', cls: 'hot' }]);
+  /* v148: papan Kabar Update dirapikan: 1 Aksesori · 2 Bos Zona · 3 Bos Legenda */
+  const N = 3, it = (ic, t, d) => `<div style="display:flex;gap:10px;align-items:flex-start;text-align:left;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:7px 10px"><div style="font-size:21px;line-height:1">${ic}</div><div><b style="font-family:var(--display);font-size:14.5px">${t}</b><div style="font-size:12.5px;opacity:.85;line-height:1.35">${d}</div></div></div>`;
+  const head = (n, t, sub) => `<div style="text-align:center"><span style="font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--sun)">✨ KABAR UPDATE · ${n}/${N} ✨</span><h2 style="margin:2px 0 0">${t}</h2><div style="font-size:12.5px;opacity:.85">${sub}</div></div>`;
+  const nav = last => last ? [{ t: 'Siap, ayo main!', cls: 'hot' }] : [{ t: 'Tutup', cls: 'ghost' }, { t: 'Berikutnya ›', cls: 'hot' }];
+  /* 1 · Aksesori: contoh karakter si anak memakai set lengkap */
+  const L = look(), full = st => avatarSvg({ ...L, ...Object.fromEntries(st.items.map(([id, sl]) => [sl, id])) }, 56);
+  const ex = (st, c, nm, fx) => `<div style="flex:1;min-width:0;text-align:center;background:radial-gradient(circle at 50% 40%,${c}55,rgba(10,6,20,.6) 70%);border:2.5px solid ${c};border-radius:16px;padding:6px 4px 7px"><div style="display:grid;place-items:center;min-height:100px">${full(st)}</div><b style="font-size:12.5px;color:${c};display:block">${nm}</b><div style="font-size:11px;opacity:.9;line-height:1.3;margin-top:2px">${fx}</div></div>`;
+  const src = (ic, t, d, ch, c) => `<div style="display:flex;align-items:center;gap:8px;text-align:left;font-size:12.5px;line-height:1.25"><span style="font-size:18px;width:22px;text-align:center">${ic}</span><span style="flex:1;min-width:0"><b>${t}</b> → ${d}</span><span style="background:${c};color:#24123a;font:900 10.5px system-ui;border-radius:99px;padding:1px 7px;white-space:nowrap">${ch}</span></div>`;
+  const c1 = await modal(`<div class="updbox updtk" style="display:flex;flex-direction:column;gap:7px">${head(1, 'Semua Lumi Drop Aksesori!', '🎁 Kumpulkan set lengkap, pakai di Lemari')}
+    <div style="display:flex;gap:6px">${ex(EL_SETS.blaze, '#ff6a3d', '🔥 Blaze Set', 'Di Goa: obor +50%, lengkap 6 = seluruh lantai terlihat')}${ex(NG_SETS.sage, '#ffd23c', '🐲 Sage Dragon Set', 'Di Goa: heal 25% tiap tangga + 1 soal salah diampuni')}</div>
+    <div style="display:flex;flex-direction:column;gap:5px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:8px 10px">
+      ${src('🌿', 'Lumi liar', 'Set Dasar', '20%', '#7fd35a')}${src('👹', 'Bos Zona', 'Set Elemen', 's.d. 30%', '#ff8a4a')}${src('🕳️', 'Penjaga Goa', 'Set Elemen', '35%', '#a46bf0')}${src('🐲', 'Bos Legenda', 'Set Naga', 's.d. 15%', '#ffd23c')}</div>
+    <div style="text-align:center;font-size:12px;opacity:.85">Pakai 3 bagian satu set = bonus · 6 bagian = efek penuh. Lihat di Tas 🎒 → Album.</div></div>`, nav(false));
+  if (c1 !== 1) return;
+  /* 2 · Bos Zona bersama */
+  const zm = ['golem', 'wolf', 'bat'].filter(i => M[i]).map(i => `<div style="width:62px;height:62px">${mSvg(i, '', true)}</div>`).join('');
+  if (await modal(`<div class="updbox updzb" style="display:flex;flex-direction:column;gap:7px">${head(2, 'Bos Zona Bareng Satu Sekolah!', 'Satu bos, HP dipakai bersama')}
+    <div style="display:flex;justify-content:center;align-items:flex-end;gap:6px;padding:6px 0 2px;border-radius:16px;background:radial-gradient(circle at 50% 60%,rgba(255,106,61,.32),rgba(10,6,20,.9) 64%)">${zm}</div>
+    ${it('⏰', 'Jam muncul', 'Acak jam 12.00–21.00 · tiap bos 30 menit · lihat di Jadwal')}
+    ${it('☀️', 'Minggu Bos!', 'Hari Minggu bos <b>pasti muncul tiap jam</b> 05.00–22.00 · hadiah penuh 6 bos pertama')}
+    ${it('🤝', 'Kerja sama', 'HP 2.000 bersama · 1 kesempatan per anak · 1 serangan maks 35%, jadi butuh minimal 3 anak')}
+    ${it('🎁', 'Hadiah', 'Koin, XP, telur, dan peluang <b>Set Elemen</b> (juara 1–3 sampai 30%)')}</div>`, nav(false)) !== 1) return;
+  /* 3 · Bos Legenda */
+  const LG = [['ilmu', 'Senin'], ['badai', 'Selasa'], ['bayang', 'Rabu'], ['lahar', 'Kamis']].filter(x => M[x[0]]);
+  const legs = LG.map(([i, h]) => `<div style="text-align:center;width:72px"><div style="width:58px;height:58px;margin:auto">${mSvg(i)}</div><div style="font-size:10px;font-weight:800;margin-top:2px">${h}</div></div>`).join('');
+  await modal(`<div class="updbox updbos" style="display:flex;flex-direction:column;gap:7px">${head(3, 'Bos Legenda', 'Lawan 1 Legenda bareng satu sekolah')}
+    <div style="display:flex;justify-content:center;gap:2px;margin:2px 0">${legs}</div>
+    <div style="text-align:center;font-size:11.5px;opacity:.8;margin-top:-4px">Jumat–Minggu: Legenda acak!</div>
+    ${it('⏰', 'Jam muncul', `13.00–14.00 dan 19.00–20.00 · <b>${LBS_TRY} kesempatan</b> tiap bos muncul`)}
+    ${it('🔓', 'Syarat masuk', `Rank ${LBS_RANK}+ dan lulus Ujian Akhir · masuk lewat area Bab 5`)}
+    ${it('🎁', 'Hadiah', 'Koin, telur, gelar penakluk, peluang Telur Legenda, dan <b>Set Naga</b>!')}</div>`, nav(true));
 }
 
 /* ================= v132: EVENT PEMBUKAAN SARANG LEGENDA (Jum-Min 23-25 Okt 2026) =================
@@ -8148,12 +8325,29 @@ const fmtMS = ms => { const s = Math.max(0, Math.round(ms / 1000)); return `${Ma
 function hhBar() {
   let el = $('#hhBar'); const qc = $('#questChip');
   const on = hhOn() && S && !$('#s-world').hidden;
+  hhPill();
   if (!on) { if (el) el.hidden = true; return; }
   if (!el && qc) { el = document.createElement('div'); el.id = 'hhBar'; el.style.cssText = 'background:linear-gradient(90deg,#7b4fd6,#ff5d8f);color:#fff;border:2.5px solid var(--ink);border-radius:12px;box-shadow:0 3px 0 var(--ink);padding:4px 9px;font-weight:900;font-size:12.5px;max-width:100%;box-sizing:border-box'; qc.parentNode.insertBefore(el, qc); }
   if (!el) return; el.hidden = false;
   el.innerHTML = `🎉 HAPPY HOUR dari Admin · ${hhTxt(HH.kind)}<br><small style="font-weight:800">sisa ${fmtMS(HH.end - Date.now())} · ${HH.kind === 'drop' ? 'ayo lawan Lumi liar!' : 'ayo latihan & bertarung!'}</small>`;
 }
-setInterval(() => { try { hhBar(); if (S && S.gq && S.gq.length) giftShow(); } catch (e) { } }, 1000);
+/* v147: pil kecil Happy Hour di layar selain peta (battle, menu, kuis) */
+function hhPill() {
+  let el = $('#hhPill'); const on = hhOn() && S && S.name && $('#s-world').hidden;
+  if (!on) { if (el) el.hidden = true; return; }
+  if (!el) { el = document.createElement('div'); el.id = 'hhPill'; el.style.cssText = 'position:fixed;top:calc(env(safe-area-inset-top,0px) + 3px);left:50%;transform:translateX(-50%);z-index:60;pointer-events:none;background:linear-gradient(90deg,#7b4fd6,#ff5d8f);color:#fff;border:2px solid var(--ink);border-radius:99px;padding:1px 10px;font:900 11px system-ui;white-space:nowrap;box-shadow:0 2px 0 var(--ink)'; document.body.appendChild(el); }
+  el.hidden = false; el.textContent = `🎉 Happy Hour · ${HH.kind === 'drop' ? 'Drop ×2' : 'XP +20%'} · ${fmtMS(HH.end - Date.now())}`;
+}
+/* v147: pop-up sekali per Happy Hour (ditunda sampai tidak sedang battle / membuka jendela lain) */
+async function hhPop() {
+  const key = HH.pop; HH.pop = null; if (!hhOn() || !S) return; S.hhSeen = key; save(); sfx('rank');
+  await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:#7b4fd6">DARI ADMIN</div><div style="font-size:46px;line-height:1">🎉</div><h2 style="margin:0">Happy Hour!</h2>
+    <div class="card" style="width:100%;font-weight:800;font-size:15px">${hhTxt(HH.kind)}<br><small style="color:var(--sub)">${HH.kind === 'drop' ? 'Peluang Set Dasar dari Lumi liar jadi 2×. Ayo bertarung!' : 'Semua XP bertambah 20%. Ayo latihan & bertarung!'}</small></div>
+    <p style="margin:0;font-weight:800">⏳ Sisa ${fmtMS(HH.end - Date.now())}</p></div>`, [{ t: 'Ayo!', cls: 'hot' }]);
+}
+let HH_HID = 0;
+document.addEventListener('visibilitychange', () => { if (document.hidden) HH_HID = Date.now(); else if (HH_HID && Date.now() - HH_HID >= 60000) { HH_HID = 0; setTimeout(() => { try { if (hhOn()) toast(`🎉 <b>Happy Hour masih berjalan!</b> ${hhTxt(HH.kind)} · sisa ${fmtMS(HH.end - Date.now())}`, 4200); } catch (e) { } }, 1500); } });
+setInterval(() => { try { hhBar(); if (S && S.gq && S.gq.length) giftShow(); if (HH.pop && S && !B && $('#modal').hidden && !$('#s-world').hidden) hhPop(); } catch (e) { } }, 1000);
 
 /* ---------- cek server tiap 60 detik ---------- */
 async function gmTick() {
@@ -8161,7 +8355,8 @@ async function gmTick() {
   if (S.gm && typeof TK_ITEMS !== 'undefined') { let ch = 0; TK_ITEMS.forEach(it => { if (!S.acc.own.includes(it.id)) { S.acc.own.push(it.id); ch = 1; } }); if (ch) save(); }   // GM punya semua Aksesoris Taklukan (termasuk set baru)
   if (typeof lbSb !== 'function' || !lbSb()) return;
   try { const h = await gmRpc('hh_now', {}); if (h && h.on) { HH.kind = h.kind; HH.end = Date.now() + h.left * 1000; } else { HH.kind = null; HH.end = 0; }
-    if (hhOn() && HH.was !== HH.kind + Math.round(HH.end / 60000)) { const first = HH.was === null; HH.was = HH.kind + Math.round(HH.end / 60000); toast(`🎉 <b>Happy Hour dari Admin!</b> ${hhTxt(HH.kind)} · sisa ${fmtMS(HH.end - Date.now())}`, 4200); if (!first) sfx('rank'); }
+    if (hhOn() && HH.was !== HH.kind + Math.round(HH.end / 60000)) { HH.was = HH.kind + Math.round(HH.end / 60000); const key = HH.kind + Math.round(HH.end / 600000);
+      if (S.hhSeen !== key && !S.gm) HH.pop = key; else toast(`🎉 <b>Happy Hour dari Admin!</b> ${hhTxt(HH.kind)} · sisa ${fmtMS(HH.end - Date.now())}`, 4200); }   // v147: pop-up sekali per Happy Hour
   } catch (e) { }
   try { const g = await gmRpc('hadiah_ambil', { p_tok: lbTok() }); if (Array.isArray(g) && g.length) giftApply(g); } catch (e) { }
   giftShow();
@@ -8262,6 +8457,138 @@ async function gmHH(msg) {
   await gmTick(); toast(`🎉 Happy Hour dimulai: ${hhTxt(st.kind)} · ${st.min} menit`, 3600); return gmMenu();
 }
 
+/* ================= BOS ZONA BERSAMA (v142) =================
+   Jadwal acak & HP bos dikelola server (bos-zona-v142.sql): 12.00-21.00 WIB, maks 1 bos per jam, bertahan 30 menit.
+   HP bersama 2.000. 1 kesempatan per anak per bos, 1 serangan maks 35% HP (minimal 3 anak untuk menumbangkan).
+   Kerusakan < 10% HP = "numpang" (hadiah kecil tanpa telur & XP). Hadiah diambil otomatis setelah bos tumbang / pergi. */
+const ZB = { st: null, at: 0, busy: false, off: false, poll: 0, last: 0, claiming: false };
+const ZB_CAP = .35, ZB_AM = 1.6;
+/* v148: hari Minggu (WIB) = bos zona tiap jam 05.00-22.00, hadiah penuh 6 bos pertama */
+const zbSun = () => new Date(Date.now() + 7 * 3600e3).getUTCDay() === 0;
+const zbPad = n => String(n).padStart(2, '0');
+const zbLeft = () => ZB.st && ZB.st.on ? ZB.st.left - (Date.now() - ZB.at) / 1000 : 0;
+const zbMine = id => !!(S && ((S.zbT && S.zbT[id]) || (ZB.st && ZB.st.wid === id && ZB.st.me && ZB.st.me.nt > 0)));
+/* bos yang sedang aktif (bentuk sama dengan slot lama: id, z, mon, h, end, peak, boss) */
+/* zona bab 1-3 yang punya Lumi non-legenda berelemen el (elemen ditentukan server → set hadiah yang sama untuk semua) */
+function zbCand(el) { return BOS_ZS().map(z => [z, [...new Set(ZONES[z].pool.filter(x => M[x] && M[x].r !== 'L' && (!el || M[x].el === el)))]]).filter(([, p]) => p.length); }
+function zbSlot() {
+  const s = ZB.st; if (!s || !s.on || s.done || ZB.off || zbLeft() <= 0) return null;
+  let c = zbCand(s.el); if (!c.length) c = zbCand(null); if (!c.length) return null;
+  const [z, pool] = c[Math.floor(s.u1 * c.length) % c.length];
+  const e = new Date(Date.now() + zbLeft() * 1000 + 7 * 3600e3);
+  return { id: s.wid, z, mon: pool[Math.floor(s.u2 * pool.length) % pool.length], h: s.hr, end: `${zbPad(e.getUTCHours())}.${zbPad(e.getUTCMinutes())}`, peak: !!s.peak, boss: 1 };
+}
+async function zbPoll() {
+  if (ZB.busy) return; ZB.busy = true;
+  try { const d = await lbsRpc('zb_state', { p_tok: lbTok() }); ZB.st = d; ZB.at = Date.now(); ZB.off = false; zbSyncOwn(d); await zbFlush(); }
+  catch (e) { if (e && (e.code === 'PGRST202' || /zb_state|function/i.test(e.message || ''))) ZB.off = true; }
+  finally { ZB.busy = false; }
+  zbClaimAll();
+}
+/* Set Elemen yang tercatat di server dipulihkan ke Lemari (mis. data HP hilang / pindah perangkat) */
+function zbSyncOwn(d) {
+  if (!d || !Array.isArray(d.tk) || !S || !S.acc) return; let ch = 0;
+  for (const id of d.tk) if (SH[id] && SH[id].tk && !S.acc.own.includes(id)) { S.acc.own.push(id); ch = 1; }
+  if (d.tkn && typeof d.tkn === 'object') for (const id in d.tkn) { const n = Number(d.tkn[id]) - 1; if (SH[id] && SH[id].tk === 'naga' && n > 0 && (accDup(id) || 0) < n) { if (!S.acc.dup) S.acc.dup = {}; S.acc.dup[id] = n; ch = 1; } }   /* v144: dobel Set Naga */
+  if (ch) save();
+}
+/* kerusakan yang belum terkirim (sinyal putus) */
+async function zbFlush() {
+  const q = (S.zbQ || []).slice(); if (!q.length) return;
+  for (const it of q) {
+    try { const r = await lbsRpc('zb_hit', { p_tok: lbTok(), p_wid: it.w, p_dmg: it.d }); S.zbQ = S.zbQ.filter(x => x !== it); if (r && r.ok && ZB.st && ZB.st.wid === it.w) Object.assign(ZB.st, { hp: r.hp, max: r.max, done: r.done }); }
+    catch (e) { if (Date.now() - it.t > 10 * 60e3) S.zbQ = S.zbQ.filter(x => x !== it); }
+  }
+  save();
+}
+async function zbClaimAll() {
+  if (ZB.claiming || !ZB.st || !(ZB.st.pend || []).length) return;
+  if (!$('#modal').hidden || $('#s-world').hidden || B) return;
+  ZB.claiming = true;
+  try {
+    for (const wid of ZB.st.pend) {
+      if (S.zbW && S.zbW[wid]) continue;
+      let r; try { r = await lbsRpc('zb_claim', { p_tok: lbTok(), p_wid: wid }); } catch (e) { continue; }
+      const rw = r && (r.ok ? r.reward : r.why === 'sudah' ? r.reward : null);
+      if (rw) await zbGive(wid, rw);
+    }
+    ZB.st.pend = [];
+  } finally { ZB.claiming = false; }
+}
+async function zbGive(wid, rw) {
+  if (!S.zbW) S.zbW = {}; if (S.zbW[wid]) return; S.zbW[wid] = 1;
+  const ks = Object.keys(S.zbW).sort(); if (ks.length > 12) for (const x of ks.slice(0, ks.length - 12)) delete S.zbW[x];
+  if (rw.gm) { save(); toast(`🕶 ${rw.done ? 'Bos zona tumbang!' : 'Bos zona pergi.'} Akun GM membantu diam-diam: tanpa hadiah.`, 3500); return; }
+  const out = [];
+  if (rw.coins) { addCoins(rw.coins); progress('coins', rw.coins); out.push(`${COIN}+${rw.coins} koin`); }
+  if (rw.xp) { gainXP(rw.xp); out.push(`⭐ +${rw.xp} XP`); }
+  if (rw.egg) { S.boxes[rw.egg]++; out.push(`<b>${eggN(rw.egg)}!</b>`); }
+  if (rw.done && !rw.kecil) S.st.bos = (S.st.bos || 0) + 1;
+  if (rw.item && SH[rw.item]) { const it = SH[rw.item]; if (!S.acc.own.includes(it.id)) S.acc.own.push(it.id); const set = tkSetOf(it.tset);
+    out.push(`<b style="color:#c2301b">🛡️ Aksesoris Taklukan: ${esc(it.n)}!</b><br><small style="font-weight:700">${set.ic} ${esc(set.n)} ${tkN(it.tset)}/6 · cek di Tas 🎒</small>`); }
+  else if (rw.full) out.push('<small style="font-weight:700">Set Elemen elemen ini sudah lengkap, jadi diganti bonus +100 koin.</small>');
+  if (rw.cap) out.push(`<small style="font-weight:700">Hari Minggu: hadiah penuh sudah ${rw.lim || 6} bos. Bos ini memberi koin kecil (peluang Set Elemen tetap ada).</small>`);
+  if (rw.kecil) out.push('<small style="font-weight:700">Kerusakanmu di bawah 10% HP bos, jadi kamu hanya dapat hadiah peserta (tanpa telur & XP).</small>');
+  save(); hud(); sfx(rw.done ? 'win' : '');
+  await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">BOS ZONA</div>
+    <h2 style="margin:0">${rw.done ? 'Bos tumbang! Hadiahmu:' : 'Bos pergi sebelum tumbang'}</h2>${rw.done && rw.rk ? `<p>Kamu penyumbang ke-${rw.rk} dari ${rw.np} anak.</p>` : '<p>Hadiah penghibur untuk keberanianmu.</p>'}
+    <div class="card" style="display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:15px;width:100%">${out.map(x => `<div>${x}</div>`).join('')}</div></div>`, [{ t: 'Asyik!', cls: 'hot' }]);
+}
+/* ---- layar bos & serangan ---- */
+async function zbEngage(sl) {
+  if (!raidVisible(sl)) return; if (!S.team.length) { toast('Timmu masih kosong'); return; }
+  try { await zbPoll(); } catch (e) { }
+  const s = ZB.st, cur = zbSlot();
+  if (!s || !cur || cur.id !== sl.id) { toast('Bos sudah pergi atau tumbang'); return; }
+  if (bossDone(cur)) { toast('Kamu sudah menyerang bos ini'); return; }
+  const m = M[cur.mon], pct = s.max ? Math.max(1, Math.round(s.hp / s.max * 100)) : 100, cap = Math.floor(s.max * ZB_CAP);
+  const c = await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">BOS ZONA · ${esc(m.el.toUpperCase())}</div>
+    <div style="width:110px;height:92px;border-radius:14px;border:3px solid var(--deep);${artBg(cur.mon)};display:grid;place-items:center">${mSvg(cur.mon)}</div><h2 style="margin:0">${esc(m.n)}</h2>
+    <div style="width:100%;height:14px;border:2px solid #24123a;border-radius:8px;background:#3a2a5c;position:relative;overflow:hidden"><i style="position:absolute;left:0;top:0;bottom:0;width:${pct}%;background:#e8453c"></i></div>
+    <p style="font-size:13px">HP bersama ${pct}% · ${s.np} anak sudah menyerang · sisa ${lbsFmt(zbLeft())}</p>
+    ${s.sun ? `<p style="font-size:12.5px;font-weight:800;margin:0;color:${(s.mg || 0) >= (s.lim || 6) ? '#c2301b' : '#3a7bd5'}">☀️ Minggu Bos: hadiah penuh ${Math.min(s.mg || 0, s.lim || 6)}/${s.lim || 6}${(s.mg || 0) >= (s.lim || 6) ? ' · sudah penuh, sekarang koin kecil' : ''}</p>` : ''}
+    ${s.top && s.top.length ? `<div class="card" style="width:100%;text-align:left;font-size:13px;font-weight:800;display:flex;flex-direction:column;gap:2px">${s.top.map((x, i) => `<div${x.me ? ' style="color:#1f7a52"' : ''}>${i + 1}. ${esc(x.n)} · ${x.d}</div>`).join('')}</div>` : ''}
+    <p style="font-size:13px">Kamu punya <b>1 kesempatan</b> untuk bos ini, selesai saat timmu tumbang. Satu serangan dihitung maksimal <b>${cap}</b> (35% HP), jadi butuh kerja sama minimal 3 anak. Kerusakan di bawah 10% HP bos = hadiah peserta saja.</p>
+    ${(() => { const st = Object.values(EL_SETS).find(x => x.el === s.el); return st ? `<p style="font-size:12.5px;font-weight:800;background:#fff4d6;border:2px solid ${st.c};border-radius:10px;padding:5px 8px;color:#3a2a10">🛡️ Peluang bagian <b>${esc(st.n)}</b> (kamu punya ${tkN(Object.keys(EL_SETS).find(k => EL_SETS[k] === st))}/6): juara 1–3 30% · 4–10 20% · lainnya 10%. Hanya bila kerusakanmu ≥10%.</p>` : ''; })()}<p style="font-size:13px">${s.peak ? ' <span style="color:#3ccf91">Jam ramai!</span>' : ''}</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Serang!', cls: 'hot' }]);
+  if (c !== 1 || !raidVisible(sl) || B) return;
+  await zbFight(cur);
+}
+async function zbFight(sl) {
+  const s = ZB.st; if (!S.zbT) S.zbT = {}; S.zbT[sl.id] = 1; const ks = Object.keys(S.zbT).sort(); while (ks.length > 8) delete S.zbT[ks.shift()]; save();
+  stopLoop(); ZB.last = 0;
+  await startBattle({ type: 'zboss', foe: [sl.mon], zone: sl.z, title: `Bos ${M[sl.mon].n} mengamuk!`, zb: { hp: Math.max(1, s.hp || 1), max: Math.max(1, s.max || 1), wid: sl.id } });
+  if (W) W.safe = performance.now() + 2000; hud(); show('s-world'); startLoop();
+  const dmg = ZB.last || 0; let r = null, lk = null; try { lk = look(); } catch (e) { }
+  for (let i = 0; i < 3 && !r; i++) { try { r = await lbsRpc('zb_hit', { p_tok: lbTok(), p_wid: sl.id, p_dmg: dmg, p_lk: lk }); } catch (e) { await wait(800); } }
+  if (!r) { if (!S.zbQ) S.zbQ = []; S.zbQ.push({ w: sl.id, d: dmg, t: Date.now() }); save(); toast('Sinyal lemah. Kerusakanmu akan dikirim otomatis.', 3000); return; }
+  if (!r.ok) { toast(r.why === 'off' ? 'Bos sudah pergi sebelum seranganmu masuk' : r.why === 'selesai' ? 'Bos sudah tumbang oleh teman-temanmu!' : r.why === 'habis' ? 'Kesempatanmu untuk bos ini sudah habis' : 'Serangan tidak tercatat', 3000); setTimeout(() => zbPoll(), 600); return; }
+  if (ZB.st && ZB.st.wid === sl.id) { Object.assign(ZB.st, { hp: r.hp, max: r.max, done: r.done }); if (ZB.st.me) ZB.st.me.nt = 1; }
+  await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--sun)">BOS ZONA</div><div class="big" style="font-size:46px">-${r.d}</div>
+    <p>${r.done ? `<b style="color:#ffd23c">${esc(M[sl.mon].n)} TUMBANG!</b> Kerja sama hebat! Hadiah dibagikan sebentar lagi.` : `Kerusakanmu masuk ke bar bersama. Sisa HP bos ${Math.round(r.hp / r.max * 100)}%. Ajak temanmu menyerang juga!`}</p></div>`, [{ t: 'Oke', cls: 'hot' }]);
+  setTimeout(() => zbPoll(), 600);
+}
+/* ---- di dalam battle ---- */
+function zbSetup(cfg) {
+  if (!B || cfg.type !== 'zboss') return;
+  const f = B.foe[0]; f.max = Math.max(1, Math.round(cfg.zb.max)); f.hp = Math.min(f.max, Math.max(1, Math.round(cfg.zb.hp))); f.am = ZB_AM;
+  B.lbs = { h0: f.hp }; B.fen = 2;
+}
+function zbFinish(res) {
+  const f = B.foe[0], cap = Math.floor(B.cfg.zb.max * ZB_CAP), raw = Math.max(0, B.lbs.h0 - Math.max(0, f.hp)), dmg = Math.min(raw, cap); ZB.last = raw;
+  const xp = battleXP(15); gainXP(xp); progress('duel');
+  const html = res === 'win' ? `<div class="big" style="color:var(--sun)">SERANGAN PENUTUP!</div>` : res === 'lose' ? `<div class="big">Timmu tumbang</div>` : `<div class="big">Mundur</div>`;
+  const rw = [`Kerusakanmu ke bos: <b>${dmg}</b>${raw > cap ? ` <small>(maks ${cap})</small>` : ''}`, `+${xp} XP`]; if (bxpNote()) rw.push(bxpNote());
+  return { html, rw };
+}
+/* ---- denyut: tanya server tiap 20 detik di jam bos (12.00-21.00 WIB), tiap 2 menit di luar jam itu ---- */
+setInterval(() => {
+  try {
+    if (!S || !S.name || ZB.off || !rkOk('bos') || $('#s-world').hidden || B) return;
+    const t = new Date(Date.now() + 7 * 3600e3), h = t.getUTCHours(), gap = (zbSun() ? h >= 5 && h < 22 : h >= 12 && h < 21) ? 20000 : 120000;   // v148: Minggu 05-22
+    if (Date.now() - ZB.poll > gap) { ZB.poll = Date.now(); zbPoll(); }
+  } catch (e) { }
+}, 1000);
+
 /* ================= v120: Goa Monster (solo, gelap, lantai 1–10) =================
    Zona 'goa_<pulau>' dibangun ulang tiap lantai dari benih percobaan. Semua dijalankan di HP siswa (tanpa Supabase).
    S.goa  = { d: tanggal, ob: obor terpakai, buy: obor dibeli, best:{k}, mark:{k}, pj:{k: tanggal hadiah Penjaga} }
@@ -8293,7 +8620,7 @@ const goaBoss = k => { const p = goaPool(k, 10); return p.slice().sort((a, b) =>
 const goaFoeK = (fl, boss) => ({ hp: (1.6 + .1 * (fl - 1)) * (boss ? 2.1 : 1), am: (1 + .035 * (fl - 1)) * (boss ? 1.2 : 1) });
 const goaXP = (k, fl, boss) => Math.round(((ZONES[k + '5'] || {}).xp || 17) * (1 + fl * .15) * (boss ? 3 : 1));
 const goaCoin = (k, fl, boss) => Math.round((((ZONES[k + '5'] || {}).coins || 38) + fl * 4) * (boss ? 4 : 1));
-const goaEffN = { b: ['Berkah Obor', '#ffd166', 'Cahaya obor lebih luas · ATK tim +15%'], s: ['Berkah Kecil', '#7fd6ff', 'Cahaya obor sedikit lebih luas · ATK tim +8%'], c: ['Kutukan Gelap', '#ff5d8f', 'Cahaya obor menyempit · ATK Lumi liar +10%'], x: ['Kutukan Ditangkal', '#7fd35a', 'Set Moss menangkal kutukan (1× tiap masuk Goa)'] };
+const goaEffN = { b: ['Berkah Obor', '#ffd166', 'Cahaya obor lebih luas · ATK tim +15%'], s: ['Berkah Kecil', '#7fd6ff', 'Cahaya obor sedikit lebih luas · ATK tim +8%'], c: ['Kutukan Gelap', '#ff5d8f', 'Cahaya obor menyempit · ATK Lumi liar +10%'], x: ['Kutukan Ditangkal', '#7fd35a', 'Set Taklukanmu menangkal kutukan'] };
 const goaTorchR = () => { const e = S.goaR && S.goaR.eff; return GOA_TR * (e === 'b' ? 1.3 : e === 's' ? 1.15 : e === 'c' ? .7 : 1) * (typeof tkTorch === 'function' ? tkTorch() : 1); };
 
 /* ---------- peta lantai ---------- */
@@ -8394,6 +8721,7 @@ function goaPopulate() {
       for (let i = 0; i < 400 && out.length < n; i++) { const c = G.floorCells[Math.floor(rnd() * G.floorCells.length)]; if (!c) break; const x = c[0] * TS + 8, y = c[1] * TS + 10;
         if (Math.hypot(x - W.spawn.x, y - W.spawn.y) < 150 || out.some(o => Math.hypot(o.x - x, o.y - y) < 110) || (G.stairs && Math.hypot(G.stairs.x - x, G.stairs.y - y) < 40)) continue;
         out.push({ id: pool[Math.floor(rnd() * pool.length)], x, y }); }
+      if (out.length > 1 && tkXk('shadow', 6)) out.pop();   // v145 skill Shadow: lewati 1 Lumi per lantai
       R.mon = out;
     }
     save();
@@ -8412,9 +8740,13 @@ const goaDoorAt = k => { const z = k + '5'; if (!MAPS[z]) { MAPS[z] = buildMap(z
 }; }
 function goaEnd(why) { const k = S.goaR && S.goaR.k; S.goaR = null; save(); if (k) { enterZone(k + '5', goaDoorAt(k)); if (W) W.gateDone = true; } }
 const goaAlive = () => S.team.filter(id => { const h = S.goaR.hp[id]; return h == null || h > 0; });
+const mkHpLow = (id, R) => { const h = R.hp[id]; return h != null && h > 0 && h < .3; };
 function goaTeamF() {
   const R = S.goaR, e = R.eff === 'b' ? .15 : R.eff === 's' ? .08 : 0;
-  const out = S.team.map(id => { const f = mkF(id, true); if (f.evo) { f.fatk = (f.fatk || 0) + .15; f.fdef = (f.fdef || 0) + .15; } if (e) f.fatk = (f.fatk || 0) + e; const h = R.hp[id]; f.hp = h == null ? f.max : Math.max(0, Math.min(f.max, Math.round(f.max * h))); return f; });
+  const out = S.team.map(id => { const f = mkF(id, true); if (f.evo) { f.fatk = (f.fatk || 0) + .15; f.fdef = (f.fdef || 0) + .15; } if (e) f.fatk = (f.fatk || 0) + e; const xs = typeof tkXs === 'function' ? tkXs() : null;
+    if (xs && xs.t === 'el' && f.m.el === xs.el) f.fatk = (f.fatk || 0) + .1;   // v145 Set Elemen: Lumi se-elemen ATK +10%
+    if (xs && xs.k === 'crimson' && xs.n >= 6) f.fatk = (f.fatk || 0) + (mkHpLow(id, R) ? .4 : .25);   // v145 skill Crimson
+    const h = R.hp[id]; f.hp = h == null ? f.max : Math.max(0, Math.min(f.max, Math.round(f.max * h))); return f; });
   return out.filter(f => f.hp > 0).concat(out.filter(f => f.hp <= 0));
 }
 
@@ -8424,7 +8756,9 @@ async function goaFight(m) {
   stopLoop(); const R = S.goaR; if (!R) { show('s-world'); return; }
   if (!S.team.length || !goaAlive().length) return goaWipe();
   const meF = goaTeamF(), f = mkF(m.id), s = goaFoeK(R.fl, m.boss);
-  f.m = evoM(m.id); f.evo = true; f.hp = f.max = Math.round(f.max * s.hp); f.am = s.am; if (R.eff === 'c') f.fatk = (f.fatk || 0) + .1;
+  if (m.boss && typeof tkXs === 'function') { const xs = tkXs(); if (xs && xs.t === 'ng') meF.forEach(x => x.fatk = (x.fatk || 0) + .15); }   // v145 Naga: +15% ke Penjaga
+  f.m = evoM(m.id); f.evo = true; if (!m.boss && tkXk('wyvern', 6)) f.stun = 1;   // v145 skill Wyvern: musuh beku 1 giliran
+  f.hp = f.max = Math.round(f.max * s.hp); f.am = s.am; if (R.eff === 'c') f.fatk = (f.fatk || 0) + .1;
   const res = await startBattle({ type: 'goa', foe: [m.id], foeF: [f], meF, title: m.boss ? `Penjaga Goa: ${f.m.n}!` : `${f.m.n} menghadang di kegelapan!`, zone: 'cave', gv: { k: R.k, fl: R.fl, boss: !!m.boss } });
   if (!S.goaR) return;
   for (const x of meF) R.hp[x.id] = Math.max(0, x.hp) / x.max;
@@ -8455,8 +8789,13 @@ async function goaWipe() {
 async function goaPjWin() {
   const R = S.goaR, k = R.k, g = goaS(), d = today(); g.mark[k] = Math.max(g.mark[k] || 0, R.fl); g.best[k] = Math.max(g.best[k] || 0, R.fl);
   const egg = g.pj[k] !== d; if (egg) { g.pj[k] = d; S.boxes.Perak++; }
+  let dl = ''; try {   // v145: drop Set Elemen dari Penjaga Goa (diundi di server)
+    const el = M[goaBoss(k)].el, r = await lbsRpc('goa_drop', { p_tok: lbTok(), p_k: k, p_el: el }), rw = r && r.ok && r.reward;
+    if (rw && rw.item && SH[rw.item]) { if (!S.acc.own.includes(rw.item)) S.acc.own.push(rw.item); dl = `<div class="card" style="font-weight:800;color:#7a4be0">🎁 Aksesoris Taklukan: <b>${esc(SH[rw.item].n)}</b>!</div>`; }
+    else if (rw && rw.full) { addCoins(rw.coins || 100); dl = `<div class="card" style="font-weight:800;color:#b07a00">🏆 Set lengkap! Bonus ${COIN}+${rw.coins || 100} koin</div>`; }
+  } catch (e) { }
   goaEnd('penjaga'); sfx('pass');
-  await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:44px">🗿✨</div><h2 style="margin:0">Batu Penanda menyala!</h2><p>Kamu mengalahkan <b>Penjaga Goa</b> Lantai ${R.fl}.${egg ? ' Hadiah: <b>Telur Perak</b>!' : ' (Telur Perak sudah diambil hari ini.)'}</p><div class="card" style="font-weight:800">⛏️ Lantai 11–20 sedang digali… <b>segera dibuka!</b><br><small style="color:var(--sub)">Sampai saat itu, kamu boleh menjelajah lagi dari Lantai 1.</small></div></div>`, [{ t: 'Mantap!', cls: 'hot' }]);
+  await modal(`<div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center"><div style="font-size:44px">🗿✨</div><h2 style="margin:0">Batu Penanda menyala!</h2><p>Kamu mengalahkan <b>Penjaga Goa</b> Lantai ${R.fl}.${egg ? ' Hadiah: <b>Telur Perak</b>!' : ' (Telur Perak sudah diambil hari ini.)'}</p>${dl}<div class="card" style="font-weight:800">⛏️ Lantai 11–20 sedang digali… <b>segera dibuka!</b><br><small style="color:var(--sub)">Sampai saat itu, kamu boleh menjelajah lagi dari Lantai 1.</small></div></div>`, [{ t: 'Mantap!', cls: 'hot' }]);
   hud();
 }
 
@@ -8474,14 +8813,18 @@ async function goaStairs() {
     <div class="card" style="font-size:13.5px;font-weight:700;display:flex;flex-direction:column;gap:3px"><span><b style="color:#b07a00">5 benar · Berkah Obor</b>: cahaya lebih luas, ATK +15%, pulih 20% HP</span><span><b style="color:#3a7bd5">4 benar · Berkah Kecil</b>: cahaya sedikit lebih luas, ATK +8%</span><span><b style="color:#c2301b">0–3 benar · Kutukan Gelap</b>: cahaya menyempit, Lumi liar ATK +10%</span></div>
     <p style="font-size:12px;color:var(--sub);font-weight:700">Efek berlaku di lantai berikutnya. Soal yang salah masuk Remedial.</p>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Mulai', cls: 'hot' }]);
   if (c !== 1 || !S.goaR) return;
-  const qs = goaQs(5), r = await runQuiz({ title: 'Gerbang Tangga', sub: `Lantai ${R.fl} → ${R.fl + 1} · ${PSHORT[R.k]}`, qs, timed: true, secs: 45 });
+  const qs = goaQs(5), r = await runQuiz({ title: 'Gerbang Tangga', sub: `Lantai ${R.fl} → ${R.fl + 1} · ${PSHORT[R.k]}`, qs, timed: true, secs: tkXk('sage', 6) ? 50 : 45 });
   if (r.quit) { show('s-world'); toast('Belum turun. Datangi tangga lagi kapan saja.'); return; }
   qs.forEach(q => R.used.push(q[9])); R.used = R.used.slice(-120);
+  if (tkXk('sage', 6) && r.ok < 5 && r.ok > 0) r.ok++;   // v145 skill Sage: 1 salah diampuni
   let e = r.ok >= 5 ? 'b' : r.ok >= 4 ? 's' : 'c';
+  if (tkXk('wanderer', 6) && r.ok >= 4) e = 'b';   // v145 Wanderer 6/6: 4 benar = Berkah Besar
+  if (e === 'c' && tkXk('venom') && (tkXk('venom', 6) || Math.random() < .5)) e = 'x';   // v145 Venom: kutukan separuh / kebal
   if (e === 'c' && typeof tkSetOn === 'function' && tkSetOn() === 'moss' && !R.tkMoss) { R.tkMoss = 1; e = 'x'; }   // v138 Set Moss
   if (e === 'b') for (const id of S.team) { const h = R.hp[id]; if (h != null && h > 0) R.hp[id] = Math.min(1, h + .2); }
   const tkH = typeof tkGoaHeal === 'function' ? tkGoaHeal() : 0;   // v138 Set Taklukan: heal tiap turun tangga
   if (tkH) for (const id of S.team) { const h = R.hp[id]; if (h != null && h > 0) R.hp[id] = Math.min(1, h + tkH); }
+  if (tkXk('glacier', 6) && !R.rv) { const z = S.team.find(id => R.hp[id] === 0); if (z) { R.hp[z] = .3; R.rv = 1; } }   // v145 Glacier 6/6: 1 Lumi bangkit
   R.fl++; R.eff = e; R.mon = null; R.air = 0; const g = goaS(); g.best[R.k] = Math.max(g.best[R.k] || 0, R.fl); save();
   enterZone('goa_' + R.k); sfx('stairs'); setTimeout(() => sfx(e === 'c' ? 'kutukan' : 'berkah'), 600);
   const E = goaEffN[e];
@@ -8537,6 +8880,7 @@ function goaBuy() {
 /* ---------- gambar: gelap + obor, Penjaga, tangga, mata air ---------- */
 let GDK = null;
 function goaDark(t, ox, oy) {
+  if (typeof tkXk === 'function' && tkXk('blaze', 6)) { W.gv.seen.fill(1); bx.fillStyle = 'rgba(4,2,12,.18)'; bx.fillRect(0, 0, VW, VH); return; }   // v145 Blaze 6/6: seluruh lantai terlihat
   const G = W.gv, p = W.p, Q = typeof qRam3 === 'function' && qRam3() ? 3 : 2, w = Math.ceil(VW / Q), h = Math.ceil(VH / Q);
   if (!GDK) GDK = document.createElement('canvas'); if (GDK.width !== w || GDK.height !== h) { GDK.width = w; GDK.height = h; }
   const g = GDK.getContext('2d'); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(4,2,12,.88)'; g.fillRect(0, 0, w, h);
@@ -8561,6 +8905,9 @@ function goaDraw(list, t, ox, oy) {
   list.push({ fy: p.y + 1, d: () => { const x = Math.round(p.x - ox) + (p.dir === 'left' ? -9 : 6), y = Math.round(p.y - oy) - 17, f = Math.floor(t / 110) % 3;
     bx.fillStyle = '#6b4423'; bx.fillRect(x, y + 4, 2, 7); bx.fillStyle = '#e2451d'; bx.fillRect(x - 1, y - 1 - f % 2, 4, 5); bx.fillStyle = '#ff9d2e'; bx.fillRect(x, y - 2 - (f === 1 ? 1 : 0), 2, 5); bx.fillStyle = '#fff6a8'; bx.fillRect(x, y + 1, 2, 2); } });
   // Penjaga Goa (2x, aura merah)
+  if (G.stairs && tkXk('wanderer')) list.push({ fy: p.y + 2, d: () => {   // v145 Wanderer: panah ke tangga
+    const a = Math.atan2(G.stairs.y - p.y, G.stairs.x - p.x), cx = Math.round(p.x - ox) + Math.cos(a) * 26, cy = Math.round(p.y - oy) - 10 + Math.sin(a) * 26, ca = Math.cos(a), sa = Math.sin(a);
+    bx.fillStyle = '#ffe27a'; bx.beginPath(); bx.moveTo(cx + ca * 6, cy + sa * 6); bx.lineTo(cx - ca * 4 - sa * 4, cy - sa * 4 + ca * 4); bx.lineTo(cx - ca * 4 + sa * 4, cy - sa * 4 - ca * 4); bx.closePath(); bx.fill(); } });
   for (const m of W.wild) if (m.boss) list.push({ fy: m.y, d: () => {
     const img = monImg(m.id, m.blink > 0, Math.floor(t / 260) % 2, false, true), sc = 2, w = img.width * sc, h = img.height * sc, x = Math.round(m.x - ox), y = Math.round(m.y - oy), bob = Math.round(Math.sin(t / 520) * 2);
     const gr = bx.createRadialGradient(x, y - h / 2, 4, x, y - h / 2, w * .8); gr.addColorStop(0, 'rgba(255,60,90,.35)'); gr.addColorStop(1, 'rgba(255,60,90,0)'); bx.fillStyle = gr; bx.fillRect(x - w, y - h * 1.3, w * 2, h * 1.6);
