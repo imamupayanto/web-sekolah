@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v135">
+<meta name="lumimon-ver" content="v136">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -7877,10 +7877,10 @@ async function updShow() {
  ${head(1, 'Goa Monster Dibuka!', 'Jelajahi goa gelap di tiap pulau')}
  <div style="display:flex;justify-content:center;align-items:flex-end;gap:6px;padding:8px 0 4px;border-radius:16px;background:radial-gradient(circle at 50% 60%,rgba(255,150,50,.35),rgba(10,6,20,.9) 62%)">${gm}</div>
  ${it('🔓', 'Syarat masuk', `Rank ${typeof GOA_RANK !== 'undefined' ? GOA_RANK : 10}+ · pintu Goa di area Bab 5 tiap pulau`)}
- ${it('🔥', 'Obor', '3 obor per hari (1 obor = 1 kali masuk) · beli lagi di Toko Mak Tika')}
+ ${it('🔥', 'Obor', '3 obor per hari + beli 1 lagi di Toko Mak Tika · XP penuh 2 kali masuk pertama, lalu ½')}
  ${it('🌑', 'Gelap & luas', 'Hanya obormu yang menerangi. Semua Lumi di dalamnya sudah berevolusi!')}
  ${it('🪜', 'Tangga 5 soal', 'Kalahkan semua Lumi, jawab 5 soal → berkah atau kutukan')}
- ${it('👑', 'Lantai 10: Penjaga Goa', 'Telur Perak + Batu Penanda · XP Goa tanpa batas harian!')}
+ ${it('👑', 'Lantai 10: Penjaga Goa', 'Telur Perak + Batu Penanda · XP Goa besar!')}
  </div>`, [{ t: 'Tutup', cls: 'ghost' }, { t: 'Berikutnya ›', cls: 'hot' }]);
   if (c !== 1) return;
   const L = [['ilmu', 'Senin'], ['badai', 'Selasa'], ['bayang', 'Rabu'], ['lahar', 'Kamis']].filter(x => M[x[0]]);
@@ -7984,7 +7984,7 @@ async function lbsEvShow() {
    S.goaR = percobaan aktif { k, fl, hp:{id: rasio HP}, eff: 'b'|'s'|'c'|null, sd, mon:[{id,x,y,boss}], used:[id soal], air }
    Lantai: 2–3 Lumi berevolusi → tangga terbuka → 5 soal sedang–sulit (berkah/kutukan untuk lantai berikutnya).
    Lantai 5 Mata Air Ilmu (3 soal). Lantai 10 Penjaga Goa → Batu Penanda. Semua pingsan = keluar. */
-const GOA_OB = 3, GOA_BUY = 2, GOA_PRICE = 1000, GOA_MAX = 10, GOA_AIR = [5, 15, 25], GOA_PJ = [10, 20, 30], GOA_TR = 56;
+const GOA_OB = 3, GOA_BUY = 1,   /* v136: obor beli maks 1/hari */ GOA_PRICE = 1000, GOA_MAX = 10, GOA_AIR = [5, 15, 25], GOA_PJ = [10, 20, 30], GOA_TR = 56;
 const GOA_TH = {
   mtk: { cr: ['#1d6fb0', '#4fb8ec', '#a8ecff', '#effdff'], gl: '95,208,255', fl: ['#3e3760', '#3a3359', '#48416e', '#2f2a4c'], wa: ['#7a6aa8', '#5b4c86', '#45386c', '#2b2046', '#1a1229'] },
   ind: { cr: ['#7a2fb0', '#b065ec', '#e2b8ff', '#fbf0ff'], gl: '200,130,255', fl: ['#42324f', '#3d2e4a', '#4d3b5c', '#30253c'], wa: ['#8a6a9a', '#674c7a', '#4f3a60', '#301f40', '#1d1228'] },
@@ -8157,8 +8157,8 @@ function goaFinish(res, cfg) {
   const G = cfg.gv || {}, rw = []; let html;
   if (res === 'win') {
     S.st.win++; progress('win'); S.team.forEach(id => bondAdd(3, id));
-    const c = accCoin(goaCoin(G.k, G.fl, G.boss)), xp = goaXP(G.k, G.fl, G.boss); addCoins(c); progress('coins', c); gainXP(xp);
-    rw.push(`${COIN}+${c} koin`, `+${xp} XP <small style="font-weight:700;color:var(--muted)">(XP Goa tidak memakai batas harian)</small>`);
+    const half = goaS().ob >= 3, c = accCoin(goaCoin(G.k, G.fl, G.boss)), xp = Math.round(goaXP(G.k, G.fl, G.boss) * (half ? .5 : 1)); addCoins(c); progress('coins', c); gainXP(xp);   // v136: XP ½ mulai masuk ke-3 hari itu
+    rw.push(`${COIN}+${c} koin`, `+${xp} XP <small style="font-weight:700;color:var(--muted)">${half ? '(XP Goa ½ mulai masuk ke-3 hari ini)' : '(XP Goa penuh untuk 2 kali masuk pertama tiap hari)'}</small>`);
     html = `<div class="big" style="color:var(--sun)">MENANG!</div><p style="text-align:center;color:var(--muted);font-weight:700">HP Lumimu tidak pulih di dalam goa. Hati-hati!</p>`;
   } else if (res === 'lose') html = `<div class="big">Semua Lumi pingsan…</div><p style="text-align:center;color:var(--muted);font-weight:700">Kamu keluar dari goa. Lanjut lagi dari Batu Penanda terakhir.</p>`;
   else html = `<div class="big">Berhasil kabur</div><p style="text-align:center;color:var(--muted);font-weight:700">Lumi itu masih menunggu di kegelapan.</p>`;
@@ -8225,7 +8225,7 @@ goaOpen = async function () {
   const g = goaS(), left = goaLeft(), st = goaStart(k), mk = g.mark[k] || 0;
   const c = await modal(`<h2>🕳️ Goa Monster · ${esc(PSHORT[k])}</h2><p style="margin:4px 0">Goa yang <b>luas dan gelap</b>. Hanya obormu yang menerangi. Semua Lumi di dalamnya sudah berevolusi!</p>
     <div class="card" style="font-size:13.5px;font-weight:700;display:flex;flex-direction:column;gap:3px">
-      <span>🔥 Obor hari ini: <b>${left}</b> (1 obor = 1 kali masuk)</span><span>🏔️ Lantai terdalam: <b>${g.best[k] || 0}</b> · 🗿 Batu Penanda: <b>${mk ? 'Lantai ' + mk : 'belum ada'}</b></span>
+      <span>🔥 Obor hari ini: <b>${left}</b> (1 obor = 1 kali masuk)</span><span>⭐ XP penuh untuk <b>2 kali masuk pertama</b> tiap hari, masuk ke-3 dst: XP ½${g.ob >= 2 ? ' <b style="color:#c2301b">(berlaku sekarang)</b>' : ''}</span><span>🏔️ Lantai terdalam: <b>${g.best[k] || 0}</b> · 🗿 Batu Penanda: <b>${mk ? 'Lantai ' + mk : 'belum ada'}</b></span>
       <span>▶️ Mulai dari <b>Lantai ${st}</b></span></div>
     <div style="font-size:12.5px;font-weight:700;color:var(--sub);display:flex;flex-direction:column;gap:2px;margin-top:6px"><span>• Kalahkan semua Lumi → tangga terbuka → jawab 5 soal untuk turun.</span><span>• HP Lumi <b>tidak pulih</b> antar lantai. Lantai 5: Mata Air Ilmu.</span><span>• Lantai 10: Penjaga Goa (Telur Perak + Batu Penanda).</span><span>• Semua Lumi pingsan = keluar goa.</span>${mk >= GOA_MAX ? '<span style="color:#b07a00">• Lantai 11–20 segera dibuka!</span>' : ''}</div>
     ${left ? '' : `<p style="font-weight:800;color:#c2301b;margin:6px 0 0">Obor habis. Beli Obor di Toko Umum Mak Tika (${GOA_PRICE} koin, maks ${GOA_BUY}/hari).</p>`}`,
