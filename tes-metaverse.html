@@ -6434,6 +6434,7 @@ function codeApply(r) {
   if (r.lgU) { S.lgU = (S.lgU || 0) + r.lgU; out.push(`🌟 Telur Legenda Umum ×${r.lgU}`); }
   if (r.boxes) for (const k in r.boxes) { S.boxes[k] += r.boxes[k]; out.push(`${eggN(k)} ×${r.boxes[k]}`); }
   if (r.mon) r.mon.forEach(id => { if (!M[id]) return; const d = addDup(id); out.push(d.isNew ? `Lumi baru: ${M[id].n}` : d.maxed ? `${M[id].n} sudah maksimal (+${d.c} koin)` : `${M[id].n} naik ke Lv.${d.lv}`); });
+  if (r.tkb) { const t = S.tk || (S.tk = { p: 0 }); t.b = (t.b || 0) + r.tkb; out.push(`👕 <b>Boost Aksesoris!</b> ${r.tkb} kemenangan berikutnya melawan Lumi liar PASTI dapat bagian Set Dasar`); }
   if (r.acc) r.acc.forEach(id => { if (SH[id] && !S.acc.own.includes(id)) { S.acc.own.push(id); out.push(`Aksesoris: ${SH[id].n}`); } });
   save(); hud(); return out;
 }
@@ -6464,7 +6465,7 @@ async function openCode(msg) {
 function codeLbl(r) {
   if (r.lbl) return r.lbl; const a = [];
   if (r.admin) a.push(r.gm ? 'GM' : 'ADMIN'); if (r.pion) a.push('PERINTIS'); if (r.coins) a.push('koin' + r.coins); if (r.xp) a.push('xp' + r.xp);
-  if (r.boxes) for (const k in r.boxes) a.push(k + r.boxes[k]); if (r.lgU) a.push('LegU' + r.lgU); if (r.mon) a.push('lumi'); if (r.acc) a.push('aks');
+  if (r.boxes) for (const k in r.boxes) a.push(k + r.boxes[k]); if (r.lgU) a.push('LegU' + r.lgU); if (r.mon) a.push('lumi'); if (r.acc) a.push('aks'); if (r.tkb) a.push('boostaks' + r.tkb);
   return a.join('+') || 'kode';
 }
 function codeLog(h, r, st, xp0) {
@@ -7234,14 +7235,16 @@ const tkTorch = () => tkSetOn() === 'ember' ? 1.25 : 1;
 const tkGoaCoin = () => tkSetOn() === 'rookie' ? 1.15 : 1;
 /* menang melawan Lumi liar → peluang bagian Set Dasar sesuai elemen */
 function tkWild(cfg) {
-  if (!S || !S.bw || S.bw.w > 20 || !cfg || !cfg.foe) return [];
+  if (!S || !cfg || !cfg.foe) return [];
   const m = M[cfg.foe[0]], k = m && TK_EL[m.el]; if (!k) return [];
-  const t = tkS(); t.p = (t.p || 0) + 1;
-  if (Math.random() * 100 >= TK_RATE && t.p < TK_PITY) return [];
+  const t = tkS(), bo = (t.b || 0) > 0;   // boost dari kode hadiah: pasti dapat, tetap jalan walau lewat 20 menang
+  if (!bo && (!S.bw || S.bw.w > 20)) return [];
+  if (bo) t.b--; else t.p = (t.p || 0) + 1;
+  if (!bo && Math.random() * 100 >= TK_RATE && t.p < TK_PITY) return [];
   t.p = 0; const set = TK_SETS[k], [id, , n] = set.items[Math.floor(Math.random() * set.items.length)];
   if (tkHas(id)) { addCoins(TK_DUP); progress('coins', TK_DUP); return [`👕 ${esc(n)} (sudah punya) → ${COIN}+${TK_DUP} koin`]; }
   S.acc.own.push(id); sfx('ok');
-  return [`<b style="color:#c2301b">👕 Aksesoris Taklukan: ${esc(n)}!</b><br><small style="font-weight:700">${set.ic} ${esc(set.n)} ${tkN(k)}/3 · cek di Tas 🎒</small>`];
+  return [`<b style="color:#c2301b">👕 Aksesoris Taklukan: ${esc(n)}!</b>${bo ? ` <small>✨ boost (sisa ${t.b})</small>` : ''}<br><small style="font-weight:700">${set.ic} ${esc(set.n)} ${tkN(k)}/3 · cek di Tas 🎒</small>`];
 }
 /* keterangan tambahan di Lemari */
 const _tkAccDesc = accDesc;
@@ -7263,7 +7266,7 @@ async function tkAlbum() {
   const sets = Object.entries(TK_SETS).map(([k, s]) => `<div style="border:2.5px solid ${s.c};border-radius:14px;padding:6px;background:#fffaf0"><div style="display:flex;justify-content:space-between;font-weight:900;font-size:13.5px;color:#24123a"><span>${s.ic} ${esc(s.n)}</span><span>${tkN(k)}/3</span></div>
     <div style="display:flex;gap:4px;margin:4px 0">${TK_ITEMS.filter(it => it.tset === k).map(part).join('')}</div><div style="font-size:11px;font-weight:700;color:#5a4a6a">Dari Lumi liar ${s.el} · Set lengkap di Goa: heal tangga 10% + ${esc(s.fx)}</div></div>`).join('');
   const lock = (tier, d) => `<div style="border:2.5px dashed #9a8ab8;border-radius:14px;padding:6px;background:#0b0618">${tkSoon(tier)}<div style="text-align:center;font-size:11.5px;font-weight:800;color:#c9bde6;margin-top:5px">🔒 Segera hadir · ${d}</div></div>`;
-  await modal(`<h2>📖 Album Taklukan</h2><div class="card" style="font-size:12.5px;font-weight:700">Terkumpul <b>${own}/60</b> bagian. Peluang drop ${TK_RATE}% dari 20 menang pertama tiap hari. Jaminan: <b>${tkS().p || 0}/${TK_PITY}</b> menang (pasti dapat di menang ke-${TK_PITY} tanpa drop).</div>
+  await modal(`<h2>📖 Album Taklukan</h2><div class="card" style="font-size:12.5px;font-weight:700">Terkumpul <b>${own}/60</b> bagian. Peluang drop ${TK_RATE}% dari 20 menang pertama tiap hari. Jaminan: <b>${tkS().p || 0}/${TK_PITY}</b> menang (pasti dapat di menang ke-${TK_PITY} tanpa drop).${tkS().b ? `<br><b style="color:#c2301b">✨ Boost aktif: ${tkS().b} menang lagi pasti dapat!</b>` : ''}</div>
     <div style="display:flex;flex-direction:column;gap:6px;max-height:56vh;overflow:auto;margin-top:6px"><div style="font:900 13px system-ui;color:#fff">Tingkat 1 · Set Dasar</div>${sets}
     <div style="font:900 13px system-ui;color:#fff">Tingkat 2 · Set Elemen</div>${lock('el', '4 set × 6 bagian, dari Bos Zona')}
     <div style="font:900 13px system-ui;color:#fff">Tingkat 3 · Set Naga</div>${lock('ng', '4 set naga × 6 bagian, dari Bos Legenda')}</div>`, [{ t: 'Tutup', cls: 'ghost' }]);
@@ -7522,6 +7525,8 @@ Object.defineProperty(TRAR.P, 1, { get: () => PION_C[Math.floor(performance.now(
   CODES['2frtxlrsri5'] = {boxes: {Emas: 2}, multi: true, lbl: 'GURU-EMAS'};
   CODES['24629zx5skn'] = {lgU: 1, multi: true, lbl: 'GURU-LEGENDA'};
 }
+/* v138: kode boost drop Aksesoris Taklukan (1x pakai per akun): 2 menang lawan Lumi liar berikutnya pasti dapat */
+CODES['1ud1qyli6lg'] = {tkb: 2, lbl: 'BOOST-AKSES'};
 
 /* ================= v110: UJIAN RANK (Pak Toto) =================
    Naik ke Rank 8, 10, 12, 14, 16, 18, 20 hanya setelah lulus Ujian Rank (S.rku = Rank tertinggi yang sudah lulus ujian).
