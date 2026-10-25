@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v149">
+<meta name="lumimon-ver" content="v150">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -7365,11 +7365,11 @@ function accBox() {
 
 /* ================= AKSESORIS TAKLUKAN (v138) — Fase 1: Set Dasar =================
    Hanya dari monster (tidak dijual). Set Dasar: dari Lumi liar dengan elemen yang sama.
-   Drop 20% per menang, hanya untuk 20 menang pertama tiap hari (sama dengan batas XP battle). Pity: pasti dapat di menang ke-15 tanpa drop.
+   Drop 25% per menang (v150), hanya untuk 20 menang pertama tiap hari (sama dengan batas XP battle). Pity: pasti dapat di menang ke-10 tanpa drop.
    Bagian dobel disimpan di Tas (S.acc.dup, untuk Trade) — v140. Bonus per bagian: topi +4% XP, baju +4% HP, celana +4% DEF (lewat accVal, tidak berlaku PvP).
    Set lengkap 3/3 (khusus di Goa): heal tiap turun tangga 10% + efek khas (Ember obor +25%, Frost heal 20%, Moss tangkal 1 kutukan per masuk, Rookie koin Goa +15%).
    Fase berikut: Set Elemen (Bos Zona) dan Set Naga (Bos Legenda) — tampil terkunci di Album. */
-const TK_RATE = 20, TK_PITY = 15, TK_DUP = 50;   // v138: 8% → 20% (permintaan Bapak)
+const TK_RATE = 25, TK_PITY = 10, TK_DUP = 50;   // v150: 20% → 25%, jaminan menang ke-15 → ke-10
 const TK_SETS = {
   ember: { n: 'Ember Set', el: 'Api', ic: '🔥', c: '#ff6a3d', fx: 'Cahaya obor +25%', items: [['h_ember', 'hat', 'Ember Band'], ['s_ember', 'shirt', 'Ember Tee'], ['p_ember', 'pants', 'Ember Shorts']] },
   frost: { n: 'Frost Set', el: 'Es', ic: '❄️', c: '#5aa0d0', fx: 'Heal tangga jadi 20%', items: [['h_frost', 'hat', 'Frost Beanie'], ['s_frost', 'shirt', 'Frost Sweater'], ['p_frost', 'pants', 'Frost Pants']] },
@@ -7442,9 +7442,9 @@ function tkDropInfo() {
     ${mon}<div style="font:900 20px/1 system-ui;color:${c}">➜</div>${set}<div style="flex:1;min-width:0;text-align:left"><b style="font-family:var(--display);font-size:14px;display:block;line-height:1.15">${ic} ${t}</b><span style="font-size:11.5px;opacity:.88;line-height:1.25;display:block">${d}</span><span style="display:inline-block;margin-top:2px;background:${c};color:#24123a;font:900 11px system-ui;border-radius:99px;padding:1px 8px">${ch}</span></div></div>`;
   return `<div style="display:flex;flex-direction:column;gap:6px">
     <div style="text-align:center"><div style="font:900 22px/1.1 var(--display);color:var(--sun)">Semua Lumi<br>Drop Aksesori! 🎁</div><div style="font-size:12px;opacity:.85;margin-top:2px">Kalahkan Lumi, kumpulkan set, pakai di Lemari</div></div>
-    ${row('#7fd35a', ms('wolf'), av(ds.items[0][0], ds.items[1][0], ds.items[2][0]), '🌿', 'Lumi Liar', 'Dapat <b>Set Dasar</b> (topi, baju, celana)', '20% · 20 menang pertama/hari')}
-    ${row('#ff8a4a', ms('golem'), av(EL_SETS.blaze.items[0][0], EL_SETS.blaze.items[1][0], EL_SETS.blaze.items[2][0]), '👹', 'Bos Zona', '<b>Set Elemen</b> · 12–21 (Minggu tiap jam 05–22), bareng teman', 'sampai 30% · juara paling besar')}
-    ${row('#ffd23c', ms('ilmu'), av(NG_SETS.sage.items[0][0], NG_SETS.sage.items[1][0], NG_SETS.sage.items[2][0]), '🐲', 'Bos Legenda', '<b>Set Naga</b> · 13.00 dan 19.00', 'sampai 15% · langka!')}
+    ${row('#7fd35a', ms('wolf'), av(ds.items[0][0], ds.items[1][0], ds.items[2][0]), '🌿', 'Lumi Liar', 'Dapat <b>Set Dasar</b> (topi, baju, celana)', '25% · pasti dapat tiap 10 menang')}
+    ${row('#ff8a4a', ms('golem'), av(EL_SETS.blaze.items[0][0], EL_SETS.blaze.items[1][0], EL_SETS.blaze.items[2][0]), '👹', 'Bos Zona', '<b>Set Elemen</b> · 12–21 (Minggu tiap jam 05–22), bareng teman', 'sampai 50% · 🎯 jaminan tiap 3 bos')}
+    ${row('#ffd23c', ms('ilmu'), av(NG_SETS.sage.items[0][0], NG_SETS.sage.items[1][0], NG_SETS.sage.items[2][0]), '🐲', 'Bos Legenda', '<b>Set Naga</b> · 13.00 dan 19.00', 'sampai 40% · 🎯 jaminan tiap 4 sesi')}
     ${row('#a46bf0', ms('bat'), av(EL_SETS.venom.items[0][0], EL_SETS.venom.items[1][0], EL_SETS.venom.items[2][0]), '🕳️', 'Penjaga Goa', '<b>Set Elemen</b> sesuai elemennya · Lantai 10', '35% · 1× per pulau/hari')}
     <div style="text-align:center;font:900 13px system-ui;color:#fff;background:rgba(255,210,60,.16);border-radius:12px;padding:5px">👕 Pakai di Lemari · 🌟 Set lengkap = kekuatan di Goa!</div></div>`;
 }
@@ -7458,9 +7458,9 @@ async function tkAlbum() {
     <div style="display:flex;gap:4px;margin:4px 0">${TK_ITEMS.filter(it => it.tset === k).map(part).join('')}</div><div style="font-size:11px;font-weight:700;color:#5a4a6a">Dari Lumi liar ${s.el} · Set lengkap di Goa: heal tangga 10% + ${esc(s.fx)}</div></div>`).join('');
   const elPart = (it, dp) => { const o = tkHas(it.id), d = dp && accDup(it.id); return `<div style="text-align:center;background:#fff;border:2px solid ${o ? '#3ccf91' : 'var(--line)'};border-radius:10px;padding:3px 2px;min-width:0"><img src="${accIcon(it.id)}" alt="" style="height:30px;max-width:92%;object-fit:contain;image-rendering:pixelated;${o ? '' : 'filter:brightness(0);opacity:.35'}"><b style="font-size:10px;color:var(--text);display:block;line-height:1.1">${o ? esc(it.n) : '???'}${d ? ` ×${1 + d}` : ''}</b></div>`; };
   const elSets = Object.entries(EL_SETS).map(([k, s]) => `<div style="border:2.5px solid ${s.c};border-radius:14px;padding:6px;background:#fffaf0"><div style="display:flex;justify-content:space-between;font-weight:900;font-size:13.5px;color:#24123a"><span>${s.ic} ${esc(s.n)}</span><span>${tkN(k)}/6</span></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:4px 0">${TK_ITEMS.filter(it => it.tset === k).map(elPart).join('')}</div><div style="font-size:11px;font-weight:700;color:#5a4a6a">Dari Bos Zona ${esc(s.el)} · peluang juara 1–3 30% · 4–10 20% · lainnya 10% · bagian acak, tanpa dobel<br>🕳️ Efek Goa: ${esc(TK_FX[k])}</div></div>`).join('');
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:4px 0">${TK_ITEMS.filter(it => it.tset === k).map(elPart).join('')}</div><div style="font-size:11px;font-weight:700;color:#5a4a6a">Dari Bos Zona ${esc(s.el)} & Penjaga Goa · juara 1–3 50% · 4–10 40% · lainnya 30% · 🎯 pasti dapat tiap 3 bos · tanpa dobel<br>🕳️ Efek Goa: ${esc(TK_FX[k])}</div></div>`).join('');
   const ngSets = Object.entries(NG_SETS).map(([k, s]) => `<div style="border:2.5px solid ${s.c};border-radius:14px;padding:6px;background:#fffaf0"><div style="display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:13.5px;color:#24123a"><span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:30px;height:26px">${typeof mSvg === 'function' ? mSvg(s.leg) : ''}</span>${esc(s.n)}</span><span>${tkN(k)}/6</span></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:4px 0">${TK_ITEMS.filter(it => it.tset === k).map(it => elPart(it, true)).join('')}</div><div style="font-size:11px;font-weight:700;color:#5a4a6a">Dari Bos Legenda ${esc(s.day)} · juara 1 15% · juara 2–3 10% · 4–10 5% · lainnya 2% (event ×1,5) · dobel disimpan untuk Trade<br>🕳️ Efek Goa: ${esc(TK_FX[k])}</div></div>`).join('');
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:4px 0">${TK_ITEMS.filter(it => it.tset === k).map(it => elPart(it, true)).join('')}</div><div style="font-size:11px;font-weight:700;color:#5a4a6a">Dari Bos Legenda ${esc(s.day)} · juara 1–3 40% · 4–10 30% · lainnya 20% · 🎯 pasti dapat tiap 4 sesi · tanpa dobel sampai lengkap<br>🕳️ Efek Goa: ${esc(TK_FX[k])}</div></div>`).join('');
   await modal(`<h2>📖 Album Taklukan</h2><button type="button" id="tkHowB" style="font:900 12px system-ui;border:0;border-radius:99px;padding:4px 12px;background:#ffd23c;color:#24123a;margin-bottom:4px" onclick="tkHow()">❓ Cara dapat</button><div class="card" style="font-size:12.5px;font-weight:700">Terkumpul <b>${own}/60</b> bagian. Set Dasar dari Lumi liar, Set Elemen dari Bos Zona, Set Naga dari Bos Legenda. Peluang drop ${TK_RATE}% dari 20 menang pertama tiap hari. Jaminan: <b>${tkS().p || 0}/${TK_PITY}</b> menang (pasti dapat di menang ke-${TK_PITY} tanpa drop).${tkS().b ? `<br><b style="color:#c2301b">✨ Boost aktif: ${tkS().b} menang lagi pasti dapat!</b>` : ''}</div>
     <div style="display:flex;flex-direction:column;gap:6px;max-height:56vh;overflow:auto;margin-top:6px"><div style="font:900 13px system-ui;color:#fff">Tingkat 1 · Set Dasar</div>${sets}
     <div style="font:900 13px system-ui;color:#fff">Tingkat 2 · Set Elemen</div>${elSets}
@@ -7815,7 +7815,7 @@ setInterval(() => { try { ujrFlush(); } catch (e) { } }, 90e3);
    Syarat menyerang: Rank 5 + lulus Ujian Akhir pulau itu. v135: 3 kesempatan PER KEMUNCULAN BOS (siang & malam masing-masing). Bar HP bersama per jam muncul.
    Server (bos-legenda.sql): lbs_state / lbs_hit / lbs_claim. Tanpa server: Sarang tetap bisa dikunjungi, bos "segera hadir".
    Telur Legenda Umum (S.lgU): 10% Legenda acak (dobel = naik level), 90% Epik acak, pasti Legenda di telur ke-10 (S.lgUp). */
-const LBS_K = ['mtk', 'ipas', 'ind', 'ing'], LBS_RANK = 5, LBS_TRY = 3, LBS_AM = 1.5;
+const LBS_K = ['mtk', 'ipas', 'ind', 'ing'], LBS_RANK = 5, LBS_TRY = 3, LBS_AM = 1.3;   // v150: 1,5 → 1,3
 const LBS_TH = {
   mtk: { arena: 'forest', fl: ['#2f7a68', '#276a5a', '#3a8c78'], rim: ['#164a3e', '#0e3329'], vd: ['#0b1030', '#1a1f4a'], pil: '#c9a46a', pilT: '#fff3b0', orb: '#ffc93c', aura: '255,201,60', pc: ['#ffc93c', '#fff3b0', '#7ff5ff'] },
   ipas: { arena: 'snow', fl: ['#cfe6ff', '#b9daf5', '#e6f4ff'], rim: ['#7cb4e0', '#4a86c0'], vd: ['#0a2448', '#16407a'], pil: '#9fd8ff', pilT: '#ffffff', orb: '#ffffff', aura: '127,210,255', pc: ['#ffffff', '#bfe6ff', '#ffe27a'] },
@@ -7997,6 +7997,7 @@ async function lbsGive(wid, rw) {
   if (rw.ngi && SH[rw.ngi]) { const it = SH[rw.ngi], set = tkSetOf(it.tset), dup = S.acc.own.includes(it.id);   // v144 Set Naga (dobel boleh, dicatat server)
     if (!dup) S.acc.own.push(it.id); else { if (!S.acc.dup) S.acc.dup = {}; S.acc.dup[it.id] = Math.max(accDup(it.id), (rw.ngn || 2) - 1); }
     out.push(`<b style="color:#ff5d8f">🐲 Aksesoris Taklukan: ${esc(it.n)}!</b><br><small style="font-weight:700">${esc(set.n)} ${tkN(it.tset)}/6${dup ? ` · dobel ×${1 + accDup(it.id)} (disimpan untuk Trade)` : ''} · cek di Tas 🎒</small>`); }
+  if (rw.npt && !rw.ngi) out.push(`<small style="font-weight:800;color:#3a7bd5">🎯 Jaminan Set Naga: ${rw.npt}/${rw.nptn || 4} · sesi ke-${rw.nptn || 4} tanpa drop pasti dapat</small>`);   // v150
   if (rw.kecil) out.push(`<small style="font-weight:700">Kerusakanmu di bawah ${rw.ev ? 3 : 2}% HP bos, jadi kamu dapat hadiah peserta (tanpa telur & XP).</small>`);
   if (rw.ev) out.push('<small style="font-weight:700;color:#b86a00">🌟 Hadiah Event Pembukaan Sarang</small>');
   if (rw.done && rw.rk === 1) { const id = 'pkl1'; if (!S.tex) S.tex = {}; if (!S.tex[id]) { S.tex[id] = { n: 'Penakluk Legenda', r: 'L' }; if (!S.tgot) S.tgot = {}; S.tgot[id] = 1; out.push('👑 Gelar baru: <b style="color:#b86a00">Penakluk Legenda</b> (juara 1 kerusakan!)'); } }
@@ -8081,7 +8082,7 @@ async function lbsTap(kk, sch) {
     <div style="width:100%;height:14px;border:2px solid #24123a;border-radius:8px;background:#3a2a5c;position:relative;overflow:hidden"><i style="position:absolute;left:0;top:0;bottom:0;width:${pct}%;background:#e8453c"></i><b style="position:absolute;left:60%;top:0;bottom:0;border-left:2px dashed #ffd23c"></b><b style="position:absolute;left:30%;top:0;bottom:0;border-left:2px dashed #ffd23c"></b></div>
     <p style="font-size:13px">HP bersama ${pct}% · ${v.np} anak ikut · sisa ${lbsFmt(v.ends)}</p>
     ${v.top && v.top.length ? `<div class="card" style="width:100%;text-align:left;font-size:13px;font-weight:800;display:flex;flex-direction:column;gap:2px">${v.top.map((x, i) => `<div${x.me ? ' style="color:#1f7a52"' : ''}>${i + 1}. ${esc(x.n)} · ${x.d}</div>`).join('')}</div>` : ''}
-    <p style="font-size:12.5px;font-weight:800;background:#fff4d6;border:2px solid #c9a03a;border-radius:10px;padding:5px 8px;color:#3a2a10">🐲 Peluang bagian <b>${esc(NG_SETS[NG_BYK[k]].n)}</b> (kamu punya ${tkN(NG_BYK[k])}/6): juara 1 15% · juara 2–3 10% · 4–10 5% · lainnya 2%${lbsEvDay() ? ' · event ×1,5' : ''}. Bagian acak, dobel boleh.</p>
+    <p style="font-size:12.5px;font-weight:800;background:#fff4d6;border:2px solid #c9a03a;border-radius:10px;padding:5px 8px;color:#3a2a10">🐲 Peluang bagian <b>${esc(NG_SETS[NG_BYK[k]].n)}</b> (kamu punya ${tkN(NG_BYK[k])}/6): juara 1–3 40% · 4–10 30% · lainnya 20%. Tanpa dobel sampai set lengkap. 🎯 Pasti dapat tiap 4 sesi tanpa drop.</p>
     <p style="font-size:13px">Kesempatanmu untuk bos ini: <b>${left} dari ${LBS_TRY}</b> (bos berikutnya dapat ${LBS_TRY} lagi). Satu kesempatan selesai saat timmu tumbang. Di bawah 60% bos marah, di bawah 30% muncul <b>soal kilat</b>: jawab benar supaya serangannya meleset!</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Serang!', cls: 'hot' }]);
   if (c !== 1) return;
   await lbsFight(k);
@@ -8205,7 +8206,8 @@ async function updShow() {
   const c1 = await modal(`<div class="updbox updtk" style="display:flex;flex-direction:column;gap:7px">${head(1, 'Semua Lumi Drop Aksesori!', '🎁 Kumpulkan set lengkap, pakai di Lemari')}
     <div style="display:flex;gap:6px">${ex(EL_SETS.blaze, '#ff6a3d', '🔥 Blaze Set', 'Di Goa: obor +50%, lengkap 6 = seluruh lantai terlihat')}${ex(NG_SETS.sage, '#ffd23c', '🐲 Sage Dragon Set', 'Di Goa: heal 25% tiap tangga + 1 soal salah diampuni')}</div>
     <div style="display:flex;flex-direction:column;gap:5px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:8px 10px">
-      ${src('🌿', 'Lumi liar', 'Set Dasar', '20%', '#7fd35a')}${src('👹', 'Bos Zona', 'Set Elemen', 's.d. 30%', '#ff8a4a')}${src('🕳️', 'Penjaga Goa', 'Set Elemen', '35%', '#a46bf0')}${src('🐲', 'Bos Legenda', 'Set Naga', 's.d. 15%', '#ffd23c')}</div>
+      ${src('🌿', 'Lumi liar', 'Set Dasar', '25%', '#7fd35a')}${src('👹', 'Bos Zona', 'Set Elemen', 's.d. 50%', '#ff8a4a')}${src('🕳️', 'Penjaga Goa', 'Set Elemen', '35%', '#a46bf0')}${src('🐲', 'Bos Legenda', 'Set Naga', 's.d. 40%', '#ffd23c')}</div>
+    <div style="text-align:center;font-size:12px;font-weight:800;background:rgba(127,211,90,.18);border:2px solid #7fd35a;border-radius:12px;padding:5px 8px">🆕 Drop sekarang lebih mudah + ada 🎯 jaminan: tiap 3 Bos Zona & 4 Bos Legenda tanpa drop, berikutnya pasti dapat!</div>
     <div style="text-align:center;font-size:12px;opacity:.85">Pakai 3 bagian satu set = bonus · 6 bagian = efek penuh. Lihat di Tas 🎒 → Album.</div></div>`, nav(false));
   if (c1 !== 1) return;
   /* 2 · Bos Zona bersama */
@@ -8214,8 +8216,8 @@ async function updShow() {
     <div style="display:flex;justify-content:center;align-items:flex-end;gap:6px;padding:6px 0 2px;border-radius:16px;background:radial-gradient(circle at 50% 60%,rgba(255,106,61,.32),rgba(10,6,20,.9) 64%)">${zm}</div>
     ${it('⏰', 'Jam muncul', 'Acak jam 12.00–21.00 · tiap bos 30 menit · lihat di Jadwal')}
     ${it('☀️', 'Minggu Bos!', 'Hari Minggu bos <b>pasti muncul tiap jam</b> 05.00–22.00 · hadiah penuh 6 bos pertama')}
-    ${it('🤝', 'Kerja sama', 'HP 2.000 bersama · 1 kesempatan per anak · 1 serangan maks 35%, jadi butuh minimal 3 anak')}
-    ${it('🎁', 'Hadiah', 'Koin, XP, telur, dan peluang <b>Set Elemen</b> (juara 1–3 sampai 30%)')}</div>`, nav(false)) !== 1) return;
+    ${it('🤝', 'Kerja sama', 'HP 1.000 bersama · 1 kesempatan per anak · 1 serangan maks 50%, jadi 2–3 anak sudah bisa menumbangkan')}
+    ${it('🎁', 'Hadiah', 'Koin, XP, telur, dan <b>Set Elemen</b> (sampai 50% · 🎯 pasti dapat tiap 3 bos) · bos lolos pun tetap ada peluang')}</div>`, nav(false)) !== 1) return;
   /* 3 · Bos Legenda */
   const LG = [['ilmu', 'Senin'], ['badai', 'Selasa'], ['bayang', 'Rabu'], ['lahar', 'Kamis']].filter(x => M[x[0]]);
   const legs = LG.map(([i, h]) => `<div style="text-align:center;width:72px"><div style="width:58px;height:58px;margin:auto">${mSvg(i)}</div><div style="font-size:10px;font-weight:800;margin-top:2px">${h}</div></div>`).join('');
@@ -8224,7 +8226,8 @@ async function updShow() {
     <div style="text-align:center;font-size:11.5px;opacity:.8;margin-top:-4px">Jumat–Minggu: Legenda acak!</div>
     ${it('⏰', 'Jam muncul', `13.00–14.00 dan 19.00–20.00 · <b>${LBS_TRY} kesempatan</b> tiap bos muncul`)}
     ${it('🔓', 'Syarat masuk', `Rank ${LBS_RANK}+ dan lulus Ujian Akhir · masuk lewat area Bab 5`)}
-    ${it('🎁', 'Hadiah', 'Koin, telur, gelar penakluk, peluang Telur Legenda, dan <b>Set Naga</b>!')}</div>`, nav(true));
+    ${it('💪', 'Lebih ringan', 'HP Legenda kini 4.000 · serangannya tidak sekuat dulu')}
+    ${it('🎁', 'Hadiah', 'Koin, telur, gelar penakluk, peluang Telur Legenda, dan <b>Set Naga</b> (sampai 40% · 🎯 pasti dapat tiap 4 sesi)')}</div>`, nav(true));
 }
 
 /* ================= v132: EVENT PEMBUKAAN SARANG LEGENDA (Jum-Min 23-25 Okt 2026) =================
@@ -8459,10 +8462,10 @@ async function gmHH(msg) {
 
 /* ================= BOS ZONA BERSAMA (v142) =================
    Jadwal acak & HP bos dikelola server (bos-zona-v142.sql): 12.00-21.00 WIB, maks 1 bos per jam, bertahan 30 menit.
-   HP bersama 2.000. 1 kesempatan per anak per bos, 1 serangan maks 35% HP (minimal 3 anak untuk menumbangkan).
+   HP bersama 1.000 (v150). 1 kesempatan per anak per bos, 1 serangan maks 50% HP (minimal 2 anak untuk menumbangkan).
    Kerusakan < 10% HP = "numpang" (hadiah kecil tanpa telur & XP). Hadiah diambil otomatis setelah bos tumbang / pergi. */
 const ZB = { st: null, at: 0, busy: false, off: false, poll: 0, last: 0, claiming: false };
-const ZB_CAP = .35, ZB_AM = 1.6;
+const ZB_CAP = .5, ZB_AM = 1.3;   // v150
 /* v148: hari Minggu (WIB) = bos zona tiap jam 05.00-22.00, hadiah penuh 6 bos pertama */
 const zbSun = () => new Date(Date.now() + 7 * 3600e3).getUTCDay() === 0;
 const zbPad = n => String(n).padStart(2, '0');
@@ -8527,6 +8530,7 @@ async function zbGive(wid, rw) {
   if (rw.item && SH[rw.item]) { const it = SH[rw.item]; if (!S.acc.own.includes(it.id)) S.acc.own.push(it.id); const set = tkSetOf(it.tset);
     out.push(`<b style="color:#c2301b">🛡️ Aksesoris Taklukan: ${esc(it.n)}!</b><br><small style="font-weight:700">${set.ic} ${esc(set.n)} ${tkN(it.tset)}/6 · cek di Tas 🎒</small>`); }
   else if (rw.full) out.push('<small style="font-weight:700">Set Elemen elemen ini sudah lengkap, jadi diganti bonus +100 koin.</small>');
+  if (rw.pt != null && !rw.item && !rw.full) out.push(`<small style="font-weight:800;color:#3a7bd5">🎯 Jaminan Set Elemen: ${rw.pt}/${rw.ptn || 3} · bos ke-${rw.ptn || 3} tanpa drop pasti dapat</small>`);   // v150
   if (rw.cap) out.push(`<small style="font-weight:700">Hari Minggu: hadiah penuh sudah ${rw.lim || 6} bos. Bos ini memberi koin kecil (peluang Set Elemen tetap ada).</small>`);
   if (rw.kecil) out.push('<small style="font-weight:700">Kerusakanmu di bawah 10% HP bos, jadi kamu hanya dapat hadiah peserta (tanpa telur & XP).</small>');
   save(); hud(); sfx(rw.done ? 'win' : '');
@@ -8548,8 +8552,8 @@ async function zbEngage(sl) {
     <p style="font-size:13px">HP bersama ${pct}% · ${s.np} anak sudah menyerang · sisa ${lbsFmt(zbLeft())}</p>
     ${s.sun ? `<p style="font-size:12.5px;font-weight:800;margin:0;color:${(s.mg || 0) >= (s.lim || 6) ? '#c2301b' : '#3a7bd5'}">☀️ Minggu Bos: hadiah penuh ${Math.min(s.mg || 0, s.lim || 6)}/${s.lim || 6}${(s.mg || 0) >= (s.lim || 6) ? ' · sudah penuh, sekarang koin kecil' : ''}</p>` : ''}
     ${s.top && s.top.length ? `<div class="card" style="width:100%;text-align:left;font-size:13px;font-weight:800;display:flex;flex-direction:column;gap:2px">${s.top.map((x, i) => `<div${x.me ? ' style="color:#1f7a52"' : ''}>${i + 1}. ${esc(x.n)} · ${x.d}</div>`).join('')}</div>` : ''}
-    <p style="font-size:13px">Kamu punya <b>1 kesempatan</b> untuk bos ini, selesai saat timmu tumbang. Satu serangan dihitung maksimal <b>${cap}</b> (35% HP), jadi butuh kerja sama minimal 3 anak. Kerusakan di bawah 10% HP bos = hadiah peserta saja.</p>
-    ${(() => { const st = Object.values(EL_SETS).find(x => x.el === s.el); return st ? `<p style="font-size:12.5px;font-weight:800;background:#fff4d6;border:2px solid ${st.c};border-radius:10px;padding:5px 8px;color:#3a2a10">🛡️ Peluang bagian <b>${esc(st.n)}</b> (kamu punya ${tkN(Object.keys(EL_SETS).find(k => EL_SETS[k] === st))}/6): juara 1–3 30% · 4–10 20% · lainnya 10%. Hanya bila kerusakanmu ≥10%.</p>` : ''; })()}<p style="font-size:13px">${s.peak ? ' <span style="color:#3ccf91">Jam ramai!</span>' : ''}</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Serang!', cls: 'hot' }]);
+    <p style="font-size:13px">Kamu punya <b>1 kesempatan</b> untuk bos ini, selesai saat timmu tumbang. Satu serangan dihitung maksimal <b>${cap}</b> (50% HP), jadi butuh kerja sama minimal 2 anak. Kerusakan di bawah 10% HP bos = hadiah peserta saja.</p>
+    ${(() => { const st = Object.values(EL_SETS).find(x => x.el === s.el); return st ? `<p style="font-size:12.5px;font-weight:800;background:#fff4d6;border:2px solid ${st.c};border-radius:10px;padding:5px 8px;color:#3a2a10">🛡️ Peluang bagian <b>${esc(st.n)}</b> (kamu punya ${tkN(Object.keys(EL_SETS).find(k => EL_SETS[k] === st))}/6): juara 1–3 50% · 4–10 40% · lainnya 30% (bos lolos = setengah). 🎯 Pasti dapat tiap 3 bos tanpa drop. Hanya bila kerusakanmu ≥10%.</p>` : ''; })()}<p style="font-size:13px">${s.peak ? ' <span style="color:#3ccf91">Jam ramai!</span>' : ''}</p></div>`, [{ t: 'Nanti', cls: 'ghost' }, { t: 'Serang!', cls: 'hot' }]);
   if (c !== 1 || !raidVisible(sl) || B) return;
   await zbFight(cur);
 }
