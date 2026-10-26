@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1d1b46">
-<meta name="lumimon-ver" content="v151">
+<meta name="lumimon-ver" content="v152">
 <link rel="manifest" href="lumimon.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="lumimon-192.png">
 <link rel="apple-touch-icon" href="lumimon-192.png">
@@ -7123,6 +7123,7 @@ async function openBag() {
     .forEach(id => tile('i:' + id, `<span style="width:78%;display:grid;place-items:center">${itemImg(id, 40)}</span>`, b.it[id], ITEM[id].k === 'fish' ? RAR_C[ITEM[id].r] : '#3ccf91'));
   ['Kayu', 'Perak', 'Emas'].forEach(k => { if (S.boxes[k] > 0) tile('e:' + k, im(chestURL(k), 72), S.boxes[k], EGG_C[k]); });
   const nLeg = (typeof legEggKeys === 'function' ? legEggKeys().length : 0) + (S.lgU > 0 ? S.lgU : 0); if (nLeg) tile('l:', '<span style="font-size:30px">🌟</span>', nLeg, '#d69a12');
+  if (typeof ABOX !== 'undefined') Object.keys(ABOX).forEach(t => { const n = (S.abox && S.abox[t]) || 0; if (n > 0) tile('x:' + t, `<span style="font-size:34px">${ABOX[t].ic}</span>`, n, ABOX[t].c); });   // v152: Box Aksesori
   (S.acc && S.acc.own || []).filter(id => SH[id] && SH[id].slot && id !== 'sd').forEach(id => tile('a:' + id, im(accIcon(id), 80), 1 + accDup(id), SH[id].tk ? '#ff6a3d' : '#7b4fd6', S.acc[SH[id].slot] === id));
   if (typeof goaLeft === 'function' && S.rank >= GOA_RANK) tile('o:', '<span style="font-size:30px">🔥</span>', goaLeft(), '#e05a1a');
   const act = ITEM[b.act];
@@ -7156,6 +7157,7 @@ async function bagItem(key) {
     const c = await modal(head(img, col, leg ? 'Telur Legenda' : eggN(id), `🥚 Telur · ×${n}`, sub), [{ t: 'Kembali', cls: 'ghost' }, { t: 'Tetaskan', cls: 'hot' }]);
     if (c === 1) return openBoxes(); return openBag();
   }
+  if (t === 'x') return aboxOpen(id);
   if (t === 'a') {
     const it = SH[id]; if (!it || !S.acc.own.includes(id)) return openBag(); const col = it.tk ? '#ff6a3d' : '#7b4fd6', worn = S.acc[it.slot] === id, d = accDup(id);
     const SN = { hat: 'Topi', shirt: 'Baju', pants: 'Celana', shoes: 'Sepatu', glass: 'Kacamata', back: 'Punggung' };
@@ -8319,16 +8321,44 @@ let GM_PW = null;
 const HH = { kind: null, end: 0, was: null };
 const GM_KIND = { coins: ['🪙', 'Koin', 1000, 100], Kayu: ['🥚', 'Telur Biasa', 3, 1], Perak: ['🥈', 'Telur Perak', 3, 1], Emas: ['🥇', 'Telur Emas', 3, 1], tkb: ['👕', 'Boost Aksesoris', 2, 1], xp: ['⭐', 'XP', 300, 50] };
 /* v151: Admin bisa kirim Set Aksesori, Lumi, Telur Legenda (kind = 'set:<kunci>' | 'mon:<id>' | 'leg:<U|mtk|ind|ipas|ing>') */
-const GM_CAT = { set: ['🎽', 'Set Aksesori'], mon: ['🐾', 'Lumi'], leg: ['🌟', 'Telur Legenda'] };
+const GM_CAT = { box: ['🎁', 'Box Aksesori'], set: ['🎽', 'Set Aksesori'], mon: ['🐾', 'Lumi'], leg: ['🌟', 'Telur Legenda'] };
+/* v152: Box Aksesori (hanya dari Admin; 1 aksesori acak, boleh dobel) */
+const ABOX = {
+  basic: { n: 'Box Basic', ic: '🎁', c: '#3ccf91', d: 'Aksesori acak dari Toko Mak Sumi (tanpa gender)' },
+  lumi: { n: 'Box Lumi', ic: '🐾', c: '#ff6a3d', d: 'Bagian acak Set Lumi liar (Ember, Frost, Moss, Rookie)' },
+  elemen: { n: 'Box Elemen', ic: '🛡️', c: '#7b4fd6', d: 'Bagian acak Set Elemen (Blaze, Glacier, Venom, Wanderer)' },
+  legenda: { n: 'Box Legenda', ic: '🐲', c: '#d69a12', d: 'Bagian acak Set Naga (Sage, Wyvern, Shadow, Crimson)' }
+};
+function aboxPool(t) {
+  if (t === 'basic') return SHOP.filter(x => !x.g && x.p > 0 && !x.night).map(x => x.id);
+  const st = t === 'lumi' ? TK_SETS : t === 'elemen' ? EL_SETS : NG_SETS;
+  return Object.values(st).flatMap(x => x.items.map(i => i[0])).filter(id => SH[id]);
+}
+async function aboxOpen(t) {
+  const B = ABOX[t]; if (!B || !S.abox || !(S.abox[t] > 0)) return openBag();
+  const c = await modal(`<h2>${B.ic} ${B.n}</h2><div class="card" style="font-weight:700;font-size:13.5px">${B.d}.<br>Isi: <b>1 aksesori acak</b>, boleh dobel.<br>Kamu punya <b>×${S.abox[t]}</b>.</div>`, [{ t: 'Kembali', cls: 'ghost' }, { t: 'Buka', cls: 'hot' }]);
+  if (c !== 1) return openBag();
+  const pool = aboxPool(t), id = pool[Math.floor(Math.random() * pool.length)];
+  if (!S.abox || !(S.abox[t] > 0)) return openBag();
+  S.abox[t]--; const dup = S.acc.own.includes(id);
+  if (dup) { if (!S.acc.dup) S.acc.dup = {}; S.acc.dup[id] = (S.acc.dup[id] || 0) + 1; } else S.acc.own.push(id);
+  save(); hud(); sfx('win');
+  const left = S.abox[t], c2 = await modal(`<h2>${B.ic} Kamu mendapat!</h2><div class="card" style="text-align:center"><img src="${accIcon(id)}" alt="" style="width:72px;height:72px;image-rendering:pixelated"><div style="font:800 17px system-ui;margin-top:4px">${esc(SH[id].n)}</div><div style="font:800 13px system-ui;color:${dup ? '#7b4fd6' : '#1f9d63'}">${dup ? `🔁 Dobel ×${accDup(id)} (sudah punya)` : '✨ Baru! Masuk Tas'}</div></div>`,
+    left > 0 ? [{ t: 'Tutup', cls: 'ghost' }, { t: `Buka lagi (${left})`, cls: 'hot' }] : [{ t: 'Tutup' }]);
+  if (c2 === 1 && left > 0) return aboxOpen(t);
+  return openBag();
+}
 const gmSet = id => (typeof TK_SETS !== 'undefined' && TK_SETS[id]) || (typeof EL_SETS !== 'undefined' && EL_SETS[id]) || (typeof NG_SETS !== 'undefined' && NG_SETS[id]) || null;
 function gmKI(k) {
   if (GM_KIND[k]) return GM_KIND[k]; const a = String(k).split(':'), c = a[0], id = a[1];
+  if (c === 'box') return ABOX[id] ? [ABOX[id].ic, ABOX[id].n, 5, 1] : null;
   if (c === 'set') { const t = gmSet(id); return t ? [t.ic, t.n, 1, 1] : null; }
   if (c === 'mon') return M[id] ? ['🐾', M[id].n, 1, 1] : null;
   if (c === 'leg') return id === 'U' ? ['🌟', 'Telur Legenda Umum', 3, 1] : (LEG[id] ? ['🌟', 'Telur Legenda ' + M[LEG[id]].n, 1, 1] : null);
   return null;
 }
 function gmSubs(c) {
+  if (c === 'box') return Object.keys(ABOX).map(k => [k, ABOX[k].n]);
   if (c === 'set') return [...Object.keys(TK_SETS), ...Object.keys(EL_SETS), ...Object.keys(NG_SETS)].map(k => [k, gmSet(k).n]);
   if (c === 'mon') return MONS.slice().sort((a, b) => 'CREL'.indexOf(a.r) - 'CREL'.indexOf(b.r) || a.n.localeCompare(b.n)).map(m => [m.id, `${m.n} (${RAR[m.r].n})`]);
   return [['U', 'Umum (acak)'], ...Object.keys(LEG).map(k => [k, M[LEG[k]].n])];
@@ -8384,6 +8414,7 @@ setTimeout(gmTick, 8000); setInterval(gmTick, 60000);
 /* ---------- hadiah untuk siswa ---------- */
 function gmGiveX(kind, n) {
   const a = kind.split(':'), c = a[0], id = a[1];
+  if (c === 'box') { if (!S.abox) S.abox = {}; S.abox[id] = (S.abox[id] || 0) + n; return `${ABOX[id].ic} ${ABOX[id].n} ×${n}`; }
   if (c === 'set') { const t = gmSet(id); let nw = 0, du = 0;
     t.items.forEach(([iid]) => { if (!SH[iid]) return; if (!S.acc.own.includes(iid)) { S.acc.own.push(iid); nw++; } else if (SH[iid].tk === 'naga') { if (!S.acc.dup) S.acc.dup = {}; S.acc.dup[iid] = (S.acc.dup[iid] || 0) + 1; du++; } });
     return `${t.ic} ${t.n}: ${nw} bagian baru${du ? `, ${du} dobel` : ''}`; }
@@ -8399,7 +8430,7 @@ function giftApply(list) {
     if (x.kind === 'coins') { addCoins(n); line = `${COIN}+${n} koin`; }
     else if (x.kind === 'xp') { gainXP(n); line = `⭐ +${n} XP`; }
     else if (x.kind === 'tkb') { const t = S.tk || (S.tk = { p: 0 }); t.b = (t.b || 0) + n; line = `👕 Boost Aksesoris: ${n} menang lawan Lumi liar pasti dapat`; }
-    else if (/^(set|mon|leg):/.test(x.kind)) line = gmGiveX(x.kind, n);
+    else if (/^(box|set|mon|leg):/.test(x.kind)) line = gmGiveX(x.kind, n);
     else { S.boxes[x.kind] = (S.boxes[x.kind] || 0) + n; line = `${eggN(x.kind)} ×${n}`; }
     S.gq.push({ l: line, k: x.kind, m: String(x.msg || '').slice(0, 80) });
   }
