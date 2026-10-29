@@ -3374,7 +3374,7 @@ B('K',"Peluang usaha produk carica terbuka luas karena menjadi oleh-oleh khas.",
 
 </script>
 <script>
-const GAS_URL="https://script.google.com/macros/s/AKfycbxKK1xTtO9LKZtGcRHOnOj7l8VUfRETeCqHG0jVZTflLaJAlhrSPukrgnuiRL1qCZuK/exec";
+const GAS_URL="https://script.google.com/macros/s/AKfycbxs77BiwWGArs92pql9ZnsLVWcmaQOFdiN95LvNMNC1OREX0CJqK8m3MPkoZqapfGddRg/exec";
 const HC=4529771417811263,HP=4413594719508086;
 let N=20;const TIMER=45;
 let inStat=false,statK='mat';
@@ -3446,6 +3446,7 @@ function renderKelas(){
     const ok=!!DATA[n];
     return `<button class="btn" style="background:linear-gradient(135deg,${ok?cg[n-1]:'#94a3b8,#cbd5e1'})" onclick="pilihKelas(${n})"><div class="bi">${ic[n-1]}</div><div class="bt"><div class="bl">Kelas ${n}</div><div class="bd">${ok?DATA[n].SUBJ.length+' mata pelajaran':'Segera hadir'}</div></div></button>`;
   }).join('');
+  if(admin)$('kelas-list').insertAdjacentHTML('beforeend','<button class="btn" style="background:linear-gradient(135deg,#0f766e,#14b8a6)" onclick="openLaporan()"><div class="bi">📊</div><div class="bt"><div class="bl">Laporan Siswa</div><div class="bd">Data belajar semua siswa (realtime)</div></div></button>');
   show('scr-kelas');
 }
 function pilihKelas(n){
@@ -3474,6 +3475,7 @@ function openMapel(k){
 function openOv(t,html){$('ov-t').textContent=t;$('ov-b').innerHTML=html;$('ov').classList.add('on');$('ov-b').scrollTop=0}
 async function closeOv(){
   stopTimer();
+  if(inLap){inLap=false;clearInterval(lapTm);$('ov').classList.remove('on');renderKelas();return}
   if(inStat){inStat=false;$('ov').classList.remove('on');renderMenu();return}
   if(soal.length&&!selesai&&jw.some(x=>x!=null)){
     const dijawab=jw.filter(x=>x!=null).length;
@@ -3841,6 +3843,56 @@ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||
 document.addEventListener('visibilitychange',()=>{if(document.hidden)Music.stop();else if(nama)bgm(true)});
 sndIcon();
 
+
+/* ===== LAPORAN SISWA (admin) ===== */
+let inLap=false,lapRows=[],lapTm=null;
+const esc2=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function openLaporan(){
+  if(!admin)return;inLap=true;
+  openOv('📊 Laporan Siswa','<div id="lap-b">Memuat data…</div>');
+  muatLap();clearInterval(lapTm);lapTm=setInterval(()=>{if(!inLap){clearInterval(lapTm);return}muatLap(true)},30000);
+}
+async function muatLap(quiet){
+  try{
+    const r=await fetch(GAS_URL+'?aksi=laporan&_='+Date.now());
+    const j=await r.json();if(!j.ok)throw 0;
+    lapRows=j.rows;lapWaktu=new Date();renderLap();
+  }catch(e){
+    if(!quiet||!lapRows.length)$('lap-b').innerHTML='<div class="lockbox" style="background:#fef2f2;border-color:#ef4444;color:#7f1d1d">⚠️ Gagal memuat data.<br>Pastikan Apps Script sudah di-deploy ulang dengan kode terbaru (Who has access: Anyone) dan perangkat online.</div><button class="btn" onclick="muatLap()" style="margin-top:10px"><div class="bt"><div class="bl">🔄 Coba lagi</div></div></button>';
+  }
+}
+let lapWaktu=null,lapF={k:'',m:'',q:''};
+function lapSet(k,v){lapF[k]=v;renderLap()}
+function renderLap(){
+  const el=$('lap-b');if(!el)return;
+  const R=lapRows,uniq=a=>[...new Set(a)];
+  const rows=R.filter(r=>(!lapF.k||r.kelas==lapF.k)&&(!lapF.m||r.mapel===lapF.m)&&(!lapF.q||r.nama.toLowerCase().includes(lapF.q.toLowerCase())));
+  const sel=rows.filter(r=>r.status==='Selesai');
+  const sis=new Map();
+  rows.forEach(r=>{const key=r.kelas+'|'+r.nama.toLowerCase();const o=sis.get(key)||{nama:r.nama,kelas:r.kelas,n:0,best:0,sum:0,sn:0,last:0,lw:''};
+    o.n++;if(r.status==='Selesai'){o.sn++;o.sum+=r.nilai;o.best=Math.max(o.best,r.nilai)}
+    if(r.t>=o.last){o.last=r.t;o.lw=r.w}sis.set(key,o)});
+  const avg=sel.length?Math.round(sel.reduce((a,r)=>a+r.nilai,0)/sel.length):0;
+  const mp=uniq(R.filter(r=>!lapF.k||r.kelas==lapF.k).map(r=>r.mapel)).sort();
+  const tdn=n=>`<b style="color:${n>=85?'#16a34a':n>=70?'#d97706':'#dc2626'}">${n}</b>`;
+  const st='style="width:100%;border-collapse:collapse;font-size:12.5px"',th='style="text-align:left;padding:6px 4px;border-bottom:2px solid #e2e8f0;position:sticky;top:0;background:#fff"',td='style="padding:6px 4px;border-bottom:1px solid #f1f5f9"';
+  const card=(a,b,c)=>`<div style="flex:1;min-width:90px;background:${c};border-radius:12px;padding:8px;text-align:center"><div style="font-size:20px;font-weight:800">${a}</div><div style="font-size:11px">${b}</div></div>`;
+  const sisArr=[...sis.values()].sort((a,b)=>a.kelas-b.kelas||a.nama.localeCompare(b.nama));
+  el.innerHTML=`
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+    <select onchange="lapF.m='';lapSet('k',this.value)" style="flex:1;padding:8px;border-radius:10px"><option value="">Semua kelas</option>${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${lapF.k==n?'selected':''}>Kelas ${n}</option>`).join('')}</select>
+    <select onchange="lapSet('m',this.value)" style="flex:2;padding:8px;border-radius:10px;min-width:0"><option value="">Semua mapel</option>${mp.map(m=>`<option value="${esc2(m)}" ${lapF.m===m?'selected':''}>${esc2(m.replace('Aplikasi Belajar ',''))}</option>`).join('')}</select>
+    <input placeholder="🔍 Cari nama" value="${esc2(lapF.q)}" oninput="lapF.q=this.value;clearTimeout(window._lq);window._lq=setTimeout(()=>{renderLap();const i=document.querySelector('#lap-b input');i&&(i.focus(),i.setSelectionRange(1e3,1e3))},300)" style="flex:1 1 100%;padding:8px;border-radius:10px;border:1px solid #cbd5e1">
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${card(sisArr.length,'Siswa','#dbeafe')}${card(rows.length,'Percobaan','#fef3c7')}${card(sel.length,'Selesai','#dcfce7')}${card(avg,'Rata-rata','#fce7f3')}</div>
+  <div style="font-size:11px;opacity:.7;margin-bottom:8px">🔄 Otomatis diperbarui tiap 30 detik · terakhir ${lapWaktu?lapWaktu.toLocaleTimeString('id-ID'):'-'} <button class="link" onclick="muatLap()">Muat sekarang</button></div>
+  <h3 style="margin:8px 0 4px">👩‍🎓 Ringkasan per Siswa</h3>
+  <div style="overflow:auto;max-height:260px"><table ${st}><tr><th ${th}>Nama</th><th ${th}>Kls</th><th ${th}>Coba</th><th ${th}>Terbaik</th><th ${th}>Rata²</th><th ${th}>Terakhir</th></tr>
+  ${sisArr.map(o=>`<tr><td ${td}>${esc2(o.nama)}</td><td ${td}>${o.kelas}</td><td ${td}>${o.n}</td><td ${td}>${o.sn?tdn(o.best):'-'}</td><td ${td}>${o.sn?tdn(Math.round(o.sum/o.sn)):'-'}</td><td ${td}>${esc2(o.lw.split(',')[0])}</td></tr>`).join('')||`<tr><td ${td} colspan="6">Belum ada data.</td></tr>`}</table></div>
+  <h3 style="margin:12px 0 4px">📝 Riwayat Latihan UAS (terbaru)</h3>
+  <div style="overflow:auto;max-height:320px"><table ${st}><tr><th ${th}>Waktu</th><th ${th}>Nama</th><th ${th}>Kls</th><th ${th}>Mapel</th><th ${th}>Nilai</th><th ${th}>Status</th></tr>
+  ${rows.slice().sort((a,b)=>b.t-a.t).slice(0,200).map(r=>`<tr><td ${td}>${esc2(r.w)}</td><td ${td}>${esc2(r.nama)}</td><td ${td}>${r.kelas}</td><td ${td}>${esc2(r.mapel.replace('Aplikasi Belajar ','').replace(/ Kelas \d$/,''))}</td><td ${td}>${tdn(r.nilai)} <small>(${r.benar}/${r.jumlah})</small></td><td ${td}>${r.status==='Selesai'?'✅':'⏸️'}</td></tr>`).join('')||`<tr><td ${td} colspan="6">Belum ada data.</td></tr>`}</table></div>`;
+}
 </script>
 </body>
 </html>
