@@ -191,7 +191,7 @@ input.nm:focus{border-color:#f97316;box-shadow:0 0 0 4px #fdba7455}
 .btn.center{font-size:1.15rem;padding:1.05rem}
 .feat{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
 .feat span{background:#f1f5f9;border-radius:99px;padding:.3rem .7rem;font-size:.74rem;font-weight:800;color:#475569}
-.sk-h{font-weight:800;font-size:.9rem;color:#92400e;margin-bottom:.4rem}#skor-box{margin-top:1rem;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fde68a;border-radius:16px;padding:.7rem}.sk-tabs{display:flex;gap:4px;justify-content:center;margin-bottom:.5rem}.sk-tabs button{border:none;background:#fff;border-radius:999px;padding:.25rem .55rem;font:inherit;font-weight:800;font-size:.72rem;color:#92400e;cursor:pointer}.sk-tabs button.on{background:#f59e0b;color:#fff}.sk-list{font-size:.8rem;min-height:3.4rem;text-align:left}.sk-r{display:flex;align-items:center;gap:.5rem;background:#fff;border-radius:10px;padding:.35rem .55rem;margin-top:4px;font-weight:700}.sk-r b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sk-r small{opacity:.65;font-weight:600}.sk-r i{font-style:normal;font-weight:800;color:#d97706}.sk-n{font-size:.6rem;opacity:.55;margin-top:.35rem}.wm{margin-top:1.4rem;font-size:.45rem;font-weight:500;color:#94a3b8;letter-spacing:.08em;opacity:.22;transition:opacity .3s,font-size .3s;user-select:none;-webkit-tap-highlight-color:transparent}.wm:hover,.wm:active,.wm:focus{opacity:.95;font-size:.7rem;color:#475569}
+.sk-h{font-weight:800;font-size:.9rem;color:#92400e;margin-bottom:.4rem}#skor-box{margin-top:1rem;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fde68a;border-radius:16px;padding:.7rem}.sk-tabs{display:flex;gap:4px;justify-content:center;margin-bottom:.5rem}.sk-tabs button{border:none;background:#fff;border-radius:999px;padding:.25rem .55rem;font:inherit;font-weight:800;font-size:.72rem;color:#92400e;cursor:pointer}.sk-tabs button.on{background:#f59e0b;color:#fff}.sk-list{font-size:.8rem;min-height:3.4rem;text-align:left}.sk-r{display:flex;align-items:center;gap:.5rem;background:#fff;border-radius:10px;padding:.35rem .55rem;margin-top:4px;font-weight:700}.sk-r b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sk-r small{opacity:.65;font-weight:600}.sk-r i{font-style:normal;font-weight:800;color:#d97706}.sk-i{font-size:.68rem;background:#fff7ed;border:1px dashed #fdba74;color:#9a3412;border-radius:10px;padding:.3rem .5rem;margin-top:.4rem;line-height:1.35}.sk-n{font-size:.6rem;opacity:.55;margin-top:.35rem}.wm{margin-top:1.4rem;font-size:.45rem;font-weight:500;color:#94a3b8;letter-spacing:.08em;opacity:.22;transition:opacity .3s,font-size .3s;user-select:none;-webkit-tap-highlight-color:transparent}.wm:hover,.wm:active,.wm:focus{opacity:.95;font-size:.7rem;color:#475569}
 .op{padding:.75rem .85rem;border-radius:16px;border-width:2.5px;font-size:.98rem;margin-bottom:.55rem;box-shadow:0 3px 0 #e2e8f0}
 .op:hover:not(:disabled){border-color:#8b5cf6;background:#f5f3ff;transform:translateX(3px)}
 .ok{width:30px;height:30px;border-radius:10px;font-size:.85rem}
@@ -222,7 +222,7 @@ input.nm:focus{border-color:#f97316;box-shadow:0 0 0 4px #fdba7455}
   <button class="btn center" style="background:linear-gradient(135deg,#dc2626,#f97316)" onclick="mulai()">Mulai Belajar 🚀</button>
   <div class="err" id="nm-err">⚠️ Nama tidak boleh kosong!</div>
   <div class="feat"><span>📖 Rangkuman</span><span>✏️ Latihan</span><span>🏆 UAS</span></div>
-  <div id="skor-box"><div class="sk-h">🏆 Papan Skor Juara</div><div class="sk-tabs" id="sk-tabs"></div><div id="sk-list" class="sk-list">Memuat…</div><div class="sk-n">Total nilai terbaik semua mapel UAS</div></div>
+  <div id="skor-box"><div class="sk-h">🏆 Papan Skor Juara</div><div class="sk-tabs" id="sk-tabs"></div><div id="sk-list" class="sk-list">Memuat…</div><div id="sk-info" class="sk-i"></div><div class="sk-n">Total nilai terbaik semua mapel UAS pekan ini</div></div>
   <div class="wm" tabindex="0">develop by imamupayanto</div>
 </div>
 
@@ -286,6 +286,7 @@ const P=(lvl,q,opts,jawab,info)=>({lvl,tipe:'pg',q,opts,jawab,info});
 const B=(lvl,q,v,info)=>({lvl,tipe:'bs',q,opts:['Benar','Salah'],jawab:v?0:1,info});
 
 const D=(kl,k,o)=>{const c=DATA[kl]=DATA[kl]||{SUBJ:[],BANK:{},RK:{},LT:{}};c.BANK[k]=o.bank;c.RK[k]=o.rk;c.LT[k]=o.lt};
+const X=(kl,k,a)=>{DATA[kl].BANK[k].push(...a)};
 const S=(kl,o)=>{const c=DATA[kl]=DATA[kl]||{SUBJ:[],BANK:{},RK:{},LT:{}};c.SUBJ.push(o)};
 
 S(1,{k:'mat',n:'Matematika',e:'🔢',g:'#2563eb,#0ea5e9',d:'Bilangan 0–10, tambah, kurang, ukuran, bangun datar'});
@@ -3381,6 +3382,538 @@ B('K',"Peluang usaha produk carica terbuka luas karena menjadi oleh-oleh khas.",
 ]});
 
 
+X(4,'mat',[
+P('M',"Nilai angka 7 pada 27.540 adalah …",["7","70","7.000","700"],2,"Angka 7 berada di tempat ribuan: 7.000."),
+P('M',"Bilangan 45.200 dibaca …",["Empat puluh lima ribu dua ratus","Empat ribu lima ratus dua puluh","Empat puluh lima ribu dua puluh","Empat lima dua nol nol"],0,"45.200 = empat puluh lima ribu dua ratus."),
+P('M',"3.000 + 200 + 40 + 6 = …",["3.264","3.246","3.426","3.624"],1,"Gabungkan nilai tempat: 3.246."),
+P('M',"145 + 237 = …",["372","382","392","282"],1,"145 + 237 = 382."),
+P('M',"900 − 468 = …",["432","442","532","468"],0,"900 − 468 = 432."),
+P('M',"8 × 6 = …",["42","46","48","54"],2,"8 × 6 = 48."),
+P('M',"63 : 9 = …",["6","7","8","9"],1,"9 × 7 = 63, jadi 63 : 9 = 7."),
+B('M',"3/4 senilai dengan 6/8.",true,"Kalikan 2: 3/4 = 6/8."),
+P('M',"Pola 5, 10, 15, 20, … bilangan berikutnya …",["22","25","30","35"],1,"Pola bertambah 5: 20 + 5 = 25."),
+P('M',"Persegi panjang 5 × 3 petak luasnya … petak",["8","15","16","30"],1,"5 × 3 = 15 petak."),
+P('S',"Dari 40 siswa, 10 siswa suka sepak bola. Persentasenya …",["10%","20%","25%","40%"],2,"10/40 = 25/100 = 25%."),
+P('S',"0,5 sama dengan … %",["5%","15%","50%","500%"],2,"0,5 × 100% = 50%."),
+B('S',"Urutan dari terkecil: 2.340; 2.430; 2.304 sudah benar.",false,"Yang benar: 2.304; 2.340; 2.430."),
+P('S',"48 kelereng dibagi sama banyak kepada 6 anak. Tiap anak mendapat … kelereng",["6","7","8","9"],2,"48 : 6 = 8."),
+P('S',"Pola 2, 5, 8, 11, … bilangan berikutnya …",["13","14","15","16"],1,"Pola bertambah 3: 11 + 3 = 14."),
+P('S',"Ani membaca 125 halaman, Budi 98 halaman. Selisihnya … halaman",["17","27","37","223"],1,"125 − 98 = 27."),
+P('K',"Pak Tono membeli 12 kotak pensil, tiap kotak berisi 24 pensil. Seluruh pensil … buah",["248","268","288","308"],2,"12 × 24 = 288."),
+P('K',"Pola 1, 4, 9, 16, … bilangan berikutnya …",["20","24","25","36"],2,"Bilangan kuadrat: 5 × 5 = 25."),
+B('K',"2/5 sama dengan 40%.",true,"2/5 = 40/100 = 40%."),
+P('K',"Persegi panjang berukuran 6 × 4 petak. Seperempat bagiannya diwarnai. Petak yang berwarna …",["4","6","8","12"],1,"Luas 24; 24 : 4 = 6 petak.")
+]);
+X(4,'ipas',[
+P('M',"Matahari menghasilkan energi berupa …",["cahaya dan panas","bunyi saja","gerak saja","magnet"],0,"Matahari memberi cahaya dan panas."),
+P('M',"Kompor gas mengubah energi kimia gas menjadi energi …",["panas","bunyi","listrik","magnet"],0,"Gas terbakar menghasilkan panas dan cahaya."),
+P('M',"Lampu menyala mengubah energi listrik menjadi cahaya dan …",["bunyi","magnet","panas","gerak"],2,"Lampu juga menghasilkan panas."),
+P('M',"Tumbuhan membuat makanan melalui proses …",["respirasi","fotosintesis","penguapan","pencernaan"],1,"Fotosintesis membuat makanan dengan bantuan cahaya matahari."),
+P('M',"Gaya yang menarik benda ke arah bumi disebut gaya …",["magnet","gesek","gravitasi","otot"],2,"Gravitasi menarik benda ke bumi."),
+P('M',"Dua kutub magnet yang sama jika didekatkan akan …",["tarik-menarik","tolak-menolak","menyatu","diam"],1,"Kutub senama tolak-menolak."),
+P('M',"Alat penunjuk arah mata angin adalah …",["termometer","kompas","barometer","penggaris"],1,"Kompas menunjukkan arah mata angin."),
+P('M',"Arah mata angin di antara selatan dan barat adalah …",["barat daya","barat laut","tenggara","timur laut"],0,"Selatan + barat = barat daya."),
+P('M',"Alat pengukur suhu udara adalah …",["kompas","penggaris","termometer","timbangan"],2,"Termometer mengukur suhu."),
+B('M',"Pada musim kemarau, curah hujan sangat sedikit.",true,"Kemarau = hujan sedikit."),
+P('S',"Skala 1 : 50.000 berarti 1 cm di peta mewakili … cm sebenarnya",["500","5.000","50.000","500.000"],2,"Angka kedua skala adalah jarak sebenarnya."),
+P('S',"Benda yang dapat ditarik magnet adalah …",["kertas","plastik","paku besi","kayu"],2,"Besi termasuk benda magnetis."),
+B('S',"Gaya gesek membuat benda lebih mudah meluncur di permukaan kasar.",false,"Permukaan kasar gaya geseknya besar sehingga benda lebih sulit meluncur."),
+P('S',"PLTA memanfaatkan energi air untuk menggerakkan …",["turbin","kompas","magnet kecil","baterai"],0,"Air menggerakkan turbin penghasil listrik."),
+P('S',"Pada kincir angin pembangkit listrik, energi gerak angin diubah menjadi …",["energi listrik","energi kimia","energi panas","energi bunyi"],0,"Kincir memutar generator sehingga menghasilkan listrik."),
+P('S',"Kegiatan yang membantu mengurangi pemanasan global adalah …",["menanam pohon","membakar sampah","menebang hutan","boros listrik"],0,"Pohon menyerap karbon dioksida."),
+P('K',"Jarak dua kota pada peta 4 cm dengan skala 1 : 250.000. Jarak sebenarnya … km",["1","10","100","25"],1,"4 × 250.000 = 1.000.000 cm = 10 km."),
+P('K',"Mobil mainan lebih lambat di karpet daripada di lantai keramik karena …",["gaya gesek karpet lebih besar","gravitasi hilang","magnet menarik","massa berkurang"],0,"Permukaan kasar memiliki gaya gesek besar."),
+B('K',"Cuaca dan iklim adalah hal yang sama.",false,"Cuaca berlangsung singkat, iklim rata-rata cuaca dalam waktu lama."),
+P('K',"Perubahan energi pada senter: baterai → lampu adalah …",["kimia → listrik → cahaya","listrik → kimia → cahaya","cahaya → listrik → kimia","gerak → listrik → cahaya"],0,"Energi kimia baterai menjadi listrik lalu cahaya.")
+]);
+X(4,'ind',[
+P('M',"Orang yang berperan dalam cerita disebut …",["tokoh","latar","amanat","alur"],0,"Pelaku cerita disebut tokoh."),
+P('M',"Tempat, waktu, dan suasana dalam cerita disebut …",["tokoh","latar","tema","alur"],1,"Itu disebut latar."),
+P('M',"Rangkaian peristiwa dalam cerita disebut …",["latar","amanat","alur","judul"],2,"Rangkaian peristiwa disebut alur."),
+P('M',"Kata dasar dari ‘membaca’ adalah …",["membaca","baca","bacaan","mem"],1,"Membaca berasal dari kata dasar baca."),
+P('M',"‘Berlari’ berarti …",["dilari","pelari","melakukan lari","larian"],2,"Imbuhan ber- berarti melakukan."),
+P('M',"Subjek pada kalimat ‘Adik menulis surat’ adalah …",["Adik","menulis","surat","tidak ada"],0,"Yang melakukan pekerjaan adalah Adik."),
+P('M',"Bagian akhir surat pribadi adalah …",["salam pembuka","isi surat","salam penutup dan nama pengirim","alamat"],2,"Surat diakhiri salam penutup dan nama pengirim."),
+B('M',"Poster berisi gambar dan tulisan menarik untuk mengajak atau memberi informasi.",true,"Itu fungsi poster."),
+P('M',"Lawan kata ‘rajin’ adalah …",["tekun","giat","malas","ulet"],2,"Antonim rajin adalah malas."),
+P('M',"Sungai di dekat rumah Rina bersih dan jernih. Kata sifat pada kalimat itu adalah …",["bersih dan jernih","sungai","rumah","dekat"],0,"Kata yang menjelaskan keadaan sungai adalah bersih dan jernih."),
+P('S',"Predikat pada kalimat ‘Ibu memasak nasi’ adalah …",["Ibu","memasak","nasi","Ibu memasak"],1,"Predikat menyatakan perbuatan: memasak."),
+P('S',"Kata ‘menulis’ berasal dari kata dasar …",["menulis","tulisan","tulis","lis"],2,"me- + tulis = menulis."),
+B('S',"Kalimat ‘Ayam dimakan oleh kucing’ adalah kalimat aktif.",false,"Kalimat itu pasif karena subjek dikenai pekerjaan."),
+P('S',"Pasangan antonim yang benar adalah …",["tinggi–rendah","besar–luas","cepat–laju","indah–cantik"],0,"Tinggi lawan katanya rendah."),
+P('S',"Kalimat yang efektif adalah …",["Ia pergi ke pasar untuk membeli sayur.","Para siswa-siswa belajar.","Adik-adik semua-semuanya hadir.","Mereka tiba tiba sampai di sana."],0,"Kalimat efektif hemat kata dan jelas."),
+P('S',"Pada denah, panah ke atas biasanya menunjukkan arah …",["selatan","barat","utara","timur"],2,"Panah atas biasanya arah utara."),
+P('K',"Rina rajin belajar dan suka membantu teman. Watak Rina adalah …",["rajin dan peduli","malas","sombong","pelit"],0,"Watak dilihat dari perbuatannya."),
+P('K',"Kalimat berimbuhan me- yang tepat dari kata dasar ‘sapu’ adalah …",["Ibu menyapu halaman.","Ibu mensapu halaman.","Ibu memsapu halaman.","Ibu mengsapu halaman."],0,"me- + sapu = menyapu."),
+B('K',"Surat pribadi boleh memakai bahasa yang akrab kepada keluarga atau teman.",true,"Surat pribadi memakai bahasa santai namun sopan."),
+P('K',"Urutan kalimat yang benar: (1) Ia lalu mencuci tangan. (2) Dona pulang dari sekolah. (3) Setelah itu ia makan siang.",["2-1-3","1-2-3","3-2-1","2-3-1"],0,"Urutannya: pulang, cuci tangan, makan.")
+]);
+X(4,'jaw',[
+P('M',"Kosok balen ‘dhuwur’ yaiku …",["gedhe","dawa","cendhek","akeh"],2,"Dhuwur kosok baline cendhek."),
+P('M',"‘Aku’ ing basa krama yaiku …",["kula","panjenengan","dheweke","sampeyan"],0,"Aku dadi kula."),
+P('M',"Aksara Jawa ‘ha na ca ra ka’ diarani …",["carakan","pasangan","sandhangan","murda"],0,"Aksara nglegena diarani carakan."),
+P('M',"Pacelathon tegese …",["omong-omongan","nulis serat","nembang","nggambar"],0,"Pacelathon yaiku omong-omongan."),
+P('M',"Crita sing tokohe kewan diarani …",["fabel","wayang","geguritan","pacelathon"],0,"Fabel tokohe kewan."),
+P('M',"Tokoh Punakawan ing wayang yaiku …",["Semar, Gareng, Petruk, Bagong","Arjuna, Bima, Gatotkaca, Karna","Rama, Sinta, Laksmana, Hanoman","Kresna, Baladewa, Sadewa, Nakula"],0,"Punakawan: Semar, Gareng, Petruk, Bagong."),
+P('M',"Sandhangan swara ‘pepet’ swarane …",["i","u","ê","o"],2,"Pepet swarane ê."),
+P('M',"Basa ngoko biasane dianggo omong karo …",["kanca sing wis kenal","wong tuwa","guru","tamu penting"],0,"Ngoko dianggo karo kanca utawa wong sing wis akrab."),
+P('M',"Sandhangan wulu ditulis ing …",["ngisor aksara","ngarep aksara","ndhuwur aksara","mburi aksara"],2,"Wulu ditulis ing ndhuwur aksara."),
+B('M',"Fabel ngemot piwulang utawa amanat.",true,"Fabel kanggo menehi piwulang."),
+P('S',"‘Lunga’ ing basa krama inggil yaiku …",["dhahar","tindak","siram","sare"],1,"Lunga dadi tindak."),
+P('S',"Adhiku maca geguritan. Tembung kriya yaiku …",["maca","Adhiku","geguritan","ora ana"],0,"Maca tembung kriya."),
+B('S',"Aksara Jawa ditulis saka kiwa menyang tengen.",true,"Aksara Jawa ditulis saka kiwa menyang tengen."),
+P('S',"Amanat ‘aja ngapusi’ ditrapake kanthi …",["nyontek","tansah jujur","iri","muni sing ora-ora"],1,"Tansah jujur."),
+P('S',"Mitoni yaiku slametan nalika wong wadon …",["lair","meteng pitung wulan","nikah","tilar donya"],1,"Mitoni yaiku slametan meteng pitung wulan."),
+P('S',"Aksara ‘sa’ yen diwenehi sandhangan suku diwaca …",["si","su","so","sé"],1,"Suku swarane u: su."),
+P('K',"Ing pacelathon, pitakon sing sopan marang wong tuwa yaiku …",["Bapak badhe tindak pundi?","Bapak arep lunga nang ngendi?","Kowe arep lunga ngendi?","Pak, kowe lunga ngendi?"],0,"Marang wong tuwa nganggo basa krama."),
+P('K',"Aksara ‘ka’ + sandhangan taling tarung diwaca …",["ki","ku","ko","ké"],2,"Taling tarung swarane o: ko."),
+B('K',"Sandhangan suku ditulis ing sangisore aksara.",true,"Suku ditulis ing ngisor aksara."),
+P('K',"Sing kalebu tembung krama inggil yaiku …",["nedha","madhang","dhahar","mangan"],2,"Dhahar krama inggil.")
+]);
+X(4,'pai',[
+P('M',"QS An-Nasr terdiri atas … ayat",["3","4","5","6"],0,"QS An-Nasr terdiri atas 3 ayat."),
+P('M',"Al-Wahhab berarti Maha …",["Pengampun","Pembuka","Pemberi","Lembut"],2,"Al-Wahhab = Maha Pemberi."),
+P('M',"Al-Fattah berarti Maha …",["Pemberi","Pembuka","Lembut","Pengampun"],1,"Al-Fattah = Maha Pembuka."),
+P('M',"Salat sunah dua rakaat sebelum Subuh disebut …",["qabliyah Subuh","duha","tahajud","witir"],0,"Itu salat rawatib qabliyah Subuh."),
+P('M',"Sikap kepada ayah dan ibu yang benar adalah …",["hormat dan patuh","membantah","mengabaikan","berteriak"],0,"Kita wajib hormat dan patuh dalam kebaikan."),
+P('M',"Nabi Muhammad saw. lahir di kota …",["Makkah","Madinah","Yaman","Mesir"],0,"Nabi lahir di Makkah."),
+P('M',"Ayah Nabi Muhammad saw. bernama …",["Abu Thalib","Abu Bakar","Abdullah","Abdul Muthalib"],2,"Ayah Nabi adalah Abdullah."),
+P('M',"Ibu Nabi Muhammad saw. bernama …",["Khadijah","Aminah","Fatimah","Aisyah"],1,"Ibu Nabi adalah Aminah."),
+B('M',"Idgham artinya memasukkan huruf yang satu ke huruf yang lain.",true,"Idgham berarti memasukkan."),
+P('M',"Wahyu pertama diterima Nabi di gua …",["Tsur","Hira","Uhud","Arafah"],1,"Wahyu pertama turun di Gua Hira."),
+P('S',"Huruf idgham bighunnah ada … huruf",["5","3","4","6"],2,"Yaitu ya, nun, mim, wau."),
+P('S',"Salat duha minimal dikerjakan … rakaat",["4","2","6","8"],1,"Minimal 2 rakaat."),
+B('S',"Salat rawatib dikerjakan sebelum atau sesudah salat fardu.",true,"Rawatib mengiringi salat fardu."),
+P('S',"Meneladani Al-Latif dapat dilakukan dengan …",["bertutur kata lembut","berkata kasar","mudah marah","menyakiti teman"],0,"Al-Latif = Maha Lembut."),
+P('S',"Dari kalangan anak-anak, orang pertama yang beriman kepada Nabi adalah …",["Ali bin Abi Thalib","Abu Bakar","Umar","Utsman"],0,"Ali bin Abi Thalib."),
+P('S',"Gelar Nabi Muhammad saw. sebelum menjadi rasul adalah …",["Al-Amin","Al-Faruq","As-Siddiq","Dzun Nurain"],0,"Al-Amin = yang dapat dipercaya."),
+P('K',"Berikut yang BUKAN salat sunah adalah …",["salat Subuh","salat duha","salat tahajud","salat rawatib"],0,"Salat Subuh adalah salat fardu."),
+B('K',"Salat tahajud dikerjakan sesudah tidur malam.",true,"Tahajud dikerjakan setelah bangun tidur malam."),
+P('K',"Teman yang mudah memaafkan kesalahan sedang meneladani asmaul husna …",["Al-Wahhab","Al-Ghaffar","Al-Fattah","Al-Latif"],1,"Al-Ghaffar = Maha Pengampun."),
+P('K',"Adab kepada adik yang lebih kecil adalah …",["menyayangi dan membimbing","memarahi","mengejek","mengabaikan"],0,"Yang lebih besar menyayangi yang lebih kecil.")
+]);
+X(4,'pan',[
+P('M',"Sila pertama Pancasila berbunyi …",["Ketuhanan Yang Maha Esa","Kemanusiaan yang adil dan beradab","Persatuan Indonesia","Keadilan sosial bagi seluruh rakyat Indonesia"],0,"Sila 1: Ketuhanan Yang Maha Esa."),
+P('M',"Lambang sila ke-3 adalah …",["bintang","rantai","pohon beringin","kepala banteng"],2,"Sila 3 berlambang pohon beringin."),
+P('M',"Lambang sila ke-1 adalah …",["rantai","padi dan kapas","bintang","kepala banteng"],2,"Sila 1 berlambang bintang."),
+P('M',"Aturan dibuat agar kehidupan menjadi …",["tertib","kacau","bebas","ribut"],0,"Aturan membuat hidup tertib."),
+P('M',"Berbagi dengan teman yang membutuhkan sesuai sila ke-…",["1","5","3","4"],1,"Berbagi dan adil sesuai sila 5."),
+P('M',"Hak anak di sekolah adalah …",["mendapat pelajaran","membuang sampah","datang terlambat","membolos"],0,"Siswa berhak mendapat pelajaran."),
+P('M',"Kewajiban anak di rumah adalah …",["membantu orang tua","bermain terus","membantah","menunda tugas"],0,"Anak wajib membantu orang tua."),
+B('M',"Setiap orang boleh melanggar aturan jika tidak ketahuan.",false,"Aturan harus ditaati dalam keadaan apa pun."),
+P('M',"Mengambil keputusan bersama dilakukan melalui …",["paksaan","musyawarah","berebut","diam"],1,"Keputusan bersama diambil dengan musyawarah."),
+B('M',"Menghormati teman yang berbeda agama adalah sikap toleransi.",true,"Itu wujud toleransi."),
+P('S',"Contoh pengamalan sila ke-2 adalah …",["menolong korban bencana","menyontek","bertengkar","memilih-milih teman"],0,"Menolong sesama sesuai kemanusiaan."),
+P('S',"Contoh perilaku sesuai sila ke-3 adalah …",["berkelahi","mengejek suku lain","bergotong royong","memaksakan kehendak"],2,"Gotong royong menjaga persatuan."),
+B('S',"Hak dan kewajiban tidak perlu seimbang.",false,"Hak dan kewajiban harus seimbang."),
+P('S',"Akibat tidak mematuhi aturan lalu lintas adalah …",["kecelakaan atau sanksi","mendapat hadiah","dipuji","tidak ada akibat"],0,"Melanggar aturan dapat membahayakan dan dikenai sanksi."),
+P('S',"Piket kelas termasuk …",["larangan","hadiah","kewajiban siswa","hak guru"],2,"Piket adalah kewajiban siswa."),
+P('S',"Kesepakatan kelas dibuat oleh …",["guru saja","seluruh warga kelas","ketua kelas saja","siswa terpandai"],1,"Kesepakatan dibuat bersama."),
+P('K',"Dina menolak ikut membersihkan kelas karena merasa capek. Pernyataan yang benar …",["Dina melalaikan kewajiban","Dina menjalankan haknya","Dina benar","Dina taat aturan"],0,"Membersihkan kelas adalah kewajiban."),
+B('K',"Hasil musyawarah harus dilaksanakan bersama.",true,"Hasil musyawarah ditaati bersama."),
+P('K',"Sila ke-4 dicerminkan dengan …",["menghargai pendapat teman saat diskusi","memaksakan pendapat","pergi saat rapat","marah jika kalah"],0,"Menghargai pendapat adalah ciri sila 4."),
+P('K',"Setelah meminjam buku perpustakaan, siswa wajib …",["mengembalikan tepat waktu","menyimpan selamanya","merobeknya","menjualnya"],0,"Kewajiban peminjam: mengembalikan.")
+]);
+X(4,'sen',[
+P('M',"Alat untuk menghapus gambar pensil adalah …",["lem","gunting","penghapus","penggaris"],2,"Penghapus menghapus goresan pensil."),
+P('M',"Rumah adat Joglo berasal dari …",["Jawa Tengah","Papua","Sumatera Barat","Bali"],0,"Joglo dari Jawa Tengah."),
+P('M',"Rumah Gadang berasal dari …",["Jawa Barat","Sumatera Barat","Kalimantan","Sulawesi"],1,"Rumah Gadang dari Sumatera Barat."),
+P('M',"Bahan yang sering dipakai sebagai dasar diorama adalah …",["kardus","batu besar","besi","kaca"],0,"Kardus murah dan mudah dibentuk."),
+P('M',"Lem berfungsi untuk …",["memotong","mengukur","merekatkan","menghapus"],2,"Lem merekatkan bahan."),
+P('M',"Warna primer adalah …",["merah, kuning, biru","hijau, ungu, oranye","hitam, putih, abu-abu","merah, hijau, ungu"],0,"Warna primer: merah, kuning, biru."),
+B('M',"Wayang plastisin dibuat dari bahan lilin mainan.",true,"Plastisin adalah lilin mainan."),
+P('M',"Bubur kertas dibuat dari kertas bekas yang …",["direndam dan dihaluskan","dibakar","dipotong lalu dibuang","hanya dilem"],0,"Kertas direndam lalu dihaluskan."),
+P('M',"Krayon termasuk pewarna yang bersifat …",["berminyak","encer","cair","bening"],0,"Krayon berminyak."),
+P('M',"Menggambar sketsa sebaiknya dimulai dengan garis …",["tipis dan ringan","tebal dan gelap","hitam pekat","penuh warna"],0,"Garis tipis mudah diperbaiki."),
+P('S',"Rumah adat Honai berasal dari …",["Papua","Aceh","Sumatera Utara","Nusa Tenggara"],0,"Honai dari Papua."),
+P('S',"Sketsa pakaian biasanya menunjukkan …",["bentuk dan model pakaian","isi lemari","harga pakaian","cara mencuci"],0,"Sketsa pakaian merencanakan model."),
+B('S',"Diorama hanya boleh dibuat dari bahan mahal.",false,"Diorama dapat memakai bahan bekas dan murah."),
+P('S',"Langkah akhir membuat diorama adalah …",["merapikan dan menghias karya","membuang sisa bahan lalu pergi","menutup rapat","membakar"],0,"Setelah disusun, karya dirapikan."),
+P('S',"Rumah adat Tongkonan berasal dari …",["Sulawesi Selatan","Sumatera Selatan","Bali","Jawa Timur"],0,"Tongkonan dari Toraja, Sulawesi Selatan."),
+P('S',"Agar bubur kertas merekat dan kuat, perlu ditambah …",["lem kayu atau kanji","garam","air kopi","minyak"],0,"Perekat membuat bubur kertas padat."),
+P('K',"Setelah menggambar bentuk dasar rumah adat, langkah berikutnya …",["menambah detail atap dan ukiran","memberi warna sebelum sketsa","menghapus semua","membuang kertas"],0,"Urutan: bentuk dasar, detail, rapikan, warna."),
+P('K',"Pernyataan yang benar tentang cat air …",["encer dan transparan jika diberi banyak air","tidak larut air","selalu berminyak","tidak boleh dipakai di kertas"],0,"Cat air dilarutkan dengan air."),
+B('K',"Plastisin tidak mengeras sempurna seperti tanah liat.",true,"Plastisin tetap lunak."),
+P('K',"Karya tiga dimensi memiliki ukuran …",["panjang, lebar, dan tinggi","hanya panjang","hanya lebar","hanya warna"],0,"Tiga dimensi = panjang, lebar, tinggi.")
+]);
+X(4,'dab',[
+P('M',"Dawet Ayu berasal dari daerah …",["Aceh","Banjarnegara","Bali","Papua"],1,"Dawet Ayu khas Banjarnegara."),
+P('M',"Punakawan yang paling tua dan bijaksana adalah …",["Semar","Gareng","Petruk","Bagong"],0,"Semar."),
+P('M',"Bahan utama cendol dawet ayu adalah tepung …",["terigu","beras","kentang","roti"],1,"Cendol dibuat dari tepung beras."),
+P('M',"Gula merah cair pada dawet memberi rasa …",["asam","manis","pahit","pedas"],1,"Gula merah manis."),
+P('M',"Alat untuk menyaring santan adalah …",["saringan","gunting","palu","gergaji"],0,"Saringan menyaring santan."),
+P('M',"Sebelum membuat dawet, kita harus mencuci …",["tangan dan alat","sepatu","kaos","buku"],0,"Kebersihan tangan dan alat penting."),
+B('M',"Poster digital dapat dibuat menggunakan aplikasi desain.",true,"Aplikasi desain dapat dipakai membuat poster."),
+P('M',"Tujuan poster dawet ayu adalah …",["menarik pembeli dan memberi informasi","membuat bising","menutup toko","menghabiskan bahan"],0,"Poster mengajak dan memberi informasi."),
+P('M',"Minuman tradisional Banjarnegara berkuah santan dan gula merah adalah …",["es teh","dawet ayu","kopi","jus"],1,"Dawet ayu."),
+B('M',"Punakawan adalah tokoh pendamping ksatria dalam pewayangan.",true,"Punakawan adalah abdi pendamping."),
+P('S',"Sikap jujur Punakawan dapat diterapkan penjual dawet dengan …",["tidak mengurangi takaran","menaikkan harga sembarangan","mencampur bahan basi","berbohong tentang bahan"],0,"Jujur berarti takaran sesuai."),
+P('S',"Dawet Ayu membantu ekonomi kreatif karena …",["menciptakan usaha dan lapangan kerja","menambah sampah","membuat macet","menutup usaha"],0,"Usaha kuliner membuka lapangan kerja."),
+B('S',"Bahan yang sudah berjamur masih aman dipakai membuat dawet.",false,"Bahan berjamur tidak boleh dipakai."),
+P('S',"Setelah dicetak, cendol direndam di …",["air es atau air dingin","minyak","pasir","cuka"],0,"Air dingin membuat cendol kenyal."),
+P('S',"Prinsip kesatuan pada poster berarti …",["semua unsur tampak menyatu","warna berbeda semua","tidak ada tulisan","gambar acak"],0,"Kesatuan = unsur menyatu."),
+P('S',"Agar dawet tidak cepat basi sebaiknya disimpan …",["di tempat bersih dan tertutup","terbuka di luar","di tempat kotor","di bawah matahari langsung"],0,"Simpan bersih dan tertutup."),
+P('K',"Langkah paling awal membuat dawet adalah …",["menyiapkan dan mencuci bahan","menyajikan","mencetak cendol","menghias poster"],0,"Persiapan bahan dahulu."),
+P('K',"Poster dawet ayu yang baik memuat …",["judul, gambar menarik, dan informasi singkat","tulisan sangat banyak dan kecil","hanya warna","tanpa gambar dan teks"],0,"Poster jelas dan menarik."),
+B('K',"Pedagang yang meneladani Punakawan akan bersikap ramah dan jujur.",true,"Ramah dan jujur adalah teladan."),
+P('K',"Dampak menjaga kebersihan alat saat membuat dawet adalah …",["dawet aman dan higienis","dawet berbau","dawet cepat basi","dawet kotor"],0,"Alat bersih membuat makanan aman.")
+]);
+
+X(5,'mat',[
+P('M',"Lambang bilangan 305.000 dibaca …",["Tiga ratus lima ribu","Tiga puluh ribu lima","Tiga ratus lima puluh ribu","Tiga ribu lima"],0,"305.000 = tiga ratus lima ribu."),
+P('M',"Nilai angka 4 pada 640.215 adalah …",["4.000","40.000","400.000","4"],1,"Angka 4 berada di puluh ribuan: 40.000."),
+P('M',"125.000 + 75.000 = …",["190.000","200.000","210.000","220.000"],1,"125.000 + 75.000 = 200.000."),
+P('M',"48 × 5 = …",["200","240","250","280"],1,"48 × 5 = 240."),
+P('M',"3/8 + 2/8 = …",["5/16","5/8","6/8","1/8"],1,"Penyebut sama: 3 + 2 = 5, jadi 5/8."),
+P('M',"Faktor dari 12 adalah …",["1, 2, 3, 4, 6, 12","1, 2, 4, 8","2, 4, 6","3, 6, 9"],0,"Semua bilangan yang membagi habis 12."),
+P('M',"KPK dari 3 dan 5 adalah …",["8","15","30","2"],1,"Kelipatan 3 dan 5 terkecil yang sama: 15."),
+P('M',"Keliling persegi dengan sisi 7 cm adalah … cm",["14","21","28","49"],2,"4 × 7 = 28."),
+P('M',"Luas persegi dengan sisi 8 cm adalah … cm²",["16","32","64","81"],2,"8 × 8 = 64."),
+B('M',"Bilangan 1.000.000 dibaca satu juta.",true,"1.000.000 = satu juta."),
+P('S',"5/6 − 1/3 = …",["4/3","1/2","2/3","1/3"],1,"5/6 − 2/6 = 3/6 = 1/2."),
+P('S',"FPB dari 24 dan 36 adalah …",["6","12","18","72"],1,"Faktor persekutuan terbesar adalah 12."),
+P('S',"Keliling persegi panjang 15 cm × 9 cm adalah … cm",["24","48","54","135"],1,"2 × (15 + 9) = 48."),
+B('S',"2 1/2 sama dengan 5/2.",true,"2 1/2 = (2×2+1)/2 = 5/2."),
+P('S',"Toko menjual 1.250 buku hari Senin dan 1.875 buku hari Selasa. Jumlahnya …",["2.925","3.025","3.125","3.225"],2,"1.250 + 1.875 = 3.125."),
+P('S',"Lampu A menyala tiap 4 detik, lampu B tiap 10 detik. Menyala bersamaan setiap … detik",["14","20","40","6"],1,"KPK 4 dan 10 = 20."),
+P('K',"Taman persegi panjang 18 m × 12 m dikelilingi pagar. Panjang pagar … m",["30","60","108","216"],1,"2 × (18 + 12) = 60."),
+P('K',"Luas persegi panjang 144 cm² dan lebarnya 9 cm. Panjangnya … cm",["12","15","16","18"],2,"144 : 9 = 16."),
+B('K',"Faktorisasi prima 60 adalah 2 × 2 × 3 × 5.",true,"2 × 2 × 3 × 5 = 60."),
+P('K',"Ibu punya 3/4 kg tepung, memakai 1/2 kg, lalu membeli 2/3 kg. Tepung sekarang … kg",["11/12","5/6","1 1/12","7/12"],0,"3/4 − 1/2 = 1/4; 1/4 + 2/3 = 3/12 + 8/12 = 11/12.")
+]);
+X(5,'ipas',[
+P('M',"Indonesia terletak di antara dua benua, yaitu …",["Asia dan Australia","Afrika dan Eropa","Amerika dan Asia","Eropa dan Australia"],0,"Indonesia berada di antara Benua Asia dan Australia."),
+P('M',"Indonesia dilalui garis …",["khatulistiwa","bujur nol","lintang 90","kutub"],0,"Khatulistiwa melintasi Indonesia."),
+P('M',"Indonesia disebut negara kepulauan karena memiliki banyak …",["pulau","gunung berapi saja","pantai saja","sungai saja"],0,"Negara kepulauan = terdiri atas banyak pulau."),
+P('M',"Kebutuhan seperti pangan, sandang, dan papan disebut kebutuhan …",["primer","sekunder","tersier","mewah"],0,"Itu kebutuhan primer."),
+P('M',"Kegiatan menghasilkan barang atau jasa disebut …",["produksi","konsumsi","distribusi","promosi"],0,"Menghasilkan = produksi."),
+P('M',"Kegiatan memakai barang untuk memenuhi kebutuhan disebut …",["konsumsi","produksi","distribusi","koleksi"],0,"Memakai = konsumsi."),
+P('M',"Benda tak hidup dalam ekosistem disebut komponen …",["abiotik","biotik","produsen","konsumen"],0,"Tak hidup = abiotik."),
+P('M',"Hewan pemakan tumbuhan disebut …",["herbivora","karnivora","omnivora","dekomposer"],0,"Pemakan tumbuhan = herbivora."),
+P('M',"Hewan pemakan tumbuhan dan hewan disebut …",["omnivora","herbivora","karnivora","produsen"],0,"Pemakan segalanya = omnivora."),
+B('M',"Jamur berperan sebagai pengurai dalam ekosistem.",true,"Jamur menguraikan sisa makhluk hidup."),
+P('S',"Garis khatulistiwa berada pada lintang …",["0°","23,5°","66,5°","90°"],0,"Khatulistiwa = lintang 0°."),
+P('S',"Indonesia beriklim tropis karena terletak di sekitar …",["khatulistiwa","kutub utara","kutub selatan","lintang tinggi"],0,"Dekat khatulistiwa sehingga tropis."),
+B('S',"Distribusi adalah menyalurkan barang dari produsen ke konsumen.",true,"Itu pengertian distribusi."),
+P('S',"Pedagang sayur yang membawa sayur dari petani ke pasar melakukan kegiatan …",["distribusi","produksi","konsumsi","penyimpanan"],0,"Menyalurkan barang = distribusi."),
+P('S',"Rantai makanan: rumput → belalang → katak → ular. Konsumen tingkat II adalah …",["katak","belalang","rumput","ular"],0,"Belalang konsumen I, katak konsumen II."),
+P('S',"Penebangan hutan secara liar dapat menyebabkan …",["banjir dan longsor","udara bersih","tanah subur","populasi hewan bertambah"],0,"Hutan menahan air dan tanah."),
+P('K',"Jika produsen berkurang drastis, yang pertama terdampak adalah …",["konsumen tingkat I","hanya pengurai","hanya karnivora puncak","tidak ada yang terdampak"],0,"Konsumen I bergantung langsung pada produsen."),
+P('K',"Jalur laut Indonesia penting karena …",["Indonesia berada di jalur pelayaran dunia","tidak ada laut","terlalu sempit","tidak dilalui kapal"],0,"Letak strategis di antara dua benua dan dua samudra."),
+B('K',"Rantai makanan selalu dimulai dari konsumen.",false,"Rantai makanan dimulai dari produsen."),
+P('K',"Lebah dan bunga saling membantu. Manfaat bagi bunga adalah …",["terjadi penyerbukan","dimakan lebah","tumbuh lebih kecil","kehilangan warna"],0,"Lebah membantu penyerbukan.")
+]);
+X(5,'ind',[
+P('M',"Antonim ‘gelap’ adalah …",["terang","hitam","redup","kelam"],0,"Lawan gelap adalah terang."),
+P('M',"Sinonim ‘indah’ adalah …",["cantik","buruk","kotor","gelap"],0,"Indah bersinonim dengan cantik."),
+P('M',"pe- + tani = …",["petani","penani","pentani","tani"],0,"pe- + tani = petani."),
+P('M',"Kalimat langsung ditandai dengan tanda …",["petik dua (“…”)","titik dua","tanda tanya","garis miring"],0,"Kalimat langsung memakai tanda petik."),
+P('M',"Bagian awal teks prosedur biasanya berisi …",["tujuan","kesimpulan","salam","amanat"],0,"Teks prosedur dibuka dengan tujuan."),
+P('M',"Majas yang membandingkan memakai kata ‘seperti’ adalah …",["simile","personifikasi","hiperbola","metafora"],0,"Simile memakai kata pembanding."),
+P('M',"‘Meja hijau’ berarti …",["pengadilan","meja berwarna hijau","kantin","taman"],0,"Meja hijau = pengadilan."),
+P('M',"Orang yang menulis puisi disebut …",["penyair","penyiar","pelukis","penari"],0,"Penulis puisi disebut penyair."),
+B('M',"Puisi akrostik disusun dari huruf awal tiap baris yang membentuk kata.",true,"Itulah ciri puisi akrostik."),
+P('M',"Kalimat deskripsi menggambarkan …",["ciri-ciri suatu objek","langkah kerja","perintah","kejadian masa depan"],0,"Deskripsi = menggambarkan ciri-ciri."),
+P('S',"Kalimat majemuk setara: ‘Ayah membaca koran dan Ibu memasak.’ Kata hubungnya …",["dan","membaca","koran","Ayah"],0,"Kata hubung penjumlahan adalah ‘dan’."),
+P('S',"Kalimat tidak langsung dari: Rudi berkata, “Saya lapar.” adalah …",["Rudi berkata bahwa dia lapar.","Rudi berkata saya lapar.","“Rudi lapar,” katanya.","Rudi lapar berkata."],0,"Kalimat tidak langsung memakai ‘bahwa’."),
+B('S',"Antonim ‘rajin’ adalah ‘malas’.",true,"Rajin berlawanan dengan malas."),
+P('S',"Kata hubung yang tepat: ‘Dia sakit, … tetap berangkat sekolah.’",["tetapi","dan","karena","sehingga"],0,"Menyatakan pertentangan: tetapi."),
+P('S',"Idiom ‘lepas tangan’ berarti …",["tidak mau bertanggung jawab","tangan terlepas","menolong","membantu"],0,"Lepas tangan = tidak bertanggung jawab."),
+P('S',"Langkah-langkah dalam teks prosedur ditulis secara …",["berurutan","acak","terbalik","tanpa nomor"],0,"Prosedur disusun berurutan."),
+P('K',"Kalimat dengan imbuhan pe- yang benar adalah …",["Pelari itu juara lomba.","Pelari itu pelarian lomba.","Penlari itu juara.","Pemlari itu juara."],0,"pe- + lari = pelari."),
+P('K',"‘Anak itu bagai mentari pagi.’ Makna kiasnya …",["ceria dan menyemangati","sangat panas","datang pagi","bersinar sendiri"],0,"Mentari pagi melambangkan keceriaan."),
+B('K',"Teks prosedur menggunakan kalimat perintah dan langkah yang berurutan.",true,"Prosedur berisi langkah berurutan dan umumnya kalimat perintah."),
+P('K',"Ide pokok paragraf: ‘Membaca buku bermanfaat. Kita menjadi pandai. Kita menambah kosakata.’ adalah …",["Membaca buku bermanfaat","Kita menambah kosakata","Kita menjadi pandai","Buku itu tebal"],0,"Kalimat utama di awal paragraf.")
+]);
+X(5,'jaw',[
+P('M',"Crita rakyat sing nyritakake asal-usule panggonan diarani …",["legenda","fabel","geguritan","pacelathon"],0,"Legenda nyritakake asal-usul panggonan."),
+P('M',"Tembang Maskumambang duwe … larik",["4","6","9","7"],0,"Maskumambang duwe 4 larik."),
+P('M',"Punakawan sing cacat sikil lan tangane yaiku …",["Petruk","Gareng","Semar","Bagong"],1,"Gareng."),
+P('M',"Gunung njeblug klebu prastawa …",["alam","wayang","tradisi","pacelathon"],0,"Prastawa alam."),
+P('M',"Prastawa alam sing ndadekake lemah goyang diarani …",["lindhu","banjir","longsor","angin ribut"],0,"Lindhu = lemah goyang."),
+P('M',"Aksara Jawa ‘ha’ yen diwenehi wulu diwaca …",["hi","hu","he","ho"],0,"Wulu swarane i."),
+P('M',"Aksara Jawa ‘na’ yen diwenehi suku diwaca …",["nu","ni","no","né"],0,"Suku swarane u."),
+P('M',"Piwulang saka crita sing apik diarani …",["amanat","judhul","tokoh","latar"],0,"Amanat."),
+B('M',"Pasangan aksara Jawa ditulis ing ngisor aksara sadurunge.",true,"Pasangan ditulis ing ngisor."),
+P('M',"Sing kalebu tembung kriya yaiku …",["mlaku","kursi","meja","apik"],0,"Mlaku nuduhake tumindak."),
+P('S',"Tembang Maskumambang asring nyritakake …",["rasa sedhih lan prihatin","rasa bungah banget","perang gedhe","dagang"],0,"Maskumambang nggambarake rasa prihatin."),
+P('S',"Banjir bisa dicegah kanthi …",["ora mbuwang sampah ing kali","nebang wit sakarepe","mbuwang sampah ing kali","ngrusak kali"],0,"Ora mbuwang sampah ing kali."),
+B('S',"Semar yaiku Punakawan sing paling tuwa.",true,"Semar paling tuwa."),
+P('S',"‘Mangan’ ing basa krama yaiku …",["nedha","dhahar","maem","madhang"],0,"Mangan dadi nedha."),
+P('S',"Aksara ‘ca’ + pepet diwaca …",["cê","ci","cu","co"],0,"Pepet swarane ê."),
+P('S',"Legenda Rawa Pening nyritakake bab …",["Baru Klinthing","Joko Tarub","Timun Mas","Roro Jonggrang"],0,"Baru Klinthing."),
+P('K',"Ukara pitakon kanggo jawaban ‘Ing pasar’ yaiku …",["Ibu tuku sayur ing ngendi?","Ibu tuku sayur apa?","Ibu tuku sayur sapa?","Ibu tuku sayur kapan?"],0,"Ing ngendi takon panggonan."),
+P('K',"Pasangan aksara Jawa digunakake kanggo …",["nyambung tembung tanpa vokal ing antarane","ngganti swara","mungkasi ukara","nulis angka"],0,"Pasangan nyambung aksara tanpa swara."),
+B('K',"Tembang Maskumambang kalebu tembang macapat.",true,"Maskumambang tembang macapat."),
+P('K',"Cara ngurangi risiko lindhu ing omah yaiku …",["nggawe omah kuwat lan ngerti dalan ngungsi","nglokro","omah dhuwur banget tanpa rancangan","ora gawe omah"],0,"Omah kuwat lan ngerti dalan ngungsi.")
+]);
+X(5,'pai',[
+P('M',"Mim sukun bertemu huruf mim dibaca …",["idgham mimi","ikhfa syafawi","izhar syafawi","idgham bilaghunnah"],0,"Mim sukun + mim = idgham mimi."),
+P('M',"Mim sukun bertemu huruf ba dibaca …",["ikhfa syafawi","idgham mimi","izhar syafawi","iqlab"],0,"Mim sukun + ba = ikhfa syafawi."),
+P('M',"QS Al-‘Asr bermakna demi …",["masa/waktu","matahari","bulan","malam"],0,"Al-‘Asr = masa."),
+P('M',"Al-Hakim berarti Maha …",["Bijaksana","Penyayang","Pemberi","Pengampun"],0,"Al-Hakim = Maha Bijaksana."),
+P('M',"Orang berpuasa wajib menahan diri dari …",["makan dan minum","tidur","membaca","berjalan"],0,"Puasa menahan makan dan minum."),
+P('M',"Puasa wajib dilaksanakan pada bulan …",["Ramadan","Syaban","Muharram","Rajab"],0,"Bulan Ramadan."),
+P('M',"Puasa sunah mingguan dilaksanakan pada hari …",["Senin dan Kamis","Selasa dan Rabu","Jumat saja","Sabtu dan Minggu"],0,"Senin dan Kamis."),
+P('M',"Kaum Anshar adalah penduduk Madinah yang …",["menolong Nabi dan kaum Muhajirin","menolak Nabi","melarang hijrah","pergi ke Makkah"],0,"Anshar = penolong."),
+B('M',"Tawakal berarti berserah diri kepada Allah setelah berusaha.",true,"Tawakal dilakukan setelah ikhtiar."),
+P('M',"Berdoa sebaiknya diawali dengan …",["memuji Allah dan bersalawat","bercanda","berteriak","tidur"],0,"Adab berdoa: memuji Allah dan bersalawat."),
+P('S',"Nabi Muhammad saw. berhijrah dari Makkah ke …",["Madinah","Thaif","Habasyah","Yaman"],0,"Hijrah ke Madinah."),
+P('S',"Puasa Arafah dilaksanakan pada tanggal … Zulhijah",["9","10","12","15"],0,"Tanggal 9 Zulhijah."),
+B('S',"Orang yang lupa lalu makan saat berpuasa, puasanya batal.",false,"Makan karena lupa tidak membatalkan puasa."),
+P('S',"Meneladani Al-Halim dapat dilakukan dengan …",["sabar dan tidak mudah marah","membalas dendam","cepat marah","berkata kasar"],0,"Al-Halim = Maha Penyantun."),
+P('S',"Mim sukun bertemu huruf ta (selain mim dan ba) dibaca …",["izhar syafawi","idgham mimi","ikhfa syafawi","iqlab"],0,"Izhar syafawi."),
+P('S',"Contoh tawakal adalah …",["belajar giat lalu berdoa dan menerima hasil","tidak belajar lalu berdoa","menyontek","menyerah"],0,"Berusaha dulu, lalu berserah diri."),
+P('K',"Menurut QS Al-‘Asr, orang beruntung saling menasihati dalam …",["kebenaran dan kesabaran","kekayaan","hiburan","kekuasaan"],0,"Saling menasihati dalam kebenaran dan kesabaran."),
+P('K',"Salah satu yang membatalkan puasa adalah …",["sengaja makan dan minum","menggosok gigi","mandi","membaca"],0,"Makan dan minum dengan sengaja."),
+B('K',"Piagam Madinah adalah perjanjian damai antarpenduduk Madinah.",true,"Piagam Madinah mengatur hidup damai."),
+P('K',"Berdoa setelah berusaha mengerjakan ujian merupakan contoh …",["tawakal","sombong","malas","putus asa"],0,"Tawakal.")
+]);
+X(5,'pan',[
+P('M',"Sila ke-2 Pancasila berbunyi …",["Kemanusiaan yang adil dan beradab","Persatuan Indonesia","Ketuhanan Yang Maha Esa","Keadilan sosial bagi seluruh rakyat Indonesia"],0,"Sila ke-2."),
+P('M',"Lambang sila ke-4 adalah …",["kepala banteng","bintang","pohon beringin","padi dan kapas"],0,"Kepala banteng."),
+P('M',"Lambang sila ke-5 adalah …",["padi dan kapas","rantai","pohon beringin","bintang"],0,"Padi dan kapas."),
+P('M',"Norma yang berasal dari ajaran agama disebut norma …",["agama","hukum","kesopanan","kesusilaan"],0,"Norma agama."),
+P('M',"Norma yang dibuat pemerintah dan bersanksi tegas adalah norma …",["hukum","agama","kesopanan","kesusilaan"],0,"Norma hukum."),
+P('M',"Keputusan yang disepakati bersama dalam musyawarah disebut …",["mufakat","paksaan","perintah","undian"],0,"Mufakat."),
+P('M',"Gotong royong artinya bekerja …",["bersama-sama","sendiri","bergantian tidur","hanya jika disuruh"],0,"Bekerja bersama-sama."),
+P('M',"Memberi salam kepada guru termasuk norma …",["kesopanan","hukum","agama","ekonomi"],0,"Norma kesopanan."),
+B('M',"Pancasila adalah dasar negara Indonesia.",true,"Pancasila dasar negara."),
+P('M',"Berdoa sebelum makan sesuai dengan sila ke-…",["1","2","3","4"],0,"Sila 1."),
+P('S',"Menghargai teman yang berbeda pendapat sesuai dengan sila ke-…",["4","1","2","3"],0,"Musyawarah dan menghargai pendapat: sila 4."),
+P('S',"Kerja bakti bersama warga sesuai dengan sila ke-…",["3","1","2","5"],0,"Persatuan dan gotong royong: sila 3."),
+B('S',"Tidak mencontek saat ujian termasuk norma kesusilaan.",true,"Kejujuran = norma kesusilaan."),
+P('S',"Contoh pelanggaran norma kesopanan adalah …",["berbicara kasar kepada guru","menyapa guru","membantu teman","mengantre"],0,"Berbicara kasar tidak sopan."),
+P('S',"Tujuan musyawarah adalah …",["mencapai keputusan yang adil bersama","memenangkan diri sendiri","membuat ribut","menunda masalah"],0,"Keputusan adil bersama."),
+P('S',"Contoh pengamalan sila ke-5 adalah …",["bersikap adil kepada semua teman","membeda-bedakan teman","menang sendiri","mengambil hak orang lain"],0,"Adil kepada semua."),
+P('K',"Pendapat Rani tidak diterima dalam musyawarah. Sikap yang tepat adalah …",["menerima keputusan bersama dengan lapang dada","marah dan pergi","tidak mau melaksanakan","menyalahkan teman"],0,"Menghormati hasil musyawarah."),
+P('K',"Kelompok bekerja sama membersihkan kelas. Sikap tersebut mencerminkan sila …",["3 dan 5","1 saja","2 saja","tidak ada"],0,"Persatuan dan keadilan/kebersamaan."),
+B('K',"Norma kesusilaan berkaitan dengan hati nurani.",true,"Kesusilaan bersumber dari hati nurani."),
+P('K',"Ketua RT mengajak warga memperbaiki jalan bersama. Nilai Pancasila yang tampak adalah …",["gotong royong dan persatuan","persaingan","ketakutan","kebencian"],0,"Gotong royong dan persatuan.")
+]);
+X(5,'sen',[
+P('M',"Warna primer terdiri atas …",["merah, kuning, biru","hijau, ungu, oranye","hitam, putih, abu-abu","merah, hijau, biru muda"],0,"Warna primer: merah, kuning, biru."),
+P('M',"Pengulangan unsur secara teratur disebut …",["ritme/irama","proporsi","kontras","gradasi"],0,"Ritme."),
+P('M',"Perbandingan ukuran antarbagian disebut …",["proporsi","ritme","warna","tekstur"],0,"Proporsi."),
+P('M',"Warna sekunder adalah …",["hijau, ungu, oranye","merah, kuning, biru","hitam, putih","emas, perak"],0,"Campuran dua warna primer."),
+P('M',"Benda yang jauh tampak …",["lebih kecil","lebih besar","sama","hilang"],0,"Makin jauh makin kecil."),
+P('M',"Halus atau kasarnya permukaan disebut …",["tekstur","warna","bidang","garis"],0,"Tekstur."),
+P('M',"Mencampur merah dan kuning menghasilkan warna …",["oranye","hijau","ungu","cokelat tua"],0,"Merah + kuning = oranye."),
+B('M',"Komposisi adalah tata letak objek dalam karya.",true,"Komposisi = penataan objek."),
+P('M',"Menggambar objek sebaiknya dimulai dari …",["sketsa bentuk dasar","memberi warna","membuat bayangan","menandatangani"],0,"Mulai dari sketsa."),
+P('M',"Garis yang berbentuk gelombang disebut garis …",["lengkung bergelombang","lurus","tegak","patah"],0,"Garis lengkung bergelombang."),
+P('S',"Mencampur biru dan kuning menghasilkan warna …",["hijau","ungu","oranye","merah"],0,"Biru + kuning = hijau."),
+P('S',"Komposisi simetris berarti …",["kiri dan kanan sama","kiri lebih besar","acak","tanpa objek"],0,"Kiri-kanan sama."),
+B('S',"Kontras digunakan untuk membuat bagian tertentu menonjol.",true,"Kontras menarik perhatian."),
+P('S',"Gradasi warna adalah …",["perubahan warna terang ke gelap bertahap","satu warna saja","warna acak","hitam putih saja"],0,"Gradasi = perubahan bertahap."),
+P('S',"Ritme terlihat pada karya dengan …",["motif berulang teratur","objek acak","satu warna","satu garis"],0,"Motif berulang."),
+P('S',"Agar proporsi wajah seimbang, perhatikan …",["perbandingan ukuran mata, hidung, mulut","warna baju","nama gambar","bingkai"],0,"Proporsi antarbagian."),
+P('K',"Bunga dengan kelopak makin besar dari tengah menunjukkan ritme yang ukurannya …",["makin membesar","tetap","acak","hilang"],0,"Ritme progresif."),
+P('K',"Setelah sketsa selesai, langkah berikutnya …",["menebalkan garis dan mewarnai","menghapus semua","membuang","menyobek"],0,"Finishing."),
+B('K',"Komposisi asimetris tidak harus sama kiri-kanan namun tetap seimbang.",true,"Asimetris seimbang tanpa sama persis."),
+P('K',"Kesatuan dalam karya tercapai bila …",["semua unsur menyatu serasi","unsur saling bertabrakan","tanpa tema","warna acak"],0,"Unsur serasi.")
+]);
+X(5,'dab',[
+P('M',"Pewarna alami hijau untuk cendol berasal dari daun …",["pandan atau suji","jati","pisang","bambu"],0,"Pandan atau suji."),
+P('M',"Warna biru alami dapat berasal dari bunga …",["telang","mawar","melati","kenanga"],0,"Bunga telang."),
+P('M',"Toping dawet yang kenyal dan putih adalah …",["nata de coco","kacang tanah","cokelat batang","keripik"],0,"Nata de coco."),
+P('M',"Aplikasi untuk membuat desain promosi adalah …",["Canva","kalkulator","kompas","stopwatch"],0,"Canva."),
+P('M',"Banjarnegara dikenal menghasilkan buah …",["salak","apel","anggur","stroberi"],0,"Salak."),
+P('M',"Salak mengandung vitamin dan … yang baik bagi tubuh",["serat","racun","pasir","besi karat"],0,"Serat."),
+B('M',"Promosi online dapat dilakukan lewat media sosial.",true,"Media sosial sarana promosi."),
+P('M',"Alat untuk mengiris buah salak adalah …",["pisau","palu","gergaji","obeng"],0,"Pisau dipakai mengiris buah."),
+P('M',"Keripik salak dibuat dari irisan buah yang …",["digoreng","direbus asam","dibakar","dibekukan"],0,"Digoreng."),
+P('M',"Terasering pada lahan miring berguna untuk …",["mencegah longsor dan erosi","menambah banjir","menebang pohon","menutup jalan"],0,"Mencegah longsor."),
+P('S',"Olahan salak memiliki harga jual lebih tinggi karena …",["diberi nilai tambah","dibuang","dimakan sendiri","tidak laku"],0,"Nilai tambah."),
+P('S',"Desain promosi yang menarik memuat …",["gambar produk, nama, dan kontak","teks sangat panjang","tanpa judul","warna gelap semua"],0,"Informasi jelas."),
+B('S',"Pewarna alami pada cendol lebih aman daripada pewarna tekstil.",true,"Pewarna tekstil berbahaya."),
+P('S',"Urutan meracik dawet: cendol, santan, gula merah, es. Setelah cendol, langkah berikutnya …",["menuang santan","menambah es dulu","menutup gelas","menyajikan kosong"],0,"Santan setelah cendol."),
+P('S',"Memilih bibit salak berkualitas bertujuan …",["hasil panen baik","menambah hama","merusak tanah","menunda panen"],0,"Hasil panen baik."),
+P('S',"Pupuk organik dibuat dari …",["sisa tumbuhan dan kotoran ternak","plastik","logam","kaca"],0,"Bahan alami."),
+P('K',"Agar promosi online menarik perhatian, hal terpenting …",["foto jelas dan ajakan menarik","foto buram","tulisan kecil","tanpa kontak"],0,"Foto jelas dan ajakan."),
+P('K',"Manfaat ekonomi mengolah salak menjadi dodol adalah …",["harga jual naik dan tahan lebih lama","buah cepat busuk","biaya hilang","tidak ada hasil"],0,"Nilai tambah dan awet."),
+B('K',"Daun pandan dapat dipakai sebagai pewarna dan pewangi alami cendol.",true,"Pandan memberi warna hijau dan aroma harum."),
+P('K',"Budidaya salak yang ramah lingkungan adalah …",["memakai pupuk organik dan menjaga tanah","membakar lahan","menebang semua pohon","membuang sampah plastik"],0,"Pupuk organik dan konservasi tanah.")
+]);
+
+X(6,'mat',[
+P('M',"Suhu 8 derajat di bawah nol ditulis …",["8","−8","+80","0"],1,"Di bawah nol = negatif."),
+P('M',"Bilangan terbesar dari −7, −2, 0, −10 adalah …",["0","−2","−7","−10"],0,"0 paling kanan."),
+B('M',"−6 lebih kecil daripada −3.",true,"−6 di kiri −3."),
+P('M',"(−5) + (−4) = …",["−9","−1","1","9"],0,"Tanda sama: jumlahkan, tanda negatif."),
+P('M',"12 − 20 = …",["8","−8","32","−32"],1,"12 − 20 = −8."),
+P('M',"(−3) × (−9) = …",["−27","−12","12","27"],3,"Tanda sama → positif."),
+P('M',"36 : (−4) = …",["9","−9","32","−32"],1,"Tanda beda → negatif."),
+P('M',"1/2 + 1/4 = …",["2/6","3/4","2/4","1/6"],1,"2/4 + 1/4 = 3/4."),
+P('M',"0,5 sama dengan pecahan …",["1/2","1/5","5/100","2/1"],0,"0,5 = 5/10 = 1/2."),
+P('M',"KPK dari 2 dan 3 adalah …",["5","6","1","12"],1,"Kelipatan persekutuan terkecil: 6."),
+P('S',"Urutan dari terbesar: 3, −8, 0, −1",["3, 0, −1, −8","−8, −1, 0, 3","0, 3, −1, −8","3, −1, 0, −8"],0,"3 > 0 > −1 > −8."),
+P('S',"Suhu −2°C turun 5°C. Suhu sekarang … °C",["−7","−3","3","7"],0,"−2 − 5 = −7."),
+B('S',"(−4) × 5 = 20",false,"Tanda beda → negatif: −20."),
+P('S',"2/3 × 3/4 = …",["5/7","1/2","6/7","1/4"],1,"6/12 = 1/2."),
+P('S',"Harga sepatu Rp200.000 diskon 30%. Harga yang dibayar …",["Rp60.000","Rp140.000","Rp170.000","Rp230.000"],1,"Diskon 60.000; bayar 140.000."),
+P('S',"FPB dari 18 dan 24 adalah …",["3","6","9","72"],1,"18 = 2×3², 24 = 2³×3, FPB = 2×3 = 6."),
+P('K',"Saldo Dani −Rp20.000 (utang), lalu menabung Rp50.000 dan membeli buku Rp15.000. Saldo akhir …",["Rp15.000","Rp45.000","−Rp15.000","Rp85.000"],0,"−20.000 + 50.000 − 15.000 = 15.000."),
+P('K',"3/4 : 3/8 = …",["2","1/2","9/32","3/2"],0,"3/4 × 8/3 = 2."),
+B('K',"KPK dari 8 dan 12 adalah 24.",true,"8 = 2³ dan 12 = 2²×3. KPK = 2³×3 = 24."),
+P('K',"Dina punya 36 permen dan 48 cokelat, dibagi ke kantong sama banyak tanpa sisa. Kantong terbanyak …",["6","12","24","144"],1,"FPB 36 dan 48 = 12.")
+]);
+X(6,'ipas',[
+P('M',"Organ tempat air diserap dan feses terbentuk adalah …",["usus besar","usus halus","lambung","kerongkongan"],0,"Usus besar menyerap air dan membentuk feses."),
+P('M',"Otot di bawah paru-paru yang membantu pernapasan adalah …",["diafragma","jantung","lambung","hati"],0,"Diafragma."),
+P('M',"Pubertas anak perempuan ditandai dengan …",["menstruasi","jakun","kumis","suara berat"],0,"Menstruasi."),
+P('M',"Komponen biotik pada ekosistem kolam adalah …",["ikan","air","batu","cahaya"],0,"Ikan makhluk hidup."),
+P('M',"Jamur dan bakteri pengurai disebut …",["dekomposer","produsen","herbivora","karnivora"],0,"Dekomposer."),
+P('M',"Bumi mengelilingi matahari disebut …",["revolusi","rotasi","gerhana","erosi"],0,"Revolusi."),
+P('M',"Planet terdekat dengan matahari adalah …",["Merkurius","Venus","Bumi","Mars"],0,"Merkurius."),
+P('M',"Satelit alami bumi adalah …",["Bulan","Matahari","Mars","Venus"],0,"Bulan."),
+B('M',"Soekarno dan Moh. Hatta membacakan proklamasi atas nama bangsa Indonesia.",true,"Mereka proklamator."),
+P('M',"Sikap cinta tanah air ditunjukkan dengan …",["menghormati bendera dan menjaga lingkungan","merusak fasilitas","tidak peduli","menghina budaya"],0,"Cinta tanah air."),
+P('S',"Makanan masuk ke lambung melalui …",["kerongkongan","usus halus","anus","trakea"],0,"Kerongkongan."),
+P('S',"Hubungan lebah dan bunga disebut …",["mutualisme","parasitisme","komensalisme","predasi"],0,"Kedua pihak untung."),
+B('S',"Rotasi bumi menyebabkan pergantian musim.",false,"Pergantian musim akibat revolusi bumi."),
+P('S',"Pada gerhana bulan, urutan sejajarnya adalah …",["matahari, bumi, bulan","matahari, bulan, bumi","bumi, matahari, bulan","bulan, bumi, matahari"],0,"Bumi di antara matahari dan bulan."),
+P('S',"Yang meminjamkan rumahnya untuk perumusan naskah proklamasi adalah …",["Laksamana Maeda","Sayuti Melik","Fatmawati","Sukarni"],0,"Laksamana Maeda."),
+P('S',"Berikut yang BUKAN ciri pubertas laki-laki adalah …",["menstruasi","jakun","suara berat","kumis"],0,"Menstruasi ciri perempuan."),
+P('K',"Jika populasi elang menurun drastis, populasi ular akan …",["meningkat","menurun","hilang","tetap"],0,"Pemangsa berkurang, ular bertambah."),
+P('K',"Gerhana matahari terjadi pada saat …",["bulan baru","bulan purnama","bulan sabit saja","tengah malam"],0,"Bulan baru."),
+B('K',"Oksigen masuk ke darah di alveolus.",true,"Pertukaran gas terjadi di alveolus."),
+P('K',"Peristiwa setelah Jepang menyerah dan sebelum pembacaan proklamasi adalah …",["Rengasdengklok dan perumusan naskah","Sumpah Pemuda","Perang Diponegoro","Kemerdekaan Belanda"],0,"Rengasdengklok dan perumusan naskah.")
+]);
+X(6,'ind',[
+P('M',"Cerita ‘Si Kancil’ termasuk …",["fabel","legenda","sage","mite"],0,"Tokohnya hewan."),
+P('M',"Tokoh yang jahat dalam cerita disebut tokoh …",["antagonis","protagonis","tritagonis","figuran"],0,"Antagonis."),
+P('M',"Cerita tentang dewa dan makhluk gaib adalah …",["mite","fabel","sage","legenda"],0,"Mite."),
+B('M',"Fakta dapat dibuktikan kebenarannya.",true,"Fakta dapat dibuktikan."),
+P('M',"Satu baris dalam puisi disebut …",["larik","bait","bab","paragraf"],0,"Larik."),
+P('M',"‘Kepala batu’ berarti …",["keras kepala","kepala berbatu","pintar","penurut"],0,"Keras kepala."),
+P('M',"Bagian surat yang memuat pesan disebut …",["isi surat","salam pembuka","alamat","tanggal"],0,"Isi surat."),
+P('M',"Surat kepada kepala sekolah termasuk surat …",["resmi","pribadi","niaga","puisi"],0,"Surat resmi."),
+P('M',"Orang yang menyampaikan pendapat dengan alasan sedang …",["berargumen","menyontek","bergosip","bercanda"],0,"Berargumen."),
+P('M',"Kata penanda alasan adalah …",["karena","dan","atau","tetapi"],0,"Karena."),
+P('S',"‘Matahari tersenyum pagi ini.’ Majas yang tepat …",["personifikasi","hiperbola","simile","metafora"],0,"Benda mati bertingkah seperti manusia."),
+P('S',"‘Hatinya batu.’ Maknanya …",["tidak punya belas kasihan","hatinya berat","sakit hati","senang"],0,"Metafora keras hati."),
+B('S',"Opini selalu dapat dibuktikan dengan data.",false,"Opini adalah pendapat, belum tentu bisa dibuktikan."),
+P('S',"Ide pendukung paragraf berfungsi …",["menjelaskan ide pokok","menghapus ide pokok","mengganti judul","menutup surat"],0,"Menjelaskan ide pokok."),
+P('S',"Penulisan tanggal surat yang benar adalah …",["Banjarnegara, 20 Oktober 2026","banjarnegara 20 oktober 2026","Banjarnegara 20, Oktober 2026","Banjarnegara. 20 Oktober, 2026"],0,"Kapital dan koma."),
+P('S',"Sikap yang benar saat berdiskusi …",["menunggu giliran bicara","memotong pembicaraan","tidak mendengar","bercanda terus"],0,"Etika diskusi."),
+P('K',"‘Anak itu rajin seperti semut.’ Majas yang digunakan …",["simile","metafora","personifikasi","ironi"],0,"Ada kata ‘seperti’."),
+P('K',"Surat yang benar diakhiri dengan …",["salam penutup dan nama pengirim","isi surat saja","tanggal saja","gambar"],0,"Penutup dan nama pengirim."),
+B('K',"Laporan pengamatan ditulis berdasarkan data yang diamati secara langsung.",true,"Laporan memuat data nyata."),
+P('K',"Argumen terbaik untuk topik ‘Membuang sampah pada tempatnya’ …",["Sebaiknya kita membuang sampah pada tempatnya karena lingkungan menjadi bersih dan sehat.","Buang sampah itu menyenangkan.","Saya tidak suka sampah.","Pokoknya harus."],0,"Pendapat + alasan.")
+]);
+X(6,'jaw',[
+P('M',"Pandhawa ing wayang cacahe …",["lima","papat","enem","pitu"],0,"Pandhawa ana lima."),
+P('M',"Tembang Pocung duwe … larik",["4","5","6","9"],0,"Pocung 4 larik."),
+P('M',"Tembang Sinom duwe … larik",["9","6","4","7"],0,"Sinom 9 larik."),
+P('M',"Tembang Mijil duwe … larik",["6","4","9","7"],0,"Mijil 6 larik."),
+P('M',"Werkudara kondhang kanthi sipat …",["kuwat lan jujur","cilik lan ringkih","culika","sombong"],0,"Werkudara kuwat lan jujur."),
+P('M',"Geguritan yaiku karya sastra awujud …",["puisi Jawa","dongeng","pacelathon","teks prosedur"],0,"Puisi Jawa."),
+P('M',"‘Teka’ ing basa krama inggil yaiku …",["rawuh","tindak","dhahar","siram"],0,"Rawuh."),
+P('M',"Sandhangan swara sing swarane ‘i’ yaiku …",["wulu","suku","pepet","taling"],0,"Wulu."),
+B('M',"Teks eksposisi menehi katrangan bab sawijining perkara kanthi runtut.",true,"Eksposisi nerangake kanthi runtut."),
+P('M',"Teks bab sejarah kutha ngandhut katrangan bab …",["asal-usule kutha","resep masakan","tembang","dolanan"],0,"Asal-usul kutha."),
+P('S',"‘Lunga’ ing basa krama inggil yaiku …",["tindak","dhahar","siram","sare"],0,"Tindak."),
+P('S',"Gatra ing tembang tegese …",["larik","wanda","guru lagu","tembung"],0,"Gatra = larik."),
+B('S',"Guru wilangan yaiku cacahing wanda ing saben larik tembang.",true,"Guru wilangan = cacahing wanda."),
+P('S',"Dasanama ‘srengenge’ yaiku …",["surya","candra","kartika","bantala"],0,"Surya."),
+P('S',"Werkudara uga diarani …",["Bima","Arjuna","Puntadewa","Nakula"],0,"Bima."),
+P('S',"Aksara ‘ma’ yen diwenehi taling tarung diwaca …",["mo","mi","mu","mé"],0,"Taling tarung = o."),
+P('K',"Ukara basa alus kanggo guru sing bener …",["Bapak Guru sampun dhahar.","Pak Guru wis mangan.","Pak Guru wis nedha.","Guru wis maem."],0,"Dhahar krama inggil kanggo guru."),
+P('K',"Guru lagu ing tembang yaiku …",["tibaning swara ing pungkasan larik","cacahing larik","cacahing wanda","jeneng tembang"],0,"Guru lagu = tibaning swara."),
+B('K',"Werkudara minangka putra Prabu Pandhu lan Dewi Kunthi.",true,"Werkudara putra Pandhu lan Kunthi."),
+P('K',"Pasangan aksara dianggo supaya …",["tembung bisa disambung tanpa vokal ing antarane","aksara dadi cilik","nulis angka","mungkasi ukara"],0,"Nyambung aksara tanpa swara.")
+]);
+X(6,'pai',[
+P('M',"Khalifah pertama setelah Nabi wafat adalah …",["Abu Bakar","Umar","Utsman","Ali"],0,"Abu Bakar ash-Shiddiq."),
+P('M',"Khalifah kedua adalah …",["Umar bin Khattab","Abu Bakar","Utsman","Ali"],0,"Umar bin Khattab."),
+P('M',"As-Sabur artinya Maha …",["Sabar","Adil","Terpuji","Melindungi"],0,"As-Sabur = Maha Sabar."),
+P('M',"Al-Adl artinya Maha …",["Adil","Sabar","Terpuji","Pelindung"],0,"Al-Adl = Maha Adil."),
+P('M',"QS Al-Insyirah mengajarkan bahwa bersama kesulitan ada …",["kemudahan","kesedihan","kegelapan","kemarahan"],0,"Bersama kesulitan ada kemudahan."),
+P('M',"Zakat fitrah dikeluarkan pada bulan …",["Ramadan","Muharram","Rajab","Syaban"],0,"Ramadan."),
+P('M',"Orang yang berhak menerima zakat disebut …",["mustahik","muzaki","munafik","musafir"],0,"Mustahik."),
+P('M',"Orang yang wajib mengeluarkan zakat disebut …",["muzaki","mustahik","musafir","muqim"],0,"Muzaki."),
+B('M',"Sedekah boleh berupa senyum, tenaga, dan bantuan selain uang.",true,"Sedekah tidak terbatas pada uang."),
+P('M',"Sikap kepada tetangga yang sedang kesulitan adalah …",["membantu","mengabaikan","mengejek","menjauh"],0,"Membantu."),
+P('S',"Al-Hamid artinya Maha …",["Terpuji","Adil","Sabar","Pelindung"],0,"Al-Hamid = Maha Terpuji."),
+P('S',"Gelar Abu Bakar adalah …",["Ash-Shiddiq","Al-Faruq","Dzun Nurain","Asadullah"],0,"Ash-Shiddiq."),
+B('S',"Infak dan sedekah hukumnya sunah.",true,"Berbeda dengan zakat yang wajib."),
+P('S',"Menolong tetangga non-Muslim dalam urusan kemanusiaan adalah …",["boleh dan baik","dilarang","dosa","tidak penting"],0,"Berbuat baik pada semua manusia."),
+P('S',"Dengung pada nun atau mim bertasydid disebut …",["ghunnah","qalqalah","mad","waqaf"],0,"Ghunnah."),
+P('S',"Khalifah ketiga adalah …",["Utsman bin Affan","Ali bin Abi Thalib","Umar bin Khattab","Abu Bakar"],0,"Utsman bin Affan."),
+P('K',"Huruf hijaiah yang tidak dapat disambung dengan huruf sesudahnya adalah …",["alif, dal, ra, waw","ba, ta, tsa","sin, syin","mim, nun"],0,"Alif, dal, dzal, ra, zay, waw."),
+P('K',"Salah satu jasa Utsman bin Affan adalah …",["menyatukan penulisan mushaf Al-Qur’an","menjadi nabi","memerangi Nabi","menutup masjid"],0,"Menyatukan mushaf."),
+B('K',"Zakat fitrah diberikan sebelum salat Idulfitri.",true,"Waktu terbaik sebelum salat Id."),
+P('K',"Menjenguk tetangga yang sakit mencerminkan akhlak …",["terpuji kepada tetangga","buruk","tidak peduli","sombong"],0,"Akhlak terpuji.")
+]);
+X(6,'pan',[
+P('M',"Sila ke-2 berbunyi …",["Kemanusiaan yang adil dan beradab","Persatuan Indonesia","Ketuhanan Yang Maha Esa","Keadilan sosial bagi seluruh rakyat Indonesia"],0,"Sila ke-2."),
+P('M',"Lambang sila ke-2 adalah …",["rantai","bintang","pohon beringin","kepala banteng"],0,"Rantai."),
+P('M',"Lambang sila ke-4 adalah …",["kepala banteng","padi dan kapas","bintang","rantai"],0,"Kepala banteng."),
+P('M',"Hak adalah sesuatu yang … kita terima",["seharusnya","tidak pernah","dilarang","dipaksa"],0,"Hak = yang seharusnya diterima."),
+P('M',"Kewajiban adalah sesuatu yang … kita lakukan",["harus","boleh tidak","dilarang","tidak penting"],0,"Kewajiban harus dilakukan."),
+P('M',"Contoh norma kesopanan di sekolah …",["berbicara santun kepada guru","berteriak di kelas","membuang sampah","menyontek"],0,"Berbicara santun."),
+P('M',"Mencuri melanggar norma …",["hukum","kesopanan saja","tidak ada","olahraga"],0,"Mencuri melanggar hukum."),
+P('M',"Musyawarah dilakukan untuk mencapai …",["mufakat","kemenangan","perpecahan","paksaan"],0,"Mufakat."),
+B('M',"Sila-sila Pancasila saling berkaitan sebagai satu kesatuan.",true,"Pancasila satu kesatuan."),
+P('M',"Hak anak di rumah adalah …",["mendapat kasih sayang","membuat gaduh","melawan","menolak makan"],0,"Kasih sayang."),
+P('S',"Menghormati teman berbeda suku sesuai sila ke-…",["3","1","4","5"],0,"Persatuan Indonesia."),
+P('S',"Bantuan kepada korban bencana sesuai sila ke-…",["2","1","3","4"],0,"Kemanusiaan."),
+B('S',"Hasil musyawarah hanya wajib dilaksanakan oleh yang menyetujuinya.",false,"Semua peserta wajib menerima."),
+P('S',"Kewajiban siswa dalam kerja kelompok adalah …",["mengerjakan bagian dengan tanggung jawab","menyerahkan semua ke teman","bermain","pulang"],0,"Tanggung jawab."),
+P('S',"Menaati rambu lalu lintas menunjukkan sikap …",["disiplin","bebas","acuh","melawan"],0,"Disiplin."),
+P('S',"Norma yang berasal dari ajaran agama adalah norma …",["agama","hukum","kesopanan","kesusilaan"],0,"Norma agama."),
+P('K',"Pendapat Andi ditolak saat musyawarah. Sikap sesuai Pancasila …",["menerima hasil dengan lapang dada","memaksa","mengancam","tidak datang lagi"],0,"Menghormati hasil."),
+P('K',"Hak dan kewajiban seimbang berarti …",["menuntut hak sambil menjalankan kewajiban","hanya menuntut hak","hanya kewajiban","tidak perlu"],0,"Seimbang."),
+B('K',"Norma kesusilaan berasal dari hati nurani manusia.",true,"Kesusilaan dari hati nurani."),
+P('K',"Gotong royong membersihkan selokan mencerminkan sila ke-…",["3","1","2","4"],0,"Persatuan dan kebersamaan.")
+]);
+X(6,'ing',[
+P('M',"You … my best friend.",["am","is","are","be"],2,"You memakai are."),
+P('M',"Pronoun for 'Mr. Budi' is …",["she","he","it","they"],1,"Laki-laki → he."),
+P('M',"My sister … a nurse.",["am","is","are","be"],1,"Sister (she) memakai is."),
+P('M',"We … students.",["am","is","are","be"],2,"We memakai are."),
+P('M',"I … rice every morning.",["eat","eats","eating","ate"],0,"Subjek I memakai eat."),
+P('M',"She … a book now. (read)",["reads","is reading","read","reading"],1,"Now → is reading."),
+P('M',"The opposite of 'hot' is …",["cold","small","sad","tall"],0,"Lawan hot adalah cold."),
+P('M',"The cat is … the table. (di bawah)",["on","under","between","at"],1,"Under = di bawah."),
+B('M',"'Between' means di antara.",true,"Between = di antara."),
+P('M',"Past tense of 'play' is …",["plays","played","playing","plaied"],1,"Play → played."),
+P('S',"He … milk every day. (drink)",["drink","drinks","drinking","drank"],1,"He → drinks."),
+P('S',"They … football yesterday.",["play","plays","played","playing"],2,"Yesterday → played."),
+B('S',"'There is two books' is correct.",false,"Yang benar: There are two books."),
+P('S',"'Next to' means …",["di sebelah","di atas","di bawah","di depan"],0,"Next to = di sebelah."),
+P('S',"'How much is this pen?' We ask about …",["price","place","time","person"],0,"How much → harga."),
+P('S',"Sri is a teacher. … is very kind.",["She","He","It","They"],0,"Sri perempuan, maka pronounnya She."),
+P('K',"Ani is … than Dina. (smart)",["smarter","more smart","smartest","most smart"],0,"Kata sifat pendek: smarter."),
+P('K',"Last night, my father … TV and my mother … a book.",["watched – read","watch – reads","watches – read","watched – reading"],0,"Past: watched dan read."),
+B('K',"'She don't like fish' is correct.",false,"Yang benar: She doesn't like fish."),
+P('K',"This is the … building in our town. (tall)",["tallest","taller","more tall","most tall"],0,"The tallest.")
+]);
+X(6,'dab',[
+P('M',"Biaya untuk membuat produk disebut …",["modal","laba","diskon","pajak"],0,"Modal."),
+P('M',"Untung disebut juga …",["laba","rugi","impas","diskon"],0,"Laba."),
+P('M',"Harga jual lebih rendah dari modal berarti …",["rugi","laba","impas","diskon"],0,"Rugi."),
+P('M',"Harga jual sama dengan modal disebut …",["impas","laba","rugi","diskon"],0,"Impas."),
+P('M',"Orang yang membuka usaha sendiri disebut …",["wirausahawan","pembeli","penonton","penumpang"],0,"Wirausahawan."),
+P('M',"Carica merupakan buah khas dari dataran tinggi …",["Dieng","Pantai Utara","Papua","Bali"],0,"Dieng."),
+P('M',"Hasil penjualan dikurangi modal disebut …",["laba","diskon","pajak","utang"],0,"Penjualan − modal = laba."),
+P('M',"Contoh promosi yang jujur adalah …",["menuliskan kualitas dan harga sebenarnya","berbohong","menutupi kekurangan","menjelekkan penjual lain"],0,"Promosi jujur."),
+B('M',"Pedagang harus ramah dan jujur kepada pembeli.",true,"Itu etika berdagang."),
+P('M',"Market day dilaksanakan untuk melatih siswa …",["berwirausaha","bolos","bertengkar","bermalas-malasan"],0,"Berwirausaha."),
+P('S',"Modal Rp50.000, terjual Rp65.000. Labanya …",["Rp15.000","Rp5.000","Rp115.000","Rp0"],0,"65.000 − 50.000 = 15.000."),
+P('S',"Dawet Rp10.000 diskon 10%. Harga yang dibayar …",["Rp9.000","Rp1.000","Rp9.500","Rp11.000"],0,"Diskon 1.000; bayar 9.000."),
+B('S',"Jika penjualan lebih besar daripada modal maka pedagang untung.",true,"Pendapatan melebihi modal = laba."),
+P('S',"Modal Rp40.000, terjual Rp35.000. Hasilnya …",["rugi Rp5.000","laba Rp5.000","impas","laba Rp75.000"],0,"35.000 < 40.000: rugi 5.000."),
+P('S',"Kerja sama kelompok pada market day sebaiknya …",["membagi tugas dengan jelas","semua diam","berebut","tanpa jadwal"],0,"Pembagian tugas."),
+P('S',"Harga pokok Rp6.000, dijual Rp8.000. Laba per gelas …",["Rp2.000","Rp1.000","Rp6.000","Rp14.000"],0,"8.000 − 6.000 = 2.000."),
+P('K',"Biaya bahan Rp60.000, biaya lain Rp20.000. Terjual 20 gelas × Rp5.000. Hasilnya …",["laba Rp20.000","rugi Rp20.000","impas","laba Rp80.000"],0,"Biaya 80.000, pendapatan 100.000, laba 20.000."),
+P('K',"Modal Rp48.000 untuk 12 gelas dawet. Harga pokok 1 gelas …",["Rp4.000","Rp5.000","Rp3.000","Rp48.000"],0,"48.000 : 12 = 4.000."),
+B('K',"Promosi boleh menipu pembeli asal laku.",false,"Promosi harus jujur."),
+P('K',"Harga pokok Rp4.000 dan laba yang diinginkan Rp2.000 per gelas. Harga jual …",["Rp6.000","Rp2.000","Rp4.000","Rp8.000"],0,"4.000 + 2.000 = 6.000.")
+]);
+
+
 </script>
 <script>
 const SISWA=["ADEVA KIRANA MAHESTI", "AFKAR ZAIDAN NURDIANSYAH", "AGAM UMAR BAHRI", "AIDA SALSABILA", "ALESA RAHAYUNING TIAS", "ALIKA PUTRI AZ ZAHRA", "ARUMI BALQIS MASHA RAZETA", "ARVIN ARDANA PUTRA", "AYDA RESYAKILA", "AZLAN RAFIQ SYAHPUTRA", "BINTANG SHAFIULLA ADREENA", "BRIAN PANCA SAMUDRA", "DELINDA ASKYATUL ASHAR", "EGY SALCIA PUTRI", "KHUMAIROH FADZILATUL KHIKMAH", "KINAAN AUFA ALHANAN JUNIANSYAH", "NAJWA HANUM DINASTI", "NAUFALIN ALESHA RABANI", "QIRANI RIVANIA ALMAHYRA", "SYEILA HAFIZA PUTRI", "VANESHA VARIYATUL AFIFAH", "WAFA RENDY SAPUTRO", "ABIL SHIDIQ HIDAYATULLOH", "ALMAN AZ ZUFAR", "ATHAYA NAJIB ZANIRULHAQ", "DEVANO ALFAREZA", "ERINA KHAWLA ABBIDAH", "ADHILA CAHAYA RAMADHANI", "ADIFA NAIFA SAILA", "AFKIAN GUFRON MAFRURI", "AKIF ARDIAN SAPUTRA", "ALVIS ARYA ARGANI", "ARUMI ADINDA NASYA", "ATHA SAKHI KARNAVIAN", "AULIANISA AZKADINA LATIF", "FATAN DANIAL DAIFULOH", "FIKAR AZRIL RASHYA", "IQBAL UBAIDILLAH", "JUAN ATYASA FEBRILIANO", "KINANDITA FARANISA AZNI", "MISBAKHUL ABIDAN ALFATIH", "MUHAMMAD GIBRAN RAMADHAN", "PRADIPTA HELMI ALVARO", "AFAREN AFSHEEN MYESHA", "AJI SAKA ALTON ANGGORO AHMAD", "FAUZIAH INTAN RAMADHANI", "LATIF DWIANTO", "MUHAMAD RASKHA AL FATTAH", "QISYA SYAKIRA", "RAFKA AMZARI", "SALSA AYU PUSPITANINGTIAS", "SEREN USWATUN BAYU AGUSTINA", "YASID ROMADON", "ADITYA NAUFAL ABIYYU", "ADITYA NAUFAL DARY ABIYYU", "ADYA ULIL ALKHALIFI", "ANDINI APRILIA SASTI", "ANDRA HANAN ADITTAMA", "ANINDITA NAHDA RAFANDA", "ARHAB RAIHAN ARDANI", "ARIQ RIFID ABBASY", "ARKHANA NURFATIR RIZKY ANNAFI", "BIMO AJI LAILATUL IKHSAN", "CHILMA FATICHATUL 'ILMA", "ELYSIA ADIRATNA", "FADHELA ARISTA MUFIA", "FEBRI INDRA SETIAWAN", "HANUNG BRAMANTIYA", "ISNEN SYAIF MAULANA", "KIRA FADIA INAYA", "MEGA SAFITRI MAHARANI", "MUHAMMAD RAFA AZKA PUTRA", "PUTRI TANIYA RAFA", "QONITA HUWAIDA", "QUDSIA FIRDAUSI", "RAFARDHAN AKIF FAILASUF", "RAYA ANINDYA PUTRI", "REYNDRA FAREL PRASETYA", "RIFAYA ZALIKA ADIVA", "SAFFA WINDI SEPTIANINGSIH", "SALSABILA PUTRI ANATASHA", "SEKAR AJI RISNANING TYAS", "SIDIK NUR HIDAYAT", "ADITYA IRFANUL HAKIM", "AGUNG RIYAJI WIJAKSONO", "AHZAMI FATAH ALBARI", "ALIF ALARSIL RAMADAN", "ALIKA INDRIANA RAMADANI", "ALZIA SATYA KINARA", "ANAS NUR KHOLIK", "ANNISA RAMADANI", "AQILA PUTRI NUR HASANAH", "ARKAN NADHIF FAHRIAN", "ATHFAL AZZIS ALDIANSYAH", "AZAHRAN AZKIYA SHIDQI", "AZRINA ZIA FATHIAN", "ERINA SIPTA RENATA", "FAKHRIE ZHAFRAN KHAIRY", "FAREL GAYUH WIBOWO", "FAUZAN ADLI AZHIM", "FAZILAH ZAHIA AZZALFA", "FIRDAUS ARDIANSYAH SUDRAJAT", "LUTHFIE SAKHI ZAIDAN", "MAULANA SAMAN HIDAYATULLOH", "MAULIDATUL MUSTAFIDAH", "MIKAILA DEVI NAMIRA", "MUHAMAD THORIQ ZIYAD", "NAFISA NAYLA SALSABILA", "NAILA ZIFANA KHOIRUNISA", "RAFA AZKA PUTRA PRATAMA", "RESTU IBNU PRATAMA", "REVAN AZKA ADI UTAMA", "SOFIYANA DEWI SEPTIANI", "WIDYA DAVINA QUINN", "SRI MARFUAH RAHAYU NINGSIH", "ADZAN ABIYYU ABBAS"];
@@ -3485,10 +4018,28 @@ function renderMenu(){
   $('btn-stat').style.display=admin?'none':'';
   show('scr-menu');
 }
+function uasSyarat(){
+  const lb=lsGet('pra'+KL+'lt_'+nama.toLowerCase()+'_'+sk.k,{}),bab=LT[sk.k]||[];
+  const st=bab.map((q,i)=>lb[i]!=null);
+  return {done:st.filter(Boolean).length,total:bab.length,st};
+}
+function uasLabel(){
+  const bt=document.querySelector('#scr-mapel button[onclick="startQuiz()"]');if(!bt)return;
+  const sy=admin?{done:1,total:1}:uasSyarat(),ok=sy.done>=sy.total;
+  bt.querySelector('.bl').textContent=ok?'Latihan UAS':'🔒 Latihan UAS';
+  bt.querySelector('.bd').textContent=ok?'20 soal acak · mudah–sedang–sulit':`Selesaikan latihan semua bab dulu (${sy.done}/${sy.total})`;
+  bt.style.opacity=ok?'':'.7';
+}
+function uasKunci(sy){
+  const ch=RK[sk.k];
+  openOv('🔒 Latihan UAS',`<div class="lockbox" style="text-align:center"><b>Belajar dulu ya! 📚</b><br>Latihan UAS terbuka setelah kamu mengerjakan <b>latihan di semua bab</b> (nilai berapa pun).<br>Progresmu: <b>${sy.done}/${sy.total} bab</b></div>
+  <div style="margin:.6rem 0">${ch.map((c,i)=>`<div class="sk-r" style="margin-top:4px"><span>${sy.st[i]?'✅':'⬜'}</span><b>${c.e} ${c.t}</b></div>`).join('')}</div>
+  <button class="btn center" style="background:linear-gradient(135deg,#7c3aed,#6366f1)" onclick="openRangkuman()">📖 Buka Rangkuman & Latihan Bab</button>`);
+}
 function openMapel(k){
   sk=SUBJ.find(s=>s.k===k);
   $('m-emoji').textContent=sk.e;$('m-judul').textContent=sk.n;$('m-sub').textContent='Kelas '+KL+' · '+nama;
-  show('scr-mapel');
+  show('scr-mapel');uasLabel();
 }
 
 /* ---------- overlay ---------- */
@@ -3588,13 +4139,16 @@ function openRangkuman(){
 function pick(){
   const b=BANK[sk.k].map((s,i)=>({...s,_i:i}));
   const f=(l,n)=>shuffle(b.filter(s=>s.lvl===l)).slice(0,n);
-  return shuffle(b).slice(0,20).map(s=>{
+  let ch=[...f('M',10),...f('S',6),...f('K',4)];
+  if(ch.length<20){const ids=new Set(ch.map(s=>s._i));ch=ch.concat(shuffle(b.filter(s=>!ids.has(s._i))).slice(0,20-ch.length))}
+  return shuffle(ch).map(s=>{
     if(s.tipe==='bs')return s;
     const sh=shuffle([0,1,2,3]);
     return {...s,opts:sh.map(i=>s.opts[i]),jawab:sh.indexOf(s.jawab)};
   });
 }
 function startQuiz(){
+  if(!admin){const sy=uasSyarat();if(sy.done<sy.total){uasKunci(sy);return}}
   bgm(false);
   soal=pick();N=soal.length;cur=0;score=0;jw=Array(N).fill(null);selesai=false;
   openOv('Soal '+sk.n,'');renderSoal();
@@ -3915,20 +4469,22 @@ function renderLap(){
 }
 
 /* ===== PAPAN SKOR ===== */
-let skTop=null,skK=1;
+let skTop=null,skK=1,skP=null;
 function renderSkor(){
   const t=$('sk-tabs');if(!t)return;
   t.innerHTML=[1,2,3,4,5,6].map(n=>`<button class="${n==skK?'on':''}" onclick="skK=${n};renderSkor()">Kls ${n}</button>`).join('');
   const l=$('sk-list');
   if(!skTop){l.textContent=skErr?'Papan skor belum bisa dimuat (periksa internet).':'Memuat…';return}
   const a=skTop[skK]||[],m=['🥇','🥈','🥉'];
+  const nt=$('sk-info');if(nt){const f=t=>new Date(t).toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+    nt.innerHTML=skP&&skP.mulai?`📢 Papan skor <b>direset tiap Senin pagi</b>. Pekan ini: ${f(skP.mulai)} – ${f(skP.akhir-86400000)}. Ayo kejar juara pekan ini!`:'📢 Papan skor <b>direset tiap Senin pagi</b>. Ayo kejar juara pekan ini!'}
   l.innerHTML=a.length?a.map((o,i)=>`<div class="sk-r"><span>${m[i]}</span><b>${esc2(o.nama)}</b><small>${o.mapel} mapel</small><i>${o.total}</i></div>`).join(''):'<div style="text-align:center;opacity:.7;padding:.6rem 0">Belum ada juara di kelas ini.<br>Jadilah yang pertama! 💪</div>';
 }
 let skErr=false;
 async function muatSkor(){
-  try{skTop=JSON.parse(localStorage.getItem('pra_skor')||'null')}catch(e){}
+  try{const c=JSON.parse(localStorage.getItem('pra_skor2')||'null');if(c&&c.akhir>Date.now()){skTop=c.top;skP=c}}catch(e){}
   renderSkor();
-  try{const r=await fetch(GAS_URL+'?aksi=skor&_='+Date.now());const j=await r.json();if(!j.ok)throw 0;skTop=j.top;skErr=false;try{localStorage.setItem('pra_skor',JSON.stringify(skTop))}catch(e){}}
+  try{const r=await fetch(GAS_URL+'?aksi=skor&_='+Date.now());const j=await r.json();if(!j.ok)throw 0;skTop=j.top;skP={top:j.top,mulai:j.mulai,akhir:j.akhir};skErr=false;try{localStorage.setItem('pra_skor2',JSON.stringify(skP))}catch(e){}}
   catch(e){if(!skTop)skErr=true}
   renderSkor();
 }
