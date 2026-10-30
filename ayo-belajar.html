@@ -191,7 +191,7 @@ input.nm:focus{border-color:#f97316;box-shadow:0 0 0 4px #fdba7455}
 .btn.center{font-size:1.15rem;padding:1.05rem}
 .feat{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
 .feat span{background:#f1f5f9;border-radius:99px;padding:.3rem .7rem;font-size:.74rem;font-weight:800;color:#475569}
-.wm{margin-top:1.4rem;font-size:.45rem;font-weight:500;color:#94a3b8;letter-spacing:.08em;opacity:.22;transition:opacity .3s,font-size .3s;user-select:none;-webkit-tap-highlight-color:transparent}.wm:hover,.wm:active,.wm:focus{opacity:.95;font-size:.7rem;color:#475569}
+.sk-h{font-weight:800;font-size:.9rem;color:#92400e;margin-bottom:.4rem}#skor-box{margin-top:1rem;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fde68a;border-radius:16px;padding:.7rem}.sk-tabs{display:flex;gap:4px;justify-content:center;margin-bottom:.5rem}.sk-tabs button{border:none;background:#fff;border-radius:999px;padding:.25rem .55rem;font:inherit;font-weight:800;font-size:.72rem;color:#92400e;cursor:pointer}.sk-tabs button.on{background:#f59e0b;color:#fff}.sk-list{font-size:.8rem;min-height:3.4rem;text-align:left}.sk-r{display:flex;align-items:center;gap:.5rem;background:#fff;border-radius:10px;padding:.35rem .55rem;margin-top:4px;font-weight:700}.sk-r b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sk-r small{opacity:.65;font-weight:600}.sk-r i{font-style:normal;font-weight:800;color:#d97706}.sk-n{font-size:.6rem;opacity:.55;margin-top:.35rem}.wm{margin-top:1.4rem;font-size:.45rem;font-weight:500;color:#94a3b8;letter-spacing:.08em;opacity:.22;transition:opacity .3s,font-size .3s;user-select:none;-webkit-tap-highlight-color:transparent}.wm:hover,.wm:active,.wm:focus{opacity:.95;font-size:.7rem;color:#475569}
 .op{padding:.75rem .85rem;border-radius:16px;border-width:2.5px;font-size:.98rem;margin-bottom:.55rem;box-shadow:0 3px 0 #e2e8f0}
 .op:hover:not(:disabled){border-color:#8b5cf6;background:#f5f3ff;transform:translateX(3px)}
 .ok{width:30px;height:30px;border-radius:10px;font-size:.85rem}
@@ -222,6 +222,7 @@ input.nm:focus{border-color:#f97316;box-shadow:0 0 0 4px #fdba7455}
   <button class="btn center" style="background:linear-gradient(135deg,#dc2626,#f97316)" onclick="mulai()">Mulai Belajar 🚀</button>
   <div class="err" id="nm-err">⚠️ Nama tidak boleh kosong!</div>
   <div class="feat"><span>📖 Rangkuman</span><span>✏️ Latihan</span><span>🏆 UAS</span></div>
+  <div id="skor-box"><div class="sk-h">🏆 Papan Skor Juara</div><div class="sk-tabs" id="sk-tabs"></div><div id="sk-list" class="sk-list">Memuat…</div><div class="sk-n">Total nilai terbaik semua mapel UAS</div></div>
   <div class="wm" tabindex="0">develop by imamupayanto</div>
 </div>
 
@@ -3382,6 +3383,11 @@ B('K',"Peluang usaha produk carica terbuka luas karena menjadi oleh-oleh khas.",
 
 </script>
 <script>
+const SISWA=["ADEVA KIRANA MAHESTI", "AFKAR ZAIDAN NURDIANSYAH", "AGAM UMAR BAHRI", "AIDA SALSABILA", "ALESA RAHAYUNING TIAS", "ALIKA PUTRI AZ ZAHRA", "ARUMI BALQIS MASHA RAZETA", "ARVIN ARDANA PUTRA", "AYDA RESYAKILA", "AZLAN RAFIQ SYAHPUTRA", "BINTANG SHAFIULLA ADREENA", "BRIAN PANCA SAMUDRA", "DELINDA ASKYATUL ASHAR", "EGY SALCIA PUTRI", "KHUMAIROH FADZILATUL KHIKMAH", "KINAAN AUFA ALHANAN JUNIANSYAH", "NAJWA HANUM DINASTI", "NAUFALIN ALESHA RABANI", "QIRANI RIVANIA ALMAHYRA", "SYEILA HAFIZA PUTRI", "VANESHA VARIYATUL AFIFAH", "WAFA RENDY SAPUTRO", "ABIL SHIDIQ HIDAYATULLOH", "ALMAN AZ ZUFAR", "ATHAYA NAJIB ZANIRULHAQ", "DEVANO ALFAREZA", "ERINA KHAWLA ABBIDAH", "ADHILA CAHAYA RAMADHANI", "ADIFA NAIFA SAILA", "AFKIAN GUFRON MAFRURI", "AKIF ARDIAN SAPUTRA", "ALVIS ARYA ARGANI", "ARUMI ADINDA NASYA", "ATHA SAKHI KARNAVIAN", "AULIANISA AZKADINA LATIF", "FATAN DANIAL DAIFULOH", "FIKAR AZRIL RASHYA", "IQBAL UBAIDILLAH", "JUAN ATYASA FEBRILIANO", "KINANDITA FARANISA AZNI", "MISBAKHUL ABIDAN ALFATIH", "MUHAMMAD GIBRAN RAMADHAN", "PRADIPTA HELMI ALVARO", "AFAREN AFSHEEN MYESHA", "AJI SAKA ALTON ANGGORO AHMAD", "FAUZIAH INTAN RAMADHANI", "LATIF DWIANTO", "MUHAMAD RASKHA AL FATTAH", "QISYA SYAKIRA", "RAFKA AMZARI", "SALSA AYU PUSPITANINGTIAS", "SEREN USWATUN BAYU AGUSTINA", "YASID ROMADON", "ADITYA NAUFAL ABIYYU", "ADITYA NAUFAL DARY ABIYYU", "ADYA ULIL ALKHALIFI", "ANDINI APRILIA SASTI", "ANDRA HANAN ADITTAMA", "ANINDITA NAHDA RAFANDA", "ARHAB RAIHAN ARDANI", "ARIQ RIFID ABBASY", "ARKHANA NURFATIR RIZKY ANNAFI", "BIMO AJI LAILATUL IKHSAN", "CHILMA FATICHATUL 'ILMA", "ELYSIA ADIRATNA", "FADHELA ARISTA MUFIA", "FEBRI INDRA SETIAWAN", "HANUNG BRAMANTIYA", "ISNEN SYAIF MAULANA", "KIRA FADIA INAYA", "MEGA SAFITRI MAHARANI", "MUHAMMAD RAFA AZKA PUTRA", "PUTRI TANIYA RAFA", "QONITA HUWAIDA", "QUDSIA FIRDAUSI", "RAFARDHAN AKIF FAILASUF", "RAYA ANINDYA PUTRI", "REYNDRA FAREL PRASETYA", "RIFAYA ZALIKA ADIVA", "SAFFA WINDI SEPTIANINGSIH", "SALSABILA PUTRI ANATASHA", "SEKAR AJI RISNANING TYAS", "SIDIK NUR HIDAYAT", "ADITYA IRFANUL HAKIM", "AGUNG RIYAJI WIJAKSONO", "AHZAMI FATAH ALBARI", "ALIF ALARSIL RAMADAN", "ALIKA INDRIANA RAMADANI", "ALZIA SATYA KINARA", "ANAS NUR KHOLIK", "ANNISA RAMADANI", "AQILA PUTRI NUR HASANAH", "ARKAN NADHIF FAHRIAN", "ATHFAL AZZIS ALDIANSYAH", "AZAHRAN AZKIYA SHIDQI", "AZRINA ZIA FATHIAN", "ERINA SIPTA RENATA", "FAKHRIE ZHAFRAN KHAIRY", "FAREL GAYUH WIBOWO", "FAUZAN ADLI AZHIM", "FAZILAH ZAHIA AZZALFA", "FIRDAUS ARDIANSYAH SUDRAJAT", "LUTHFIE SAKHI ZAIDAN", "MAULANA SAMAN HIDAYATULLOH", "MAULIDATUL MUSTAFIDAH", "MIKAILA DEVI NAMIRA", "MUHAMAD THORIQ ZIYAD", "NAFISA NAYLA SALSABILA", "NAILA ZIFANA KHOIRUNISA", "RAFA AZKA PUTRA PRATAMA", "RESTU IBNU PRATAMA", "REVAN AZKA ADI UTAMA", "SOFIYANA DEWI SEPTIANI", "WIDYA DAVINA QUINN", "SRI MARFUAH RAHAYU NINGSIH", "ADZAN ABIYYU ABBAS"];
+const nn=s=>String(s).toUpperCase().replace(/['’`´]/g,'').replace(/[^A-Z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const SISWA_N=SISWA.map(nn);
+function saran(v){const w=nn(v).split(' ').filter(x=>x.length>=2);if(nn(v).length<3||!w.length)return[];return SISWA.filter((s,i)=>w.every(x=>SISWA_N[i].split(' ').some(y=>y.startsWith(x)))).slice(0,3)}
+function pilihSaran(i){$('in-nama').value=window._sg[i];mulai()}
 const GAS_URL="https://script.google.com/macros/s/AKfycbxs77BiwWGArs92pql9ZnsLVWcmaQOFdiN95LvNMNC1OREX0CJqK8m3MPkoZqapfGddRg/exec";
 const HC=4529771417811263,HP=4413594719508086;
 let N=20;const TIMER=45;
@@ -3441,7 +3447,13 @@ function mulai(){
   nama=v;admin=false;
   if(h53(v.toUpperCase())===HC){$('pin').classList.add('on');return}
   if(h53(v.toUpperCase())===8045294898919646){admin=true;nama='Guru';renderKelas();bgm(true);return}
-  lsSet('pra_lastname',v);
+  const ix=SISWA_N.indexOf(nn(v));
+  if(ix<0){
+    const sg=saran(v);window._sg=sg;const e=$('nm-err');
+    e.innerHTML='⚠️ Nama belum terdaftar. Tulis nama lengkap sesuai daftar kelas, atau tanyakan ke gurumu.'+(sg.length?'<br><small>Maksudmu:</small>'+sg.map((s,i)=>`<button type="button" class="link" style="display:block;margin:2px auto;font-weight:800" onclick="pilihSaran(${i})">👉 ${s}</button>`).join(''):'');
+    e.style.display='block';nama='';return}
+  nama=SISWA[ix];$('in-nama').value=nama;$('nm-err').style.display='none';
+  lsSet('pra_lastname',nama);
   renderKelas();bgm(true);
 }
 function gantiNama(){nama='';admin=false;$('in-nama').value='';show('scr-nama')}
@@ -3901,6 +3913,26 @@ function renderLap(){
   <div style="overflow:auto;max-height:320px"><table ${st}><tr><th ${th}>Waktu</th><th ${th}>Nama</th><th ${th}>Kls</th><th ${th}>Mapel</th><th ${th}>Nilai</th><th ${th}>Status</th></tr>
   ${rows.slice().sort((a,b)=>b.t-a.t).slice(0,200).map(r=>`<tr><td ${td}>${esc2(r.w)}</td><td ${td}>${esc2(r.nama)}</td><td ${td}>${r.kelas}</td><td ${td}>${esc2(r.mapel.replace('Aplikasi Belajar ','').replace(/ Kelas \d$/,''))}</td><td ${td}>${tdn(r.nilai)} <small>(${r.benar}/${r.jumlah})</small></td><td ${td}>${r.status==='Selesai'?'✅':'⏸️'}</td></tr>`).join('')||`<tr><td ${td} colspan="6">Belum ada data.</td></tr>`}</table></div>`;
 }
+
+/* ===== PAPAN SKOR ===== */
+let skTop=null,skK=1;
+function renderSkor(){
+  const t=$('sk-tabs');if(!t)return;
+  t.innerHTML=[1,2,3,4,5,6].map(n=>`<button class="${n==skK?'on':''}" onclick="skK=${n};renderSkor()">Kls ${n}</button>`).join('');
+  const l=$('sk-list');
+  if(!skTop){l.textContent=skErr?'Papan skor belum bisa dimuat (periksa internet).':'Memuat…';return}
+  const a=skTop[skK]||[],m=['🥇','🥈','🥉'];
+  l.innerHTML=a.length?a.map((o,i)=>`<div class="sk-r"><span>${m[i]}</span><b>${esc2(o.nama)}</b><small>${o.mapel} mapel</small><i>${o.total}</i></div>`).join(''):'<div style="text-align:center;opacity:.7;padding:.6rem 0">Belum ada juara di kelas ini.<br>Jadilah yang pertama! 💪</div>';
+}
+let skErr=false;
+async function muatSkor(){
+  try{skTop=JSON.parse(localStorage.getItem('pra_skor')||'null')}catch(e){}
+  renderSkor();
+  try{const r=await fetch(GAS_URL+'?aksi=skor&_='+Date.now());const j=await r.json();if(!j.ok)throw 0;skTop=j.top;skErr=false;try{localStorage.setItem('pra_skor',JSON.stringify(skTop))}catch(e){}}
+  catch(e){if(!skTop)skErr=true}
+  renderSkor();
+}
+muatSkor();setInterval(()=>{const s=$('scr-nama');if(s&&s.style.display!=='none')muatSkor()},60000);
 </script>
 </body>
 </html>
