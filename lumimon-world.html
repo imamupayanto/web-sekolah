@@ -1344,8 +1344,8 @@ function pxLook(o) {
   const hc = hi ? hi.hj : o.hc || (hj ? (o.hijab || '#ffffff') : (o.hair || C.hair));
   const pd = PANTS[o.pants], skirtUni = gOf(o) === 'p';
   return { hs, hijab: hj ? ramp(hc) : null, hjm: hi && hi.motif, hjp: hi && hi.pin, hjt: hi && hi.trim, hairCol: hj ? null : (o.hc || o.hair || C.hair), skin: o.sk != null ? SKINS[o.sk] : o.skin2 ? C.skin2 : C.skin, eye: o.ec || EY, glasses: o.glasses,
-    shirt: o.top || (SHIRTS[o.shirt] && SHIRTS[o.shirt].r) || C.white, pat: (typeof SHIRT_PAT !== 'undefined' && SHIRT_PAT[o.shirt]) || o.shirt, sid: o.shirt || null, tie: !o.shirt && !o.top,
-    bottom: o.bottomR || (pd && pd.r) || C.red, pk: pd ? pd.k : o.bottomR ? 'long' : skirtUni ? 'skirt' : 'sd', pant: o.pants, hat: hi ? null : o.hat, shoes: o.shoes, gl: (typeof EL_GL !== 'undefined' && EL_GL[o.glass]) || o.glass || null, bk: o.back || null };
+    shirt: o.top || (SHIRTS[o.shirt] && SHIRTS[o.shirt].r) || C.white, pat: (typeof SHIRT_PAT !== 'undefined' && SHIRT_PAT[o.shirt]) || o.shirt, sid: o.shirt || null, tie: false,
+    bottom: o.bottomR || (pd && pd.r) || ['#1a2a5a', '#2f4f9a', '#5a7ac8'], pk: pd ? pd.k : o.bottomR ? 'long' : skirtUni ? 'skirt' : 'sd', pant: o.pants, hat: hi ? null : o.hat, shoes: o.shoes, gl: (typeof EL_GL !== 'undefined' && EL_GL[o.glass]) || o.glass || null, bk: o.back || null };
 }
 function hat(g, h, dir) {
   if (typeof TK_HAT !== 'undefined' && TK_HAT[h]) return TK_HAT[h](g, dir);   // v138 Aksesoris Taklukan
@@ -2614,9 +2614,9 @@ function startEncounter(w){if((mode!=='play'&&mode!=='goa')||B)return;mode='batt
   const zn=w.zn,[l0,l1]=zoneLv(zn),team=w.team||(SV.team&&SV.team.length?SV.team:[STARTER]).slice(0,3),R=rng(Date.now()&0xffffff),pool=POOL[zn]||['moss'];
   const hi=Math.min(l1,Math.max(l0,lvFromXp(SV.xp)+1)),rl=()=>l0+((R()*(hi-l0+1))|0);
   const foes=w.foes?w.foes.map(f=>({...f})):w.boss?[{id:w.id,lv:w.lv,main:true,boss:1}]:[{id:w.id,lv:rl(),main:true}];if(!w.boss&&!w.foes)for(let i=1;i<team.length;i++)foes.push({id:pool[(R()*pool.length)|0],lv:rl()});
-  B={w,zn,team,foes,miss:gearMiss(zn),shiny:!w.boss&&isShiny(w),boss:!!w.boss,dur:w.boss?60:30,el:(GLM[w.id]||{}).el||'netral',t:0,auto:!!SV.auto,ok:0,state:'intro',U:[],raf:0,paused:false,dotT:0,secT:0,badT:0};
+  B={w,zn,team,foes,miss:gearMiss(zn),shiny:!w.boss&&!w.duel&&isShiny(w),boss:!!w.boss,dur:w.boss?60:30,el:(GLM[w.id]||{}).el||'netral',t:0,auto:!!SV.auto,ok:0,state:'intro',U:[],raf:0,paused:false,dotT:0,secT:0,badT:0};
   SND.blip(520,.12);setTimeout(()=>SND.blip(780,.14),120);
-  BT.className='';BT.innerHTML=`<div class="ov dim intro"><div class="nm" style="font-size:13px;opacity:.8">${(ZINFO[zn]||[''])[0]} ${zn}</div><img src="${hdURL(w.id)}" alt="" style="${B.shiny?'filter:hue-rotate(150deg) saturate(1.6) brightness(1.1) drop-shadow(0 0 10px #fff)':''}"><h2>${w.boss?'⚠️ '+LG.M[w.id].n+' RAKSASA!':B.shiny?'✨ '+LG.M[w.id].n+' BERKILAU!':LG.M[w.id].n+' liar muncul!'}</h2>${B.shiny?'<div style="color:#ff9aff;font-weight:800">Langka! Hadiah ganda + aksesoris pasti</div>':''}<div style="font-size:13px;color:#cfd8e8">Lv.${foes[0].lv} · ${ELN[B.el]}${foes.length>1?` · +${foes.length-1} teman`:''}</div>${B.miss?`<div style="color:#ffb35a;font-weight:800;font-size:13px;max-width:290px">⚠️ Perlengkapan kurang (${4-B.miss}/4 aksesoris ${TNAME[ZREQ[zn]]}) · Lumimu −${(B.miss*7.5).toFixed(1).replace('.0','').replace('.',',')}%</div>`:''}</div>`;
+  BT.className='';BT.innerHTML=`<div class="ov dim intro"><div class="nm" style="font-size:13px;opacity:.8">${(ZINFO[zn]||[''])[0]} ${zn}</div><img src="${hdURL(w.id)}" alt="" style="${B.shiny?'filter:hue-rotate(150deg) saturate(1.6) brightness(1.1) drop-shadow(0 0 10px #fff)':''}"><h2>${w.duel?'⚔️ Duel dengan '+w.dn+'!':w.boss?'⚠️ '+LG.M[w.id].n+' RAKSASA!':B.shiny?'✨ '+LG.M[w.id].n+' BERKILAU!':LG.M[w.id].n+' liar muncul!'}</h2>${B.shiny?'<div style="color:#ff9aff;font-weight:800">Langka! Hadiah ganda + aksesoris pasti</div>':''}<div style="font-size:13px;color:#cfd8e8">Lv.${foes[0].lv} · ${ELN[B.el]}${foes.length>1?` · +${foes.length-1} teman`:''}</div>${B.miss?`<div style="color:#ffb35a;font-weight:800;font-size:13px;max-width:290px">⚠️ Perlengkapan kurang (${4-B.miss}/4 aksesoris ${TNAME[ZREQ[zn]]}) · Lumimu −${(B.miss*7.5).toFixed(1).replace('.0','').replace('.',',')}%</div>`:''}</div>`;
   setTimeout(()=>{if(!B)return;B.state='prep';quiz(3,6,'⚡ Persiapan Battle','Jawab benar = Lumimu makin kuat!',ok=>{B.ok=ok;verdict()})},1500)}
 function teamHas(side,k){return B.U.some(u=>u.side===side&&u.alive&&u.P[k])}
 function verdict(){let P=PREP[B.ok];B.mult=P[0];const plv=lvFromXp(SV.xp);
@@ -2783,16 +2783,16 @@ function bTick(dt){B.t+=dt;if(B.boss){const bu=B.U.find(u=>u.side===1);if(bu&&bu
 function skBtn(u){const b=u.btn;b.querySelector('.f').style.height=u.en+'%';b.classList.toggle('on',u.alive&&u.en>=100&&!B.auto)}
 function endFight(win){if(B.w&&B.w.goa){GOA.after(win,B.U.filter(u=>u.side===0).map(u=>[u.id,u.alive?u.hp/u.maxhp:0]));if(win&&B.w.goaBoss){B.state='end';return GOA.bossEnd()}}if(win&&B.boss){B.state='end';return QST.bossEnd()}if(win)B.qev=1;B.state='end';cancelAnimationFrame(B.raf);const hpP=B.U.filter(u=>u.side===0).reduce((a,u)=>a+u.hp/u.maxhp,0)/B.team.length;
   const stars=win?(hpP>.6?3:hpP>.3?2:1):0;const plv0=lvFromXp(SV.xp),ac=accBonus();
-  let xp=0,koin=0;B.foes.forEach(f=>{xp+=win?18+f.lv*4:6;koin+=win?15+f.lv*3:5});if(win&&B.ok===3)xp=Math.round(xp*1.2);xp=Math.round(xp*(1+ac.xp)*(ADM.xp||1));koin=Math.round(koin*(1+ac.koin)*(ADM.koin||1));if(win&&B.shiny){koin*=2;xp*=2}
+  let xp=0,koin=0;B.foes.forEach(f=>{xp+=win?18+f.lv*4:6;koin+=win?15+f.lv*3:5});if(win&&B.ok===3)xp=Math.round(xp*1.2);xp=Math.round(xp*(1+ac.xp)*(ADM.xp||1));koin=Math.round(koin*(1+ac.koin)*(ADM.koin||1));if(B.w.duel){xp=Math.round(xp*.5);koin=Math.round(koin*.5)}if(win&&B.shiny){koin*=2;xp*=2}
   const loot=[];SV.xp=(SV.xp||0)+xp;SV.koin=(SV.koin||0)+koin;loot.push(`🪙 +${koin} koin${ac.koin?` (💍+${Math.round(ac.koin*100)}%)`:''}`);loot.push(`✨ +${xp} EXP${ac.xp?` (💍+${Math.round(ac.xp*100)}%)`:''}`);
-  let caught=null;if(win){const id=B.w.id;SV.owned=SV.owned||{};const dup=!!SV.owned[id];SV.owned[id]=(SV.owned[id]||0)+1;caught={id,dup,star:starsOf(id)};
+  let caught=null;if(B.w.duel)duelRes(B.w,win);if(win&&!B.w.duel){const id=B.w.id;SV.owned=SV.owned||{};const dup=!!SV.owned[id];SV.owned[id]=(SV.owned[id]||0)+1;caught={id,dup,star:starsOf(id)};
     if(!dup&&(SV.team||[]).length<3){SV.team=(SV.team||[STARTER]);SV.team.push(id)}
     SV.pity=(SV.pity||0)+1;if(B.shiny){SV.shiny=SV.shiny||{};SV.shiny[id]=1}const ch=.25+(B.ok===3?.15:0);if(B.shiny||Math.random()<ch||SV.pity>=5){SV.pity=0;const a=aksFor(B.zn);SV.acc=SV.acc||{};const nw=!SV.acc[a];SV.acc[a]=(SV.acc[a]||0)+1;loot.push(`<span style="display:inline-flex;align-items:center;gap:6px"><img src="${accIconX(a)}" style="width:26px;image-rendering:pixelated">${nw?'Aksesoris baru: ':''}${accName(a)}${nw?'':' (kembar)'}</span>`)}
     B.w.gone=true;SV.gone=SV.gone&&SV.gone.w===curWin?SV.gone:{w:curWin,list:[]};SV.gone.list.push(B.w.key)}
-  else SV.lost=(SV.lost||0)+1;
+  else if(!win)SV.lost=(SV.lost||0)+1;
   const plv1=lvFromXp(SV.xp);save();refreshHud();
   setTimeout(()=>{if(!B)return;BT.innerHTML=`<div class="ov dim"><h2>${win?'Menang! 🎉':'Hampir! Coba lagi 💪'}</h2><div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
-    ${win?`<div class="chest">🎁</div><div style="font-size:13px;color:#cfd8e8">Ketuk peti!</div>`:`<div style="color:#cfd8e8;max-width:280px">Lumimu sudah pulih lagi. Coba jawab semua soal dengan benar supaya FULL POWER 🔥</div>`}
+    ${win&&B.w.duel?`<div style="color:#cfd8e8">GG! Kamu menang duel melawan ${B.w.dn} 🤝</div>`:win?`<div class="chest">🎁</div><div style="font-size:13px;color:#cfd8e8">Ketuk peti!</div>`:`<div style="color:#cfd8e8;max-width:280px">Lumimu sudah pulih lagi. Coba jawab semua soal dengan benar supaya FULL POWER 🔥</div>`}
     <div class="loot"></div><button class="big2" style="font-size:18px;padding:12px 26px;${win?'display:none':''}">Lanjut</button></div>`;
     const lt=BT.querySelector('.loot'),btn=BT.querySelector('.big2');btn.onclick=closeBattle;
     const show=()=>{let i=0;const add=(h,c)=>{setTimeout(()=>{const d=document.createElement('div');d.innerHTML=h;if(c)d.className=c;lt.appendChild(d);SND.blip(700+i*90,.07)},i++*320)};
@@ -2802,9 +2802,9 @@ function endFight(win){if(B.w&&B.w.goa){GOA.after(win,B.U.filter(u=>u.side===0).
       setTimeout(()=>{btn.style.display=''},i*320+200)};
     const ch=BT.querySelector('.chest');if(ch)ch.onclick=()=>{ch.onclick=null;ch.textContent='📦';ch.style.animation='none';SND.pop();show()};else show();
     if(win){SND.pop();setTimeout(()=>SND.pop(),180);setTimeout(()=>SND.blip(1320,.2),360)}},700)}
-function closeBattle(){if(!B)return;const w=B.w,won=w&&w.gone,qe=B.qev&&w,qz=B.zn,gw=w&&w.goa;B=null;BT.className='hide';BT.innerHTML='';
+function closeBattle(){if(!B)return;const w=B.w,won=w&&w.gone,qe=B.qev&&w&&!w.duel,qz=B.zn,gw=w&&w.goa;B=null;BT.className='hide';BT.innerHTML='';
   if(w&&!won&&!gw){const a=Math.atan2(PL.y-w.y,PL.x-w.x);for(let d=36;d>0;d-=6){const nx=PL.x+Math.cos(a)*d,ny=PL.y+Math.sin(a)*d;if(walk(nx,ny)){PL.x=nx;PL.y=ny;break}}}
-  encCool=2;mode=gw?'goa':'play';last=performance.now();SND.pop();if(gw)GOA.back();if(qe&&!gw){QST.ev('win',{zn:qz,el:(GLM[w.id]||{}).el});QST.ev('catch',{id:w.id})}}
+  encCool=2;mode=gw?'goa':'play';last=performance.now();SND.pop();if(gw)GOA.back();if(w&&w.duel)duelAfter(w);if(qe&&!gw){QST.ev('win',{zn:qz,el:(GLM[w.id]||{}).el});QST.ev('catch',{id:w.id})}}
 /* ---------- Ujian Evolusi ---------- */
 function startExam(id){if(mode!=='play'||B)return;closeSheet();mode='battle';B={state:'exam',w:null};BT.className='';
   BT.innerHTML=`<div class="ov dim"><img src="${hdURL(id)}" style="width:120px;image-rendering:pixelated"><h2>Ujian Evolusi</h2><div class="note2">${LG.M[id].n} siap berevolusi! Jawab <b>4 dari 5</b> soal dengan benar.</div><button class="big2" style="font-size:18px;padding:12px 26px">Mulai Ujian</button><button class="g bk" style="padding:8px 16px">Nanti saja</button></div>`;
@@ -2824,7 +2824,7 @@ function accBanner(b){try{const c=[b.atk&&`⚔️ ATK +${Math.round(b.atk*100)}%
 /* ================= PANEL ADMIN (fase pengembangan, hapus sebelum rilis) ================= */
 function admSave(){try{localStorage.setItem('lumimonAdm',JSON.stringify(ADM))}catch(e){}}
 {const b=document.createElement('button');b.id='bAdm';b.textContent='🛠️ Admin';b.onclick=()=>{SND.init();openAdmin()};document.body.appendChild(b);
-  setInterval(()=>{b.style.display=(['play','home','goa','battle'].includes(mode)&&!FLY)?'block':'none'},300)}
+  setInterval(()=>{b.style.display=(['play','home','goa','battle'].includes(mode)&&!FLY&&sh.classList.contains('hide'))?'block':'none'},300)}
 function openAdmin(){const A=ADM,sl=(k,n)=>`<div class="adr"><span>${n}</span><input type="range" min="0.5" max="10" step="0.5" value="${A[k]||1}" data-m="${k}"><b id="am_${k}">×${A[k]||1}</b></div>`;
   const plv=lvFromXp(SV.xp),q=QST.S(),inB=mode==='battle';
   let h=`<div class="note" style="margin-top:0">Hanya untuk tes. Pengaturan tersimpan di HP ini.</div>`;
@@ -3834,6 +3834,27 @@ function openBekal(){const it=Object.keys(SV.inv||{}).filter(k=>bekalVal(k)&&SV.
 /* Album Ikan di Koleksi */
 {const _ok=openKoleksi;openKoleksi=function(){_ok();const b=document.createElement('button');b.textContent='🐟 Album Ikan';b.style.cssText='width:100%;margin-top:10px';b.onclick=openAlbumIkan;shB.appendChild(b)}}
 window.__HM={HOME,get SV(){return SV},PL,CAM,DESTS,tname,walk,getFW:()=>FW,setMode:m=>{mode=m},get mode(){return mode},openAlbumIkan,fishQuiz,FID,ACTS};
+
+/* ================= DUEL dengan pemain NPC (penjelajah) ================= */
+const DLV=[4,8,12,16,20,24,28,6,10,14,18,22,26,30];
+BOTS.forEach((b,i)=>{b.lv=DLV[i%DLV.length];const R=rng(9001+i*77),pool=LG.MONS.map(m=>m.id).filter(id=>GLM[id]&&id!==b.lumi&&(GLM[id].r!=='L'||b.lv>=24)),t=[GLM[b.lumi]?b.lumi:pool[0]];
+  while(t.length<3){const id=pool[(R()*pool.length)|0];if(!t.includes(id))t.push(id)}b.team=t;
+  ACTS.push({get x(){return b.x},get y(){return b.y},r:30,ic:'⚔️',lb:'Duel',fn:()=>openDuel(b)})});
+{const _bt=botTick;botTick=function(b,dt,near){if(mode==='play'&&Math.hypot(PL.x-b.x,PL.y-b.y)<36){b.f=0;b.fight=0;return}return _bt(b,dt,near)}}
+function duelRec(n){SV.duel=SV.duel||{};return SV.duel[n]||(SV.duel[n]={w:0,l:0})}
+function openDuel(b){const plv=lvFromXp(SV.xp),r=duelRec(b.n),ev=b.lv>=EVO_LV,gap=b.lv-plv;
+  const tag=gap>=5?'<span style="color:#ff8a8a">😰 Jauh lebih kuat darimu</span>':gap>=2?'<span style="color:#ffd23c">💪 Sedikit lebih kuat</span>':gap<=-5?'<span style="color:#7cf29a">😊 Lebih lemah darimu</span>':'<span style="color:#9fe0ff">🤝 Seimbang</span>';
+  const h=`<div class="card" style="align-items:center"><div style="font-size:44px">🧑‍🎓</div><div><div style="font-weight:900;font-size:18px">${b.n} <span class="lv" style="background:#ffd23c;color:#2a1a0a;border-radius:8px;padding:0 6px;font-size:12px">Lv.${b.lv}</span></div><div style="font-size:12px;margin-top:3px">${tag}</div><div style="font-size:11px;color:var(--mut);margin-top:3px">Rekor duel: 🏆 ${r.w} menang · ${r.l} kalah</div></div></div>
+    <div class="note">Tim ${b.n}</div><div class="kteam">${b.team.map(id=>`<div class="kt" style="cursor:default"><img src="${hdURL(id,ev)}"><span>${monName(id,ev)}<br>Lv.${b.lv}</span></div>`).join('')}</div>
+    <div class="note">"${gap>=5?'Yakin mau melawanku? Lumiku kuat lho! 😎':gap<=-5?'Ayo duel! Aku mau belajar darimu 🙏':'Ayo duel! Siapa yang lebih jago jawab soal? 🔥'}"</div>
+    <div style="font-size:12px;color:var(--mut);margin:4px 0 8px">Hadiah menang: 🪙 koin + ✨ EXP (tanpa tangkap Lumi). Boleh duel kapan saja.</div>
+    <button class="big" id="dGo" style="width:100%">⚔️ Mulai Duel</button>`;
+  openSheet('⚔️ Ajak Duel',h);
+  $('dGo').onclick=()=>{closeSheet();const z=zoneNow();startEncounter({duel:1,_w0:duelRec(b.n).w,dn:b.n,bot:b,id:b.team[0],x:b.x,y:b.y,zn:z?z.n:'Baniara Village',foes:b.team.map((id,i)=>({id,lv:b.lv,main:i===0,evo:ev}))})}}
+function duelRes(w,win){const r=duelRec(w.dn);win?r.w++:r.l++}
+function duelAfter(w){const b=w.bot;
+  const W=['Wah, kamu hebat! Lain kali aku pasti menang! 😤','GG! Lumimu kuat sekali 👏','Aku kalah… ayo duel lagi nanti!'],L=['Hehe, aku menang! Latihan lagi ya 😄','Lumiku sedang semangat hari ini! 🔥','Coba jawab soal lebih cepat, pasti bisa!'];
+  const won=(SV.duel[w.dn].w)>(w._w0||0);const t=(won?W:L)[(Math.random()*3)|0];if(b){b.say=t;b.sayT=3}showHint(`🧑‍🎓 ${w.dn}: "${t}"`,3200)}
 
 function refreshHud(){if(!SV)return;const lv=lvFromXp(SV.xp),a=xpFor(lv),b=xpFor(lv+1);$('hLv').textContent='Lv.'+lv;$('hXp').firstChild.style.width=(lv>=30?100:((SV.xp||0)-a)/(b-a)*100)+'%';$('hKoin').textContent='🪙 '+(SV.koin||0)}
 /* ---------- layar awal ---------- */
