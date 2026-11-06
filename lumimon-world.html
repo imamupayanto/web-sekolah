@@ -2193,7 +2193,7 @@ const SND=(()=>{let ctx=null,mg=null,L={},on=true,nb=null,nextBird=0,nextCr=0,ne
     if(e.frog&&t>nextFr){nextFr=t+2+Math.random()*4;frog()}if(e.gull&&t>nextGu){nextGu=t+5+Math.random()*8;gull()}if(e.owl&&t>nextOw){nextOw=t+9+Math.random()*12;owl()}
     if(e.lava>.2&&t>nextFire){nextFire=t+.08+Math.random()*.35;crack()}}
   return{init,update,blip:(f,d)=>tone(f,d||.08,'sine',.05),pop:()=>{tone(660,.08,'sine',.07);setTimeout(()=>tone(990,.1,'sine',.06),60)},whoosh:()=>tone(300,.9,'sine',.05,120),
-    get on(){return on},set on(v){on=v;if(v)init()},get ready(){return !!ctx}}})();
+    get on(){return on},set on(v){on=v;if(v)init()},get ready(){return !!ctx},get ctx(){return ctx}}})();
 /* ---------- layar & UI ---------- */
 const g=cv.getContext('2d');let VW=156,VH=340,SCL=2.5,LC=mk(1,1),lg=LC.getContext('2d');
 function resize(){const w=innerWidth,h=innerHeight;SCL=(w<420?2.5:3)/(FLYING?2:1);VW=Math.ceil(w/SCL);VH=Math.ceil(h/SCL);cv.width=VW;cv.height=VH;cv.style.width=(VW*SCL)+'px';cv.style.height=(VH*SCL)+'px';g.imageSmoothingEnabled=false;LC.width=VW;LC.height=VH}
@@ -3084,6 +3084,243 @@ function latihan(){let i=0,ok=0;const N=10;const nx=()=>{if(i>=N){const k=ok*2,x
       $('lMat').onclick=()=>{closeSheet();openOrb();openMateri()};$('lLg').onclick=()=>{closeSheet();latihan()};return}
     i++;quick1(`✏️ Latihan ${curMapel().ic} ${i}/${N}`,r=>{if(r)ok++;nx()})};nx()}
 
+/* ================= MUSIK LATAR: mesin chiptune (dari game lama, diperhalus) + lagu per zona ================= */
+const CHIP_DG = 'LMNOPQ0123456789abcde';
+const CHIP = {
+  sc: { MAJ: [0, 2, 4, 5, 7, 9, 11], MIN: [0, 2, 3, 5, 7, 8, 10], HMIN: [0, 2, 3, 5, 7, 8, 11], PHR: [0, 1, 3, 5, 7, 8, 10], DOR: [0, 2, 3, 5, 7, 9, 10], LYD: [0, 2, 4, 6, 7, 9, 11], MIXO: [0, 2, 4, 5, 7, 9, 10], PENT: [0, 2, 4, 7, 9] },
+  pw: {}, nb: null, ir: null
+};
+const chipF = n => 440 * Math.pow(2, (n - 69) / 12);
+function chipNote(song, deg, oct = 0) { const sc = CHIP.sc[song.sc], L = sc.length, o = Math.floor(deg / L); return song.root + 12 * (o + oct) + sc[((deg % L) + L) % L]; }
+function chipPulse(ac, d) {
+  const k = ac.sampleRate + '|' + d; if (CHIP.pw[k] && CHIP.pw[k].ac === ac) return CHIP.pw[k].w;
+  const N = 40, re = new Float32Array(N), im = new Float32Array(N); for (let n = 1; n < N; n++) re[n] = 2 / (n * Math.PI) * Math.sin(n * Math.PI * d);
+  const w = ac.createPeriodicWave(re, im); CHIP.pw[k] = { ac, w }; return w;
+}
+function chipNoise(ac) {
+  if (CHIP.nb && CHIP.nb.sampleRate === ac.sampleRate) return CHIP.nb;
+  const b = ac.createBuffer(1, ac.sampleRate, ac.sampleRate), d = b.getChannelData(0); let s = 1;
+  for (let i = 0; i < d.length; i++) { s = (s * 16807) % 2147483647; d[i] = (s / 2147483647) * 2 - 1; } return (CHIP.nb = b);
+}
+function chipIR(ac) {
+  if (CHIP.ir && CHIP.ir.sampleRate === ac.sampleRate) return CHIP.ir;
+  const L = Math.floor(ac.sampleRate * 2.4), ir = ac.createBuffer(2, L, ac.sampleRate);
+  for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); let s = 7 + c * 13; for (let i = 0; i < L; i++) { s = (s * 16807) % 2147483647; d[i] = ((s / 2147483647) * 2 - 1) * Math.pow(1 - i / L, 3.2); } }
+  return (CHIP.ir = ir);
+}
+/* rantai efek RINGAN (v124): tanpa reverb konvolusi & kompresor per lagu (berat di HP). Gema = 1 delay umpan-balik,
+   kirim gema memakai 3 tingkat tetap (tidak membuat node baru per nada), vibrato memakai 1 LFO bersama (detune). */
+function chipBus(ac, out) {
+  const dry = ac.createGain(); dry.gain.value = .9; dry.connect(out);
+  const ein = ac.createGain(), dl = ac.createDelay(1.5), fb = ac.createGain(), lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200; fb.gain.value = .36; dl.delayTime.value = .3;   // v124: dulu 0 (gema 3 ms berdengung)
+  ein.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); const eo = ac.createGain(); eo.gain.value = .8; lp.connect(eo);
+  if (ac.createStereoPanner) { const pn = ac.createStereoPanner(); pn.pan.value = .35; eo.connect(pn); pn.connect(out); } else eo.connect(out);
+  const es = [.2, .38, .6].map(v => { const g = ac.createGain(); g.gain.value = v; g.connect(ein); return g; });
+  const lfo = ac.createOscillator(), vib = ac.createGain(); lfo.frequency.value = 5.6; vib.gain.value = 11; lfo.connect(vib); lfo.start();
+  return { dry, es, dl, vib, lfo };
+}
+const chipSend = (bus, e) => !e || e < .1 ? null : bus.es[e < .3 ? 0 : e < .5 ? 1 : 2];
+function chipEnv(g, t, a, d, s, r, dur, v) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.setTargetAtTime(v * s, t + a, d); g.gain.setTargetAtTime(0, t + Math.max(a, dur), r); }
+function chipTone(ac, bus, o) {   // o: {t, f, dur, wave|duty, v, a,d,s,r, vib, glide, echo, rev, f2}
+  const osc = ac.createOscillator(), g = ac.createGain();
+  if (o.duty) osc.setPeriodicWave(chipPulse(ac, o.duty)); else osc.type = o.wave || 'triangle';
+  osc.frequency.setValueAtTime(o.f, o.t); if (o.f2) osc.frequency.exponentialRampToValueAtTime(o.f2, o.t + (o.glide || o.dur));
+  if (o.vib && o.dur > .25 && bus.vib) bus.vib.connect(osc.detune);
+  chipEnv(g, o.t, o.a || .004, o.d || .08, o.s == null ? .7 : o.s, o.r || .06, o.dur, o.v);
+  osc.connect(g); g.connect(bus.dry); const e = chipSend(bus, Math.max(o.echo || 0, (o.rev || 0) * .8)); if (e) g.connect(e);
+  osc.start(o.t); const end = o.t + o.dur + (o.r || .06) * 5 + .05; osc.stop(end);
+  if (o.vib && o.dur > .25 && bus.vib) osc.onended = () => { try { bus.vib.disconnect(osc.detune); } catch (x) { } };
+}
+function chipNz(ac, bus, t, dur, v, type, fq, q = 1, rev = 0) {
+  const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = chipNoise(ac); f.type = type; f.frequency.value = fq; f.Q.value = q;
+  g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0008, t + dur); s.connect(f); f.connect(g); g.connect(bus.dry); const e = chipSend(bus, rev); if (e) g.connect(e);
+  s.start(t, Math.random() * .5); s.stop(t + dur + .02);
+}
+const CHIP_DR = {
+  k: (ac, b, t, v) => { chipTone(ac, b, { t, f: 160, f2: 42, glide: .11, dur: .16, wave: 'sine', v: .9 * v, a: .001, d: .1, s: .2, r: .05 }); chipNz(ac, b, t + .001, .012, .1 * v, 'highpass', 3000); },
+  s: (ac, b, t, v) => { chipNz(ac, b, t, .16, .5 * v, 'bandpass', 1900, .8, .18); chipTone(ac, b, { t, f: 210, f2: 150, dur: .07, wave: 'triangle', v: .35 * v, a: .001, d: .04, s: .2, r: .03 }); },
+  h: (ac, b, t, v) => chipNz(ac, b, t, .035, .16 * v, 'highpass', 7600),
+  o: (ac, b, t, v) => chipNz(ac, b, t, .2, .13 * v, 'highpass', 6800),
+  X: (ac, b, t, v) => chipNz(ac, b, t, 1.2, .22 * v, 'highpass', 4500, .5, .3),
+  t: (ac, b, t, v) => chipTone(ac, b, { t, f: 140, f2: 80, glide: .2, dur: .22, wave: 'triangle', v: .5 * v, a: .001, d: .12, s: .3, r: .06 }),
+  hb: (ac, b, t, v) => { chipTone(ac, b, { t, f: 70, f2: 38, glide: .14, dur: .2, wave: 'sine', v: .8 * v, a: .002, d: .12, s: .2, r: .08 }); }
+};
+/* susun satu lagu: kembalikan lama lagu (detik). bars = jumlah birama yang dijadwalkan mulai dari t0 */
+/* jadwalkan satu langkah (1/16) birama b yang dimulai pada T; dipakai penjadwal game (merata, tidak menumpuk per birama) */
+function chipStep(ac, bus, song, T, b, i) {
+  const sp = 60 / song.bpm / 4, c = song.chords[b], I = song.ins || {}, t = T + i * sp, lite = bus.lite;
+  const at = pat => { if (!pat) return null; const s = pat.length <= 4 ? pat[b % pat.length] : pat[b]; if (!s) return null; const ch = s[i]; if (!ch || ch === '.' || ch === '-') return null; let len = 1; while (s[i + len] === '-') len++; return [ch, len * sp]; };
+  let x;
+  if ((x = at(song.lead))) { const dg = CHIP_DG.indexOf(x[0]) - 6, L = I.lead || {}; chipTone(ac, bus, { t, f: chipF(chipNote(song, dg, L.oct || 1)), dur: x[1] * .92, duty: L.wave ? 0 : (L.duty || .25), wave: L.wave, v: L.v || .13, a: L.a || .006, d: L.d || .12, s: L.s == null ? .62 : L.s, r: L.r || .07, vib: L.vib == null ? 1 : L.vib, echo: L.echo == null ? .35 : L.echo, rev: L.rev || .15 }); }
+  if (!lite && (x = at(song.lead2))) { const dg = CHIP_DG.indexOf(x[0]) - 6, L = I.lead2 || {}; chipTone(ac, bus, { t, f: chipF(chipNote(song, dg, L.oct == null ? 1 : L.oct)), dur: x[1] * .9, duty: L.wave ? 0 : (L.duty || .125), wave: L.wave, v: L.v || .07, a: .005, d: L.d || .1, s: L.s == null ? .55 : L.s, r: .06, echo: L.echo == null ? .25 : L.echo }); }
+  if ((x = at(song.bass))) { const B = I.bass || {}, m = { r: [0, -2], R: [0, -1], f: [4, -2], F: [4, -1], t: [2, -2], T: [2, -1] }[x[0]]; if (m) chipTone(ac, bus, { t, f: chipF(chipNote(song, c + m[0], m[1])), dur: x[1] * .9, wave: B.wave || 'triangle', duty: B.duty, v: B.v || .3, a: .004, d: .1, s: B.s == null ? .8 : B.s, r: .04 }); }
+  if ((!lite || i % 2 === 0) && (x = at(song.arp))) { const A = I.arp || {}, k = { 1: 0, 3: 2, 5: 4, 8: 7 }[x[0]]; if (k != null) chipTone(ac, bus, { t, f: chipF(chipNote(song, c + k, A.oct == null ? 1 : A.oct)), dur: Math.min(x[1], sp * (A.len || 1.2)), duty: A.wave ? 0 : (A.duty || .125), wave: A.wave, v: A.v || .045, a: .002, d: A.d || .05, s: A.s == null ? .3 : A.s, r: A.r || .04, echo: A.echo == null ? .3 : A.echo }); }
+  if (i === 0 && song.pad) { const P = song.pad; if (!P.every || b % P.every === 0) for (const k of [0, 2, 4]) chipTone(ac, bus, { t, f: chipF(chipNote(song, c + k, P.oct || 0)), dur: 16 * sp * (P.every || 1) * .98, wave: 'triangle', v: (P.v || .025) * 1.6, a: P.a || .4, d: 1, s: .8, r: .5, rev: P.rev || .4 }); }
+  if (song.drum) for (const k in song.drum) if (!(lite && (k === 'h' || k === 'o') && i % 2) && (x = at(song.drum[k]))) (CHIP_DR[x[0] === 'x' ? k : x[0]] || CHIP_DR[k])(ac, bus, t, (song.dv || {})[k] || 1);
+  if (i === 0 && song.fx && !lite) song.fx(ac, bus, T, 16 * sp, b);
+}
+function chipPlay(ac, bus, song, t0, fromBar = 0, nBars) {
+  const sp = 60 / song.bpm / 4, n = nBars || song.chords.length;
+  for (let bi = 0; bi < n; bi++) { const b = (fromBar + bi) % song.chords.length, T = t0 + bi * 16 * sp; for (let i = 0; i < 16; i++) chipStep(ac, bus, song, T, b, i); }
+  return n * 16 * sp;
+}
+/* ---------- lagu (v123) ---------- */
+function chipDrip(ac, bus, T, dur, b, n, p) { let s = 1000 + b * 77 + Math.floor(T * 10); const r = () => (s = (s * 16807) % 2147483647) / 2147483647; for (let i = 0; i < n; i++) if (r() < p) { const t = T + r() * dur, f = 1300 + r() * 900; chipTone(ac, bus, { t, f, f2: f * 1.7, glide: .06, dur: .07, wave: 'sine', v: .07, a: .001, d: .04, s: .1, r: .05, echo: .5, rev: .9, pan: r() * 1.6 - .8 }); } }
+/* versi malam: lebih pelan, tanpa drum, lebih bergema */
+function chipNight(sg) { const I = JSON.parse(JSON.stringify(sg.ins || {})); I.lead = Object.assign({}, I.lead, { duty: .5, v: ((I.lead || {}).v || .13) * .7, echo: .55, rev: .4 }); if (I.arp) I.arp.v = (I.arp.v || .045) * .7; I.bass = Object.assign({}, I.bass, { v: ((I.bass || {}).v || .3) * .8 }); return Object.assign({}, sg, { bpm: Math.round(sg.bpm * .85), drum: null, ins: I, pad: sg.pad || { v: .03, a: .8, rev: .5 }, lead2: null }); }
+const CHIP_SONGS = {
+  school: { bpm: 120, root: 60, sc: 'MAJ', chords: [0, 4, 5, 3, 0, 4, 5, 3, 3, 4, 2, 5, 3, 4, 0, 0],
+    lead: ['4-..2.4.7---6.4.', '5-..4.2.4---....', '2-..0.2.5---4.2.', '3-..2.0.1---....', '4-..2.4.7---8.9.', '8---7.6.7---....', '9-..8.7.8.7.5.4.', '5---4---3---1...',
+      '3.5.7.5.3.5.7.8.', '8-..7.6.4---....', '6.7.9.7.6.4.2.4.', '5---4.2.0---....', '3.4.5.7.8---7.8.', '9---8.7.6---4.6.', '7---4---7.9.b.9.', '7-------........'],
+    lead2: [null, null, null, null, null, null, null, null, '0...2...4...2...', '1...4...6...4...', '2...4...6...4...', '0...2...4...2...'],
+    bass: ['r.R.f.R.r.R.f.R.'], arp: [null, null, null, null, '1.3.5.8.5.3.1.3.', '1.3.5.8.5.3.1.3.', '1.3.5.8.5.3.1.3.', '1.3.5.8.5.3.1.3.', null, null, null, null, '1.3.5.8.5.3.1.3.', '1.3.5.8.5.3.1.3.', '1.3.5.8.5.3.1.3.', '1.3.5.8.5.3.1.3.'], ins: { lead: { duty: .25, v: .13 }, bass: { v: .28 } },
+    drum: { k: ['x.......x.......'], s: ['....x.......x...'], h: ['..x...x...x...x.'] }, dv: { k: .8, s: .7, h: .9 } },
+  goa: { bpm: 66, root: 52, sc: 'PHR', chords: [0, 0, 1, 0, 5, 5, 1, 0, 0, 0, 1, 0, 5, 3, 1, 0],
+    lead: [null, '7-------8---7---', null, 'a-----9-8-------', null, '7---5---4-------', null, '8-------7-------', null, 'a-------b---a---', null, '9-8-7-----------', null, 'c-------b---a---', null, '7---------------'],
+    bass: ['r---------------'], arp: ['1.......5.......', '........8...5...'], pad: { v: .03, lp: 700, a: 1.2, rev: .6, oct: -1 },
+    ins: { lead: { duty: .125, v: .07, echo: .55, rev: .5, vib: .008 }, bass: { v: .26, wave: 'triangle' }, arp: { duty: .25, v: .05, echo: .6, rev: .4, oct: 0 } },
+    drum: { hb: ['x..x............', null] }, dv: { hb: .7 },
+    fx: (ac, bus, T, dur, b) => chipDrip(ac, bus, T, dur, b, 3, .75) },
+  lboss: { bpm: 164, root: 50, sc: 'HMIN', chords: [0, 0, 5, 4, 0, 0, 5, 4, 3, 3, 0, 0, 5, 5, 4, 4],
+    lead: ['0-0-2-3-4---3-2-', '3-2-0-Q-0-------', '5-5-4-3-4---3-2-', '4---3-2-Q---4---', '7-7-6-7-9---7-6-', '7-4-3-2-0-------', '5-7-8-7-5-4-3-4-', '4-------Q---4---',
+      '3-5-7-5-3-5-8-7-', 'a---9-7-5-------', '7-9-a-9-7-4-3-4-', '7---------------', '8-7-5-7-8-a-c-a-', '8---7---5---4---', '4-6-7-6-4-6-7-9-', 'b---a---9---6---'],
+    lead2: [null, null, null, null, '0...0...2...0...', null, '3...3...2...1...', null, '0.2.3.2.0.2.3.2.', null, '0.2.4.2.0.2.4.2.', null, '1.3.5.3.1.3.5.3.', null, '1.2.4.2.1.2.4.2.'],
+    bass: ['rr.rr.rr.rr.r.R.', 'r.r.r.R.r.r.R.f.'], arp: ['1358531813585318'], pad: { v: .028, lp: 1500, a: .2, every: 2 },
+    ins: { lead: { duty: .25, v: .14, echo: .25, oct: 2 }, lead2: { oct: 1, v: .06 }, bass: { v: .3, wave: 'triangle' }, arp: { v: .035, oct: 2, echo: .15 } },
+    drum: { k: ['x...x...x...x.xx', 'x...x...x..xx...'], s: ['....x.......x...', '....x.......x.xx'], h: ['x.x.x.x.x.x.x.x.'], X: ['X...............', null, null, null] }, dv: { k: 1, s: .9, h: .8, X: .8 } },
+  battle: { bpm: 148, root: 57, sc: 'MIN', chords: [0, 5, 6, 4, 0, 5, 6, 4, 3, 3, 0, 0, 5, 6, 4, 4],
+    lead: ['4-.4-.3.4-.7-.6.', '5---4---2---0---', '6-.6-.5.6-.8-.7.', '8---7---6---4---', '4-.4-.3.4-.7-.9.', 'a---9---7---5---', '9-8-7-6-5-6-7-8-', '6-------4-------',
+      '3-5-7-5-8-7-5-3-', '5-------........', '4-7-9-7-b-9-7-4-', '7-------........', '5-.5-.7.8-.7-.5.', '6-.6-.8.9-.8-.6.', '7-9-b-9-7-6-4-6-', '4---6---8---b---'],
+    bass: ['r.R.r.R.f.R.r.R.'], arp: [null, null, null, null, null, null, null, null, '1.3.5.8.1.3.5.8.'],
+    ins: { lead: { duty: .5, v: .11, echo: .28 }, bass: { v: .3 }, arp: { v: .04 } },
+    drum: { k: ['x.....x.x.......'], s: ['....x.......x...', '....x.......x..x'], h: ['x.x.x.x.x.x.x.x.'], X: ['X...............', null, null, null, null, null, null, null] }, dv: { h: .8 } }
+};
+/* lagu lainnya (v123) */
+Object.assign(CHIP_SONGS, {
+  title: { bpm: 112, root: 60, sc: 'MAJ', chords: [0, 3, 4, 0, 5, 3, 1, 4, 0, 3, 4, 5, 3, 4, 0, 0],
+    lead: ['0---4---7-6-7-9-', '8---7-5-3-------', '4---6-8-b---9-8-', '7---------------', '5---7---9-8-7-5-', '3---5---7-------', '1-3-5-8-6---5-3-', '4-------6---8---',
+      '7-7-9-7-b---9-7-', '8-8-a-8-c---a-8-', 'b-b-9-b-e---b-9-', 'c---b---9---8---', 'a---9-8-7---5---', 'b---a-9-8---6---', '7-9-b-e-b-9-7-9-', 'e---------------'],
+    lead2: [null, null, null, null, null, null, null, null, '0...2...4...2...', '1...3...5...3...', '2...4...6...4...', '3...5...7...5...', '3...5...7...5...', '4...6...8...6...', '0...4...7...4...', '0...............'],
+    bass: ['r.R.r.R.r.R.f.R.'], arp: [null, null, null, null, null, null, null, null, '1358135813581358', '1358135813581358', '1358135813581358', '1358135813581358', '1358135813581358', '1358135813581358', '1358135813581358', null],
+    pad: { v: .022, every: 2, lp: 1300 }, ins: { lead: { duty: .25, v: .13 }, arp: { v: .03, oct: 1 } },
+    drum: { k: ['x...x...x...x...'], s: ['....x.......x...'], h: ['x.x.x.x.x.x.x.x.'], X: ['X...............', null, null, null] }, dv: { h: .7, X: .6 } },
+  menu: { bpm: 90, root: 65, sc: 'MAJ', chords: [0, 5, 3, 4, 0, 5, 1, 4],
+    lead: ['2---1-0-4-------', '5---4-2-0-------', '3---4-5-7---5---', '4-------........', '2---1-0-4---5-7-', '9---7-5-4-------', '3-2-1-3-5---4---', '4-------........'],
+    bass: ['r-------f-------'], arp: ['1.5.8.5.1.5.8.5.'], pad: { v: .022, lp: 1000 }, ins: { lead: { duty: .5, v: .09, echo: .4 }, bass: { v: .24 }, arp: { v: .032 } },
+    drum: { h: ['....x.......x...'] }, dv: { h: .6 } },
+  study: { bpm: 76, root: 62, sc: 'LYD', chords: [0, 1, 0, 4, 0, 1, 5, 4],
+    lead: ['4-------3---1---', '2-------........', '4---5---7---8---', '7-------........', 'b-------9---8---', '9---8---7---5---', '8---7---5---4---', '4-------........'],
+    bass: ['r-------r-------'], arp: ['1..3..5..8..5..3'], pad: { v: .028, lp: 900, a: .8 }, ins: { lead: { duty: .5, v: .075, echo: .45, rev: .3 }, bass: { v: .2 }, arp: { v: .038, echo: .4 } } },
+  mtk: { bpm: 116, root: 67, sc: 'PENT', chords: [0, 3, 0, 2, 0, 3, 1, 4, 0, 3, 0, 2, 0, 3, 1, 4],
+    lead: ['0.2.3.5.4.3.2.0.', '1.3.4.6.5---....', '0.2.3.5.7.6.5.3.', '4---3---2---....', '5.5.7.5.8.7.5.3.', '4.5.7.8.7---....', '6.5.3.2.3.5.6.8.', '7-------........',
+      '0.0.2.3.5.3.2.0.', '1.1.3.4.6.4.3.1.', '2.3.5.7.8.7.5.3.', '4---5---7---....', '8.7.5.7.8.a.8.7.', '5.4.3.5.7---....', '3.5.7.8.a.8.7.5.', '5-------........'],
+    bass: ['r.r.R.r.f.f.R.f.'], arp: ['1.3.5.3.1.3.5.3.'], ins: { lead: { duty: .125, v: .12, echo: .3 }, arp: { duty: .25, v: .035 }, bass: { v: .27 } },
+    drum: { k: ['x.......x.x.....'], s: ['....x.......x...'], h: ['x.xxx.xxx.xxx.xx'] }, dv: { h: .5, k: .8, s: .6 } },
+  ind: { bpm: 96, root: 65, sc: 'MAJ', chords: [0, 5, 3, 4, 0, 5, 1, 4, 3, 0, 1, 4, 3, 4, 0, 0],
+    lead: ['2-3-4---7---4---', '5-------4-2-0---', '3-4-5---8---7-5-', '4-------........', '2-3-4---7---9---', '8-------7-5-4---', '3-4-5-7-6---5---', '4-------........',
+      '5---7---8---7-5-', '4---2---0-------', '1-2-3---5---4-3-', '4-------6-------', '7---8---a---8-7-', '8---7---6---4---', '7---4---2---4---', '0-------........'],
+    lead2: [null, null, null, null, null, null, null, null, '0...2...4...2...', '0...2...4...2...', '1...3...5...3...', '1...3...5...3...', '3...5...7...5...', '4...6...8...6...', '0...2...4...2...', null],
+    bass: ['r...f...R...f...'], arp: ['1.3.5.8.5.3.1.3.'], pad: { v: .02, lp: 1000, every: 2 }, ins: { lead: { duty: .5, v: .1, echo: .35 }, bass: { v: .26 }, arp: { v: .03 } },
+    drum: { k: ['x.......x.......'], h: ['..x...x...x...x.'] }, dv: { k: .5, h: .5 } },
+  ipas: { bpm: 100, root: 62, sc: 'MIXO', chords: [0, 6, 3, 0, 0, 6, 3, 4, 5, 3, 0, 6, 5, 3, 4, 4],
+    lead: ['4---4-5-7---5-4-', '6-------5-4-2---', '3---3-4-5---7---', '7-------........', '4---4-5-7---9---', 'a---9-7-6---7---', '5---7---8---7---', '4-------........',
+      '5-5-7-8-9---8-7-', '5-------7-------', '7-9-a-9-7-5-4-5-', '6-------........', '9---8---7---5---', '7---5---3---5---', '4---6---8---b---', 'a-------........'],
+    bass: ['r..r..R.r..r..f.'], arp: ['1.5.8.5.1.5.8.5.'], ins: { lead: { duty: .25, v: .11, echo: .32 }, bass: { v: .27 }, arp: { v: .035 } },
+    drum: { k: ['x.....x.x.......'], s: ['....x.......x...'], h: ['..x...x...x...x.'] }, dv: { k: .7, s: .5, h: .7 } },
+  ing: { bpm: 124, root: 57, sc: 'MAJ', chords: [0, 4, 5, 3, 0, 4, 5, 3, 3, 4, 5, 5, 3, 4, 0, 0],
+    lead: ['4.4.4.5.4.2.0.2.', '4---1---........', '2.2.2.4.2.0.Q.0.', '0---5---........', '4.4.4.5.7.6.5.4.', '4---2---1---....', '2.4.5.7.9.7.5.4.', '3-------........',
+      '5.5.7.5.8.7.5.3.', '6.6.8.6.9.8.6.4.', '7.7.9.7.a.9.7.5.', '9-------........', 'a.9.8.7.8.7.5.3.', '6.5.4.3.4.6.8.b.', '9---7---4---7---', '7-------........'],
+    lead2: [null, null, null, null, null, null, null, null, '0.0.2.0.4.2.0.2.', '1.1.3.1.4.3.1.3.', '2.2.4.2.5.4.2.4.', '2.2.4.2.5.4.2.4.', '0.0.2.0.4.2.0.2.', '1.1.3.1.4.3.1.3.', '0.0.2.0.4.2.0.2.', null],
+    bass: ['r.R.f.R.r.R.f.R.'], ins: { lead: { duty: .25, v: .12 }, lead2: { v: .05 }, bass: { v: .28 } },
+    drum: { k: ['x...x...x...x...'], s: ['....x.......x...'], h: ['xxxxxxxxxxxxxxxx'], X: ['X...............', null, null, null, null, null, null, null] }, dv: { h: .45, k: .8, s: .7 } },
+  forest: { bpm: 88, root: 57, sc: 'DOR', chords: [0, 3, 6, 4, 0, 3, 1, 4],
+    lead: ['4---3-2-0-------', '3---5-6-7-------', '6---5-4-2---3---', '4-------........', '4---3-2-0---2---', '3---5---6---8---', '7---6---4---3---', '4-------........'],
+    bass: ['r-----f-r-------'], arp: ['1..5..8..5..1..5'], pad: { v: .025, lp: 900, a: .6 }, ins: { lead: { duty: .125, v: .09, echo: .5, rev: .3 }, bass: { v: .26 }, arp: { v: .038, echo: .45 } },
+    drum: { h: ['..x...x...x...x.'] }, dv: { h: .4 } },
+  snow: { bpm: 78, root: 64, sc: 'LYD', chords: [0, 4, 1, 5, 0, 4, 1, 4],
+    lead: ['7---9---b---9---', '8-------........', '6---8---a---8---', '7-------........', 'b---a---9---7---', '8---7---5---4---', '5---6---8---7---', '7-------........'],
+    bass: ['r-------f-------'], arp: ['1358531813585318'], pad: { v: .028, lp: 1200, a: .8 }, ins: { lead: { duty: .5, v: .07, echo: .5, rev: .35, oct: 0 }, bass: { v: .2 }, arp: { duty: .125, v: .028, oct: 1, echo: .4 } } },
+  cave: { bpm: 92, root: 52, sc: 'MIN', chords: [0, 5, 3, 4, 0, 5, 1, 4],
+    lead: ['0---2-3-4---3-2-', '3-------0-------', '5---4-3-2---3---', '4-------........', '7---6-5-4---5---', '3-------2---0---', '1---2-3-4---3---', '4-------........'],
+    bass: ['r.r.R.r.r.r.R.f.'], ins: { lead: { duty: .25, v: .1 }, bass: { v: .3 } },
+    drum: { k: ['x.......x...x...'], t: ['......x.......x.'], h: ['..x...x...x...x.'] }, dv: { h: .5, t: .8 } },
+  gedung: { bpm: 100, root: 58, sc: 'MAJ', chords: [0, 5, 1, 4, 2, 5, 1, 4],
+    lead: ['4.2.4.5.7---5.4.', '2-------0-------', '1.3.4.6.8---6.4.', '4-------........', '4.2.4.5.7---8.9.', '7---5---4-------', '3.4.5.6.8---6.5.', '4-------........'],
+    bass: ['r...t...f...T...'], pad: { v: .02, lp: 1100 }, ins: { lead: { duty: .5, v: .09, echo: .3 }, bass: { v: .25 } },
+    drum: { k: ['x.......x.......'], h: ['..x...x...x...x.'] }, dv: { k: .4, h: .45 } },
+  lab: { bpm: 108, root: 60, sc: 'DOR', chords: [0, 0, 3, 4, 0, 0, 6, 4],
+    lead: ['0.0.2.4.3.2.0...', '4.4.6.8.7.6.4...', '3.5.7.5.3.5.7.8.', '7-------........', '0.0.2.4.3.2.0...', '4.4.6.8.7.6.4...', '6.5.4.3.4.6.8.b.', '7-------........'],
+    bass: ['r.r.r.r.r.r.r.R.'], arp: ['1358135813581358'], ins: { lead: { duty: .125, v: .11 }, arp: { duty: .25, v: .035 }, bass: { v: .26 } },
+    drum: { k: ['x...x...x...x...'], s: ['........x.......'], h: ['.x.x.x.x.x.x.x.x'] }, dv: { h: .5, s: .4, k: .7 } },
+  sarang: { bpm: 84, root: 50, sc: 'HMIN', chords: [0, 5, 3, 4, 0, 5, 1, 4],
+    lead: ['7-------6---7---', '9-------7-------', '8---7---5---3---', '4-------Q-------', '7-------9---a---', 'b-------9-------', 'a---9---8---7---', '6-------........'],
+    bass: ['r-------r---f---'], pad: { v: .04, lp: 1300, a: .8, rev: .5 }, ins: { lead: { duty: .5, v: .1, echo: .45, rev: .4, vib: .008 }, bass: { v: .3 } },
+    drum: { k: ['x.......x.......'], t: ['............x.x.'], X: ['X...............', null, null, null] }, dv: { k: .8, X: .7 } },
+  duel: { bpm: 164, root: 59, sc: 'HMIN', chords: [0, 5, 3, 4, 0, 5, 1, 4],
+    lead: ['0-2-3-4-3-2-0-Q-', '0---5---4---3---', '3-4-5-7-5-4-3-2-', '4-------Q---4---', '7-6-7-9-7-6-4-6-', '7---8---9---a---', '8-7-5-7-8-9-a-8-', 'b-------9---7---'],
+    bass: ['rr.rr.rr.rr.rrRR'], arp: ['1358531813585318'], ins: { lead: { duty: .25, v: .12 }, arp: { v: .028, oct: 2, echo: .15 }, bass: { v: .28 } },
+    drum: { k: ['x...x...x...x.x.'], s: ['....x.......x...'], h: ['xxxxxxxxxxxxxxxx'], X: ['X...............', null, null, null] }, dv: { h: .45, X: .7 } },
+  legend: { bpm: 138, root: 48, sc: 'PHR', chords: [0, 1, 0, 6, 0, 1, 5, 4],
+    lead: ['0---1---0---Q---', '0-----3-1-------', '4---5---4---3---', '1-------0-------', '7---8---7---5---', '4-----3-1-------', '5---4---3---1---', '0-------Q-------'],
+    lead2: ['0.0.0.0.1.1.0.0.'], bass: ['r.r.r.r.R.r.r.r.'], pad: { v: .028, lp: 1400, every: 2 },
+    ins: { lead: { duty: .25, v: .13, oct: 2, echo: .25 }, lead2: { oct: 1, duty: .5, v: .05, pan: -.2 }, bass: { v: .3 } },
+    drum: { k: ['x..x..x.x..x..x.'], s: ['....x.......x...'], h: ['x.x.x.x.x.x.x.x.'], X: ['X...............', null, null, null] }, dv: { h: .7, X: .7 } },
+  goabattle: { bpm: 140, root: 52, sc: 'PHR', chords: [0, 1, 0, 5, 0, 1, 3, 1],
+    lead: ['0-1-0-Q-0---3---', '1-0-Q-O-Q-------', '4-5-4-3-1---0---', '1-------Q-------', '7-8-7-5-4---3---', '5-4-3-1-0-------', '3-4-5-7-8-7-5-4-', '1-------0-------'],
+    bass: ['r.rr.rr.r.rr.rR.'], arp: ['1.1.5.5.8.8.5.5.'], ins: { lead: { duty: .125, v: .12, echo: .3 }, arp: { v: .032, duty: .25 }, bass: { v: .3 } },
+    drum: { k: ['x..x..x...x..x..'], s: ['....x.......x...'], h: ['x.x.x.x.x.x.x.x.'] }, dv: { h: .6 },
+    fx: (ac, bus, T, dur, b) => chipDrip(ac, bus, T, dur, b, 1, .5) },
+  penjaga: { bpm: 156, root: 54, sc: 'HMIN', chords: [0, 0, 5, 4, 3, 3, 4, 4],
+    lead: ['0---0-2-3---2-0-', 'Q-------0-------', '5-5-4-3-4---3-2-', 'Q---4---7---4---', '3-5-7-8-7-5-3-2-', '3-------0-------', '4-4-6-7-9-7-6-4-', '4---Q---4---7---'],
+    lead2: ['0...0...0...0...'], bass: ['rrrrrrrrrrrrRRRR'], pad: { v: .03, lp: 1500, every: 2 },
+    ins: { lead: { duty: .5, v: .13 }, lead2: { oct: 0, duty: .25, v: .06, pan: .2 }, bass: { v: .27 } },
+    drum: { k: ['x.x.x.x.x.x.x.xx'], s: ['....x.......x...'], h: ['x.x.x.x.x.x.x.x.'], X: ['X...............', null] }, dv: { k: .8, h: .6, X: .6 } }
+});
+/* v134: musik tegang saat Bos Legenda turun ke sekolah (event): tema Sarang dipercepat + drum */
+CHIP_SONGS.evboss = Object.assign({}, CHIP_SONGS.sarang, { bpm: 116, drum: CHIP_SONGS.sarang.drum || (CHIP_SONGS.legend && CHIP_SONGS.legend.drum) });
+const CHIP_G = {school:  1.13,  goa:  1.35,  lboss:  0.61,  battle:  0.81,  title:  0.73,  menu:  1.57,  study:  1.78,  mtk:  1,  ind:  1.57,  ipas:  1.16,  ing:  0.87,  forest:  1.52,  snow:  1.81,  cave:  0.87,  gedung:  1.79,  lab:  1.04,  sarang:  0.92,  duel:  0.64,  legend:  0.65,  goabattle:  0.69,  penjaga:  0.59};
+
+/* ---------- tambahan Lumimon Baru: tangga nada slendro + lagu Baniara (rindu kampung) ---------- */
+CHIP.sc.SLD=[0,2.4,4.8,7.2,9.6];
+function chipGong(ac,bus,t){const f=chipF(38);chipTone(ac,bus,{t,f,dur:3.4,wave:'sine',v:.2,a:.008,d:1.6,s:.45,r:1.3,rev:.6});chipTone(ac,bus,{t,f:f*1.013,dur:3.4,wave:'sine',v:.14,a:.008,d:1.6,s:.45,r:1.3});chipTone(ac,bus,{t,f:f*2.02,dur:2.2,wave:'sine',v:.05,a:.01,d:.9,s:.3,r:.8,rev:.5})}
+function chipKenong(ac,bus,t){const f=chipF(62);chipTone(ac,bus,{t,f,dur:1.4,wave:'sine',v:.07,a:.004,d:.5,s:.4,r:.6,echo:.4});chipTone(ac,bus,{t,f:f*2.76,dur:.5,wave:'sine',v:.02,a:.002,d:.2,s:.2,r:.2})}
+CHIP_SONGS.baniara={bpm:80,root:62,sc:'SLD',chords:[0,1,0,2,0,3,2,0,3,3,4,2,0,3,1,0],
+  lead:['2---3-4-5---4-3-','2-------1-2-----','0---1-2-3---2-1-','2---------------','2---3-4-5---6-7-','6---5-4---5-----','4-3-2---1---2-3-','0---------------',
+        '7---6-5-6---7---','8-------7-6-5---','6---5-4-5---4-2-','3-------4---5---','5---4-3-2---3-4-','5---6-5-4---3---','2-1-0---1---2---','0---------------'],
+  lead2:['0...2...3...2...','1...3...2...1...','0...2...0...2...','2...3...4...2...'],
+  bass:['r.......f.......'],
+  arp:['1.3.5.3.1.3.5.3.','5.3.1.3.5.3.8.5.'],
+  pad:{v:.02,a:1.6,rev:.6,oct:-1},
+  ins:{lead:{wave:'sine',v:.16,a:.045,d:.3,s:.85,r:.18,vib:1,echo:.42,rev:.35},lead2:{wave:'triangle',v:.055,oct:0,d:.15,s:.3,echo:.3},bass:{v:.2,wave:'sine'},arp:{wave:'triangle',v:.03,oct:2,d:.09,s:.15,len:2,echo:.55}},
+  drum:{hb:['x.......x...x...','x.......x.x.x...']},dv:{hb:.42},
+  fx:(ac,bus,T,dur,b)=>{if(b%4===0)chipGong(ac,bus,T);if(b%2===1)chipKenong(ac,bus,T+dur*.5)}};
+CHIP_G.baniara=1.25;
+/* ---------- pemutar: jadwal jauh ke depan (1 dtk), tidak melompati nada saat layar sibuk ---------- */
+const MUS={key:'',want:'',wantT:0,song:null,bus:null,g:null,out:null,next:0,bar:0,st:0};
+const ZSONG={'Windy Meadow':'school','Wildwood Forest':'forest','Misty Marsh':'lab','Frostpeak':'snow','Mirror Lake':'study','Ember Crater':'sarang','Crimson Desert':'mtk','Coral Coast':'ing','Balloon Port':'title','Lesson Obelisk':'gedung','Baniara Village':'baniara'};
+const MLITE=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=3;
+const musNight=()=>{const h=hourNow();return h>=19||h<5};
+function musKey(){if(mode==='title'||mode==='meet')return'title';
+  if(mode==='battle'&&B&&B.w){const w=B.w;return w.goa?(w.boss?'legend':'goabattle'):w.duel?'duel':w.boss?'lboss':'battle'}
+  if(mode==='goa')return'goa';const n=musNight()?'@n':'';if(mode==='home')return'menu'+n;
+  const z=zoneNow();return((z&&ZSONG[z.n])||'ipas')+n}
+function musSong(key){const [b,n]=key.split('@'),s=CHIP_SONGS[b];return s?(n?chipNight(s):s):null}
+function musSet(key){const ac=SND.ctx,s=musSong(key);if(!ac||!s)return;const t=ac.currentTime;
+  if(!MUS.out){MUS.out=ac.createGain();MUS.out.gain.value=.42;MUS.out.connect(ac.destination)}
+  if(MUS.g){const o=MUS.g,ob=MUS.bus;o.gain.cancelScheduledValues(t);o.gain.setValueAtTime(o.gain.value,t);o.gain.linearRampToValueAtTime(0,t+1.1);setTimeout(()=>{try{ob.lfo.stop();o.disconnect()}catch(e){}},2500)}
+  const g=MUS.g=ac.createGain(),base=key.split('@')[0];g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime((CHIP_G[base]||1)*(key.includes('@')?.9:1),t+1.4);g.connect(MUS.out);
+  MUS.bus=chipBus(ac,g);MUS.bus.lite=MLITE;try{MUS.bus.dl.delayTime.value=Math.min(1.2,60/s.bpm*.75)}catch(e){}
+  MUS.song=s;MUS.key=key;MUS.bar=0;MUS.st=0;MUS.next=t+.15}
+function musTick(){const ac=SND.ctx;if(!ac||ac.state!=='running')return;const on=SND.on&&!(SV&&SV.musOff);
+  if(MUS.out)MUS.out.gain.setTargetAtTime(on?.42:0,ac.currentTime,.3);if(!on)return;
+  const k=musKey(),now=performance.now();if(k!==MUS.want){MUS.want=k;MUS.wantT=now}
+  const urgent=/battle|duel|lboss|legend|goa|title/.test(k)||/battle|duel|lboss|legend|goabattle/.test(MUS.key)||mode==='home'||MUS.key.startsWith('menu');
+  if(k!==MUS.key&&(urgent||now-MUS.wantT>1500))musSet(k);
+  const s=MUS.song;if(!s)return;const sp=60/s.bpm/4;if(MUS.next<ac.currentTime-.02)MUS.next=ac.currentTime+.06;
+  let n=0;while(MUS.next<ac.currentTime+1.0&&n++<48){try{chipStep(ac,MUS.bus,s,MUS.next-MUS.st*sp,MUS.bar,MUS.st)}catch(e){}MUS.next+=sp;if(++MUS.st>=16){MUS.st=0;MUS.bar=(MUS.bar+1)%s.chords.length}}}
+setInterval(musTick,90);
+window.__MUS=()=>({key:MUS.key,want:MUS.want,bar:MUS.bar,lite:MLITE,ctx:SND.ctx&&SND.ctx.state});window.__CHIP={chipBus,chipStep,CHIP_SONGS};
+
 /* ================= AVATAR: pelukis game lama + aksesoris asli + Set Bos turunan + pilih tampilan ================= */
 const ELSETK={Api:'blaze',Es:'glacier',Racun:'venom',Netral:'wanderer'};
 const BOSSAC={blaze:['#5a0f10','#b8282a','#6a0f1a'],glacier:['#0f2a5a','#2a6ad0','#123a7a'],venom:['#2a0f40','#7a2ab0','#3a1450'],wanderer:['#3a1408','#8a3a1a','#5a1a10']};
@@ -3340,8 +3577,8 @@ function openRide(){const own=SV.owned||{},ids=Object.keys(RIDES);
   shB.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{rideSet(b.dataset.r);closeSheet();SND.pop();showHint(`🐾 Menunggang ${LG.M[b.dataset.r].n}!`,1600)})}
 $('bRide').onclick=()=>{SND.init();if(RIDE){rideSet(null);showHint('🚶 Turun',1000);return}const id=[SV.rideLast,...Object.keys(RIDES).reverse()].find(k=>k&&rideOK(k));if(id){rideSet(id);SND.pop();showHint(`🐾 Menunggang ${LG.M[id].n}! Ganti di Tunggangan alun-alun`,1800)}else openRide()};
 function rideBtn(){const b=$('bRide');if(!b||!SV)return;b.classList.toggle('ok',QST.unl('ride')&&Object.keys(RIDES).some(rideOK))}
-function openSetelan(){openSheet('⚙️ Setelan',`<div class="shop"><button id="stS">${SND.on?'🔊':'🔇'}<b>Suara</b><small>${SND.on?'nyala':'mati'}</small></button><button id="stH">🧭<b>Petunjuk quest</b><small>${QST.S().hint?'nyala':'mati'}</small></button></div><div class="note">Pemain: ${SV.name} · Lv.${lvFromXp(SV.xp||0)}</div>`);
-  $('stS').onclick=()=>{SND.on=!SND.on;SV.snd=SND.on;save();openSetelan()};$('stH').onclick=()=>{QST.S().hint=QST.S().hint?0:1;save();QST.upd();openSetelan()}}
+function openSetelan(){openSheet('⚙️ Setelan',`<div class="shop"><button id="stS">${SND.on?'🔊':'🔇'}<b>Suara</b><small>${SND.on?'nyala':'mati'}</small></button><button id="stM">${SV.musOff?'🔕':'🎵'}<b>Musik</b><small>${SV.musOff?'mati':'nyala'}</small></button><button id="stH">🧭<b>Petunjuk quest</b><small>${QST.S().hint?'nyala':'mati'}</small></button></div><div class="note">Pemain: ${SV.name} · Lv.${lvFromXp(SV.xp||0)}</div>`);
+  $('stS').onclick=()=>{SND.on=!SND.on;SV.snd=SND.on;save();openSetelan()};$('stM').onclick=()=>{SV.musOff=!SV.musOff;save();openSetelan()};$('stH').onclick=()=>{QST.S().hint=QST.S().hint?0:1;save();QST.upd();openSetelan()}}
 $('hAv').style.cursor='pointer';$('hAv').onclick=()=>{if(mode==='play'||mode==='home')openSetelan()};
 /* ================= MODE COBA (?coba=1): save terpisah, semua fitur terbuka ================= */
 function unlockAll(){const h=HOME.H();SV.koin=Math.max(SV.koin||0,99999);SV.xp=Math.max(SV.xp||0,xpFor(25));SV.owned=SV.owned||{};SV.evo=SV.evo||{};SV.acc=SV.acc||{};SV.inv=SV.inv||{};
