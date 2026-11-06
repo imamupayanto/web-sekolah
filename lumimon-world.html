@@ -128,15 +128,31 @@ body.incave #bt .ar{filter:brightness(.55) saturate(.75) hue-rotate(200deg)}
 #flyc{width:100%;height:100%;display:block;image-rendering:pixelated}
 #fly .ft{position:absolute;left:0;right:0;bottom:22%;text-align:center;font-weight:900;font-size:20px;text-shadow:0 2px 4px rgba(0,0,0,.6)}
 #dbg{position:fixed;left:8px;bottom:70px;font-size:10px;background:rgba(0,0,0,.5);padding:3px 6px;border-radius:6px;display:none}
+
+/* === UI ala game lama: joystick kiri, aksi kanan, ikon kolom kanan === */
+#joy{left:calc(18px + env(safe-area-inset-left));top:auto;bottom:calc(22px + env(safe-area-inset-bottom));width:128px;height:128px;margin:0;border:3px solid rgba(255,255,255,.6);background:rgba(20,26,60,.32);display:none;pointer-events:auto;touch-action:none;z-index:3}
+#joy.on{display:block}
+#knob{left:38px;top:38px;width:46px;height:46px;background:rgba(255,255,255,.85);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+#nav,.hn{left:auto;right:calc(10px + env(safe-area-inset-right));bottom:auto;top:calc(172px + env(safe-area-inset-top));transform:none;flex-direction:column;gap:7px;padding:0;background:none;border:0;box-shadow:none}
+#nav button,.hn button{width:56px;height:52px;padding:4px 0 3px;font-size:22px;line-height:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border-radius:16px;background:linear-gradient(#2a3768,#1b2547);border:2px solid #0a0f22;box-shadow:0 3px 0 #0a0f22;color:#fff}
+#nav button span,.hn button span{font-size:9.5px;font-weight:900}
+#nav .dot{margin:-30px 0 0 34px}
+#nav #bRide:not(.ok),#nav #bFly:not(.fly){display:none}
+#nav button span{letter-spacing:-.02em;white-space:nowrap}
+#nav #bRide.on{background:linear-gradient(#4cb04a,#2c7a2a);border-color:#0a3a10}
+#act{right:calc(14px + env(safe-area-inset-right));bottom:calc(24px + env(safe-area-inset-bottom));width:80px;height:80px}
+.hn{top:calc(60px + env(safe-area-inset-top))}
+#hint{left:calc(50% - 36px);bottom:calc(168px + env(safe-area-inset-bottom));max-width:min(88vw,calc(100vw - 170px))}
+#qdlg{bottom:calc(164px + env(safe-area-inset-bottom))}
 </style></head>
 <body>
 <canvas id="c"></canvas>
 <div id="hud" class="hide"><canvas id="hAv" width="16" height="13"></canvas><div class="hm"><div class="who"><span id="hName"></span><span class="lv" id="hLv">Lv.1</span></div><div id="hXp" class="bar"><i style="width:0"></i></div></div><div id="hKoin" class="chip2">🪙 0</div><div id="clock" class="chip2"></div><div id="zn">…</div></div>
 <canvas id="mini" class="hide" width="160" height="160"></canvas>
-<div id="side" class="hide"><button id="bFly" aria-label="Terbang">🎈</button><button id="bSnd" aria-label="Suara">🔊</button><button id="bRide" aria-label="Tunggangan">🐾</button><button id="bRun" aria-label="Lari">🚶</button></div>
+<div id="side" class="hide"><button id="bFly" aria-label="Terbang">🎈<span>Terbang</span></button><button id="bSnd" aria-label="Suara">🔊</button><button id="bRide" aria-label="Tunggangan">🐾<span>Tunggang</span></button><button id="bRun" aria-label="Lari">🚶</button></div>
 <div id="zb" class="pan"><div class="zi"></div><div class="zt"></div><div class="zs"></div></div>
 <div id="nav" class="hide"><button data-k="peta">🗺️<span>Peta</span></button><button data-k="kol">📖<span>Koleksi</span></button><button data-k="tas">🎒<span>Tas</span></button><button data-k="misi">📜<span>Quest</span></button></div>
-<div id="joy"><div id="knob"></div></div>
+<div id="joy"><div id="knob"></div></div><script>(()=>{const n=document.getElementById('nav');['bRide','bFly'].forEach(i=>{const b=document.getElementById(i);if(b)n.appendChild(b)})})()</script>
 <div id="bub" class="pan"></div>
 <div id="hint" class="pan"></div>
 <div id="sheet" class="hide"><div class="box"><div class="hd"><h3></h3><button class="x">✕</button></div><div class="bd"></div></div></div>
@@ -2085,9 +2101,14 @@ window.__W2={BOTS,PICK,LMSPOT,isShiny,get HERD(){return HERD}};
 /* ---------- input ---------- */
 const K={};addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;K[e.key.toLowerCase()]=1});addEventListener('keyup',e=>{K[e.key.toLowerCase()]=0});
 const joy=$('joy'),knob=$('knob');let J=null;const cv=$('c');
-cv.addEventListener('pointerdown',e=>{if(mode!=='play'&&mode!=='home'&&mode!=='goa')return;J={id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,dy:0};joy.style.left=e.clientX+'px';joy.style.top=e.clientY+'px';joy.style.display='block';knob.style.transform='';cv.setPointerCapture(e.pointerId);SND.init()});
-cv.addEventListener('pointermove',e=>{if(!J||e.pointerId!==J.id)return;let dx=e.clientX-J.x,dy=e.clientY-J.y;const d=Math.hypot(dx,dy),m=40;if(d>m){dx*=m/d;dy*=m/d}J.dx=dx/m;J.dy=dy/m;knob.style.transform=`translate(${dx}px,${dy}px)`});
-const endJ=e=>{if(J&&e.pointerId===J.id){J=null;joy.style.display='none'}};cv.addEventListener('pointerup',endJ);cv.addEventListener('pointercancel',endJ);
+const jc=()=>{const r=joy.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}};
+const jStart=(e,el)=>{if(mode!=='play'&&mode!=='home'&&mode!=='goa')return;const c=jc();J={id:e.pointerId,x:c.x,y:c.y,dx:0,dy:0};jMove(e);try{el.setPointerCapture(e.pointerId)}catch(_){}SND.init()};
+const jMove=e=>{if(!J||e.pointerId!==J.id)return;let dx=e.clientX-J.x,dy=e.clientY-J.y;const d=Math.hypot(dx,dy),m=46;if(d>m){dx*=m/d;dy*=m/d}J.dx=dx/m;J.dy=dy/m;knob.style.transform=`translate(${dx}px,${dy}px)`};
+joy.addEventListener('pointerdown',e=>{e.preventDefault();jStart(e,joy)});joy.addEventListener('pointermove',jMove);
+cv.addEventListener('pointerdown',e=>{if(e.clientX<innerWidth*.5&&e.clientY>innerHeight*.45)jStart(e,cv)});
+setInterval(()=>{const on=(mode==='play'||mode==='home'||mode==='goa')&&!FLY&&!document.body.classList.contains('nojoy');joy.classList.toggle('on',on)},200);
+cv.addEventListener('pointermove',jMove);
+const endJ=e=>{if(J&&e.pointerId===J.id){J=null;knob.style.transform=''}};cv.addEventListener('pointerup',endJ);cv.addEventListener('pointercancel',endJ);joy.addEventListener('pointerup',endJ);joy.addEventListener('pointercancel',endJ);
 /* ---------- waktu & cuaca ---------- */
 function hourNow(){if(Q.has('jam'))return +Q.get('jam');const d=new Date(Date.now()+7*3600e3);return d.getUTCHours()+d.getUTCMinutes()/60}
 function clockTxt(){if(Q.has('jam')){const h=+Q.get('jam');return String(Math.floor(h)).padStart(2,'0')+':00'}const d=new Date(Date.now()+7*3600e3);return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0')}
@@ -2198,11 +2219,11 @@ $('mini').onclick=()=>openMap();
 $('bSnd').onclick=()=>{SND.on=!SND.on;SV.snd=SND.on;save();$('bSnd').textContent=SND.on?'🔊':'🔇'};
 $('bFly').onclick=()=>{if(mode!=='play')return;if(FLYING&&!walk(PL.x,PL.y)){showHint('Tidak bisa mendarat di sini. Terbang ke daratan dulu 🏝️',2200);return}
   FLYING=!FLYING;cv.style.transition='opacity .2s';cv.style.opacity=0;SND.whoosh();setTimeout(()=>{resize();cv.style.opacity=1},200);
-  $('bFly').textContent=FLYING?'🛬':'🎈';$('bFly').classList.toggle('fly',FLYING);showHint(FLYING?'🎈 Terbang! Lihat pulau dari atas. Ketuk 🛬 untuk mendarat':'🛬 Mendarat!',2600)};
+  $('bFly').innerHTML=FLYING?'🛬<span>Mendarat</span>':'🎈<span>Terbang</span>';$('bFly').classList.toggle('fly',FLYING);showHint(FLYING?'🎈 Terbang! Lihat pulau dari atas. Ketuk 🛬 untuk mendarat':'🛬 Mendarat!',2600)};
 $('bRun').onclick=()=>{runMul=runMul===1?2:1;$('bRun').textContent=runMul>1?'🏃':'🚶';showHint(runMul>1?'Mode lari!':'Mode jalan',1200)};
 /* ---------- terbang balon ---------- */
 const fly=$('fly'),fc=$('flyc'),fg=fc.getContext('2d');let FLY=null;
-function flyTo(d){if(FLY)return;FLY={d,t:0,moved:false};fly.querySelector('.ft').textContent='Terbang ke '+d.n+'…';fc.width=Math.ceil(innerWidth/3);fc.height=Math.ceil(innerHeight/3);fly.classList.add('on');SND.whoosh();J=null;joy.style.display='none'}
+function flyTo(d){if(FLY)return;FLY={d,t:0,moved:false};fly.querySelector('.ft').textContent='Terbang ke '+d.n+'…';fc.width=Math.ceil(innerWidth/3);fc.height=Math.ceil(innerHeight/3);fly.classList.add('on');SND.whoosh();J=null;knob.style.transform=''}
 function flyTick(dt){if(!FLY)return;FLY.t+=dt;const t=FLY.t,W=fc.width,Hh=fc.height,{dk}=sky(hourNow());
   const top=dk>.5?'#0d1640':'#5ab0f0',bot=dk>.5?'#2a3a78':'#cfeaff';const gr=fg.createLinearGradient(0,0,0,Hh);gr.addColorStop(0,top);gr.addColorStop(1,bot);fg.fillStyle=gr;fg.fillRect(0,0,W,Hh);
   if(dk>.5){fg.fillStyle='#fff';for(let i=0;i<40;i++){const x=(hash(i,1,3)*W)|0,y=(hash(i,2,3)*Hh*.7)|0;if((Math.floor(t*4)+i)%5)fg.fillRect(x,y,1,1)}}
@@ -2535,7 +2556,7 @@ function quiz(n,secs,title,sub,done){let qi=0,ok=0;
     Qn.opts.forEach(v=>{const b=document.createElement('button');b.textContent=v;b.onclick=()=>end(v===Qn.ans,b);op.appendChild(b)});
     bar.style.transition='none';bar.style.width='100%';requestAnimationFrame(()=>requestAnimationFrame(()=>{bar.style.transition=`width ${secs*(Qn.t||1)}s linear`;bar.style.width='0%'}));qT=setTimeout(()=>end(false,null),secs*1000*(Qn.t||1))};ask()}
 /* ---------- pertemuan ---------- */
-function startEncounter(w){if((mode!=='play'&&mode!=='goa')||B)return;mode='battle';J=null;joy.style.display='none';bub.style.display='none';
+function startEncounter(w){if((mode!=='play'&&mode!=='goa')||B)return;mode='battle';J=null;knob.style.transform='';bub.style.display='none';
   const zn=w.zn,[l0,l1]=zoneLv(zn),team=w.team||(SV.team&&SV.team.length?SV.team:[STARTER]).slice(0,3),R=rng(Date.now()&0xffffff),pool=POOL[zn]||['moss'];
   const hi=Math.min(l1,Math.max(l0,lvFromXp(SV.xp)+1)),rl=()=>l0+((R()*(hi-l0+1))|0);
   const foes=w.foes?w.foes.map(f=>({...f})):w.boss?[{id:w.id,lv:w.lv,main:true,boss:1}]:[{id:w.id,lv:rl(),main:true}];if(!w.boss&&!w.foes)for(let i=1;i<team.length;i++)foes.push({id:pool[(R()*pool.length)|0],lv:rl()});
@@ -2859,7 +2880,7 @@ function fishDraw(g,ox,oy,now){if(!FW)return;const sp=FW.sp,hx=PL.x+(PL.dir===2?
   g.strokeStyle='rgba(60,40,20,.9)';g.lineWidth=1;g.beginPath();g.moveTo(hx,hy);g.lineTo(hx+(bx-hx)*.4,hy-10);g.lineTo(bx,by);g.stroke();
   if(FW.st!=='bite'){g.fillStyle='#ff4a3a';g.fillRect(bx-1,by-2,3,2);g.fillStyle='#fff';g.fillRect(bx-1,by,3,1)}else{g.strokeStyle='rgba(255,255,255,.8)';g.beginPath();g.ellipse(bx,by,4+Math.sin(now/80)*1.5,1.6,0,0,7);g.stroke();
     const x=PL.x-ox,y=PL.y-oy-38;g.fillStyle='#fff';g.fillRect(x-3,y,7,11);g.fillStyle='#e8303a';g.fillRect(x-1,y+1,3,6);g.fillRect(x-1,y+8,3,2)}}
-function fishGame(fish){mode='fish';J=null;joy.style.display='none';const D2=FDIF[fish.r],o=document.createElement('div');o.id='fishOv';
+function fishGame(fish){mode='fish';J=null;knob.style.transform='';const D2=FDIF[fish.r],o=document.createElement('div');o.id='fishOv';
   o.style.cssText='position:fixed;left:0;right:0;bottom:0;top:34%;z-index:6;background:linear-gradient(#1d2547f2,#0f1530f8);border-top:3px solid #ffd23c;display:flex;flex-direction:column;align-items:center;padding:10px 12px calc(14px + env(safe-area-inset-bottom));gap:8px';
   o.innerHTML=`<div id="fgT" style="font-weight:900;font-size:20px;color:#ffd23c">🎣 Tarik!</div><div style="font-size:12px;color:#c9c4f0;text-align:center">Tahan tombol supaya kotak hijau tetap di ikan</div>
    <div style="display:flex;gap:14px;align-items:stretch;height:min(240px,32vh)"><div id="fgTr" style="position:relative;width:64px;border:3px solid #0a0f22;border-radius:14px;background:linear-gradient(#3aa8ff,#1d5aa8);overflow:hidden">
@@ -3360,7 +3381,7 @@ function buyObor(){const g=S();if(g.buy>=1){showHint('Obor tambahan maks 1 per h
 let RUN=null,MAP=null,MC=null,GL=[],EXIT=null,MONS=[],STAIR=null,SPR=null,CRY=[],HP={x:0,y:0,dir:1,f:0,ft:0},cam={x:0,y:0},fade=0;
 const pool=k=>Object.keys(GLM).filter(id=>LG.M[id]&&GLM[id].el===K[k].el&&GLM[id].r!=='L');
 function enter(k,fl){const team=(SV.team&&SV.team.length?SV.team:[STARTER]).slice(0,3);document.body.classList.add('incave');RUN={k,fl,hp:Object.fromEntries(team.map(id=>[id,1])),curse:0,sd:(Date.now()&0xffff)*13+1,wins:0,mw:0};
-  if(RIDE)rideSet(null);mode='goa';J=null;joy.style.display='none';bub.style.display='none';['nav','side','mini','qcard','zb','zn'].forEach(i=>{const e=$(i);if(e)e.style.visibility='hidden'});HOME.setAct('');gnav.classList.remove('hide');
+  if(RIDE)rideSet(null);mode='goa';J=null;knob.style.transform='';bub.style.display='none';['nav','side','mini','qcard','zb','zn'].forEach(i=>{const e=$(i);if(e)e.style.visibility='hidden'});HOME.setAct('');gnav.classList.remove('hide');
   genFloor();SND.whoosh();showHint(`🔦 ${K[k].n} · Lantai ${fl}`,1800)}
 function leave(msg){const lk=RUN&&RUN.k;RUN=null;document.body.classList.remove('incave');mode='play';gnav.classList.add('hide');gcard.classList.add('hide');['nav','side','mini','qcard','zb','zn'].forEach(i=>{const e=$(i);if(e)e.style.visibility=''});HOME.setAct('');lastZ=undefined;
   const m=MOUTH.find(o=>o.k===lk)||near();if(m){PL.x=m.x;PL.y=m.y+10;PL.dir=0;CAM.x=PL.x;CAM.y=PL.y}save();refreshHud();QST.upd();if(msg)showHint(msg,2600)}
@@ -3591,7 +3612,7 @@ function interact(t){if(!sh.classList.contains('hide'))return;const k=t.k;
 const hnav=document.createElement('div');hnav.className='hn hide';hnav.innerHTML='<button data-h="gudang">📦<span>Gudang</span></button><button data-h="info">🏡<span>Rumah</span></button><button data-h="out">🚪<span>Keluar</span></button>';document.body.appendChild(hnav);
 hnav.querySelectorAll('[data-h]').forEach(e=>e.onclick=()=>{SND.init();({gudang:openGudang,info:openInfo,out:close})[e.dataset.h]()});
 const UIH=['nav','side','mini'];
-function open(){if(mode!=='play')return;H();daily();syncPen();mode='home';scene='yard';J=null;joy.style.display='none';bub.style.display='none';UIH.forEach(i=>{const e=$(i);if(e)e.style.visibility='hidden'});hnav.classList.remove('hide');setAct('');QST.upd();$('zn').textContent=`🏡 Rumah ${SV.name||''} · Lv.${H().lv}`;
+function open(){if(mode!=='play')return;H();daily();syncPen();mode='home';scene='yard';J=null;knob.style.transform='';bub.style.display='none';UIH.forEach(i=>{const e=$(i);if(e)e.style.visibility='hidden'});hnav.classList.remove('hide');setAct('');QST.upd();$('zn').textContent=`🏡 Rumah ${SV.name||''} · Lv.${H().lv}`;
   HP.x=176;HP.y=botY()-12;HP.dir=1;rainSaid=false;SND.pop();{const h=H();let k=0,n=0;h.pen.forEach(id=>{if((h.bond[id]||0)>=20&&h.gift[id]!==dayNo){h.gift[id]=dayNo;k+=5+Math.round((h.bond[id]||0)/4);n++}});if(n){SV.koin=(SV.koin||0)+k;save();refreshHud();setTimeout(()=>toast(`🎁 ${n} Lumi di kandang memberimu 🪙${k}!`),600)}}
   if(!H().seen){H().seen=1;save();setTimeout(()=>openSheet('🏡 Rumahmu!',`<div style="line-height:1.9">🌱 <b>Kebun</b> di kiri: tanam bibit, siram, petik<br>🐾 <b>Kandang</b> di kanan: titip & elus Lumi<br>🪑 <b>Petak hiasan</b>: pasang hiasan dari Toko Perabot<br>🚪 Masuk <b>rumah</b> untuk lemari & trofi</div><div class="note">Jalan seperti biasa, atau ketuk langsung benda yang kamu mau. Beri pertamamu hampir matang!</div>`),300)}}
 function close(){mode='play';lastZ=undefined;setTimeout(()=>QST.upd(),0);hnav.classList.add('hide');setAct('');UIH.forEach(i=>{const e=$(i);if(e)e.style.visibility=''});if(DOOR){PL.x=DOOR.x;PL.y=DOOR.y+6;PL.dir=0;CAM.x=PL.x;CAM.y=PL.y}save();refreshHud()}
@@ -3735,7 +3756,7 @@ function enterGame(isNew){SND.on=SV.snd!==false;$('bSnd').textContent=SND.on?'�
   $('hName').textContent=SV.name;migrateAcc();rebuildSheet();SV.team=SV.team&&SV.team.length?SV.team:[STARTER];SV.owned=SV.owned||{};SV.koin=SV.koin||0;SV.xp=SV.xp||0;refreshHud();
   if(SV.gone&&SV.gone.w===curWin)WILD.forEach(w=>{if(SV.gone.list.includes(w.key))w.gone=true});
   if(isNew)openLook(true,meet);else play()}
-function play(){mode='play';['hud','mini','side','nav'].forEach(id=>$(id).classList.remove('hide'));lastZ=undefined;showHint('Sentuh & geser layar untuk berjalan 👆',4000)}
+function play(){mode='play';['hud','mini','side','nav'].forEach(id=>$(id).classList.remove('hide'));lastZ=undefined;showHint('Geser joystick di kiri bawah untuk berjalan 🕹️',4000)}
 function meet(){mode='meet';const m=LG.M[STARTER],el=$('meet');el.classList.remove('hide');
   let sp='';for(let i=0;i<10;i++)sp+=`<span class="spark" style="left:${10+Math.random()*80}%;top:${18+Math.random()*44}%;animation-delay:${(Math.random()*1.4).toFixed(2)}s">✦</span>`;
   el.innerHTML=sp+`<img src="${hdURL(STARTER)}" alt=""><h2>${m.n} ingin berteman denganmu!</h2><p>${m.n} akan selalu menemanimu menjelajahi Pulau Baniara. <b>Cinder Fox</b> 🔥 dan <b>Mossling</b> 🍄 juga ikut di timmu!</p><button class="big" id="mGo" style="font-size:18px;padding:12px 22px">Ayo jelajahi! ✨</button>`;
