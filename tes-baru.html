@@ -6,18 +6,20 @@
 <meta name="lumimon-baru" content="tahapA-v1">
 <title>Lumimon World</title>
 <script>
-/* Bingkai tegak: di layar lebar (laptop/PC/tablet miring) game tampil sebagai kolom tegak di tengah, seperti game lama */
-(function(){var D=document.documentElement,dw=Object.getOwnPropertyDescriptor(window,'innerWidth'),rw=function(){return dw&&dw.get?dw.get.call(window):document.documentElement.clientWidth},rh=function(){return window.innerHeight};
-  function fw(){return rw()/rh()>0.7?Math.min(480,Math.round(rh()*0.5625)):0}
-  function upd(){var w=fw();D.classList.toggle('frame',!!w);D.style.setProperty('--vw',(w||rw())/100+'px');D.style.setProperty('--fw',(w||rw())+'px')}
+/* Bingkai tegak (seperti game lama): di layar lebar game tampil sebagai kolom tegak di tengah.
+   Tinggi memakai innerHeight (bukan 100vh) supaya tidak terpotong bilah alamat browser HP. */
+(function(){var D=document.documentElement,dw=Object.getOwnPropertyDescriptor(window,'innerWidth'),rw=function(){return dw&&dw.get?dw.get.call(window):D.clientWidth},rh=function(){return window.innerHeight},
+  coarse=function(){return window.matchMedia&&matchMedia('(pointer:coarse)').matches};
+  function fw(){var w=rw(),h=rh();if(w<=600||(h<=500&&coarse()))return 0;return Math.min(480,Math.round(h*0.5625),w)}
+  function upd(){var w=fw();D.classList.toggle('frame',!!w);D.style.setProperty('--vw',(w||rw())/100+'px');D.style.setProperty('--fw',(w||rw())+'px');D.style.setProperty('--vh',rh()/100+'px');D.style.setProperty('--fh',rh()+'px')}
   try{Object.defineProperty(window,'innerWidth',{configurable:true,get:function(){return fw()||rw()}})}catch(e){}
-  upd();addEventListener('resize',upd)})();
+  upd();addEventListener('resize',upd);addEventListener('orientationchange',function(){setTimeout(upd,300)});if(window.visualViewport)visualViewport.addEventListener('resize',upd)})();
 </script>
 
 <style>
 :root{--bg:#0b1a2a;--panel:rgba(16,22,34,.84);--ink:#fff;--mut:#b8c4d6;--sun:#ffd23c;--line:rgba(255,255,255,.18)}
 html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
-#c{position:fixed;left:0;top:0;width:calc(var(--vw,1vw)*100);height:100vh;image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+#c{position:fixed;left:0;top:0;width:calc(var(--vw,1vw)*100);height:calc(var(--vh,1vh)*100);image-rendering:pixelated;image-rendering:crisp-edges;display:block}
 .hide{display:none!important}
 .pan{position:fixed;background:var(--panel);border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(4px)}
 button{font:inherit;font-weight:800;color:#2a1a0a;background:var(--sun);border:2px solid #2a1a0a;border-radius:12px;padding:9px 12px;box-shadow:0 3px 0 #2a1a0a;cursor:pointer}
@@ -91,7 +93,7 @@ body.incave #bt .ar{filter:brightness(.55) saturate(.75) hue-rotate(200deg)}
 .shop button img{width:44px;image-rendering:pixelated}.shop button b{font-size:12px}.shop button small{font-size:10px;font-weight:700;opacity:.8}.shop button:disabled{opacity:.45}
 /* lembar menu */
 #sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:5}
-#sheet .box{background:linear-gradient(#222d55,#151c38 40%);border:2px solid #0a0f22;border-top:3px solid #ffd23c;border-radius:20px 20px 0 0;padding:12px 14px calc(16px + env(safe-area-inset-bottom));width:min(440px,100%);max-height:84vh;overflow:auto;animation:up .25s ease-out}
+#sheet .box{background:linear-gradient(#222d55,#151c38 40%);border:2px solid #0a0f22;border-top:3px solid #ffd23c;border-radius:20px 20px 0 0;padding:12px 14px calc(16px + env(safe-area-inset-bottom));width:min(440px,100%);max-height:calc(var(--vh,1vh)*84);overflow:auto;animation:up .25s ease-out}
 @keyframes up{from{transform:translateY(40px);opacity:0}}
 #sheet .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}#sheet h3{margin:0;font-size:19px;color:#ffd23c;text-shadow:0 2px 0 #0a0f22}
 #sheet .x{padding:4px 10px;background:#e8eef6}
@@ -214,7 +216,7 @@ body.incave #bt .ar{filter:brightness(.55) saturate(.75) hue-rotate(200deg)}
 #rotOv .ph::after{content:"";position:absolute;left:50%;bottom:5px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#ffd23c}
 #rotOv small{font:700 14px sans-serif;color:#c9c2f0}
 @keyframes rotPh{0%,25%{transform:rotate(-90deg)}60%,100%{transform:rotate(0)}}
-html.frame{background:#0a0f22}html.frame body{width:var(--fw);height:100vh;margin:0 auto;position:relative;overflow:hidden;transform:translateZ(0);box-shadow:0 0 0 1px #24305a,0 0 40px rgba(0,0,0,.6)}
+body{position:fixed;top:0;left:0;right:0;height:var(--fh,100%)}html.frame{background:#0a0f22}html.frame body{left:50%;right:auto;width:var(--fw);transform:translateX(-50%);box-shadow:0 0 0 1px #24305a,0 0 40px rgba(0,0,0,.6)}
 </style></head>
 <body>
 <canvas id="c"></canvas>
@@ -2592,11 +2594,11 @@ const BCSS=document.createElement('style');BCSS.textContent=`
 #bt .pt.sn{width:3px;height:3px;background:#fff;border-radius:50%;animation-name:ptfall}#bt .pt.lf{width:5px;height:3px;background:#8ac84a;border-radius:2px;animation-name:ptsway}
 #bt .pt.em{width:3px;height:3px;background:#ffb030;border-radius:50%;box-shadow:0 0 4px #ff6a2a;animation-name:ptrise}#bt .pt.bf{width:4px;height:3px;background:#ff9ac0;border-radius:2px;animation-name:ptfly}
 #bt .pt.ds{width:2px;height:2px;background:rgba(255,230,190,.8);animation-name:ptwind}#bt .pt.fg{width:160px;height:50px;border-radius:50%;background:rgba(220,235,225,.22);filter:blur(6px);animation-name:ptwind;animation-duration:14s!important}
-@keyframes ptfall{from{transform:translateY(-40vh)}to{transform:translateY(60vh)}}@keyframes ptsway{0%{transform:translate(0,-30vh) rotate(0)}50%{transform:translate(18px,10vh) rotate(180deg)}100%{transform:translate(-6px,55vh) rotate(360deg)}}
-@keyframes ptrise{from{transform:translateY(40vh);opacity:1}to{transform:translateY(-40vh);opacity:0}}@keyframes ptfly{0%{transform:translate(0,0)}25%{transform:translate(20px,-14px)}50%{transform:translate(4px,-26px)}75%{transform:translate(-16px,-10px)}100%{transform:translate(0,0)}}
+@keyframes ptfall{from{transform:translateY(-40vh)}to{transform:translateY(calc(var(--vh,1vh)*60))}}@keyframes ptsway{0%{transform:translate(0,-30vh) rotate(0)}50%{transform:translate(18px,calc(var(--vh,1vh)*10)) rotate(180deg)}100%{transform:translate(-6px,calc(var(--vh,1vh)*55)) rotate(360deg)}}
+@keyframes ptrise{from{transform:translateY(calc(var(--vh,1vh)*40));opacity:1}to{transform:translateY(-40vh);opacity:0}}@keyframes ptfly{0%{transform:translate(0,0)}25%{transform:translate(20px,-14px)}50%{transform:translate(4px,-26px)}75%{transform:translate(-16px,-10px)}100%{transform:translate(0,0)}}
 @keyframes ptwind{from{transform:translateX(-60vw)}to{transform:translateX(calc(var(--vw,1vw)*60))}}
 #bt .bu{position:absolute;transform:translate(-50%,-100%);text-align:center;transition:opacity .5s,filter .3s;width:78px;z-index:1}
-#bt .bu img{transform-origin:50% 100%;will-change:transform;width:min(54px,9vh);image-rendering:pixelated;display:block;margin:0 auto;filter:drop-shadow(0 4px 2px rgba(0,0,0,.4))}
+#bt .bu img{transform-origin:50% 100%;will-change:transform;width:min(54px,calc(var(--vh,1vh)*9));image-rendering:pixelated;display:block;margin:0 auto;filter:drop-shadow(0 4px 2px rgba(0,0,0,.4))}
 
 #bt .bu .sd{position:absolute;left:50%;bottom:-3px;width:56px;height:10px;margin-left:-28px;border-radius:50%;background:rgba(0,0,0,.28);z-index:-1}
 #bt .bu.ko{opacity:.25;filter:grayscale(1)}
@@ -3398,7 +3400,7 @@ const SHIRTC=[null,'#3a5fb0','#c8302a','#3f9f4a','#ffd23c','#9b5de5','#ff8ab8','
 function openLook(first,done){const el=$('meet');el.classList.remove('hide');const L={...(SV.look||LOOK0)};let dirI=0,tm=0;
   const sw=(arr,cur,fn,shape)=>arr.map((v,i)=>`<button data-k="${fn}" data-v="${i}" style="width:30px;height:30px;padding:0;border-radius:${shape||'50%'};background:${Array.isArray(v)?v[1]:v||'#fff'};border:3px solid ${cur===i?'#ffd23c':'#0a0f22'};box-shadow:none">${v===null?'👔':''}</button>`).join('');
   const draw=()=>{const hs=(AV.HSTYLES[L.g]||[]);const shirtI=L.top?SHIRTC.findIndex(c=>c&&AV.ramp(c)[1]===L.top[1]):0;
-    el.innerHTML=`<div style="width:min(380px,100%);max-height:92vh;overflow:auto;background:linear-gradient(#222d55,#151c38);border:2px solid #0a0f22;border-top:3px solid #ffd23c;border-radius:18px;padding:12px 14px;text-align:left">
+    el.innerHTML=`<div style="width:min(380px,100%);max-height:calc(var(--vh,1vh)*92);overflow:auto;background:linear-gradient(#222d55,#151c38);border:2px solid #0a0f22;border-top:3px solid #ffd23c;border-radius:18px;padding:12px 14px;text-align:left">
      <div style="position:relative"><h2 style="color:#ffd23c;text-align:center;margin:0 0 6px;font-size:20px">${first?'Pilih tampilanmu!':'Ubah tampilan'}</h2>${first?'':'<button id="lkX" class="g" style="position:absolute;right:0;top:-2px;width:38px;height:38px;padding:0">✕</button>'}</div>
      <div style="display:flex;justify-content:center;margin:4px 0"><canvas id="lkC" width="16" height="28" style="width:96px;height:168px;image-rendering:pixelated;background:radial-gradient(#3a4a80,#222d55);border-radius:14px"></canvas></div>
      <div class="note">Anak</div><div style="display:flex;gap:8px"><button data-k="g" data-v="l" class="${L.g==='l'?'':'g'}" style="flex:1">👦 Laki-laki</button><button data-k="g" data-v="p" class="${L.g==='p'?'':'g'}" style="flex:1">👧 Perempuan</button></div>
@@ -3473,7 +3475,7 @@ function fishDraw(g,ox,oy,now){if(!FW)return;const sp=FW.sp,hx=PL.x+(PL.dir===2?
 function fishGame(fish){mode='fish';J=null;knob.style.transform='';const D2=FDIF[fish.r],o=document.createElement('div');o.id='fishOv';
   o.style.cssText='position:fixed;left:0;right:0;bottom:0;top:34%;z-index:6;background:linear-gradient(#1d2547f2,#0f1530f8);border-top:3px solid #ffd23c;display:flex;flex-direction:column;align-items:center;padding:10px 12px calc(14px + env(safe-area-inset-bottom));gap:8px';
   o.innerHTML=`<div id="fgT" style="font-weight:900;font-size:20px;color:#ffd23c">🎣 Tarik!</div><div style="font-size:12px;color:#c9c4f0;text-align:center">Tahan tombol supaya kotak hijau tetap di ikan</div>
-   <div style="display:flex;gap:14px;align-items:stretch;height:min(240px,32vh)"><div id="fgTr" style="position:relative;width:64px;border:3px solid #0a0f22;border-radius:14px;background:linear-gradient(#3aa8ff,#1d5aa8);overflow:hidden">
+   <div style="display:flex;gap:14px;align-items:stretch;height:min(240px,calc(var(--vh,1vh)*32))"><div id="fgTr" style="position:relative;width:64px;border:3px solid #0a0f22;border-radius:14px;background:linear-gradient(#3aa8ff,#1d5aa8);overflow:hidden">
      <div id="fgH" style="position:absolute;left:4px;right:4px;background:rgba(124,242,154,.5);border:2px solid #7cf29a;border-radius:8px"></div><img id="fgF" src="${fishURL(fish.id)}" style="position:absolute;left:8px;width:48px;image-rendering:pixelated;filter:brightness(0) opacity(.75)"></div>
      <div style="width:16px;border:3px solid #0a0f22;border-radius:10px;background:#2a2560;display:flex;flex-direction:column-reverse;overflow:hidden"><div id="fgP" style="height:30%;background:linear-gradient(#ffe27a,#ffb020)"></div></div>
      <div style="display:flex;flex-direction:column;justify-content:space-between;width:118px;font-size:12px;color:#c9c4f0"><div style="background:#222d55;border-radius:10px;padding:6px;text-align:center"><div>Ikan</div><b style="color:${RARC[fish.r]}">??? ${RARN[fish.r]}</b></div><div>Bar kuning penuh = ikan tertangkap.</div><div style="color:#ffe27a">Lalu jawab 1 soal!</div></div></div>
