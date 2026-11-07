@@ -199,6 +199,12 @@ body.incave #bt .ar{filter:brightness(.55) saturate(.75) hue-rotate(200deg)}
 .mpg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.mpg button.on{border-color:#ffd23c;background:#2a2414}
 .mbab{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;margin-bottom:6px;padding:12px;border-radius:12px;background:#1a2346;border:1px solid #2e3a6a;color:#fff;box-shadow:none;font-size:13px}.mbab span{font-size:20px;color:#ffd23c}
 .mjud{margin:4px 0 8px;font-size:16px;color:#ffd23c}.materi{font-size:14px;line-height:1.55;color:#e8eef8}.materi p{margin:0 0 8px}.materi table{width:100%;border-collapse:collapse;margin:6px 0 10px;font-size:12.5px}.materi td,.materi th{border:1px solid #3a4880;padding:5px 6px;text-align:left;vertical-align:top}.materi th{background:#24306a}.materi .tip{margin:8px 0;padding:8px 10px;border-radius:10px;background:#2a2414;border:1px solid #6a5420;color:#f0e6c8}.materi .tip p{margin:0 0 4px}.materi ul,.materi ol{margin:0 0 8px;padding-left:20px}
+#rotOv{display:none}
+@media (orientation:landscape) and (max-height:520px) and (pointer:coarse){#rotOv{display:flex;position:fixed;inset:0;z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#1d1b46;color:#fff;text-align:center;padding:16px;font:800 20px sans-serif}}
+#rotOv .ph{width:44px;height:76px;border:5px solid #fff;border-radius:9px;box-shadow:0 4px 0 #24123a;position:relative;animation:rotPh 1.8s ease-in-out infinite}
+#rotOv .ph::after{content:"";position:absolute;left:50%;bottom:5px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#ffd23c}
+#rotOv small{font:700 14px sans-serif;color:#c9c2f0}
+@keyframes rotPh{0%,25%{transform:rotate(-90deg)}60%,100%{transform:rotate(0)}}
 </style></head>
 <body>
 <canvas id="c"></canvas>
@@ -211,6 +217,7 @@ body.incave #bt .ar{filter:brightness(.55) saturate(.75) hue-rotate(200deg)}
 <div id="bub" class="pan"></div>
 <div id="hint" class="pan"></div>
 <div id="sheet" class="hide"><div class="box"><div class="hd"><h3></h3><button class="x">✕</button></div><div class="bd"></div></div></div>
+<div id="rotOv" aria-live="polite"><div class="ph"></div><div>Putar HP ke posisi tegak ya</div><small>Lumimon World dibuat untuk layar tegak</small></div>
 <div id="start">
   <div style="display:flex;flex-direction:column;align-items:center"><div class="logo">LUMIMON WORLD</div></div>
   <img id="sKr" alt="">
@@ -4712,5 +4719,29 @@ window.__WILDS=()=>WILD;window.PV_ID=()=>PV;window.__TN=n=>{const xs=[];for(let 
 window.__info=()=>({chunks:CHK.size,built,fps:fpsV,buildMs:Math.round(buildMs),objs:OL.length,wild:WILD.length});
 requestAnimationFrame(frame);
 })();
+</script>
+<script>
+/* Masuk fullscreen otomatis saat sentuhan pertama (Android/Chrome). iPhone Safari tidak mendukung API ini:
+   gunakan Bagikan > Tambahkan ke Layar Utama agar tampil fullscreen. */
+(function () {
+  var de = document.documentElement;
+  var rf = de.requestFullscreen || de.webkitRequestFullscreen;
+  var standalone = (window.matchMedia && (matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches)) || navigator.standalone;
+  if (!rf || standalone) return;
+  var done = false;
+  function lockPortrait() { try { var o = screen.orientation; if (o && o.lock) o.lock('portrait').catch(function () {}); } catch (e) {} }
+  function go() {
+    if (done) return;
+    if (document.fullscreenElement || document.webkitFullscreenElement) { done = true; return; }
+    done = true;
+    try {
+      var p = rf.call(de, { navigationUI: 'hide' });
+      if (p && p.then) p.then(lockPortrait, function () { done = false; }); else lockPortrait();
+    } catch (e) { done = false; }
+  }
+  ['pointerup', 'touchend', 'click'].forEach(function (ev) { addEventListener(ev, go, { passive: true }); });
+})();
+/* kunci tegak juga saat sudah terpasang sebagai aplikasi */
+try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('portrait').catch(()=>{})}catch(e){}
 </script>
 </body></html>
