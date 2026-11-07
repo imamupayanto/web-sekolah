@@ -2158,7 +2158,7 @@ function drawItem(g,k,x,y,now,ph){const b=Math.round(Math.sin(now/400+ph)*1.5),r
   if(((now/300+ph*5)|0)%7===0){g.fillStyle='#fff';g.fillRect(x+4,y-9+b,1,3);g.fillRect(x+3,y-8+b,3,1)}}
 const POP=[];function popTxt(x,y,t){POP.push({x,y,t,a:0})}
 function collect(p){const ids=picked();ids.push(p.id);let txt;if(p.chest){const k=30+((Math.random()*20)|0);SV.koin=(SV.koin||0)+k;SV.xp=(SV.xp||0)+10;txt=`+${k} 🪙`;
-    if(Math.random()<.35){const a=aksFor(p.zn);SV.acc=SV.acc||{};SV.acc[a]=(SV.acc[a]||0)+1;showHint('🎁 Peti berisi '+accName(a)+'!',2600)}else showHint(`📦 Peti harta! +${k} koin`,1800);SND.pop()}
+    const aj=jwDrop('peti');if(aj)showHint(JWLD[aj].dup?`📦 Peti: ${JW[aj].n} (sudah punya → 🪙 +${JWLD[aj].k})`:`🔮 Peti berisi Artifact ${JW[aj].n}!`,2800);else if(Math.random()<.35){const a=aksFor(p.zn),dk=accGive(a);showHint(dk?`📦 Peti: ${accName(a)} (sudah punya → 🪙 +${dk})`:'🎁 Peti berisi '+accName(a)+'!',2600)}else showHint(`📦 Peti harta! +${k} koin`,1800);SND.pop()}
   else{const k=3+((Math.random()*4)|0);SV.koin=(SV.koin||0)+k;SV.xp=(SV.xp||0)+2;txt=`+${k} 🪙`;SND.blip(990,.08);if(!SV.seenItem){SV.seenItem=1;showHint(`✨ ${ITEMN[p.k]} dipungut! Barang muncul lagi besok`,2600)}}
   popTxt(p.x,p.y-14,txt);save();refreshHud()}
 /* ---------- kejadian acak ---------- */
@@ -2167,7 +2167,7 @@ function herdNow(){const R=rng(curWin*7717+3),zn=HUNT[(R()*HUNT.length)|0],pool=
 let HERD=null;
 function makeHerd(){for(let i=WILD.length-1;i>=0;i--)if(WILD[i].herd)WILD.splice(i,1);const h=herdNow(),zi=ZID[h.zn],base=WILD.find(w=>w.zi===zi);if(!base)return;HERD=h;
   for(let k=0;k<4;k++){const a=k/4*6.28,x=base.hx+Math.cos(a)*22,y=base.hy+Math.sin(a)*16;if(!walk(x,y))continue;WILD.push({zi,slot:90+k,zn:h.zn,key:zi*100+90+k,gone:false,id:h.id,herd:true,x,y,hx:x,hy:y,tx:x,ty:y,wt:Math.random()*3,flip:Math.random()<.5,hop:0,mv:0,alert:0,blink:false,bt:Math.random()*4})}}
-const isShiny=w=>!w.herd&&rng(curWin*131+w.key*7)()<(SV&&jwHas('clover')?.08:.04);
+const isShiny=w=>!w.herd&&rng(curWin*131+w.key*7)()<.04;
 function starRain(h){if(Q.has('bintang'))return true;if(!(h>=19||h<4))return false;return rng(dayNo*48+Math.floor(h*2))()<.3}
 const STARS=[];let starT=0,herdWin=-1,starShown=-1;
 /* ---------- kait ke frame ---------- */
@@ -2324,28 +2324,25 @@ function openTas(f,re,pop){if(f!==undefined&&f!==null)TASF=f;if(TASC!=='acc')ret
   h+=ch.length?`<div class="kpow"><span>⚔️ Kekuatan aksesoris</span><b>${accPower()}</b><button id="tasD">${TASD?'Sembunyikan detail':'🔍 Detail'}</button></div>${TASD?`<div class="efx">${ch.map(c=>`<span>${c}</span>`).join('')}</div>`:''}`:'<div class="efx"><em>Belum ada aksesoris. Pakai aksesoris agar Lumi di timmu lebih kuat!</em></div>';
   h+=`<div style="display:flex;gap:6px;margin-top:6px"><button class="g" id="tasBest" style="flex:1;padding:6px;font-size:12px">✨ Pakai terbaik</button><button class="g" id="tasOff" style="flex:1;padding:6px;font-size:12px">↩️ Lepas semua</button><button class="g" id="tasBk" style="flex:1;padding:6px;font-size:12px">🍱 Bekal: ${SV.bekalOff?'mati':'nyala'}</button></div>`;
   {const z=zoneNow(),rq=z&&ZREQ[z.n];if(rq)h+=`<div class="mis"><b>💡</b><div style="flex:1;font-size:12px">Saran untuk <b>${z.n}</b>: aksesoris ${TNAME[rq]}. Tanpa aksesoris, Lumi liar di sini terasa lebih kuat.</div></div>`}
-  h+=`<div class="ttab"><button data-f="" class="${TASF?'':'on'}">Semua (${all.length})</button>${SLOTS.map(([k,n,i0])=>`<button data-f="${k}" class="${TASF===k?'on':''}">${i0} ${n} (${all.filter(x=>accSlot(x)===k).length})</button>`).join('')}</div>`;
+  h+=`<div class="ttab"><button data-f="" class="${TASF?'':'on'}">Semua (${all.length})</button>${SLOTS.filter(([k])=>k!=='art2').map(([k,n,i0])=>`<button data-f="${k}" class="${TASF===k?'on':''}">${i0} ${k==='art1'?'Artifact':n} (${all.filter(x=>accSlot(x)===k).length})</button>`).join('')}</div>`;
   const ids=all.filter(x=>!TASF||accSlot(x)===TASF);
   if(!ids.length)h+=`<div class="mis lock">${all.length?'Belum punya aksesoris untuk slot ini.':'Menangkan battle untuk mendapat aksesoris dari peti 🎁'}</div>`;
   const so=k=>SLOTS.findIndex(s=>s[0]===k);
-  ids.sort((a,c)=>(TASF?0:so(accSlot(a))-so(accSlot(c)))||(eq[accSlot(c)]===c)-(eq[accSlot(a)]===a)||accVal(c)-accVal(a)||accName(a).localeCompare(accName(c))).forEach(n=>{const s=accSlot(n),on=eq[s]===n,st=accStar(n),t=accTier(n),canF=acc[n]>=3&&st<3&&!JW[n],S=setOfItem(n),cur=eq[s]&&acc[eq[s]]?eq[s]:null,df=Math.round((accVal(n)-(cur?accVal(cur):0))*100);
+  ids.sort((a,c)=>(TASF?0:so(accSlot(a))-so(accSlot(c)))||(eq[slotFor(c)]===c)-(eq[slotFor(a)]===a)||accVal(c)-accVal(a)||accName(a).localeCompare(accName(c))).forEach(n=>{const s=slotFor(n),on=eq[s]===n,t=accTier(n),S=setOfItem(n),cur=eq[s]&&acc[eq[s]]?eq[s]:null,df=Math.round((accVal(n)-(cur?accVal(cur):0))*100);
     const tag=on?`<span class="tg on">✅ Dipakai<br><small>ketuk lepas</small></span>`:`<span class="tg">Pakai${df>0?`<br><span style="color:#7cf29a;font-weight:800">▲ ${df}</span>`:df<0?`<br><span style="color:#ff8a8a;font-weight:800">▼ ${-df}</span>`:''}</span>`;
-    h+=`<div class="mis ${on?'done':''}" data-a="${n}" style="cursor:pointer"><div style="width:40px;height:40px;border-radius:8px;background:#0f1530;display:flex;align-items:center;justify-content:center;flex:0 0 40px;${t>=3?'box-shadow:0 0 8px #ffd23c':''}">${ic(n)}</div><div style="flex:1;min-width:0"><div style="font-weight:800">${accName(n)} <span style="color:#fde047;font-size:11px">${JW[n]?'':'⭐'.repeat(st)}</span>${acc[n]>1?` <span style="font-size:11px;color:#9fb0c8">×${acc[n]}</span>`:''}</div>
-      <div style="font-size:11px;color:var(--mut)">${SLOTS[so(s)][2]} ${SLOTS[so(s)][1]} · <span style="color:#7cf29a;font-weight:800">${TASD?efTxt(n):'⚔️ '+accPw(n)}</span> · <span class="chip" style="font-size:9px;padding:1px 5px">${JW[n]?JWR[JW[n].r]:TNAME[t]}</span>${S?' '+S.n.replace(' Set','')+(t===4?' Raja':''):''}</div>${JW[n]&&JW[n].u?`<div style="font-size:11px;color:${JW[n].r==='G'?'#ffd23c':'#d7c0ff'};margin-top:2px">${JW[n].r==='G'?'★':'✦'} ${JW[n].un}: ${JW[n].ud}</div>`:''}${canF?(!TEMPA?`<div style="font-size:10px;color:#ffd23c;margin-top:3px">🔨 Bisa ditempa di Butik alun-alun</div>`:`<button data-g="${n}" style="margin-top:5px;padding:4px 10px;font-size:11px">🔨 Tempa ⭐${st+1} · 2 kembar + ${forgeCost(n)} 🪙</button>`):''}</div>${tag}</div>`});
-  (re?reSheet:openSheet)(TEMPA?'💍 Butik & Tempa':'🎒 Tas',h);
+    h+=`<div class="mis ${on?'done':''}" data-a="${n}" style="cursor:pointer"><div style="width:40px;height:40px;border-radius:8px;background:#0f1530;display:flex;align-items:center;justify-content:center;flex:0 0 40px;border:2px solid ${TCOL[t]};${t>=4?`box-shadow:0 0 8px ${TCOL[t]}`:''}">${ic(n)}</div><div style="flex:1;min-width:0"><div style="font-weight:800">${accName(n)}</div>
+      <div style="font-size:11px;color:var(--mut)">${SLOTS[so(s)][2]} ${SLOTS[so(s)][1]} · <span style="color:#7cf29a;font-weight:800">${TASD?efTxt(n):'⚔️ '+accPw(n)}</span> · <span class="chip" style="font-size:9px;padding:1px 5px;color:#10142a;background:${TCOL[t]}">${TNAME[t]}</span>${S?' '+S.n.replace(' Set',''):''}</div>${JW[n]&&JW[n].u?`<div style="font-size:11px;color:${TCOL[t]};margin-top:2px">✨ ${JW[n].un}: ${JW[n].ud}</div>`:''}</div>${tag}</div>`});
+  (re?reSheet:openSheet)('🎒 Tas',h);
   {const c=$('tasAv').getContext('2d'),c2=$('tasAvB').getContext('2d');c.imageSmoothingEnabled=c2.imageSmoothingEnabled=false;c.drawImage(sheet,0,0,16,32,0,0,16,32);c2.drawImage(sheet,0,32,16,32,0,0,16,32)}
   tasCatWire();
   if($('tasD'))$('tasD').onclick=()=>{TASD=!TASD;openTas(null,1)};
   $('tasBk').onclick=()=>{SV.bekalOff=!SV.bekalOff;save();openTas(null,1)};
   $('tasBest').onclick=()=>{equipBest();SND.pop();showHint('✨ Aksesoris terbaik dipakai!',1500);openTas(null,1,1)};
   $('tasOff').onclick=()=>{for(const k in eq)eq[k]=null;save();rebuildSheet();SND.pop();openTas(null,1,1)};
-  shB.querySelectorAll('[data-s]').forEach(el=>el.onclick=()=>{const k=el.dataset.s;openTas(TASF===k?'':k,1)});
+  shB.querySelectorAll('[data-s]').forEach(el=>el.onclick=()=>{const k=el.dataset.s==='art2'?'art1':el.dataset.s;openTas(TASF===k?'':k,1)});
   shB.querySelectorAll('.ttab [data-f]').forEach(el=>el.onclick=()=>openTas(el.dataset.f,1));
-  shB.querySelectorAll('[data-a]').forEach(el=>el.onclick=()=>{const n=el.dataset.a,s=accSlot(n),was=eq[s]===n;eq[s]=was?null:n;save();rebuildSheet();SND.pop();
-    showHint(was?`↩️ ${accName(n)} dilepas`:`${SLOTS[SLOTS.findIndex(x=>x[0]===s)][2]} ${accName(n)} dipakai! ⚔️ +${accPw(n)}`,1800);openTas(null,1,!was)});
-  shB.querySelectorAll('[data-g]').forEach(el=>el.onclick=e=>{e.stopPropagation();const n=el.dataset.g,c=forgeCost(n);if((SV.koin||0)<c){showHint(`Koin kurang (butuh ${c} 🪙)`,1800);return}if(acc[n]<3)return;
-    SV.koin-=c;acc[n]-=2;SV.accS=SV.accS||{};const b0=accTier(n);SV.accS[n]=accStar(n)+1;save();refreshHud();rebuildSheet();SND.pop();setTimeout(()=>SND.blip(1320,.2),150);
-    QST.ev('tempa',{tier:accTier(n)});showHint(accTier(n)>b0?`🔨 ${accName(n)} naik jadi ${TNAME[accTier(n)]}! ✨`:`🔨 ${accName(n)} ⭐${accStar(n)}!`,2600);openTas(null,1,1)})}
+  shB.querySelectorAll('[data-a]').forEach(el=>el.onclick=()=>{const n=el.dataset.a,s=slotFor(n),was=eq[s]===n;eq[s]=was?null:n;if(!was)QST.ev('tempa',{tier:accTier(n)});save();rebuildSheet();SND.pop();
+    showHint(was?`↩️ ${accName(n)} dilepas`:`${SLOTS[SLOTS.findIndex(x=>x[0]===s)][2]} ${accName(n)} dipakai! ⚔️ +${accPw(n)}`,1800);openTas(null,1,!was)});}
 /* ---- Koleksi Lumi baru: tim, pendamping jalan, tombol kembali ---- */
 const petId=()=>{const t=SV.team||[STARTER];return t.includes(SV.pet)?SV.pet:t[0]||STARTER};
 function petSync(){PET.id=petId()}
@@ -2556,7 +2553,7 @@ const lvMul=lv=>Math.pow(1.06,lv-1)/1.87;
 /* kurva EXP (6 Nov): target total battle menang Lv5≈10, Lv10≈100, Lv20≈330, Lv30≈900 (asumsi tim 3, zona sesuai) */
 const XPT=(()=>{const Z=[[1,4],[4,7],[7,10],[10,13],[12,15],[15,18],[18,22],[21,25],[25,27],[26,28],[27,29],[28,30]],K=[[1,0],[2,.9],[5,10],[10,100],[20,330],[30,900]];
   const cb=l=>{for(let i=1;i<K.length;i++)if(l<=K[i][0]){const[a,x]=K[i-1],[b,y]=K[i];return x+(y-x)*(l-a)/(b-a)}return 900};
-  const t=[0,0];for(let L=1;L<30;L++){const z=Z.filter(z=>z[0]<=L).pop(),hi=Math.min(z[1],Math.max(z[0],L+1)),fl=(z[0]+hi)/2,xpw=3*(18+4*fl)*1.1*2;t.push(Math.round(t[L]+xpw*(cb(L+1)-cb(L))))}return t})();
+  const t=[0,0];for(let L=1;L<30;L++){const z=Z.filter(z=>z[0]<=L).pop(),hi=Math.min(z[1],Math.max(z[0],L+1)),fl=(z[0]+hi)/2,xpw=3*(18+4*fl)*1.1*2;t.push(Math.round(t[L]+xpw*(cb(L+1)-cb(L))))}const c10=t[10]*.3;return t.map((v,L)=>L<=10?Math.round(v*.7):Math.round(v-c10))})();
 const xpFor=lv=>XPT[Math.min(30,Math.max(1,lv))];
 const lvFromXp=xp=>{let l=1;while(l<30&&(xp||0)>=XPT[l+1])l++;return l};
 const PREP=[[0.7,'💀','Kutukan','Lumimu lemas… ×0,7'],[0.85,'😵','Kutukan ringan','Lumimu pusing ×0,85'],[1,'🙂','Netral','Kekuatan normal ×1,0'],[1.5,'🔥','FULL POWER!','Lumimu membara ×1,5']];
@@ -2575,14 +2572,14 @@ const setOfItem=n=>{const it=AV.SH[n];return it&&(AV.TK_SETS[it.tset]||AV.EL_SET
 function accSlot(n){const it=AV.SH[n];return it?SLOTREV[it.slot]:'punggung'}
 const accEl=n=>{const S=setOfItem(n);return S&&S.el&&S.el!=='Netral'?S.el:null};
 const accName=n=>(AV.SH[n]||{}).n||n;
-const TMUL={1:1,2:1.5,3:2.2,4:3,5:4};
-const accStar=n=>Math.max(1,((SV&&SV.accS)||{})[n]||1);
-function accBase(n){if(JW[n])return{L:2,E:3,G:4}[JW[n].r];return({dasar:1,elemen:2,bos:4,naga:5})[(AV.SH[n]||{}).tk]||1}
-function accTier(n){const b=accBase(n),s=accStar(n);return b===2&&s>=2?3:b}
-function accVal(n){if(JW[n])return JW[n].pw;const s=accSlot(n),e=SLOTEF[s],st=accStar(n),t=accTier(n);return e[1]*TMUL[t]*(1+.12*(st-1-(accBase(n)===2&&st>=2?1:0)))}
+const TMUL={1:1,2:2,3:3,4:4,5:5};
+const accStar=n=>1;
+function accBase(n){if(JW[n])return JW[n].r+1;return({dasar:1,elemen:2,bos:3,naga:4,abyss:5})[(AV.SH[n]||{}).tk]||1}
+function accTier(n){return accBase(n)}
+function accVal(n){if(JW[n])return JW[n].pw;const s=accSlot(n),e=SLOTEF[s];return e?e[1]*TMUL[accTier(n)]:0}
 function accBonus(){const b={xp:0,hp:0,dr:0,atk:0,crit:0,koin:0,regen:0,en:0,egg:0,cap:0,qt:0,bond:0};const eq=SV.eq||{};for(const s in eq){const n=eq[s];if(!n||!(SV.acc||{})[n])continue;if(typeof JW!=='undefined'&&JW[n]){JW[n].fx.forEach(([k,v])=>b[k]+=v);continue}if(SLOTEF[s])b[SLOTEF[s][0]]+=accVal(n)}b.dr=Math.min(.45,b.dr);b.crit=Math.min(.6,b.crit);b.cap=Math.min(.3,b.cap);b.qt=Math.min(5,b.qt);return b}
 function accDesc(n){if(JW[n])return jwTxt(n);const e=SLOTEF[accSlot(n)],v=Math.round(accVal(n)*100);return e[0]==='dr'?`kerusakan diterima −${v}%`:`+${v}% ${e[2]}`}
-const TNAME={1:'T1 Petualang',2:'T2 Elemen',3:'T3 Elemen Tinggi',4:'T4 Set Bos',5:'T5 Set Naga'};
+const TNAME={1:'Biasa',2:'Langka',3:'Epik',4:'Legenda',5:'Mitos'},TCOL={1:'#e9ecf5',2:'#4aa8ff',3:'#b46cff',4:'#ffc83a',5:'#ff4a4a'};
 /* syarat zona: butuh 4 aksesoris dengan tingkat ≥ T; tiap bagian kurang −7,5% (maks −30%) */
 const ZREQ={'Mirror Lake':1,'Coral Coast':2,'Misty Marsh':2,'Frostpeak':3,'Crimson Desert':3,'Ember Crater':4};
 function gearMiss(zn){return 0;const t=ZREQ[zn];if(!t)return 0;const eq=SV.eq||{};let ok=0;for(const s in eq){const n=eq[s];if(n&&(SV.acc||{})[n]&&accTier(n)>=t)ok++}return Math.max(0,4-ok)}
@@ -2650,7 +2647,7 @@ const BCSS=document.createElement('style');BCSS.textContent=`
 #bt .ring .t{position:absolute;width:96px;height:96px;border-radius:50%;border:7px solid #fde047;box-shadow:0 0 14px #fde047}
 #bt .ring .r{position:absolute;border-radius:50%;border:5px solid #fff}
 #bt .ring p{position:absolute;bottom:20%;font-weight:900;font-size:18px;text-shadow:0 2px 3px #000}
-#bt .ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center;z-index:5}
+#bt .ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:12px;padding:calc(16px + env(safe-area-inset-top)) 20px calc(16px + env(safe-area-inset-bottom));text-align:center;z-index:5;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}#bt .ov>:first-child{margin-top:auto}#bt .ov>:last-child{margin-bottom:auto}#bt .ov>.big2{position:sticky;bottom:0;z-index:2;box-shadow:0 6px 18px rgba(0,0,0,.55);flex-shrink:0}#bt .ov>*{flex-shrink:0}
 #bt .ov.dim{background:rgba(10,16,30,.88)}
 #bt .ov h2{margin:0;font-size:24px;text-shadow:0 3px 0 #000}
 #bt .intro img{width:150px;image-rendering:pixelated;animation:slin .6s cubic-bezier(.2,1.5,.4,1) both}@keyframes slin{from{transform:translateX(160px) scale(.4);opacity:0}}
@@ -2664,7 +2661,7 @@ const BCSS=document.createElement('style');BCSS.textContent=`
 #bt .stars{font-size:46px;letter-spacing:4px}
 #bt .chest{font-size:92px;cursor:pointer;animation:cb 1s infinite alternate}@keyframes cb{to{transform:translateY(-8px) rotate(5deg)}}
 #bt .loot{display:flex;flex-direction:column;gap:6px;width:min(320px,100%)}
-#bt .loot div{background:rgba(255,255,255,.1);border-radius:12px;padding:8px 12px;font-weight:800;font-size:15px;animation:li .35s both}@keyframes li{from{opacity:0;transform:translateY(10px)}}
+#bt .loot div{background:rgba(255,255,255,.1);border-radius:12px;padding:7px 12px;font-weight:800;font-size:14px;animation:li .35s both}@keyframes li{from{opacity:0;transform:translateY(10px)}}
 #bt .loot .new{background:linear-gradient(90deg,#f59e0b55,#fde04722);border:1px solid #fde047}
 #bt .catch{width:110px;image-rendering:pixelated;animation:pop .6s cubic-bezier(.2,1.6,.4,1) both,bob 1.6s .6s ease-in-out infinite}
 #bt .lvup{color:#fde047;font-weight:900}#bt .pfx{position:absolute;transform:translate(-50%,-50%);font-weight:900;font-size:11px;color:#fff;background:rgba(80,40,160,.85);padding:2px 7px;border-radius:8px;white-space:nowrap;pointer-events:none;animation:fxu 1.3s forwards;z-index:3}
@@ -2752,7 +2749,7 @@ function fight(){if(!B)return;B.state='fight';B.t=0;B.U=[];const plv=lvFromXp(SV
   const me=B.U.filter(u=>u.side===0);
   for(const u of B.U){const tm=B.U.filter(v=>v.side===u.side);if(u.P.startSh){u.sh+=u.maxhp*u.P.startSh}if(u.P.baterai)tm.forEach(v=>v.en=Math.min(99,v.en+u.P.baterai));if(u.P.guru)tm.forEach(v=>v.rate*=u.P.guru)}
   for(const u of me){if(u.P.rumus)me.forEach(v=>v.atk*=1+Math.min(.25,.05*B.ok*(u.P.rumus)));if(u.P.kutuBuku)u.en=Math.min(99,u.en+u.P.kutuBuku*B.ok);if(u.P.kuisKilat&&B.ok){me.forEach(v=>{v.buf=.05*B.ok;v.bufU=5})}}
-  B.jw=jwUniq();for(const u of me){if(ac.regen)u.P.regen=(u.P.regen||0)+ac.regen;if(ac.en)u.rate*=1+ac.en;if(B.jw.venom)u.P.basicPsn=Math.max(u.P.basicPsn||0,.15);if(B.jw.iron&&u.d.role==='tank')u.sh+=u.maxhp*.1}
+  B.jw=jwUniq();const malam=(h=>h>=19||h<5)(hourNow());for(const u of me){if(ac.regen)u.P.regen=(u.P.regen||0)+ac.regen;if(ac.en)u.rate*=1+ac.en;if(B.jw.matahari)u.sh+=u.maxhp*.2;if(B.jw.bulan&&malam)u.atk*=1.15}B.sfT=15
   B.prof=me.some(u=>u.P.profesor);
   BT.innerHTML=`<div class="top"><span>${(ZINFO[B.zn]||[''])[0]} ${B.zn}</span><span>${PREP[B.ok][1]} ×${String(B.mult).replace('.',',')}</span><span>⏱ <b class="tm">30</b></span></div><div class="ar" style="background-image:url(${arenaBG(B.zn).url})">${arenaFX(arenaBG(B.zn).th)}</div>
    <div class="bot"><div class="sks" style="grid-template-columns:repeat(${B.team.length},1fr)"></div><div class="row"><button class="auto ${B.auto?'on':''}">${B.auto?'▶ Otomatis: nyala':'▶ Otomatis'}</button></div></div>`;
@@ -2795,7 +2792,7 @@ function hurt(t,d,src,cls){if(!t.alive)return;if(ADM.god&&t.side===0)return;if(s
   if(t.P.tail&&!t.used.tail&&t.hp>0&&t.hp<t.maxhp*.2){t.used.tail=1;t.immU=B.t+1.5;pfx(t,'Ekor Lepas')}
   if(t.hp<=0){const sv=B.U.find(v=>v.side===t.side&&v.alive&&v!==t&&v.P.save&&!v.used.save);if(sv){sv.used.save=1;t.hp=1;pfx(t,'Diselamatkan!');upd(t);return}
     t.hp=0;t.alive=false;t.el.classList.add('ko');if(t.btn)t.btn.classList.add('dead');SND.blip(160,.25);
-    if(t.side===0&&B.jw&&B.jw.phoenix&&!B.phx){B.phx=1;setTimeout(()=>{if(!B||B.state!=='fight')return;t.alive=true;t.hp=Math.round(t.maxhp*.3);t.el.classList.remove('ko');if(t.btn)t.btn.classList.remove('dead');pfx(t,'Phoenix Ring! Bangkit');upd(t)},900)}
+    if(t.side===0&&B.jw&&B.jw.phoenix&&!B.phx){B.phx=1;setTimeout(()=>{if(!B||B.state!=='fight')return;t.alive=true;t.hp=Math.round(t.maxhp*.3);t.el.classList.remove('ko');if(t.btn)t.btn.classList.remove('dead');pfx(t,'Bulu Phoenix! Bangkit');upd(t)},900)}
     if(t.P.deathBurn){foesOf(t).forEach(v=>applyBurn(t,v,4));pfx(t,pName(t.id,3))}
     if(t.P.phoenix&&!t.used.phx){t.used.phx=1;setTimeout(()=>{if(!B||B.state!=='fight')return;t.alive=true;t.hp=Math.round(t.maxhp*.25);t.el.classList.remove('ko');if(t.btn)t.btn.classList.remove('dead');pfx(t,'Phoenix! Bangkit');upd(t)},900)}}
   upd(t)}
@@ -2810,7 +2807,7 @@ function hit(src,t,mult,o){o=o||{};if(!t||!t.alive||!src.alive)return 0;
   if(P.move&&!src.hit1&&!o.sk){src.hit1=true;if(P.move>=.5)d*=1.3}
   if(t.burn>B.t){const im=B.U.find(v=>v.side===src.side&&v.P.intiMagma);if(im)d*=1+im.P.intiMagma}
   if(o.sk&&!src.sk1){src.sk1=true;if(B.U.some(v=>v.side===src.side&&v.P.overclock))d*=1.2}
-  if(src.side===0&&B.jw){if(B.jw.dragon&&!src.dh1){src.dh1=1;o.crit=true}if(B.jw.eclipse&&src.hp<src.maxhp*.3)d*=1.5}
+  if(src.side===0&&B.jw){if(o.crit&&B.jw.abyss)applyStun(src,t,1)}
   if(o.sk)d*=src.skM;if(o.crit)d*=1.8+(src.side===0?(B.ac?B.ac.crit:0):0);
   // pertahanan
   const T=t.P;if(T.dr)d*=1-T.dr;if(T.lowDr&&t.hp<t.maxhp*.3)d*=1-T.lowDr;if(T.rangedDr&&!src.front)d*=1-T.rangedDr;if(t.acDr)d*=1-t.acDr;
@@ -2833,7 +2830,7 @@ function elEff(u,t){if(!t||!t.alive)return;if(u.el==='api'){applyBurn(u,t,3);if(
 function heal(u,a,amt){if(!a.alive)return;const h=Math.round(amt);a.hp=Math.min(a.maxhp,a.hp+h);fx(a,'+'+h,'heal');
   if(u.P.cleanse1){if(a.burn>B.t)a.burn=0;else if(a.psn>B.t&&!a.psnBy)a.psn=0;else if(a.stun>B.t)a.stun=0;else a.slowU=0}if(u.P.immAfter)a.immU=Math.max(a.immU,B.t+u.P.immAfter);upd(a)}
 function cast(u,crit){if(!u.alive)return;u.en=0;if(u.side===0&&B.jw&&B.jw.tide)heal(u,u,u.maxhp*.05);skBan(u);SND.blip(crit?1200:700,.12);if(u.P.afterSkillSpd)u.aspdU=B.t+3;
-  const F=foesOf(u);if(!F.length)return;const o={crit,sk:true},nm=u.el==='netral'?1.15:1;
+  const F=foesOf(u);if(!F.length)return;const o={crit,sk:true},nm=u.el==='netral'?1.15:1;if(u.side===0&&B.jw&&B.jw.naga){const bt=pickT(u);if(bt)applyBurn(u,bt,3)}
   if(crit){B.ar.animate([{transform:'translate(4px,-3px)'},{transform:'translate(-4px,3px)'},{transform:'none'}],{duration:220})}
   if(u.d.role==='tank'){const t=pickT(u);lunge(u,t);hit(u,t,1.5*nm,o);elEff(u,t);if(u.P.pullSlow)slow(t,3);u.sh+=u.maxhp*(crit?.3:.2);u.taunt=B.t+3+(u.P.lockHit?1:0);
     if(u.P.badai)F.forEach(v=>{if(v!==t&&Math.random()<.4)applyStun(u,v,1)});upd(u)}
@@ -2853,7 +2850,8 @@ function tapSk(u){if(!B||B.state!=='fight'||B.paused||!u.alive||u.en<100)return;
   const an=()=>{if(done)return;s=240-(performance.now()-st)/1000*200;rr.style.width=rr.style.height=Math.max(16,s)+'px';if(s<16){close(false);return}requestAnimationFrame(an)};an();
   r.onpointerdown=()=>close(Math.abs(s-96)<=win)}
 function bLoop(now){if(!B||B.state!=='fight')return;const dt=Math.min(.05,(now-B.last)/1000);B.last=now;if(!B.paused)bTick(dt);if(B&&B.state==='fight')B.raf=requestAnimationFrame(bLoop)}
-function bTick(dt){B.t+=dt;if(B.boss){const bu=B.U.find(u=>u.side===1);if(bu&&bu.alive&&!B.enr&&bu.hp<bu.maxhp*.5){B.enr=1;bu.atk*=1.3;fx(bu,'MARAH! 😡','crit')}}B.dotT+=dt;const dotNow=B.dotT>=1;if(dotNow)B.dotT=0;
+function bTick(dt){B.t+=dt;if(B.jw){if(B.jw.gunungan&&B.ok===3&&!B.gng){const me=B.U.filter(u=>u.side===0&&u.alive);if(me.some(u=>u.hp<u.maxhp*.5)){B.gng=1;me.forEach(u=>heal(u,u,u.maxhp*.15));pfx(me[0],'Gunungan Emas! Tim pulih')}}
+  if(B.jw.bintang){B.sfT-=dt;if(B.sfT<=0){B.sfT=15;const me=B.U.find(u=>u.side===0&&u.alive);if(me){B.U.filter(v=>v.side===1&&v.alive).forEach(t=>{const d=Math.max(1,Math.round(t.maxhp*(t.boss?.04:.08)));hurt(t,d,null,'dot');fx(t,'🌠 '+d,'crit')});B.ar.animate([{filter:'brightness(1.6)'},{filter:'none'}],{duration:300})}}}}if(B.boss){const bu=B.U.find(u=>u.side===1);if(bu&&bu.alive&&!B.enr&&bu.hp<bu.maxhp*.5){B.enr=1;bu.atk*=1.3;fx(bu,'MARAH! 😡','crit')}}B.dotT+=dt;const dotNow=B.dotT>=1;if(dotNow)B.dotT=0;
   for(const u of B.U){if(!u.alive)continue;const P=u.P;
     if(u.burn>B.t){u.dot+=u.burnD*dt*(P.dotDr?.5:1)}if(u.psn>B.t){u.dot+=u.psnD*Math.max(1,u.psnS)*.6*dt*(P.dotDr?.5:1)}
     if(dotNow&&u.dot>=1){const d=Math.round(u.dot);u.dot=0;hurt(u,d,null,'dot');fx(u,d,'dot');if(!u.alive)continue}
@@ -2886,12 +2884,14 @@ function bTick(dt){B.t+=dt;if(B.boss){const bu=B.U.find(u=>u.side===1);if(bu&&bu
 function skBtn(u){const b=u.btn;b.querySelector('.f').style.height=u.en+'%';b.classList.toggle('on',u.alive&&u.en>=100&&!B.auto)}
 function endFight(win){if(B.w&&B.w.goa){GOA.after(win,B.U.filter(u=>u.side===0).map(u=>[u.id,u.alive?u.hp/u.maxhp:0]));if(win&&B.w.goaBoss){B.state='end';return GOA.bossEnd()}}if(win&&B.w.daily){B.state='end';return dailyBossEnd()}if(win&&B.boss){B.state='end';return QST.bossEnd()}if(win)B.qev=1;B.state='end';cancelAnimationFrame(B.raf);const hpP=B.U.filter(u=>u.side===0).reduce((a,u)=>a+u.hp/u.maxhp,0)/B.team.length;
   const stars=win?(hpP>.6?3:hpP>.3?2:1):0;const plv0=lvFromXp(SV.xp),ac=accBonus();
-  let xp=0,koin=0;B.foes.forEach(f=>{xp+=win?18+f.lv*4:6;koin+=win?15+f.lv*3:5});if(win&&B.ok===3)xp=Math.round(xp*1.2);xp=Math.round(xp*(1+ac.xp)*(ADM.xp||1));koin=Math.round(koin*(1+ac.koin)*(ADM.koin||1));if(B.w.duel){xp=Math.round(xp*.5);koin=Math.round(koin*.5)}if(B.jw&&B.jw.moon){const h=hourNow();if(h>=19||h<5)xp=Math.round(xp*1.5)}if(win&&B.shiny){koin*=2;xp*=2}
-  const loot=[];SV.xp=(SV.xp||0)+xp;SV.koin=(SV.koin||0)+koin;loot.push(`🪙 +${koin} koin${ac.koin?` (💍+${Math.round(ac.koin*100)}%)`:''}`);loot.push(`✨ +${xp} EXP${ac.xp?` (💍+${Math.round(ac.xp*100)}%)`:''}`);
+  let xp=0,koin=0;B.foes.forEach(f=>{xp+=win?18+f.lv*4:6;koin+=win?15+f.lv*3:5});if(win&&B.ok===3)xp=Math.round(xp*1.2);xp=Math.round(xp*(1+ac.xp)*(ADM.xp||1));koin=Math.round(koin*(1+ac.koin)*(ADM.koin||1));if(B.w.duel){xp=Math.round(xp*.5);koin=Math.round(koin*.5)}if(win&&B.shiny){koin*=2;xp*=2}
+  const loot=[];SV.xp=(SV.xp||0)+xp;SV.koin=(SV.koin||0)+koin;loot.push(`🪙 +${koin} koin${ac.koin?` (🎒+${Math.round(ac.koin*100)}%)`:''}`);loot.push(`✨ +${xp} EXP${ac.xp?` (🎒+${Math.round(ac.xp*100)}%)`:''}`);
   let caught=null;if(B.w.duel){duelRes(B.w,win);if(win&&Math.random()<.25+ac.egg){const k=eggUp('perak');eggAdd(k,B.zn);loot.push(eggLoot(k))}}if(win&&!B.w.duel){const id=B.w.id,gw=B.w.goa,want=QST.wantCatch(id);
     if(B.shiny||want||Math.random()<.1+ac.cap){SV.owned=SV.owned||{};const dup=!!SV.owned[id];SV.owned[id]=(SV.owned[id]||0)+1;caught={id,dup,star:starsOf(id)};B.cg=1;if(!dup&&(SV.team||[]).length<3){SV.team=(SV.team||[STARTER]);SV.team.push(id)}}
     else if(Math.random()<(gw?.35:.3)+ac.egg){const k=eggUp(gw?(Math.random()<.4?'emas':'perak'):zoneLv(B.zn)[0]>=10?'perak':'biasa');eggAdd(k,B.zn);loot.push(eggLoot(k))}
-    SV.pity=(SV.pity||0)+1;if(B.shiny){SV.shiny=SV.shiny||{};SV.shiny[id]=1}const ch=.25+(B.ok===3?.15:0);if(B.shiny||Math.random()<ch||SV.pity>=5){SV.pity=0;const a=aksFor(B.zn);SV.acc=SV.acc||{};const nw=!SV.acc[a];SV.acc[a]=(SV.acc[a]||0)+1;loot.push(`<span style="display:inline-flex;align-items:center;gap:6px"><img src="${accIconX(a)}" style="width:26px;image-rendering:pixelated">${nw?'Aksesoris baru: ':''}${accName(a)}${nw?'':' (kembar)'}</span>`)}
+    SV.pity=(SV.pity||0)+1;if(B.shiny){SV.shiny=SV.shiny||{};SV.shiny[id]=1}const ch=.25+(B.ok===3?.15:0);if(B.shiny||Math.random()<ch||SV.pity>=5){SV.pity=0;const a=aksFor(B.zn),dk=accGive(a);loot.push(`<span style="display:inline-flex;align-items:center;gap:6px"><img src="${accIconX(a)}" style="width:26px;image-rendering:pixelated">${dk?`${accName(a)} (sudah punya → 🪙 +${dk})`:`Aksesoris baru: ${accName(a)} <small style="color:${TCOL[accTier(a)]}">${TNAME[accTier(a)]}</small>`}</span>`)}
+    {const aj=jwDrop(gw&&GOA.run&&GOA.run.fl>=5?'goa':'liar');if(aj)loot.push(jwLine(aj))}
+    if(B.jw&&B.jw.mahkota){if(Math.random()<.5){const k=eggUp('perak');eggAdd(k,B.zn);loot.push('👑 '+eggLoot(k))}else{const bk=40+B.foes[0].lv*5;SV.koin+=bk;loot.push(`👑 Hadiah Raja: 🪙 +${bk} koin`)}}
     B.w.gone=true;SV.gone=SV.gone&&SV.gone.w===curWin?SV.gone:{w:curWin,list:[]};SV.gone.list.push(B.w.key)}
   else if(!win)SV.lost=(SV.lost||0)+1;
   eggTick();const plv1=lvFromXp(SV.xp);save();refreshHud();
@@ -2922,8 +2922,8 @@ function startExam(id){if(mode!=='play'||B)return;closeSheet();mode='battle';B={
     else{BT.innerHTML=`<div class="ov dim"><div class="big">📚</div><h2>Belum lulus (${ok}/5)</h2><div class="note2">Tidak apa-apa! Coba lagi kapan saja dari Koleksi.</div><button class="big2" style="font-size:18px;padding:12px 26px">Oke</button></div>`;BT.querySelector('.big2').onclick=closeBattle}})}
 window.__B={get B(){return B},startEncounter,tapSk,startExam,activeP,accBonus};
 
-function accBanner(b){try{const U=jwUniq(),pw=accPower(),c=[pw>0&&`⚔️ Kekuatan ${pw}`,...Object.keys(U).map(u=>'★ '+JWL.find(j=>j[9]===u)[10])].filter(Boolean);if(!c.length)return;
-  const e=document.createElement('div');e.className='acb';e.innerHTML=`<b>💍 Aksesoris aktif</b><div>${c.map(x=>`<span>${x}</span>`).join('')}</div>`;BT.appendChild(e);setTimeout(()=>e.remove(),3200)}catch(_){}}
+function accBanner(b){try{const U=jwUniq(),pw=accPower(),c=[pw>0&&`⚔️ Kekuatan ${pw}`,...Object.keys(U).map(u=>'✨ '+(Object.values(JW).find(j=>j.u===u)||{}).un)].filter(Boolean);if(!c.length)return;
+  const e=document.createElement('div');e.className='acb';e.innerHTML=`<b>🎒 Perlengkapan aktif</b><div>${c.map(x=>`<span>${x}</span>`).join('')}</div>`;BT.appendChild(e);setTimeout(()=>e.remove(),3200)}catch(_){}}
 
 /* ---- Kristal Lumi (pengganti kado) ---- */
 const KRC={api:'#ff7a3a',es:'#4ab8ff',racun:'#4ad46a',netral:'#b48cff'};
@@ -2948,7 +2948,7 @@ function openAdmin(){const A=ADM,sl=(k,n)=>`<div class="adr"><span>${n}</span><i
   h+=`<div class="ads"><b>✖️ Pengali</b>${sl('xp','✨ EXP')}${sl('koin','🪙 Koin')}${sl('atk','⚔️ ATK Lumi')}${sl('hp','❤️ HP Lumi')}${sl('spd','🏃 Jalan')}</div>`;
   h+=`<div class="ads"><b>➕ Tambah langsung</b><div class="adb"><button data-k="1000">+1.000 🪙</button><button data-k="10000">+10.000 🪙</button><button data-k="100000">+100.000 🪙</button></div>
     <div class="adr"><span>Level (sekarang ${plv})</span><input type="number" id="aLv" min="1" max="30" value="${plv}"><button id="aLvS">Set</button></div>
-    <div class="adb"><button id="aOb">🔦 +10 obor</button><button id="aSd">🌱 +10 bibit & panen</button><button id="aEg">🥚 +1 semua telur</button><button id="aHt">🐣 Inkubator siap</button><button id="aJw">💍 +1 semua cincin & amulet</button><button id="aDb">👑 Bos harian muncul lagi</button></div></div>`;
+    <div class="adb"><button id="aOb">🚪 +10 masuk goa</button><button id="aSd">🌱 +10 bibit & panen</button><button id="aEg">🥚 +1 semua telur</button><button id="aHt">🐣 Inkubator siap</button><button id="aJw">🔮 Semua Artifact</button><button id="aDb">👑 Bos harian muncul lagi</button></div></div>`;
   h+=`<div class="ads"><b>🌍 Dunia</b><div class="adr"><span>Jam</span><select id="aJam">${[['','Asli'],[6,'06 Pagi'],[10,'10 Siang'],[14,'14 Siang'],[17,'17 Sore'],[19,'19 Senja'],[22,'22 Malam']].map(([v,n])=>`<option value="${v}" ${String(A.jam??'')===String(v)?'selected':''}>${n}</option>`).join('')}</select></div>
     <div class="adr"><span>Cuaca</span><select id="aHj"><option value="" ${A.hujan==null?'selected':''}>Asli</option><option value="1" ${A.hujan===true?'selected':''}>🌧️ Hujan</option><option value="0" ${A.hujan===false?'selected':''}>☀️ Cerah</option></select></div>
     ${inB?'':`<div class="adr"><span>Teleport</span><select id="aTp"><option value="">pilih…</option>${DESTS.map((d,i)=>`<option value="${i}">${d.n}</option>`).join('')}</select></div>`}</div>`;
@@ -2963,7 +2963,7 @@ function openAdmin(){const A=ADM,sl=(k,n)=>`<div class="adr"><span>${n}</span><i
   $('aOb').onclick=()=>{const g=SV.goa||(SV.goa={d:dayNo,ob:0,buy:0,best:{},found:{},naga:{}});g.buy=(g.buy||0)+10;done('+10 obor (hari ini)')};
   $('aSd').onclick=()=>{SV.inv=SV.inv||{};for(const k in HOME.SEEDS){SV.inv['b_'+k]=(SV.inv['b_'+k]||0)+10;SV.inv['c_'+k]=(SV.inv['c_'+k]||0)+10}done('+10 bibit & panen')};
   $('aEg').onclick=()=>{EGGK.forEach(k=>eggAdd(k,null));done('+1 tiap jenis telur')};$('aHt').onclick=()=>{const h=SV.home;(h&&h.inc||[]).forEach(s=>{if(s)s.got=s.need});done('Semua telur di inkubator siap menetas')};
-  $('aJw').onclick=()=>{SV.acc=SV.acc||{};JWL.forEach(j=>SV.acc[j[0]]=(SV.acc[j[0]]||0)+1);done('+1 tiap cincin & amulet')};$('aDb').onclick=()=>{if(SV.jwd)SV.jwd.w={};dbSync();done('Bos harian muncul lagi')};
+  $('aJw').onclick=()=>{SV.acc=SV.acc||{};ARTL.forEach(j=>SV.acc[j[0]]=1);done('Semua 30 Artifact')};$('aDb').onclick=()=>{if(SV.jwd)SV.jwd.w={};dbSync();done('Bos harian muncul lagi')};
   $('aJam').onchange=e=>{ADM.jam=e.target.value===''?undefined:+e.target.value;admSave()};
   $('aHj').onchange=e=>{ADM.hujan=e.target.value===''?undefined:e.target.value==='1';admSave()};
   if($('aTp'))$('aTp').onchange=e=>{if(e.target.value==='')return;const d=DESTS[+e.target.value];closeSheet();if(mode==='home')HOME.close();if(mode==='play')flyTo(d)};
@@ -2986,7 +2986,7 @@ const eggs=()=>SV.eggs||(SV.eggs=[]);
 function eggAdd(k,zn){eggs().push({k,zn:zn||null})}
 const eggCount=k=>eggs().filter(e=>e.k===k).length;
 const eggNeed=k=>Math.max(1,EGGT[k].need-(((SV.home&&SV.home.ic)||1)-1)-(jwHas('sunrise')?1:0));
-const eggUp=k=>jwHas('starfall')&&Math.random()<.1?({biasa:'perak',perak:'emas'}[k]||k):k;
+const eggUp=k=>jwHas('telur')&&Math.random()<.15?({biasa:'perak',perak:'emas'}[k]||k):k;
 const EGC={};
 function eggC(k,crack){const key=k+(crack||0);if(EGC[key])return EGC[key];const c=mk(14,16),g=c.getContext('2d'),C=EGGT[k].c;
   for(let y=0;y<16;y++){const t=(y-8.5)/7.5,w=Math.sqrt(Math.max(0,1-t*t))*(y<8?5.2:6.2);for(let x=Math.round(7-w);x<Math.round(7+w);x++){const dx=x-7+.5;g.fillStyle=dx<-w+1.2||y===15||y===0?C[2]:dx>w*.35?C[1]:C[0];g.fillRect(x,y,1,1)}}
@@ -3005,65 +3005,77 @@ function eggTick(){const h=SV.home;if(!h||!h.inc)return;let rd=0;h.inc.forEach(s
   if(rd)setTimeout(()=>showHint(`🐣 ${rd} telur siap menetas! Pulang ke rumah 🏡`,2800),1600)}
 function eggLoot(k){return`<span style="display:inline-flex;align-items:center;gap:6px"><img src="${eggURL(k)}" style="width:22px;image-rendering:pixelated">Dapat telur baru: ${EGGT[k].n}! Tetaskan di inkubator rumah</span>`}
 
-/* ================= CINCIN & AMULET (murni drop bos, langka) ================= */
-const JWT={
-  RA:['................','......gggg......','.....gGGGGg.....','.....gGWGGg.....','.....gGGGGg.....','......gggg......','.....oOOOOo.....','....oO....Oo....','...oO......Oo...','...oO......oO...','...oO......oO...','....oO....Oo....','.....oOOOOo.....','......oooo......','................','................'],
-  RB:['................','.....o....o.....','.....gggggg.....','.....gGGWGg.....','.....gGGGGg.....','.....gggggg.....','.....oOOOOo.....','....oO....Oo....','...oO......Oo...','...oO......oO...','...oO......oO...','....oO....Oo....','.....oOOOOo.....','......oooo......','................','................'],
-  RC:['.......g........','......gGg.......','......gWg.......','.....gGGGg......','.....gGGGg......','......ggg.......','.....oOOOOo.....','....oO....Oo....','...oO......Oo...','...oO......oO...','...oO......oO...','....oO....Oo....','.....oOOOOo.....','......oooo......','................','................'],
-  RL:['.S............S.','......gggg......','.....gGGGGg.....','..S..gGWGGg..S..','.....gGGGGg.....','....oogggoo.....','...oOOOOOOOo....','..oO..o..o.Oo...','..oO.......Oo...','..oO.......oO...','..oO.......oO...','...oO.....Oo....','....oOOOOOo.....','.S...ooooo....S.','................','................'],
-  AD:['.o............o.','..o..........o..','...o........o...','....o......o....','.....o....o.....','......oOOo......','.....oOOOOo.....','....gGGGGGGg....','...gGGWGGGGGg...','...gGWGGGGGGg...','...gGGGGGGGGg...','....gGGGGGGg....','.....gGGGGg.....','......gGGg......','.......gg.......','................'],
-  AL:['.o............o.','..o..........o..','...o........o...','....o......o....','.....o....o.....','......oOOo......','.......gg.......','......gGGg......','.....gGWGGg.....','....gGWGGGGg....','....gGGgGGGg....','....gGGGgGGg....','.....gGGGgg.....','......gGGg......','.......gg.......','........g.......'],
-  AC:['.o............o.','..o..........o..','...o........o...','....o......o....','.....o....o.....','......oOOo......','.....gggggg.....','....gGGGGGGg....','...gGGWHHGGGg...','...gGWGHGGGGg...','...gGGGHHGGGg...','...gGGGGHGGGg...','....gGGHHGGg....','.....gggggg.....','................','................'],
-  AS:['.o............o.','..o..........o..','...o........o...','....o......o....','.....o....o.....','......oOOo......','.......gg.......','......gGGg......','..ggggGWGGgggg..','...gGGGGGGGGg...','....gGGGGGGg....','....gGGggGGg....','...gGGg..gGGg...','...ggg....ggg...','................','................'],
-  AM:['.o............o.','..o..........o..','...o........o...','....o......o....','.....o....o.....','......oOOo......','......ggg.......','....gGGg........','...gGWg.........','...gGg..........','...gGg......H...','...gGGg.........','....gGGg...g....','.....gGGGGGg....','.......ggg......','................'],
-  AH:['.o............o.','..o..........o..','...o........o...','....o......o....','.....o....o.....','......oOOo......','....OOOOOOOO....','.....gGGGGg.....','......gWGg......','.......gg.......','.......Hg.......','......gHHg......','.....gHHHHg.....','....OOOOOOOO....','................','................'],
-  AE:['.o............o.','..o..........o..','...o........o...','....o......o....','.....o....o.....','......oOOo......','.......gg.......','......gGGg......','.....gGWGGg.....','.....gWGHGg.....','....gGGGGHGg....','....gGHGGGGg....','....gGGGGGGg....','.....gGGGGg.....','......gggg......','................']};
-const JWM={gold:['#a8700c','#ffd23c'],silver:['#6a7690','#dfe6f2'],bronze:['#6a3a14','#c87a3a'],wood:['#5a3a1a','#a8784a'],steel:['#4a5266','#9aa4b8'],cord:['#8a6a3a','#c8a070']};
-const JWR={L:'Langka',E:'Epik',G:'Legenda'};
-/* [id, slot, rar, nama, tema, templat, logam, [gelap,inti,kilau,aksen], efek[[k,v]], unik, nama unik, keterangan unik] */
-const JWL=[
- ['j_ember','ring','L','Ember Band','🔥','RA','bronze',['#7a1a10','#ff6a3d','#fff2d8'],[['atk',.07]]],
- ['j_frost','ring','L','Frost Band','❄️','RA','silver',['#0a3a6a','#4ab8ff','#f2fbff'],[['hp',.07]]],
- ['j_thorn','ring','L','Thorn Band','🟢','RB','wood',['#1a5a2a','#4ad46a','#e8ffe8'],[['dr',.04]]],
- ['j_spark','ring','L','Spark Band','⭐','RB','steel',['#8a6a0a','#ffe24a','#ffffff'],[['crit',.08]]],
- ['j_tide','ring','E','Tidecaller Ring','❄️','RA','silver',['#0a4a6a','#3ad0e0','#f2fbff'],[['hp',.10],['regen',.006]],'tide','Ombak Penyembuh','Setiap jurus memulihkan 5% HP Lumi itu.'],
- ['j_venom','ring','E','Venomfang Ring','🟢','RC','steel',['#3a0a5a','#a04ae0','#f0d8ff'],[['atk',.10],['en',.10]],'venom','Taring Racun','Serangan biasa 15% meracuni musuh.'],
- ['j_storm','ring','E','Stormglass Ring','⭐','RC','silver',['#2a3a7a','#8ab0ff','#ffffff'],[['crit',.12],['en',.10]],'chain','Petir Berantai','Serangan kritis memantul 30% ke musuh lain.'],
- ['j_iron','ring','E','Ironroot Ring','🟢','RB','wood',['#3a2a1a','#8a6a4a','#d8c0a0','#4ad46a'],[['hp',.10],['dr',.06]],'iron','Akar Besi','Lumi tank mulai battle dengan perisai 10%.'],
- ['j_dragon','ring','G','Dragonheart Ring','🔥','RL','gold',['#7a0a2a','#ff3a5a','#ffd8e0'],[['atk',.15],['crit',.18],['hp',.13]],'dragon','Hati Naga','Serangan pertama tiap Lumi selalu kritis.'],
- ['j_phoenix','ring','G','Phoenix Ring','🔥','RL','gold',['#a83a0a','#ffa020','#fff2b0'],[['hp',.14],['regen',.009],['dr',.09]],'phoenix','Bangkit','1 Lumi yang pingsan bangun lagi dengan 30% HP (1× per battle).'],
- ['j_eclipse','ring','G','Eclipse Ring','⭐','RL','gold',['#1a0a3a','#4a2a8a','#c8a8ff','#ffd23c'],[['atk',.14],['en',.13],['crit',.16]],'eclipse','Gerhana','Saat HP Lumi di bawah 30%, serangannya ×1,5.'],
- ['j_leaf','amu','L','Leaf Charm','🟢','AL','cord',['#1a6a2a','#4ad46a','#e8ffe8'],[['xp',.10]]],
- ['j_coin','amu','L','Coin Charm','⭐','AC','cord',['#a8700c','#ffd23c','#ffffff','#e8a020'],[['koin',.10]]],
- ['j_egg','amu','L','Egg Charm','⭐','AE','cord',['#9a7040','#fff4dc','#ffffff','#e0c08a'],[['egg',.04]]],
- ['j_hour','amu','L','Hourglass Charm','❄️','AH','bronze',['#0a3a6a','#bfe8ff','#ffffff','#ffd23c'],[['qt',1]]],
- ['j_moon','amu','E','Moonlit Amulet','❄️','AM','silver',['#2a3a7a','#c8d8ff','#ffffff','#ffd23c'],[['xp',.15],['qt',2]],'moon','Cahaya Bulan','Malam hari (19.00–05.00) EXP ×1,5.'],
- ['j_clover','amu','E','Clover Amulet','🟢','AL','gold',['#0a5a2a','#3ad06a','#e8ffe8'],[['koin',.15],['cap',.04]],'clover','Semanggi Hoki','Lumi berkilau ✨ muncul 2× lebih sering.'],
- ['j_nest','amu','E','Nest Amulet','⭐','AE','wood',['#6a4a2a','#e0c08a','#fff4dc','#9fb0cc'],[['egg',.06],['bond',.20]],'nest','Sarang Hangat','Telur dari kandang 30% jadi Telur Perak.'],
- ['j_scholar','amu','E','Scholar Amulet','⭐','AD','silver',['#0a3a5a','#3aa8ff','#e8f6ff'],[['xp',.15],['qt',2]],'scholar','Murid Rajin','3 soal benar = FULL POWER ×1,6 (biasanya ×1,5).'],
- ['j_starfall','amu','G','Starfall Amulet','⭐','AS','gold',['#a8700c','#ffe24a','#ffffff'],[['xp',.22],['koin',.20],['egg',.10]],'starfall','Telur Bercahaya','10% telur dari battle naik 1 tingkat.'],
- ['j_sage','amu','G','Sage Amulet','⭐','AD','gold',['#2a1a6a','#7a6aff','#ffffff'],[['qt',3],['xp',.20],['cap',.06]],'sage','Jawaban Kedua','1 soal salah per battle dianggap benar (jawaban yang benar tetap ditunjukkan).'],
- ['j_sunrise','amu','G','Sunrise Amulet','🔥','AC','gold',['#a83a0a','#ff9a3a','#fff2b0','#ffd23c'],[['bond',.30],['egg',.10],['koin',.20]],'sunrise','Inkubator Hangat','Semua telur menetas 1 battle lebih cepat.']];
+/* ================= ARTIFACT (30 benda unik, pengganti Cincin & Amulet) — 2 slot, 5 kelangkaan ================= */
+const ARTN=['Biasa','Langka','Epik','Legenda','Mitos'],ARTC=['#e9ecf5','#4aa8ff','#b46cff','#ffc83a','#ff4a4a'];
+/* [id, nama, kelangkaan 0-4, efek[[k,v]], kunci unik, nama unik, keterangan unik, gambar] */
+const ARTL=[
+['a_batu','Batu Sungai',0,[['dr',.03]],0,0,0,d=>{d.e(12,14,9,6,'#7d8aa0');d.e(11,12.5,7,4.2,'#9aa8bc');d.e(9,11,2.6,1.3,'#e6edf5');d.e(15,17.5,5,1.6,'#5f6a80')}],
+['a_bulu','Bulu Burung',0,[['en',.05]],0,0,0,d=>{d.p([[19,2],[22,5],[12,17],[6,20],[8,13]],'#ff8a5a');d.p([[19,3],[21,5],[12,15],[9,14]],'#ffc8a0');d.l(4,22,19,4,1.3,'#7a4a2a')}],
+['a_kerang','Kerang Pantai',0,[['koin',.05]],0,0,0,d=>{d.p([[12,20],[3,11],[4,7],[8,4],[16,4],[20,7],[21,11]],'#ffb8c8');[[5,8],[8,5],[12,4],[16,5],[19,8]].forEach(([x,y])=>d.l(12,19,x,y,1,'#e07898'));d.r(9,18.5,6,3,'#e07898');d.c(8.5,7.5,1.3,'#fff3f6')}],
+['a_semanggi','Daun Semanggi',0,[['crit',.03]],0,0,0,d=>{d.l(12,13,16,22,1.6,'#2f7d2f');[[8,8],[16,8],[8,15],[16,15]].forEach(([x,y])=>{d.c(x,y,4.2,'#48b848');d.c(x-1,y-1,1.3,'#b0f0a0')});d.c(12,11.5,2.2,'#2f7d2f')}],
+['a_peluit','Peluit Bambu',0,[['cap',.03]],0,0,0,d=>{d.r(4,9,15,6,'#d8c070');d.r(8,9,1.2,6,'#a08838');d.r(14,9,1.2,6,'#a08838');d.r(18.5,10,3.5,4,'#b8a050');d.c(11,11,1.3,'#3a2a10');d.r(4,9,15,1.2,'#f4e4a0');d.l(4,13,2,19,1,'#d04040');d.c(2.5,20,1.6,'#d04040')}],
+['a_gasing','Gasing Kayu',0,[['atk',.03]],0,0,0,d=>{d.p([[12,21],[4,11],[6,8],[18,8],[20,11]],'#c86a3a');d.e(12,8,8,2.6,'#ec9a60');d.l(5,11.5,19,11.5,1.6,'#ffd23c');d.r(11,2.5,2,5.5,'#7a4a2a');d.l(12,20,12,23,1,'#5a3a1a')}],
+['a_pensil','Pensil Ajaib',0,[['qt',1]],0,0,0,d=>{d.l(6,18,17,7,4.2,'#ffcc33');d.l(8,18,18,8,1.2,'#e0a020');d.l(6,18,3.5,20.5,3.2,'#f0d0a0');d.l(3.5,20.5,2,22,1.6,'#3a3a3a');d.l(16,8,17.2,6.8,4.2,'#c4c4cc');d.l(17.5,6.5,19.5,4.5,4.2,'#ff8aa0');d.r(20,12,1.2,5,'#fff6a0');d.r(18.1,13.9,5,1.2,'#fff6a0');d.c(6,6,1,'#fff6a0')}],
+['a_lonceng','Lonceng Kecil',0,[['hp',.04]],0,0,0,d=>{d.p([[12,4],[8,7],[7,15],[5,18],[19,18],[17,15],[16,7]],'#ffd23c');d.p([[14,5],[16,7],[17,15],[19,18],[15,18]],'#e0a820');d.r(5,17,14,2,'#c88a18');d.c(12,20.3,2,'#a07010');d.c(12,3.3,1.7,'#c88a18');d.l(10,8,9,14,1.2,'#fff2a0')}],
+['a_kompas','Kompas Penjelajah',1,[['koin',.10]],0,0,0,d=>{d.c(12,2.6,1.7,'#c89030');d.c(12,12.5,9,'#c89030');d.c(12,12.5,7,'#f4ecd8');d.p([[12,6.5],[13.6,12.5],[10.4,12.5]],'#e83a3a');d.p([[12,18.5],[13.6,12.5],[10.4,12.5]],'#3a5a9a');d.c(12,12.5,1.2,'#3a2a10');d.c(9,8,1,'#ffffff')}],
+['a_jampasir','Jam Pasir',1,[['qt',2]],0,0,0,d=>{d.p([[7,5],[17,5],[13,12],[17,19],[7,19],[11,12]],'#cfefff');d.p([[8.5,6],[15.5,6],[12.6,10],[11.4,10]],'#f0c060');d.p([[8,18.5],[16,18.5],[12,14]],'#f0c060');d.l(12,10,12,15,.9,'#f0c060');d.r(5,3,14,2.2,'#8a5a2a');d.r(5,19,14,2.2,'#8a5a2a');d.r(5.2,5,1.3,14,'#6a4020');d.r(17.5,5,1.3,14,'#6a4020')}],
+['a_lentera','Lentera Kunang',1,[['regen',.0033]],0,0,0,d=>{d.c(12,3,2,'#5a4a3a');d.x(12,3,.9);d.p([[7,6.5],[17,6.5],[15,4.5],[9,4.5]],'#3a4a3a');d.r(7,6.5,10,10.5,'#22402e');d.c(12,11.8,4.2,'#c8f060');d.c(12,11.8,2.2,'#ffffd0');d.r(6,17,12,2.2,'#3a4a3a');d.c(3.5,9,1.1,'#d8ff70');d.c(20.5,14,1.1,'#d8ff70')}],
+['a_kunci','Kunci Kuno',1,[['egg',.05]],0,0,0,d=>{d.c(7,7,5,'#c8a040');d.x(7,7,2.4);d.l(10,10,20.5,20.5,2.6,'#c8a040');d.l(18,18,20.5,15.5,2.2,'#c8a040');d.l(15.5,15.5,17.5,13,2.2,'#c8a040');d.l(3.6,6,5.6,3.8,1,'#fff0a0')}],
+['a_teropong','Teropong Mini',1,[['crit',.06]],0,0,0,d=>{d.l(6,18,16,8,4.6,'#8a5a3a');d.l(15,9,19.5,4.5,6.4,'#c8a040');d.c(20,4,2.2,'#9fe8ff');d.c(19.4,3.4,.8,'#ffffff');d.l(4,20,6.2,17.8,3.6,'#c8a040');d.l(10,14,11,13,5.6,'#c8a040')}],
+['a_angklung','Angklung Mini',1,[['bond',.15]],0,0,0,d=>{d.r(8,5.5,3,13,'#e8d080');d.r(13.5,8,3,10.5,'#e8d080');d.r(8,11.5,3,1,'#a88838');d.r(13.5,13,3,1,'#a88838');d.r(4,4,2,17,'#b89848');d.r(18,4,2,17,'#b89848');d.r(4,4,16,2,'#b89848');d.r(4,19,16,2,'#b89848');d.r(8,5.5,1,13,'#fff2b0')}],
+['a_embun','Tetes Embun',1,[['hp',.08]],0,0,0,d=>{d.c(12,15,6,'#4ab8f8');d.p([[12,2.5],[6.4,13.5],[17.6,13.5]],'#4ab8f8');d.e(14.2,17,3,2.4,'#2a88d0');d.e(9.6,13.2,1.4,2.8,'#e8fbff');d.c(14.5,9,.9,'#ffffff')}],
+['a_kristal','Bola Kristal',2,[['xp',.12]],0,0,0,d=>{d.p([[6,21],[18,21],[16,17],[8,17]],'#6a4a8a');d.r(5,20,14,2.2,'#4a2a6a');d.c(12,10,7.6,'#8a6af0');d.c(12,10,5.6,'#b8a0ff');d.e(13,11,2.8,1.5,'#f0e0ff');d.c(9,7,1.7,'#ffffff')}],
+['a_peta','Gulungan Peta',2,[['cap',.08]],0,0,0,d=>{d.r(6,6,12,12,'#f0dca8');d.r(4,4,16,3,'#c8a060');d.r(4,17,16,3,'#c8a060');[[4,5.5],[20,5.5],[4,18.5],[20,18.5]].forEach(([x,y])=>d.c(x,y,1.6,'#a07838'));[[8,9],[10,10],[12,11.5]].forEach(([x,y])=>d.r(x,y,1.2,1.2,'#c83a3a'));d.l(14,11,16.5,13.5,1.1,'#c83a3a');d.l(16.5,11,14,13.5,1.1,'#c83a3a');d.p([[8,15],[10,13],[12,15]],'#6aa84a')}],
+['a_buku','Buku Ilmu',2,[['xp',.10],['qt',1]],0,0,0,d=>{d.p([[4,6],[12,8],[20,6],[20,19],[12,21],[4,19]],'#2f5fc8');d.p([[5,7],[12,9],[12,19.5],[5,17.8]],'#f4f0e0');d.p([[19,7],[12,9],[12,19.5],[19,17.8]],'#e4dcc4');[10.5,13,15.5].forEach(y=>{d.l(6.2,y-.6,10.8,y+.6,.7,'#a8a090');d.l(13.2,y+.6,17.8,y-.6,.7,'#a8a090')});d.r(11.5,1,1.1,5,'#fff6a0');d.r(9.6,3,5,1.1,'#fff6a0')}],
+['a_barong','Topeng Barong',2,[['atk',.08]],0,0,0,d=>{d.p([[4,8.5],[6,2],[9,6],[12,1],[15,6],[18,2],[20,8.5]],'#ffc83a');d.e(12,13,8.6,8.4,'#c8302a');[8.5,15.5].forEach(x=>{d.c(x,11.5,2.6,'#ffffff');d.c(x,11.5,1.2,'#1a1a1a')});d.e(12,14.6,1.9,1.3,'#8a1a14');d.e(12,18,4.6,2.2,'#ffffff');d.r(9.6,17.6,1.1,2.2,'#1a1a1a');d.r(13.3,17.6,1.1,2.2,'#1a1a1a')}],
+['a_gong','Gong Kecil',2,[['dr',.08]],0,0,0,d=>{d.r(3,4,2,18,'#8a3a2a');d.r(19,4,2,18,'#8a3a2a');d.r(2,3,20,2.6,'#a84a30');d.l(8,5,9,8.5,.9,'#3a2a1a');d.l(16,5,15,8.5,.9,'#3a2a1a');d.c(12,14,6.6,'#d8a030');d.c(12,14,4.6,'#b88020');d.c(12,14,2.1,'#ffd860');d.c(10,11,1,'#fff0b0')}],
+['a_mutiara','Mutiara Laut',2,[['en',.12]],0,0,0,d=>{d.e(12,17.5,9,3.8,'#6a4ab0');d.e(12,8,9,4.4,'#9a7ad8');d.e(12,7.2,6,2.2,'#b89aee');d.c(12,13,3.8,'#f8f0ff');d.c(13.2,14.3,1.5,'#d8c8ee');d.c(10.8,11.8,1.1,'#ffffff')}],
+['a_gunungan','Gunungan Emas',3,[['hp',.10]],'gunungan','Berkah Gunungan','Jawab 3 soal benar sebelum battle → saat Lumi terluka parah, tim pulih 15% HP (1× per battle).',d=>{d.p([[12,1],[18,9.5],[20,17],[17,21],[7,21],[4,17],[6,9.5]],'#ffc83a');d.p([[12,4],[16.5,10.5],[18,17],[15.5,19.5],[8.5,19.5],[6,17],[7.5,10.5]],'#c87a10');d.l(12,8,12,20,1.5,'#ffe890');[[8,9],[16,9]].forEach(([x,y])=>d.l(12,12.5,x,y,1,'#ffe890'));[[7,14],[17,14]].forEach(([x,y])=>d.l(12,16.5,x,y,1,'#ffe890'));d.r(6,19.8,12,2.6,'#7a3a08');d.c(12,5.5,1.5,'#ff4a4a')}],
+['a_mahkota','Mahkota Mini',3,[['koin',.20]],'mahkota','Hadiah Raja','Kristal Lumi berisi 1 hadiah tambahan (koin atau telur).',d=>{d.p([[4,14],[4,6],[8,11],[12,4],[16,11],[20,6],[20,14]],'#ffc83a');d.r(4,14,16,5,'#ffc83a');d.r(4,18,16,1.2,'#c88a18');d.c(12,16.5,1.7,'#ff3a5a');d.c(7.5,16.5,1.2,'#3ac8ff');d.c(16.5,16.5,1.2,'#3ac8ff');[[4,6],[12,4],[20,6]].forEach(([x,y])=>d.c(x,y,1.5,'#fff0a0'))}],
+['a_bulan','Bulan Sabit',3,[['crit',.10]],'bulan','Cahaya Bulan','Battle malam hari (19.00–05.00): serangan tim +15%.',d=>{d.c(11,12,9,'#fff0a0');d.x(15.5,9,8);d.c(7,12,1.2,'#e8d070');d.c(9,17,1,'#e8d070');d.c(19,17,1.1,'#fff6c0');d.c(20.5,6,.9,'#fff6c0');d.c(17,21,.8,'#fff6c0')}],
+['a_phoenix','Bulu Phoenix',3,[['hp',.10]],'phoenix','Bangkit','1 Lumi yang pingsan bangun lagi dengan 30% HP (1× per battle).',d=>{d.p([[19,2],[22.5,5],[13,17],[7,19.5],[9,13]],'#ff5a2a');d.p([[19,3],[21.5,5],[13,15],[10,15]],'#ffc83a');d.p([[19.5,4],[20.8,5],[15,11],[13.5,11]],'#fff0a0');d.l(4,22,18,6,1.3,'#8a2a10');d.c(22,2.5,1,'#fff0a0');d.c(8,21.5,.9,'#ff8a3a')}],
+['a_telur','Telur Emas',3,[['egg',.15]],'telur','Sarang Emas','Telur yang kamu dapat 15% naik 1 tingkat.',d=>{d.r(4,19,16,3,'#8a5a2a');d.l(3,20,8,22.5,1,'#b07a40');d.l(21,20,16,22.5,1,'#b07a40');d.e(12,12.5,7,8.6,'#ffc83a');d.e(14.6,14,3.4,6,'#e0a020');d.e(9.4,9,1.6,2.6,'#fff6c0');d.l(6,13,9,11,1,'#fff0a0');d.l(9,11,12,13,1,'#fff0a0');d.l(12,13,15,11,1,'#fff0a0');d.l(15,11,18,13,1,'#fff0a0')}],
+['a_matanaga','Mata Naga',4,[['atk',.15]],'naga','Napas Naga','Jurus membakar 1 musuh selama 3 detik.',d=>{d.p([[1.5,12],[7,5.5],[17,5.5],[22.5,12],[17,18.5],[7,18.5]],'#2a6a3a');d.p([[3,12],[7.5,7],[16.5,7],[21,12],[16.5,17],[7.5,17]],'#3a0a10');d.e(12,12,5,5.4,'#ff3a1a');d.e(12,12,3.4,4.4,'#ffb020');d.e(12,12,.95,4.5,'#1a0505');d.c(10,10,.9,'#ffffff')}],
+['a_bintang','Pecahan Bintang',4,[['xp',.20]],'bintang','Hujan Bintang','Tiap 15 detik bintang jatuh mengenai semua musuh.',d=>{const P=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,R=i%2?4.4:10.5;P.push([12+Math.cos(a)*R,12.5+Math.sin(a)*R])}d.p(P,'#ffd84a');d.p(P.map(([x,y])=>[12+(x-12)*.55,12.5+(y-12.5)*.55]),'#fff8c0');d.l(9,9,14.5,16,.9,'#c89a20');d.c(3,21,1.1,'#c8f0ff');d.c(21,21,.9,'#c8f0ff')}],
+['a_matahari','Mahkota Matahari',4,[['hp',.15]],'matahari','Fajar','Awal battle: semua Lumi dapat perisai 20%.',d=>{for(let i=0;i<8;i++){const a=i*Math.PI/4;d.p([[12+Math.cos(a)*11.5,12+Math.sin(a)*11.5],[12+Math.cos(a+.32)*6.5,12+Math.sin(a+.32)*6.5],[12+Math.cos(a-.32)*6.5,12+Math.sin(a-.32)*6.5]],'#ff8a1a')}d.c(12,12,6.4,'#ffc83a');d.c(12,12,4.4,'#fff0a0');d.c(12,12,1.7,'#ff3a1a');d.c(10,10,.9,'#ffffff')}],
+['a_abyss','Jantung Abyss',4,[['crit',.15]],'abyss','Gema Abyss','Serangan kritis membuat musuh pusing 💫 1 detik.',d=>{d.c(8.4,9,4.6,'#5a1a8a');d.c(15.6,9,4.6,'#5a1a8a');d.p([[4,10.6],[20,10.6],[12,21]],'#5a1a8a');d.c(12,12.2,3.2,'#b04aff');d.c(12,12.2,1.6,'#f0c8ff');d.l(10,6,12,10,.9,'#2a0a4a');d.l(15,7,13.5,10,.9,'#2a0a4a');d.c(7,7,1,'#9a5ad0');d.c(2.5,3.5,1,'#b04aff');d.c(21.5,19,1,'#b04aff')}]];
 const JW={};
-JWL.forEach(([id,slot,r,n,th,t,met,gm,fx,u,un,ud])=>{JW[id]={id,slot,r,n,th,t,met,gm,fx,u,un,ud,pw:fx.reduce((a,[k,v])=>a+(k==='qt'?v*.04:k==='regen'?v*12:v),0)+(u?(r==='G'?.12:.05):0)};
-  AV.SH[id]={id,slot,n,p:0,tk:'jw'}});
-SLOTS.push(['cincin','Cincin','💍'],['amulet','Amulet','📿']);SLOTREV.ring='cincin';SLOTREV.amu='amulet';
-const JWN={atk:['⚔️ ATK','%'],hp:['❤️ HP','%'],dr:['🛡️ Kerusakan −','%'],crit:['💥 Kritis','%'],en:['⚡ Jurus','%'],regen:['💚 Pulih','%/dtk'],xp:['✨ EXP','%'],koin:['🪙 Koin','%'],egg:['🥚 Telur','%'],cap:['🤝 Tangkap','%'],qt:['⏱ Waktu soal +',' dtk'],bond:['🐾 Keakraban','%']};
+ARTL.forEach(([id,n,r,fx,u,un,ud,dr])=>{JW[id]={id,slot:'art',r,n,fx,u,un,ud,dr,pw:fx.reduce((a,[k,v])=>a+(k==='qt'?v*.04:k==='regen'?v*12:v),0)+(u?(r>=4?.15:.1):0)};AV.SH[id]={id,slot:'art',n,p:0,tk:'jw'}});
+SLOTS.push(['art1','Artifact 1','🔮'],['art2','Artifact 2','🔮']);SLOTREV.art='art1';
+const JWR=ARTN;
+const JWN={atk:['⚔️ Serangan','%'],hp:['❤️ HP tim','%'],dr:['🛡️ Kerusakan diterima −','%'],crit:['💥 Kritis','%'],en:['⚡ Energi jurus','%'],regen:['💚 Pulih','%/dtk'],xp:['✨ EXP','%'],koin:['🪙 Koin','%'],egg:['🥚 Telur','%'],cap:['🤝 Tangkap','%'],qt:['⏱ Waktu soal +',' dtk'],bond:['🐾 Keakraban','%']};
 function jwFx(k,v){const N=JWN[k];if(k==='qt')return`${N[0]}${v}${N[1]}`;const p=String(Math.round(v*(k==='regen'?1000:100))/(k==='regen'?10:1)).replace('.',',');return k==='dr'?`${N[0]}${p}${N[1]}`:`${N[0]} +${p}${N[1]}`}
 const jwTxt=id=>JW[id].fx.map(([k,v])=>jwFx(k,v)).join(' · ');
+/* gambar piksel 24×24: bentuk dasar → ambang alfa → garis tepi otomatis */
 const JWC={};
-function jwC(id){if(JWC[id])return JWC[id];const J=JW[id],c=mk(16,16),g=c.getContext('2d'),m=JWM[J.met],P={o:m[0],O:m[1],g:J.gm[0],G:J.gm[1],W:J.gm[2],H:J.gm[3]||J.gm[2],S:'#fff6b0'};
-  const G=JWT[J.t].map(r=>r.split(''));if(J.r==='G'&&J.t[0]==='A')[[1,0],[14,0],[0,7],[15,9],[2,14],[13,13]].forEach(([x,y])=>{if(G[y][x]==='.')G[y][x]='S'});
-  G.forEach((row,y)=>row.forEach((ch,x)=>{if(P[ch]){g.fillStyle=P[ch];g.fillRect(x,y,1,1)}}));return JWC[id]=c}
+function jwC(id){if(JWC[id])return JWC[id];const c=mk(24,24),g2=c.getContext('2d');
+  const d={c:(x,y,r,col)=>{g2.fillStyle=col;g2.beginPath();g2.arc(x,y,r,0,7);g2.fill()},e:(x,y,rx,ry,col)=>{g2.fillStyle=col;g2.beginPath();g2.ellipse(x,y,rx,ry,0,0,7);g2.fill()},
+    r:(x,y,w,h,col)=>{g2.fillStyle=col;g2.fillRect(x,y,w,h)},p:(pts,col)=>{g2.fillStyle=col;g2.beginPath();pts.forEach(([x,y],i)=>i?g2.lineTo(x,y):g2.moveTo(x,y));g2.closePath();g2.fill()},
+    l:(a,b,x,y,w,col)=>{g2.strokeStyle=col;g2.lineWidth=w;g2.lineCap='round';g2.beginPath();g2.moveTo(a,b);g2.lineTo(x,y);g2.stroke()},
+    x:(x,y,r)=>{g2.save();g2.globalCompositeOperation='destination-out';g2.beginPath();g2.arc(x,y,r,0,7);g2.fill();g2.restore()}};
+  try{JW[id].dr(d)}catch(e){}const im=g2.getImageData(0,0,24,24),a=im.data,o=new Uint8ClampedArray(a);for(let i=0;i<576;i++)o[i*4+3]=a[i*4+3]>110?255:0;
+  const op=i=>o[i*4+3]===255,out=new Uint8ClampedArray(o);
+  for(let y=0;y<24;y++)for(let x=0;x<24;x++){const i=y*24+x;if(op(i))continue;if((x>0&&op(i-1))||(x<23&&op(i+1))||(y>0&&op(i-24))||(y<23&&op(i+24))){out[i*4]=26;out[i*4+1]=16;out[i*4+2]=34;out[i*4+3]=255}}
+  g2.putImageData(new ImageData(out,24,24),0,0);return JWC[id]=c}
 const JWU={};const jwURL=id=>JWU[id]||(JWU[id]=jwC(id).toDataURL());
 /* kemampuan unik yang sedang dipakai */
-function jwUniq(){const eq=(SV&&SV.eq)||{},o={};['cincin','amulet'].forEach(s=>{const n=eq[s];if(n&&JW[n]&&(SV.acc||{})[n]&&JW[n].u)o[JW[n].u]=1});return o}
+function jwUniq(){const eq=(SV&&SV.eq)||{},o={};['art1','art2'].forEach(s=>{const n=eq[s];if(n&&JW[n]&&(SV.acc||{})[n]&&JW[n].u)o[JW[n].u]=1});return o}
 const jwHas=u=>!!jwUniq()[u];
-/* drop: Bos Raksasa harian 25% (L75/E22/G3), Naga 50% (E80/G20), jaminan 10 */
-function jwDrop(src){const d=SV.jwd||(SV.jwd={p:0,w:{}});d.p=(d.p||0)+1;const ch=src==='naga'?.5:.25;if(!(Math.random()<ch||d.p>=10))return null;d.p=0;
-  const x=Math.random()*100,r=src==='naga'?(x<80?'E':'G'):(x<75?'L':x<97?'E':'G'),slot=Math.random()<.5?'ring':'amu',P=JWL.filter(j=>j[2]===r&&j[1]===slot),id=P[(Math.random()*P.length)|0][0];
-  SV.acc=SV.acc||{};SV.acc[id]=(SV.acc[id]||0)+1;return id}
-function jwLine(id){const J=JW[id],c=J.r==='G'?'#ffd23c':J.r==='E'?'#d7c0ff':'#8fd0ff';return`<div class="jwdrop" style="--jc:${c}"><img src="${jwURL(id)}"><div><b>${J.slot==='ring'?'💍':'📿'} ${J.n}</b><small>${JWR[J.r]} · ${jwTxt(id)}${J.u?`<br>${J.r==='G'?'★':'✦'} ${J.un}`:''}</small></div></div>`}
+/* slot artifact: yang dipakai tetap di slotnya; yang baru masuk slot kosong, kalau penuh ganti yang lebih lemah */
+function slotFor(n){if(!JW[n])return accSlot(n);const eq=SV.eq||{};if(eq.art1===n)return'art1';if(eq.art2===n)return'art2';const ok=s=>eq[s]&&(SV.acc||{})[eq[s]];if(!ok('art1'))return'art1';if(!ok('art2'))return'art2';return accVal(eq.art1)<=accVal(eq.art2)?'art1':'art2'}
+{const _eb=equipBest;equipBest=function(){_eb();const acc=SV.acc||{},eq=SV.eq||(SV.eq={});const A=Object.keys(acc).filter(n=>JW[n]&&acc[n]>0).sort((a,b)=>accVal(b)-accVal(a));eq.art1=A[0]||null;eq.art2=A[1]||null;save()}}
+/* hadiah: kembar → koin. Sumber: liar (Biasa), peti, pengelana, bos harian, goa lantai 5+, quest ★, Naga goa */
+const JWK=[30,60,120,250,500],JWLD={};
+const JW_RT={liar:[.04,[100]],peti:[.2,[85,15]],pengelana:[.08,[0,100]],raksasa:[.3,[0,70,25,5]],goa:[.1,[0,0,100]],naga:[.6,[0,0,50,40,10]]};
+function jwGive(id){SV.acc=SV.acc||{};const r=JW[id].r;if(SV.acc[id]){const k=JWK[r];SV.koin=(SV.koin||0)+k;JWLD[id]={dup:1,k};return id}SV.acc[id]=1;JWLD[id]={dup:0};return id}
+function jwDrop(src,rf){let r=rf;if(r==null){const T=JW_RT[src]||[.2,[60,30,10]],d=SV.jwd||(SV.jwd={p:0,w:{}});
+    if(src==='raksasa'){d.p=(d.p||0)+1;if(!(Math.random()<T[0]||d.p>=10))return null;d.p=0}else if(Math.random()>=T[0])return null;
+    let x=Math.random()*100;r=0;for(;r<T[1].length;r++){x-=T[1][r];if(x<0)break}r=Math.min(r,T[1].length-1)}
+  const P=ARTL.filter(a=>a[2]===r);return jwGive(P[(Math.random()*P.length)|0][0])}
+function jwLine(id){const J=JW[id],c=ARTC[J.r],L=JWLD[id]||{};return`<div class="jwdrop" style="--jc:${c}"><img src="${jwURL(id)}"><div><b>🔮 ${J.n}</b> <small style="color:${c}">${ARTN[J.r]}</small><small>${L.dup?`Sudah punya → 🪙 +${L.k} koin`:jwTxt(id)+(J.u?`<br>✨ ${J.un}`:'')}</small></div></div>`}
+/* aksesoris kembar → koin (tanpa Tempa) */
+const ACCK=[0,30,60,120,250,500];
+function accGive(id){SV.acc=SV.acc||{};if(SV.acc[id]){const k=ACCK[accTier(id)]||30;SV.koin=(SV.koin||0)+k;return k}SV.acc[id]=1;return 0}
 /* ---------- Bos Raksasa harian: bos quest yang sudah dikalahkan muncul lagi 1× per hari ---------- */
 let DBS=[],dbT=0;
 function dbSync(){DBS=[];if(!SV||!SV.q)return;const s=QST.S(),w=(SV.jwd&&SV.jwd.w)||{};for(let r=1;r<QST.RK.length;r++){const R=QST.RK[r];if(!R||R.goa||!R.boss||!(s.done.includes('boss'+r)||s.r>r)||w[r]===dayNo)continue;
@@ -3078,7 +3090,7 @@ function dailyBossEnd(){cancelAnimationFrame(B.raf);const r=B.w.daily,R=QST.RK[r
   const k=Math.round(60*r*(ADM.koin||1)),x=Math.round(80*r*(ADM.xp||1)),plv0=lvFromXp(SV.xp);SV.koin=(SV.koin||0)+k;SV.xp=(SV.xp||0)+x;const jw=jwDrop('raksasa');eggTick();save();refreshHud();dbSync();
   const lv=lvFromXp(SV.xp)>plv0?`<div class="lvup">🎉 Naik ke Level ${lvFromXp(SV.xp)}!</div>`:'';
   BT.innerHTML=`<div class="ov dim"><img src="${hdURL(id)}" style="width:110px;filter:drop-shadow(0 0 12px #ffd23c)"><h2>👑 ${R.boss[1]} kalah!</h2><div style="color:#cfd8e8">Bos harian ini muncul lagi besok.</div>
-    <div class="loot"><div>🪙 +${k} koin</div><div>✨ +${x} EXP</div>${jw?`<div class="new">${jwLine(jw)}</div>`:`<div style="color:#9fb0c8;font-size:12px">Belum dapat cincin/amulet… terus lawan bos! (jaminan ${10-(d.p||0)} lagi)</div>`}${lv}</div>
+    <div class="loot"><div>🪙 +${k} koin</div><div>✨ +${x} EXP</div>${jw?`<div class="new">${jwLine(jw)}</div>`:`<div style="color:#9fb0c8;font-size:12px">Belum dapat Artifact… terus lawan bos! (jaminan ${10-(d.p||0)} lagi)</div>`}${lv}</div>
     <button class="big2" style="font-size:18px;padding:12px 26px">Lanjut</button></div>`;
   if(jw){SND.pop();setTimeout(()=>SND.blip(1320,.25),200);setTimeout(()=>SND.blip(1760,.25),400)}BT.querySelector('.big2').onclick=closeBattle}
 window.__DBS=()=>DBS.map(b=>[b.r,b.nm,Math.round(b.x/16),Math.round(b.y/16)]);window.__DBG=(r)=>{const b=DBS.find(x=>x.r===r)||DBS[0];const {PL,CAM}=__HM;PL.x=b.x+4;PL.y=b.y+4;CAM.x=PL.x;CAM.y=PL.y;encCool=0};
@@ -3549,7 +3561,7 @@ function makeBeringin(){return bigCanvas(88,80,g=>{const L=['#1d5a2a','#2f7d38',
   E(g,44,30,42,22,L);E(g,22,26,18,14,L);E(g,66,26,18,14,L);E(g,44,14,26,13,L);E(g,30,40,14,8,L);E(g,58,40,14,8,L);
   for(let i=0;i<14;i++)P(g,10+hash(i,7)*68,12+hash(7,i)*34,'#b5ec7a')})}
 {const [kx,ky]=D.plaza||[KX,KY-4],TSx=v=>v*TS+8;
-  const LBL={pasar:['🐟','Pasar','Mbok Sumi','w3','Bibit segar & harga ikan hari ini! Mampir ya.'],butik:['💍','Butik','Bu Ratna','w7','Aksesoris cantik, bisa ditempa juga!'],lumi:['🐾','Tunggangan','Dokter Lumi','w1','Pilih Lumi tungganganmu di sini!'],perabot:['🔧','Toko Rumah','Mas Joko','w6','Upgrade kandang, inkubator & lahan kebunmu di sini!']};
+  const LBL={pasar:['🐟','Pasar','Mbok Sumi','w3','Bibit segar & harga ikan hari ini! Mampir ya.'],butik:['💍','Butik','Bu Ratna','w7','Aksesoris cantik untuk petualanganmu!'],lumi:['🐾','Tunggangan','Dokter Lumi','w1','Pilih Lumi tungganganmu di sini!'],perabot:['🔧','Toko Rumah','Mas Joko','w6','Upgrade kandang, inkubator & lahan kebunmu di sini!']};
   const FN={pasar:()=>openPasar(),butik:()=>openButik(),lumi:()=>openRide(),perabot:()=>HOME.openShop()},NEED={pasar:'pasar',butik:'butik',lumi:'ride',perabot:'perabot'};
   (D.shops||[]).forEach(s=>{const c=makeShop(s.k),wx=TSx(s.x),wy=s.y*TS+14,L=LBL[s.k];for(let j=s.y-1;j<=s.y;j++)for(let i=s.x-1;i<=s.x+1;i++){BLK[j*N+i]=1;OCC[j*N+i]=1}
     addS(wx,wy,(g,x,y)=>{g.drawImage(c,x-30,y-58);if(!shopOpen()){g.fillStyle='#5a3420';g.fillRect(x-7,y-14,14,6);g.fillStyle='#ffd23c';g.fillRect(x-5,y-12,10,2)}},[],[0,-22,30]);
@@ -3581,7 +3593,7 @@ const itemImg=k=>k.startsWith('c_')||k.startsWith('b_')?HOME.cropURL(k.slice(2),
 function openPasar(){const h=HOME.H(),S=HOME.SEEDS,sell=Object.keys(SV.inv||{}).filter(k=>(k.startsWith('c_')||FID[k])&&SV.inv[k]>0);
   let html=`<div class="note" style="margin-top:0">Mbok Sumi: "Bibit ditanam di kebun rumahmu. Harga jual berubah tiap hari lho!" · 🪙 ${SV.koin||0}</div><div class="ht2">🌱 Beli bibit</div><div class="shop">`;
   for(const [k,s] of Object.entries(S)){const lock=s.lv>h.lv;html+=`<button data-s="${k}" ${lock?'disabled':''}><img src="${HOME.cropURL(k,3)}"><b>${s.n}</b><small>${lock?`🔒 Lahan Lv.${s.lv}`:`🪙${s.c} · ${s.h} jam · punya ${SV.inv['b_'+k]||0}`}</small></button>`}
-  html+=`</div>${QST.unl('goa')?`<div class="ht2">🔦 Perlengkapan goa</div><div class="mis"><b>🔦</b><div style="flex:1;font-size:13px">Obor (maks 1/hari) · punya ${GOA.oborLeft()}</div><button id="pObor" style="padding:6px 10px;font-size:12px">🪙500</button></div>`:''}<div class="ht2">💰 Jual (harga hari ini)</div>`;
+  html+=`</div><div class="ht2">💰 Jual (harga hari ini)</div>`;
   html+=sell.length?sell.map(k=>{const f=pf(k);return`<div class="mis"><img src="${itemImg(k)}" style="width:34px;image-rendering:pixelated"><div style="flex:1"><b style="font-size:13px">${itemName(k)}</b> <span style="font-size:11px;color:#9fb0c8">×${SV.inv[k]}</span><div style="font-size:11px">🪙${priceOf(k)} ${f>=1.15?'<span style="color:#7cf29a">📈 mahal hari ini</span>':f<=.9?'<span style="color:#ff9a9a">📉 murah</span>':''}</div></div><button data-j="${k}" style="padding:6px 10px;font-size:12px">Jual 1</button><button data-a="${k}" style="padding:6px 10px;font-size:12px">Semua</button></div>`}).join(''):'<div class="note">Belum ada panen atau ikan untuk dijual.</div>';
   openSheet('🐟 Pasar',html);{const ob=$('pObor');if(ob)ob.onclick=()=>{if(GOA.buyObor())openPasar()}}
   shB.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s,c=S[k].c;if((SV.koin||0)<c){showHint('Koin kurang 🪙',1500);return}SV.koin-=c;HOME.inv('b_'+k,1);save();refreshHud();SND.blip(880,.06);openPasar()});
@@ -3589,11 +3601,10 @@ function openPasar(){const h=HOME.H(),S=HOME.SEEDS,sell=Object.keys(SV.inv||{}).
   shB.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>sl(b.dataset.j,1));shB.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>sl(b.dataset.a,SV.inv[b.dataset.a]))}
 let TEMPA=false;
 function openButik(){const sets=Object.entries(AV.TK_SETS),price=80;
-  let html=`<div class="note" style="margin-top:0">Bu Ratna: "Mau tampil beda atau menempa aksesoris?" · 🪙 ${SV.koin||0}</div><div class="shop"><button id="btT" style="grid-column:span 2">🔨<b>Tempa Aksesoris</b><small>2 kembar → ⭐ naik</small></button></div><div class="ht2">💍 Aksesoris Dasar · 🪙${price}</div><div class="shop">`;
-  sets.forEach(([k,s])=>s.items.forEach(([id])=>{html+=`<button data-b="${id}"><img src="${accIconX(id)}"><b>${accName(id)}</b><small>punya ${(SV.acc||{})[id]||0}</small></button>`}));
-  openSheet('💍 Butik & Tempa',html+'</div>');
-  $('btT').onclick=()=>{TEMPA=true;TASC='acc';openTas()};
-  shB.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const id=b.dataset.b;if((SV.koin||0)<price){showHint('Koin kurang 🪙',1500);return}SV.koin-=price;SV.acc=SV.acc||{};SV.acc[id]=(SV.acc[id]||0)+1;save();refreshHud();SND.pop();showHint(`💍 ${accName(id)} masuk Tas`,1500);openButik()})}
+  let html=`<div class="note" style="margin-top:0">Bu Ratna: "Mau tampil beda? Aksesoris Biasa ada di sini." · 🪙 ${SV.koin||0}</div><div class="ht2">💍 Aksesoris Biasa · 🪙${price}</div><div class="shop">`;
+  sets.forEach(([k,s])=>s.items.forEach(([id])=>{html+=`<button data-b="${id}" ${(SV.acc||{})[id]?'disabled':''}><img src="${accIconX(id)}"><b>${accName(id)}</b><small>${(SV.acc||{})[id]?'✅ sudah punya':'🪙'+price}</small></button>`}));
+  openSheet('💍 Butik',html+'</div>');
+  shB.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const id=b.dataset.b;if((SV.koin||0)<price){showHint('Koin kurang 🪙',1500);return}if((SV.acc||{})[id])return;SV.koin-=price;accGive(id);QST.ev('tempa',{tier:1});save();refreshHud();SND.pop();showHint(`💍 ${accName(id)} masuk Tas`,1500);openButik()})}
 function openPusat(){const bd=(SV.home&&SV.home.bond)||{},own=[STARTER,...Object.keys(SV.owned||{}).filter(k=>k!==STARTER)];
   openSheet('🐾 Pusat Lumi',`<div class="note" style="margin-top:0">Dokter Lumi: "Lumi yang akrab bertarung lebih kuat. Titipkan di kandang rumahmu!"</div><div class="shop"><button id="puT">👥<b>Atur Tim</b><small>pilih 3 Lumi</small></button><button id="puA">🐟<b>Album Ikan</b><small>koleksi ikan</small></button></div>
     <div class="ht2">💗 Keakraban</div>${own.filter(id=>LG.M[id]).map(id=>{const b=bd[id]||0;return`<div class="mis"><img src="${LG.monImg(id,false,0,false).toDataURL()}" style="width:34px;image-rendering:pixelated"><div style="flex:1"><b style="font-size:13px">${LG.M[id].n}</b>${RIDES[id]?' <span class="chip" style="font-size:9px">🐾 tunggangan</span>':''}<div class="hb"><i style="width:${b}%"></i></div></div><span style="font-size:12px">${b>=100?'HP +10%':b>=50?'HP +5%':b+'/100'}</span></div>`}).join('')}`);
@@ -3637,7 +3648,7 @@ $('hAv').style.cursor='pointer';$('hAv').onclick=()=>{if(mode==='play'||mode==='
 /* ================= MODE COBA (?coba=1): save terpisah, semua fitur terbuka ================= */
 function unlockAll(){const h=HOME.H();SV.koin=Math.max(SV.koin||0,99999);SV.xp=Math.max(SV.xp||0,xpFor(25));SV.owned=SV.owned||{};SV.evo=SV.evo||{};SV.acc=SV.acc||{};SV.inv=SV.inv||{};
   Object.keys(GLM).forEach(id=>{if(!LG.M[id])return;if(id!==STARTER)SV.owned[id]=Math.max(1,SV.owned[id]||0);SV.evo[id]=1;h.bond[id]=100});
-  Object.keys(AV.SH).forEach(id=>SV.acc[id]=Math.max(3,SV.acc[id]||0));
+  Object.keys(AV.SH).forEach(id=>SV.acc[id]=1);
   h.kd=h.ic=h.ld=h.lv=5;if(!(SV.eggs||[]).length)EGGK.forEach(k=>{eggAdd(k,null);eggAdd(k,null)});
   Object.keys(HOME.SEEDS).forEach(k=>{SV.inv['b_'+k]=Math.max(20,SV.inv['b_'+k]||0);SV.inv['c_'+k]=Math.max(10,SV.inv['c_'+k]||0)});
   SV.album=SV.album||{};FISHES.forEach(f=>{SV.inv[f.id]=Math.max(3,SV.inv[f.id]||0);if(!SV.album[f.id])SV.album[f.id]={n:1,max:{C:20,R:30,E:45,L:70}[f.r],sh:0}});
@@ -3668,7 +3679,7 @@ const RK=[null,
   ['3a','visit',{at:'gazebo'},1,'🧭','Gazebo Danau','Datangi gazebo di Mirror Lake','Danau Cermin indah sekali saat matahari terbenam.'],
   ['3b','fish',{hab:'tawar'},3,'🧺','Ikan Danau','Pancing 3 ikan air tawar','Penduduk desa butuh ikan danau. Bisa bantu?'],
   ['3c','catch',{id:'dew'},1,'🤝','Kristal Embun','Tangkap 1 Dewcrystal di Mirror Lake','Dewcrystal berkilau seperti embun pagi.'],
-  ['3d','tempa',{},1,'💍','Pandai Tempa','Tempa 1 aksesoris di Butik Bu Ratna','Bu Ratna bisa menggabungkan 3 aksesoris kembar jadi lebih kuat.','butik']]},
+  ['3d','tempa',{},1,'💍','Gaya Baru','Beli 1 aksesoris di Butik Bu Ratna','Bu Ratna punya aksesoris cantik. Pakai supaya Lumimu lebih kuat!','butik']]},
  {n:'Pantai Karang',zn:'Coral Coast',lv:13,boss:['baja','Badak Tanduk Besi Raksasa','wreck'],bt:'Badak raksasa menyeruduk kapal karam di pantai!',q:[
   ['4a','evo',{},1,'🎓','Lumi Bersinar','Lulus Ujian Evolusi 1 Lumi (buka 📖 Koleksi)','Lumi yang belajar bersamamu bisa berevolusi!'],
   ['4b','ride',{at:'wreck'},1,'🐾','Hadiah Tetua','Tunggangi Bramble Boar (tombol 🐾) ke Kapal Karam','Ini Bramble Boar, sahabat lamaku. Ia sudah akrab denganmu. Naiklah!','ride'],
@@ -3683,7 +3694,7 @@ const RK=[null,
   ['6a','visit',{at:'igloo'},1,'🧭','Igloo Salju','Datangi igloo di Frostpeak','Bawa jaket! Puncak beku sangat dingin.'],
   ['6b','fish',{zn:'Frostpeak'},2,'🎣','Ikan Es','Pancing 2 ikan di Frostpeak','Ikan salju hanya ada di puncak.'],
   ['6c','catch',{id:'owl'},1,'🤝','Burung Salju','Tangkap 1 Snow Owl di Frostpeak','Snow Owl bisa melihat jauh menembus kabut.'],
-  ['6d','tempa',{tier:3},1,'💍','Lebih Kuat','Tempa aksesoris Elemen sampai ⭐2','Raksasa di atas sana kuat. Perkuat perlengkapanmu!']]},
+  ['6d','tempa',{tier:2},1,'💍','Lebih Kuat','Pakai 1 aksesoris Langka 🔵 (ketuk di Tas)','Raksasa di atas sana kuat. Perkuat perlengkapanmu!']]},
  {n:'Gurun Merah',zn:'Crimson Desert',lv:22,boss:['arang','Drake Bara Raksasa','oasis'],bt:'Drake bara raksasa terbang di atas oasis!',q:[
   ['7a','visit',{at:'oasis'},1,'🧭','Oasis','Datangi oasis di Crimson Desert','Di tengah gurun ada oasis segar.'],
   ['7b','win',{el:'api'},12,'⚔️','Panas Membara','Menang 12 battle melawan Lumi Api','Lumi api di gurun mudah marah karena panas dan kabut.'],
@@ -3696,7 +3707,7 @@ const RK=[null,
   ['8d','win',{zn:'Ember Crater'},15,'⚔️','Pertarungan Kawah','Menang 15 battle di Ember Crater','Kawah adalah tempat paling sulit. Kamu pasti bisa!']]},
  {n:'Sumber Kabut',zn:'Frostpeak',lv:25,goa:1,boss:['badai','Naga Penjaga Goa','igloo'],bt:'Kabut itu keluar dari goa-goa tersembunyi! Turunlah sampai lantai 10 salah satu goa dan tenangkan Naga penjaganya.',q:[
   ['9a','goafind',{},1,'🧭','Mulut Goa','Temukan 1 mulut goa tersembunyi (cari di sekitar igloo, totem, rumah panggung, atau reruntuhan)','Penjaga rawa bilang kabut keluar dari celah batu… Cari mulut goa yang tersembunyi!','goa'],
-  ['9b','goawin',{},5,'⚔️','Penghuni Goa','Menang 5 battle di dalam goa (butuh 🔦 obor)','Di dalam goa gelap. Bawa obor, dan hati-hati dengan Lumi berevolusi!'],
+  ['9b','goawin',{},5,'⚔️','Penghuni Goa','Menang 5 battle di dalam goa (masuk 3×/hari)','Di dalam goa gelap. Hati-hati dengan Lumi berevolusi!'],
   ['9c','goafloor',{},5,'🪨','Batu Penanda','Capai lantai 5 di goa mana saja','Di lantai 5 ada Batu Penanda dan Mata Air Ilmu.']]}];
 const LMN={windmill:'kincir angin',ruins:'reruntuhan hutan',gazebo:'gazebo danau',wreck:'kapal karam',stilt:'rumah panggung rawa',igloo:'igloo',oasis:'oasis',totem:'totem kawah'};
 RK.forEach((r,i)=>{if(!r||r.goa)return;const nm=LG.M[r.boss[0]].n;r.boss[1]=nm+' Raksasa';if(i<8)r.bt=`${nm} Raksasa yang terkena kabut mengamuk di dekat ${LMN[r.boss[2]]}!`;else r.bt=`${nm} Raksasa, sumber panas kawah, terjebak kabut! Ini pertarungan terakhir di permukaan pulau.`});
@@ -3792,9 +3803,9 @@ function bossWorld(dt,ox,oy,L,now){if(!BOSS||mode!=='play'){return}const b=BOSS,
 function bossEnd(){const s=S(),R=RK[s.r],id=B.w.id;cancelAnimationFrame(B.raf);
   BT.innerHTML=`<div class="ov dim"><img src="${hdURL(id)}" style="width:120px;filter:drop-shadow(0 0 12px #b58cff)"><h2>${R.boss[1]} melemah!</h2><div style="color:#cfd8e8;max-width:300px">Kabutnya hilang. Mau kamu apakan?</div>
    <div style="display:flex;gap:10px;margin-top:10px"><button class="big2" id="bbC" style="font-size:16px;padding:12px 16px">🤝 Tangkap<br><small>dapat ${LG.M[id].n}</small></button><button class="big2" id="bbK" style="font-size:16px;padding:12px 16px">⚔️ Kalahkan<br><small>hadiah 2× + aksesoris</small></button></div></div>`;
-  const go=cap=>{const r=rw(s.r,1),lines=[];let k=r.k,x=r.x,acc=null;if(!cap){k*=2;acc=bossAcc(s.r);SV.acc=SV.acc||{};SV.acc[acc]=(SV.acc[acc]||0)+1}
+  const go=cap=>{const r=rw(s.r,1),lines=[];let k=r.k,x=r.x,acc=null,adk=0;if(!cap){k*=2;acc=bossAcc(s.r);adk=accGive(acc)}
     else{SV.owned=SV.owned||{};const nw=!SV.owned[id];SV.owned[id]=(SV.owned[id]||0)+1;if(nw&&(SV.team||[]).length<3)SV.team.push(id);lines.push(`<img src="${hdURL(id)}" style="width:48px;vertical-align:middle"> ${LG.M[id].n} ${nw?'masuk koleksi!':'lagi!'}`)}
-    SV.koin=(SV.koin||0)+k;SV.xp=(SV.xp||0)+x;eggAdd('emas',R.zn);lines.push(`🪙 +${k} koin`,`✨ +${x} EXP`,`💎 Kepingan Cahaya ${s.sh+1}/${MAXR}`);lines.push(`<img src="${eggURL('emas')}" style="width:22px;vertical-align:middle;image-rendering:pixelated"> Telur Emas! Tetaskan di rumah`);if(acc)lines.push(`<img src="${accIconX(acc)}" style="width:26px;vertical-align:middle;image-rendering:pixelated"> ${accName(acc)}`);
+    const aj=jwDrop('quest',s.r<4?1:s.r<7?2:3);SV.koin=(SV.koin||0)+k;SV.xp=(SV.xp||0)+x;eggAdd('emas',R.zn);lines.push(`🪙 +${k} koin`,`✨ +${x} EXP`,`💎 Kepingan Cahaya ${s.sh+1}/${MAXR}`);lines.push(`<img src="${eggURL('emas')}" style="width:22px;vertical-align:middle;image-rendering:pixelated"> Telur Emas! Tetaskan di rumah`);if(acc)lines.push(`<img src="${accIconX(acc)}" style="width:26px;vertical-align:middle;image-rendering:pixelated"> ${accName(acc)}${adk?` (sudah punya → 🪙 +${adk})`:''}`);if(aj)lines.push(jwLine(aj));
     s.done.push('boss'+s.r);s.act=null;s.sh++;s.r++;if(R.bu)s.unl[R.bu]=1;BOSS=null;save();refreshHud();closeBattle();upd();
     const nr=RK[s.r];clearScreen(`🚨 ${R.boss[1]}`,lines,null,`<div class="qup">★ NAIK KE ★${s.r}${nr?' · '+nr.n:''}!</div>${R.bu?'<div class="qn">🔧 Toko Rumah terbuka!</div>':''}${nr?`<div class="qn" style="font-size:13px">Zona baru: ${nr.zn} (${(ZINFO[nr.zn]||['',''])[1]})</div>`:'<div class="qn">🏆 Lentera Baniara menyala penuh!</div>'}`)};
   $('bbC').onclick=()=>go(true);$('bbK').onclick=()=>go(false)}
@@ -3957,7 +3968,7 @@ return{rareSpawn,set rb(v){rbT=v},set bal(v){balT=v},set star(v){starT=v},pre,la
 window.__L=LIFE;
 
 const K_=K;
-/* ================= GOA (offline): 4 goa tersembunyi, 10 lantai gelap, obor, Batu Penanda, Bos Naga → Set Naga T5 ================= */
+/* ================= GOA (offline): 4 goa tersembunyi, 10 lantai gelap, obor, Batu Penanda, Bos Naga → Set Naga · Legenda ================= */
 const GOA=(()=>{
 const K={es:{n:'Goa Es',zn:'Frostpeak',lm:'igloo',el:'es',boss:'badai',set:'wyvern',fl:['#34435e','#2f3d56','#3b4c6a','#283550'],wa:['#b8d0ec','#8aa8cc','#5f7ea4','#3a5070','#1a2438'],cr:['#2a8fb0','#6fd6ec','#d8f8ff'],gl:'140,230,255'},
  api:{n:'Goa Api',zn:'Ember Crater',lm:'totem',el:'api',boss:'lahar',set:'crimson',fl:['#3e2a28','#382422','#4a302c','#2e1e1c'],wa:['#c88a5a','#9a5a3a','#6a3a26','#3e2016','#1c0e08'],cr:['#b04a1d','#ff8a3f','#ffd9a0'],gl:'255,140,60'},
@@ -3994,10 +4005,11 @@ let fT=0;function worldTick(dt){fT-=dt;if(fT>0||!SV)return;fT=.5;const g=S();for
 /* ---------- gerbang: obor & Batu Penanda ---------- */
 function openGate(k){const c=K[k],g=S(),best=g.best[k]||0,ob=oborLeft();
   openSheet('🕳️ '+c.n,`<div class="note" style="margin-top:0">Goa gelap 10 lantai berisi Lumi berevolusi (Lv.25–30). Kalahkan semua Lumi di lantai → tangga terbuka → 3 soal. HP Lumi terbawa antarlantai. Lantai 10: <b>${LG.M[c.boss].n}</b>!</div>
-   <div class="mis"><b>🔦</b><div style="flex:1">Obor hari ini: <b>${ob}</b> (1 obor tiap masuk · beli di 🐟 Pasar)</div></div><div class="mis"><b>🪨</b><div style="flex:1">Lantai terjauh: <b>${best}</b>${g.naga[k]?' · 🐲 Naga sudah dikalahkan':''}</div></div>
-   <div class="shop"><button data-f="1" ${ob<1?'disabled':''}>🔦<b>Masuk Lantai 1</b></button><button data-f="5" ${ob<1||best<5?'disabled':''}>🪨<b>Batu Penanda</b><small>${best<5?'capai lantai 5 dulu':'mulai lantai 5'}</small></button></div>`);
-  shB.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{if(oborLeft()<1){showHint('🔦 Obor habis. Beli di Pasar atau besok lagi',2000);return}S().ob++;save();closeSheet();enter(k,+b.dataset.f)})}
-function buyObor(){const g=S();if(g.buy>=1){showHint('Obor tambahan maks 1 per hari',1600);return false}if((SV.koin||0)<OB_PRICE){showHint('Koin kurang 🪙',1500);return false}SV.koin-=OB_PRICE;g.buy++;save();refreshHud();SND.pop();showHint('🔦 +1 Obor',1400);return true}
+   <div class="mis"><b>🚪</b><div style="flex:1">Sisa masuk hari ini: <b>${ob}</b>${S().buy?'':' · bisa tambah 1× pakai koin'}</div>${ob<1&&!S().buy?`<button id="gBuy" style="padding:6px 10px;font-size:12px">+1× 🪙${OB_PRICE}</button>`:''}</div><div class="mis"><b>🪨</b><div style="flex:1">Lantai terjauh: <b>${best}</b>${g.naga[k]?' · 🐲 Naga sudah dikalahkan':''}</div></div>
+   <div class="shop"><button data-f="1" ${ob<1?'disabled':''}>🕳️<b>Masuk Lantai 1</b></button><button data-f="5" ${ob<1||best<5?'disabled':''}>🪨<b>Batu Penanda</b><small>${best<5?'capai lantai 5 dulu':'mulai lantai 5'}</small></button></div>`);
+  const gb=$('gBuy');if(gb)gb.onclick=()=>{if(buyObor())openGate(k)};
+  shB.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{if(oborLeft()<1){showHint('🚪 Jatah masuk goa hari ini habis. Besok bisa lagi!',2200);return}S().ob++;save();closeSheet();enter(k,+b.dataset.f)})}
+function buyObor(){const g=S();if(g.buy>=1){showHint('Tambahan masuk maks 1× per hari',1600);return false}if((SV.koin||0)<OB_PRICE){showHint('Koin kurang 🪙',1500);return false}SV.koin-=OB_PRICE;g.buy++;save();refreshHud();SND.pop();showHint('🚪 +1× masuk goa',1400);return true}
 /* ---------- run & lantai ---------- */
 let RUN=null,MAP=null,MC=null,GL=[],EXIT=null,MONS=[],STAIR=null,SPR=null,CRY=[],HP={x:0,y:0,dir:1,f:0,ft:0},cam={x:0,y:0},fade=0;
 const pool=k=>Object.keys(GLM).filter(id=>LG.M[id]&&GLM[id].el===K[k].el&&GLM[id].r!=='L');
@@ -4049,7 +4061,7 @@ const walkG=(x,y)=>{if(!MAP)return false;for(const [ox,oy] of[[-4,0],[4,0],[0,-3
 /* ---------- UI goa ---------- */
 const gcard=document.createElement('div');gcard.id='gcard';gcard.className='hide';document.body.appendChild(gcard);
 const gnav=document.createElement('div');gnav.className='hn hide';gnav.innerHTML='<button id="gOut">🚪<span>Keluar Goa</span></button>';document.body.appendChild(gnav);
-gnav.querySelector('#gOut').onclick=()=>{openSheet('🚪 Keluar goa?',`<div class="note" style="margin-top:0">Obor yang dipakai tidak kembali. Lantai terjauh tetap tercatat.</div><div class="shop"><button id="gY">🚪<b>Keluar</b></button><button id="gN">🔦<b>Lanjut</b></button></div>`);$('gY').onclick=()=>{closeSheet();leave('Keluar dari goa')};$('gN').onclick=closeSheet};
+gnav.querySelector('#gOut').onclick=()=>{openSheet('🚪 Keluar goa?',`<div class="note" style="margin-top:0">Jatah masuk yang dipakai tidak kembali. Lantai terjauh tetap tercatat.</div><div class="shop"><button id="gY">🚪<b>Keluar</b></button><button id="gN">🔦<b>Lanjut</b></button></div>`);$('gY').onclick=()=>{closeSheet();leave('Keluar dari goa')};$('gN').onclick=closeSheet};
 function upd(){if(!RUN){gcard.className='hide';return}const c=K[RUN.k],team=Object.keys(RUN.hp);gcard.className='';
   gcard.innerHTML=`<b>🕳️ ${c.n} · Lantai ${RUN.fl}/${MAXF}</b><div style="font-size:11px;opacity:.85">${RUN.fl===MAXF?'🐲 Naga penjaga!':MONS.length?`👾 ${MONS.length} Lumi tersisa`:'🪜 Tangga terbuka!'}${RUN.curse?' · 💀 kutukan':''}</div><div class="gt">${team.map(id=>`<span><img src="${LG.monImg(id,RUN.hp[id]<=0,0,false).toDataURL()}"><i><u style="width:${Math.round(RUN.hp[id]*100)}%;background:${RUN.hp[id]>.5?'#4ade80':RUN.hp[id]>.2?'#fbbf24':'#f87171'}"></u></i></span>`).join('')}</div>`}
 /* ---------- battle ---------- */
@@ -4061,14 +4073,14 @@ function after(win,list){if(!RUN)return;list.forEach(([id,r])=>RUN.hp[id]=Math.m
 function back(){if(!RUN)return;mode='goa';if(Object.values(RUN.hp).every(v=>v<=0)){leave('😵 Lumimu kelelahan… kamu keluar dari goa');return}
   const mo=MONS.find(m=>Math.hypot(m.x-HP.x,m.y-HP.y)<30);if(mo){const a=Math.atan2(HP.y-mo.y,HP.x-mo.x);for(let d=40;d>0;d-=6){const nx=HP.x+Math.cos(a)*d,ny=HP.y+Math.sin(a)*d;if(walkG(nx,ny)){HP.x=nx;HP.y=ny;break}}}cool=1.5}
 function bossEnd(){cancelAnimationFrame(B.raf);const k=RUN.k,c=K[k],g=S(),first=!g.naga[k],set=AV.NG_SETS[c.set],own=SV.acc||(SV.acc={}),items=set.items.map(a=>a[0]),miss=items.filter(i=>!own[i]),it=(miss.length?miss:items)[(Math.random()*(miss.length||items.length))|0];
-  own[it]=(own[it]||0)+1;SV.koin=(SV.koin||0)+1500;eggAdd('legenda',null);const gj=jwDrop('naga');SV.xp=(SV.xp||0)+1500;g.naga[k]=1;g.best[k]=MAXF;let cap='';if(first){SV.owned=SV.owned||{};const nw=!SV.owned[c.boss];SV.owned[c.boss]=(SV.owned[c.boss]||0)+1;if(nw&&(SV.team||[]).length<3)SV.team.push(c.boss);cap=`<div style="display:flex;align-items:center;gap:8px;justify-content:center"><img src="${hdURL(c.boss)}" style="width:56px">${LG.M[c.boss].n} ikut bersamamu!</div>`}
+  const odk=accGive(it);SV.koin=(SV.koin||0)+1500;eggAdd('legenda',null);const gj=jwDrop('naga');SV.xp=(SV.xp||0)+1500;g.naga[k]=1;g.best[k]=MAXF;let cap='';if(first){SV.owned=SV.owned||{};const nw=!SV.owned[c.boss];SV.owned[c.boss]=(SV.owned[c.boss]||0)+1;if(nw&&(SV.team||[]).length<3)SV.team.push(c.boss);cap=`<div style="display:flex;align-items:center;gap:8px;justify-content:center"><img src="${hdURL(c.boss)}" style="width:56px">${LG.M[c.boss].n} ikut bersamamu!</div>`}
   save();refreshHud();BT.innerHTML=`<div class="ov dim"><img src="${hdURL(c.boss)}" style="width:130px;filter:drop-shadow(0 0 14px rgb(${c.gl}))"><h2>🐲 ${LG.M[c.boss].n} tenang kembali!</h2>${cap}
-   <div class="loot"><div><img src="${accIconX(it)}" style="width:28px;vertical-align:middle;image-rendering:pixelated"> ${accName(it)} <small>(Set Naga T5)</small></div><div><img src="${eggURL('legenda')}" style="width:24px;vertical-align:middle;image-rendering:pixelated"> Telur Legenda!</div>${gj?jwLine(gj):''}<div>🪙 +1500 koin</div><div>✨ +1500 EXP</div></div><button class="big2" id="gbOk" style="font-size:18px;padding:12px 26px">Keluar goa</button></div>`;
+   <div class="loot"><div><img src="${accIconX(it)}" style="width:28px;vertical-align:middle;image-rendering:pixelated"> ${accName(it)} <small>(Set Naga · Legenda)</small></div><div><img src="${eggURL('legenda')}" style="width:24px;vertical-align:middle;image-rendering:pixelated"> Telur Legenda!</div>${gj?jwLine(gj):''}<div>🪙 +1500 koin</div><div>✨ +1500 EXP</div></div><button class="big2" id="gbOk" style="font-size:18px;padding:12px 26px">Keluar goa</button></div>`;
   $('gbOk').onclick=()=>{closeBattle();leave(`🐲 ${c.n} bersih dari kabut!`);QST.goaDone()}}
 /* ---------- tangga & mata air ---------- */
 function ask(n,title,cb){let ok=0,i=0;const nx=()=>{if(i>=n){cb(ok);return}i++;quick1(`${title} (${i}/${n})`,r=>{if(r)ok++;nx()})};nx()}
 function useStair(){if(!STAIR||!STAIR.open||busy)return;busy=1;ask(3,'🪜 Jawab untuk turun',ok=>{busy=0;const t=Object.keys(RUN.hp);let msg;
-  if(ok===3){t.forEach(id=>{if(RUN.hp[id]>0)RUN.hp[id]=Math.min(1,RUN.hp[id]+.3)});msg='✨ Berkah Obor! Pulih 30% & cahaya lebih luas';RUN.curse=0;RUN.tr=1.3}else if(ok===2){t.forEach(id=>{if(RUN.hp[id]>0)RUN.hp[id]=Math.min(1,RUN.hp[id]+.1)});msg='Berkah kecil: pulih 10%';RUN.curse=0;RUN.tr=1.15}
+  if(ok===3){t.forEach(id=>{if(RUN.hp[id]>0)RUN.hp[id]=Math.min(1,RUN.hp[id]+.3)});msg='✨ Berkah Cahaya! Pulih 30% & cahaya lebih luas';RUN.curse=0;RUN.tr=1.3}else if(ok===2){t.forEach(id=>{if(RUN.hp[id]>0)RUN.hp[id]=Math.min(1,RUN.hp[id]+.1)});msg='Berkah kecil: pulih 10%';RUN.curse=0;RUN.tr=1.15}
   else if(ok===1){msg='Lanjut turun…';RUN.curse=0;RUN.tr=1}else{msg='💀 Kutukan Gelap! Cahaya menyempit & Lumi lebih kuat';RUN.curse=1;RUN.tr=.7}
   RUN.fl++;const g=S();g.best[RUN.k]=Math.max(g.best[RUN.k]||0,RUN.fl);save();genFloor();showHint(`${msg} · Lantai ${RUN.fl}`,2400);if(RUN.fl===5)setTimeout(()=>showHint('🪨 Batu Penanda: lain kali bisa mulai dari lantai 5',2400),2600)})}
 function useSpring(){if(!SPR||SPR.used||busy)return;busy=1;ask(3,'💧 Mata Air Ilmu',ok=>{busy=0;SPR.used=true;Object.keys(RUN.hp).forEach(id=>RUN.hp[id]=Math.min(1,Math.max(RUN.hp[id],0)+ok*.34));upd();SND.pop();showHint(`💧 Lumimu pulih ${ok*34}%!`,2000)})}
@@ -4752,7 +4764,7 @@ const PG=(()=>{
     return q.t==='kill'?`Kalahkan <b>${q.n} ${nm}</b>. Mereka terus menghalangi jalanku!`:q.t==='catch'?`Aku ingin melihat <b>${nm}</b> dari dekat. Tangkap 1 untukku, ya!`:
       q.t==='item'?`Bekalku habis. Boleh minta <b>${q.n} ${nm}</b> dari kebunmu?`:q.t==='fish'?`Aku lapar sekali… Punya <b>${q.n} ${nm}</b>?`:`Aku penasaran seberapa pintar anak Baniara. Jawab <b>5 soal</b>, benar minimal 4!`};
   const prog=q=>q.t==='quiz'?'':q.t==='catch'?(q.got?'✅ Sudah tertangkap':'Belum tertangkap · lawan Lumi itu, pasti tertangkap kalau menang'):`Progres: <b>${Math.min(have(q),q.n)}/${q.n}</b>${q.t==='item'||q.t==='fish'?' di Tas':''}`;
-  const rwTxt=q=>`🪙 ${q.koin} · ✨ ${q.xp} EXP · 🥚 ${EGGT[q.egg].n}<br><small style="opacity:.8">+ peluang kecil cincin/amulet langka 💍</small>`;
+  const rwTxt=q=>`🪙 ${q.koin} · ✨ ${q.xp} EXP · 🥚 ${EGGT[q.egg].n}<br><small style="opacity:.8">+ peluang kecil Artifact Langka 🔮</small>`;
   function open(i){const q=S().q[i];if(!q||q.done)return;const ok=q.t==='quiz'?0:have(q)>=q.n;
     openSheet(`🧳 ${q.nm}`,`<div style="display:flex;gap:12px;align-items:center">${icon(q)}<div><small style="opacity:.75">${q.role} · ${q.zn}</small><div style="margin-top:2px">"${q.say}"</div></div></div>
       <div class="note">${ask(q)}</div>${prog(q)?`<div class="note" style="margin-top:4px">${prog(q)}</div>`:''}
@@ -4762,7 +4774,7 @@ const PG=(()=>{
     b.onclick=()=>{if(q.t==='quiz'){closeSheet();let k=0,okc=0;const nx=()=>{if(k>=5){if(okc>=4)claim(i);else{showHint(`📚 Benar ${okc}/5. Belajar dulu di Orb, lalu coba lagi!`,3000)}return}k++;quick1(`🧳 Soal dari ${q.nm} ${k}/5`,r=>{if(r)okc++;nx()})};nx();return}
       if(q.t==='item'||q.t==='fish'){SV.inv[q.id]-=q.n;if(SV.inv[q.id]<=0)delete SV.inv[q.id]}claim(i)}}
   function claim(i){const q=S().q[i];q.done=1;SV.koin=(SV.koin||0)+q.koin;SV.xp=(SV.xp||0)+q.xp;const ek=eggUp(q.egg);eggAdd(ek,q.zn);
-    let jw=null;if(Math.random()<.05){const P=JWL.filter(j=>j[2]==='L');jw=P[(Math.random()*P.length)|0][0];SV.acc=SV.acc||{};SV.acc[jw]=(SV.acc[jw]||0)+1}
+    const jw=jwDrop('pengelana');
     save();refreshHud();SND.pop();setTimeout(()=>SND.blip(1320,.2),150);
     openSheet('🎁 Terima kasih!',`<div class="note" style="margin-top:0"><b>${q.nm}:</b> "Terima kasih banyak! Semoga Lumimu makin terang. Aku lanjut berkelana dulu."</div>
       <div class="loot" style="margin:8px auto"><div>🪙 +${q.koin} koin</div><div>✨ +${q.xp} EXP</div><div>${eggLoot(ek)}</div>${jw?`<div class="new">${jwLine(jw)}</div>`:''}</div>
