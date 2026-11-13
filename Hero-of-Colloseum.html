@@ -43,7 +43,7 @@ canvas{image-rendering:pixelated;max-width:100%}.scn{width:100%;border:2px solid
 
 .sm{width:100%;margin-top:6px;min-height:38px;font-size:13px;opacity:.8}.sm2{font-size:12px}
 .dsc{position:relative}.dtip{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:11px;background:rgba(0,0,0,.55);padding:2px 8px;border-radius:8px;opacity:.85;white-space:nowrap}
-.qa{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.qa button{display:flex;flex-direction:column;align-items:center;padding:8px 2px;font-size:13px;line-height:1.2}.qa span{font-size:24px}.qa small{opacity:.7;font-size:11px}
+.qa{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}.qa button{display:flex;flex-direction:column;align-items:center;padding:8px 2px;font-size:13px;line-height:1.2}.qa span{font-size:24px}.qa small{opacity:.7;font-size:11px}
 .lg div{font-size:12px;opacity:.8;padding:2px 0;border-bottom:1px solid #2a1a12}
 .strip{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scroll-snap-type:x mandatory}.chip{flex:0 0 74px;scroll-snap-align:start;background:#0f0905;border:2px solid #3d2818;border-radius:10px;padding:4px 2px;text-align:center;font-size:11px}.chip.sel{border-color:#ffd23a;background:#2a1a12}.chip.inj{opacity:.55}.ci{height:64px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}.cn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:bold}
 .prof{display:flex;gap:10px;align-items:center;background:#0f0905;border:1px solid #3d2818;border-radius:10px;padding:6px 10px}.pi{flex:0 0 96px;height:110px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}.pi canvas{max-width:128px}.pt{flex:1;min-width:0}.pn2{font-size:19px;color:#ffd23a;font-weight:bold}
@@ -82,6 +82,13 @@ button.pri{background:#8a6a30;color:#120d09;font-weight:bold;border-color:#ffd23
 .cmd.warn{border-color:#ff4030;background:#4a1a12;animation:wrn .35s infinite}@keyframes wrn{50%{background:#7a2a18;box-shadow:0 0 12px #ff4030}}
 .seg.s2{grid-template-columns:repeat(2,1fr)}.seg.s5{grid-template-columns:repeat(5,1fr)}.seg.s5 button{font-size:11px;padding:2px 0}
 #auto.on{background:#2a5a2a;border-color:#7be07b;color:#cfffcf;box-shadow:0 0 8px #5cb85c}.bt1 button{padding:4px 7px}
+.dq{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid #2a1a12;font-size:13px}.dq button{min-height:32px;padding:4px 8px;font-size:12px}.nemc{border-color:#8a2a2a;background:#1e0c0a}
+
+.stage{position:relative;flex:1;min-height:0;padding:0;display:block}.stage canvas{width:100%;height:100%;display:block;border:0;border-radius:0;max-height:none;background:#000}
+.hud{position:absolute;left:0;right:0;top:0;padding-bottom:18px;background:linear-gradient(rgba(10,6,4,.82),rgba(10,6,4,.55) 70%,rgba(10,6,4,0));pointer-events:none}.hud .hp.pu{pointer-events:auto}
+.hud #hpp{padding:6px 8px 4px}.hud .hn{text-shadow:0 1px 2px #000}.hud .chm{margin:2px 8px 2px}.hud .chl{margin:0;text-shadow:0 1px 2px #000}
+.stage #log{position:absolute;left:6px;right:6px;bottom:6px;margin:0;height:36px;background:rgba(11,7,5,.72);border-color:rgba(138,106,48,.5);backdrop-filter:blur(2px)}.stage #log.open{height:45%}
+.cp{padding:6px 0 4px}
 </style></head><body><div class="app">
 <div class="hdr"><h1>LUDUS</h1><span>🪙<b id="gold"></b></span><span>📅<b id="day"></b></span><span>🏛<b id="fame"></b></span><span class="mut">gaji 🪙<span id="upk"></span></span></div>
 <div class="main"><div class="pn" id="p_dojo"></div><div class="pn" id="p_units"></div><div class="pn" id="p_pasar"></div><div class="pn" id="p_arena"></div><div class="pn" id="p_dunia"></div></div>
@@ -89,9 +96,7 @@ button.pri{background:#8a6a30;color:#120d09;font-weight:bold;border-color:#ffd23
 <div id="toasts" class="toasts"></div>
 <div id="bt"><div class="bw">
 <div class="bt1"><span class="t" id="tmr">0:00</span><button data-s="1" class="on">1x</button><button data-s="2">2x</button><button data-s="4">4x</button><button id="auto">🤖 AUTO</button><button id="mute">🔊</button><button id="blood">🩸 OFF</button></div>
-<div id="hpp"></div><div class="chm"><i id="chb"></i></div><div class="chl">SORAKAN PENONTON</div>
-<div class="stage"><canvas id="cv" width="720" height="860"></canvas></div>
-<div id="log"></div>
+<div class="stage"><canvas id="cv" width="720" height="860"></canvas><div class="hud"><div id="hpp"></div><div class="chm"><i id="chb"></i></div><div class="chl">SORAKAN PENONTON</div></div><div id="log"></div></div>
 <div class="cp" id="cp"></div>
 <div class="cmds"><button class="cmd"><span class="e">⚔</span>Fokus<small>1</small></button><button class="cmd"><span class="e">🛡</span>Tahan!<small>1</small></button><button class="cmd"><span class="e">✨</span>Skill<small>2</small></button><button class="cmd"><span class="e">❤</span>Semangat<small>2</small></button><button class="cmd"><span class="e">🔥</span>Serbu<small>3</small></button></div>
 <div id="res" class="ov"></div>
@@ -174,6 +179,11 @@ const BSTAT={
  perisai:{scutum:{def:10,blk:8},parmula:{def:5,blk:6,agi:1},bulat:{def:7,blk:6},jaring:{agi:2,crit:3},oval:{def:7,blk:5,agi:1},clipeus:{def:12,blk:9,agi:-2}},
  amulet:{bulla:{hp:25},taring:{atk:4},elang:{def:4},permata:{crit:4},koin:{fame:8},gorgon:{blk:4},laurel:{fame:5,hp:10}},
  kaki:{ocrea:{def:4,agi:1},tinggi:{def:6},balutan:{agi:4},paha:{def:5,hp:10}}};
+const FTD={helm:{tudung:['Tudung Bandit',{agi:3,crit:2}],topeng:['Topeng Kepala Bandit',{crit:5,def:2}],topi:['Topi Kulit Pengembara',{def:3,agi:2}],serigala:['Kepala Serigala Berserker',{atk:4,crit:4}],beruang:['Mahkota Beruang Cherusci',{def:6,hp:25}],galia:['Helm Bersayap Arverni',{def:8,hp:12}],sorban:['Sorban Pemburu Numidia',{agi:4,hp:12}],frigia:['Topi Frigia Dacia',{def:5,crit:4}],nemes:['Nemes Firaun',{def:5,fame:10}]},
+ armor:{rompi:['Rompi Kulit Bandit',{def:4,agi:3}],brigan:['Brigandine Berpaku',{def:9,crit:2}]},
+ senjata:{gada:['Gada Kayu Ek',{atk:11,blk:2}],kapak:['Kapak Perang Jerman',{atk:14,crit:2,agi:-1}],spatha:['Spatha Panjang',{atk:13,crit:4}],falx:['Falx Dacia',{atk:15,crit:5,def:-2}],khopesh:['Khopesh Emas',{atk:12,crit:6}]},
+ perisai:{kayu:['Perisai Kayu Bundar',{def:5,blk:6}],suku:['Perisai Suku',{def:8,blk:7}]}};
+const FTYPE=new Set();for(const sl in FTD)for(const t in FTD[sl]){FTYPE.add(t);TYPES[sl][t]=FTD[sl][t][0];BSTAT[sl][t]=FTD[sl][t][1];ALIAS[t]=[FTD[sl][t][0]]}
 const RMUL={common:1,rare:1.6,epic:2.4,legendary:3.4},AMUL={common:0,rare:1,epic:1.5,legendary:2},NAFF={common:0,rare:1,epic:2,legendary:2},PRICE={common:80,rare:320,epic:950,legendary:3200};
 const AFFIX=[
  {id:'darah',n:'Haus Darah',t:'Pulihkan {v}% HP saat menjatuhkan lawan',v:5},
@@ -454,8 +464,10 @@ const SP={
  beruang:{n:'Beruang',w:84,h:64,by:41,body:'#6b4528',belly:'#7d5532',len:16,bh:10.7,leg:[3.7,3.1],tail:null,snout:6,hr:6,ears:'round',hump:true},
  banteng:{n:'Banteng',w:84,h:64,by:39,body:'#4a2e1e',belly:'#5c3b28',len:17,bh:9.3,leg:[2.9,1.9],tail:'tuft',snout:4,hr:5.6,horns:'#efe6d2',hump:true,hoof:true,hdy:4},
  serigala:{n:'Serigala',w:84,h:64,by:43,body:'#8a8d91',belly:'#c9cbcd',len:15,bh:6.7,leg:[2.3,1.6],tail:'bushy',snout:8,hr:4.7,ears:'pointy'},
+ buaya:{n:'Buaya',w:84,h:64,by:53,body:'#4e6a3a',belly:'#8a9a5a',len:19,bh:5,leg:[2.3,1.5],tail:'croc',snout:12,hr:4,ears:null,croc:true},
  gajah:{n:'Gajah',w:128,h:104,by:60,body:'#8e8f93',belly:'#9a9ba0',len:29,bh:19,leg:[5.8,5.4],tail:'thin',snout:0,hr:10,trunk:true,tusks:'#efe6d2',ear:true,hdy:4}};
 const VAR={
+ buaya:{common:['Buaya'],rare:['Buaya Nil',{body:'#3e5a32'}],epic:['Buaya Albino',{body:'#e8e0cc',belly:'#fff6e0'}],legendary:['Sobek',{body:'#2e5a4a',belly:'#6a8a5a'}]},
  singa:{common:['Singa'],rare:['Singa Barbary',{mane:'#3b2414'}],epic:['Singa Hitam',{body:'#4a3f38',belly:'#5c5048',mane:'#1a1412'}],legendary:['Singa Nemea',{body:'#d9a63c',belly:'#f0d58a',mane:'#8a4a12'}]},
  harimau:{common:['Harimau'],rare:['Harimau Kaspia',{body:'#c46f2a'}],epic:['Harimau Putih',{body:'#ece8df',belly:'#ffffff',stripe:'#2b2b30'}],legendary:['Harimau Hyrcania',{body:'#e07a1f'}]},
  beruang:{common:['Beruang'],rare:['Beruang Dacia',{body:'#4f3420',belly:'#5e3f28'}],epic:['Beruang Salju',{body:'#e8e4da',belly:'#f4f1ea'}],legendary:['Ursus Rex',{body:'#54382a',belly:'#74523a'}]},
@@ -485,6 +497,7 @@ function animalFrame(sp,r,anim,fi,seed){
  if(S.tail==='tuft'){b.line([tx,ty],[tx-7,ty+3],body);b.line([tx-7,ty+3],[tx-8,ty+8],body);b.disc(tx-8,ty+9,1.7,S.mane||dk(body,.6))}
  if(S.tail==='long'){b.seg([tx,ty],[tx-8,ty],1.1,body);b.seg([tx-8,ty],[tx-12,ty-5],1.1,body)}
  if(S.tail==='bushy'){b.seg([tx+1,ty-1],[tx-8,ty+4],2.4,body);b.disc(tx-9,ty+5,1.6,S.belly)}
+ if(S.tail==='croc'){for(let i=0;i<16;i++){const w=2.6-i*.14;b.disc(tx-i,ty+1+i*.12,Math.max(.6,w),i%3===0?dk(body,.8):body);if(i%3===0)b.set(tx-i,ty-1-w*.5,dk(body,.65))}}
  if(S.tail==='thin')b.line([tx,ty],[tx-3,ty+9],body);
  b.ell(Bx,By,S.len,S.bh,body);
  for(let y=Math.round(By+S.bh*.35);y<=By+S.bh+1;y++)for(let x=Bx-S.len;x<=Bx+S.len;x++)if(b.get(x,y)===body)b.set(x,y,S.belly);
@@ -522,9 +535,12 @@ function iconBuf(slot,t,r,v=0){
   if(t==='sisik')chest((x,y)=>b.set(x,y,v===1?((x+y)%3===0?md_:m):((x+2*y)%4===0?md_:(y%3===0&&v===2?lt(m,.3):m))));
   if(t==='rantai'){chest((x,y)=>b.set(x,y,(x+y)%2?dk(m,.8):m));b.rect(5,21,18,21,v===2?'#e6b230':dk(m,.6))}
   if(t==='dada'){b.line([3,3],[20,20],LEATHER);b.line([20,3],[3,20],LEATHER);b.disc(11.5,11.5,6,m);b.disc(11.5,11.5,3.6,lt(m,.15));const em=r==='common'?lt(m,.4):g;if(v===0)b.disc(11.5,11.5,1,em);if(v===1){b.rect(9,11,14,12,em);b.rect(11,9,12,14,em)}if(v===2){b.disc(11.5,11.5,2,'#e6b230');b.disc(11.5,11.5,.8,em)}}
+  if(t==='rompi'||t==='brigan'){const lc=t==='brigan'?'#4a3426':LEATHER;chest((x,y)=>b.set(x,y,(y%4===0)?dk(lc,.8):lc));b.line([11,5],[11,21],dk(lc,.6));for(let y=7;y<20;y+=3){b.set(10,y,'#c9b089');b.set(13,y,'#c9b089')}if(t==='brigan')chest((x,y)=>{if((x+y*2)%5===0&&y%3===1)b.set(x,y,lt(m,.3))})}
   if(t==='kulit'){b.seg([5,4],[18,20],1.3,LEATHER);b.seg([18,4],[5,20],1.3,dk(LEATHER,.85));b.disc(5,5,3,LEATHER);for(let i=0;i<5;i++){b.set(7+i*2.6,6+i*3.2,m)}if(v===2)b.disc(11.5,12,1.6,'#e6b230')}}
  if(slot==='senjata'){if(t==='dua'){drawWeapon(b,[5,19],-45,'gladius',r,v,true);drawWeapon(b,[18,19],-135,'gladius',r,v,true)}else if(t==='cambuk')drawWeapon(b,[4,5],20,t,r,v,true);else if(t==='arbelas')drawWeapon(b,[5,18],-45,t,r,v,true);else drawWeapon(b,[5,19],-45,t,r,v,true)}
  if(slot==='perisai'){const f=R.face,em=v===2?'#e6b230':m;
+  if(t==='kayu'){b.disc(11.5,11.5,10,'#5a3a22');b.disc(11.5,11.5,8.6,'#8a5a32');for(let y=4;y<20;y+=4)for(let x=3;x<21;x++)if(b.get(x,y)==='#8a5a32')b.set(x,y,'#6e4628');b.disc(11.5,11.5,2.6,m);b.set(11,10,lt(m,.4))}
+  if(t==='suku'){for(let y=1;y<=22;y++){const w=Math.abs(y-11.5)>8?5:8;b.rect(11.5-w,y,11.5+w,y,f)}b.rect(3,1,20,1,'#4a3020');b.rect(3,22,20,22,'#4a3020');for(let y=5;y<20;y+=5)b.rect(6,y,17,y+1,lt(f,.4));b.disc(11.5,11.5,2.2,m)}
   if(t==='scutum'){b.rect(5,1,18,22,f);b.rect(5,1,18,1,m);b.rect(5,22,18,22,m);b.rect(5,1,5,22,m);b.rect(18,1,18,22,m);
    if(v===0){b.rect(6,5,17,5,em);b.rect(6,18,17,18,em)}if(v===1){b.line([10,10],[6,4],em);b.line([13,10],[17,4],em);b.line([10,13],[6,19],em);b.line([13,13],[17,19],em)}if(v===2){for(const[a,c]of[[[9,3],[7,7]],[[7,7],[10,7]],[[10,7],[8,10]],[[14,13],[16,16]],[[16,16],[13,16]],[[13,16],[15,20]]])b.line(a,c,em)}
    b.disc(11.5,11.5,2.3,lt(m,.2));if(r!=='common')b.set(11,11,g)}
@@ -698,31 +714,34 @@ function wildScene(bio,waktu,seed){const W=320,H=180,b=new Buf(W,H),r=rng(seed*5
  const fg=bio==='gurun'?'#c09050':bio==='makam'?'#2a2228':P.near;for(let i=0;i<12;i++){const x=Math.floor(r()*W);b.ell(x,H-2,6+r()*8,4+r()*3,D(fg))}
  return b}
 
-if(typeof module!=="undefined")module.exports={worldMap,wildScene,REGIONS,FACTIONS,enemyRecipe,gladItems,animalName,VAR,Buf,gladFrame,animalFrame,iconBuf,buildingBuf,sceneBuf,presetRecipe,genRecipe,genItem,gladStats,ANIM_G,ANIM_A,SP,TYPES,SLOTS,RARS,FAC,PRESETS,UNIQ};
+if(typeof module!=="undefined")module.exports={worldMap,wildScene,REGIONS,FTYPE,FTD,FACTIONS,enemyRecipe,gladItems,animalName,VAR,Buf,gladFrame,animalFrame,iconBuf,buildingBuf,sceneBuf,presetRecipe,genRecipe,genItem,gladStats,ANIM_G,ANIM_A,SP,TYPES,SLOTS,RARS,FAC,PRESETS,UNIQ};
 </script><script>(function(root){
 const RM={common:1,rare:1.12,epic:1.25,legendary:1.42};
 const HPK=1.5;const GB={Murmillo:[120,14,16,8,5,12],Retiarius:[95,13,8,14,8,6],Thraex:[105,16,11,12,8,10],Secutor:[110,15,13,10,6,12],Hoplomachus:[100,15,10,9,6,8],Dimachaerus:[98,18,8,13,10,5],Provocator:[115,14,14,9,6,10],Eques:[108,15,12,13,8,8],Scissor:[112,17,12,11,7,10],
  Bandit:[88,12,6,11,6,4],Budak:[70,10,3,9,4,0],'Kepala Bandit':[150,18,12,11,10,8],'Prajurit Jerman':[108,15,8,8,6,10],Berserker:[98,19,4,14,10,0],'Kepala Suku':[175,21,14,9,8,12],
  'Prajurit Galia':[110,15,11,9,6,12],'Kepala Galia':[175,21,15,9,8,14],Pemburu:[95,14,6,14,8,6],'Raja Pemburu':[165,19,11,13,10,8],'Prajurit Dacia':[108,16,9,9,8,6],'Imam Perang':[160,20,13,10,9,8],'Penjaga Makam':[108,16,10,10,7,8],Mumi:[200,20,14,7,8,10]};
-const AB={singa:[130,17,6,12,8,0],harimau:[110,19,5,16,12,0],beruang:[170,16,10,6,5,0],banteng:[150,15,9,10,5,0],serigala:[90,12,4,20,10,0],gajah:[600,26,16,3,3,0]};
+const AB={singa:[130,17,6,12,8,0],harimau:[110,19,5,16,12,0],beruang:[170,16,10,6,5,0],banteng:[150,15,9,10,5,0],serigala:[90,12,4,20,10,0],gajah:[600,26,16,3,3,0],buaya:[140,18,12,6,6,0]};
 const RANGE={'Prajurit Jerman':46,Pemburu:54,'Raja Pemburu':54,Hoplomachus:56,Eques:56,Retiarius:48,gajah:44};
-const SKL={Bandit:['Tikam Curang','pierce'],Budak:['Amukan Putus Asa','multi'],'Kepala Bandit':['Perintah Kepung','rush'],'Prajurit Jerman':['Lempar Framea','lunge'],Berserker:['Amukan Serigala','multi'],'Kepala Suku':['Raungan Perang','taunt'],
+const SKL={buaya:['Gulingan Maut','stun'],Bandit:['Tikam Curang','pierce'],Budak:['Amukan Putus Asa','multi'],'Kepala Bandit':['Perintah Kepung','rush'],'Prajurit Jerman':['Lempar Framea','lunge'],Berserker:['Amukan Serigala','multi'],'Kepala Suku':['Raungan Perang','taunt'],
  'Prajurit Galia':['Tebasan Spatha','pierce'],'Kepala Galia':['Seruan Galia','buffdef'],Pemburu:['Lembing Numidia','lunge'],'Raja Pemburu':['Perangkap Singa','stun'],'Prajurit Dacia':['Kait Falx','pierce'],'Imam Perang':['Murka Zalmoxis','aoe'],'Penjaga Makam':['Sabetan Khopesh','bleed'],Mumi:['Kutukan Firaun','aoe'],
 Murmillo:['Perisai Teguh','buffdef'],Retiarius:['Jaring','stun'],Thraex:['Tebasan Melengkung','pierce'],Secutor:['Serbuan','rush'],Hoplomachus:['Tusukan Tombak','lunge'],Dimachaerus:['Tarian Pedang','multi'],Provocator:['Tantangan','taunt'],Eques:['Terjangan','charge'],Scissor:['Cakar Besi','bleed'],
 singa:['Terkam','lunge'],harimau:['Cabikan','bleed'],beruang:['Hantam','stun'],banteng:['Seruduk','charge'],serigala:['Gigit Berantai','multi'],gajah:['Injak','aoe']};
-const LY=[156,166,176];
+const LY=[152,165,178];
 function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function mk(G,spec,side,idx){
  let e={side,idx,lvl:spec.lvl||8,id:spec.id};
- if(spec.glad!=null||spec.rec){let R=spec.rec||G.presetRecipe(spec.glad);if(spec.eq)R=Object.assign({},R,{eq:spec.eq});const b=GB[R.kelas],m=RM[R.rarity],L=1+.08*(e.lvl-1),it=G.gladStats(R);
+ if(spec.glad!=null||spec.rec){let R=spec.rec||G.presetRecipe(spec.glad);if(spec.eq)R=Object.assign({},R,{eq:spec.eq});const R0=R;if(R.fac&&G.FTYPE){const q={};for(const k in R.eq)q[k]=G.FTYPE.has(R.eq[k].t)?{t:'tidak'}:R.eq[k];R=Object.assign({},R,{eq:q})}const b=GB[R.kelas],m=RM[R.rarity],L=1+.08*(e.lvl-1),it=G.gladStats(R);
   e.fx={};e.uq={};const its=G.gladItems?G.gladItems(R):{};for(const k in its){const I=its[k];(I.affix||[]).forEach(a=>{const v=parseFloat(String(a.efek).match(/\d+/));e.fx[a.id]=(e.fx[a.id]||0)+(v||0)});if(I.unik)e.uq[I.nama]=1}
-  e.kind='glad';e.name=R.nama;e.cls=R.kelas;e.rarity=R.rarity;e.recipe=R;
+  e.kind='glad';e.name=R.nama;e.cls=R.kelas;e.rarity=R.rarity;e.recipe=R0;
   e.maxhp=HPK*(b[0]*m*L+(it.hp||0)*.35*5);e.atk=b[1]*m*L+(it.atk||0)*.35;e.def=b[2]*m*L+(it.def||0)*.35;e.agi=b[3]+(it.agi||0)*.35;e.crit=b[4]+(it.crit||0)*.35;e.blk=b[5]+(it.blk||0)*.35;e.range=RANGE[R.kelas]||38;e.spd=34+e.agi*.8;e.skill=SKL[R.kelas];
  }else{const b=AB[spec.animal],m=RM[spec.rarity||'common'],L=1+.08*(e.lvl-1);
   e.kind='animal';e.sp=spec.animal;e.rarity=spec.rarity||'common';e.name=G.animalName(spec.animal,e.rarity);e.cls=spec.animal;
   e.maxhp=HPK*b[0]*m*L;e.atk=b[1]*m*L;e.def=b[2]*m*L;e.agi=b[3];e.crit=b[4];e.blk=0;e.range=RANGE[spec.animal]||40;e.spd=40+e.agi*1.2;e.skill=SKL[spec.animal];}
- if(!e.fx){e.fx={};e.uq={}}const fx=e.fx;e.agi+=fx.angin||0;e.crit+=fx.serigala||0;e.blk+=fx.penjaga||0;if(e.uq['Sayap Hermes']){e.agi*=1.2;e.dodge=10}if(fx.teguh)e.steady=fx.teguh;if(e.uq['Ocrea Titan'])e.steady=999;e.hits=0;e.firstCrit=!!(e.uq['Galea Mata Elang']||e.uq['Gladius Murka Mars']);e.beastShield=!!e.uq['Taring Singa Nemea'];
- e.stance=spec.stance||'normal';e.row=spec.row||'depan';e.spr=0;e.hp=e.maxhp*(spec.hpf||1);e.x=side==='p'?(e.row==='belakang'?[56,64,72][idx]:[100,92,84][idx]):[254,234,214,270][idx];if(side==='p'&&e.row==='belakang')e.range+=8;e.rad=e.kind==='animal'?(e.sp==='gajah'?26:8):0;e.range+=(idx%3)*6;e.y=LY[idx%3];e.face=side==='p'?1:-1;
+ if(!e.fx){e.fx={};e.uq={}}e.tr=new Set(spec.traits||[]);e.nem=!!spec.nem;if(spec.nemName)e.name=spec.nemName;
+ {const am=(spec.ageMul||1)*(spec.relAtk||1),dm=(spec.ageMul||1)*(spec.relDef||1);e.atk*=am;e.def*=dm;e.maxhp*=(spec.ageMul||1)*(spec.hpMul||1)}
+ if(e.tr.has('rapuh'))e.maxhp*=.88;if(e.tr.has('kilat'))e.agi*=1.25;if(e.tr.has('karang'))e.steady=999;
+ const fx=e.fx;e.agi+=fx.angin||0;e.crit+=fx.serigala||0;e.blk+=fx.penjaga||0;if(e.uq['Sayap Hermes']){e.agi*=1.2;e.dodge=10}if(fx.teguh)e.steady=fx.teguh;if(e.uq['Ocrea Titan'])e.steady=999;e.hits=0;e.firstCrit=!!(e.uq['Galea Mata Elang']||e.uq['Gladius Murka Mars']);e.beastShield=!!e.uq['Taring Singa Nemea'];
+ e.stance=spec.stance||'normal';e.row=spec.row||'depan';e.spr=e.tr&&e.tr.has('teguh')?40:0;e.hp=e.maxhp*(spec.hpf||1);e.x=side==='p'?(e.row==='belakang'?[56,64,72][idx]:[100,92,84][idx]):[254,234,214,270][idx];if(side==='p'&&e.row==='belakang')e.range+=8;e.rad=e.kind==='animal'?(e.sp==='gajah'?26:8):0;e.range+=(idx%3)*6;e.y=LY[idx%3];e.face=side==='p'?1:-1;
  e.state='diam';e.st=0;e.cd=.4+idx*.3;e.skcd=4+idx*1.5;e.buff={};e.stun=0;e.bleed=0;e.dead=false;e.hit=false;e.tgt=null;e.taunt=0;e.vx=0;
  return e}
 const SCN={
@@ -743,7 +762,7 @@ function createBattle(G,scn,seed,opt){
    if(e.stance==='lindungi'&&e.side==='p'){const low=B.ents.filter(q=>q.side==='p'&&!q.dead&&q!==e).sort((a,b)=>a.hp/a.maxhp-b.hp/b.maxhp)[0];if(low&&o.tgt===low)s+=55}if(B.focus===o)s+=e.side==='p'?60:0;if(e.tgt===o)s+=12;
    if(o.taunt>0)s+=80;
    if(s>bs){bs=s;best=o}}return best}
- function dmgCalc(a,d,mult,pierce){const af=a.fx,df=d.fx;const am=(1+(af.mars&&a.hp<a.maxhp*.3?af.mars/100:0))*(1+(af.buas&&d.kind==='animal'?af.buas/100:0))*(a.buff.atk>0?1.35:1)*(a.side==='p'&&B.cheerBuff>0?1.15:1)*(a.buff.rush>0?1.3:1)*({agresif:1.15,bertahan:.9}[a.stance]||1);
+ function dmgCalc(a,d,mult,pierce){const af=a.fx,df=d.fx;const am=(1+(af.mars&&a.hp<a.maxhp*.3?af.mars/100:0))*(1+(af.buas&&d.kind==='animal'?af.buas/100:0))*(a.buff.atk>0?1.35:1)*(a.side==='p'&&B.cheerBuff>0?1.15:1)*(a.buff.rush>0?1.3:1)*({agresif:1.15,bertahan:.9}[a.stance]||1)*(a.revenge?1.3:1)*(a.tr&&a.tr.has('pembantai')&&d.kind==='animal'?1.3:1)*(a.tr&&a.tr.has('penakut')&&a.hp<a.maxhp*.3?.8:1);
   const dm=(d.buff.def>0?1.6:1)*(d.buff.guard>0?1.5:1)*({agresif:.9,bertahan:1.2,lindungi:1.1}[d.stance]||1);const def=d.def*dm*(pierce?.7:1)*(1-(af.pecah||0)/100);
   let dmg=a.atk*am*mult*(.9+rnd()*.2)*100/(100+def*3);
   const cc=a.crit+(a.buff.atk>0?10:0)+(a.side==='p'&&B.cheerBuff>0?8:0);let crit=rnd()*100<cc;if(a.firstCrit){crit=true;a.firstCrit=false}if(crit)dmg*=1.75;dmg*=(1-(df.karang||0)/100)*(d.uq['Lorica Naga Emas']?.85:1);if(d.dodge&&rnd()*100<d.dodge)return{dmg:0,crit:false,blk:false,miss:true};if(d.beastShield&&a.kind==='animal'){d.beastShield=false;return{dmg:0,crit:false,blk:false,miss:true}}
@@ -754,16 +773,18 @@ function createBattle(G,scn,seed,opt){
   if(r.blk&&d.uq['Scutum Aegis']&&!(a.steady>B.t))a.stun=Math.max(a.stun,1);
   if(!tag&&a.uq['Trisula Neptunus']){a.hits++;if(a.hits%3===0&&!(d.steady>B.t)){d.stun=Math.max(d.stun,1.5);ev({t:'skill',src:a,name:'Trisula Neptunus',x:a.x,y:a.y})}}B.stat.dmg+=a.side==='p'?r.dmg:0;
   if(!(d.steady>B.t)&&d.state!=='serang'&&d.stun<=0&&!r.blk&&r.dmg>d.maxhp*.06){d.state='kena';d.st=0;d.hitT=.25}
-  const fin=d.hp<=0&&(r.crit||rnd()<.25);
+  const fin=d.hp<=0&&(r.crit||rnd()<(a.tr&&a.tr.has('showman')?.5:.25));
   ev({t:'hit',src:a,dst:d,dmg:Math.round(r.dmg),crit:r.crit,blk:r.blk,x:d.x,y:d.y,tag});
-  if(B.wild){}else if(a.side==='p'){B.cheer=Math.min(100,B.cheer+((r.crit?4:1.2)+(fin?8:0))*(1+(a.fx.show||0)/100))}else if(d.side==='p'){B.cheer=Math.max(0,B.cheer-.4)}
+  if(B.wild){}else if(a.side==='p'){B.cheer=Math.min(100,B.cheer+((r.crit?4:1.2)+(fin?8:0))*(1+(a.fx.show||0)/100)*(a.tr&&a.tr.has('kesayangan')?1.5:1))}else if(d.side==='p'){B.cheer=Math.max(0,B.cheer-.4)}
   if(r.crit&&a.side==='p')B.stat.crit++;
   if(!r.blk&&d.rad<20&&d.hp>0){d.x=Math.max(16,Math.min(304,d.x+(Math.sign(d.x-a.x)||a.face)*(r.crit?6:2.5)))}
   if(d.hp<=0){kill(d,a,fin);if(a.fx.darah)a.hp=Math.min(a.maxhp,a.hp+a.maxhp*a.fx.darah/100)}}
  function kill(d,a,fin){d.dead=true;d.state='tumbang';d.st=0;d.hp=0;d.bleed=0;
   if(fin&&a){B.slow=1.2;B.freeze=.18;B.stat.fin+=a.side==='p'?1:0;ev({t:'finisher',src:a,dst:d,x:d.x,y:d.y});if(a.side==='p')B.cheer=Math.min(100,B.cheer+8)}
   ev({t:'die',dst:d,src:a,x:d.x,y:d.y,fin});
-  if(d.side==='p'&&d.kind==='glad'&&!B.wild){const p=Math.min(.95,.3+B.cheer/100*.5+(B.altar-1)*.04);const ok=rnd()<p;B.missio.push({e:d,ok,p});ev({t:'missio',dst:d,ok,p})}
+  if(d.tr&&d.side==='p')B.ents.forEach(o=>{if(o.side===d.side&&!o.dead&&o.tr&&o.tr.has('pendendam')&&!o.revenge){o.revenge=1;ev({t:'skill',src:o,name:'Dendam!',x:o.x,y:o.y})}});
+  if(a&&a.tr&&a.tr.has('hausdarah')&&!a.dead)a.hp=Math.min(a.maxhp,a.hp+a.maxhp*.12);
+  if(d.side==='p'&&d.kind==='glad'&&!B.wild){const p=Math.min(.95,.3+B.cheer/100*.5+(B.altar-1)*.04+(d.tr&&d.tr.has('kesayangan')?.1:0));const ok=rnd()<p;B.missio.push({e:d,ok,p,killer:a});ev({t:'missio',dst:d,ok,p})}
   else if(d.side==='e')B.kills++}
  function skill(e,t){const[n,k]=e.skill;e.skcd=9+rnd()*2;ev({t:'skill',src:e,name:n,x:e.x,y:e.y});e.state='serang';e.st=0;e.hitDone=true;e.heavy=e.side==='e';
   const pp=()=>{};
@@ -869,8 +890,8 @@ function maxGlad(s){return 4+fl(s,'barak')}function maxAnim(s){return 2+fl(s,'ka
 function itemOf2(it,slot){return G.genItem(slot||it.slot,it.t,it.v||0,it.r,it.seed,it.up||0)}
 function upCost(it,slot,s){const g=itemOf2(it,slot);const base={common:60,rare:180,epic:450,legendary:1100}[it.r];return Math.round(base*((it.up||0)+1)*(1-(fl(s,'pandai')-1)*.05))}
 function rerollCost(it,slot,s){return Math.round({common:50,rare:150,epic:400,legendary:900}[it.r]*(1-(fl(s,'pandai')-1)*.05))}
-function forgeUp(s,it,slot){if((it.up||0)>=fl(s,'pandai'))return`Pandai Besi tingkat ${fl(s,'pandai')} hanya bisa sampai +${fl(s,'pandai')}.`;const c=upCost(it,slot,s);if(s.gold<c)return'Emas kurang ('+c+').';s.gold-=c;it.up=(it.up||0)+1;quest(s,'forge');return null}
-function forgeReroll(s,it,slot){if(it.r==='common')return'Item Common tidak punya efek untuk ditempa ulang.';const c=rerollCost(it,slot,s);if(s.gold<c)return'Emas kurang ('+c+').';s.gold-=c;it.seed=Math.floor(Math.random()*1e6);quest(s,'forge');return null}
+function forgeUp(s,it,slot){if((it.up||0)>=fl(s,'pandai'))return`Pandai Besi tingkat ${fl(s,'pandai')} hanya bisa sampai +${fl(s,'pandai')}.`;const c=upCost(it,slot,s);if(s.gold<c)return'Emas kurang ('+c+').';s.gold-=c;it.up=(it.up||0)+1;quest(s,'forge');dq(s,'forge');return null}
+function forgeReroll(s,it,slot){if(it.r==='common')return'Item Common tidak punya efek untuk ditempa ulang.';const c=rerollCost(it,slot,s);if(s.gold<c)return'Emas kurang ('+c+').';s.gold-=c;it.seed=Math.floor(Math.random()*1e6);quest(s,'forge');dq(s,'forge');return null}
 // ---- quests / tutorial
 const TUT=[
  {t:'Selamat datang, Lanista! Ini Dojo-mu. Gladiator bertarung sendiri di arena, kamu yang mengatur strategi.',tab:'dojo',ev:'next'},
@@ -881,16 +902,16 @@ const TUT=[
 function quest(s,ev){if(s.tut==null||s.tut>=TUT.length)return;if(TUT[s.tut].ev===ev){s.tut++}}
 function newState(){const s={v:2,gold:700,day:1,fame:0,nid:1,glads:[],animals:[],inv:[],log:[],stats:{fights:0,wins:0},fac:{barak:2,kandang:1,lapangan:1,klinik:1,pandai:1,altar:1},tut:0};addGlad(s,0);addGlad(s,4);addAnimal(s,'serigala','common');s.log.push('Selamat datang, Lanista. Ludusmu baru berdiri.');return s}
 function recipe(u){return u.preset!=null?G.presetRecipe(u.preset):G.genRecipe(u.gseed)}
-function addRecruit(s,seed){const R=G.genRecipe(seed);const u={id:s.nid++,kind:'glad',preset:null,gseed:seed,lvl:1,xp:0,inj:0,eq:JSON.parse(JSON.stringify(R.eq)),wins:0};s.glads.push(u);return u}
-function addGlad(s,pi){const R=G.presetRecipe(pi);const u={id:s.nid++,kind:'glad',preset:pi,lvl:1,xp:0,inj:0,eq:JSON.parse(JSON.stringify(R.eq)),wins:0};s.glads.push(u);return u}
+function addRecruit(s,seed){const R=G.genRecipe(seed);const u={id:s.nid++,kind:'glad',preset:null,gseed:seed,lvl:1,xp:0,inj:0,eq:JSON.parse(JSON.stringify(R.eq)),wins:0};s.glads.push(u);initGlad(s,u);return u}
+function addGlad(s,pi){const R=G.presetRecipe(pi);const u={id:s.nid++,kind:'glad',preset:pi,lvl:1,xp:0,inj:0,eq:JSON.parse(JSON.stringify(R.eq)),wins:0};s.glads.push(u);initGlad(s,u);if(s.codex)s.codex.g[pi]=1;return u}
 function addAnimal(s,sp,r){const u={id:s.nid++,kind:'animal',sp,rarity:r,lvl:1,xp:0,inj:0,wins:0};s.animals.push(u);return u}
 function units(s){return s.glads.concat(s.animals)}
 function xpNeed(l){return 40+l*35}
-function gain(u,xp,notes){u.xp+=xp;while(u.lvl<20&&u.xp>=xpNeed(u.lvl)){u.xp-=xpNeed(u.lvl);u.lvl++;notes&&notes.push(`${nameOf(u)} naik ke Lv ${u.lvl}!`)}if(u.lvl>=20)u.xp=0}
+function gain(u,xp,notes){if(u.traits){if(u.traits.includes('veteran'))xp*=1.2;if(u.traits.includes('pemalas'))xp*=.75}xp=Math.round(xp*(1+(API._leg||0)));u.xp+=xp;while(u.lvl<20&&u.xp>=xpNeed(u.lvl)){u.xp-=xpNeed(u.lvl);u.lvl++;notes&&notes.push(`${nameOf(u)} naik ke Lv ${u.lvl}!`)}if(u.lvl>=20)u.xp=0}
 function nameOf(u){return u.kind==='glad'?recipe(u).nama:G.animalName(u.sp,u.rarity)}
 function rarOf(u){return u.kind==='glad'?recipe(u).rarity:u.rarity}
 function clsOf(u){return u.kind==='glad'?recipe(u).kelas:'Hewan arena'}
-function spec(u){return u.kind==='glad'?{rec:recipe(u),lvl:u.lvl,eq:u.eq,id:u.id,hpf:u.hpf,stance:u.stance,row:u.row}:{animal:u.sp,rarity:u.rarity,lvl:u.lvl,id:u.id,stance:u.stance,row:u.row,hpf:u.hpf}}
+function spec(u,s,team){const ex={};if(s&&u.kind==='glad'){ex.ageMul=ageMul(s,u);if(team){const[a,d]=relMods(s,u,team);ex.relAtk=a;ex.relDef=d}}return u.kind==='glad'?Object.assign({rec:recipe(u),lvl:u.lvl,eq:u.eq,id:u.id,hpf:u.hpf,stance:u.stance,row:u.row,traits:u.traits},ex):{animal:u.sp,rarity:u.rarity,lvl:u.lvl,id:u.id,stance:u.stance,row:u.row,hpf:u.hpf}}
 // pasar, diacak per hari
 const VISIT=[['legendary',.02,50],['epic',.08,20],['rare',.25,0]];
 function visitor(s,d){if(d<1)return null;const r=mul(d*5417+3),own=new Set(s.glads.map(g=>g.preset));const q=r();let acc=0;
@@ -898,17 +919,17 @@ function visitor(s,d){if(d<1)return null;const r=mul(d*5417+3),own=new Set(s.gla
 function market(s){const r=mul(s.day*7919+13);
  const gl=[];for(const d of[s.day,s.day-1]){const v=visitor(s,d);if(v&&!(s.sold&&(s.sold[d+':g'+v.i]||s.sold[s.day+':g'+v.i]))&&!gl.some(x=>x===v.i)){gl.push(v.i);break}}
  const slots=Object.keys(G.SLOTS),items=[];
- for(let i=0;i<6;i++){const slot=slots[Math.floor(r()*slots.length)];const ts=Object.keys(G.TYPES[slot]).filter(t=>t!=='tidak');const t=ts[Math.floor(r()*ts.length)];
+ for(let i=0;i<6;i++){const slot=slots[Math.floor(r()*slots.length)];const ts=Object.keys(G.TYPES[slot]).filter(t=>t!=='tidak'&&!G.FTYPE.has(t));const t=ts[Math.floor(r()*ts.length)];
   const f=Math.min(.25,s.fame/200),q=r();const rar=q<.5-f?'common':q<.8-f/2?'rare':q<.95?'epic':'legendary';const rr=rar==='legendary'&&!G.UNIQ.find(u=>u.slot===slot&&u.t===t)?'epic':rar;
   const v=Math.floor(r()*3),seed=s.day*100+i;const it=G.genItem(slot,t,v,rr,seed);items.push({slot,t,v,r:rr,seed,harga:it.harga})}
- const an=[];const sps=Object.keys(G.SP);for(let i=0;i<2;i++){const sp=sps[Math.floor(r()*sps.length)];let q=r();let rar=q<.55?'common':q<.85?'rare':q<.97?'epic':'legendary';if(sp==='gajah')rar=q<.5?'rare':'epic';an.push({sp,r:rar,harga:AP[rar]*(sp==='gajah'?1.6:1)|0})}
+ const an=[];const sps=Object.keys(G.SP).filter(x=>x!=='buaya');for(let i=0;i<2;i++){const sp=sps[Math.floor(r()*sps.length)];let q=r();let rar=q<.55?'common':q<.85?'rare':q<.97?'epic':'legendary';if(sp==='gajah')rar=q<.5?'rare':'epic';an.push({sp,r:rar,harga:AP[rar]*(sp==='gajah'?1.6:1)|0})}
  const rc=[];const rr=mul(s.day*3301+77);for(let i=0;i<3;i++){const seed=s.day*1000+i*7+1;if(s.sold&&s.sold[s.day+':r'+seed])continue;const R=G.genRecipe(seed);rc.push({seed,nama:R.nama,kelas:R.kelas,rarity:R.rarity,harga:R.rarity==='legendary'?GP.legendary:Math.round(GP[R.rarity]*.55)})}
  return{gl:gl.map(i=>({i,harga:GP[G.PRESETS[i].rarity],last:!visitor(s,s.day)||visitor(s,s.day).i!==i})),rc,items,an}}
 function itemOf(it){return itemOf2(it)}
-function buyRecruit(s,seed){const m=market(s).rc.find(x=>x.seed===seed);if(!m)return'Sudah direkrut.';if(s.glads.length>=maxGlad(s))return`Barak penuh (maks ${maxGlad(s)}). Tingkatkan Barak.`;if(s.gold<m.harga)return'Emas kurang.';s.gold-=m.harga;addRecruit(s,seed);(s.sold=s.sold||{})[s.day+':r'+seed]=1;return null}
-function buyGlad(s,i){const m=market(s).gl.find(x=>x.i===i);if(!m||s.gold<m.harga||s.glads.length>=maxGlad(s))return s.glads.length>=maxGlad(s)?`Barak penuh (maks ${maxGlad(s)}). Tingkatkan Barak.`:'Emas kurang.';s.gold-=m.harga;addGlad(s,i);(s.sold=s.sold||{})[s.day+':g'+i]=1;return null}
-function buyItem(s,k){const m=market(s).items[k];if(!m||m.sold)return 'Sudah terjual.';if(s.gold<m.harga)return 'Emas kurang.';if(s.sold&&s.sold[s.day+':'+k])return 'Sudah terjual.';s.gold-=m.harga;s.inv.push({slot:m.slot,t:m.t,v:m.v,r:m.r,seed:m.seed});(s.sold=s.sold||{})[s.day+':'+k]=1;return null}
-function buyAnimal(s,k){const m=market(s).an[k];if(!m)return'?';if(s.sold&&s.sold[s.day+':a'+k])return'Sudah terjual.';if(s.gold<m.harga)return'Emas kurang.';if(s.animals.length>=maxAnim(s))return`Kandang penuh (maks ${maxAnim(s)}). Tingkatkan Kandang.`;s.gold-=m.harga;addAnimal(s,m.sp,m.r);(s.sold=s.sold||{})[s.day+':a'+k]=1;return null}
+function buyRecruit(s,seed){const m=market(s).rc.find(x=>x.seed===seed);if(!m)return'Sudah direkrut.';if(s.glads.length>=maxGlad(s))return`Barak penuh (maks ${maxGlad(s)}). Tingkatkan Barak.`;if(s.gold<m.harga)return'Emas kurang.';s.gold-=m.harga;addRecruit(s,seed);dq(s,'buy');(s.sold=s.sold||{})[s.day+':r'+seed]=1;return null}
+function buyGlad(s,i){const m=market(s).gl.find(x=>x.i===i);if(!m||s.gold<m.harga||s.glads.length>=maxGlad(s))return s.glads.length>=maxGlad(s)?`Barak penuh (maks ${maxGlad(s)}). Tingkatkan Barak.`:'Emas kurang.';s.gold-=m.harga;addGlad(s,i);dq(s,'buy');(s.sold=s.sold||{})[s.day+':g'+i]=1;return null}
+function buyItem(s,k){const m=market(s).items[k];if(!m||m.sold)return 'Sudah terjual.';if(s.gold<m.harga)return 'Emas kurang.';if(s.sold&&s.sold[s.day+':'+k])return 'Sudah terjual.';s.gold-=m.harga;s.inv.push({slot:m.slot,t:m.t,v:m.v,r:m.r,seed:m.seed});(s.sold=s.sold||{})[s.day+':'+k]=1;dq(s,'buy');return null}
+function buyAnimal(s,k){const m=market(s).an[k];if(!m)return'?';if(s.sold&&s.sold[s.day+':a'+k])return'Sudah terjual.';if(s.gold<m.harga)return'Emas kurang.';if(s.animals.length>=maxAnim(s))return`Kandang penuh (maks ${maxAnim(s)}). Tingkatkan Kandang.`;s.gold-=m.harga;addAnimal(s,m.sp,m.r);dq(s,'buy');(s.sold=s.sold||{})[s.day+':a'+k]=1;return null}
 function buyGladSold(s,i){return null}
 function sellValue(it){return Math.round(itemOf(it).harga*.5)}
 function sellItem(s,k){const it=s.inv[k];if(!it)return;s.gold+=sellValue(it);s.inv.splice(k,1)}
@@ -916,7 +937,7 @@ function equip(s,u,slot,k){const it=s.inv[k];if(!it||it.slot!==slot)return;const
 function unequip(s,u,slot){const old=u.eq[slot];if(old&&old.t!=='tidak'){s.inv.push({slot,t:old.t,v:old.v,r:old.r,seed:old.seed,up:old.up||0});u.eq[slot]={t:'tidak',v:0,r:'common',seed:1}}}
 function upkeep(s){return units(s).length*KEEP}
 function endDay(s,note){const c=upkeep(s)+((s.pris||[]).length*KEEP);s.gold-=c;s.day++;const hl=fl(s,'klinik')>=4?3:fl(s,'klinik')>=2?2:1;units(s).forEach(u=>{if(u.inj>0)u.inj=Math.max(0,u.inj-hl);delete u.hpf});if(s.gold<0){s.gold=0;s.log.unshift('Emas habis! Gaji tertunda.')}s.log.unshift(`Hari ${s.day}: ${note||'berlalu'} · gaji -${c}`);if(API.onDay)API.onDay(s);return c}
-function train(s){const us=units(s).filter(u=>u.inj===0&&!u.away);const cost=us.length*30;if(!us.length)return'Semua sedang terluka.';if(s.gold<cost)return'Emas kurang ('+cost+').';s.gold-=cost;const n=[];const xg=25+10*fl(s,'lapangan');us.forEach(u=>gain(u,xg,n));endDay(s,'latihan seharian');n.forEach(x=>s.log.unshift(x));return null}
+function train(s){const us=units(s).filter(u=>u.inj===0&&!u.away);const cost=us.length*30;if(!us.length)return'Semua sedang terluka.';if(s.gold<cost)return'Emas kurang ('+cost+').';s.gold-=cost;const n=[];const xg=25+10*fl(s,'lapangan');API._leg=legacy(s);us.forEach(u=>gain(u,xg,n));dq(s,'train');endDay(s,'latihan seharian');n.forEach(x=>s.log.unshift(x));return null}
 function rest(s){endDay(s,'istirahat');return null}
 function avgLvl(us){return us.reduce((a,u)=>a+u.lvl,0)/Math.max(1,us.length)}
 function enemies(F,teamUnits,seed){const r=mul(seed*31+5);const av=avgLvl(teamUnits);const lvl=Math.max(1,Math.round(av+F.dl+(F.id==='latih'||F.boss?0:1.5)));const out=[];
@@ -927,24 +948,73 @@ function enemies(F,teamUnits,seed){const r=mul(seed*31+5);const av=avgLvl(teamUn
   else{let sd=Math.floor(r()*1e5),rec;for(let k=0;k<1500;k++){rec=G.genRecipe(sd+k);if(rec.rarity===rar)break}out.push({rec,lvl})}}
  return out}
 function fightsFor(s){return FIGHTS.map(f=>Object.assign({},f,{locked:f.minFame&&s.fame<f.minFame}))}
-function scenario(F,team,seed,s){const t=team.slice(0,3);const sc={n:F.n,p:t.map(spec),e:enemies(F,t,seed)};if(s){sc.altar=fl(s,'altar')}return sc}
-function applyResult(s,F,team,res,B){const notes=[];quest(s,'fight');s.stats.fights++;const win=res.win;
+function scenario(F,team,seed,s){const t=team.slice(0,3);const sc={n:F.n,p:t.map(u=>spec(u,s,t)),e:enemies(F,t,seed)};if(s){sc.altar=fl(s,'altar');sc.nem=nemInject(s,F,sc)}return sc}
+function applyResult(s,F,team,res,B){const notes=[];quest(s,'fight');API._leg=legacy(s);s.stats.fights++;const win=res.win;
  const dead=new Set(B.ents.filter(e=>e.side==='p'&&e.dead).map(e=>e.id));
  let gold=win?F.gold:Math.round(F.gold*.12),xp=win?F.xp:Math.round(F.xp*.4),fame=win?F.fame+B.stat.fin:0;
  if(win){s.stats.wins++;gold+=Math.round(B.cheer*(F.gold/400))}
  gold=Math.round(gold*(1+B.pfx('bangsawan')/100)*(B.puq('Koin Fortuna')?1.25:1));
  s.gold+=gold;s.fame+=fame;
- team.forEach(u=>{const e=B.ents.find(o=>o.id===u.id);gain(u,e&&e.dead?Math.round(xp*.5):xp,notes);if(win)u.wins=(u.wins||0)+1;
+ if(win){dq(s,'win');if(F.boss)codexBoss(s,'gajah')}bondTeam(s,team,notes);const nr=nemAfter(s,B,win,notes);
+ team.forEach(u=>{const e=B.ents.find(o=>o.id===u.id);gain(u,e&&e.dead?Math.round(xp*.5):xp,notes);if(win)u.wins=(u.wins||0)+1;traitCheck(s,u,notes);
   if(F.tour&&e){u.hpf=e.dead?0:Math.max(.05,e.hp/e.maxhp)}
   if(!F.tour&&e&&!e.dead&&e.hp<e.maxhp*.35)u.inj=Math.max(u.inj,1);if(e&&e.dead&&u.kind==='animal'){u.inj=2}});
  let loot=null;if(win&&!F.tour&&Math.random()<F.loot*(1+B.pfx('fortuna')/100)){const r=Math.random(),cs=F.lr;let ri=0,acc=0;for(let i=0;i<4;i++){acc+=cs[i];if(r<acc){ri=i;break}}
-  const slots=Object.keys(G.SLOTS),slot=slots[Math.floor(Math.random()*slots.length)];const ts=Object.keys(G.TYPES[slot]).filter(t=>t!=='tidak');let t=ts[Math.floor(Math.random()*ts.length)];let rr=RARS[ri];
+  const slots=Object.keys(G.SLOTS),slot=slots[Math.floor(Math.random()*slots.length)];const ts=Object.keys(G.TYPES[slot]).filter(t=>t!=='tidak'&&!G.FTYPE.has(t));let t=ts[Math.floor(Math.random()*ts.length)];let rr=RARS[ri];
   if(rr==='legendary'&&!G.UNIQ.find(u=>u.slot===slot&&u.t===t))rr='epic';const v=Math.floor(Math.random()*3),seed=Math.floor(Math.random()*1e6);
   loot={slot,t,v,r:rr,seed};s.inv.push(loot)}
- const missio=[];B.missio.forEach(m=>{const u=team.find(x=>x.id===m.e.id);if(u){u.pend={p:m.p,ok:m.ok};missio.push({u,p:m.p,ok:m.ok})}});delete s.inFight;
+ const missio=[];B.missio.forEach(m=>{const u=team.find(x=>x.id===m.e.id);if(u){u.pend={p:m.p,ok:m.ok};if(!m.ok&&m.killer&&m.killer.kind==='glad'&&!m.killer.nem){u.pend.killer=m.killer.recipe;u.pend.klvl=m.killer.lvl}missio.push({u,p:m.p,ok:m.ok,killer:m.killer})}});
+ if(!win&&!F.tour){const k=B.ents.find(o=>o.side==='e'&&o.kind==='glad'&&!o.dead&&!o.nem);if(k&&Math.random()<.3){const n=nemAdd(s,k,'mengalahkan ludusmu');if(n)notes.push(`☠ ${k.name} menertawakanmu. Ia kini NEMESIS-mu!`)}}delete s.inFight;
  const tr=F.tour?tourAfter(s,win,team,B,notes):null;
  if(!F.tour||tr.end)endDay(s,F.tour?tr.msg:(win?'menang di '+F.n:'kalah di '+F.n));notes.forEach(x=>s.log.unshift(x));if(tr&&tr.loot)loot=tr.loot;
  return{gold,xp,fame,loot,notes,missio,win,tour:tr}}
+
+// ================= META: trait, relasi, usia, aula, nemesis, codex, harian
+const TRAITS={kesayangan:['Kesayangan Massa','Sorakan +50%, peluang ampun +10%'],pendendam:['Pendendam','ATK +30% saat teman jatuh'],hausdarah:['Haus Darah','Pulih 12% HP tiap menjatuhkan lawan'],karang:['Batu Karang','Kebal terpaku & terlempar'],kilat:['Kaki Kilat','AGI +25%'],pembantai:['Pembantai Buas','Damage ke hewan +30%'],veteran:['Veteran','XP +20%'],teguh:['Teguh Hati','Mulai laga dengan semangat 40%'],showman:['Showman','Peluang pukulan penutup ×2'],
+ rapuh:['Rapuh','HP −12%',1],pemalas:['Pemalas','XP −25%',1],penakut:['Penakut','ATK −20% saat HP < 30%',1]};
+const SIG=['karang','showman','kilat','kesayangan','veteran','pendendam','teguh','pembantai','hausdarah'];
+const POS=Object.keys(TRAITS).filter(k=>!TRAITS[k][2]),NEG=Object.keys(TRAITS).filter(k=>TRAITS[k][2]);
+function initGlad(s,u){if(u.traits)return;const r=mul(u.id*977+(u.gseed||u.preset||0)*13);u.traits=[u.preset!=null?SIG[u.preset]:(r()<.25?NEG[Math.floor(r()*NEG.length)]:POS[Math.floor(r()*POS.length)])];u.age0=u.preset!=null?[27,24,23,26,29,22,25,24,30][u.preset]:20+Math.floor(r()*9);u.born=s.day}
+function ageOf(s,u){return(u.age0||25)+Math.floor((s.day-(u.born||s.day))/30)}
+function ageMul(s,u){const a=ageOf(s,u);return a>33?Math.max(.7,1-.03*(a-33)):1}
+function relKey(a,b){return a<b?a+'-'+b:b+'-'+a}
+function relOf(s,a,b){return(s.rel||{})[relKey(a,b)]}
+function bondTeam(s,team,notes){s.rel=s.rel||{};const g=team.filter(u=>u.kind==='glad');for(let i=0;i<g.length;i++)for(let j=i+1;j<g.length;j++){const k=relKey(g[i].id,g[j].id),R=s.rel[k]||(s.rel[k]={b:0,t:null});R.b++;
+ if(!R.t&&R.b>=4){const same=clsOf(g[i])===clsOf(g[j]);R.t=(same?Math.random()<.6:Math.random()<.3)?'rival':'sahabat';const m=`${nameOf(g[i])} & ${nameOf(g[j])} kini ${R.t==='rival'?'RIVAL 🔥':'SAHABAT 🤝'}!`;notes&&notes.push(m);s.log.unshift(m)}}}
+function relMods(s,u,team){let a=1,d=1;team.forEach(o=>{if(o===u||o.kind!=='glad'||u.kind!=='glad')return;const R=relOf(s,u.id,o.id);if(!R||!R.t)return;if(R.t==='sahabat'){a*=1.08;d*=1.08}else{a*=1.15;d*=.95}});return[a,d]}
+function traitCheck(s,u,notes){if(u.kind!=='glad'||!u.traits||u.traits.length>=2||(u.wins||0)<10)return;const pool=POS.filter(t=>!u.traits.includes(t));const t=pool[Math.floor(Math.random()*pool.length)];u.traits.push(t);const m=`${nameOf(u)} mendapat sifat baru: ${TRAITS[t][0]}!`;notes&&notes.push(m);s.log.unshift(m)}
+function hallAdd(s,u,how){s.hall=s.hall||[];s.hall.unshift({n:nameOf(u),cls:clsOf(u),r:rarOf(u),lvl:u.lvl,wins:u.wins||0,how,day:s.day,preset:u.preset,gseed:u.gseed,eq:u.eq,traits:u.traits});if(s.hall.length>30)s.hall.length=30}
+function legacy(s){return Math.min(.3,((s.hall||[]).filter(h=>h.how==='rudis').length)*.03)}
+function retire(s,u){if(ageOf(s,u)<30&&(u.wins||0)<20)return'Gladiator baru bisa pensiun di usia 30+ atau setelah 20 kemenangan.';s.glads=s.glads.filter(g=>g!==u);for(const k in u.eq){const e=u.eq[k];if(e&&e.t!=='tidak')s.inv.push({slot:k,t:e.t,v:e.v||0,r:e.r,seed:e.seed,up:e.up||0})}
+ const f=5+Math.round(u.lvl/2);s.fame+=f;hallAdd(s,u,'rudis');s.log.unshift(`🏛 ${nameOf(u)} menerima Rudis dan pensiun dengan terhormat. Ketenaran +${f}.`);return null}
+// nemesis
+const NTITLE=['si Pemenggal','Tangan Besi','Sang Algojo','Mimpi Buruk Capua','Si Tak Terkalahkan','Penjagal Arena','Si Mata Satu'];
+function nemAdd(s,ent,why){s.nem=s.nem||[];if(s.nem.length>=3||s.nem.some(n=>n.rec.nama===ent.recipe.nama))return null;const n={id:Date.now()%1e7,rec:ent.recipe,lvl:ent.lvl+1,met:1,title:NTITLE[Math.floor(Math.random()*NTITLE.length)],why};s.nem.push(n);return n}
+function nemInject(s,F,sc){if(!s||!s.nem||!s.nem.length||F.boss||F.animal||F.tour||F.id==='latih'||Math.random()>.3)return null;const n=s.nem[Math.floor(Math.random()*s.nem.length)];const lv=Math.max(n.lvl,(sc.e[0]&&sc.e[0].lvl||1)+2);
+ sc.e[0]={rec:n.rec,lvl:lv,nem:true,nemId:n.id,nemName:`${n.rec.nama} ${n.title}`,hpMul:1.15,relAtk:1.1};return n}
+function nemAfter(s,B,win,notes){if(!s.nem)return{};const e=B.ents.find(o=>o.nem);let out={};if(e){const n=s.nem.find(x=>x.rec.nama===e.recipe.nama);if(n){if(e.dead&&win){s.nem=s.nem.filter(x=>x!==n);const g=500+n.lvl*60;s.gold+=g;s.fame+=10;const it=randLoot('epic');s.inv.push(it);notes.push(`☠ Nemesis ${e.name} tumbang! Dendam terbalas: 🪙${g}, 🏛+10, item Epic.`);s.log.unshift(`Nemesis ${e.name} akhirnya dikalahkan.`);out.killed=n}
+  else{n.met++;n.lvl++;notes.push(`☠ ${e.name} lolos dan makin kuat (Lv ${n.lvl}).`)}}}return out}
+function randLoot(rar){const slots=Object.keys(G.SLOTS),slot=slots[Math.floor(Math.random()*slots.length)];const ts=Object.keys(G.TYPES[slot]).filter(t=>t!=='tidak'&&!G.FTYPE.has(t));let t=ts[Math.floor(Math.random()*ts.length)];let rr=rar;if(rr==='legendary'&&!G.UNIQ.find(u=>u.slot===slot&&u.t===t)){const u=G.UNIQ[Math.floor(Math.random()*G.UNIQ.length)];return{slot:u.slot,t:u.t,v:u.v,r:'legendary',seed:Math.floor(Math.random()*1e6)}}return{slot,t,v:Math.floor(Math.random()*3),r:rr,seed:Math.floor(Math.random()*1e6)}}
+// codex
+const CODEX_BOSS=['kbandit','karverni','rnumidia','ksuku','idacia','mumi','gajah'];
+function codexTotal(){return G.PRESETS.length+Object.keys(G.SP).length*4+CODEX_BOSS.length+G.UNIQ.length}
+function codexScan(s){const c=s.codex=s.codex||{g:{},a:{},b:{},u:{},cl:[]};s.glads.forEach(u=>{if(u.preset!=null)c.g[u.preset]=1});s.animals.forEach(a=>c.a[a.sp+':'+a.rarity]=1);
+ const chk=it=>{if(it&&it.r==='legendary'){const g=G.genItem(it.slot,it.t,it.v||0,it.r,it.seed);if(g.unik)c.u[g.nama.replace(/ \+\d+$/,'')]=1}};s.inv.forEach(chk);s.glads.forEach(u=>{for(const k in u.eq){const e=u.eq[k];if(e&&e.t!=='tidak')chk(Object.assign({slot:k},e))}});return c}
+function codexCount(s){const c=codexScan(s);return Object.keys(c.g).length+Object.keys(c.a).length+Object.keys(c.b).length+Object.keys(c.u).length}
+const CODEX_MS=[[10,'🪙 500',s=>{s.gold+=500}],[20,'🪙 1500',s=>{s.gold+=1500}],[30,'Item Epic',s=>{s.inv.push(randLoot('epic'))}],[40,'🪙 4000 + 🏛20',s=>{s.gold+=4000;s.fame+=20}],[56,'Item Legendaris unik',s=>{s.inv.push(randLoot('legendary'))}]];
+function codexClaim(s,i){const c=codexScan(s);if(c.cl.includes(i))return'Sudah diklaim.';if(codexCount(s)<CODEX_MS[i][0])return'Koleksi belum cukup.';CODEX_MS[i][2](s);c.cl.push(i);return null}
+function codexBoss(s,id){codexScan(s).b[id]=1}
+// harian
+const DQ={menang:['Menangkan {n} laga arena',[2,3],'win'],latih:['Latih ludus {n} kali',[1,2],'train'],tempa:['Tempa item {n} kali',[1,2],'forge'],dungeon:['Menangkan {n} laga di dungeon',[3,5],'dwin'],tangkis:['Lakukan {n} tangkisan',[3,5],'parry'],jurus:['Keluarkan {n} jurus',[2,4],'ult'],beli:['Beli {n} barang di pasar',[1,2],'buy']};
+const LOGIN=[100,150,200,300,400,600,1000];
+function today(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+function dailyCheck(s){const t=today();s.dly=s.dly||{date:null,q:[],streak:0,last:null,login:null};const D=s.dly;if(D.date===t)return null;
+ const y=new Date();y.setDate(y.getDate()-1);const yd=y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();D.streak=D.last===yd?(D.streak%7)+1:1;D.last=t;D.date=t;D.login={day:D.streak,amt:LOGIN[D.streak-1],cl:false};
+ const ks=Object.keys(DQ).sort(()=>Math.random()-.5).slice(0,3);D.q=ks.map(k=>{const n=DQ[k][1][Math.floor(Math.random()*2)];return{k,n,p:0,rew:120+n*60,cl:false}});return D.login}
+function dq(s,ev,n){if(!s.dly||!s.dly.q)return;s.dly.q.forEach(q=>{if(DQ[q.k][2]===ev&&q.p<q.n)q.p=Math.min(q.n,q.p+(n||1))})}
+function dqClaim(s,i){const q=s.dly.q[i];if(!q||q.cl||q.p<q.n)return'Belum selesai.';q.cl=true;s.gold+=q.rew;s.fame+=1;return null}
+function loginClaim(s){const L=s.dly&&s.dly.login;if(!L||L.cl)return'Sudah diklaim.';L.cl=true;s.gold+=L.amt;if(L.day===7)s.inv.push(randLoot('epic'));return null}
+
 // ---- turnamen
 const TOUR={n:'Piala Mars',fee:400,minFame:10,rounds:['Perempat final','Semi final','Final'],gold:[300,600,2400],fame:[3,6,25],dl:[-1,-1,-1],rar:[['common','common','rare'],['common','rare','rare'],['rare','rare','epic']]};
 const RIVALS=['Ludus Capua','Ludus Roma','Ludus Pompeii','Ludus Neapolis','Ludus Ostia','Ludus Cumae','Ludus Tarentum'];
@@ -955,14 +1025,14 @@ function tourFight(s){const t=s.tour,rd=t.round;return{id:'tour',tour:true,n:`${
 function tourAvail(s){if(!s.tour)return[];return units(s).filter(u=>!u.inj&&!u.away&&!s.tour.out.includes(u.id)&&u.hpf!==0)}
 function tourAfter(s,win,team,B,notes){const t=s.tour,rd=t.round;B.ents.filter(e=>e.side==='p'&&e.dead).forEach(e=>t.out.push(e.id));
  if(!win){delete s.tour;units(s).forEach(u=>{if(u.hpf!=null&&u.hpf<.35)u.inj=Math.max(u.inj,1);delete u.hpf});notes.push(`Tersingkir di ${TOUR.rounds[rd]}.`);return{end:true,msg:`gugur di ${TOUR.rounds[rd]} ${TOUR.n}`,round:rd,win:false}}
- if(rd===2){delete s.tour;units(s).forEach(u=>{if(u.hpf!=null&&u.hpf<.35)u.inj=Math.max(u.inj,1);delete u.hpf});const slots=Object.keys(G.SLOTS),slot=slots[Math.floor(Math.random()*slots.length)],ts=Object.keys(G.TYPES[slot]).filter(x=>x!=='tidak'),tt=ts[Math.floor(Math.random()*ts.length)];
+ if(rd===2){delete s.tour;units(s).forEach(u=>{if(u.hpf!=null&&u.hpf<.35)u.inj=Math.max(u.inj,1);delete u.hpf});const slots=Object.keys(G.SLOTS),slot=slots[Math.floor(Math.random()*slots.length)],ts=Object.keys(G.TYPES[slot]).filter(x=>x!=='tidak'&&!G.FTYPE.has(x)),tt=ts[Math.floor(Math.random()*ts.length)];
   const loot={slot,t:tt,v:Math.floor(Math.random()*3),r:'epic',seed:Math.floor(Math.random()*1e6)};s.inv.push(loot);s.stats.cups=(s.stats.cups||0)+1;notes.push(`🏆 JUARA ${TOUR.n}!`);if(Math.random()<.25){const own=new Set(s.glads.map(g=>g.preset)),pool=G.PRESETS.map((x,i)=>i).filter(i=>G.PRESETS[i].rarity==='epic'&&!own.has(i));if(pool.length){const pi=pool[Math.floor(Math.random()*pool.length)];if(s.glads.length<maxGlad(s)){addGlad(s,pi);notes.push(`⭐ ${G.PRESETS[pi].nama} (${G.PRESETS[pi].kelas}, Epic) terkesan dan bergabung dengan ludusmu!`)}else notes.push(`${G.PRESETS[pi].nama} (Epic) ingin bergabung, tapi barak penuh.`)}}return{end:true,msg:`JUARA ${TOUR.n}!`,round:rd,win:true,champ:true,loot}}
  units(s).forEach(u=>{if(u.hpf>0)u.hpf=Math.min(1,u.hpf+.4)});t.round++;if(!tourAvail(s).length){delete s.tour;notes.push('Tidak ada petarung tersisa. Mundur dari turnamen.');return{end:true,msg:'mundur dari turnamen',round:rd,win:true}}
  return{end:false,round:rd,win:true,next:TOUR.rounds[t.round]}}
 function tourQuit(s){if(!s.tour)return;delete s.tour;units(s).forEach(u=>{if(u.hpf!=null&&u.hpf<.35)u.inj=Math.max(u.inj,1);delete u.hpf});endDay(s,'mundur dari turnamen')}
-function settleMissio(s,m){delete m.u.pend;if(m.ok){m.u.inj=Math.max(m.u.inj,Math.max(1,3-Math.floor(fl(s,'klinik')/2)));s.log.unshift(`${nameOf(m.u)} diampuni massa.`)}else{let n=0;for(const k in m.u.eq){const e=m.u.eq[k];if(e&&e.t!=='tidak'){s.inv.push({slot:k,t:e.t,v:e.v||0,r:e.r,seed:e.seed,up:e.up||0});n++}}s.glads=s.glads.filter(g=>g!==m.u);s.log.unshift(`${nameOf(m.u)} gugur di arena. ${n} perlengkapannya kembali ke gudang.`)}}
+function settleMissio(s,m){const pk=m.u.pend;delete m.u.pend;if(!m.ok){hallAdd(s,m.u,'gugur');if(pk&&pk.killer){const n=nemAdd(s,{recipe:pk.killer,lvl:pk.klvl||m.u.lvl},'membunuh '+nameOf(m.u));if(n)s.log.unshift(`☠ ${pk.killer.nama} yang membunuh ${nameOf(m.u)} kini NEMESIS-mu!`)}}if(m.ok){m.u.inj=Math.max(m.u.inj,Math.max(1,3-Math.floor(fl(s,'klinik')/2)));s.log.unshift(`${nameOf(m.u)} diampuni massa.`)}else{let n=0;for(const k in m.u.eq){const e=m.u.eq[k];if(e&&e.t!=='tidak'){s.inv.push({slot:k,t:e.t,v:e.v||0,r:e.r,seed:e.seed,up:e.up||0});n++}}s.glads=s.glads.filter(g=>g!==m.u);s.log.unshift(`${nameOf(m.u)} gugur di arena. ${n} perlengkapannya kembali ke gudang.`)}}
 function beginFight(s,F,team){s.inFight={f:F.id,ids:team.map(u=>u.id),wild:!!F.wild};save(s)}
-function recover(s){if(!s.fac)s.fac={barak:2,kandang:1,lapangan:1,klinik:1,pandai:1,altar:1};if(s.tut==null)s.tut=TUT.length;if(s.sold){for(const k in s.sold)if(+k.split(':')[0]<s.day)delete s.sold[k]}
+function recover(s){(s.glads||[]).forEach(u=>initGlad(s,u));if(!s.fac)s.fac={barak:2,kandang:1,lapangan:1,klinik:1,pandai:1,altar:1};if(s.tut==null)s.tut=TUT.length;if(s.sold){for(const k in s.sold)if(+k.split(':')[0]<s.day)delete s.sold[k]}
  s.glads.slice().forEach(u=>{if(u.pend)settleMissio(s,{u,ok:u.pend.ok,p:u.pend.p})});
  if(s.inFight&&s.inFight.wild){delete s.inFight;if(API.onWildQuit)API.onWildQuit(s)}
  if(s.inFight){if(s.tour)tourQuit(s);const ids=new Set(s.inFight.ids);units(s).forEach(u=>{if(ids.has(u.id))u.inj=Math.max(u.inj,2)});s.fame=Math.max(0,s.fame-3);delete s.inFight;endDay(s,'kabur dari arena');s.log.unshift('Timmu meninggalkan arena di tengah laga: Ketenaran -3, tim terluka 2 hari.')}
@@ -970,7 +1040,7 @@ function recover(s){if(!s.fac)s.fac={barak:2,kandang:1,lapangan:1,klinik:1,panda
 function save(s){try{localStorage.setItem('ludus_save',JSON.stringify(s))}catch(e){}}
 function load(){try{const j=localStorage.getItem('ludus_save');if(j)return recover(JSON.parse(j))}catch(e){}return null}
 function newVisitor(s){const v=visitor(s,s.day);if(!v||s.seenV===s.day)return null;s.seenV=s.day;return G.PRESETS[v.i]}
-const API={newVisitor,FACS,FMAX,fl,facCost,upFac,maxGlad,maxAnim,itemOf2,upCost,rerollCost,forgeUp,forgeReroll,TUT,quest,recipe,clsOf,addRecruit,buyRecruit,TOUR,RIVALS,tourStart,tourFight,tourAvail,tourQuit,beginFight,recover,addGlad,addAnimal,FIGHTS,newState,units,xpNeed,nameOf,rarOf,market,itemOf,buyGlad,buyItem,buyAnimal,sellItem,sellValue,equip,unequip,upkeep,train,rest,fightsFor,scenario,applyResult,settleMissio,save,load,endDay,gain,spec,GP,AP,avgLvl};
+const API={TRAITS,initGlad,ageOf,ageMul,relOf,retire,hallAdd,legacy,nemAdd,codexScan,codexCount,codexTotal,codexClaim,codexBoss,CODEX_MS,CODEX_BOSS,dailyCheck,dq,dqClaim,loginClaim,DQ,LOGIN,randLoot,bondTeam,newVisitor,FACS,FMAX,fl,facCost,upFac,maxGlad,maxAnim,itemOf2,upCost,rerollCost,forgeUp,forgeReroll,TUT,quest,recipe,clsOf,addRecruit,buyRecruit,TOUR,RIVALS,tourStart,tourFight,tourAvail,tourQuit,beginFight,recover,addGlad,addAnimal,FIGHTS,newState,units,xpNeed,nameOf,rarOf,market,itemOf,buyGlad,buyItem,buyAnimal,sellItem,sellValue,equip,unequip,upkeep,train,rest,fightsFor,scenario,applyResult,settleMissio,save,load,endDay,gain,spec,GP,AP,avgLvl};
 let G;API.init=g=>{G=g};
 if(typeof module!=='undefined')module.exports=API;else root.LG=API;
 })(this);
@@ -989,7 +1059,7 @@ const REG={
   dg:[{n:'Hutan Teutoburg',rows:7,days:4},{n:'Desa Cherusci',rows:9,days:5,boss:true}]},
  dacia:{n:'Dacia',ic:'⛰',fame:40,star:4,lv:9,bio:'gunung',reg:['dacia'],elite:'dacia',boss:'idacia',beasts:[['beruang',.5],['serigala',.5]],legend:'legendary',d:'Pegunungan emas Dacia, benteng para raja.',
   dg:[{n:'Tambang Emas Sarmizegetusa',rows:7,days:4},{n:'Kuil Zalmoxis',rows:9,days:5,boss:true}]},
- aegyptus:{n:'Aegyptus',ic:'🔺',fame:50,star:5,lv:11,bio:'gurun',reg:['mesir'],elite:'mesir',boss:'mumi',beasts:[['singa',.6],['harimau',.4]],legend:'legendary',d:'Gurun dan makam firaun yang terkutuk.',
+ aegyptus:{n:'Aegyptus',ic:'🔺',fame:50,star:5,lv:11,bio:'gurun',reg:['mesir'],elite:'mesir',boss:'mumi',beasts:[['buaya',.5],['singa',.3],['harimau',.2]],legend:'legendary',d:'Gurun, Sungai Nil, dan makam firaun yang terkutuk.',
   dg:[{n:'Lembah Para Raja',rows:7,days:4,bio:'makam'},{n:'Makam Firaun',rows:9,days:5,boss:true,bio:'makam'}]}};
 const ICON={fight:['⚔','Laga'],elite:['💀','Elit'],chest:['💰','Harta'],event:['❓','Kejadian'],camp:['🔥','Api unggun'],boss:['👑','Boss'],beast:['🐾','Hewan buas']};
 const BEKAL=60,MAXB=6;
@@ -1001,11 +1071,11 @@ function genPath(seed,rows,boss){const r=mul(seed);const P=[];P.push([{t:'fight'
  return P}
 function avail(s){return LG.units(s).filter(u=>!u.inj&&!u.away)}
 function regions(s){return Object.entries(REG).map(([id,R])=>Object.assign({id},R,{locked:s.fame<R.fame}))}
-function start(s,rid,di,partyIds,bekal){const R=REG[rid],D=R.dg[di];if(!R||s.fame<R.fame)return'Wilayah terkunci.';if(s.exp)return'Ekspedisi lain sedang berjalan.';
+function start(s,rid,di,partyIds,bekal,rescue){const R=REG[rid];const D=rescue?{n:'Selamatkan '+LG.nameOf(s.pris[rescue.i].u),rows:4,days:2,rescue:s.pris[rescue.i].u.id,bio:R.dg[0].bio}:R.dg[di];if(!R||(!rescue&&s.fame<R.fame))return'Wilayah terkunci.';if(s.exp)return'Ekspedisi lain sedang berjalan.';
  const party=LG.units(s).filter(u=>partyIds.includes(u.id));if(!party.length||party.length>3)return'Pilih 1–3 petarung.';if(party.some(u=>u.inj||u.away))return'Ada petarung yang terluka.';
  const cost=bekal*BEKAL;if(s.gold<cost)return'Emas kurang ('+cost+').';s.gold-=cost;
  const seed=Math.floor(Math.random()*1e6);party.forEach(u=>{u.away=true;u.hpf=1});
- s.exp={rid,di,seed,path:genPath(seed,D.rows,D.boss),row:0,k:-1,done:[],party:party.map(u=>u.id),bekal,loot:{gold:0,items:[],animals:[],recruits:[],fame:0,xp:0},buff:0,extraDays:0};
+ s.exp={rid,di:rescue?0:di,D,seed,path:genPath(seed,D.rows,D.boss),row:0,k:-1,done:[],party:party.map(u=>u.id),bekal,loot:{gold:0,items:[],animals:[],recruits:[],fame:0,xp:0},buff:0,extraDays:0};
  s.log.unshift(`Rombongan berangkat ke ${D.n} (${R.n}).`);LG.quest(s,'exp');return null}
 function party(s){return s.exp?LG.units(s).filter(u=>s.exp.party.includes(u.id)):[]}
 function alive(s){return party(s).filter(u=>u.hpf>0)}
@@ -1013,7 +1083,7 @@ function reachable(s,i,k){const e=s.exp;if(i!==e.row)return false;if(e.row===0)r
 function lvlAt(s,extra){const e=s.exp,R=REG[e.rid];return Math.max(1,Math.round(R.lv+1+e.row*.25+(e.di?1:0)+(extra||0)))}
 function rarOf(r,tier){const q=r();const t=[[.7,.97,1],[.45,.85,.99],[.25,.7,.95],[.1,.55,.9],[.05,.4,.82]][Math.min(4,tier)];return q<t[0]?'common':q<t[1]?'rare':q<t[2]?'epic':'legendary'}
 function tierOf(s){return REG[s.exp.rid].star-1+(s.exp.di?1:0)}
-function randItem(r,rar){const slots=Object.keys(G.SLOTS),slot=slots[Math.floor(r()*slots.length)];const ts=Object.keys(G.TYPES[slot]).filter(t=>t!=='tidak');const t=ts[Math.floor(r()*ts.length)];let rr=rar;if(rr==='legendary'&&!G.UNIQ.find(u=>u.slot===slot&&u.t===t))rr='epic';return{slot,t,v:Math.floor(r()*3),r:rr,seed:Math.floor(r()*1e6)}}
+function randItem(r,rar){const slots=Object.keys(G.SLOTS),slot=slots[Math.floor(r()*slots.length)];const ts=Object.keys(G.TYPES[slot]).filter(t=>t!=='tidak'&&!G.FTYPE.has(t));const t=ts[Math.floor(r()*ts.length)];let rr=rar;if(rr==='legendary'&&!G.UNIQ.find(u=>u.slot===slot&&u.t===t))rr='epic';return{slot,t,v:Math.floor(r()*3),r:rr,seed:Math.floor(r()*1e6)}}
 function pickW(r,arr){const tot=arr.reduce((a,x)=>a+x[1],0);let q=r()*tot;for(const x of arr){q-=x[1];if(q<=0)return x[0]}return arr[0][0]}
 // --- node → scenario
 function enter(s,i,k){const e=s.exp;if(!reachable(s,i,k))return{err:'Belum bisa dijangkau.'};const nd=e.path[i][k];e.cur={i,k,t:nd.t};const R=REG[e.rid],r=mul(e.seed+i*31+k*7);
@@ -1022,9 +1092,9 @@ function enter(s,i,k){const e=s.exp;if(!reachable(s,i,k))return{err:'Belum bisa 
   if(nd.t==='beast'){const sp=pickW(r,R.beasts);const nn=sp==='gajah'?1:Math.min(3,n+(r()<.4?1:0));for(let j=0;j<nn;j++){const rar=j===0?rarOf(r,tierOf(s)):'common';en.push({animal:j===0?sp:pickW(r,R.beasts.filter(b=>b[0]!=='gajah')),rarity:rar,lvl:lvlAt(s,j===0?1:0)})}}
   else if(nd.t==='boss'){en.push({rec:G.enemyRecipe(R.boss,e.seed),lvl:lvlAt(s,0)});if(R.bossPet)en.push({animal:R.bossPet[0],rarity:R.bossPet[1],lvl:lvlAt(s,-1)});for(let j=0;j<Math.min(R.bossPet?0:1,n-1);j++)en.push({rec:G.enemyRecipe(R.reg[Math.floor(r()*R.reg.length)],e.seed+j+9),lvl:lvlAt(s,0)})}
   else{const cnt=nd.t==='elite'?Math.max(1,n-1):n+(r()<.2?1:0);for(let j=0;j<Math.min(3,cnt);j++){const f=nd.t==='elite'&&j===0?R.elite:R.reg[Math.floor(r()*R.reg.length)];en.push({rec:G.enemyRecipe(f,Math.floor(r()*1e5)),lvl:lvlAt(s,nd.t==='elite'&&j===0?2.5:0)})}}
-  const p=ps.slice(0,3).map(u=>{const sp=LG.spec(u);sp.hpf=u.hpf;return sp});
+  const tm=ps.slice(0,3);const p=tm.map(u=>{const sp=LG.spec(u,s,tm);sp.hpf=u.hpf;return sp});
   if(e.buff){p.forEach(x=>x.lvl+=1)}
-  return{fight:true,sc:{n:R.n,p,e:en,wild:true,altar:1},bio:(R.dg[e.di].bio||R.bio),node:nd.t,team:ps.slice(0,3)}}
+  return{fight:true,sc:{n:R.n,p,e:en,wild:true,altar:1},bio:((e.D||R.dg[e.di]).bio||R.bio),node:nd.t,team:ps.slice(0,3)}}
  return{fight:false,node:nd.t}}
 function advance(s){const e=s.exp,c=e.cur;e.done.push([c.i,c.k]);e.row=c.i+1;e.k=c.k;delete e.cur}
 function gold(s,mult){return Math.round((45+lvlAt(s)*14)*mult)}
@@ -1033,10 +1103,11 @@ function afterFight(s,B,team){const e=s.exp,c=e.cur,R=REG[e.rid],r=mul(e.seed*3+
  if(!win)return fail(s,notes);
  alive(s).forEach(u=>{u.hpf=Math.min(1,u.hpf+.15)});
  const mult={fight:1,beast:1.1,elite:2,boss:5}[c.t];const g=gold(s,mult);e.loot.gold+=g;notes.push(`💰 +${g}`);
- const xp=Math.round({fight:25,beast:28,elite:50,boss:120}[c.t]*(1+e.row*.05));e.loot.xp+=xp;team.forEach(u=>{if(u.hpf>0)LG.gain(u,xp,notes)});notes.push(`⭐ +${xp} XP`);
+ LG.dq(s,'dwin');LG.bondTeam(s,team.filter(u=>u.hpf>0),notes);const xp=Math.round({fight:25,beast:28,elite:50,boss:120}[c.t]*(1+e.row*.05));e.loot.xp+=xp;team.forEach(u=>{if(u.hpf>0)LG.gain(u,xp,notes)});notes.push(`⭐ +${xp} XP`);
  const T=tierOf(s);
+ if(c.t==='elite'&&r()<.3){const er=G.enemyRecipe(R.elite,Math.floor(r()*1e5));const sl=Object.keys(er.eq).filter(k=>G.FTYPE.has(er.eq[k].t));if(sl.length){const k=sl[0];const fi={slot:k,t:er.eq[k].t,v:er.eq[k].v||0,r:'rare',seed:Math.floor(r()*1e6)};e.loot.items.push(fi);notes.push('🎖 '+LG.itemOf2(fi).nama)}}
  if(c.t==='elite'||r()<.25){const it=randItem(r,rarOf(r,T+(c.t==='elite'?1:0)));e.loot.items.push(it);notes.push('🎁 '+LG.itemOf2(it).nama)}
- if(c.t==='boss'){e.loot.fame+=8+R.star*3;const it=randItem(r,rarOf(r,T+2)==='common'?'rare':rarOf(r,T+2));e.loot.items.push(it);notes.push('👑 '+LG.itemOf2(it).nama);
+ if(c.t==='boss'){LG.codexBoss(s,R.boss);e.loot.fame+=8+R.star*3;if(r()<.6){const br=G.enemyRecipe(R.boss,e.seed);const sl=Object.keys(br.eq).filter(k=>G.FTYPE.has(br.eq[k].t));if(sl.length){const k=sl[Math.floor(r()*sl.length)];const fi={slot:k,t:br.eq[k].t,v:br.eq[k].v||0,r:R.star>=2?'epic':'rare',seed:Math.floor(r()*1e6)};e.loot.items.push(fi);notes.push('🎖 Gear khas: '+LG.itemOf2(fi).nama)}}const it=randItem(r,rarOf(r,T+2)==='common'?'rare':rarOf(r,T+2));e.loot.items.push(it);notes.push('👑 '+LG.itemOf2(it).nama);
   if(r()<.12){const own=new Set(s.glads.map(g=>g.preset));const pool=G.PRESETS.map((x,i)=>i).filter(i=>G.PRESETS[i].rarity===R.legend&&!own.has(i));if(pool.length){const pi=pool[Math.floor(r()*pool.length)];e.loot.legend=pi;notes.push(`⭐ ${G.PRESETS[pi].nama} (${G.PRESETS[pi].rarity}) terkesan dan ingin bergabung!`)}}
   if(r()<.4){const R2=G.genRecipe(Math.floor(r()*1e6));e.loot.recruits.push(Math.floor(r()*1e6))}}
  let cap=null;if(c.t==='beast'){const a=B.ents.find(o=>o.side==='e'&&o.kind==='animal');if(a)cap={sp:a.sp,r:a.rarity,p:captureP(s,a)}}
@@ -1046,7 +1117,7 @@ function captureP(s,a){let p=.3+(party(s).some(u=>u.kind==='glad'&&LG.clsOf(u)==
 function capture(s,cap,bait){if(bait){if(s.exp.bekal<1)return{err:'Bekal habis.'};s.exp.bekal--;cap.p=Math.min(.9,cap.p+.25)}
  if(s.animals.length+s.exp.loot.animals.length>=LG.maxAnim(s))return{err:`Kandang penuh (${LG.maxAnim(s)}).`};const ok=Math.random()<cap.p;if(ok)s.exp.loot.animals.push({sp:cap.sp,r:cap.r});return{ok}}
 function fail(s,notes){const e=s.exp,R=REG[e.rid];const ps=party(s);const pr=[];
- ps.forEach(u=>{if(u.kind==='glad'&&u.hpf<=0){const ransom=Math.round((150+u.lvl*45)*({common:1,rare:1.5,epic:2.5,legendary:4}[LG.rarOf(u)]));s.glads=s.glads.filter(g=>g!==u);delete u.away;delete u.hpf;s.pris=s.pris||[];s.pris.push({u,rid:e.rid,until:s.day+e.extraDays+R.dg[e.di].days+10,ransom});pr.push(LG.nameOf(u))}});
+ ps.forEach(u=>{if(u.kind==='glad'&&u.hpf<=0){const ransom=Math.round((150+u.lvl*45)*({common:1,rare:1.5,epic:2.5,legendary:4}[LG.rarOf(u)]));s.glads=s.glads.filter(g=>g!==u);delete u.away;delete u.hpf;s.pris=s.pris||[];s.pris.push({u,rid:e.rid,until:s.day+e.extraDays+e.D.days+10,ransom});pr.push(LG.nameOf(u))}});
  e.loot.gold=Math.round(e.loot.gold*.3);e.loot.items=[];e.loot.animals=[];e.loot.recruits=[];delete e.loot.legend;
  notes.push(pr.length?`⛓ Tertawan: ${pr.join(', ')}`:'Rombongan mundur.');const res=finish(s,true);return{win:false,notes,prisoners:pr,res}}
 function camp(s){const r_=(()=>{})();const e=s.exp;let h=.1;if(e.bekal>0){e.bekal--;h=.35}party(s).forEach(u=>{if(u.hpf>0)u.hpf=Math.min(1,u.hpf+h)});advance(s);return h}
@@ -1077,7 +1148,7 @@ const EVENTS=[
 function event(s){const e=s.exp;const r=mul(e.seed+e.cur.i*53+e.cur.k);const ev=EVENTS[Math.floor(r()*EVENTS.length)];return ev}
 function choose(s,ev,i){const res=ev.o[i].f(s);if(res==='Emas kurang.'||res==='Bekal habis.')return{err:res};advance(s);if(s.exp.row>=s.exp.path.length)s.exp.cleared=true;return{msg:res}}
 // pulang
-function finish(s,failed){const e=s.exp,R=REG[e.rid],D=R.dg[e.di];const ps=party(s);const L=e.loot,notes=[];
+function finish(s,failed){const e=s.exp,R=REG[e.rid],D=e.D||R.dg[e.di];if(!failed&&D.rescue){const pi=(s.pris||[]).findIndex(p=>p.u.id===D.rescue);if(pi>=0){const P=s.pris[pi];if(s.glads.length<LG.maxGlad(s)){P.u.inj=2;s.glads.push(P.u);s.pris.splice(pi,1);s.log.unshift(`🗝 ${LG.nameOf(P.u)} berhasil diselamatkan!`)}}}const ps=party(s);const L=e.loot,notes=[];
  s.gold+=L.gold;s.fame+=L.fame;L.items.forEach(it=>s.inv.push(it));L.animals.forEach(a=>{if(s.animals.length<LG.maxAnim(s))LG.addAnimal(s,a.sp,a.r)});
  L.recruits.forEach(sd=>{if(s.glads.length<LG.maxGlad(s)){LG.addRecruit(s,sd)}else notes.push('Barak penuh: rekrut pergi.')});
  if(L.legend!=null){if(s.glads.length<LG.maxGlad(s))LG.addGlad(s,L.legend);else notes.push('Barak penuh: gladiator legenda pergi!')}
@@ -1090,7 +1161,8 @@ function ransom(s,i,how){const p=s.pris[i];if(!p)return'?';if(how==='gold'){if(s
  if(s.glads.length>=LG.maxGlad(s))return'Barak penuh.';p.u.inj=2;s.glads.push(p.u);s.pris.splice(i,1);s.log.unshift(`${LG.nameOf(p.u)} ditebus dan pulang.`);return null}
 function tickPris(s){if(!s.pris)return;s.pris=s.pris.filter(p=>{if(s.day>p.until){s.log.unshift(`⛓ ${LG.nameOf(p.u)} dijual sebagai budak di ${REG[p.rid].n}. Hilang selamanya.`);return false}return true})}
 function abort(s){if(!s.exp)return;party(s).forEach(u=>{if(u.hpf!=null)u.hpf=Math.min(u.hpf,.3)});s.exp.loot.gold=Math.round(s.exp.loot.gold*.5);s.exp.loot.items=[];return finish(s,true)}
-const API={REG,ICON,BEKAL,MAXB,regions,avail,start,party,alive,reachable,enter,afterFight,capture,camp,chest,event,choose,finish,ransom,tickPris,abort,lvlAt};
+function startRescue(s,i,ids,bekal){const p=s.pris[i];if(!p)return'?';return start(s,p.rid,0,ids,bekal,{i})}
+const API={startRescue,REG,ICON,BEKAL,MAXB,regions,avail,start,party,alive,reachable,enter,afterFight,capture,camp,chest,event,choose,finish,ransom,tickPris,abort,lvlAt};
 API.init=(g,lg)=>{G=g;LG=lg};
 if(typeof module!=='undefined')module.exports=API;else root.DG=API;
 })(this);
@@ -1098,9 +1170,9 @@ if(typeof module!=='undefined')module.exports=API;else root.DG=API;
 const G={Buf,gladFrame,animalFrame,sceneBuf,presetRecipe,gladStats,animalName,PRESETS,iconBuf,genItem,genRecipe,TYPES,SLOTS,UNIQ,SP,worldMap,wildScene,REGIONS,enemyRecipe,FACTIONS};
 const ENG=window.ENG,LG=window.LG,DG=window.DG;
 const $=id=>document.getElementById(id);
-const W=320,H=180,CW=720,CH=860,OY=150;let camX=0,camY=0,vw=240,vh=180,zs=3;
+const W=320,H=180,CW=720,GB=34;let CH=860,OY=150;let camX=0,camY=0,vw=240,vh=180,zs=3;
 const cvs=$('cv'),cx=cvs.getContext('2d');cx.imageSmoothingEnabled=false;
-const wc=document.createElement('canvas');wc.width=W;wc.height=H+OY;const wx=wc.getContext('2d');
+const wc=document.createElement('canvas');wc.width=W;wc.height=H+OY+GB;const wx=wc.getContext('2d');
 const cache=new Map();
 function bufCanvas(buf){let c=cache.get(buf);if(c)return c;c=document.createElement('canvas');c.width=buf.w;c.height=buf.h;const x=c.getContext('2d'),d=x.createImageData(buf.w,buf.h);
  for(let i=0;i<buf.p.length;i++){const p=buf.p[i];if(!p)continue;d.data[i*4]=parseInt(p.slice(1,3),16);d.data[i*4+1]=parseInt(p.slice(3,5),16);d.data[i*4+2]=parseInt(p.slice(5,7),16);d.data[i*4+3]=p.length>7?parseInt(p.slice(7,9),16):255}
@@ -1155,9 +1227,9 @@ function handle(ev){
   case'cheer':SFX.roar(2);banner='SORAKAN PENONTON! ATK +15%';bannerT=1.6;ring=1;log('Penonton bersorak! Serangan tim naik.','good');break;
   case'cmd':SFX.cmd();break;
   case'tele':tone(300,900,.35,.25,'square');log(`⚠ ${ev.src.name} bersiap: ${ev.name}!`,'bad');if(ev.dst.side==='p'&&!S.hintParry){S.hintParry=1;banner='TEKAN 🛡 TAHAN SAAT TANDA MERAH!';bannerT=2.2}break;
-  case'parry':{SFX.block();SFX.block();tone(1800,2600,.15,.3,'triangle');flash=ev.perf?.5:.3;fcol=ev.perf?'#fff6c0':'#ffffff';shake=Math.max(shake,ev.perf?8:5);addNum(ev.x,ev.y-58,ev.perf?'SEMPURNA!':'TANGKIS!',ev.perf?'#ffd23a':'#bfe0ff',true);burst(ev.x+6,ev.y-26,ev.perf?30:16,['#fff','#ffe08a','#bcd'],130,40,.5,2);log(`🛡 ${ev.dst.name} ${ev.perf?'menangkis SEMPURNA':'menangkis'} serangan ${ev.src.name}!`,'good');try{navigator.vibrate&&navigator.vibrate(ev.perf?[30,30,60]:30)}catch(_){}break}
+  case'parry':{LG.dq(S,'parry');SFX.block();SFX.block();tone(1800,2600,.15,.3,'triangle');flash=ev.perf?.5:.3;fcol=ev.perf?'#fff6c0':'#ffffff';shake=Math.max(shake,ev.perf?8:5);addNum(ev.x,ev.y-58,ev.perf?'SEMPURNA!':'TANGKIS!',ev.perf?'#ffd23a':'#bfe0ff',true);burst(ev.x+6,ev.y-26,ev.perf?30:16,['#fff','#ffe08a','#bcd'],130,40,.5,2);log(`🛡 ${ev.dst.name} ${ev.perf?'menangkis SEMPURNA':'menangkis'} serangan ${ev.src.name}!`,'good');try{navigator.vibrate&&navigator.vibrate(ev.perf?[30,30,60]:30)}catch(_){}break}
   case'interrupt':addNum(ev.x,ev.y-58,'TERHENTI!','#9bd0ff',true);log(`${ev.src.name} gagal menyerang (terhenti)!`,'good');break;
-  case'ult':{SFX.fin();SFX.roar(1.6);zoom=1.7;zx=ev.src.x;zy=ev.src.y-24;flash=.5;fcol='#ffe9a0';shake=8;banner='⚡ '+ev.name.toUpperCase();bannerT=1.5;burst(ev.src.x,ev.src.y-24,40,['#fff','#ffd23a','#ff9a30'],170,20,.8,2);log(`⚡ ${ev.src.name}: ${ev.name}!`,'cr');try{navigator.vibrate&&navigator.vibrate([20,20,20,20,80])}catch(_){}break}
+  case'ult':{LG.dq(S,'ult');SFX.fin();SFX.roar(1.6);zoom=1.7;zx=ev.src.x;zy=ev.src.y-24;flash=.5;fcol='#ffe9a0';shake=8;banner='⚡ '+ev.name.toUpperCase();bannerT=1.5;burst(ev.src.x,ev.src.y-24,40,['#fff','#ffd23a','#ff9a30'],170,20,.8,2);log(`⚡ ${ev.src.name}: ${ev.name}!`,'cr');try{navigator.vibrate&&navigator.vibrate([20,20,20,20,80])}catch(_){}break}
   case'miss':addNum(ev.x,ev.y-50,'MELESET','#bcd',false);SFX.swing();break;
   case'missio':break;
   case'over':if(B.win==='p'){SFX.win();SFX.roar(2.2)}else SFX.lose();setTimeout(showResult,900);break}}
@@ -1174,7 +1246,7 @@ function drawEnt(e){const[a,fi]=animOf(e);const f=frame(e,a,fi);const flip=e.fac
  if(e.open>0){wx.fillStyle='#ffd23a';wx.font='bold 7px Georgia';wx.textAlign='center';wx.fillText('TERBUKA',0,-oy-3)}
  if(e.stun>0){wx.globalAlpha=1;wx.fillStyle='#ffe060';for(let i=0;i<3;i++){const an=B.t*6+i*2.1;wx.fillRect(Math.round(Math.cos(an)*9),Math.round(-oy+6+Math.sin(an)*2),2,2)}}
  wx.restore()}
-function drawWorld(){wx.setTransform(1,0,0,1,0,0);if(B.wild){wx.drawImage(sceneBg,0,0,W,1,0,0,W,OY+2);wx.drawImage(sceneBg,0,OY);wx.translate(0,OY)}else{wx.drawImage(sceneBg,0,OY);for(let y=26;y<OY+30;y+=36)for(let x=0;x<W;x+=128)wx.drawImage(sceneBg,2,30,128,36,x,y,128,36);wx.drawImage(sceneBg,0,0,W,26,0,0,W,26);wx.translate(0,OY)}
+function drawWorld(){wx.setTransform(1,0,0,1,0,0);wx.drawImage(sceneBg,0,H-14,W,14,0,OY+H-1,W,GB+1);if(B.wild){wx.drawImage(sceneBg,0,0,W,1,0,0,W,OY+2);wx.drawImage(sceneBg,0,OY);wx.translate(0,OY)}else{wx.drawImage(sceneBg,0,OY);for(let y=26;y<OY+30;y+=36)for(let x=0;x<W;x+=128)wx.drawImage(sceneBg,2,30,128,36,x,y,128,36);wx.drawImage(sceneBg,0,0,W,26,0,0,W,26);wx.translate(0,OY)}
  if(B.cheerBuff>0){wx.fillStyle='rgba(255,200,80,'+(.06+.04*Math.sin(B.t*8))+')';wx.fillRect(0,0,W,H)}
  for(const e of B.ents)if(e.state==='charge'&&!e.dead){const tg=e.chTgt&&!e.chTgt.dead?[e.chTgt]:[];const all=e.skill&&e.skill[1]==='aoe'?B.ents.filter(o=>o.side!==e.side&&!o.dead&&Math.abs(o.x-e.x)<80):tg;const a=.35+.35*Math.abs(Math.sin(B.t*10));all.forEach(t=>{wx.strokeStyle='rgba(255,40,30,'+a+')';wx.lineWidth=2;wx.beginPath();wx.ellipse(t.x,t.y-1,16,5,0,0,6.3);wx.stroke()})}
  const L=[...B.ents].sort((a,b)=>a.y-b.y);L.forEach(drawEnt);
@@ -1182,10 +1254,12 @@ function drawWorld(){wx.setTransform(1,0,0,1,0,0);if(B.wild){wx.drawImage(sceneB
  for(const p of parts){wx.globalAlpha=Math.min(1,p.l/p.m*1.5);wx.fillStyle=p.c;wx.fillRect(Math.round(p.x),Math.round(p.y),p.s,p.s)}wx.globalAlpha=1}
 function hud(){const x=cx;
  for(const n of nums){x.globalAlpha=Math.min(1,n.l*1.6);x.font=(n.big?'bold 40px':'bold 30px')+' Georgia,serif';x.textAlign='center';const sx=(n.x-camX)*zs,sy=(n.y+OY-camY)*zs;x.lineWidth=6;x.strokeStyle='#000';x.strokeText(n.t,sx,sy);x.fillStyle=n.c;x.fillText(n.t,sx,sy)}x.globalAlpha=1;
- if(bannerT>0){const a=Math.min(1,bannerT*2);x.globalAlpha=a;x.font='bold '+Math.min(46,Math.floor(1020/Math.max(1,banner.length)))+'px Georgia,serif';x.textAlign='center';x.lineWidth=8;x.strokeStyle='#000';x.strokeText(banner,CW/2,CH*.42);x.fillStyle='#ffd23a';x.fillText(banner,CW/2,CH*.42);x.globalAlpha=1}
+ if(bannerT>0){const a=Math.min(1,bannerT*2);x.globalAlpha=a;x.font='bold '+Math.min(46,Math.floor(1020/Math.max(1,banner.length)))+'px Georgia,serif';x.textAlign='center';x.lineWidth=8;x.strokeStyle='#000';x.strokeText(banner,CW/2,CH*.5);x.fillStyle='#ffd23a';x.fillText(banner,CW/2,CH*.5);x.globalAlpha=1}
  if(ring>0){x.strokeStyle='rgba(255,220,120,'+ring+')';x.lineWidth=8;x.strokeRect(4,4,CW-8,532)}}
-function camTarget(){const L=B.ents.filter(e=>!e.dead);if(!L.length)return null;let a=1e9,b=-1e9;for(const e of L){a=Math.min(a,e.x-26-e.rad);b=Math.max(b,e.x+26+e.rad*1.6)}const w=Math.max(176,Math.min(270,b-a));return[w,Math.max(0,Math.min(W-w,(a+b)/2-w/2))]}
-function updCam(snap){const t=camTarget();if(t){const k=snap?1:.06;vw+=(t[0]-vw)*k;camX+=(t[1]-camX)*k;if(Math.abs(vw-t[0])<.6)vw=t[0]}vh=vw*CH/CW;camY=Math.max(0,H+OY-vh);zs=CW/vw;camX=Math.max(0,Math.min(W-vw,camX))}
+function fitStage(){const st=document.querySelector('.stage');if(!st)return;const r=st.getBoundingClientRect();if(r.width<10||r.height<10)return;CH=Math.max(540,Math.min(1500,Math.round(CW*r.height/r.width)));if(cvs.height!==CH)cvs.height=CH;cx.imageSmoothingEnabled=false;const need=Math.ceil(250*CH/CW)-H-GB+12;OY=Math.max(150,need);if(wc.height!==H+OY+GB){wc.height=H+OY+GB;wx.imageSmoothingEnabled=false}}
+addEventListener('resize',()=>{if(B&&run)fitStage()});
+function camTarget(){const L=B.ents.filter(e=>!e.dead);if(!L.length)return null;let a=1e9,b=-1e9;for(const e of L){a=Math.min(a,e.x-26-e.rad);b=Math.max(b,e.x+26+e.rad*1.6)}const w=Math.max(150,Math.min(250,b-a));return[w,Math.max(0,Math.min(W-w,(a+b)/2-w/2))]}
+function updCam(snap){const t=camTarget();if(t){const k=snap?1:.06;vw+=(t[0]-vw)*k;camX+=(t[1]-camX)*k;if(Math.abs(vw-t[0])<.6)vw=t[0]}vh=vw*CH/CW;{const tY=168+OY-.72*vh;camY=Math.max(0,Math.min(H+OY+GB-vh,tY))}zs=CW/vw;camX=Math.max(0,Math.min(W-vw,camX))}
 function drawFrame(){updCam();cx.setTransform(1,0,0,1,0,0);cx.fillStyle='#000';cx.fillRect(0,0,CW,CH);
  drawWorld();
  const sh=shake>.2?shake:0;cx.save();
@@ -1237,7 +1311,7 @@ function unitCard(u,cls,click){const d=el(`<div class="cc ${cls||''} ${u.inj?'in
 const TABS=[['dojo','🏛','Dojo'],['units','⚔','Pasukan'],['dunia','🗺','Dunia'],['pasar','🛒','Pasar'],['arena','🏟','Arena']];
 function tutBar(){let t=$('tut');if(!t){t=el('<div id="tut" class="tut"></div>');document.querySelector('.main').before(t)}const st=S.tut!=null&&S.tut<LG.TUT.length?LG.TUT[S.tut]:null;if(!st){t.style.display='none';return}t.style.display='';t.innerHTML=`<div class="tt">📜 ${st.t}</div><div class="tb">${st.ev==='next'?'<button class="pri" id="tn">Lanjut</button>':''}<button id="ts">Lewati tutorial</button></div>`;if($('tn'))$('tn').onclick=()=>{S.tut++;render()};$('ts').onclick=()=>{S.tut=LG.TUT.length;render()}}
 function renderTabs(){const tt=S.tut!=null&&S.tut<LG.TUT.length?LG.TUT[S.tut].tab:null;$('tabs').innerHTML='';TABS.forEach(([k,i,l])=>{const b=el(`<button class="${tab===k?'on':''} ${tt===k&&tab!==k?'hint':''}">${i}<small>${l}</small></button>`);b.onclick=()=>{tab=k;render()};$('tabs').appendChild(b)})}
-function render(){closeSheet();{const v=LG.newVisitor(S);if(v)setTimeout(()=>toast(`✨ Pedagang membawa gladiator langka: ${v.nama} (${RN[v.rarity]})! Cek Pasar.`),300)}if(tab==='units')LG.quest(S,'units');if(tab==='pasar')LG.quest(S,'pasar');top();document.querySelector('.main').scrollTop=0;renderTabs();tutBar();document.querySelectorAll('.pn').forEach(p=>p.classList.toggle('on',p.id==='p_'+tab));({dojo:rDojo,units:rUnits,pasar:rPasar,arena:rArena,dunia:rDunia})[tab]();save()}
+function render(){closeSheet();if(LG.dailyCheck(S)&&tab!=='dojo'){toast('📅 Hari baru! Bonus login & misi harian menunggu di Dojo.')}{const v=LG.newVisitor(S);if(v)setTimeout(()=>toast(`✨ Pedagang membawa gladiator langka: ${v.nama} (${RN[v.rarity]})! Cek Pasar.`),300)}if(tab==='units')LG.quest(S,'units');if(tab==='pasar')LG.quest(S,'pasar');top();document.querySelector('.main').scrollTop=0;renderTabs();tutBar();document.querySelectorAll('.pn').forEach(p=>p.classList.toggle('on',p.id==='p_'+tab));({dojo:rDojo,units:rUnits,pasar:rPasar,arena:rArena,dunia:rDunia})[tab]();save()}
 // ----- bottom sheet
 function sheet(title,body,actions){closeSheet();const w=el(`<div id="sh" class="shw"><div class="shb"></div><div class="sh"><div class="shh"><b>${title}</b><button class="x">✕</button></div><div class="shc"></div><div class="sha"></div></div></div>`);
  if(typeof body==='string')w.querySelector('.shc').innerHTML=body;else w.querySelector('.shc').appendChild(body);
@@ -1250,12 +1324,13 @@ function itemBlock(g){return`<b class="r-${g.rarity}">${g.nama}</b><div>${statTx
 let dojoT=0;
 function rDojo(){const p=$('p_dojo');const us=LG.units(S),sehat=us.filter(u=>!u.inj).length;
  p.innerHTML=`<div class="dsc"><canvas id="dc" width="320" height="180" class="scn"></canvas><div class="dtip">Ketuk petarung untuk lihat profil</div></div>
- <div class="qa"><button id="d_tr"><span>💪</span>Latih<small>🪙${sehat*30}</small></button><button id="d_rs"><span>😴</span>Istirahat<small>1 hari</small></button><button id="d_ar"><span>⚔</span>Ke Arena<small>${sehat} siap</small></button></div>
+ <div class="qa"><button id="d_tr"><span>💪</span>Latih<small>🪙${sehat*30}</small></button><button id="d_rs"><span>😴</span>Istirahat<small>1 hari</small></button><button id="d_ar"><span>⚔</span>Arena<small>${sehat} siap</small></button><button id="d_cx"><span>📖</span>Codex<small>${LG.codexCount(S)}/${LG.codexTotal()}</small></button></div><div id="dly"></div>
  <div class="card"><div class="row" style="justify-content:space-between"><b>Hari ${S.day}</b><span class="mut">Menang ${S.stats.wins}/${S.stats.fights}</span></div><div class="mut">Gaji harian 🪙${LG.upkeep(S)} · ${us.length} petarung · gudang ${S.inv.length} item</div></div>
- <h3>Fasilitas</h3><div class="lst" id="facl"></div>
+ <h3>Fasilitas</h3><div class="lst" id="facl"></div><div id="hallc"></div>
  <div class="card"><b>Catatan Ludus</b><div class="lg">${S.log.slice(0,6).map(x=>'<div>'+x+'</div>').join('')}</div></div>
  <button id="d_reset" class="dng sm">⟲ Mulai dari awal</button>`;
  $('d_tr').onclick=()=>{const e=LG.train(S);if(e)toast(e);else toast('Latihan selesai. +35 XP');render()};
+ $('d_cx').onclick=()=>codexSheet('g');dailyCard();hallCard();
  $('d_rs').onclick=()=>{LG.rest(S);toast('Hari berganti.');render()};$('d_ar').onclick=()=>{tab='arena';render()};
  let arm=0;const rs=$('d_reset');rs.onclick=()=>{if(Date.now()-arm<4000){S=LG.newState();toast('Progres dihapus. Mulai baru.');render()}else{arm=Date.now();rs.textContent='⚠ Ketuk lagi untuk hapus semua progres';setTimeout(()=>{if(rs.isConnected)rs.textContent='⟲ Mulai dari awal'},4000)}};
  $('dc').onclick=e=>{const r=e.target.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*320,y=(e.clientY-r.top)/r.height*180;let best=null,bd=22;Object.values(ACT).forEach(a=>{if(a.doc)return;const d=Math.hypot(a.x-x,(a.y-24-y)*.6);if(d<bd){bd=d;best=a.u}});if(best){selU=best;tab='units';render()}};
@@ -1322,6 +1397,10 @@ function rUnits(){const p=$('p_units');const us=LG.units(S);if(!us.includes(selU
  d.innerHTML=`<div class="prof"><div class="pi"></div><div class="pt"><div class="pn2">${LG.nameOf(u)}</div><div class="r-${LG.rarOf(u)}">${RN[LG.rarOf(u)]} · ${cls}</div><div class="mut">Lv ${u.lvl} · Menang ${u.wins||0}${u.inj?` · <span class="bad">luka ${u.inj}h</span>`:''}</div><div class="bar"><i style="width:${u.xp/LG.xpNeed(u.lvl)*100}%"></i></div><div class="mut sm2">XP ${u.xp}/${LG.xpNeed(u.lvl)}</div></div></div>
  <div class="sg">${Object.entries(st).map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join('')}</div>`;
  d.querySelector('.pi').appendChild(sprite(u,2));
+ if(u.kind==='glad'){const ag=LG.ageOf(S,u),am=LG.ageMul(S,u);const rels=LG.units(S).filter(o=>o!==u&&o.kind==='glad').map(o=>[o,LG.relOf(S,u.id,o.id)]).filter(x=>x[1]&&x[1].t);
+  const pc=el(`<div class="card"><b>Kepribadian</b><div style="margin:4px 0">${(u.traits||[]).map(t=>`<span class="tag ${LG.TRAITS[t][2]?'dn':'up'}" title="${LG.TRAITS[t][1]}">${LG.TRAITS[t][0]}</span>`).join('')}</div><div class="mut sm2">${(u.traits||[]).map(t=>'• '+LG.TRAITS[t][0]+': '+LG.TRAITS[t][1]).join('<br>')}${(u.traits||[]).length<2?'<br>• Sifat kedua muncul setelah 10 kemenangan ('+(u.wins||0)+'/10).':''}</div>
+   <div class="mut sm2" style="margin-top:4px">Usia ${ag} tahun${am<1?` · <span class="bad">mulai menua (stat ×${am.toFixed(2)})</span>`:ag>=30?' · veteran':''}</div>${rels.length?`<div class="mut sm2">${rels.map(([o,R])=>`${R.t==='sahabat'?'🤝 Sahabat':'🔥 Rival'}: ${LG.nameOf(o)}`).join(' · ')} <span class="mut">(efek saat satu tim)</span></div>`:''}<div id="rud"></div></div>`);d.appendChild(pc);
+  if(ag>=30||(u.wins||0)>=20){const rb=el('<button class="sm">🏛 Beri Rudis (pensiun terhormat)</button>');rb.onclick=()=>sheet('🏛 Beri Rudis?',`<div class="mut">${LG.nameOf(u)} pensiun, masuk Aula Legenda, dan perlengkapannya kembali ke gudang. Ludus mendapat Ketenaran +${5+Math.round(u.lvl/2)} dan bonus XP latihan +3% permanen (maks 30%).</div>`,[['Beri Rudis',()=>{const e=LG.retire(S,u);if(e){toast(e);return false}SFX.win();toast('Pensiun terhormat!');render()},'pri']]);pc.querySelector('#rud').appendChild(rb)}}
  const SK=[['normal','Normal','Seimbang.'],['agresif','Agresif','ATK +15%, DEF −10%.'],['bertahan','Bertahan','DEF +20%, ATK −10%.'],['lindungi','Lindungi','Mengincar musuh yang menyerang teman terlemah; jadi sasaran musuh, DEF +10%.'],['lemah','Incar Lemah','Mengejar musuh ber-HP terendah.']];
  const tk=el(`<div class="card"><b>Taktik</b> <span class="mut sm2">· Jurus: ⚡ ${ENG.ULTN[u.kind==='animal'?'animal':LG.clsOf(u)]||'-'}</span><div class="mut sm2" style="margin-top:4px">Posisi</div><div class="seg s2"><button data-r="depan">⬆ Depan</button><button data-r="belakang">⬇ Belakang</button></div><div class="mut sm2">Sikap</div><div class="seg s5">${SK.map(x=>`<button data-s="${x[0]}">${x[1]}</button>`).join('')}</div><div class="mut sm2" id="skd"></div></div>`);d.appendChild(tk);
  const curR=u.row||'depan',curS=u.stance||'normal';tk.querySelectorAll('[data-r]').forEach(b=>{b.classList.toggle('on',b.dataset.r===curR);b.onclick=()=>{u.row=b.dataset.r;save();rUnits()}});tk.querySelectorAll('[data-s]').forEach(b=>{b.classList.toggle('on',b.dataset.s===curS);b.onclick=()=>{u.stance=b.dataset.s;save();rUnits()}});
@@ -1356,7 +1435,7 @@ function rPasar(){const p=$('p_pasar');const m=LG.market(S);const sold=k=>S.sold
  if(pTab==='it')m.items.forEach((it,k)=>{const g=gi(it),so=sold(k);row(itemIcon(it.slot,it.t,it.r,it.v),`<b class="r-${it.r}">${g.nama}</b><div class="mut">${G.SLOTS[it.slot]}${g.affix.length?' · '+g.affix.length+' efek':''}${g.unik?' · ★':''}</div>`,so?'Terjual':`🪙${it.harga}`,so,()=>{const b=document.createElement('div');b.innerHTML=`<div class="itm"><div class="ic"></div><div>${itemBlock(g)}</div></div><div class="mut">Emas kamu: 🪙${S.gold}</div>`;b.querySelector('.ic').appendChild(itemIcon(it.slot,it.t,it.r,it.v));buy(G.SLOTS[it.slot],b,it.harga,()=>LG.buyItem(S,k))})});
  if(pTab==='jual'){if(!S.inv.length)L.innerHTML='<div class="card mut">Gudang kosong.</div>';S.inv.forEach((it,k)=>{const g=gi(it);row(itemIcon(it.slot,it.t,it.r,it.v),`<b class="r-${it.r}">${g.nama}</b><div class="mut">${G.SLOTS[it.slot]}</div>`,`🪙${LG.sellValue(it)}`,false,()=>{const b=document.createElement('div');b.innerHTML=`<div class="itm"><div class="ic"></div><div>${itemBlock(g)}</div></div>`;b.querySelector('.ic').appendChild(itemIcon(it.slot,it.t,it.r,it.v));sheet('Jual item',b,[[`Jual 🪙 ${LG.sellValue(it)}`,()=>{LG.sellItem(S,k);toast('Terjual.');render()},'pri']])})})}}
 // ----- arena
-function rArena(){const p=$('p_arena');p.innerHTML='<div id="tc"></div><div class="mut sm2">Ketuk laga untuk menyusun tim.</div><div class="lst" id="fl"></div>';tourCard();
+function rArena(){const p=$('p_arena');p.innerHTML=nemCard()+'<div id="tc"></div><div class="mut sm2">Ketuk laga untuk menyusun tim.</div><div class="lst" id="fl"></div>';tourCard();
  if(S.tour){$('fl').innerHTML='<div class="card mut">Laga biasa ditutup selama turnamen berjalan.</div>';return}
  LG.fightsFor(S).forEach(f=>{const r=el(`<div class="lr fl ${f.locked?'dis':''}"><div class="fi">${f.boss?'🐘':f.animal?'🦁':f.nm>=3?'⚔⚔':f.nm>1?'⚔':'🗡'}</div><div class="lm"><b>${f.n}</b><div class="mut">${f.locked?'🔒 Butuh Ketenaran '+f.minFame:f.d}</div></div><div class="lp sm2">🪙${f.gold}<br>⭐${f.xp}</div></div>`);if(!f.locked)r.onclick=()=>teamSheet(f);$('fl').appendChild(r)})}
 function tourCard(){const T=LG.TOUR,c=$('tc');const st=S.tour;
@@ -1377,8 +1456,8 @@ function updHp(){if(!B)return;document.querySelectorAll('#hpp .hp').forEach(d=>{
 // ----- battle
 const SCNW=['siang','siang','senja','senja','malam','malam'];
 function startBattle(F,team){ac();if(AC&&AC.state==='suspended')AC.resume();curF=F;curTeam=team;$('bt').classList.add('show');$('res').classList.remove('show');logEl.innerHTML='';parts=[];nums=[];zoom=1;shake=0;flash=0;banner=null;bannerT=0;
- const seed=Math.floor(Math.random()*1e6);if(F.wild){B=ENG.createBattle(G,F.sc,seed);sceneBg=bufCanvas(G.wildScene(F.bio,F.waktu||'siang',seed%7+1))}else{B=ENG.createBattle(G,LG.scenario(F,team,seed,S),seed);sceneBg=bufCanvas(G.sceneBuf('arena',SCNW[F.tier]||'siang',seed%9+1,{ramai:true,objek:false,karakter:false}))}
- document.querySelector('.chm').style.display=document.querySelector('.chl').style.display=F.wild?'none':'';buildHp();updCam(true);LG.beginFight(S,F,team);if(F.wild){SFX.cmd()}else{SFX.horn();setTimeout(()=>SFX.roar(1.8),200)}banner=F.n.toUpperCase();bannerT=1.8;log('Laga dimulai!');run=true;last=performance.now();requestAnimationFrame(tick)}
+ const seed=Math.floor(Math.random()*1e6);if(F.wild){B=ENG.createBattle(G,F.sc,seed);sceneBg=bufCanvas(G.wildScene(F.bio,F.waktu||'siang',seed%7+1))}else{const sc=LG.scenario(F,team,seed,S);B=ENG.createBattle(G,sc,seed);if(sc.nem)setTimeout(()=>{banner='☠ NEMESIS: '+sc.e[0].nemName.toUpperCase();bannerT=2.4;SFX.roar(1.5);log(`☠ Nemesis ${sc.e[0].nemName} kembali!`,'bad')},900);sceneBg=bufCanvas(G.sceneBuf('arena',SCNW[F.tier]||'siang',seed%9+1,{ramai:true,objek:false,karakter:false}))}
+ document.querySelector('.chm').style.display=document.querySelector('.chl').style.display=F.wild?'none':'';buildHp();fitStage();updCam(true);LG.beginFight(S,F,team);if(F.wild){SFX.cmd()}else{SFX.horn();setTimeout(()=>SFX.roar(1.8),200)}banner=F.n.toUpperCase();bannerT=1.8;log('Laga dimulai!');run=true;last=performance.now();requestAnimationFrame(tick)}
 function showResult(){run=false;if(curF.wild)return wildResult();const r=B.result();const ap=LG.applyResult(S,curF,curTeam,r,B);save();top();const el2=$('res');el2.classList.add('show');
  let h=`<div class="card2"><h2>${ap.tour&&ap.tour.champ?'🏆 JUARA!':ap.win?'KEMENANGAN!':'KEKALAHAN'}</h2>${ap.tour?`<div class="mut">${ap.tour.champ?'Kamu juara '+LG.TOUR.n+'!':ap.tour.next?'Lolos ke '+ap.tour.next+'! HP tidak pulih penuh.':ap.tour.msg||''}</div>`:''}<div class="grid"><div><b>${r.time.toFixed(0)}d</b><span>Durasi</span></div><div><b>${B.stat.crit}</b><span>Kritikal</span></div><div><b>${B.stat.fin}</b><span>Penutup</span></div><div><b>${Math.round(B.cheer)}%</b><span>Sorakan</span></div></div><div class="rew"><span>🪙 +${ap.gold}</span><span>⭐ +${ap.xp} XP</span><span>🏛 +${ap.fame}</span></div>`;
  if(ap.loot){const g=gi(ap.loot);h+=`<div class="rew">🎁 Jarahan: <b class="r-${ap.loot.r}">${g.nama}</b></div>`}
@@ -1407,19 +1486,19 @@ function rDunia(){const p=$('p_dunia');if(S.exp)return rPath(p);
  DG.regions(S).forEach(R=>{const c=G.REGIONS.find(x=>x.id===R.id).c;const pin=el(`<button class="pin ${R.locked?'lock':''}" style="left:${c[0]/180*100}%;top:${c[1]/300*100}%"><span>${R.locked?'🔒':R.ic}</span><b>${R.n}</b><small>${'★'.repeat(R.star)}</small></button>`);pin.onclick=()=>regionSheet(R);mp.appendChild(pin)});
  mp.insertAdjacentHTML('beforeend','<div class="home" style="left:40%;top:41%">🏠<small>Ludusmu</small></div>');
  const pr=S.pris||[];if(pr.length){$('prl').innerHTML='<h3>⛓ Tawanan</h3><div class="lst" id="pll"></div>';pr.forEach((x,i)=>{const r=el(`<div class="lr"><div class="ic"></div><div class="lm"><b>${LG.nameOf(x.u)}</b><div class="mut">Ditawan di ${DG.REG[x.rid].n} · sisa ${Math.max(0,x.until-S.day)} hari</div></div><div class="lp sm2">🪙${x.ransom}</div></div>`);r.querySelector('.ic').appendChild(sprite(x.u,.8,'kena',1));r.onclick=()=>prisSheet(i);$('pll').appendChild(r)})}}
-function prisSheet(i){const x=S.pris[i];sheet('⛓ '+LG.nameOf(x.u),`<div class="mut">Ditawan di ${DG.REG[x.rid].n}. Jika tidak ditebus dalam ${Math.max(0,x.until-S.day)} hari, ia dijual sebagai budak dan hilang. Selama ditawan gaji tetap dibayar.</div>`,[[`💰 Tebus 🪙${x.ransom}`,()=>{const e=DG.ransom(S,i,'gold');if(e){toast(e);return false}toast('Ditebus! Pulang terluka 2 hari.');render()},'pri'],[`🐾 Tukar dengan hewan di kandang (${S.animals.length?LG.nameOf(S.animals[0]):'tidak ada'})`,()=>{const e=DG.ransom(S,i,'animal');if(e){toast(e);return false}toast('Pertukaran diterima.');render()}]])}
+function prisSheet(i){const x=S.pris[i];sheet('⛓ '+LG.nameOf(x.u),`<div class="mut">Ditawan di ${DG.REG[x.rid].n}. Jika tidak ditebus dalam ${Math.max(0,x.until-S.day)} hari, ia dijual sebagai budak dan hilang. Selama ditawan gaji tetap dibayar.</div>`,[[`💰 Tebus 🪙${x.ransom}`,()=>{const e=DG.ransom(S,i,'gold');if(e){toast(e);return false}toast('Ditebus! Pulang terluka 2 hari.');render()},'pri'],[`🐾 Tukar dengan hewan di kandang (${S.animals.length?LG.nameOf(S.animals[0]):'tidak ada'})`,()=>{const e=DG.ransom(S,i,'animal');if(e){toast(e);return false}toast('Pertukaran diterima.');render()}],['⚔ Misi penyelamatan (4 titik, 2 hari)',()=>{if(S.exp){toast('Ekspedisi lain sedang berjalan.');return false}setTimeout(()=>prepSheet(DG.REG[x.rid],0,i),0)}]])}
 function regionSheet(R){const box=el(`<div><div class="rimg"></div><div class="mut">${R.d}</div><div class="row" style="margin:6px 0"><span class="tag">Musuh Lv ${R.lv}–${R.lv+4}</span><span class="tag">${'★'.repeat(R.star)}</span>${R.locked?`<span class="tag dn">🔒 Ketenaran ${R.fame}</span>`:''}</div><b>Dungeon</b><div class="lst" id="dgl"></div></div>`);
  box.querySelector('.rimg').appendChild(cvOf(G.wildScene(R.dg[0].bio||R.bio,'siang',3),1));
  R.dg.forEach((g,i)=>{const r=el(`<div class="lr ${R.locked?'dis':''}"><div class="fi">${g.boss?'👑':'⚔'}</div><div class="lm"><b>${g.n}</b><div class="mut">${g.rows} titik · ${g.boss?'boss: '+G.FACTIONS[R.boss].n:'tanpa boss'}</div></div><div class="lp sm2">${g.days} hari</div></div>`);if(!R.locked)r.onclick=()=>prepSheet(R,i);box.querySelector('#dgl').appendChild(r)});
  sheet(R.ic+' '+R.n,box)}
-function prepSheet(R,di){const D=R.dg[di];let sel=[],bekal=3;const box=document.createElement('div');
+function prepSheet(R,di,resc){const D=resc!=null?{n:'Selamatkan '+LG.nameOf(S.pris[resc].u),rows:4,days:2}:R.dg[di];let sel=[],bekal=3;const box=document.createElement('div');
  const draw=()=>{box.innerHTML=`<div class="mut">${D.n} · ${D.rows} titik · ${D.days} hari. Rombongan tidak bisa ikut arena selama ekspedisi.</div><div class="mut" style="margin:6px 0">Pilih 1–3 petarung (hewan boleh)</div><div class="gridc" id="pg"></div>
   <div class="card" style="margin-top:8px"><div class="row" style="align-items:center;justify-content:space-between"><button id="bm">−</button><div style="text-align:center"><div style="font-size:24px">🍞 ${bekal}</div><div class="mut sm2">bekal · 🪙${bekal*DG.BEKAL}</div></div><button id="bp">＋</button></div><div class="mut sm2">Dipakai di api unggun (+35% HP) dan untuk umpan saat menangkap hewan.</div></div>`;
   DG.avail(S).forEach(u=>{const on=sel.includes(u);const c=unitCard(u,on?'sel':'',()=>{if(on)sel=sel.filter(x=>x!==u);else if(sel.length<3)sel.push(u);else return toast('Rombongan penuh.');draw()});if(on)c.insertAdjacentHTML('afterbegin',`<span class="no">${sel.indexOf(u)+1}</span>`);box.querySelector('#pg').appendChild(c)});
   if(!DG.avail(S).length)box.querySelector('#pg').innerHTML='<div class="mut">Tidak ada petarung sehat.</div>';
   box.querySelector('#bm').onclick=()=>{bekal=Math.max(0,bekal-1);draw()};box.querySelector('#bp').onclick=()=>{bekal=Math.min(DG.MAXB,bekal+1);draw()};const g=w&&w.querySelector('.go');if(g){g.textContent=`🗺 Berangkat (🪙${bekal*DG.BEKAL})`;g.disabled=!sel.length}};
- let w=null;draw();w=sheet(D.n,box,[[`🗺 Berangkat`,()=>{const e=DG.start(S,R.id,di,sel.map(u=>u.id),bekal);if(e){toast(e);return false}SFX.horn();toast('Rombongan berangkat!');save();render()},'pri go']]);draw()}
-function rPath(p){const e=S.exp,R=DG.REG[e.rid],D=R.dg[e.di],H=e.path.length;
+ let w=null;draw();w=sheet(D.n,box,[[`🗺 Berangkat`,()=>{const e=resc!=null?DG.startRescue(S,resc,sel.map(u=>u.id),bekal):DG.start(S,R.id,di,sel.map(u=>u.id),bekal);if(e){toast(e);return false}SFX.horn();toast('Rombongan berangkat!');save();render()},'pri go']]);draw()}
+function rPath(p){const e=S.exp,R=DG.REG[e.rid],D=e.D||R.dg[e.di],H=e.path.length;
  p.innerHTML=`<div class="phd"><div><b>${R.ic} ${D.n}</b><div class="mut sm2">Titik ${Math.min(H,e.row+1)}/${H} · ${R.n}${e.buff?' · ✨ Berkah Mars':''}</div></div><div class="pr">🍞${e.bekal} · 🪙${e.loot.gold}${e.loot.items.length?' · 🎁'+e.loot.items.length:''}${e.loot.animals.length?' · 🐾'+e.loot.animals.length:''}</div></div><div class="party" id="pt"></div><div class="pm" id="pm"><svg id="pe"></svg></div><div class="row" style="margin-top:8px"><button id="ret" style="flex:1">🏠 Pulang lebih awal</button></div>`;
  DG.party(S).forEach(u=>{const d=el(`<div class="pc2 ${u.hpf<=0?'ko':''}"><div class="pi2"></div><div class="pn3">${LG.nameOf(u)}</div><div class="hb2"><i style="width:${Math.max(0,u.hpf)*100}%;background:${u.hpf>.5?'#5cb85c':u.hpf>.25?'#e0b030':'#d03a2a'}"></i></div></div>`);d.querySelector('.pi2').appendChild(sprite(u,.7));$('pt').appendChild(d)});
  const pm=$('pm'),Wd=pm.clientWidth||360,RH=62,svg=$('pe');pm.style.height=(H*RH+16)+'px';svg.setAttribute('width',Wd);svg.setAttribute('height',H*RH+16);
@@ -1449,5 +1528,25 @@ function wildResult(){const a=DG.afterFight(S,B,curTeam);delete S.inFight;save()
   $('cbt').onclick=()=>{if(!S.exp||S.exp.bekal<1)return toast('Bekal habis.');S.exp.bekal--;c.p=Math.min(.9,c.p+.25);c.baited=1;draw()};if(c.baited)$('cbt').disabled=true;
   $('cl').onclick=()=>{cb.innerHTML='';a.cap=null}};draw()}
  $('back').onclick=()=>{if(a.cap)return toast('Tangkap atau lepaskan hewannya dulu.');$('bt').classList.remove('show');tab='dunia';if(S.exp&&S.exp.cleared){afterNode()}else render();if(!a.win)setTimeout(()=>{render()},0)}}
+
+// ===== HARIAN / CODEX / AULA / NEMESIS
+function dailyCard(){const D=S.dly;if(!D)return;const c=$('dly');if(!c)return;const L=D.login;
+ c.innerHTML=`<div class="card"><div class="row" style="justify-content:space-between"><b>📅 Misi Harian</b><span class="mut sm2">Login beruntun: ${D.streak}/7</span></div>${L&&!L.cl?`<button class="pri sm" id="lgc">🎁 Klaim bonus login hari ${L.day}: 🪙${L.amt}${L.day===7?' + item Epic':''}</button>`:''}<div id="dql"></div></div>`;
+ if(L&&!L.cl)$('lgc').onclick=()=>{LG.loginClaim(S);SFX.win();toast('Bonus login diklaim!');render()};
+ D.q.forEach((q,i)=>{const r=el(`<div class="dq"><div style="flex:1"><div>${LG.DQ[q.k][0].replace('{n}',q.n)}</div><div class="bar"><i style="width:${q.p/q.n*100}%"></i></div></div><div class="sm2" style="min-width:76px;text-align:right">${q.cl?'<span class="good">✔ Selesai</span>':q.p>=q.n?`<button class="pri cl">Klaim 🪙${q.rew}</button>`:`${q.p}/${q.n} · 🪙${q.rew}`}</div></div>`);const b=r.querySelector('.cl');if(b)b.onclick=()=>{LG.dqClaim(S,i);SFX.cmd();toast('+🪙'+q.rew);render()};$('dql').appendChild(r)})}
+function hallCard(){const H=S.hall||[];const c=$('hallc');if(!c||!H.length)return;c.innerHTML=`<h3>🏛 Aula Legenda <small class="mut">bonus XP latihan +${Math.round(LG.legacy(S)*100)}%</small></h3><div class="lst" id="hl"></div>`;
+ H.slice(0,8).forEach(h=>{const r=el(`<div class="lr"><div class="ic"></div><div class="lm"><b class="r-${h.r}">${h.n}</b> <span class="mut sm2">${h.cls}</span><div class="mut">${h.how==='rudis'?'🏛 Pensiun terhormat':'⚰ Gugur di arena'} · Lv ${h.lvl} · ${h.wins} menang · hari ${h.day}</div></div></div>`);
+  try{const R=Object.assign({},h.preset!=null?G.presetRecipe(h.preset):G.genRecipe(h.gseed),{eq:h.eq});r.querySelector('.ic').appendChild(cvOf(G.gladFrame(R,h.how==='rudis'?'menang':'tumbang',h.how==='rudis'?0:2),.8))}catch(_){}$('hl').appendChild(r)})}
+function codexSheet(tabk){const c=LG.codexScan(S);const box=document.createElement('div');const n=LG.codexCount(S),T=LG.codexTotal();
+ box.innerHTML=`<div class="mut">Koleksi ${n}/${T}</div><div class="bar"><i style="width:${n/T*100}%"></i></div><div class="seg" style="margin-top:6px"><button data-k="g">Gladiator</button><button data-k="a">Hewan</button><button data-k="b">Boss</button><button data-k="u">Item Unik</button></div><div class="gridc" id="cxg"></div><h3>Hadiah koleksi</h3><div id="cxm"></div>`;
+ box.querySelectorAll('.seg button').forEach(b=>{b.classList.toggle('on',b.dataset.k===tabk);b.onclick=()=>codexSheet(b.dataset.k)});const g=box.querySelector('#cxg');
+ const cell=(cv,name,own,sub)=>{const d=el(`<div class="cc ${own?'':'lock'}"></div>`);if(cv){if(!own)cv.style.filter='brightness(0)';d.appendChild(cv)}d.insertAdjacentHTML('beforeend',`<div><b>${own?name:'???'}</b></div><div class="mut sm2">${own?sub||'':'belum ditemukan'}</div>`);g.appendChild(d)};
+ if(tabk==='g')G.PRESETS.forEach((P,i)=>cell(cvOf(G.gladFrame(G.presetRecipe(i),'diam',0),1),P.nama,c.g[i],`<span class="r-${P.rarity}">${P.kelas}</span>`));
+ if(tabk==='a')Object.keys(G.SP).forEach(sp=>['common','rare','epic','legendary'].forEach(r=>cell(cvOf(G.animalFrame(sp,r,'diam',0,1),sp==='gajah'?.45:.6),G.animalName(sp,r),c.a[sp+':'+r],`<span class="r-${r}">${RN[r]}</span>`)));
+ if(tabk==='b')LG.CODEX_BOSS.forEach(id=>{const cv=id==='gajah'?cvOf(G.animalFrame('gajah','epic','diam',0,1),.45):cvOf(G.gladFrame(G.enemyRecipe(id,1),'diam',0),1);cell(cv,id==='gajah'?'Gajah Hannibal':G.FACTIONS[id].n,c.b[id],'dikalahkan')});
+ if(tabk==='u')G.UNIQ.forEach(q=>cell(cvOf(G.iconBuf(q.slot,q.t,'legendary',q.v),2),q.nama,c.u[q.nama],'Legendaris'));
+ LG.CODEX_MS.forEach(([need,lbl],i)=>{const done=c.cl.includes(i),ok=n>=need;const r=el(`<div class="dq"><div style="flex:1">${need} koleksi → <b>${lbl}</b></div>${done?'<span class="good sm2">✔ Diklaim</span>':ok?'<button class="pri cl">Klaim</button>':`<span class="mut sm2">${n}/${need}</span>`}</div>`);const b=r.querySelector('.cl');if(b)b.onclick=()=>{const e=LG.codexClaim(S,i);if(e)return toast(e);SFX.win();toast('Hadiah koleksi diklaim!');save();top();codexSheet(tabk)};box.querySelector('#cxm').appendChild(r)});
+ sheet('📖 Codex',box)}
+function nemCard(){const N=S.nem||[];if(!N.length)return '';return`<div class="card nemc"><b>☠ Nemesis</b> <span class="mut sm2">(bisa muncul di laga arena)</span>${N.map(n=>`<div class="dq"><div style="flex:1"><b class="bad">${n.rec.nama} ${n.title}</b><div class="mut sm2">${n.rec.kelas} · Lv ${n.lvl} · ${n.why} · bertemu ${n.met}×</div></div></div>`).join('')}</div>`}
 
 })();</script></body></html>
