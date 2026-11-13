@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Mana Duluan? Game Urutan Sejarah</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
 <style>
@@ -10,7 +10,9 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{font-size:clamp(12px,min(1vw,1.8vh),44px)}
 body{background:radial-gradient(1200px 700px at 85% -10%,#1e2a55 0,transparent 60%),radial-gradient(900px 600px at 0% 110%,#3a1518 0,transparent 60%),var(--bg);color:var(--text);font-family:"Plus Jakarta Sans",system-ui,sans-serif;height:100vh;overflow:hidden;user-select:none;-webkit-user-select:none}
-button{font:inherit;cursor:pointer;border:0;color:inherit}
+button{font:inherit;cursor:pointer;border:0;color:inherit;touch-action:manipulation}
+html,body{touch-action:none;-webkit-touch-callout:none;overscroll-behavior:none}
+.panel,.mlist{touch-action:pan-y}
 #app{height:100vh;display:grid;grid-template-rows:auto 1fr}
 
 /* BAR ATAS */
@@ -59,7 +61,7 @@ button{font:inherit;cursor:pointer;border:0;color:inherit}
 .slot{flex:1;min-height:20rem;border-radius:1.6rem;border:.25rem dashed #ffffff30;padding:.4rem;transition:.15s;display:flex}
 .slot.over{border-color:var(--key);background:#ffd16614;transform:scale(1.02)}
 .card{flex:1;position:relative;border-radius:1.3rem;background:linear-gradient(180deg,var(--card2),#141a30);border:.25rem solid #3a4a78;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 1.3rem 1.4rem;cursor:grab;touch-action:none;box-shadow:0 .6rem 0 #0007;transition:border-color .2s,box-shadow .2s,background .3s}
-.card:hover{border-color:var(--blue)}
+@media (hover:hover){.card:not(.lock):hover{border-color:var(--blue)}}
 .card .tx{display:flex;flex-direction:column;align-items:center}
 .card .era{position:absolute;top:.9rem;left:50%;transform:translateX(-50%);white-space:nowrap;font-weight:800;font-size:1.05rem;padding:.2rem .9rem;border-radius:2rem;color:#0b1020;background:var(--ec)}
 .card .ic{font-size:5.5rem;line-height:1.05;filter:drop-shadow(0 .4rem .6rem #0008)}
@@ -83,6 +85,7 @@ button{font:inherit;cursor:pointer;border:0;color:inherit}
 .btn.go{background:linear-gradient(135deg,#16a34a,#22c55e);border-color:#4ade80;color:#fff;box-shadow:0 .45rem 0 #14532d}
 .btn:hover{transform:translateY(-.15rem)}.btn:active{transform:translateY(.2rem)}
 .btn[hidden]{display:none}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 .gacts{min-height:4.6rem;display:flex;align-items:center}
 
 /* DUEL */
@@ -456,10 +459,14 @@ class Board{
       <div class="row"></div><div class="bfb"></div><button class="btn go bcheck">✅ Cek Urutan!</button>`;
     this.row=el.querySelector(".row");this.fb=el.querySelector(".bfb");this.bc=el.querySelector(".bcheck");
     this.bc.onclick=()=>this.check(false);
-    this.drag=null;this.sel=null;
+    this.drag=null;this.sel=null;this.tm=[];
   }
+  later(fn,ms){const t=setTimeout(()=>{this.tm=this.tm.filter(x=>x!==t);fn()},ms);this.tm.push(t)}
+  clearTimers(){this.tm.forEach(clearTimeout);this.tm=[]}
+  cancelDrag(){const d=this.drag;if(!d)return;this.drag=null;if(d.ghost)d.ghost.remove();d.el.classList.remove("ghosted");if(d.over)d.over.classList.remove("over")}
   load(cards){
-    this.done=false;this.try=1;this.sel=null;this.drag=null;
+    this.clearTimers();this.cancelDrag();
+    this.done=false;this.try=1;this.sel=null;this.bc.disabled=false;
     let order;do{order=shuffle(cards)}while(order.every((c,i)=>i===0||c.k>=order[i-1].k));
     this.row.innerHTML="";this.row.classList.remove("done");
     order.forEach((c,i)=>{
@@ -492,7 +499,7 @@ class Board{
     });
     const end=ev=>{
       const d=this.drag;if(!d||d.el!==el||d.pid!==ev.pointerId)return;this.drag=null;
-      if(d.moving){d.ghost.remove();el.classList.remove("ghosted");if(d.over){d.over.classList.remove("over");this.swap(el.parentElement,d.over)}}
+      if(d.moving){d.ghost.remove();el.classList.remove("ghosted");if(d.over){d.over.classList.remove("over");if(!this.done)this.swap(el.parentElement,d.over)}}
       else if(ev.type==="pointerup"&&!this.done&&!el.classList.contains("lock")){
         if(this.sel&&this.sel!==el){this.swap(this.sel.parentElement,el.parentElement);this.select(null)}
         else{this.select(this.sel===el?null:el);if(this.sel)SFX.pick()}
@@ -511,19 +518,20 @@ class Board{
   current(){return [...this.row.querySelectorAll(".slot")].map(s=>BANK[+s.firstElementChild.dataset.id])}
   center(){const r=this.row.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]}
   check(auto){
-    if(this.done||!G||G.over)return;this.select(null);
+    if(this.done||!G||G.over||this.bc.disabled&&!auto)return;this.cancelDrag();this.select(null);
     const cur=this.current(),sorted=cur.slice().sort((a,b)=>a.k-b.k),slots=[...this.row.querySelectorAll(".slot")];
     const okN=cur.filter((c,i)=>sorted[i].id===c.id).length;
     if(G.easy&&this.try===1&&okN<PER&&!auto){
       this.try=2;
       slots.forEach((s,i)=>{const card=s.firstElementChild;
         if(sorted[i].id===cur[i].id){card.classList.add("good","lock");card.querySelector(".mk").textContent="✓"}
-        else{card.classList.add("bad","shake");card.querySelector(".mk").textContent="✗";setTimeout(()=>card.classList.remove("bad","shake"),1100)}});
+        else{card.classList.add("bad","shake");card.querySelector(".mk").textContent="✗";this.later(()=>card.classList.remove("bad","shake"),1100)}});
+      this.bc.disabled=true;this.later(()=>{this.bc.disabled=false},1100);
       okN?SFX.part():SFX.bad();
       this.fb.innerHTML=`<span style="color:#fde68a">💪 Hampir! ${okN?"Kartu hijau sudah benar. ":""}Perbaiki sisanya, lalu cek lagi.</span>`;
       this.bc.textContent="✅ Cek Lagi!";return;
     }
-    this.done=true;this.row.classList.add("done");this.bc.hidden=true;
+    this.clearTimers();this.done=true;this.row.classList.add("done");this.bc.hidden=true;this.bc.disabled=false;
     this.row.querySelectorAll(".card").forEach(c=>c.classList.remove("good","bad","lock","shake","sel"));
     slots.forEach((s,i)=>{const card=s.firstElementChild,good=sorted[i].id===cur[i].id;
       card.classList.add(good?"good":"bad","show");card.querySelector(".mk").textContent=good?"✓":"✗";if(!good)card.classList.add("shake")});
@@ -539,7 +547,7 @@ class Board{
       this.fb.innerHTML=`<span style="color:#4ade80">${fast?(place===1?"⚡ Benar paling cepat!":"🥈 Benar urutan kedua!"):second?"👏 Berhasil diperbaiki!":"🎉 Urutannya benar semua!"}</span>`}
     else{okN?SFX.part():SFX.bad();toast(`+${pts}`,x,y,okN?"#ffd166":"#f87171");
       this.fb.innerHTML=`<span style="color:#fca5a5">${auto?"⏰ Waktu habis! ":""}Benar ${okN} dari ${PER}.</span>`;
-      setTimeout(()=>{const cards=sorted.map(c=>this.row.querySelector(`.card[data-id="${c.id}"]`));
+      this.later(()=>{const cards=sorted.map(c=>this.row.querySelector(`.card[data-id="${c.id}"]`));
         this.flip(()=>cards.forEach((c,i)=>slots[i].appendChild(c)));
         cards.forEach(c=>{c.classList.remove("good","bad","shake");c.classList.add("fixed")});
         this.fb.innerHTML='<span style="color:#cbd5f0">👆 Ini urutan yang benar. Perhatikan tahunnya!</span>'},1500)}
@@ -556,8 +564,9 @@ class Board{
 
 /* ---------- ALUR GAME ---------- */
 let MODE="easy",NP=1;
+function stopGame(){clearInterval(timerId);if(G){G.over=true;(G.boards||[]).forEach(b=>{b.clearTimers();b.cancelDrag()})}document.querySelectorAll(".ghost,.toast").forEach(e=>e.remove());$("bNext").hidden=true}
 function newGame(m,n){
-  if(m!==undefined){MODE=m;NP=n}audio();clearInterval(timerId);const DUEL=NP>1;
+  if(m!==undefined){MODE=m;NP=n}audio();stopGame();const DUEL=NP>1;
   const easy=MODE==="easy";
   G={mode:MODE,easy,duel:DUEL,np:NP,T:MODES[MODE].time,sets:drawSessions(easy,NP),s:-1,over:false};
   const bx=$("boards");bx.innerHTML="";G.boards=[];
@@ -578,7 +587,8 @@ function nextSession(){
 function sessionCheck(){
   if(!G.boards.every(b=>b.done))return;
   clearInterval(timerId);
-  setTimeout(()=>{$("bNext").hidden=false;$("bNext").textContent=G.s===SESSIONS-1?"🏁 Lihat Hasil":"Sesi Berikutnya ➜"},G.boards.some(b=>b.p.res[G.s]!=="p")?1700:500);
+  const g=G,s=G.s;
+  setTimeout(()=>{if(G!==g||G.s!==s||G.over)return;$("bNext").hidden=false;$("bNext").textContent=G.s===SESSIONS-1?"🏁 Lihat Hasil":"Sesi Berikutnya ➜"},G.boards.some(b=>b.p.res[G.s]!=="p")?1700:500);
   hud();
 }
 function tick(){
@@ -591,7 +601,7 @@ function hud(){
   $("sTimerBox").classList.toggle("low",G.time<=10&&!G.boards.every(b=>b.done));
 }
 function finish(){
-  clearInterval(timerId);G.over=true;
+  stopGame();
   const total=SESSIONS*PER,body=$("endBody");
   if(!G.duel){
     const p=G.boards[0].p,c=p.correct,stars=c>=total-1?3:c>=Math.ceil(total*.67)?2:c>=Math.ceil(total*.34)?1:0;
@@ -615,7 +625,7 @@ function finish(){
     body.innerHTML=`<div class="podium">${[ps[1],ps[0],ps[2]].map(pod).join("")}</div>`;
     $("ovEnd").hidden=false;SFX.win();rain();
   }else{
-    const[a,b]=G.boards.map(x=>x.p),w=a.score===b.score?-1:a.score>b.score?0:1;
+    const[a,b]=G.boards.map(x=>x.p),w=a.score!==b.score?(a.score>b.score?0:1):a.fast!==b.fast?(a.fast>b.fast?0:1):-1;
     $("endTitle").innerHTML=w<0?"🤝 Seri! Sama Hebatnya!":`🏆 <span style="color:${PLAYERS[w].c}">${PLAYERS[w].n}</span> Menang!`;
     const card=(p,i)=>`<div class="pc ${w===i?"win":""}" style="--pc:${PLAYERS[i].c}">${w===i?'<div class="crown">👑</div>':""}
       <div class="nm">${PLAYERS[i].n}</div><div class="sc">${p.score}</div>
@@ -626,7 +636,7 @@ function finish(){
     $("ovEnd").hidden=false;SFX.win();rain();
   }
 }
-function menu(){clearInterval(timerId);if(G)G.over=true;$("ovEnd").hidden=true;
+function menu(){stopGame();$("ovEnd").hidden=true;
   const be=store.get("md-best-easy"),bn=store.get("md-best-normal");
   $("meta").textContent=`📦 Bank: ${BANK.length} kartu peristiwa`+(be?`  ·  🏅 Terbaik Mudah: ${be}`:"")+(bn?`  ·  🏅 Terbaik Normal: ${bn}`:"");$("ovMenu").hidden=false}
 
@@ -655,6 +665,7 @@ $("bMat").onclick=matOpen;$("mClose").onclick=matClose;
 $("mPrev").onclick=()=>matShow(MP-1);
 $("mNext").onclick=()=>MP===ERAS.length-1?matClose():matShow(MP+1);
 addEventListener("keydown",ev=>{if($("ovMat").hidden)return;if(ev.key==="ArrowRight")$("mNext").click();if(ev.key==="ArrowLeft"&&MP>0)matShow(MP-1);if(ev.key==="Escape")matClose()});
+addEventListener("contextmenu",e=>e.preventDefault());
 menu();
 </script>
 </body>
