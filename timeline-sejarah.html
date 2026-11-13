@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mana Duluan? Game Urutan Sejarah</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1020;--card:#151b2e;--card2:#1d2643;--line:#2a3350;--text:#eef1f7;--muted:#9aa3b8;--red:#ef4444;--key:#ffd166;--ok:#22c55e;--blue:#60a5fa;--F:"Baloo 2","Plus Jakarta Sans",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:clamp(12px,min(1vw,1.8vh),44px)}
+body{background:radial-gradient(1200px 700px at 85% -10%,#1e2a55 0,transparent 60%),radial-gradient(900px 600px at 0% 110%,#3a1518 0,transparent 60%),var(--bg);color:var(--text);font-family:"Plus Jakarta Sans",system-ui,sans-serif;height:100vh;overflow:hidden;user-select:none;-webkit-user-select:none}
+button{font:inherit;cursor:pointer;border:0;color:inherit}
+#app{height:100vh;display:grid;grid-template-rows:auto 1fr}
+
+/* BAR ATAS */
+.top{display:flex;align-items:center;gap:1.2rem;padding:.9rem 1.8rem;background:#0b1020cc;border-bottom:2px solid var(--line)}
+.btn-s{background:var(--card2);border:2px solid var(--line);border-radius:.9rem;padding:.55rem 1rem;font-weight:800;font-size:1.05rem}
+.btn-s:hover{border-color:var(--key)}
+.mode{font-weight:800;font-size:1rem;padding:.3rem .9rem;border-radius:2rem;background:#22c55e;color:#052e16}
+.mode.n{background:#f97316;color:#fff}
+.slabel{font-family:var(--F);font-size:1.7rem;font-weight:800}
+.sp{flex:1}
+.stat{background:var(--card);border:2px solid var(--line);border-radius:.9rem;padding:.3rem 1rem;text-align:center;min-width:6.2rem}
+.stat .k{font-size:.78rem;color:var(--muted);font-weight:700;letter-spacing:.06em}
+.stat .v{font-family:var(--F);font-size:1.6rem;font-weight:800;line-height:1.05;color:var(--key)}
+.combo{background:linear-gradient(135deg,#f97316,#ef4444);border-color:#fb923c;opacity:.25;transition:.2s}
+.combo.on{opacity:1}.combo .v{color:#fff}
+.timer{width:15rem}
+.tbar{height:.9rem;border-radius:1rem;background:#ffffff14;overflow:hidden;margin-top:.3rem}
+.tbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--ok),var(--key));border-radius:1rem;transition:width 1s linear}
+.timer.low .tbar i{background:var(--red)}
+.timer.low .v{color:var(--red);animation:blink .5s infinite alternate}
+@keyframes blink{to{opacity:.4}}
+
+/* PANGGUNG */
+.stage{display:flex;flex-direction:column;align-items:center;padding:1.2rem 1.8rem 1.4rem;gap:1rem;min-height:0}
+.ask{font-family:var(--F);font-size:2.3rem;font-weight:800;text-align:center;line-height:1.1}
+.ask span{color:var(--key)}
+.ask small{display:block;font-family:"Plus Jakarta Sans",system-ui,sans-serif;font-size:1.1rem;color:var(--muted);font-weight:600;margin-top:.3rem}
+.legend{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;justify-content:center;background:#ffffff08;border:2px solid var(--line);border-radius:1.2rem;padding:.5rem 1rem}
+.legend[hidden]{display:none}
+.legend .lt{font-weight:800;color:var(--muted);font-size:.95rem;margin-right:.3rem}
+.legend span{font-weight:800;font-size:.95rem;padding:.15rem .75rem;border-radius:2rem;color:#0b1020}
+.legend i{font-style:normal;color:var(--key);font-weight:800}
+.boards{display:flex;gap:0;width:100%;flex:1;min-height:0;justify-content:center}
+.board{flex:1;display:flex;flex-direction:column;align-items:center;gap:.9rem;max-width:100rem;border-radius:1.6rem;padding:.8rem 1.2rem 1.1rem}
+.bhead{display:flex;align-items:center;gap:1rem;width:100%}
+.pname{font-family:var(--F);font-size:1.9rem;font-weight:800;color:var(--pc,var(--text));line-height:1}
+.pips{display:flex;gap:.4rem}
+.pip{width:1.45rem;height:1.45rem;border-radius:50%;background:#ffffff18;border:2px solid #ffffff30;display:grid;place-items:center;font-size:.8rem}
+.pip.now{border-color:var(--key);box-shadow:0 0 0 .3rem #ffd16633}
+.pip.p{background:var(--ok);border-color:var(--ok)}.pip.h{background:var(--key);border-color:var(--key)}.pip.x{background:var(--red);border-color:var(--red)}
+.row{display:flex;align-items:stretch;gap:1rem;width:100%;justify-content:center;flex:1;min-height:0}
+.arrow{align-self:center;font-size:3rem;color:var(--key);flex:none}
+.col{flex:1;max-width:30rem;display:flex;flex-direction:column;gap:.6rem}
+.slab{text-align:center;font-family:var(--F);font-weight:800;font-size:1.25rem;color:var(--muted)}
+.slab b{display:inline-grid;place-items:center;width:2.3rem;height:2.3rem;border-radius:50%;background:var(--card2);border:2px solid var(--line);color:var(--key);margin-right:.4rem}
+.slot{flex:1;min-height:20rem;border-radius:1.6rem;border:.25rem dashed #ffffff30;padding:.4rem;transition:.15s;display:flex}
+.slot.over{border-color:var(--key);background:#ffd16614;transform:scale(1.02)}
+.card{flex:1;position:relative;border-radius:1.3rem;background:linear-gradient(180deg,var(--card2),#141a30);border:.25rem solid #3a4a78;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 1.3rem 1.4rem;cursor:grab;touch-action:none;box-shadow:0 .6rem 0 #0007;transition:border-color .2s,box-shadow .2s,background .3s}
+.card:hover{border-color:var(--blue)}
+.card .tx{display:flex;flex-direction:column;align-items:center}
+.card .era{position:absolute;top:.9rem;left:50%;transform:translateX(-50%);white-space:nowrap;font-weight:800;font-size:1.05rem;padding:.2rem .9rem;border-radius:2rem;color:#0b1020;background:var(--ec)}
+.card .ic{font-size:5.5rem;line-height:1.05;filter:drop-shadow(0 .4rem .6rem #0008)}
+.card .tt{font-weight:800;font-size:1.65rem;line-height:1.22;margin-top:.8rem}
+.card .dt{margin-top:1rem;font-family:var(--F);font-weight:800;font-size:1.45rem;background:var(--key);color:#1a1300;border-radius:2rem;padding:.15rem 1.1rem;opacity:0;transform:scale(.6);transition:.4s cubic-bezier(.3,1.7,.5,1)}
+.card .mk{position:absolute;top:-1.1rem;right:-1.1rem;width:3.4rem;height:3.4rem;border-radius:50%;display:grid;place-items:center;font-size:1.9rem;font-weight:800;color:#fff;opacity:0;transform:scale(.3);transition:.35s cubic-bezier(.3,1.7,.5,1)}
+.card.sel{border-color:var(--key);box-shadow:0 0 0 .5rem #ffd16655,0 .6rem 0 #0007}
+.card.ghosted{opacity:.25}
+.ghost{position:fixed;z-index:50;pointer-events:none;transform:rotate(-3deg) scale(1.04);box-shadow:0 2rem 4rem #000b;border-color:var(--key)}
+.done .card,.card.lock{cursor:default}
+.card.good{border-color:var(--ok);background:linear-gradient(180deg,#14532d,#141a30)}
+.card.bad{border-color:var(--red);background:linear-gradient(180deg,#5b1414,#141a30)}
+.card.fixed{border-color:var(--blue);background:linear-gradient(180deg,#1e3a6b,#141a30)}
+.card.good .mk{background:var(--ok)}.card.bad .mk{background:var(--red)}
+.card.show .dt,.card.good .mk,.card.bad .mk{opacity:1;transform:scale(1)}
+.card.shake{animation:shake .5s}
+@keyframes shake{20%,60%{transform:translateX(-.7rem)}40%,80%{transform:translateX(.7rem)}}
+.bfb{font-family:var(--F);font-size:1.9rem;font-weight:800;min-height:2.4rem;text-align:center;line-height:1.15}
+.btn{background:var(--card2);border:.2rem solid var(--line);border-radius:1.2rem;padding:.9rem 2.2rem;font-weight:800;font-size:1.5rem;transition:transform .1s}
+.btn.pri{background:linear-gradient(135deg,var(--red),#f97316);border-color:#fb923c;color:#fff;box-shadow:0 .45rem 0 #7f1d1d}
+.btn.go{background:linear-gradient(135deg,#16a34a,#22c55e);border-color:#4ade80;color:#fff;box-shadow:0 .45rem 0 #14532d}
+.btn:hover{transform:translateY(-.15rem)}.btn:active{transform:translateY(.2rem)}
+.btn[hidden]{display:none}
+.gacts{min-height:4.6rem;display:flex;align-items:center}
+
+/* DUEL */
+.duel .ask{font-size:1.7rem}.duel .ask small{display:none}
+.duel .board{border:.25rem solid color-mix(in srgb,var(--pc) 55%,transparent);background:color-mix(in srgb,var(--pc) 7%,transparent)}
+.duel .board.win{box-shadow:0 0 0 .4rem var(--key)}
+.vs{flex:none;width:4.4rem;display:flex;align-items:center;justify-content:center;position:relative}
+.vs::before{content:"";position:absolute;top:0;bottom:0;width:.3rem;border-radius:1rem;background:linear-gradient(#f87171,#ffd166,#60a5fa)}
+.vs span{position:relative;font-family:var(--F);font-weight:800;font-size:1.6rem;background:var(--key);color:#1a1300;width:4rem;height:4rem;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 0 .4rem var(--bg)}
+.duel .row{gap:.5rem}.duel .arrow{font-size:1.8rem}
+.duel .slab{font-size:1rem}.duel .slab b{width:1.8rem;height:1.8rem}
+.duel .slot{min-height:14rem;border-radius:1.2rem}
+.duel .card{padding:2.4rem .7rem 1rem;border-radius:1rem}
+.duel .card .era{font-size:.78rem;top:.6rem;padding:.12rem .6rem}
+.duel .card .ic{font-size:3.6rem}
+.duel .card .tt{font-size:1.18rem;margin-top:.5rem}
+.duel .card .dt{font-size:1.02rem;margin-top:.6rem;padding:.1rem .7rem}
+.duel .card .mk{width:2.6rem;height:2.6rem;font-size:1.4rem;top:-.8rem;right:-.8rem}
+.duel .bfb{font-size:1.4rem;min-height:3.3rem}
+.duel .btn.bcheck{font-size:1.3rem;padding:.7rem 1.6rem}
+
+/* 3 PEMAIN: kartu tersusun dari atas ke bawah */
+.sep{flex:none;width:1.2rem;display:flex;justify-content:center}.sep::before{content:"";width:.25rem;border-radius:1rem;background:linear-gradient(#ffd16655,#ffffff22)}
+.trio .board{padding:.6rem .8rem .9rem;gap:.55rem}
+.trio .bhead{flex-wrap:wrap;gap:.5rem}
+.trio .pname{font-size:1.55rem}
+.trio .pip{width:1.15rem;height:1.15rem;font-size:.65rem}
+.trio .stat{min-width:4.8rem;padding:.15rem .6rem}.trio .stat .k{font-size:.68rem}.trio .stat .v{font-size:1.3rem}
+.trio .row{flex-direction:column;gap:.3rem}
+.trio .arrow{transform:rotate(90deg);font-size:1.3rem;line-height:1}
+.trio .col{flex-direction:row;align-items:stretch;gap:.5rem;max-width:none;flex:1;min-height:0}
+.trio .slab{font-size:0;display:flex;align-items:center}.trio .slab b{font-size:1.1rem;margin:0;width:2rem;height:2rem}
+.trio .slot{min-height:0;flex:1;border-radius:1rem;padding:.25rem}
+.trio .card{flex-direction:row;justify-content:flex-start;text-align:left;padding:.5rem .9rem;gap:.9rem;border-radius:.85rem}
+.trio .card .tx{align-items:flex-start}
+.trio .card .era{position:static;transform:none;font-size:.72rem;padding:.08rem .55rem;margin-bottom:.2rem}
+.trio .card .ic{font-size:2.9rem;flex:none}
+.trio .card .tt{font-size:1.12rem;margin:0}
+.trio .card .dt{font-size:.92rem;margin-top:.25rem;padding:.02rem .6rem}
+.trio .card .mk{width:2.1rem;height:2.1rem;font-size:1.15rem;top:-.55rem;right:-.55rem}
+.trio .bfb{font-size:1.1rem;min-height:2.6rem}
+.trio .btn.bcheck{font-size:1.15rem;padding:.55rem 1.3rem}
+.podium{display:grid;grid-template-columns:repeat(3,1fr);align-items:end;gap:1.4rem;margin:1.6rem 0 1.6rem}
+.pod .medal{font-size:4.6rem;line-height:1.1}
+.pod.r1 .medal{animation:bob 1s infinite alternate}
+@keyframes bob{to{transform:translateY(-.5rem) scale(1.1)}}
+.pod .nm{font-family:var(--F);font-size:2.1rem;font-weight:800;color:var(--pc);line-height:1.1}
+.pod .scr{font-family:var(--F);font-size:3.2rem;font-weight:800;color:var(--key);line-height:1.05;margin-bottom:.5rem}
+.pod .blk{border-radius:1.2rem 1.2rem .4rem .4rem;background:linear-gradient(180deg,color-mix(in srgb,var(--pc) 40%,#151b2e),#151b2e);border:.25rem solid color-mix(in srgb,var(--pc) 70%,transparent);padding:.9rem 1.1rem}
+.pod.r1 .blk{min-height:15rem;border-color:var(--key);box-shadow:0 0 0 .4rem #ffd16633}.pod.r2 .blk{min-height:11.5rem}.pod.r3 .blk{min-height:8.5rem}
+.pod .rk{font-family:var(--F);font-size:3.4rem;font-weight:800;line-height:1;margin-bottom:.4rem}
+.pod .ln{font-size:1.05rem;display:flex;justify-content:space-between;border-top:1px dashed #ffffff30;padding:.3rem 0}
+.pod .ln b{color:var(--key)}
+/* MATERI */
+.ov.mat{padding:0;place-items:stretch;background:var(--bg)}
+.mpanel{height:100vh;display:grid;grid-template-rows:auto auto 1fr auto;gap:1rem;padding:1.2rem 2rem 1.4rem;background:radial-gradient(1200px 600px at 90% -20%,color-mix(in srgb,var(--ec) 22%,transparent),transparent 60%)}
+.mtop{display:flex;align-items:center;gap:1rem}
+.mtitle{font-family:var(--F);font-size:1.7rem;font-weight:800;white-space:nowrap}
+.tabs{flex:1;display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap}
+.tab{font-weight:800;font-size:.95rem;padding:.35rem .9rem;border-radius:2rem;background:#ffffff10;border:2px solid transparent;color:var(--muted)}
+.tab.on{background:var(--tc);color:#0b1020;transform:scale(1.08)}
+.tab.done{color:var(--text)}
+.mhead{display:flex;align-items:center;gap:1.4rem;background:color-mix(in srgb,var(--ec) 14%,#151b2e);border:.25rem solid color-mix(in srgb,var(--ec) 60%,transparent);border-radius:1.4rem;padding:1rem 1.6rem}
+.mhead .bi{font-size:4.6rem;line-height:1}
+.mhead .pg{font-weight:800;color:var(--muted);font-size:1rem;letter-spacing:.06em}
+.mhead h2{font-family:var(--F);font-size:2.8rem;line-height:1;color:var(--ec)}
+.mhead .pr{display:inline-block;background:var(--ec);color:#0b1020;font-weight:800;border-radius:2rem;padding:.1rem .9rem;font-size:1.15rem;margin-left:.6rem;vertical-align:middle}
+.mhead p{font-size:1.25rem;color:#cbd5f0;margin-top:.35rem}
+.mlist{display:grid;grid-auto-flow:column;gap:.7rem 1.1rem;min-height:0;align-content:start}
+.mi{display:flex;gap:.9rem;align-items:center;background:var(--card);border:2px solid var(--line);border-left:.45rem solid var(--ec);border-radius:1rem;padding:.65rem 1rem;position:relative}
+.mi .n{position:absolute;top:-.55rem;left:-.6rem;background:var(--ec);color:#0b1020;font-weight:800;font-size:.8rem;width:1.6rem;height:1.6rem;border-radius:50%;display:grid;place-items:center}
+.mi .i{font-size:2.6rem;flex:none;line-height:1}
+.mi .d{display:inline-block;font-family:var(--F);font-weight:800;color:#1a1300;background:var(--key);border-radius:2rem;padding:0 .7rem;font-size:1rem}
+.mi .t{font-weight:800;font-size:1.18rem;line-height:1.2;margin:.15rem 0 .1rem}
+.mi .x{font-size:1rem;color:#cbd5f0;line-height:1.3}
+.mlist.big .mi{padding:1.1rem 1.4rem}.mlist.big .mi .i{font-size:3.6rem}.mlist.big .mi .t{font-size:1.6rem}.mlist.big .mi .x{font-size:1.3rem}.mlist.big .mi .d{font-size:1.2rem}
+.mlist{overflow:auto;padding:.7rem 0 .2rem .7rem}
+.dense .mhead{padding:.6rem 1.3rem;gap:1rem}.dense .mhead .bi{font-size:3rem}.dense .mhead h2{font-size:2rem}.dense .mhead .pr{font-size:1rem}.dense .mhead p{font-size:1.05rem;margin-top:.2rem}.dense .mhead .pg{font-size:.85rem}
+.dense .mlist{gap:.55rem .9rem}
+.dense .mi{padding:.45rem .8rem;gap:.7rem}.dense .mi .i{font-size:2.1rem}.dense .mi .t{font-size:1.02rem}.dense .mi .x{font-size:.88rem;line-height:1.25}.dense .mi .d{font-size:.85rem}
+.mnav{display:flex;align-items:center;gap:1rem;justify-content:space-between}
+.mdots{display:flex;gap:.5rem}.mdots i{width:1rem;height:1rem;border-radius:50%;background:#ffffff22}.mdots i.on{background:var(--ec);transform:scale(1.3)}
+.mbtn.m{background:linear-gradient(135deg,#0e7490,#7c3aed);box-shadow:0 .5rem 0 #164e63;width:100%;margin-bottom:1.1rem}
+/* TOAST, OVERLAY */
+.toast{position:fixed;z-index:60;font-family:var(--F);font-weight:800;font-size:2.8rem;pointer-events:none;text-shadow:0 .2rem 1rem #000;animation:up 1.3s forwards;transform:translate(-50%,-50%);white-space:nowrap}
+@keyframes up{from{opacity:0;margin-top:1rem}20%{opacity:1}to{opacity:0;margin-top:-5rem}}
+.ov{position:fixed;inset:0;z-index:40;background:#060a16e8;display:grid;place-items:center;padding:1.5rem}
+.ov[hidden]{display:none}
+.panel{background:linear-gradient(180deg,#1b2340,#121830);border:2px solid var(--line);border-radius:2rem;padding:1.8rem 3rem;max-width:84rem;width:100%;text-align:center;box-shadow:0 2rem 6rem #000c;max-height:96vh;overflow:auto}
+.panel h1{font-family:var(--F);font-size:4rem;line-height:1;font-weight:800}
+.panel h1 span{color:var(--key)}
+.lead{font-size:1.3rem;color:#cbd5f0;margin:.7rem 0 1.1rem}
+.how{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.3rem}
+.how div{background:#ffffff0a;border-radius:1rem;padding:.55rem 1rem;font-size:1.1rem}
+.how b{color:var(--key)}
+.mh{font-weight:800;color:var(--muted);letter-spacing:.08em;font-size:1.05rem;margin:0 0 .6rem;text-align:left}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.1rem}
+.mbtn{border-radius:1.4rem;padding:.75rem 1.2rem;text-align:center;transition:transform .12s;color:#fff}
+.mbtn:hover{transform:translateY(-.3rem)}
+.mbtn.e{background:linear-gradient(135deg,#15803d,#22c55e);box-shadow:0 .5rem 0 #14532d}
+.mbtn.n{background:linear-gradient(135deg,var(--red),#f97316);box-shadow:0 .5rem 0 #7f1d1d}
+.mbtn.t{background:linear-gradient(135deg,#dc2626 0%,#2563eb 50%,#16a34a 100%);box-shadow:0 .5rem 0 #1e3a8a}
+.mbtn.d{background:linear-gradient(135deg,#b91c1c 0%,#7c3aed 50%,#1d4ed8 100%);box-shadow:0 .5rem 0 #312e81}
+.mbtn .h{font-family:var(--F);font-size:1.9rem;font-weight:800;line-height:1.1}
+.mbtn .d2{font-size:1.05rem;opacity:.95;margin-top:.2rem}
+.meta{color:var(--muted);font-size:1.05rem}
+.stars{display:flex;justify-content:center;gap:1.4rem;margin:.8rem 0 1rem}
+.star{font-size:5.5rem;filter:grayscale(1) brightness(.4);transform:scale(.6);transition:all .35s cubic-bezier(.3,1.8,.5,1)}
+.star.on{filter:none;transform:scale(1)}
+.res{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:.6rem 0 1.2rem}
+.res div{background:var(--card);border-radius:1rem;padding:.7rem}
+.res .k{color:var(--muted);font-size:.95rem;font-weight:700}
+.res .v{font-family:var(--F);font-size:2.3rem;font-weight:800;color:var(--key);line-height:1.1}
+.recap-h{font-weight:800;color:var(--muted);letter-spacing:.06em;font-size:1rem;margin-bottom:.6rem;text-align:left}
+.recap{display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem;margin-bottom:1.3rem;counter-reset:r}
+.rc{counter-increment:r;display:flex;align-items:center;gap:.6rem;background:var(--card);border:2px solid var(--line);border-radius:.9rem;padding:.5rem .7rem;text-align:left;position:relative}
+.rc::before{content:counter(r);position:absolute;top:-.6rem;left:-.5rem;background:var(--red);color:#fff;font-weight:800;font-size:.8rem;width:1.5rem;height:1.5rem;border-radius:50%;display:grid;place-items:center}
+.rc .i{font-size:1.9rem;flex:none}
+.rc .d{font-family:var(--F);color:var(--key);font-weight:800;font-size:1rem;line-height:1.1}
+.rc .t{font-size:.85rem;line-height:1.2}
+.newbest{display:inline-block;background:var(--key);color:#1a1300;font-weight:800;border-radius:2rem;padding:.2rem 1rem;font-size:1.1rem;margin-bottom:.4rem}
+.duo{display:grid;grid-template-columns:1fr auto 1fr;gap:1.4rem;align-items:center;margin:3.2rem 0 1.6rem}
+.pc{border-radius:1.6rem;padding:1.4rem;border:.3rem solid color-mix(in srgb,var(--pc) 60%,transparent);background:color-mix(in srgb,var(--pc) 10%,#151b2e);position:relative}
+.pc.win{border-color:var(--key);box-shadow:0 0 0 .4rem #ffd16644;transform:scale(1.04)}
+.pc .crown{position:absolute;top:-2.8rem;left:50%;transform:translateX(-50%);font-size:4rem;animation:pop 1s infinite alternate}
+@keyframes pop{to{transform:translateX(-50%) scale(1.15) rotate(6deg)}}
+.pc .nm{font-family:var(--F);font-size:2.2rem;font-weight:800;color:var(--pc)}
+.pc .sc{font-family:var(--F);font-size:4.4rem;font-weight:800;color:var(--key);line-height:1}
+.pc .ln{display:flex;justify-content:space-between;font-size:1.15rem;padding:.35rem .2rem;border-top:1px dashed var(--line)}
+.pc .ln b{color:var(--key)}
+.vsbig{font-family:var(--F);font-size:3rem;font-weight:800;color:var(--key)}
+.bacts{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:70}
+
+@media (max-width:800px){
+  html{font-size:13px}body{height:auto;overflow:auto}#app{height:auto}
+  .top{flex-wrap:wrap}.timer{width:100%}
+  .boards{flex-direction:column;gap:1rem}.vs{width:auto;height:3rem}.vs::before{display:none}
+  .row{flex-direction:column;align-items:stretch}.arrow{transform:rotate(90deg)}.col{max-width:none}.slot{min-height:12rem}
+  .card .ic{font-size:3.5rem}.res,.recap,.modes,.duo,.podium{grid-template-columns:1fr}
+  .mpanel{height:auto;min-height:100vh}.mlist{grid-auto-flow:row;grid-template-columns:1fr!important;grid-template-rows:none!important}.mtop{flex-wrap:wrap}.mhead h2{font-size:2rem}.panel{padding:1.4rem}.panel h1{font-size:2.6rem}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <button class="btn-s" id="bMenu">🏠 Menu</button>
+    <span class="mode" id="modeTag">MUDAH</span>
+    <div class="slabel" id="sLabel">Sesi 1/5</div>
+    <div class="sp"></div>
+    <div class="stat timer" id="sTimerBox"><div class="k">WAKTU</div><div class="v" id="sTime">0:45</div><div class="tbar"><i id="sBar"></i></div></div>
+    <button class="btn-s" id="bSound">🔊</button>
+  </div>
+  <div class="stage" id="stage">
+    <div class="ask" id="ask">Susun dari yang <span>PALING AWAL</span> ➜ <span>PALING AKHIR</span>
+      <small>Seret kartu untuk menukar posisinya, lalu tekan Cek!</small></div>
+    <div class="legend" id="legend" hidden></div>
+    <div class="boards" id="boards"></div>
+    <div class="gacts"><button class="btn pri" id="bNext" hidden>Sesi Berikutnya ➜</button></div>
+  </div>
+</div>
+
+<div class="ov" id="ovMenu">
+  <div class="panel">
+    <h1>🤔 Mana <span>Duluan?</span></h1>
+    <div class="lead">Susun kartu peristiwa sejarah dari yang <b style="color:var(--key)">paling awal</b> sampai <b style="color:var(--key)">paling akhir</b>. Tahunnya tersembunyi. Pakai ingatan dan nalarmu!</div>
+    <div class="how">
+      <div>🎮 <b>5 sesi</b>, tiap sesi <b>3 kartu</b></div>
+      <div>✋ <b>Seret</b> kartu untuk menukar posisi</div>
+      <div>✅ Tekan <b>Cek</b>, tahunnya akan muncul</div>
+    </div>
+    <button class="mbtn m" id="bMat"><div class="h">📖 BACA MATERI DULU</div><div class="d2">54 peristiwa dalam 6 zaman · semua soal di game ada di sini</div></button>
+    <div class="mh">👤 MAIN SENDIRI</div>
+    <div class="modes">
+      <button class="mbtn e" data-m="easy" data-n="1"><div class="h">😊 MUDAH</div><div class="d2">Petunjuk zaman · 90 detik · boleh coba 2 kali</div></button>
+      <button class="mbtn n" data-m="normal" data-n="1"><div class="h">🔥 NORMAL</div><div class="d2">Tanpa petunjuk · 45 detik · 1 kali coba</div></button>
+    </div>
+    <div class="mh">⚔️ DUEL 2 PEMAIN · layar dibagi dua, main bersamaan</div>
+    <div class="modes">
+      <button class="mbtn d" data-m="easy" data-n="2"><div class="h">⚔️ DUEL MUDAH</div><div class="d2">🔴 Merah vs 🔵 Biru · petunjuk zaman · 90 detik</div></button>
+      <button class="mbtn d" data-m="normal" data-n="2"><div class="h">⚔️ DUEL NORMAL</div><div class="d2">🔴 Merah vs 🔵 Biru · tanpa petunjuk · 45 detik</div></button>
+    </div>
+    <div class="mh">🏆 3 PEMAIN · layar dibagi tiga, peringkat 1-2-3 di akhir</div>
+    <div class="modes">
+      <button class="mbtn t" data-m="easy" data-n="3"><div class="h">🏆 3 PEMAIN MUDAH</div><div class="d2">🔴 Merah · 🔵 Biru · 🟢 Hijau · petunjuk zaman · 90 detik</div></button>
+      <button class="mbtn t" data-m="normal" data-n="3"><div class="h">🏆 3 PEMAIN NORMAL</div><div class="d2">🔴 Merah · 🔵 Biru · 🟢 Hijau · tanpa petunjuk · 45 detik</div></button>
+    </div>
+    <div class="meta" id="meta"></div>
+  </div>
+</div>
+
+<div class="ov" id="ovEnd" hidden>
+  <div class="panel">
+    <h1 id="endTitle">Hebat!</h1>
+    <div id="endBody"></div>
+    <div class="bacts"><button class="btn pri" id="bAgain">🔁 Main Lagi</button><button class="btn" id="bHome">🏠 Menu</button></div>
+  </div>
+</div>
+<div class="ov mat" id="ovMat" hidden>
+  <div class="mpanel" id="mPanel">
+    <div class="mtop"><div class="mtitle">📖 Materi</div><div class="tabs" id="mTabs"></div><button class="btn-s" id="mClose">✖ Tutup</button></div>
+    <div class="mhead" id="mHead"></div>
+    <div class="mlist" id="mList"></div>
+    <div class="mnav"><button class="btn" id="mPrev">◀ Sebelumnya</button><div class="mdots" id="mDots"></div><button class="btn pri" id="mNext">Berikutnya ▶</button></div>
+  </div>
+</div>
+<canvas id="fx"></canvas>
+
+<script>
+/* k = kunci urutan (YYYYMMDD + pecahan jam), p = tanggal pasti (0 = hanya tahun) */
+const BANK=[
+ {k:14920000,p:0,d:"1492",ic:"⛵",t:"Columbus tiba di Benua Amerika",x:"Pelaut yang dibiayai Spanyol ini berlayar ke barat mencari jalan ke Asia, tetapi justru sampai di Benua Amerika."},
+ {k:14980000,p:0,d:"1498",ic:"🧭",t:"Vasco da Gama sampai di India",x:"Pelaut Portugis ini menemukan jalur laut ke Asia dengan berlayar mengelilingi ujung selatan Afrika."},
+ {k:15110000,p:0,d:"1511",ic:"🏝️",t:"Portugis merebut Malaka",x:"Malaka adalah pelabuhan dagang penting, sehingga Portugis bisa masuk ke Nusantara untuk mencari rempah."},
+ {k:16020000,p:0,d:"1602",ic:"🚢",t:"Belanda mendirikan VOC",x:"VOC adalah kongsi dagang Belanda yang memonopoli rempah, lalu lama-kelamaan menguasai banyak wilayah Nusantara."},
+ {k:17600000,p:0,d:"± 1760",ic:"🏭",t:"Revolusi Industri dimulai di Inggris",x:"Mesin dan pabrik mulai dipakai, sehingga Eropa butuh banyak bahan mentah murah dari negeri jajahan."},
+ {k:18170000,p:0,d:"1817",ic:"⚔️",t:"Pattimura memimpin perlawanan di Maluku",x:"Pattimura (Thomas Matulessy) memimpin rakyat Maluku melawan Belanda yang memeras rakyat."},
+ {k:18250000,p:0,d:"1825",ic:"🐎",t:"Perang Diponegoro dimulai di Jawa",x:"Pangeran Diponegoro memimpin perang besar melawan Belanda di Jawa yang berlangsung sampai 1830."},
+ {k:18300000,p:0,d:"1830",ic:"🌾",t:"Tanam Paksa dimulai di Indonesia",x:"Rakyat dipaksa menanam tanaman ekspor seperti kopi dan tebu untuk Belanda, sehingga banyak yang menderita."},
+ {k:18840000,p:0,d:"1884–1885",ic:"🗺️",t:"Negara Eropa membagi-bagi wilayah Afrika",x:"Negara-negara Eropa berunding dan membagi wilayah Afrika menjadi jajahan mereka masing-masing."},
+ {k:18850000,p:0,d:"1885",ic:"🗣️",t:"Kongres Nasional India berdiri",x:"Rakyat India membentuk organisasi untuk memperjuangkan hak bangsanya dari penjajah Inggris."},
+ {k:18960000,p:0,d:"1896",ic:"✊",t:"Rakyat Filipina melawan penjajah Spanyol",x:"Rakyat Filipina melakukan revolusi untuk melepaskan diri dari penjajahan Spanyol."},
+ {k:19010000,p:0,d:"1901",ic:"🏫",t:"Belanda memulai Politik Etis (sekolah untuk pribumi)",x:"Belanda mulai membuka sekolah untuk sebagian pribumi, sehingga lahirlah kaum terpelajar Indonesia."},
+ {k:19050000,p:0,d:"1905",ic:"⚓",t:"Jepang mengalahkan Rusia dalam perang",x:"Kemenangan Jepang membuktikan bahwa bangsa Asia mampu mengalahkan bangsa Eropa."},
+ {k:19080520,p:1,d:"20 Mei 1908",ic:"📚",t:"Budi Utomo berdiri",x:"Organisasi pergerakan nasional pertama. Tanggal berdirinya diperingati sebagai Hari Kebangkitan Nasional."},
+ {k:19110000,p:0,d:"1911",ic:"🏯",t:"Revolusi di Tiongkok",x:"Rakyat Tiongkok mengakhiri kekuasaan kaisar dan mendirikan negara republik."},
+ {k:19140000,p:0,d:"1914",ic:"💥",t:"Perang Dunia I dimulai",x:"Perang besar antarnegara Eropa yang membuat negara-negara penjajah menjadi lemah."},
+ {k:19180000,p:0,d:"1918",ic:"🏳️",t:"Perang Dunia I berakhir",x:"Setelah perang, muncul gagasan bahwa setiap bangsa berhak menentukan nasibnya sendiri."},
+ {k:19270704,p:1,d:"4 Juli 1927",ic:"🏛️",t:"Soekarno mendirikan PNI",x:"Partai Nasional Indonesia memperjuangkan Indonesia merdeka tanpa bekerja sama dengan Belanda."},
+ {k:19281028,p:1,d:"28 Oktober 1928",ic:"🤝",t:"Sumpah Pemuda diikrarkan",x:"Para pemuda berikrar: satu tanah air, satu bangsa, dan menjunjung bahasa persatuan, bahasa Indonesia."},
+ {k:19290000,p:0,d:"1929",ic:"📉",t:"Depresi Besar: krisis ekonomi dunia",x:"Ekonomi dunia ambruk dan banyak orang kehilangan pekerjaan. Jepang mulai mencari wilayah baru."},
+ {k:19340000,p:0,d:"1934",ic:"⛓️",t:"Soekarno diasingkan Belanda ke Ende",x:"Belanda membuang Soekarno ke Ende, Flores, agar ia tidak bisa memimpin pergerakan."},
+ {k:19390901,p:1,d:"1 September 1939",ic:"🌍",t:"Perang Dunia II dimulai",x:"Perang terbesar dalam sejarah dimulai di Eropa, lalu meluas ke Asia dan Pasifik."},
+ {k:19410814,p:1,d:"14 Agustus 1941",ic:"📄",t:"Piagam Atlantik: setiap bangsa berhak memilih pemerintahnya",x:"Amerika Serikat dan Inggris menyatakan bahwa setiap bangsa berhak memilih pemerintahannya sendiri."},
+ {k:19411207,p:1,d:"7 Desember 1941",ic:"✈️",t:"Jepang menyerang Pearl Harbor, Amerika",x:"Serangan ini membuat Amerika ikut berperang, lalu Jepang mulai menyerbu Asia Tenggara."},
+ {k:19420308,p:1,d:"8 Maret 1942",ic:"🏳️",t:"Belanda menyerah kepada Jepang di Kalijati",x:"Sejak saat itu Indonesia dikuasai Jepang, dan kekuasaan Belanda berakhir."},
+ {k:19420400,p:0,d:"1942",ic:"📢",t:"Jepang membuat Gerakan 3A",x:"Semboyan Jepang Pemimpin Asia, Jepang Pelindung Asia, dan Jepang Cahaya Asia, untuk menarik simpati rakyat."},
+ {k:19430400,p:0,d:"1943",ic:"👥",t:"Putera dibentuk, dipimpin Empat Serangkai",x:"Putera (Pusat Tenaga Rakyat) dipimpin Soekarno, Hatta, Ki Hajar Dewantara, dan K.H. Mas Mansur."},
+ {k:19431003,p:1,d:"3 Oktober 1943",ic:"🪖",t:"PETA dibentuk untuk melatih pemuda",x:"Pemuda Indonesia dilatih militer oleh Jepang. Kelak banyak anggotanya ikut membela kemerdekaan."},
+ {k:19440907,p:1,d:"7 September 1944",ic:"🗨️",t:"PM Koiso menjanjikan kemerdekaan Indonesia",x:"Saat mulai kalah perang, Jepang menjanjikan kemerdekaan agar rakyat Indonesia tetap membantunya."},
+ {k:19450301,p:1,d:"Maret 1945",ic:"🏢",t:"BPUPKI dibentuk",x:"Badan untuk menyelidiki persiapan kemerdekaan, diketuai dr. Radjiman Wedyodiningrat."},
+ {k:19450529,p:1,d:"29 Mei 1945",ic:"🪑",t:"Sidang pertama BPUPKI dimulai",x:"Sidang pertama BPUPKI (29 Mei–1 Juni) membahas rumusan dasar negara Indonesia."},
+ {k:19450601,p:1,d:"1 Juni 1945",ic:"🎤",t:"Soekarno berpidato tentang Pancasila",x:"Soekarno mengusulkan Pancasila sebagai dasar negara. Kini diperingati sebagai Hari Lahir Pancasila."},
+ {k:19450622,p:1,d:"22 Juni 1945",ic:"📜",t:"Panitia Sembilan merumuskan Piagam Jakarta",x:"Sembilan tokoh merumuskan rancangan dasar negara yang disebut Piagam Jakarta."},
+ {k:19450710,p:1,d:"10 Juli 1945",ic:"📝",t:"Sidang kedua BPUPKI membahas UUD",x:"Sidang kedua BPUPKI (10–17 Juli) membahas rancangan Undang-Undang Dasar."},
+ {k:19450806,p:1,d:"6 Agustus 1945",ic:"💣",t:"Bom atom dijatuhkan di Hiroshima",x:"Sekutu menjatuhkan bom atom pertama di Jepang, sehingga kekuatan Jepang melemah."},
+ {k:19450807,p:1,d:"7 Agustus 1945",ic:"🏛️",t:"PPKI dibentuk",x:"PPKI menggantikan BPUPKI, diketuai Soekarno dengan wakil Mohammad Hatta."},
+ {k:19450809,p:1,d:"9 Agustus 1945",ic:"💣",t:"Bom atom dijatuhkan di Nagasaki",x:"Bom atom kedua jatuh di Nagasaki, sehingga Jepang semakin dekat dengan kekalahan."},
+ {k:19450809,p:1,d:"9 Agustus 1945",ic:"✈️",t:"Soekarno, Hatta, Radjiman berangkat ke Dalat",x:"Mereka menemui Marsekal Terauchi di Vietnam, yang menjanjikan kemerdekaan bagi Indonesia."},
+ {k:19450815.3,p:1,d:"15 Agustus 1945",ic:"🏳️",t:"Jepang menyerah tanpa syarat kepada Sekutu",x:"Jepang kalah perang, sehingga terjadi kekosongan kekuasaan di Indonesia."},
+ {k:19450815.8,p:1,d:"15 Agustus 1945 · malam",ic:"🚪",t:"Wikana dan Darwis mendesak Soekarno, tetapi ditolak",x:"Golongan muda ingin proklamasi segera, tetapi Soekarno ingin membahasnya dulu dengan PPKI."},
+ {k:19450816.1,p:1,d:"16 Agustus 1945 · dini hari",ic:"🚗",t:"Peristiwa Rengasdengklok",x:"Golongan muda membawa Soekarno dan Hatta ke Rengasdengklok, Karawang, agar jauh dari pengaruh Jepang."},
+ {k:19450816.6,p:1,d:"16 Agustus 1945 · sore",ic:"🤝",t:"Ahmad Soebardjo menjemput Soekarno–Hatta",x:"Ahmad Soebardjo menjamin bahwa proklamasi akan dilaksanakan keesokan harinya."},
+ {k:19450816.9,p:1,d:"16 Agustus 1945 · malam",ic:"✍️",t:"Teks proklamasi dirumuskan di rumah Laksamana Maeda",x:"Soekarno, Hatta, dan Ahmad Soebardjo menyusun teks proklamasi dari malam sampai menjelang subuh."},
+ {k:19450817.05,p:1,d:"17 Agustus 1945 · dini hari",ic:"⌨️",t:"Sayuti Melik mengetik naskah proklamasi",x:"Naskah tulisan tangan Soekarno diketik dengan sedikit perubahan, misalnya \"tempoh\" menjadi \"tempo\"."},
+ {k:19450817.4,p:1,d:"17 Agustus 1945 · 10.00",ic:"🎙️",t:"Proklamasi dibacakan, Merah Putih dikibarkan",x:"Soekarno membacakan proklamasi didampingi Hatta di Jalan Pegangsaan Timur No. 56, Jakarta."},
+ {k:19450817.7,p:1,d:"17 Agustus 1945 · siang",ic:"📻",t:"Berita proklamasi disiarkan lewat kantor berita Domei",x:"Berita kemerdekaan disiarkan lewat radio, sehingga cepat diketahui rakyat dan dunia."},
+ {k:19450818,p:1,d:"18 Agustus 1945",ic:"📘",t:"UUD 1945 disahkan, Soekarno–Hatta dipilih",x:"Sidang PPKI mengesahkan UUD 1945 serta memilih Soekarno sebagai presiden dan Hatta sebagai wakil presiden."},
+ {k:19450819,p:1,d:"19 Agustus 1945",ic:"🗺️",t:"Indonesia dibagi menjadi 8 provinsi",x:"Wilayah Indonesia dibagi menjadi 8 provinsi, dan dibentuk 12 kementerian."},
+ {k:19450822,p:1,d:"22 Agustus 1945",ic:"🛡️",t:"KNIP dan BKR dibentuk",x:"KNIP membantu tugas presiden, sedangkan BKR dibentuk untuk menjaga keamanan rakyat."},
+ {k:19450905,p:1,d:"5 September 1945",ic:"👑",t:"Yogyakarta menyatakan bergabung dengan RI",x:"Sultan Hamengkubuwono IX dan Paku Alam VIII menyatakan Yogyakarta bagian dari Republik Indonesia."},
+ {k:19450919,p:1,d:"19 September 1945",ic:"📣",t:"Rapat Raksasa di Lapangan Ikada, Jakarta",x:"Ribuan rakyat berkumpul, lalu Soekarno berpidato singkat untuk menenangkan rakyat."},
+ {k:19450919,p:1,d:"19 September 1945",ic:"🏨",t:"Insiden Hotel Yamato di Surabaya",x:"Para pemuda merobek warna biru bendera Belanda sehingga tersisa Merah Putih."},
+ {k:19451005,p:1,d:"5 Oktober 1945",ic:"🎖️",t:"BKR menjadi TKR (Hari TNI)",x:"Badan Keamanan Rakyat menjadi Tentara Keamanan Rakyat. Tanggal ini diperingati sebagai Hari TNI."},
+ {k:19451024,p:1,d:"24 Oktober 1945",ic:"🌐",t:"PBB resmi berdiri",x:"Perserikatan Bangsa-Bangsa didirikan untuk menjaga perdamaian dunia setelah Perang Dunia II."}
+];
+const ERAS=[
+ {n:"Zaman Penjelajahan",ic:"🧭",c:"#2dd4bf",max:16000000},
+ {n:"Masa Penjajahan",ic:"⛓️",c:"#a78bfa",max:19000000},
+ {n:"Masa Pergerakan",ic:"📚",c:"#fb923c",max:19420000},
+ {n:"Masa Jepang",ic:"🪖",c:"#60a5fa",max:19450000},
+ {n:"Persiapan Merdeka",ic:"🏛️",c:"#f472b6",max:19450817},
+ {n:"Masa Proklamasi",ic:"🕊️",c:"#f87171",max:Infinity}];
+BANK.forEach((c,i)=>{c.id=i;c.e=ERAS.findIndex(e=>c.k<e.max)});
+[["1492–1511","Bangsa Eropa berlayar jauh mencari rempah-rempah dan jalur dagang baru."],
+ ["1602–1896","Bangsa Eropa menguasai banyak negeri dan mengambil kekayaannya. Rakyat mulai melawan."],
+ ["1901–1941","Bangsa terjajah bersekolah, berorganisasi, dan bersatu. Dunia dilanda perang dan krisis."],
+ ["1942–1944","Jepang mengusir Belanda dan menguasai Indonesia, sambil menjanjikan kemerdekaan."],
+ ["Maret – 16 Agustus 1945","Para tokoh menyiapkan dasar negara, lalu Jepang kalah perang."],
+ ["17 Agustus – Oktober 1945","Indonesia merdeka dan mulai membangun pemerintahannya sendiri."]].forEach(([pr,ds],i)=>{ERAS[i].pr=pr;ERAS[i].ds=ds});
+const SESSIONS=5,PER=3,MODES={easy:{time:90,label:"MUDAH"},normal:{time:45,label:"NORMAL"}};
+const PLAYERS=[{n:"🔴 Merah",c:"#f87171"},{n:"🔵 Biru",c:"#60a5fa"},{n:"🟢 Hijau",c:"#4ade80"}];
+const BONUS={2:[150],3:[150,75]};
+const $=id=>document.getElementById(id);
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let G=null,soundOn=true,timerId=null;
+
+/* ---------- SUARA ---------- */
+let ac=null;
+function audio(){if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ac&&ac.state==="suspended")ac.resume();return ac}
+function tone(f,dur,type="triangle",vol=.18,when=0){if(!soundOn)return;const a=audio();if(!a)return;const t=a.currentTime+when,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+.05)}
+const SFX={
+ pick(){tone(700,.05,"sine",.08)},swap(){tone(520,.06,"sine",.1);tone(780,.08,"sine",.1,.05)},
+ ok(){tone(660,.12);tone(880,.12,"triangle",.18,.09);tone(1320,.22,"triangle",.18,.18)},
+ part(){tone(523,.15);tone(659,.2,"triangle",.15,.12)},
+ bad(){tone(220,.22,"sawtooth",.09);tone(165,.32,"sawtooth",.09,.13)},
+ tick(){tone(1100,.05,"square",.05)},
+ star(i){tone(784*Math.pow(1.26,i),.25,"triangle",.2)},
+ win(){[523,659,784,1047].forEach((f,i)=>tone(f,.25,"triangle",.18,i*.13));[523,659,784].forEach(f=>tone(f,.8,"sine",.1,.6))}
+};
+
+/* ---------- KONFETI ---------- */
+const cv=$("fx"),cx=cv.getContext("2d");let P=[],raf=null;
+function fit(){cv.width=innerWidth*devicePixelRatio;cv.height=innerHeight*devicePixelRatio;cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}fit();addEventListener("resize",fit);
+const COL=["#ffd166","#ef4444","#22c55e","#60a5fa","#a78bfa","#f472b6","#fff"];
+function burst(x,y,n=50){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,v=4+Math.random()*8;P.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-4,r:Math.random()*6,vr:(Math.random()-.5)*.4,s:7+Math.random()*8,c:COL[i%COL.length],l:80+Math.random()*30})}run()}
+function rain(n=280){for(let i=0;i<n;i++)P.push({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*.6,vx:(Math.random()-.5)*3,vy:2+Math.random()*4,r:Math.random()*6,vr:(Math.random()-.5)*.3,s:8+Math.random()*8,c:COL[i%COL.length],l:280});run()}
+function run(){if(raf)return;const step=()=>{cx.clearRect(0,0,innerWidth,innerHeight);P=P.filter(p=>p.l>0&&p.y<innerHeight+40);for(const p of P){p.vy+=.18;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.l--;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx.restore()}if(P.length)raf=requestAnimationFrame(step);else{raf=null;cx.clearRect(0,0,innerWidth,innerHeight)}};raf=requestAnimationFrame(step)}
+
+
+/* ---------- UTIL ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function toast(txt,x,y,col){const t=document.createElement("div");t.className="toast";t.textContent=txt;t.style.left=x+"px";t.style.top=y+"px";t.style.color=col;document.body.appendChild(t);setTimeout(()=>t.remove(),1350)}
+const year=c=>Math.floor(c.k/10000);
+function clash(a,b,easy){return a.k===b.k||(year(a)===year(b)&&(!a.p||!b.p))||(easy&&a.e===b.e)}
+function validSet(set,easy){for(let i=0;i<set.length;i++)for(let j=i+1;j<set.length;j++)if(clash(set[i],set[j],easy))return false;return true}
+function dayNum(k){const y=Math.floor(k/10000),m=Math.floor(k/100)%100,d=Math.floor(k)%100;return m?y*365.25+(m-1)*30.4+d+(k%1):y*365.25+182}
+/* tingkat kesulitan = seberapa dekat jarak waktu antar kartu */
+function diffScore(set){const ds=set.map(c=>dayNum(c.k)).sort((a,b)=>a-b);let s=0;for(let i=1;i<ds.length;i++){const g=ds[i]-ds[i-1];s+=g<2?4:g<35?3:g<366?2:g<9131?1:0}return s}
+
+/* Ambil kartu untuk 5 sesi; utamakan yang belum pernah muncul. Duel: set kedua dipilih setara kesulitannya. */
+function drawSessions(easy,np){
+  const need=SESSIONS*PER*np;
+  let seen=new Set(store.get("md-seen")||[]);
+  if(BANK.length-seen.size<need+3)seen=new Set();
+  let best=null,bc=1e9;
+  for(let t=0;t<40&&bc>0;t++){
+    const r=drawOnce(easy,np,seen);
+    const c=r.out.reduce((m,sets)=>{if(sets.some(x=>x.length<PER||!validSet(x,easy)))return m+1e6;const ds=sets.map(diffScore);return m+Math.max(...ds)-Math.min(...ds)},0);
+    if(c<bc){bc=c;best=r}
+  }
+  best.used.forEach(id=>seen.add(id));store.set("md-seen",[...seen]);
+  return best.out;
+}
+function drawOnce(easy,np,seen){
+  const pool=shuffle(BANK.filter(c=>!seen.has(c.id))).concat(shuffle(BANK.filter(c=>seen.has(c.id))));
+  const used=new Set(),out=[];
+  const greedy=()=>{const pick=[];for(const c of pool){if(used.has(c.id)||pick.some(x=>clash(x,c,easy)))continue;pick.push(c);if(pick.length===PER)break}pick.forEach(c=>used.add(c.id));return pick};
+  for(let s=0;s<SESSIONS;s++){
+    const A=greedy(),sets=[A];
+    const dA=diffScore(A),eA=A.map(c=>c.e).sort().join();
+    for(let k=1;k<np;k++){
+      const rest=pool.filter(c=>!used.has(c.id));
+      let best=null,bs=1e9;
+      for(let t=0;t<2000;t++){
+        const B=shuffle(rest.slice(0,Math.min(rest.length,t<800?26:40))).slice(0,PER);
+        if(B.length<PER||!validSet(B,easy))continue;
+        const sc=Math.abs(diffScore(B)-dA)*2+(B.map(c=>c.e).sort().join()===eA?0:1)+B.filter(c=>seen.has(c.id)).length*.5;
+        if(sc<bs){bs=sc;best=B;if(sc===0)break}
+      }
+      if(best)best.forEach(c=>used.add(c.id));else best=greedy();
+      sets.push(best);
+    }
+    out.push(shuffle(sets));
+  }
+  return {out,used};
+}
+
+/* ---------- PAPAN PEMAIN (satu per pemain, mendukung multi-touch) ---------- */
+class Board{
+  constructor(i){
+    this.i=i;this.p={score:0,streak:0,correct:0,perfect:0,fast:0,res:[]};
+    const el=this.el=document.createElement("div");el.className="board";
+    if(G.duel)el.style.setProperty("--pc",PLAYERS[i].c);
+    el.innerHTML=`<div class="bhead"><div class="pname">${G.duel?PLAYERS[i].n:"🎯 Kamu"}</div><div class="pips"></div><div class="sp"></div>
+      <div class="stat"><div class="k">SKOR</div><div class="v sc">0</div></div>
+      <div class="stat combo"><div class="k">${G.duel?"⚡ TERCEPAT":"BERUNTUN"}</div><div class="v cb">0</div></div></div>
+      <div class="row"></div><div class="bfb"></div><button class="btn go bcheck">✅ Cek Urutan!</button>`;
+    this.row=el.querySelector(".row");this.fb=el.querySelector(".bfb");this.bc=el.querySelector(".bcheck");
+    this.bc.onclick=()=>this.check(false);
+    this.drag=null;this.sel=null;
+  }
+  load(cards){
+    this.done=false;this.try=1;this.sel=null;this.drag=null;
+    let order;do{order=shuffle(cards)}while(order.every((c,i)=>i===0||c.k>=order[i-1].k));
+    this.row.innerHTML="";this.row.classList.remove("done");
+    order.forEach((c,i)=>{
+      if(i)this.row.insertAdjacentHTML("beforeend",'<div class="arrow">➜</div>');
+      const col=document.createElement("div");col.className="col";
+      col.innerHTML=`<div class="slab"><b>${i+1}</b>${i===0?"Paling awal":i===PER-1?"Paling akhir":"Tengah"}</div>`;
+      const slot=document.createElement("div");slot.className="slot";slot.appendChild(this.makeCard(c));
+      col.appendChild(slot);this.row.appendChild(col);
+    });
+    this.fb.textContent="";this.bc.hidden=false;this.bc.textContent="✅ Cek Urutan!";this.el.classList.remove("win");
+    this.hud();
+  }
+  makeCard(c){
+    const el=document.createElement("div"),er=ERAS[c.e];el.className="card";el.dataset.id=c.id;
+    el.innerHTML=`<div class="mk"></div><div class="ic">${c.ic}</div><div class="tx">${G.easy?`<div class="era" style="--ec:${er.c}">${er.ic} ${er.n}</div>`:""}<div class="tt">${c.t}</div><div class="dt">${c.d}</div></div>`;
+    el.addEventListener("pointerdown",ev=>{
+      if(this.done||this.drag||ev.button>0||el.classList.contains("lock"))return;ev.preventDefault();el.setPointerCapture(ev.pointerId);
+      const r=el.getBoundingClientRect();this.drag={el,pid:ev.pointerId,x0:ev.clientX,y0:ev.clientY,dx:ev.clientX-r.left,dy:ev.clientY-r.top,w:r.width,h:r.height,moving:false,ghost:null,over:null};
+    });
+    el.addEventListener("pointermove",ev=>{
+      const d=this.drag;if(!d||d.el!==el||d.pid!==ev.pointerId)return;
+      if(!d.moving){if(Math.hypot(ev.clientX-d.x0,ev.clientY-d.y0)<10)return;
+        d.moving=true;const g=el.cloneNode(true);g.classList.add("ghost");g.classList.remove("sel");g.style.width=d.w+"px";g.style.height=d.h+"px";
+        document.getElementById("stage").appendChild(g);d.ghost=g;el.classList.add("ghosted");this.select(null);SFX.pick()}
+      d.ghost.style.left=(ev.clientX-d.dx)+"px";d.ghost.style.top=(ev.clientY-d.dy)+"px";
+      const t=document.elementFromPoint(ev.clientX,ev.clientY),s=t&&t.closest(".slot");
+      const target=s&&this.row.contains(s)&&s!==el.parentElement&&!s.firstElementChild.classList.contains("lock")?s:null;
+      if(d.over&&d.over!==target)d.over.classList.remove("over");
+      if(target){target.classList.add("over");d.over=target}else d.over=null;
+    });
+    const end=ev=>{
+      const d=this.drag;if(!d||d.el!==el||d.pid!==ev.pointerId)return;this.drag=null;
+      if(d.moving){d.ghost.remove();el.classList.remove("ghosted");if(d.over){d.over.classList.remove("over");this.swap(el.parentElement,d.over)}}
+      else if(ev.type==="pointerup"&&!this.done&&!el.classList.contains("lock")){
+        if(this.sel&&this.sel!==el){this.swap(this.sel.parentElement,el.parentElement);this.select(null)}
+        else{this.select(this.sel===el?null:el);if(this.sel)SFX.pick()}
+      }
+    };
+    el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
+    return el;
+  }
+  select(el){this.sel=el;this.row.querySelectorAll(".card").forEach(c=>c.classList.toggle("sel",c===el))}
+  flip(fn){
+    const cs=[...this.row.querySelectorAll(".card")],before=new Map(cs.map(c=>[c,c.getBoundingClientRect()]));fn();
+    cs.forEach(c=>{const a=before.get(c),b=c.getBoundingClientRect(),dx=a.left-b.left,dy=a.top-b.top;if(!dx&&!dy)return;
+      c.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:"none"}],{duration:420,easing:"cubic-bezier(.3,1.3,.5,1)"})});
+  }
+  swap(sa,sb){if(sa===sb)return;const a=sa.firstElementChild,b=sb.firstElementChild;this.flip(()=>{sa.appendChild(b);sb.appendChild(a)});SFX.swap()}
+  current(){return [...this.row.querySelectorAll(".slot")].map(s=>BANK[+s.firstElementChild.dataset.id])}
+  center(){const r=this.row.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]}
+  check(auto){
+    if(this.done||!G||G.over)return;this.select(null);
+    const cur=this.current(),sorted=cur.slice().sort((a,b)=>a.k-b.k),slots=[...this.row.querySelectorAll(".slot")];
+    const okN=cur.filter((c,i)=>sorted[i].id===c.id).length;
+    if(G.easy&&this.try===1&&okN<PER&&!auto){
+      this.try=2;
+      slots.forEach((s,i)=>{const card=s.firstElementChild;
+        if(sorted[i].id===cur[i].id){card.classList.add("good","lock");card.querySelector(".mk").textContent="✓"}
+        else{card.classList.add("bad","shake");card.querySelector(".mk").textContent="✗";setTimeout(()=>card.classList.remove("bad","shake"),1100)}});
+      okN?SFX.part():SFX.bad();
+      this.fb.innerHTML=`<span style="color:#fde68a">💪 Hampir! ${okN?"Kartu hijau sudah benar. ":""}Perbaiki sisanya, lalu cek lagi.</span>`;
+      this.bc.textContent="✅ Cek Lagi!";return;
+    }
+    this.done=true;this.row.classList.add("done");this.bc.hidden=true;
+    this.row.querySelectorAll(".card").forEach(c=>c.classList.remove("good","bad","lock","shake","sel"));
+    slots.forEach((s,i)=>{const card=s.firstElementChild,good=sorted[i].id===cur[i].id;
+      card.classList.add(good?"good":"bad","show");card.querySelector(".mk").textContent=good?"✓":"✗";if(!good)card.classList.add("shake")});
+    const p=this.p,perfect=okN===PER,second=this.try===2;p.correct+=okN;
+    let pts=okN*(second?50:100),fast=false;
+    if(perfect){pts+=second?50:100;if(!second)p.perfect++}
+    let place=0;if(G.duel&&perfect){place=++G.finishOrder;const bo=BONUS[G.np][place-1]||0;if(bo){pts+=bo;fast=true}if(place===1)p.fast++}
+    else if(perfect&&!second){p.streak++;pts+=(p.streak-1)*50+G.time*3}else p.streak=0;
+    p.score+=pts;p.res.push(perfect&&!second?"p":G.easy?(perfect?"h":"x"):(okN?"h":"x"));
+    const[x,y]=this.center();
+    if(perfect){SFX.ok();burst(x,y,fast||p.streak>=2?110:60);
+      toast(fast?`${place===1?(G.np===3?"🥇 Pertama":"⚡ Tercepat"):"🥈 Kedua"}! +${pts}`:(!G.duel&&p.streak>=2&&!second)?`🔥 Sempurna x${p.streak}! +${pts}`:`${second?"Berhasil":"Sempurna"}! +${pts}`,x,y,"#ffd166");
+      this.fb.innerHTML=`<span style="color:#4ade80">${fast?(place===1?"⚡ Benar paling cepat!":"🥈 Benar urutan kedua!"):second?"👏 Berhasil diperbaiki!":"🎉 Urutannya benar semua!"}</span>`}
+    else{okN?SFX.part():SFX.bad();toast(`+${pts}`,x,y,okN?"#ffd166":"#f87171");
+      this.fb.innerHTML=`<span style="color:#fca5a5">${auto?"⏰ Waktu habis! ":""}Benar ${okN} dari ${PER}.</span>`;
+      setTimeout(()=>{const cards=sorted.map(c=>this.row.querySelector(`.card[data-id="${c.id}"]`));
+        this.flip(()=>cards.forEach((c,i)=>slots[i].appendChild(c)));
+        cards.forEach(c=>{c.classList.remove("good","bad","shake");c.classList.add("fixed")});
+        this.fb.innerHTML='<span style="color:#cbd5f0">👆 Ini urutan yang benar. Perhatikan tahunnya!</span>'},1500)}
+    this.hud();sessionCheck();
+  }
+  hud(){
+    const p=this.p;this.el.querySelector(".sc").textContent=p.score;
+    const cb=this.el.querySelector(".combo");
+    if(G.duel){cb.querySelector(".cb").textContent="⚡ "+p.fast;cb.classList.toggle("on",p.fast>0)}
+    else{cb.querySelector(".cb").textContent="🔥 x"+p.streak;cb.classList.toggle("on",p.streak>=2)}
+    this.el.querySelector(".pips").innerHTML=Array.from({length:SESSIONS},(_,i)=>{const r=p.res[i];return `<div class="pip ${r||""} ${i===G.s&&!r?"now":""}">${r==="p"?"★":""}</div>`}).join("");
+  }
+}
+
+/* ---------- ALUR GAME ---------- */
+let MODE="easy",NP=1;
+function newGame(m,n){
+  if(m!==undefined){MODE=m;NP=n}audio();clearInterval(timerId);const DUEL=NP>1;
+  const easy=MODE==="easy";
+  G={mode:MODE,easy,duel:DUEL,np:NP,T:MODES[MODE].time,sets:drawSessions(easy,NP),s:-1,over:false};
+  const bx=$("boards");bx.innerHTML="";G.boards=[];
+  for(let i=0;i<NP;i++){if(i)bx.insertAdjacentHTML("beforeend",NP===2?'<div class="vs"><span>VS</span></div>':'<div class="sep"></div>');const b=new Board(i);G.boards.push(b);bx.appendChild(b.el)}
+  $("stage").classList.toggle("duel",DUEL);$("stage").classList.toggle("trio",NP===3);
+  $("ask").innerHTML=NP===3?'Susun dari <span>ATAS = PALING AWAL</span> ➜ <span>BAWAH = PALING AKHIR</span>':'Susun dari yang <span>PALING AWAL</span> ➜ <span>PALING AKHIR</span><small>Seret kartu untuk menukar posisinya, lalu tekan Cek!</small>';
+  $("modeTag").textContent=(NP===3?"🏆 3 PEMAIN ":NP===2?"⚔️ DUEL ":"")+MODES[MODE].label;$("modeTag").className="mode"+(easy?"":" n");
+  const lg=$("legend");lg.hidden=!easy;lg.innerHTML='<span class="lt">URUTAN ZAMAN:</span>'+ERAS.map(e=>`<span style="background:${e.c}">${e.ic} ${e.n}</span>`).join("<i>➜</i>");
+  $("ovMenu").hidden=true;$("ovEnd").hidden=true;
+  nextSession();
+}
+function nextSession(){
+  G.s++;if(G.s>=SESSIONS)return finish();
+  G.time=G.T;G.finishOrder=0;$("bNext").hidden=true;
+  G.boards.forEach((b,i)=>b.load(G.sets[G.s][i]));
+  hud();clearInterval(timerId);timerId=setInterval(tick,1000);
+}
+function sessionCheck(){
+  if(!G.boards.every(b=>b.done))return;
+  clearInterval(timerId);
+  setTimeout(()=>{$("bNext").hidden=false;$("bNext").textContent=G.s===SESSIONS-1?"🏁 Lihat Hasil":"Sesi Berikutnya ➜"},G.boards.some(b=>b.p.res[G.s]!=="p")?1700:500);
+  hud();
+}
+function tick(){
+  if(!G||G.over)return;G.time--;if(G.time<=10&&G.time>0)SFX.tick();hud();
+  if(G.time<=0){clearInterval(timerId);G.boards.forEach(b=>{if(!b.done)b.check(true)})}
+}
+function hud(){
+  $("sLabel").textContent=`Sesi ${Math.min(G.s+1,SESSIONS)}/${SESSIONS}`;
+  $("sTime").textContent=fmt(Math.max(0,G.time));$("sBar").style.width=(Math.max(0,G.time)/G.T*100)+"%";
+  $("sTimerBox").classList.toggle("low",G.time<=10&&!G.boards.every(b=>b.done));
+}
+function finish(){
+  clearInterval(timerId);G.over=true;
+  const total=SESSIONS*PER,body=$("endBody");
+  if(!G.duel){
+    const p=G.boards[0].p,c=p.correct,stars=c>=total-1?3:c>=Math.ceil(total*.67)?2:c>=Math.ceil(total*.34)?1:0;
+    $("endTitle").innerHTML=stars===3?"Luar Biasa! 🏆":stars===2?"Hebat! 🎉":stars===1?"Bagus! 👍":"Ayo Coba Lagi! 💪";
+    const bk="md-best-"+G.mode,best=store.get(bk)||0;if(p.score>best)store.set(bk,p.score);
+    body.innerHTML=`<div class="stars"><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span></div>
+      ${p.score>best?`<span class="newbest">🏅 Skor terbaik baru (${MODES[G.mode].label})!</span>`:""}
+      <div class="res"><div><div class="k">SKOR</div><div class="v">${p.score}</div></div><div><div class="k">KARTU DI POSISI TEPAT</div><div class="v">${c}/${total}</div></div><div><div class="k">SESI SEMPURNA</div><div class="v">${p.perfect}/${SESSIONS}</div></div></div>
+      <div class="recap-h">🧭 GARIS WAKTU SEMUA KARTU DI GAME INI (urut dari paling awal)</div>
+      <div class="recap">${G.sets.flat(2).sort((a,b)=>a.k-b.k).map(x=>`<div class="rc"><div class="i">${x.ic}</div><div><div class="d">${x.d}</div><div class="t">${x.t}</div></div></div>`).join("")}</div>`;
+    $("ovEnd").hidden=false;if(stars>=2){SFX.win();rain()}
+    const st=body.querySelectorAll(".star");for(let k=0;k<stars;k++)setTimeout(()=>{st[k].classList.add("on");SFX.star(k)},500+k*450);
+  }else if(G.np===3){
+    const ps=G.boards.map((b,i)=>({i,...b.p})).sort((x,y)=>y.score-x.score||y.fast-x.fast);
+    ps.forEach((x,k)=>x.rank=k&&x.score===ps[k-1].score&&x.fast===ps[k-1].fast?ps[k-1].rank:k+1);
+    const tops=ps.filter(x=>x.rank===1);
+    $("endTitle").innerHTML=tops.length>1?"🤝 Juara 1 Bersama!":`🏆 <span style="color:${PLAYERS[tops[0].i].c}">${PLAYERS[tops[0].i].n}</span> Juara 1!`;
+    const M=["","🥇","🥈","🥉"];
+    const pod=x=>`<div class="pod r${x.rank}" style="--pc:${PLAYERS[x.i].c}"><div class="medal">${M[x.rank]}</div><div class="nm">${PLAYERS[x.i].n}</div><div class="scr">${x.score}</div>
+      <div class="blk"><div class="rk">${x.rank}</div><div class="ln"><span>Kartu tepat</span><b>${x.correct}/${total}</b></div><div class="ln"><span>Sesi sempurna</span><b>${x.perfect}/${SESSIONS}</b></div><div class="ln"><span>🥇 Pertama</span><b>${x.fast}×</b></div></div></div>`;
+    body.innerHTML=`<div class="podium">${[ps[1],ps[0],ps[2]].map(pod).join("")}</div>`;
+    $("ovEnd").hidden=false;SFX.win();rain();
+  }else{
+    const[a,b]=G.boards.map(x=>x.p),w=a.score===b.score?-1:a.score>b.score?0:1;
+    $("endTitle").innerHTML=w<0?"🤝 Seri! Sama Hebatnya!":`🏆 <span style="color:${PLAYERS[w].c}">${PLAYERS[w].n}</span> Menang!`;
+    const card=(p,i)=>`<div class="pc ${w===i?"win":""}" style="--pc:${PLAYERS[i].c}">${w===i?'<div class="crown">👑</div>':""}
+      <div class="nm">${PLAYERS[i].n}</div><div class="sc">${p.score}</div>
+      <div class="ln"><span>Kartu di posisi tepat</span><b>${p.correct}/${total}</b></div>
+      <div class="ln"><span>Sesi sempurna</span><b>${p.perfect}/${SESSIONS}</b></div>
+      <div class="ln"><span>⚡ Tercepat</span><b>${p.fast}×</b></div></div>`;
+    body.innerHTML=`<div class="duo">${card(a,0)}<div class="vsbig">VS</div>${card(b,1)}</div>`;
+    $("ovEnd").hidden=false;SFX.win();rain();
+  }
+}
+function menu(){clearInterval(timerId);if(G)G.over=true;$("ovEnd").hidden=true;
+  const be=store.get("md-best-easy"),bn=store.get("md-best-normal");
+  $("meta").textContent=`📦 Bank: ${BANK.length} kartu peristiwa`+(be?`  ·  🏅 Terbaik Mudah: ${be}`:"")+(bn?`  ·  🏅 Terbaik Normal: ${bn}`:"");$("ovMenu").hidden=false}
+
+document.querySelectorAll(".mbtn").forEach(b=>b.onclick=()=>newGame(b.dataset.m,+b.dataset.n));
+$("bAgain").onclick=()=>newGame();$("bHome").onclick=menu;$("bMenu").onclick=menu;
+$("bNext").onclick=nextSession;
+$("bSound").onclick=()=>{soundOn=!soundOn;$("bSound").textContent=soundOn?"🔊":"🔇"};
+/* ---------- MATERI ---------- */
+let MP=0;
+function matShow(i){
+  MP=Math.max(0,Math.min(ERAS.length-1,i));const e=ERAS[MP],items=BANK.filter(c=>c.e===MP).sort((a,b)=>a.k-b.k);
+  $("mPanel").style.setProperty("--ec",e.c);
+  $("mTabs").innerHTML=ERAS.map((x,k)=>`<button class="tab ${k===MP?"on":k<MP?"done":""}" style="--tc:${x.c}" data-k="${k}">${x.ic} ${x.n}</button>`).join("");
+  $("mTabs").querySelectorAll(".tab").forEach(b=>b.onclick=()=>matShow(+b.dataset.k));
+  $("mHead").innerHTML=`<div class="bi">${e.ic}</div><div><div class="pg">ZAMAN ${MP+1} DARI ${ERAS.length}</div><h2>${e.n}<span class="pr">${e.pr}</span></h2><p>${e.ds}</p></div>`;
+  const n=items.length,cols=n<=4?1:n<=10?2:3,rows=Math.ceil(n/cols);
+  const L=$("mList");L.style.gridTemplateRows=`repeat(${rows},auto)`;L.style.gridTemplateColumns=`repeat(${cols},1fr)`;L.classList.toggle("big",n<=4);$("mPanel").classList.toggle("dense",n>10);
+  L.innerHTML=items.map((c,k)=>`<div class="mi"><span class="n">${k+1}</span><div class="i">${c.ic}</div><div><span class="d">${c.d}</span><div class="t">${c.t}</div><div class="x">${c.x}</div></div></div>`).join("");
+  $("mDots").innerHTML=ERAS.map((_,k)=>`<i class="${k===MP?"on":""}"></i>`).join("");
+  $("mPrev").disabled=MP===0;$("mPrev").style.visibility=MP===0?"hidden":"visible";
+  $("mNext").textContent=MP===ERAS.length-1?"🎮 Selesai, Ayo Main!":"Berikutnya ▶";
+}
+function matOpen(){$("ovMat").hidden=false;matShow(0)}
+function matClose(){$("ovMat").hidden=true}
+$("bMat").onclick=matOpen;$("mClose").onclick=matClose;
+$("mPrev").onclick=()=>matShow(MP-1);
+$("mNext").onclick=()=>MP===ERAS.length-1?matClose():matShow(MP+1);
+addEventListener("keydown",ev=>{if($("ovMat").hidden)return;if(ev.key==="ArrowRight")$("mNext").click();if(ev.key==="ArrowLeft"&&MP>0)matShow(MP-1);if(ev.key==="Escape")matClose()});
+menu();
+</script>
+</body>
+</html>
