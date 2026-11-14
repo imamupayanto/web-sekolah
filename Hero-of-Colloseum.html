@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Ludus Arena</title>
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Hero of Colosseum</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%}
 body{margin:0;background:#070403;color:#e8d7a8;font-family:Georgia,serif;font-size:15px;overscroll-behavior:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
@@ -119,8 +119,8 @@ h3{font-size:15px;margin:18px 2px 8px;letter-spacing:.3px}h3 small{font-weight:n
 button.sm{opacity:1}.eqa{gap:8px;margin-bottom:8px}.eqa button{flex:1}
 .chip{border-radius:12px}.chip.sel{box-shadow:0 0 0 1px #ffd23a inset}
 .talr{gap:8px}.talr .tb{border-radius:10px;min-height:54px}
-</style></head><body><div class="app">
-<div class="hdr"><h1>LUDUS</h1><span>🪙<b id="gold"></b></span><span>📅<b id="day"></b></span><span>🏛<b id="fame"></b></span><span class="mut">gaji 🪙<span id="upk"></span></span><button id="setb" style="min-height:30px;padding:2px 8px">⚙</button></div>
+.pin{padding:2px 6px;border-width:1.5px;border-radius:8px;font-size:10px;box-shadow:0 2px 4px rgba(0,0,0,.6)}.pin span{font-size:13px;line-height:1}.pin b{font-size:10.5px}.pin small{font-size:8px;line-height:1}.pin.city span{font-size:12px}.pin.lock{opacity:.75}.hdr h1.lg{line-height:.95;font-size:16px;letter-spacing:2px}.hdr h1.lg small{display:block;font-size:8px;letter-spacing:1.6px;color:#d9b25a}</style></head><body><div class="app">
+<div class="hdr"><h1 class="lg">HERO<small>OF COLOSSEUM</small></h1><span>🪙<b id="gold"></b></span><span>📅<b id="day"></b></span><span>🏛<b id="fame"></b></span><span class="mut">gaji 🪙<span id="upk"></span></span><button id="setb" style="min-height:30px;padding:2px 8px">⚙</button></div>
 <div class="main"><div class="pn" id="p_dojo"></div><div class="pn" id="p_units"></div><div class="pn" id="p_pasar"></div><div class="pn" id="p_arena"></div><div class="pn" id="p_dunia"></div></div>
 <div class="tabs" id="tabs"></div></div>
 <div id="toasts" class="toasts"></div>
@@ -712,13 +712,13 @@ function vnoise(seed){const r=rng(seed),G=[];for(let i=0;i<1024;i++)G.push(r());
  const sm=t=>t*t*(3-2*t);return(x,y)=>{const xi=Math.floor(x),yi=Math.floor(y),xf=sm(x-xi),yf=sm(y-yi);const a=h(xi,yi),b=h(xi+1,yi),c=h(xi,yi+1),d=h(xi+1,yi+1);return a+(b-a)*xf+(c-a)*yf+(a-b-c+d)*xf*yf}}
 function fbm(n,x,y){return n(x,y)*.55+n(x*2.1,y*2.1)*.3+n(x*4.3,y*4.3)*.15}
 const REGIONS=[
- {id:'italia',n:'Italia',c:[96,150],bio:'ladang',col:'#8fbf5a'},
+ {id:'italia',n:'Italia',c:[96,150],p:[110,180],bio:'ladang',col:'#8fbf5a'},
  {id:'gallia',n:'Gallia',c:[42,62],bio:'ladang',col:'#7fae4e'},
  {id:'germania',n:'Germania',c:[104,30],bio:'hutan',col:'#3f6e3a'},
  {id:'dacia',n:'Dacia',c:[152,70],bio:'gunung',col:'#8a8f7a'},
  {id:'numidia',n:'Numidia',c:[52,258],bio:'savana',col:'#d6b35a'},
  {id:'aegyptus',n:'Aegyptus',c:[148,262],bio:'gurun',col:'#e3c27a'},
- {id:'olympus',n:'Graecia',c:[166,128],bio:'gunung',col:'#b9c49a'}];
+ {id:'olympus',n:'Graecia',c:[166,128],p:[160,104],bio:'gunung',col:'#b9c49a'}];
 function worldLand(n,x,y){// tanah atau laut
  const e=fbm(n,x/22,y/22)*16-8;
  if(y<104+e+Math.sin(x/14)*5)return true; // utara
@@ -728,27 +728,80 @@ function worldLand(n,x,y){// tanah atau laut
  if(Math.hypot((x-116)/9,(y-206)/5)<1+e*.03)return true; // sicilia
  if(Math.hypot((x-64)/5,(y-150)/9)<1+e*.04)return true; // sardinia
  if(x>150&&y>96&&y<150+e)return true; // yunani/balkan
+ {const t=(y-140)/30;if(t>0&&t<1){const cx=166-t*6+Math.sin(t*9)*2,w=9-t*4;if(Math.abs(x-cx)<w+e*.3)return true}} // peloponnesos
+ if(Math.hypot((x-162)/9,(y-186)/2.3)<1+e*.03)return true; // kreta
+ for(const[ix,iy]of[[173,160],[177,171],[169,172],[150,176]])if(Math.hypot(x-ix,y-iy)<1.8+e*.1)return true;
+ if(Math.hypot((x-119)/7,(y-170)/3.5)<1+e*.04)return true; // tumit italia
+ if(Math.hypot((x-80)/9,(y-226)/8)<1+e*.03)return true; // tanjung kartago
  return false}
-function worldMap(seed){const W=180,H=300,b=new Buf(W,H),n=vnoise(seed||5),r=rng(seed*7+3);
- const land=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)land[y*W+x]=worldLand(n,x,y);
- const L=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&land[y*W+x];
- const reg=(x,y)=>{let best=null,bd=1e9;for(const R of REGIONS){const d=Math.hypot(x-R.c[0],(y-R.c[1])*1.15)+fbm(n,x/9+R.c[0],y/9)*14;if(d<bd){bd=d;best=R}}return best};
- for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-  if(!L(x,y)){let near=0;for(let k=1;k<=4;k++)if(L(x+k,y)||L(x-k,y)||L(x,y+k)||L(x,y-k)){near=k;break}
-   let c=mix('#1d4f7a','#2a6a96',fbm(n,x/30,y/30));if(near)c=near===1?'#e8dcb0':mix('#4c9cc4',c,near/4);if(!near&&(x*3+y*7+Math.floor(y/6)*5)%41===0)c='#5aa8d0';b.set(x,y,c);continue}
-  const R=reg(x,y);let c=R.col;const v=fbm(n,x/7,y/7);c=mix(dk(c,.82),lt(c,.15),v);
-  // perbatasan
-  if(reg(x+1,y)!==R||reg(x,y+1)!==R)c=((x+y)%3===0)?'#5a3c22':dk(c,.75);
+const ROADS=[[[103,140],[97,126],[90,111]],[[90,111],[90,100],[72,96],[52,92],[30,86]],[[30,86],[36,74],[42,62]],[[90,100],[96,80],[100,56],[104,30]],[[96,80],[118,84],[138,78],[152,70]],[[152,70],[156,90],[160,104],[165,120],[164,134],[163,152]],[[103,140],[105,150],[107,165],[110,180]],[[80,224],[70,236],[60,248],[52,258]],[[80,224],[92,236],[110,238],[124,234],[136,228]],[[136,228],[142,240],[146,252],[148,262]]];
+const LANES=[[[97,142],[88,160],[84,190],[81,214]],[[114,186],[130,176],[146,164],[157,157]],[[138,222],[146,200],[154,178],[160,160]]];
+const RIVERS=[[[150,300],[149,284],[151,268],[147,252],[142,240],[138,229]],[[142,240],[147,231]],[[42,36],[38,58],[32,74],[30,86],[34,98],[36,103]],[[86,64],[110,70],[134,64],[156,76],[180,80]],[[58,4],[64,28],[70,48],[76,66]],[[105,106],[100,116],[96,123]]];
+function worldMap(seed){const S=2,MW=180,MH=300,W=MW*S,H=MH*S,b=new Buf(W,H),n=vnoise(seed||5),r=rng(seed*7+3);
+ const land=new Uint8Array(W*H);for(let y=0;y<H;y++)for(let x=0;x<W;x++)land[y*W+x]=worldLand(n,x/S,y/S)?1:0;
+ const gg=(x,y)=>b.get(x,y)||'#17426a';const L=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&land[y*W+x]===1;
+ // jarak ke daratan (laut) & ke laut (darat)
+ const dist=new Int16Array(W*H).fill(99);const q=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,l=land[i];if((x>0&&land[i-1]!==l)||(x<W-1&&land[i+1]!==l)||(y>0&&land[i-W]!==l)||(y<H-1&&land[i+W]!==l)){dist[i]=0;q.push(i)}}
+ for(let h=0;h<q.length;h++){const i=q[h],d=dist[i];if(d>=24)continue;const x=i%W;for(const j of[x>0?i-1:-1,x<W-1?i+1:-1,i-W,i+W]){if(j<0||j>=W*H)continue;if(land[j]===land[i]&&dist[j]>d+1){dist[j]=d+1;q.push(j)}}}
+ const RG=new Array(MW*MH),HT=new Float32Array(MW*MH);for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){let best=null,bd=1e9;for(const R of REGIONS){const d=Math.hypot(x-R.c[0],(y-R.c[1])*1.15)+fbm(n,x/9+R.c[0],y/9)*14;if(d<bd){bd=d;best=R}}RG[y*MW+x]=best;HT[y*MW+x]=fbm(n,x/16+40,y/16)}
+ const reg=(x,y)=>RG[Math.min(MH-1,Math.max(0,(y/S)|0))*MW+Math.min(MW-1,Math.max(0,(x/S)|0))];
+ const ht=(x,y)=>HT[Math.min(MH-1,Math.max(0,(y/S)|0))*MW+Math.min(MW-1,Math.max(0,(x/S)|0))];
+ const hash=(x,y)=>{let h=(x*374761393+y*668265263)^0x5bd1e995;h=(h^(h>>>13))*1274126177;return((h^(h>>>16))>>>0)/4294967296};
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,d=dist[i];
+  if(!land[i]){const deep=Math.min(1,d/12);let c=mix('#3484ae','#17426a',deep);c=mix(c,'#0f3358',fbm(n,x/60,y/60)*.35);if(d===0)c='#cfe6ea';else if(d<=2)c=mix('#6ab4cc',c,d/3);b.set(x,y,c);continue}
+  const R=reg(x,y);let c=R.col;const sh=(ht(x-3,y-3)-ht(x+3,y+3))*5;c=mix(dk(c,.8),lt(c,.2),Math.max(0,Math.min(1,.5+sh+(hash(x,y)-.5)*.18)));
+  if(d<=1)c=mix('#e8d8a4',c,.25);else if(d===2)c=mix('#d9c890',c,.6);
   b.set(x,y,c)}
- // dekorasi per bioma
- for(let i=0;i<900;i++){const x=Math.floor(r()*W),y=Math.floor(r()*H);if(!L(x,y)||!L(x,y+3)||!L(x+2,y))continue;const R=reg(x,y);
-  if(R.bio==='hutan'&&r()<.8){b.set(x,y-2,'#2c5a2a');b.rect(x-1,y-1,x+1,y,'#24482a');b.set(x,y+1,'#4a3422')}
-  else if(R.bio==='gunung'&&r()<.12){for(let k=0;k<5;k++)b.rect(x-k,y+k,x+k,y+k,k<2?'#e8e8e0':mix('#6e6e64','#9a9a8c',k/5));}
-  else if(R.bio==='gurun'&&r()<.05){b.rect(x,y,x+1,y,'#c9a35a');b.set(x+1,y-1,'#f0d898')}
-  else if(R.bio==='savana'&&r()<.15){b.set(x,y-1,'#5c7a2a');b.rect(x-1,y-2,x+1,y-2,'#6e8e34');b.set(x,y,'#5a3c22')}
-  else if(R.bio==='ladang'&&r()<.06){b.rect(x,y,x+2,y,'#c9b25a')}}
- // piramida & roma
- for(const[px,py]of[[154,268],[163,272]])for(let k=0;k<6;k++)b.rect(px-k,py+k,px+k,py+k,k%2?'#d9b56a':'#ecd08a');
+ // perbatasan putus-putus
+ for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(!L(x,y))continue;const R=reg(x,y);if((reg(x+1,y)!==R||reg(x,y+1)!==R)&&((x+y)>>1)%3!==0)b.set(x,y,mix(gg(x,y),'#3a2414',.7))}
+ const P=(p)=>[p[0]*S,p[1]*S];
+ const poly=(pts,fn,step=.5)=>{for(let k=0;k<pts.length-1;k++){const[a,c]=[P(pts[k]),P(pts[k+1])];const len=Math.hypot(c[0]-a[0],c[1]-a[1]);for(let t=0;t<=len;t+=step){const f=t/len;fn(a[0]+(c[0]-a[0])*f,a[1]+(c[1]-a[1])*f,t,k)}}};
+ // ladang
+ for(let i=0;i<140;i++){const x=Math.floor(r()*W),y=Math.floor(r()*H);if(!L(x,y)||dist[y*W+x]<4||reg(x,y).bio!=='ladang')continue;const w=4+Math.floor(r()*5),h=3+Math.floor(r()*3);const col=['#c9b45a','#a8b450','#8a9a40','#d0bc6a'][Math.floor(r()*4)];for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)if(L(xx,yy)&&dist[yy*W+xx]>2)b.set(xx,yy,(yy-y)%2?dk(col,.9):col)}
+ // sungai
+ for(const rv of RIVERS){poly(rv,(x,y,t)=>{const j=Math.sin(t/6)*1.2;const X=Math.round(x+j),Y=Math.round(y);if(!L(X,Y))return;b.disc(X,Y,1.6,'#2c6a92')});poly(rv,(x,y,t)=>{const j=Math.sin(t/6)*1.2;const X=Math.round(x+j),Y=Math.round(y);if(L(X,Y)){b.set(X,Y,'#5fb0d4');b.set(X+1,Y,'#4c9cc4')}})}
+ // ornamen alam
+ const items=[];
+ const mount=(x,y,s,snow,base)=>items.push([y,()=>{const lc=base?lt(base,.15):'#a49c88',dc=base?dk(base,.75):'#6e685a';b.ell(x+2,y+1,s*.9,s*.25,mix(gg(x,y)||'#555','#000',.25));for(let k=0;k<=s;k++){const yy=y-s+k;b.rect(x-k,yy,x,yy,lc);b.rect(x+1,yy,x+k,yy,dc);if(snow&&k<s*.38){b.rect(x-k,yy,x,yy,'#f6f6f0');b.rect(x+1,yy,x+k,yy,'#c8d2dc')}b.set(x-k-1,yy,'#3a3428');b.set(x+k+1,yy,'#3a3428')}b.set(x,y-s-1,'#3a3428')}]);
+ const tree=(x,y)=>items.push([y,()=>{b.ell(x+1,y+1,2.6,1,'#1c3a1e');b.set(x,y,'#4a3422');b.disc(x,y-2,2.3,'#2e6430');b.set(x-1,y-3,'#4c8a40');b.set(x-1,y-2,'#3e7a38');b.set(x+1,y-1,'#234e26')}]);
+ const pine=(x,y)=>items.push([y,()=>{b.ell(x+1,y+1,2,1,'#1c3a1e');b.set(x,y,'#4a3422');for(let k=0;k<5;k++)b.rect(x-(k>>1),y-5+k,x+(k>>1),y-5+k,k%2?'#1f4a28':'#2c5e34')}]);
+ const palm=(x,y)=>items.push([y,()=>{b.line([x,y],[x+1,y-5],'#7a5a32');for(const[dx,dy]of[[-3,1],[3,1],[-2,-1],[2,-1],[0,-2]])b.line([x+1,y-5],[x+1+dx,y-5+dy],'#3e7a32')}]);
+ const acacia=(x,y)=>items.push([y,()=>{b.line([x,y],[x,y-3],'#5a3c22');b.ell(x,y-4,3.5,1.1,'#5c7a2a');b.rect(x-2,y-5,x+1,y-5,'#7a9a3a')}]);
+ const dune=(x,y)=>items.push([y,()=>{for(let k=-5;k<=5;k++){const yy=y-Math.round(Math.sqrt(Math.max(0,25-k*k))*.45);b.set(x+k,yy,k<0?'#f4e2a8':'#c9a35a')}}]);
+ for(let i=0;i<5200;i++){const x=Math.floor(r()*W),y=Math.floor(r()*H);if(!L(x,y)||!L(x,y+3)||dist[y*W+x]<3)continue;const R=reg(x,y),bio=R.bio,h=ht(x,y);
+  if(bio==='hutan'){if(h>.42&&r()<.75)(r()<.5?pine:tree)(x,y)}
+  else if(bio==='ladang'){if(h>.62&&r()<.25)tree(x,y)}
+  else if(bio==='gunung'){if(h>.5&&r()<.05)mount(x,y,5+Math.floor(r()*5),h>.62);else if(r()<.03)pine(x,y)}
+  else if(bio==='savana'){if(r()<.025)acacia(x,y);else if(r()<.03)b.set(x,y,'#8a8a3a')}
+  else if(bio==='gurun'){if(r()<.012)dune(x,y)}}
+ // Pegunungan Alpen & Apenina & Atlas
+ for(let x=60;x<210;x+=7){const y=186+Math.round(Math.sin(x/17)*4)+Math.floor(r()*4);if(L(x,y)&&!L(x,y+12)===false)mount(x,y,7+Math.floor(r()*5),true)}
+ for(let t=.1;t<.9;t+=.07){const yy=96+t*100,cx=86+t*34+Math.sin(t*5)*4;const x=Math.round(cx*S),y=Math.round(yy*S);if(L(x,y)&&r()<.75)mount(x+Math.floor(r()*4-2),y,4+Math.floor(r()*2),false,'#8a9a5a')}
+ for(let x=20;x<150;x+=9){const y=538+Math.floor(r()*14);if(L(x,y))mount(x,y,5+Math.floor(r()*3),false,'#a8865a')}
+ // Gunung Olympus + kuil
+ items.push([250,()=>{}]);mount(322,250,14,true);items.push([251,()=>{const x=322,y=232;b.rect(x-5,y-3,x+5,y-3,'#f4f1e6');b.rect(x-6,y-4,x+6,y-4,'#d8d0c0');for(let k=-4;k<=4;k+=2)b.rect(x+k,y-2,x+k,y+1,'#f4f1e6');b.rect(x-5,y+2,x+5,y+2,'#c8c0b0');b.line([x-6,y-5],[x,y-8],'#e8e0d0');b.line([x,y-8],[x+6,y-5],'#e8e0d0')}]);
+ // Vesuvius & Etna
+ for(const[vx,vy]of[[218,282],[234,412]]){mount(vx,vy,6,false,'#7a6a5a');items.push([vy+1,()=>{b.set(vx,vy-7,'#ff6a20');b.set(vx+1,vy-7,'#ffb040');for(let k=0;k<4;k++)b.disc(vx+1+k,vy-10-k*3,1.4+k*.4,mix('#e8e4dc','#a8a49c',k/4))}])}
+ // piramida & sfinks & oasis
+ for(const[px,py,s2]of[[302,540,9],[318,548,7],[296,556,5]])items.push([py,()=>{for(let k=0;k<s2;k++){b.rect(px-k,py-s2+k,px,py-s2+k,'#f0d490');b.rect(px+1,py-s2+k,px+k,py-s2+k,'#c9a35a')}b.rect(px-s2,py,px+s2,py,'#a8833a')}]);
+ items.push([566,()=>{b.rect(286,562,292,564,'#d9b56a');b.rect(291,559,293,563,'#e6c27a');b.set(292,560,'#5a3c22')}]);
+ items.push([560,()=>{b.ell(244,560,7,3,'#4a9cc4');b.ell(244,560,5,2,'#6ab8d8');palm(236,558);palm(252,559);palm(246,555)}]);
+ items.sort((a,c)=>a[0]-c[0]).forEach(i=>i[1]());
+ // jalan romawi
+ for(const rd of ROADS){poly(rd,(x,y)=>{const X=Math.round(x),Y=Math.round(y);if(L(X,Y))b.disc(X,Y,1.8,'#4a2e18')});poly(rd,(x,y,t)=>{const X=Math.round(x),Y=Math.round(y);if(L(X,Y)){b.disc(X,Y,.9,'#ecd29a');if(Math.round(t)%10===0)b.set(X,Y,'#8a6a3a')}})}
+ // jalur laut + kapal
+ for(const ln of LANES){poly(ln,(x,y,t)=>{const X=Math.round(x),Y=Math.round(y);if(!L(X,Y)&&Math.floor(t)%6<2)b.set(X,Y,mix(gg(X,Y),'#f4f8f8',.75))});
+  const m=ln[1],sx=m[0]*S,sy=m[1]*S;b.rect(sx-5,sy,sx+5,sy+2,'#6a4426');b.rect(sx-4,sy+3,sx+4,sy+3,'#4a2e1a');b.rect(sx,sy-9,sx,sy-1,'#4a2e1a');for(let k=0;k<7;k++)b.rect(sx+1,sy-8+k,sx+1+Math.min(k,4),sy-8+k,k%3?'#f0e8d8':'#c02020');b.rect(sx-7,sy+4,sx-5,sy+4,'#d8eef2');b.rect(sx+6,sy+4,sx+8,sy+4,'#d8eef2')}
+ // mercusuar Pharos
+ {const x=262,y=436;b.disc(x,y+3,4,'#e8d8a4');b.rect(x-2,y-8,x+2,y+2,'#f0ece0');b.rect(x+1,y-8,x+2,y+2,'#c8c0b0');b.rect(x-1,y-12,x+1,y-9,'#e8e4d8');b.disc(x,y-13,1.6,'#ffd040');b.set(x,y-13,'#fff4a0')}
+ // mawar mata angin
+ {const cx=48,cy=372;b.disc(cx,cy,11,'#123a5e');for(let k=-10;k<=10;k++){b.set(cx+k,cy,'#c9a868');b.set(cx,cy+k,'#c9a868')}for(let k=0;k<=9;k++){const w=Math.round((9-k)/3);b.rect(cx-w,cy-k,cx+w,cy-k,k>5?'#ffd23a':'#e8d090');b.rect(cx-w,cy+k,cx+w,cy+k,'#8a6a30');b.rect(cx+k,cy-w,cx+k,cy+w,'#8a6a30');b.rect(cx-k,cy-w,cx-k,cy+w,'#8a6a30')}b.set(cx,cy,'#3a2414');const N=[[0,0],[0,1],[0,2],[0,3],[0,4],[1,1],[2,2],[3,3],[3,0],[3,1],[3,2],[3,4]];N.forEach(([dx,dy])=>b.set(cx-1+dx,cy-19+dy,'#ffd23a'))}
+ // ular laut
+ {const sx=60,sy=300;for(let k=0;k<3;k++){const x=sx+k*9;for(let a=0;a<=8;a++){const t=a/8*Math.PI;b.disc(Math.round(x+Math.cos(Math.PI-t)*3.5),Math.round(sy-Math.sin(t)*4),1.3,k===0?'#3a8a5a':'#2e7048')}}b.disc(sx-5,sy-5,2.4,'#3a8a5a');b.set(sx-6,sy-6,'#ffd040');b.set(sx-8,sy-4,'#c02020');b.rect(sx+27,sy-2,sx+30,sy,'#2e7048');for(let k=0;k<6;k++)b.set(sx-6+k*7,sy+1,'#d8eef2')}
+ // gelombang
+ for(let i=0;i<220;i++){const x=Math.floor(r()*W),y=Math.floor(r()*H),d=dist[y*W+x];if(L(x,y)||d<8)continue;b.set(x,y,mix(gg(x,y),'#8ac8e0',.5));b.set(x+1,y-1,mix(gg(x+1,y-1),'#8ac8e0',.5));b.set(x+2,y,mix(gg(x+2,y),'#8ac8e0',.5))}
+ // bingkai
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){const e=Math.min(x,y,W-1-x,H-1-y);if(e<3)b.set(x,y,e===1?'#c9a04a':'#2a1a0e');else if(e<12)b.set(x,y,mix(gg(x,y),'#1a0f08',(12-e)/12*.45))}
  return b}
 // latar liar 320x180
 function wildScene(bio,waktu,seed){const W=320,H=180,b=new Buf(W,H),r=rng(seed*53+1),n=vnoise(seed+11);
@@ -1079,12 +1132,12 @@ function towerAfter(s,F,win,notes){const T=towerInit(s),f=F.tower;if(!win){notes
  if(f%10===0){const B=TBOSS[f];if(B.fac)codexBoss(s,B.fac);let it;if(f===50){it=G.randSetItem(Math.random);s.towerChamp=1;s.fame+=40;notes.push('👑 MENARA COLOSSEUM DITAKLUKKAN! Gelar: Penakluk Menara')}else it=randLoot(f>=20?'legendary':'epic');s.inv.push(it);notes.push(`🏆 Rampasan boss ${B.n}: ${itemOf2(it).nama}`)}
  else if(f%5===0){const it=randLoot(f>=30?'epic':'rare');s.inv.push(it);notes.push('🎁 Peti lantai '+f+': '+itemOf2(it).nama)}}
 // ---- KOTA
-const CITY={capua:{n:'Capua',ic:'🏛',fame:0,c:[80,126],d:'Kota ludusmu. Laga latihan, duel, dan Liga Arena.',f:['latih','duel','dua'],x:['nem','liga']},
- roma:{n:'Roma',ic:'🏟',fame:10,c:[68,104],d:'Colosseum agung: Turnamen Kaisar, Menara, dan Gajah Hannibal.',f:['gajah'],x:['tour','tower']},
- carthago:{n:'Carthago',ic:'🦁',fame:5,c:[80,232],d:'Arena Afrika: Venatio hewan buas dan Kereta Perang.',f:['venatio','kereta']},
+const CITY={capua:{n:'Capua',ic:'🏛',fame:0,c:[103,140],d:'Kota ludusmu. Laga latihan, duel, dan Liga Arena.',f:['latih','duel','dua'],x:['nem','liga']},
+ roma:{n:'Roma',ic:'🏟',fame:10,c:[90,111],d:'Colosseum agung: Turnamen Kaisar, Menara, dan Gajah Hannibal.',f:['gajah'],x:['tour','tower']},
+ carthago:{n:'Carthago',ic:'🦁',fame:5,c:[80,224],d:'Arena Afrika: Venatio hewan buas dan Kereta Perang.',f:['venatio','kereta']},
  lugdunum:{n:'Lugdunum',ic:'⚔',fame:15,c:[30,86],d:'Kota garnisun Gallia: laga tim dan Gauntlet.',f:['tim','gauntlet']},
- alexandria:{n:'Alexandria',ic:'⛵',fame:10,c:[126,244],d:'Pelabuhan besar: Naumachia dan pedagang hewan eksotis.',f:['naum'],x:['exo']},
- athenae:{n:'Athenae',ic:'⚡',fame:60,c:[150,152],d:'Kota para dewa: Laga Para Dewa dan pedagang Mythic.',f:['dewa'],x:['myth'],req:'aegyptus:1'}};
+ alexandria:{n:'Alexandria',ic:'⛵',fame:10,c:[136,228],d:'Pelabuhan besar: Naumachia dan pedagang hewan eksotis.',f:['naum'],x:['exo']},
+ athenae:{n:'Athenae',ic:'⚡',fame:60,c:[163,152],d:'Kota para dewa: Laga Para Dewa dan pedagang Mythic.',f:['dewa'],x:['myth'],req:'aegyptus:1'}};
 function cityLocked(s,id){const C=CITY[id];if(s.fame<C.fame)return'Butuh Ketenaran '+C.fame;if(C.req&&((s.clr||{})[C.req]||0)<3)return'Taklukkan Makam Firaun (Sulit) dulu';return''}
 function exoOffers(s){const r=mul(s.day*131+7),sp=Object.keys(G.SP).filter(x=>x!=='gajah'),o=[];for(let i=0;i<3;i++){const a=sp[Math.floor(r()*sp.length)],rr=r()<.25?'legendary':'epic';o.push({sp:a,r:rr,harga:Math.round(AP[rr]*1.4)})}return o}
 function buyExo(s,k){const m=exoOffers(s)[k];const key=s.day+':x'+k;s.sold=s.sold||{};if(s.sold[key])return'Sudah terjual.';if(s.gold<m.harga)return'Emas kurang.';if(s.animals.length>=maxAnim(s))return`Kandang penuh (maks ${maxAnim(s)}).`;s.gold-=m.harga;addAnimal(s,m.sp,m.r);s.sold[key]=1;return null}
@@ -1747,8 +1800,8 @@ render();
 let mapCv=null;
 function rDunia(){const p=$('p_dunia');if(S.exp)return rPath(p);
  p.innerHTML='<div class="mp" id="mp"></div><div class="mut sm2" style="padding:6px 2px">🏟 Kotak biru = kota (arena) · bingkai emas = wilayah dungeon · Ketenaran '+S.fame+' membuka tempat baru</div><div id="prl"></div>';
- if(!mapCv)mapCv=cvOf(G.worldMap(5),2);const mp=$('mp');const mc=mapCv.cloneNode();mc.getContext('2d').drawImage(mapCv,0,0);mp.appendChild(mc);
- DG.regions(S).forEach(R=>{const c=G.REGIONS.find(x=>x.id===R.id).c;const pin=el(`<button class="pin ${R.locked?'lock':''}" style="left:${c[0]/180*100}%;top:${c[1]/300*100}%"><span>${R.locked?'🔒':R.ic}</span><b>${R.n}</b><small>${'★'.repeat(R.star)}</small></button>`);pin.onclick=()=>regionSheet(R);mp.appendChild(pin)});
+ if(!mapCv){mapCv=cvOf(G.worldMap(5),1);const x=mapCv.getContext('2d');x.textAlign='center';x.font='italic bold 15px Georgia';const lab=(t,X,Y,a)=>{x.fillStyle='rgba(8,24,40,.55)';x.fillText(t,X+1,Y+1);x.fillStyle=a||'rgba(225,240,248,.7)';x.fillText(t,X,Y)};lab('MARE NOSTRUM',120,330);x.font='italic 11px Georgia';lab('Mare Aegaeum',318,352);lab('Mare Libycum',220,400);x.font='italic bold 13px Georgia';lab('AFRICA',236,566,'rgba(90,60,30,.55)')}const mp=$('mp');const mc=mapCv.cloneNode();mc.getContext('2d').drawImage(mapCv,0,0);mp.appendChild(mc);
+ DG.regions(S).forEach(R=>{const RR=G.REGIONS.find(x=>x.id===R.id),c=RR.p||RR.c;const pin=el(`<button class="pin ${R.locked?'lock':''}" style="left:${c[0]/180*100}%;top:${c[1]/300*100}%"><span>${R.locked?'🔒':R.ic}</span><b>${R.n}</b><small>${'★'.repeat(R.star)}</small></button>`);pin.onclick=()=>regionSheet(R);mp.appendChild(pin)});
  Object.entries(LG.CITY).forEach(([id,C])=>{const lk=LG.cityLocked(S,id);const pin=el(`<button class="pin city ${lk?'lock':''}" style="left:${C.c[0]/180*100}%;top:${C.c[1]/300*100}%"><span>${lk?'🔒':C.ic}</span><b>${C.n}</b>${id==='capua'?'<small>🏠 Ludusmu</small>':''}</button>`);pin.onclick=()=>openCity(id);mp.appendChild(pin)});
  const pr=S.pris||[];if(pr.length){$('prl').innerHTML='<h3>⛓ Tawanan</h3><div class="lst" id="pll"></div>';pr.forEach((x,i)=>{const r=el(`<div class="lr"><div class="ic"></div><div class="lm"><b>${LG.nameOf(x.u)}</b><div class="mut">Ditawan di ${DG.REG[x.rid].n} · sisa ${Math.max(0,x.until-S.day)} hari</div></div><div class="lp sm2">🪙${x.ransom}</div></div>`);r.querySelector('.ic').appendChild(sprite(x.u,.8,'kena',1));r.onclick=()=>prisSheet(i);$('pll').appendChild(r)})}}
 function prisSheet(i){const x=S.pris[i];sheet('⛓ '+LG.nameOf(x.u),`<div class="mut">Ditawan di ${DG.REG[x.rid].n}. Jika tidak ditebus dalam ${Math.max(0,x.until-S.day)} hari, ia dijual sebagai budak dan hilang. Selama ditawan gaji tetap dibayar.</div>`,[[`💰 Tebus 🪙${x.ransom}`,()=>{const e=DG.ransom(S,i,'gold');if(e){toast(e);return false}toast('Ditebus! Pulang terluka 2 hari.');render()},'pri'],[`🐾 Tukar dengan hewan di kandang (${S.animals.length?LG.nameOf(S.animals[0]):'tidak ada'})`,()=>{const e=DG.ransom(S,i,'animal');if(e){toast(e);return false}toast('Pertukaran diterima.');render()}],['⚔ Misi penyelamatan (4 titik, 2 hari)',()=>{if(S.exp){toast('Ekspedisi lain sedang berjalan.');return false}setTimeout(()=>prepSheet(DG.REG[x.rid],0,i),0)}]])}
