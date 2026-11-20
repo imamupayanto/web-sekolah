@@ -249,7 +249,6 @@ input.nm:focus{border-color:#f97316;box-shadow:0 0 0 4px #fdba7455}
   <div class="sub" id="m-sub"></div>
   <button class="btn" style="background:linear-gradient(135deg,#7c3aed,#6366f1)" onclick="openRangkuman()"><div class="bi">📖</div><div class="bt"><div class="bl">Rangkuman Per Bab</div><div class="bd">Materi ringkas + latihan soal tiap bab</div></div></button>
   <button class="btn" style="background:linear-gradient(135deg,#f59e0b,#f97316)" onclick="startQuiz()"><div class="bi">✏️</div><div class="bt"><div class="bl">Latihan UAS</div><div class="bd">20 soal acak · mudah–sedang–sulit</div></div></button>
-  <button class="btn" id="btn-siap" style="display:none;background:linear-gradient(135deg,#e11d48,#be123c)" onclick="openSiap()"><div class="bi">🎯</div><div class="bt"><div class="bl">Siap UAS</div><div class="bd">Persiapan materi & Pra UAS</div></div></button>
   <button class="btn" style="background:linear-gradient(135deg,#1e1b4b,#4f46e5)" onclick="openGameMenu()"><div class="bi">🎮</div><div class="bt"><div class="bl">Game Pembelajaran</div><div class="bd">Belajar sambil bermain dengan soal mapel ini</div></div></button>
   <button class="link" onclick="renderMenu()">← Kembali ke daftar mapel</button>
 </div>
@@ -6014,7 +6013,7 @@ async function kirim(it){try{await post(it);return true}catch(e){const q=lsGet('
 async function flush(){const q=lsGet('pra'+KL+'_pending',[]);if(!q.length)return;const rest=[];for(const it of q){try{await post(it)}catch(e){rest.push(it)}}lsSet('pra'+KL+'_pending',rest)}
 function rekap(status){
   if(admin) return Promise.resolve(true);
-  return kirim({nama,kelas:String(KL),mapel:'Aplikasi Belajar '+sk.n+' Kelas '+KL,nilai:nilaiOf(score),benar:score,jumlah:N,hadiah:status,waktu:new Date().toLocaleString('id-ID')});
+  return kirim({nama,kelas:String(KL),mapel:'Aplikasi Belajar '+sk.n+' Kelas '+KL,nilai:nilaiOf(score),benar:score,jumlah:N,hadiah:status,pola:soal.map((s,i)=>jw[i]==null?'-':jw[i]===s.jawab?1:0).join(''),detik:soal.map((s,i)=>qms[i]==null?'':Math.round(qms[i]/100)/10).join(','),waktu:new Date().toLocaleString('id-ID')});
 }
 function saveProg(nilai){
   if(admin) return;
@@ -6110,7 +6109,7 @@ function uasKunci(sy){
 function openMapel(k){
   sk=SUBJ.find(s=>s.k===k);
   $('m-emoji').textContent=sk.e;$('m-judul').textContent=sk.n;$('m-sub').textContent='Kelas '+KL+' · '+nama;
-  show('scr-mapel');uasLabel();siapShow();
+  show('scr-mapel');uasLabel();
 }
 
 /* ---------- overlay ---------- */
@@ -6222,7 +6221,9 @@ function pick(){
     return {...s,opts:sh.map(i=>s.opts[i]),jawab:sh.indexOf(s.jawab)};
   });
 }
+let qt0=[],qms=[];
 function startQuiz(){
+  qt0=[];qms=[];
   if(!admin){const sy=uasSyarat();if(sy.done<sy.total){uasKunci(sy);return}}
   bgm(false);
   soal=pick();N=soal.length;cur=0;score=0;jw=Array(N).fill(null);selesai=false;
@@ -6250,7 +6251,7 @@ function renderSoal(){
     ?`<button class="nb f" ${prev==null?'disabled':''} onclick="showHasil()">Lihat Hasil 🎉</button>`
     :`<button class="nb" ${prev==null?'disabled':''} onclick="cur++;renderSoal()">Lanjut →</button>`}</div>`;
   $('ov-b').innerHTML=h;$('ov-b').scrollTop=0;
-  if(prev==null)startTimer();else stopTimer();
+  if(prev==null){if(qt0[cur]==null)qt0[cur]=Date.now();startTimer()}else stopTimer();
 }
 function startTimer(){
   stopTimer();left=TIMER;
@@ -6261,13 +6262,13 @@ function startTimer(){
     tn.textContent=left;tbi.style.width=(left/TIMER*100)+'%';
     tm.className='tm'+(left<=10?' u':left<=20?' w':'');
     if(left<=10&&left>0)tone(left<=5?1175:880,0,.07,'square',.05);
-    if(left<=0){stopTimer();jw[cur]=-1;playWrong();renderSoal()}
+    if(left<=0){stopTimer();jw[cur]=-1;qms[cur]=TIMER*1000;playWrong();renderSoal()}
   },1000);
 }
 function stopTimer(){if(tmr){clearInterval(tmr);tmr=null}}
 function jwb(i){
   if(jw[cur]!=null)return;
-  stopTimer();jw[cur]=i;
+  stopTimer();jw[cur]=i;qms[cur]=Date.now()-(qt0[cur]||Date.now());
   if(i===soal[cur].jawab){score++;playOk()}else playWrong();
   renderSoal();
 }
@@ -6564,84 +6565,6 @@ async function muatSkor(){
   renderSkor();
 }
 muatSkor();setInterval(()=>{const s=$('scr-nama');if(s&&s.style.display!=='none')muatSkor()},60000);
-
-/* ===== SIAP UAS (Kelas 6, versi contoh/dummy) ===== */
-const PU_N=15;let PU=null,puTm=null;
-function siapShow(){
-  let b=$('btn-siap');if(!b)return;b.style.display=(KL===6)?'':'none';
-  if(KL===6){const r=lsGet(puKey(),null);b.querySelector('.bd').textContent=r?`Persiapan materi & Pra UAS · terbaik ${r.best}`:'Persiapan materi & Pra UAS'}
-}
-const puKey=()=>'pra'+KL+'pu_'+nama.toLowerCase()+'_'+sk.k;
-const psKey=()=>'pra'+KL+'ps_'+nama.toLowerCase()+'_'+sk.k;
-function puStop(){clearInterval(puTm);puTm=null}
-function openSiap(){
-  puStop();PU=null;
-  const r=admin?null:lsGet(puKey(),null),ps=admin?[]:lsGet(psKey(),[]),n=RK[sk.k].length;
-  openOv('🎯 Siap UAS · '+sk.n,`
-  <div class="lockbox" style="background:#eff6ff;border-color:#93c5fd;color:#1e3a8a;font-size:.8rem">ℹ️ Versi contoh: isi masih diambil dari rangkuman & bank soal yang ada. Nanti diganti materi asli dari guru.</div>
-  <button class="btn" style="background:linear-gradient(135deg,#0ea5e9,#2563eb)" onclick="openPersiapan()"><div class="bi">📚</div><div class="bt"><div class="bl">Persiapan Materi</div><div class="bd">Poin kunci tiap bab · ${ps.length}/${n} bab siap</div></div></button>
-  <button class="btn" style="background:linear-gradient(135deg,#e11d48,#f97316)" onclick="puMulai()"><div class="bi">📝</div><div class="bt"><div class="bl">Pra UAS</div><div class="bd">${PU_N} soal · tanpa batas waktu · ${r?`terbaik ${r.best} (${r.n}x)`:'belum dikerjakan'}</div></div></button>`);
-}
-function openPersiapan(){
-  const ps=admin?[]:lsGet(psKey(),[]),strip=s=>String(s);
-  const h=RK[sk.k].map((c,i)=>`<div class="rex" style="background:#f8fafc;border:1.5px solid #e2e8f0">
-    <div class="eh" style="font-size:.95rem">${c.e||'📘'} Bab ${i+1}. ${c.t}</div>
-    <ul style="margin:.3rem 0 .3rem 1.1rem;padding:0;font-size:.85rem;line-height:1.5">${(c.p||[]).slice(0,3).map(p=>`<li>${strip(p)}</li>`).join('')}</ul>
-    ${c.ist?`<div style="font-size:.8rem"><b>Istilah:</b> ${c.ist.slice(0,4).map(x=>`<b>${x[0]}</b> = ${x[1]}`).join('; ')}</div>`:''}
-    ${c.trik?`<div class="rtrik" style="margin-top:.4rem">${c.trik}</div>`:''}
-    <label style="display:flex;gap:.4rem;align-items:center;margin-top:.5rem;font-weight:800;font-size:.85rem"><input type="checkbox" ${ps.includes(i)?'checked':''} onchange="psTog(${i},this.checked)"> Saya sudah siap untuk bab ini</label>
-  </div>`).join('');
-  openOv('📚 Persiapan Materi · '+sk.n,h+`<button class="btn center" style="background:linear-gradient(135deg,#e11d48,#f97316)" onclick="puMulai()">📝 Lanjut ke Pra UAS</button><button class="link" onclick="openSiap()">← Kembali ke Siap UAS</button>`);
-}
-function psTog(i,v){if(admin)return;let ps=lsGet(psKey(),[]);ps=ps.filter(x=>x!==i);if(v)ps.push(i);lsSet(psKey(),ps)}
-function puPick(){
-  const b=BANK[sk.k],f=(l,n)=>shuffle(b.filter(s=>s.lvl===l)).slice(0,n);
-  return shuffle([...f('M',8),...f('S',4),...f('K',3)]).map(s=>{
-    if(s.tipe==='bs')return {...s,opts:['Benar','Salah'],jawab:s.jawab};
-    const sh=shuffle([0,1,2,3]);return {...s,opts:sh.map(i=>s.opts[i]),jawab:sh.indexOf(s.jawab)}});
-}
-function puMulai(){
-  bgm(false);puStop();
-  PU={s:puPick(),i:0,jw:[],ms:[],t0:Date.now(),tq:Date.now()};
-  puTm=setInterval(()=>{const e=$('pu-time');if(e&&PU)e.textContent=puFmt(Date.now()-PU.t0)},500);
-  puDraw();
-}
-const puFmt=ms=>{const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
-function puDraw(){
-  const P=PU,q=P.s[P.i],K='ABCD',lv={M:'Mudah',S:'Sedang',K:'Sulit'}[q.lvl]||'';
-  openOv('📝 Pra UAS · '+sk.n,`
-  <div style="display:flex;justify-content:space-between;font-weight:800;font-size:.85rem;margin-bottom:.4rem"><span>Soal ${P.i+1}/${P.s.length} · <span style="color:#64748b">${lv}</span></span><span>⏱️ <span id="pu-time">${puFmt(Date.now()-P.t0)}</span></span></div>
-  <div style="height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-bottom:.8rem"><div style="height:100%;width:${Math.round(P.i/P.s.length*100)}%;background:linear-gradient(90deg,#e11d48,#f97316)"></div></div>
-  <div style="font-weight:800;font-size:1.02rem;line-height:1.5;margin-bottom:.7rem">${esc2(q.q)}</div>
-  <div id="pu-op">${q.opts.map((o,j)=>`<button class="btn" style="background:#fff;color:#1e293b;border:2px solid #e2e8f0;box-shadow:none;margin:.35rem 0" onclick="puJawab(${j})"><div class="bi" style="background:#f1f5f9;color:#475569">${q.tipe==='bs'?(j?'✗':'✓'):K[j]}</div><div class="bt"><div class="bl" style="font-size:.95rem">${esc2(o)}</div></div></button>`).join('')}</div>
-  <div id="pu-fb" style="min-height:1.4rem;font-weight:800;text-align:center"></div>`);
-}
-function puJawab(j){
-  const P=PU;if(!P||P.jw[P.i]!=null)return;
-  const q=P.s[P.i],ok=j===q.jawab;P.jw[P.i]=j;P.ms[P.i]=Date.now()-P.tq;
-  ok?playOk():playWrong();
-  const bs=$('pu-op').querySelectorAll('button');
-  bs.forEach((b,k)=>{b.disabled=true;if(k===q.jawab){b.style.borderColor='#16a34a';b.style.background='#dcfce7'}else if(k===j){b.style.borderColor='#dc2626';b.style.background='#fee2e2'}});
-  $('pu-fb').innerHTML=ok?'<span style="color:#16a34a">✅ Benar!</span>':'<span style="color:#dc2626">❌ Kurang tepat</span>';
-  setTimeout(()=>{if(PU!==P)return;P.i++;P.tq=Date.now();if(P.i<P.s.length)puDraw();else puSelesai()},ok?700:1300);
-}
-function puSelesai(){
-  const P=PU;puStop();
-  const benar=P.s.filter((q,i)=>P.jw[i]===q.jawab).length,nilai=Math.round(benar/P.s.length*100),dur=Math.round((Date.now()-P.t0)/1000);
-  if(!admin){const r=lsGet(puKey(),{best:0,n:0});r.best=Math.max(r.best,nilai);r.n++;lsSet(puKey(),r);
-    kirim({jenis:'prauas',waktu:new Date().toLocaleString('id-ID'),nama,kelas:String(KL),mapel:sk.n,nilai,benar,jumlah:P.s.length,durasi:dur,
-      pola:P.s.map((q,i)=>P.jw[i]===q.jawab?1:0).join(''),detik:P.ms.map(m=>Math.round(m/100)/10).join(','),hadiah:'PraUAS'})}
-  const K='ABCD',col=nilai>=85?'#16a34a':nilai>=70?'#d97706':'#dc2626';
-  openOv('📝 Hasil Pra UAS · '+sk.n,`
-  <div style="text-align:center"><div style="font-size:3.2rem;font-weight:900;color:${col}">${nilai}</div>
-  <div style="font-weight:800">${benar} benar dari ${P.s.length} soal · waktu ${puFmt(dur*1000)}</div>
-  <div style="margin:.4rem 0 .8rem;font-size:.9rem">${nilai>=85?'🌟 Kamu siap UAS!':nilai>=70?'👍 Hampir siap, ulangi bab yang masih salah.':'📚 Baca lagi Persiapan Materi, lalu coba lagi.'}</div></div>
-  ${P.s.map((q,i)=>{const ok=P.jw[i]===q.jawab;return `<div class="rex" style="background:${ok?'#f0fdf4':'#fef2f2'};font-size:.85rem"><b>${i+1}. ${esc2(q.q)}</b><br>${ok?'✅':'❌ Jawabanmu: '+esc2(q.opts[P.jw[i]])+'<br>✅'} ${esc2(q.opts[q.jawab])}${q.info?`<div style="opacity:.75;margin-top:.2rem">💡 ${esc2(q.info)}</div>`:''}</div>`}).join('')}
-  <button class="btn center" style="background:linear-gradient(135deg,#e11d48,#f97316)" onclick="puMulai()">🔁 Coba paket lain</button>
-  <button class="link" onclick="openSiap()">← Kembali ke Siap UAS</button>`);
-  PU=null;
-}
-{const _co=closeOv;closeOv=async function(){puStop();PU=null;return _co()}}
 </script>
 </body>
 </html>
