@@ -221,6 +221,10 @@ body,#app{background:#120b28}
 .tile b{position:absolute;right:3px;bottom:1px;font-size:10px;color:#ffd23c;text-shadow:0 1px 0 #000}.tile em{position:absolute;left:3px;top:1px;font-size:10px;color:#7dff8a;font-style:normal}.tile .nw{position:absolute;right:-3px;top:-5px;font-size:8px;font-style:normal;background:#ff4a6a;border-radius:6px;padding:0 3px;font-weight:700}.tile .lkk{position:absolute;left:2px;bottom:1px}
 .th{image-rendering:pixelated}.ihead{display:flex;gap:12px;align-items:center;background:#1d1540;border:2px solid var(--rc);border-radius:14px;padding:8px 12px}.ihead>div{display:flex;flex-direction:column}.ihead small{font-size:12px;color:#b4a8e8}
 .cmp{display:flex;gap:8px;align-items:center;background:#1d1540;border-radius:11px;padding:6px 10px;font-size:12px;margin:6px 0}
+.tile .ilv{position:absolute;left:2px;top:1px;font-size:8.5px;text-decoration:none;color:#d8ceff;background:#120b28cc;border-radius:4px;padding:0 2px}.tile .ilv.no{color:#ff6a6a}.tile em{top:auto;bottom:1px;left:auto;right:16px}
+.go.off{filter:grayscale(.8);opacity:.6;pointer-events:none}
+.pcard{display:flex;gap:10px;background:#1d1540;border:2px solid var(--rc);border-radius:14px;padding:8px 10px;margin:6px 0}.pcard>img{flex:none;image-rendering:pixelated;background:radial-gradient(circle,#3a2a78,#1d1540 70%);border-radius:10px}
+.pcard>div{display:flex;flex-direction:column;gap:2px;min-width:0}.pcard small{font-size:11px;color:#b4a8e8}.psk{font-size:11.5px;color:#ffe9a0}.pps{font-size:11px;color:#d8ceff}.pcard .mini{align-self:flex-start;margin-top:4px}
 </style></head>
 <body><div id="app">
 
@@ -2344,7 +2348,7 @@ function step(dt){G.t+=dt;const [A,B]=G.F;
   G.ghost.forEach(g=>g.l-=dt);G.ghost=G.ghost.filter(g=>g.l>0);G.ban.forEach(b=>b.a+=dt);G.ban=G.ban.filter(b=>b.a<b.dur);
   for(const f of G.F)if(f.w.glow&&Math.random()<dt*14&&f.st!=='ko'){const t=wTip(f,rnd(.4,1));fx({x:t.x,y:t.y,vx:rnd(-8,8),vy:rnd(-25,-8),l:rnd(.25,.5),s:rnd(.8,1.4),c:f.w.glow,k:f.w.fx==='star'?'st':'ci',g:-10})}
   /* suasana */
-  if(G.drops&&G.drops.length)updDrops(dt);stepWorld(dt);
+  if(G.drops&&G.drops.length)updDrops(dt);updPets(dt);stepWorld(dt);
   if(G.st==='intro'){G.it-=dt;if(G.it<=0){G.st='fight';banner('TARUNG!','','#ff5a3a',.8,20);SND.bell();hype(.7,-1);G.shake=2}}}
 function frame(now){requestAnimationFrame(frame);if(G.scr!=='fight')return;let dt=Math.min(.05,(now-G.last)/1000);G.last=now;if(G.paused){draw();return}
   if(G.cut){G.cut.t+=dt;if(G.cut.t>=G.cut.dur){const a=G.cut.f;G.cut=null;startSpecialAction(a)}draw();return}
@@ -2470,7 +2474,7 @@ function draw(){const g=ctx;g.setTransform(1,0,0,1,0,0);g.imageSmoothingEnabled=
   if(G.dim>0.01){g.fillStyle=`rgba(5,6,20,${G.dim*.72})`;g.fillRect(camx-200,-60,400,300);
     if(G.sp){const a=G.sp.a,col=a.w.glow||'#ffd23c';g.save();g.globalAlpha=G.dim*.35;g.strokeStyle=col;g.lineWidth=.8;const cxx=a.x,cyy=GY-a.y-14;for(let i=0;i<24;i++){const an=i/24*TAU+G.t*.8,r1=18+((G.t*90+i*17)%30);g.beginPath();g.moveTo(cxx+Math.cos(an)*r1,cyy+Math.sin(an)*r1);g.lineTo(cxx+Math.cos(an)*(r1+40),cyy+Math.sin(an)*(r1+40));g.stroke()}g.restore()}}
   for(const gh of G.ghost){g.globalAlpha=gh.l/gh.m*.55;const fr=gh.fr[(gh.k||'T')+(gh.face>0?'R':'L')];g.drawImage(fr[1],gh.x-8,GY-gh.y-32)}g.globalAlpha=1;
-  const order=[A,B].sort((a,b)=>(['atk','sp','chg'].includes(a.st))-(['atk','sp','chg'].includes(b.st)));order.forEach(f=>drawFighter(g,f));
+  drawPets(g);const order=[A,B].sort((a,b)=>(['atk','sp','chg'].includes(a.st))-(['atk','sp','chg'].includes(b.st)));order.forEach(f=>drawFighter(g,f));
   drawProj(g);drawTufts(g);drawFx(g);if(G.drops&&G.drops.length)drawDrops(g);
   g.setTransform(K,0,0,K,0,0);
   for(const f of G.F)if(f.chain>=2&&f.chainT>0){const x=f.side?VW-5:5,sc=1+Math.max(0,f.chainT-.95)*3;g.save();g.globalAlpha=Math.min(1,f.chainT*3);g.translate(x,30);g.scale(sc,sc);g.textAlign=f.side?'right':'left';g.font="700 13px 'Pixelify Sans',sans-serif";g.lineWidth=2.5;g.strokeStyle='#120e18';g.fillStyle=f.side?'#ff8a7a':'#7cc4ff';
@@ -2493,7 +2497,7 @@ function pips(){[0,1].forEach(i=>$('pp'+i).textContent='★'.repeat(Math.min(2,G
 function startMatch(cfg){G.pend=null;cfg=cfg||{a:SEL[0],b:SEL[1],diff:SEL.diff,arena:SEL.arena,mode:'prac'};G.cfg=cfg;G.mode=cfg.mode;SND.init();G.mid=(G.mid||0)+1;G.F=[mkFighter(cfg.a,0),cfg.b.mon?mkMon(cfg.b):mkFighter(cfg.b,1)];G.wins=[0,0];G.round=1;G.ended=0;G.diff=cfg.diff;
   ARW=cfg.arw||256;$('scFight').classList.toggle('zone',G.mode==='zone');G.zone=cfg.arena>=0?cfg.arena:Math.random()*6|0;buildWorld(G.zone);
   G.F.forEach((f,i)=>{$('n'+i).textContent=i?(cfg.nb||'Merah'):(cfg.na||'Biru');$('w'+i).innerHTML=`<span style="color:${RKC[f.w.r]}">${f.w.n}</span>`});
-  show('scFight');fit();G.scr='fight';resetRound();G.st='pre';qStart();hud();pips();G.last=performance.now();const mid=G.mid;setTimeout(()=>{if(G.mid===mid)introRound()},500)}
+  show('scFight');fit();G.scr='fight';resetRound();petsInit(cfg);G.st='pre';qStart();hud();pips();G.last=performance.now();const mid=G.mid;setTimeout(()=>{if(G.mid===mid)introRound()},500)}
 /* ================= PANEL SOAL BENAR/SALAH (di bawah arena) ================= */
 const MAPEL=[{k:'hitung',n:'Hitung Cepat 1–20',ic:'➕'},...SOAL];let QREC=[];
 function getQ(){const m=MAPEL.find(x=>x.k===(SEL.mapel||'hitung'))||MAPEL[0];
@@ -2636,10 +2640,10 @@ function rpgCfg(base,lv,mas,act){const w=WPN.find(x=>x.id===base.w)||WPN[0],t=w.
   LVP.forEach(p=>{if(lv>=p.lv)addB(B,p.b)});SKT[t].forEach((s,i)=>{if(!s.a&&i<=tier)addB(B,s.b)});
   let sk=act&&SKI[act]&&SKI[act].t===t&&SKI[act].tier<=tier?act:t+'0';
   return Object.assign({},base,{lv,bon:B,sk})}
-function myCfg(){const G2=gearCfg(eqItems()),t=(WPN.find(x=>x.id===G2.w)||WPN[0]).type;return rpgCfg({look:PROF.look,w:G2.w,eq:G2.eq,gear:G2.gear,gb:G2.gb},PROF.lv,PROF.mas,(PROF.act||{})[t])}
+function myCfg(){const G2=gearCfg(eqItems()),t=(WPN.find(x=>x.id===G2.w)||WPN[0]).type;return Object.assign(rpgCfg({look:PROF.look,w:G2.w,eq:G2.eq,gear:G2.gear,gb:G2.gb},PROF.lv,PROF.mas,(PROF.act||{})[t]),{pet:PROF.pet||null})}
 /* lawan komputer: gear acak sesuai liga, level dekat pemain, skill sesuai liga */
-function foeCfg(base,ti){const G2=gearCfg(randEq(ti,pick(WT))),w=WPN.find(x=>x.id===G2.w)||WPN[0],lv=Math.max(1,PROF.lv+(Math.random()*3|0)-1),mx=Math.min(5,[0,1,2,3,5][ti]),xp=MTX[Math.floor(Math.random()*(mx+1))],tier=mTier(xp);
-  const acts=SKT[w.type].filter(s=>s.a&&s.tier<=tier);return rpgCfg({look:base.look,w:G2.w,eq:G2.eq,gear:G2.gear,gb:G2.gb},lv,{[w.type]:xp},pick(acts).id)}
+function foeCfg(base,ti){const lv=Math.max(1,PROF.lv+(Math.random()*3|0)-1),G2=gearCfg(randEq(ti,pick(WT),lv)),w=WPN.find(x=>x.id===G2.w)||WPN[0],mx=Math.min(5,[0,1,2,3,5][ti]),xp=MTX[Math.floor(Math.random()*(mx+1))],tier=mTier(xp);
+  const acts=SKT[w.type].filter(s=>s.a&&s.tier<=tier),pt=Math.random()<.4?pick(Object.values(LG.M).filter(m=>m.r===(ti>=3?pick(['R','E']):pick(['C','R'])))).id:null;return Object.assign(rpgCfg({look:base.look,w:G2.w,eq:G2.eq,gear:G2.gear,gb:G2.gb},lv,{[w.type]:xp},pick(acts).id),{pet:pt})}
 /* ---------- skill dalam pertarungan ---------- */
 function skTick(f,dt){if(f.bf){f.bf.t-=dt;if(f.bf.t<=0)f.bf=null;else if(Math.random()<dt*8)fx({x:f.x+rnd(-6,6),y:GY-f.y-rnd(2,26),vy:rnd(-30,-12),l:.5,s:1,c:f.bf.dr?'#9ed4ff':'#ffd23c',k:'ci'})}
   if(f.burn){f.burn.t-=dt;f.burn.k=(f.burn.k||0)+dt;if(f.burn.k>=.5){f.burn.k-=.5;const d=Math.max(1,Math.round(f.maxHp*f.burn.p*.5));if(f.hp>d){f.hp-=d;txt(f.x+rnd(-3,3),GY-f.y-30,d+'',f.burn.c,5,.6)}}
@@ -2673,7 +2677,7 @@ function openMake(){G.scr='make';show('scMake');renderLook('mkEd');$('mkN').valu
 function openMake2(){$('mkW').querySelectorAll('.mkw').forEach(b=>b.classList.toggle('on',+b.dataset.i===MK.w));const t=WT[MK.w],S=SKT[t][0];
   $('mkD').innerHTML=`<b>${TYPN[t]}</b> · ${t==='pedang'?'Netral, tidak punya kelemahan':`unggul atas ${ADV[t].map(x=>TN[x]).join(' & ')}`}<br>Skill pertama: ${S.ic} <b>${S.n}</b> — ${S.d}`}
 function makeDone(){const n=$('mkN').value.trim().slice(0,12);if(!n){$('mkN').focus();$('mkN').classList.add('err');return}
-  const w=startW[MK.w];Object.assign(PROF,{made:1,name:n,w,set:'dasar_rookie',inv:{w:[w],s:['none','dasar_rookie']},mas:{},act:{},bag:null,eqp:null,run:null});migrateGear();saveP();SND.win();goLobby()}
+  const w=startW[MK.w];Object.assign(PROF,{made:1,name:n,w,set:'dasar_rookie',inv:{w:[w],s:['none','dasar_rookie']},mas:{},act:{},bag:null,eqp:null,run:null});migrateGear();addPet({pedang:'thorn',perisai:'thorn',ganda:'boar',tombak:'boar',busur:'mouse',buku:'mouse'}[WT[MK.w]]);saveP();SND.win();goLobby()}
 /* ---------- menu Karakter ---------- */
 let CHT='eq',CHW=null;
 function statRows(){const f=mkFighter(myCfg(),0),B=f.bonus,pc=v=>Math.round(v*100)+'%';
@@ -2694,7 +2698,7 @@ function openChar(tab){if(tab)CHT=tab;const P=PROF,w=WPN.find(x=>x.id===P.w)||WP
     <div class="note">Pilih <b>1 skill aktif</b> (keluar otomatis saat bertarung). Skill pasif langsung aktif begitu terbuka. ${tw!==t?`<br>⚠️ Senjatamu sekarang ${TN[t]}; skill ${TN[tw]} berlaku saat memakai ${TN[tw]}.`:''}</div>
     <div class="tree">${SKT[tw].map((s,i)=>{const on=i<=ti,sel=s.id===act;return`<div class="skn ${s.a?'act':'pas'} ${on?'':'lock'} ${sel?'sel':''}"><span class="ski" style="border-color:${MTC[i]}">${on?s.ic:'🔒'}</span><div><b>${s.n}</b> <small class="tg">${s.a?'AKTIF · '+s.cd+' dtk':'PASIF'}</small><small>${s.d}</small></div>${!on?`<em style="color:${MTC[i]}">${MTN[i]}</em>`:s.a?(sel?'<em class="eqd">✔ Dipakai</em>':`<button class="mini" onclick="setAct('${tw}','${s.id}')">Pakai</button>`):'<em>✔</em>'}</div>`}).join('<i class="lnk"></i>')}</div>`}
   sheet(pxSvg('hero',22)+' Hero',tabs+h)}
-function heroStrip(a){return`<div class="grp">${[['eq','Perlengkapan'],['tas','Tas'],['st','Status'],['sk','Skill']].map(([k,n])=>`<button class="${a===k?'on':''}" onclick="${k==='tas'?'openBag()':`openChar('${k}')`}">${n}</button>`).join('')}</div>`}
+function heroStrip(a){return`<div class="grp">${[['eq','Perlengkapan'],['tas','Tas'],['pet','Pet'],['st','Status'],['sk','Skill']].map(([k,n])=>`<button class="${a===k?'on':''}" onclick="${k==='tas'?'openBag()':k==='pet'?'openPets()':`openChar('${k}')`}">${n}</button>`).join('')}</div>`}
 function setAct(t,id){PROF.act=PROF.act||{};PROF.act[t]=id;saveP();SND.ok();openChar()}
 
 /* ================= EQUIPMENT ala Hero of Colosseum: 7 slot, stat acak, affix, set, upgrade, jual ================= */
@@ -2716,32 +2720,36 @@ ABYSS.forEach(A=>{const k='abyss_'+A.k;GSET[k]={n:A.n,vis:k,b2:{atk:.05,hp:.05},
 const rng1=s=>()=>(s=(s*16807)%2147483647)/2147483647;
 const uid=()=>'i'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36);
 /* buat instance item */
-function mkItem(s,b,r,o){return Object.assign({u:uid(),s,b,r,sd:1+Math.floor(Math.random()*2e9),up:0},o||{})}
+const WR=[0,1,1.06,1.13,1.21,1.3],RM2=[0,1,1.15,1.32,1.5,1.7],AM2=[0,0,1,1.25,1.5,1.8],PRR=[0,1,1.6,2.6,4,6];
+function curILv(){return PROF.pr&&typeof prLv==='function'?prLv():PROF.lv||1}
+function mkItem(s,b,r,o){return Object.assign({u:uid(),s,b,r,sd:1+Math.floor(Math.random()*2e9),up:0,lv:curILv()},o||{})}
 function rollPiece(sl,r){const pool=PIECES.filter(p=>p.sl===sl&&['dasar','elemen','bos'].includes(p.kind)),mr=Math.min(r,3);let c=pool.filter(p=>p.r===mr||p.r===mr-1);if(!c.length)c=pool;return pick(c).id}
-function rollItem(r,sl,wt){sl=sl||pick(['w','w','hat','shirt','pants','shoes','back','acc']);
+function rollItem(r,sl,wt,lv){const it=rollItem0(r,sl,wt);if(lv)it.lv=Math.max(1,Math.round(lv));return it}
+function rollItem0(r,sl,wt){sl=sl||pick(['w','w','hat','shirt','pants','shoes','back','acc']);
   if(sl==='w'){const wr=Math.min(5,r),l=WPN.filter(w=>w.r===wr&&(!wt||w.type===wt));return mkItem('w',pick(l.length?l:WPN.filter(w=>w.r===wr)).id,wr)}
   if(sl==='acc')return mkItem('acc',pick(Object.keys(ACC)),r);return mkItem(sl,rollPiece(sl,r),r)}
-function setItem(k,sl,r){const S=SETS.find(x=>x.id===GSET[k].vis);sl=sl||pick(Object.keys(S.eq));return mkItem(sl,S.eq[sl],r,{set:k})}
+function setItem(k,sl,r,lv){if(lv)return Object.assign(setItem(k,sl,r),{lv});const S=SETS.find(x=>x.id===GSET[k].vis);sl=sl||pick(Object.keys(S.eq));return mkItem(sl,S.eq[sl],r,{set:k})}
 function rarRoll(tier){const q=Math.random(),t=[[.7,.97,1,1],[.45,.85,.99,1],[.25,.7,.95,1],[.1,.55,.9,.99],[.05,.4,.8,.97]][Math.min(4,tier)];return q<t[0]?1:q<t[1]?2:q<t[2]?3:q<t[3]?4:5}
 /* hitung data item (nama, stat, affix) — deterministik dari seed */
 const GI={};
-function gi(it){const key=it.u+':'+it.up;if(GI[key])return GI[key];const R=rng1(it.sd),r=it.r,um=1+.12*it.up,st={};let n,base=null;
+function gi(it){const key=it.u+':'+it.up+':'+(it.lv||1);if(GI[key])return GI[key];const R=rng1(it.sd),r=it.r,lv=it.lv||1,lm=1+.12*(lv-1),um=(1+.12*it.up)*lm,st={};let n,base=null;
   const add=(k,v)=>st[k]=(st[k]||0)+v;
-  if(it.s==='w'){const w=WPN.find(x=>x.id===it.b)||WPN[0];base=w;n=w.n;st.wa=WPN_ATK[w.r]*(.95+.1*R())*(1+.05*it.up)}
-  else if(it.s==='acc'){const A=ACC[it.b]||ACC.charm;n=A[0];for(const k in A[1])add(k,A[1][k]*RMUL[r]*(.9+.2*R())*um)}
-  else{const P=PIECE(it.b);n=(it.set?GSET[it.set].n.replace(' Set',''):(P?P.sn:'Plain'))+' '+GNOUN[it.s];for(const k in PST[it.s])add(k,PST[it.s][k]*RMUL[r]*(.9+.2*R())*um)}
-  const pool=AFX.slice(),aff=[];for(let i=0;i<NAFF[r];i++){const a=pool.splice(Math.floor(R()*pool.length),1)[0],v=a[3]*AMUL[r]*um;aff.push({n:a[1],k:a[2],v});add(a[2],v)}
+  if(it.s==='w'){const w=WPN.find(x=>x.id===it.b)||WPN[0];base=w;n=w.n;st.wa=(1+.055*(lv-1))*WR[w.r]*(.95+.1*R())*(1+.05*it.up)}
+  else if(it.s==='acc'){const A=ACC[it.b]||ACC.charm;n=A[0];for(const k in A[1])add(k,A[1][k]*RM2[r]*(.9+.2*R())*um)}
+  else{const P=PIECE(it.b);n=(it.set?GSET[it.set].n.replace(' Set',''):(P?P.sn:'Plain'))+' '+GNOUN[it.s];for(const k in PST[it.s])add(k,PST[it.s][k]*RM2[r]*(.9+.2*R())*um)}
+  const pool=AFX.slice(),aff=[];for(let i=0;i<NAFF[r];i++){const a=pool.splice(Math.floor(R()*pool.length),1)[0],v=a[3]*AM2[r]*(1+.06*(lv-1))*(1+.12*it.up);aff.push({n:a[1],k:a[2],v});add(a[2],v)}
   if(!it.set&&it.s!=='w')n=IPFX[r][Math.floor(R()*3)]+' '+n;if(aff.length&&!it.set)n+=' of '+aff[0].n;if(it.up)n+=' +'+it.up;
-  return GI[key]={n,st,aff,base,price:Math.round(IPRICE[r]*(.85+.3*R())*(1+.3*it.up))}}
+  return GI[key]={n,st,aff,base,lv,price:Math.round(50*(1+.25*(lv-1))*PRR[r]*(.85+.3*R())*(1+.3*it.up))}}
 function stTxt(st){return Object.entries(st).filter(([k])=>STN[k]).map(([k,v])=>`${STN[k][0]} +${Math.round(v*1000)/10}${STN[k][1]}`)}
 function itIcon(it){return it.s==='w'?(WIC[(WPN.find(x=>x.id===it.b)||WPN[0]).type]):GSI[it.s]}
 /* rangkum gear → cfg petarung */
 function gearCfg(eq){const vis={},B={};let wa=1,w=null;const cnt={};
   for(const sl of GSL){const it=eq[sl];if(!it)continue;const d=gi(it);if(sl==='w'){w=it.b;wa=d.st.wa}else if(sl!=='acc')vis[sl]=it.b;for(const k in d.st)if(k!=='wa')B[k]=(B[k]||0)+d.st[k];if(it.set)cnt[it.set]=(cnt[it.set]||0)+1}
   for(const k in cnt){const S=GSET[k];if(cnt[k]>=2)addB(B,S.b2);if(cnt[k]>=3)addB(B,S.b3)}
+  const CAP={crit:.4,ev:.3,ls:.25,cdr:.4,dr:.4,jf:1};for(const k in CAP)if(B[k]>CAP[k])B[k]=CAP[k];
   return{w:w||startW[0],eq:vis,gear:{atkM:wa},gb:B,sets:cnt}}
 /* gear acak untuk lawan komputer */
-function randEq(tier,wt){const eq={},r=()=>Math.max(1,Math.min(5,rarRoll(tier)));eq.w=rollItem(Math.max(1,Math.min(5,tier+1)),'w',wt);['hat','shirt','pants','shoes','back'].forEach(sl=>{if(Math.random()<.85)eq[sl]=rollItem(r(),sl)});if(Math.random()<.6)eq.acc=rollItem(r(),'acc');return eq}
+function randEq(tier,wt,lv){lv=lv||PROF.lv||1;const eq={},r=()=>Math.max(1,Math.min(5,rarRoll(tier)));eq.w=rollItem(Math.max(1,Math.min(5,tier+1)),'w',wt,lv);['hat','shirt','pants','shoes','back'].forEach(sl=>{if(Math.random()<.85)eq[sl]=rollItem(r(),sl,null,lv)});if(Math.random()<.6)eq.acc=rollItem(r(),'acc',null,lv);return eq}
 /* profil: tas & equip */
 function bag(){PROF.bag=PROF.bag||[];PROF.eqp=PROF.eqp||{};return PROF.bag}
 const byU=u=>bag().find(x=>x.u===u);
@@ -2769,12 +2777,12 @@ function itemSheet(u){const it=byU(u)||(PROF.shopI||[]).find(x=>x.u===u);if(!it)
     ${inShop?`<button class="go px ${PROF.coin<d.price?'off':''}" onclick="buyI('${u}')">Beli ${d.price} 🪙</button>`:`${worn?'<div class="note" style="text-align:center">✔ Sedang dipakai</div>':`<button class="go px" onclick="wear('${u}')">✔ Pakai</button>`}
     ${it.up<3?`<button class="ghost ${PROF.coin<upC?'off':''}" onclick="upgI('${u}')">⚒ Upgrade ke +${it.up+1} (${upC} 🪙)</button>`:'<div class="note">Upgrade maksimal (+3)</div>'}
     ${worn?'':`<button class="ghost" style="color:#ff8a7a" onclick="sellI('${u}')">Jual ${Math.round(d.price*.4)} 🪙</button>`}`}<button class="ghost" onclick="${inShop?"openShop()":"openBag()"}">◀ Kembali</button>`)}
-function wear(u){const it=byU(u);if(!it)return;PROF.eqp[it.s]=u;syncW();saveP();LCH=null;SND.ok();lobbyHud();openBag()}
+function wear(u){const it=byU(u);if(!it)return;if((it.lv||1)>PROF.lv){SND.bad&&SND.bad();return}PROF.eqp[it.s]=u;syncW();saveP();LCH=null;SND.ok();lobbyHud();openBag()}
 function upgI(u){const it=byU(u),d=gi(it),c=Math.round(d.price*.6*(it.up+1));if(it.up>=3||PROF.coin<c)return;PROF.coin-=c;it.up++;saveP();SND.win();lobbyHud();itemSheet(u)}
 function sellI(u){const it=byU(u);if(!it||Object.values(PROF.eqp).includes(u))return;PROF.coin+=Math.round(gi(it).price*.4);PROF.bag=bag().filter(x=>x!==it);saveP();SND.ok();lobbyHud();openBag()}
 /* ---------- Toko (6 barang/hari, acak sesuai level) ---------- */
 function openShop(){const d=today();if(!PROF.shopI||PROF.shopD!==d){PROF.shopD=d;const t=Math.min(4,Math.floor(PROF.lv/6));PROF.shopI=[0,1,2,3,4,5].map(i=>rollItem(Math.min(4,rarRoll(t)),i<2?'w':null,i===0?(WPN.find(x=>x.id===PROF.w)||WPN[0]).type:null));saveP()}
-  sheet(pxSvg('toko',22)+' Toko',`<div class="note">Barang berganti setiap hari. Kamu punya <b>${PROF.coin} 🪙</b>. Jual barang lama di 🎒 Tas (40% harga).</div><div class="lst">${PROF.shopI.map(it=>{const g=gi(it);return`<div class="it" onclick="itemSheet('${it.u}')"><span class="ic">${itIcon(it)}</span><span><b style="color:${RKC[it.r]}">${g.n}</b><small>${GSN[it.s]} · ${RK[it.r]}</small></span><i>${g.price} 🪙</i></div>`}).join('')}</div><div class="note">Set Wyvern hanya dari dungeon Gua Kristal; set Abyss dari Abyss Chest.</div>`)}
+  sheet(pxSvg('toko',22)+' Toko',`<div class="note">Barang berganti setiap hari. Kamu punya <b>${PROF.coin} 🪙</b>. Jual barang lama di 🎒 Tas (40% harga).</div><div class="lst">${PROF.shopI.map(it=>{const g=gi(it);return`<div class="it" onclick="itemSheet('${it.u}')"><span class="ic">${itIcon(it)}</span><span><b style="color:${RKC[it.r]}">${g.n}</b><small>${GSN[it.s]} · ${RK[it.r]}</small></span><i>${g.price} 🪙</i></div>`}).join('')}</div>${petShop()}`)}
 function buyI(u){const i=PROF.shopI.findIndex(x=>x.u===u),it=PROF.shopI[i];if(!it)return;const p=gi(it).price;if(PROF.coin<p)return;if(bag().length>=80){alert('Tas penuh (80). Jual barang dulu.');return}PROF.coin-=p;PROF.shopI.splice(i,1);giveItem(it);saveP();SND.win();lobbyHud();checkAch();openShop()}
 /* ---------- Peti: isi ditentukan saat didapat ---------- */
 function grantChest(type){const C=CHEST[type],it=type==='abyss'?(Math.random()<.5?setItem('abyss_'+pick(ABYSS).k,null,5):rollItem(5,'w')):rollItem(C.r);PROF.chests.push({type,it,coin:C.coin});saveP();lobbyHud()}
@@ -3031,7 +3039,7 @@ function openZone(id){const z=ZW.find(x=>x.id===id),Z=ZONE8[zIdx(id)],S=zst(id),
   sheet(`${ico('map',22)} ${z.n}`,`<div class="note">Lv ${Z.lv[0]}–${Z.lv[1]} · Kekuatan minimal ${Z.gp} · jalur 9 pos, tiap pertarungan 1 ronde, HP terbawa.</div>
     ${why.length?`<div class="note" style="color:#ff8a7a">${ico('lock',14)} Terkunci: ${why.join(' · ')}.<br>Ulangi zona sebelumnya untuk naik level & mencari perlengkapan lebih kuat.</div>`:''}
     <div class="sec">Penghuni</div><div class="note">${Z.mob.map(x=>`${x[0]} (${TYPN[x[1]]})`).join(' · ')}<br>Elite: ${Z.el.map(x=>x[0]).join(', ')}<br>Bos: <b>${Z.boss[0]}</b>, ${Z.boss[3]} · jurus khas <b>${Z.sk[0]}</b></div>
-    ${why.length?'':`<div class="sec">Tingkat kesulitan</div>${ZDIF.map((d,i)=>{const lk=i>S.d;return`<div class="it ${lk?'lk':''}" ${lk?'':`onclick="prStart('${id}',${i})"`}><span class="ic">${ico(lk?'lock':'duel',24)}</span><span><b>${d.n}</b><small>Lawan Lv ${Z.lv[0]+d.lv}–${Z.lv[1]+d.lv+1} · drop ${d.rr.map(x=>RK[Math.min(5,x[0]+Math.floor(Z.gs/3))]).join('/')} · gold ×${d.g}${lk?' · kalahkan bos dulu':''}</small></span>${lk?'':'<i>Masuk ▶</i>'}</div>`}).join('')}
+    ${why.length?'':`<div class="sec">Tingkat kesulitan</div>${ZDIF.map((d,i)=>{const lk=i>S.d;return`<div class="it ${lk?'lk':''}" ${lk?'':`onclick="prStart('${id}',${i})"`}><span class="ic">${ico(lk?'lock':'duel',24)}</span><span><b>${d.n}</b><small>Lawan Lv ${Z.lv[0]+d.lv}–${Z.lv[1]+d.lv+1} · drop sampai ${RK[zIdx(id)<2?3:zIdx(id)<4?4:5]} (peluang ${['kecil','sedang','besar'][i]}) · gold ×${d.g}${lk?' · kalahkan bos dulu':''}</small></span>${lk?'':'<i>Masuk ▶</i>'}</div>`}).join('')}
     ${PR()?'<div class="note">⚠️ Memulai baru membatalkan ekspedisi yang berjalan (gold yang dibawa tetap diberikan).</div>':''}<div class="note">Pingsan = ekspedisi gagal, gold yang dibawa hilang separuh; barang tetap di tas.</div>`}`)}
 function prStart(id,d){if(PR())prPay(1,[]);PROF.pr={z:id,d,path:prGen(),row:0,k:-1,hpf:1,loot:{coin:0,n:0},buff:0,done:[]};saveP();closeSheet();openExp()}
 /* --- layar jalur --- */
@@ -3050,7 +3058,10 @@ function prDone(msg,log){const R=PR(),[i,k]=R.cur;R.done.push([i,k]);R.row=i+1;R
   sheet(ico('map',22)+' '+ZW.find(z=>z.id===R.z).n,`<div class="note">${msg}</div>${log&&log.length?`<div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div>`:''}<button class="go px" onclick="closeSheet()">▶ Lanjut</button>`)}
 function prCamp(c){const R=PR();if(c)R.buff=(R.buff||0)+.1;else R.hpf=Math.min(1,R.hpf+.35);SND.ok();prDone(c?'Senjatamu diasah tajam! Serangan +10%.':'Kamu beristirahat di api unggun. HP +35%.',[])}
 function prChest(){const R=PR(),L=prLv(),g=Math.round((25+8*L)*ZDIF[R.d].g),log=[`🪙 +${g} gold`];R.loot.coin+=g;if(Math.random()<.7&&bag().length<80){giveItem(rollItem(dropR2()),log);R.loot.n++}SND.win();prDone('Kamu menemukan peti harta!',log)}
-function dropR2(){const R=PR(),t=ZDIF[R.d].rr,q=Math.random(),zb=Math.floor(ZONE8[zIdx(R.z)].gs/3);for(const[r,pp]of t)if(q<pp)return Math.min(5,r+zb);return Math.min(5,t[t.length-1][0]+zb)}
+const RTAB=[[.55,.88,.985,.998,1],[.35,.75,.95,.99,1],[.2,.6,.9,.98,1]];
+function rarZ(d,zi,bump){const q=Math.random(),t=RTAB[d];let r=1;while(r<5&&q>=t[r-1])r++;r=Math.min(5,r+(bump||0));const mx=zi<2?3:zi<4?4:5;return Math.max(1,Math.min(r,mx))}
+function dropR2(){const R=PR();return rarZ(R.d,zIdx(R.z))}
+function dropR2_old(){const R=PR(),t=ZDIF[R.d].rr,q=Math.random(),zb=Math.floor(ZONE8[zIdx(R.z)].gs/3);for(const[r,pp]of t)if(q<pp)return Math.min(5,r+zb);return Math.min(5,t[t.length-1][0]+zb)}
 function prShop(first){const R=PR(),L=prLv();if(first||!R.shop)R.shop={it:[0,1,2].map(i=>rollItem(dropR2(),i===0?'w':null,i===0?(WPN.find(x=>x.id===PROF.w)||WPN[0]).type:null)),pot:2};
   const pp=20+5*L;sheet(ico('shop',22)+' Pedagang',`<div class="note">Bayar dengan gold ekspedisi: <b>🪙 ${R.loot.coin}</b></div><div class="lst">
     <div class="it ${R.shop.pot&&R.loot.coin>=pp?'':'lk'}" onclick="prBuy(-1)"><span class="ic">${ico('potion',24)}</span><span><b>Potion</b><small>Pulihkan 30% HP · sisa ${R.shop.pot}</small></span><i>${pp} 🪙</i></div>
@@ -3071,12 +3082,12 @@ function prMystery(){const R=PR(),L=prLv(),r=Math.random();
 /* --- petarung musuh --- */
 function npcLook(){const g=pick(['l','p']);return{g,hs:pick(AV.HSTYLES[g])[0],hc:pick(AV.HAIRC),sk:Math.random()*6|0,ec:pick(AV.EYES)}}
 function npcCfg(kind){const R=PR(),Z=ZONE8[zIdx(R.z)],span=Z.lv[1]-Z.lv[0],L=Z.lv[0]+Math.floor(R.row*span/8)+ZDIF[R.d].lv+({n:0,e:1,b:1}[kind]),zt=Math.floor(Z.gs/2),tier=Math.min(4,zt+R.d+{n:0,e:0,b:1}[kind]);
-  const m=kind==='b'?Z.boss:kind==='e'?pick(Z.el):pick(Z.mob),[nm,wt,cr]=m;const G2=gearCfg(randEq(tier,wt)),mx=Math.min(5,zt+R.d+(kind==='b'?2:kind==='e'?1:0)),tr=Math.floor(Math.random()*(mx+1)),acts=SKT[wt].filter(s=>s.a&&s.tier<=mTier(MTX[tr]));
+  const m=kind==='b'?Z.boss:kind==='e'?pick(Z.el):pick(Z.mob),[nm,wt,cr]=m;const G2=gearCfg(randEq(tier,wt,L)),mx=Math.min(5,zt+R.d+(kind==='b'?2:kind==='e'?1:0)),tr=Math.floor(Math.random()*(mx+1)),acts=SKT[wt].filter(s=>s.a&&s.tier<=mTier(MTX[tr]));
   const look=cr?{g:'l',hs:AV.HSTYLES.l[0][0],hc:AV.HAIRC[0],sk:1,ec:AV.EYES[0],noArmor:1}:npcLook();
-  const c=rpgCfg({look,w:G2.w,eq:cr?{}:G2.eq,gear:G2.gear,gb:G2.gb},L,{[wt]:MTX[tr]},pick(acts).id);c.kind=kind;c.npcN=nm;c.cr=cr||null;return c}
+  const c=rpgCfg({look,w:G2.w,eq:cr?{}:G2.eq,gear:G2.gear,gb:G2.gb},L,{[wt]:MTX[tr]},pick(acts).id);c.kind=kind;c.npcN=nm;c.cr=cr||null;c.pet=kind!=='n'||(zIdx(R.z)>0&&Math.random()<.3)?zonePet(R.z,kind):null;return c}
 function prDuel(kind){const R=PR(),b=npcCfg(kind),diff=Math.min(2,{n:0,e:0,b:1}[kind]+R.d);
   startMatch({a:myCfg(),b,diff,arena:ZARENA[R.z],mode:'path',na:PROF.name,nb:b.npcN});
-  W.noCrowd=1;const[A,B]=G.F,K={n:[.62,.72],e:[.8,.74],b:[.85,.6]}[kind];B.maxHp=B.hp=Math.round(B.maxHp*K[0]);B.atk*=K[1];if(R.buff)A.atk*=1+R.buff;if(kind==='b'){const Z=ZONE8[zIdx(R.z)],q=Z.sk;B.big=1.35;B.M=Object.assign({},B.M,{list:B.M.list.map(x=>Object.assign({},x,{reach:x.reach*1.25})),heavy:Object.assign({},B.M.heavy,{reach:B.M.heavy.reach*1.25})});B.sk=Object.assign({n:q[0],ic:'👑',cd:8,m:q[1]||0},q[2]);B.skCD=3;B.bossCol=q[3]}A.hp=Math.max(1,Math.round(A.maxHp*R.hpf));B.kind=kind;G.ph2=0;
+  W.noCrowd=1;const[A,B]=G.F,K={n:[.62,.72],e:[.8,.74],b:[.75,.55]}[kind];B.maxHp=B.hp=Math.round(B.maxHp*K[0]);B.atk*=K[1];if(R.buff)A.atk*=1+R.buff;if(kind==='b'){const Z=ZONE8[zIdx(R.z)],q=Z.sk;B.big=1.35;B.M=Object.assign({},B.M,{list:B.M.list.map(x=>Object.assign({},x,{reach:x.reach*1.25})),heavy:Object.assign({},B.M.heavy,{reach:B.M.heavy.reach*1.25})});B.sk=Object.assign({n:q[0],ic:'👑',cd:10,m:(q[1]||0)*.8},q[2]);B.skCD=5;B.bossCol=q[3]}A.hp=Math.max(1,Math.round(A.maxHp*R.hpf));B.kind=kind;G.ph2=0;
   $('w1').innerHTML=`<span style="color:${kind==='b'?'#ffd23c':kind==='e'?'#ff8aa0':RKC[B.w.r]}">Lv ${b.lv} · ${kind==='b'?'BOS':kind==='e'?'Elite':B.w.n}</span>`;hud()}
 function prTick(dt){const B=G.F[1];if(B.kind==='b'&&!G.ph2&&B.hp>0&&B.hp<B.maxHp*.5&&G.st==='fight'){G.ph2=1;B.atk*=1.15;B.energy=Math.max(B.energy,60);B.bf={atk:.15,t:99};banner('FASE 2!',ZONE8[zIdx(PR().z)].boss[0]+' mengamuk!','#ff5a3a',1.4,20);ring(B.x,GY-B.y-14,'#ff5a3a',30,.5,4);G.shake=4;SND.heavy();B.skCD=1}
   if((B.kind==='e'||G.ph2)&&Math.random()<dt*12)fx({x:B.x+rnd(-7,7),y:GY-B.y-rnd(2,28),vy:rnd(-30,-12),l:.5,s:1.2,c:G.ph2?'#ff5a3a':'#ff8aa0',k:'ci',g:-10})}
@@ -3085,7 +3096,7 @@ function pathEnd(w){const R=PR(),[A,B]=G.F;G.ended=G.round;G.st='over';const los
   if(lose)return prFail();
   R.hpf=Math.max(.05,A.hp/A.maxHp);const k=B.kind,L=B.lv||prLv(),[am,at]=accMul(s),Km={n:1,e:2.5,b:6}[k]*am,log=at?[at]:[];const pd=G.pend||preDrop(B,1);G.pend=null;const g=Math.round(pd.gold*am);R.loot.coin+=g;log.push(`🪙 +${g} gold`);
   addExp(Math.round((30+8*L)*Km*(1+(A.bonus.exp||0))),log);addMastery(A.w.type,{n:4,e:10,b:25}[k]+s.qok,log);
-  pd.items.forEach(it=>{if(bag().length<80){giveItem(it,log);R.loot.n++}});if(pd.sig)log.push(`👑 Senjata khas ${ZONE8[zIdx(R.z)].boss[0]}!`);
+  pd.items.forEach(it=>{if(bag().length<80){giveItem(it,log);R.loot.n++}});if(pd.pet)addPet(pd.pet,log);if(pd.sig)log.push(`👑 Senjata khas ${ZONE8[zIdx(R.z)].boss[0]}!`);
   saveP();if(k==='b')return prClear(log);G.scr='exp';prDone(`<b>Menang!</b> HP tersisa ${Math.round(R.hpf*100)}%`,log)}
 function prPay(f,log){const R=PR(),c=Math.round(R.loot.coin*f);PROF.coin+=c;log.push(`+${c} 🪙 gold`);return c}
 function prClear(log){const R=PR(),S=zst(R.z);S.clr++;if(R.d>=S.d&&S.d<2){S.d=R.d+1;log.push(`🔓 Tingkat <b>${ZDIF[S.d].n}</b> terbuka!`)}const ch=['silver','gold','legend'][R.d];grantChest(ch);log.push(`🎁 ${CHEST[ch].n}`);prPay(1,log);
@@ -3137,13 +3148,13 @@ function crFrames(fr,cfg){if(!cfg.cr||!CR[cfg.cr])return fr;const S=CR[cfg.cr],o
 /* ================= DESAIN ZONA & PENGHUNI (8 zona, Lv 1–30) ================= */
 const ZONE8=[
  {id:'windy',n:'Windy Meadow',lv:[1,4],gs:0,gp:0,sk:['Scythe Storm',2.3,{burn:{p:.04,t:3,c:'#ffb02a'}},'#ffd23c'],mob:[['Meadow Bandit','ganda',null,'dasar'],['Scarecrow','tombak','scarecrow',null],['Hill Archer','busur',null,'dasar']],el:[['Bandit Captain','ganda',null,'elemen']],boss:['Straw King','pedang','scarecrow','Lord of the haunted fields']},
- {id:'mirror',n:'Mirror Lake',lv:[4,8],gs:1,gp:40,sk:['Mirror Ward',0,{heal:.15,buff:{dr:.5,t:5}},'#9ee8ff'],mob:[['Lake Merfolk','tombak','merfolk',null],['Water Wraith','buku','ghost',null],['Lake Warden','perisai',null,'elemen']],el:[['Merfolk Knight','tombak','merfolk','elemen']],boss:['Mirror Goddess','buku','icespirit','Keeper of the lake reflection']},
- {id:'marsh',n:'Misty Marsh',lv:[8,12],gs:2,gp:80,sk:['Bone Prison',2,{stun:1},'#f2ede2'],mob:[['Bog Skeleton','pedang','skeleton',null],['Frogman','ganda','frogman',null],['Swamp Witch','buku',null,'elemen']],el:[['Skeleton Knight','perisai','skeleton','bos']],boss:['Skeleton King','pedang','skeleton','Ruler of the Sunken Village']},
- {id:'wildwood',n:'Wildwood Forest',lv:[12,16],gs:3,gp:125,sk:['Root Bind',1.9,{stun:.8,heal:.08},'#62cc5a'],mob:[['Goblin','ganda','goblin',null],['Young Treant','tombak','treant',null],['Forest Hunter','busur',null,'elemen']],el:[['Goblin Chief','perisai','goblin','bos']],boss:['Ancient Treant','tombak','treant','Guardian of the Root Temple']},
- {id:'coral',n:'Coral Coast',lv:[16,20],gs:4,gp:175,sk:['Phantom Slash',2.6,{buff:{ls:.3,t:5}},'#8ae8ff'],mob:[['Pirate','pedang',null,'elemen'],['Crabman','perisai','crab',null],['Ship Ghost','ganda','ghost',null]],el:[['Pirate Captain','ganda',null,'bos']],boss:['Ghost Captain','pedang','ghost','Master of the shipwreck']},
- {id:'desert',n:'Crimson Desert',lv:[20,24],gs:5,gp:225,sk:['Curse of Sands',2.3,{burn:{p:.05,t:4,c:'#e8a040'}},'#ffb02a'],mob:[['Mummy','tombak','mummy',null],['Sand Djinn','buku','djinn',null],['Sand Guard','busur',null,'bos']],el:[['Noble Mummy','perisai','mummy','bos']],boss:['Crimson Pharaoh','pedang','mummy','King of the Sand Ruins']},
- {id:'frost',n:'Frostpeak',lv:[24,27],gs:6,gp:285,sk:['Glacier Stomp',2.4,{stun:.9},'#c2e4ff'],mob:[['Little Yeti','ganda','yeti',null],['Frost Spirit','buku','icespirit',null],['Ice Hunter','busur',null,'bos']],el:[['Frozen Knight','perisai','icespirit','bos']],boss:['Frost Giant','tombak','yeti','Warden of the frozen peak']},
- {id:'ember',n:'Ember Crater',lv:[27,30],gs:7,gp:345,sk:['Hellfire',2.8,{burn:{p:.06,t:4,c:'#ff5a1a'}},'#ff5a1a'],mob:[['Fire Imp','ganda','demon',null],['Lava Golem','perisai','golem',null],['Crater Cultist','buku',null,'bos']],el:[['Horned Demon','tombak','demon','bos']],boss:['Crater Demon King','pedang','demon','Lord of the underground fire']}];
+ {id:'mirror',n:'Mirror Lake',lv:[4,8],gs:1,gp:95,sk:['Mirror Ward',0,{heal:.15,buff:{dr:.5,t:5}},'#9ee8ff'],mob:[['Lake Merfolk','tombak','merfolk',null],['Water Wraith','buku','ghost',null],['Lake Warden','perisai',null,'elemen']],el:[['Merfolk Knight','tombak','merfolk','elemen']],boss:['Mirror Goddess','buku','icespirit','Keeper of the lake reflection']},
+ {id:'marsh',n:'Misty Marsh',lv:[8,12],gs:2,gp:160,sk:['Bone Prison',2,{stun:1},'#f2ede2'],mob:[['Bog Skeleton','pedang','skeleton',null],['Frogman','ganda','frogman',null],['Swamp Witch','buku',null,'elemen']],el:[['Skeleton Knight','perisai','skeleton','bos']],boss:['Skeleton King','pedang','skeleton','Ruler of the Sunken Village']},
+ {id:'wildwood',n:'Wildwood Forest',lv:[12,16],gs:3,gp:230,sk:['Root Bind',1.9,{stun:.8,heal:.08},'#62cc5a'],mob:[['Goblin','ganda','goblin',null],['Young Treant','tombak','treant',null],['Forest Hunter','busur',null,'elemen']],el:[['Goblin Chief','perisai','goblin','bos']],boss:['Ancient Treant','tombak','treant','Guardian of the Root Temple']},
+ {id:'coral',n:'Coral Coast',lv:[16,20],gs:4,gp:300,sk:['Phantom Slash',2.6,{buff:{ls:.3,t:5}},'#8ae8ff'],mob:[['Pirate','pedang',null,'elemen'],['Crabman','perisai','crab',null],['Ship Ghost','ganda','ghost',null]],el:[['Pirate Captain','ganda',null,'bos']],boss:['Ghost Captain','pedang','ghost','Master of the shipwreck']},
+ {id:'desert',n:'Crimson Desert',lv:[20,24],gs:5,gp:365,sk:['Curse of Sands',2.3,{burn:{p:.05,t:4,c:'#e8a040'}},'#ffb02a'],mob:[['Mummy','tombak','mummy',null],['Sand Djinn','buku','djinn',null],['Sand Guard','busur',null,'bos']],el:[['Noble Mummy','perisai','mummy','bos']],boss:['Crimson Pharaoh','pedang','mummy','King of the Sand Ruins']},
+ {id:'frost',n:'Frostpeak',lv:[24,27],gs:6,gp:440,sk:['Glacier Stomp',2.4,{stun:.9},'#c2e4ff'],mob:[['Little Yeti','ganda','yeti',null],['Frost Spirit','buku','icespirit',null],['Ice Hunter','busur',null,'bos']],el:[['Frozen Knight','perisai','icespirit','bos']],boss:['Frost Giant','tombak','yeti','Warden of the frozen peak']},
+ {id:'ember',n:'Ember Crater',lv:[27,30],gs:7,gp:490,sk:['Hellfire',2.8,{burn:{p:.06,t:4,c:'#ff5a1a'}},'#ff5a1a'],mob:[['Fire Imp','ganda','demon',null],['Lava Golem','perisai','golem',null],['Crater Cultist','buku',null,'bos']],el:[['Horned Demon','tombak','demon','bos']],boss:['Crater Demon King','pedang','demon','Lord of the underground fire']}];
 /* ================= KEPALA MAKHLUK (15×12, hadap kanan) ================= */
 const HEADS={};
 function hp(fn){const W=15,H=12,a=Array.from({length:H},()=>Array(W).fill(null)),P=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x>=0&&y>=0&&x<W&&y<H)a[y][x]=c},
@@ -3177,10 +3188,74 @@ function crFrames(fr,cfg){if(!cfg.cr||!CR[cfg.cr])return fr;const S=CR[cfg.cr],o
 ZONES.push({id:'mirror',n:'Mirror Lake',ic:'💧',sky:['#6ab4f2','#e4f4ff'],far:['#9cc4e0','#7ab0d4'],gr:['#7ac86a','#5aa850','#8a7a5a','#6a5a3a'],tuft:['#7ac86a','#5aa850','#ffffff','#9ad8ff'],sun:'#fff6c8',amb:'petal',tree:'tree',water:'#5aa8e8'});
 ZONES.push({id:'desert',n:'Crimson Desert',ic:'🏜️',sky:['#f0985a','#ffe2b0'],far:['#c8704a','#b05a3a'],gr:['#e8a868','#d08850','#b0683e','#8a4a2a'],tuft:['#c8a040','#a88a30'],sun:'#fff0c0',amb:'spark',tree:'dead'});
 const ZARENA={windy:0,wildwood:1,marsh:2,frost:3,ember:4,coral:5,mirror:ZONES.length-2,desert:ZONES.length-1};
-const AABY={n:'Abyss Isle',lv:30,gp:420};
+const AABY={n:'Abyss Isle',lv:30,gp:550};
 function gp(){const E=eqItems();return Math.round(GSL.reduce((a,sl)=>a+(E[sl]?score(E[sl]):0),0))}
 function zIdx(id){return ZONE8.findIndex(z=>z.id===id)}
 function zLock(id){const i=zIdx(id),Z=ZONE8[i],why=[];if(i>0&&!(zst(ZONE8[i-1].id).clr))why.push(`taklukkan ${ZONE8[i-1].n} dulu`);if(PROF.lv<Z.lv[0])why.push(`Lv ${Z.lv[0]} (kamu Lv ${PROF.lv})`);if(gp()<Z.gp)why.push(`Kekuatan ${Z.gp} (kamu ${gp()})`);return why}
+
+/* ================= PET LUMIMON: pendamping pemain & musuh ================= */
+const PETD={"badai":{"role":"tank","sk":"Thunder Storm","ds":"100% ke semua musuh di dekatnya + 40% pusing; melukai diri 10%","P":[["Frozen Scales","kerusakan diterima −10%"],["Ice Wall","pertama kali HP <50%: pancing 3 dtk + perisai 20%"],["Chill Air","pemukulnya −15% kecepatan serang 3 dtk"],["Eternal Storm","tiap 10 dtk, musuh di dekatnya 20% pusing"]]},"celeng":{"role":"tank","sk":"Snow Rush","ds":"seruduk 180% ke musuh di depan + kebal 2 dtk","P":[["Snow Hide","perisai 10% di awal"],["Counter Charge","dipukul penyerang dekat: 20% mendorong mundur, jeda 1 dtk"],["Iceberg","selama memancing, tim −10% kerusakan diterima"]]},"baja":{"role":"tank","sk":"Steel Horn","ds":"170% tembus perisai + pancing 3 dtk","P":[["Iron Hide","kebal pusing"],["Protector","perisai teman pecah → Rhino dapat perisai 10%"],["Unshakable","HP <30%: kerusakan diterima −25%"]]},"golem":{"role":"tank","sk":"Stone Fortress","ds":"pancing 4 dtk + perisai 30% + pantulkan (maks 20%, hanya serangan dekat)","P":[["Hot Stone","pantulan membakar 2 dtk"],["Foundation","HP maks +15% bila di kolom depan tengah"]]},"bear":{"role":"tank","sk":"Frozen Hug","ds":"80% + perisai 20% + pantulkan (maks 20%, hanya serangan dekat) selama 4 dtk","P":[["Thick Fur","bakar & racun padanya −50%"],["Tight Hug","musuh yang dipeluk tidak bisa ganti target 3 dtk"]]},"slug":{"role":"tank","sk":"Magma Trail","ds":"pulih 20% + bakar musuh di dekatnya","P":[["Hot Slime","pemukulnya 25% terbakar 2 dtk"],["Regeneration","pulih 1% HP/dtk"]]},"crab":{"role":"tank","sk":"Magma Claw","ds":"70% + perisai 20%; penyerang dekat ikut terbakar 4 dtk","P":[["Hard Shell","kerusakan dari penyerang jauh −20%"]]},"thorn":{"role":"tank","sk":"Rolling Thorns","ds":"pancing 4 dtk + pulih 15% + pantulkan (maks 20%, hanya serangan dekat)","P":[["Sharp Thorns","pantulan juga ATK pemukul −10% 3 dtk"]]},"worm":{"role":"tank","sk":"Cocoon","ds":"kebal 2 dtk + pulih 25%","P":[["Itchy Skin","penyerang dekat yang memukulnya teracuni 2 dtk"]]},"frog":{"role":"tank","sk":"Sticky Tongue","ds":"tarik 1 musuh barisan belakang ke depan + 120% + serap HP","P":[["Swamp","musuh yang ditarik −20% kecepatan 3 dtk"]]},"bayang":{"role":"melee","sk":"Eclipse","ds":"lompat ke musuh HP terendah, 200% + ledakkan semua racun padanya sekaligus","P":[["Venom Fang","serangan biasa 30% meracuni"],["Shadow","3 dtk awal tidak bisa jadi target"],["Predator","+25% ke musuh HP <40%"],["Black Fog","racun dari tim tidak bisa dihapus"]]},"kutub":{"role":"melee","sk":"Crystal Claw","ds":"2× 80%, tiap kena 25% pusing","P":[["Ice Step","jalan 30% lebih cepat"],["Ice Shatter","+30% ke musuh pusing"],["Fang Storm","3 dtk setelah jurus: serang 30% lebih cepat"]]},"elang":{"role":"melee","sk":"Fire Wing","ds":"menukik ke barisan belakang 130% + bakar 4 dtk + serap 50%","P":[["Flight","melewati Tank, mengincar barisan belakang"],["Ember Feathers","bakar dari Eagle +2 dtk"],["Phoenix","sekali per battle: pingsan → bangkit 25% HP"]]},"wolf":{"role":"melee","sk":"Ice Fang","ds":"lompat 150% + ATK musuh −15% 5 dtk","P":[["Swarm","ATK +10% per teman Es"],["Cold Bite","serangan biasa ATK target −5%, menumpuk 3×"]]},"fox":{"role":"melee","sk":"Ember Tail","ds":"2× 65% + bakar","P":[["Nimble","15% menghindar"],["Dancing Flame","ATK +5% per musuh yang sedang terbakar"]]},"lizard":{"role":"melee","sk":"Lava Leap","ds":"140%; +60% bila HP musuh <40%","P":[["Hunter","selalu mengincar musuh HP terendah di dekatnya"],["Shed Tail","sekali, HP <20%: kebal 1,5 dtk & mundur"]]},"kristo":{"role":"melee","sk":"Prism Reflect","ds":"3× 35% + perisai 15% (Kristal Terasah: 3× 50% + 20%)","P":[["Crystal","perisai Kristo memantulkan 20%"],["Team Prism","teman terdekat ikut dapat setengah perisai"]]},"boar":{"role":"melee","sk":"Rampage","ds":"ATK +40% 5 dtk","P":[["Thornbush","saat Amuk: kebal pusing"]]},"sneak":{"role":"melee","sk":"Snatch","ds":"80% + curi 20 energi musuh","P":[["Long Arms","energi curian diberikan ke teman yang paling dekat siap jurus"]]},"pingu":{"role":"melee","sk":"Ice Slide","ds":"meluncur 120% + energi +20","P":[["Slide","jalan 50% lebih cepat; pukulan pertama +30%"]]},"lahar":{"role":"ranged","sk":"Crimson Flood","ds":"160% ke semua musuh di satu lajur + bakar 4 dtk","P":[["Lava Skin","serangan biasa 30% membakar"],["Magma Core","musuh terbakar terima +15% dari seluruh tim"],["Red Scales","kebal bakar"],["Final Eruption","saat pingsan: semua musuh terbakar 4 dtk"]]},"rimba":{"role":"ranged","sk":"Wyrm Venom","ds":"140% + racun 6 dtk; selama teracuni musuh tidak bisa pulih","P":[["Coiling Roots","musuh teracuni −10% kecepatan"],["Sap","racun Wyrm 2 tumpukan"],["Living Forest","tim pulih 1% HP/dtk selama ada musuh teracuni"]]},"arang":{"role":"ranged","sk":"Inferno Breath","ds":"150% + ledakkan sisa bakar sekaligus","P":[["Fuel","energi +5 tiap musuh terbakar"],["Smoke","ledakan kena musuh di sebelahnya 50%"],["Smoldering Coal","setelah meledakkan, bakar lagi 2 dtk"]]},"lebah":{"role":"ranged","sk":"Swarm Strike","ds":"3× 50% ke musuh acak + racun 2 dtk","P":[["Hive","+1 tembakan bila ada teman Racun"],["Rapid Sting","+5% per tumpukan racun pada target"],["Queen","racun dari tim +1 dtk"]]},"scorp":{"role":"ranged","sk":"Sting","ds":"110% + racun 6 dtk; 2× lebih kuat bila target sudah teracuni","P":[["Long Tail","mengincar barisan belakang"],["Thick Venom","serangan biasa 20% menambah 1 tumpukan racun"]]},"owl":{"role":"ranged","sk":"Feather Rain","ds":"110% ke semua musuh + serap 30%","P":[["Sharp Eyes","tidak pernah meleset, kebal buta"],["Tower","+15% kerusakan bila di kolom belakang"]]},"bat":{"role":"ranged","sk":"Screech","ds":"90% ke satu lajur + 50% pusing","P":[["Echo","pusing dari Bat +0,5 dtk"],["Night","memukul musuh pusing: serap 20%"]]},"flick":{"role":"ranged","sk":"Sparkle","ds":"90% + bakar; 160% bila musuh sudah terbakar","P":[["Small Spark","serangan biasa ke musuh terbakar +20%"]]},"ink":{"role":"ranged","sk":"Ink Spray","ds":"60% + buta 4 dtk (serangan musuh 50% meleset)","P":[["Thick Ink","selalu menyemprot musuh ber-ATK tertinggi"]]},"frost":{"role":"ranged","sk":"Snow Breath","ds":"60% + 50% pusing","P":[["Frozen Dew","musuh yang lepas dari pusing −15% kecepatan 2 dtk"]]},"mouse":{"role":"ranged","sk":"Chomp","ds":"110% + energi +20","P":[["Bookworm","tiap jawaban benar tim: energi Bookmouse +10"]]},"ilmu":{"role":"support","sk":"Final Exam","ds":"200% ke 1 musuh (+50% bila musuh kena status) + ATK tim +15% 5 dtk","P":[["Perfect Formula","jawaban benar beruntun: ATK +5%, maks 25%"],["Grand Teacher","energi tim terisi 10% lebih cepat"],["Assessment","status buruk dari tim +1 dtk"],["Wisdom","jawaban salah tetap 75%, bukan 50%"]]},"arsip":{"role":"support","sk":"Book Wall","ds":"perisai diri + pulihkan seluruh tim 15%","P":[["Notes","teman HP terendah dapat pulih +10%"],["Old Archive","sekali: teman yang akan pingsan tersisa 1 HP"],["Library","pemulihan juga menghapus 1 status buruk"]]},"robo":{"role":"support","sk":"Eco Mode","ds":"perisai diri + energi semua teman +15","P":[["Battery","energi awal tim +10"],["Overclock","jurus pertama tiap teman +20%"]]},"hoot":{"role":"support","sk":"Memorize","ds":"ATK tim +30% 6 dtk + pulih 20%","P":[["Pop Quiz","jawaban benar tim: ATK tim +5% 5 dtk"],["Professor","Jurus Kritis butuh beruntun 1 lebih sedikit"]]},"shroom":{"role":"support","sk":"Spore Cloud","ds":"racun ke semua musuh + pulih tim 15%","P":[["Mist","musuh teracuni 10% meleset"],["Fertile Spores","pulih tim +3% per musuh teracuni"]]},"moss":{"role":"support","sk":"Toxic Spores","ds":"60% + racun 8 dtk; racun menyebar ke musuh di sebelahnya","P":[["Moss","racun Mossling 2 tumpukan"]]},"dew":{"role":"support","sk":"Dew Shield","ds":"perisai semua teman 25%","P":[["Dew Crystal","perisai pecah → pemiliknya pulih 5%"]]},"mud":{"role":"support","sk":"Mud Body","ds":"pulih teman terlemah 30% + hapus semua status buruk","P":[["Thick Mud","teman yang dipulihkan kebal status 3 dtk"]]},"chalk":{"role":"support","sk":"Scribble","ds":"80% + ATK musuh terkuat −30% & lambat −30% selama 5 dtk","P":[["Wipe the Board","juga menghapus buff musuh"]]},"fly":{"role":"support","sk":"Firefly Glow","ds":"Teman terkuat ATK +30% 5 dtk + energi SEMUA teman +15","P":[["Lantern","teman di sebelahnya ikut dapat setengahnya"]]}};
+const ROLEN={tank:'Tank — melindungi',melee:'Penyerang dekat',ranged:'Penyerang jauh',support:'Pendukung'},ELC={Api:'#ff7a2a',Es:'#7ad0ff',Racun:'#9ad84a',Netral:'#ffd23c'};
+const PRK={C:1,R:2,E:3,L:4},PPOW={C:.3,R:.36,E:.44,L:.52};
+/* uraikan jurus dari deskripsi Lumimon World */
+function parseSk(ds){const e={hits:1,m:0};ds.split(/\+|;/).map(s=>s.trim()).forEach(p=>{let q;
+  if(q=p.match(/^(\d)×\s*(\d+)%/)){e.hits=+q[1];e.m=+q[2]/100}else if(!e.m&&(q=p.match(/^(?:[a-z ]*?)(\d+)%/i))&&!/pulih|perisai|pusing|serap|ATK|meleset/.test(p))e.m=+q[1]/100;
+  if(/pulih/.test(p)&&(q=p.match(/(\d+)%/)))e.heal=+q[1]/100;if(/perisai/.test(p)&&(q=p.match(/(\d+)%/)))e.sh=+q[1]/100;if(/pancing/.test(p))e.sh=(e.sh||0)+.12;
+  if(/pusing/.test(p)){q=p.match(/(\d+)%\s*pusing/);e.stun=q?+q[1]/100:.5}if(/bakar/.test(p))e.burn=1;if(/racun/.test(p))e.psn=1;if(/kebal/.test(p))e.inv=1.5;
+  if(/serap/.test(p)&&(q=p.match(/(\d+)%/)))e.ls=+q[1]/100;if(/ATK (tim |)\+/.test(p)&&(q=p.match(/\+(\d+)%/)))e.atk=+q[1]/100;if(/ATK musuh/.test(p)&&(q=p.match(/(\d+)%/)))e.weak=+q[1]/100});
+  if(!e.m&&!e.heal&&!e.sh&&!e.atk)e.m=1;return e}
+function parsePs(d){const e={};let q;if(/kerusakan diterima/.test(d)&&(q=d.match(/(\d+)%/)))e.dr=+q[1]/100;if(/(ATK|serangan) \+/.test(d)&&!/musuh/.test(d)&&(q=d.match(/\+(\d+)%/)))e.atk=+q[1]/100;
+  if(/kebal bakar/.test(d))e.immBurn=1;if(/membakar|bakar/.test(d)&&!/kebal/.test(d)&&(q=d.match(/(\d+)%/)))e.burnC=+q[1]/100;if(/racun/.test(d)&&(q=d.match(/(\d+)%/)))e.psnC=+q[1]/100;
+  if(/pusing/.test(d)&&(q=d.match(/(\d+)%/)))e.stunC=+q[1]/100;if(/pulih/.test(d)&&(q=d.match(/(\d+)%/)))e.regen=+q[1]/100;if(/menghindar|meleset/.test(d)&&(q=d.match(/(\d+)%/)))e.ev=+q[1]/100;
+  if(/kritis/.test(d)&&(q=d.match(/(\d+)%/)))e.crit=+q[1]/100;if(/perisai/.test(d)&&(q=d.match(/(\d+)%/)))e.sh0=+q[1]/100;return e}
+function petInfo(id){const m=LG.M[id]||{n:id,el:'Netral',r:'C',atk:12},d=PETD[id]||{role:'melee',sk:'Strike',ds:'100%',P:[]};return{id,m,d,sk:parseSk(d.ds),ps:d.P.map(p=>parsePs(p[1]))}}
+/* ---------- dalam pertarungan ---------- */
+function petsInit(cfg){G.pets=[];G.pproj=[];[cfg.a&&cfg.a.pet,cfg.b&&cfg.b.pet].forEach((id,side)=>{if(!id||!LG.M[id])return;const o=G.F[side],I=petInfo(id),pw=BASE*o.atk*PPOW[I.m.r||'C']*((I.m.atk||12)/12)*(side?.6:1);
+  const p={I,side,o,x:o.x-o.face*12,y:0,vy:0,t:0,cd:2+Math.random(),scd:6+Math.random()*2,st:'idle',pw,face:o.face,hop:0};
+  /* pasif ke pemilik */const P=I.ps.reduce((a,e)=>{for(const k in e)a[k]=(a[k]||0)+e[k];return a},{});p.P=P;
+  if(P.dr)o.bonus.dr=(o.bonus.dr||0)+P.dr;if(P.atk)o.atk*=1+P.atk;if(P.ev)o.bonus.ev=(o.bonus.ev||0)+P.ev;if(P.crit)o.bonus.crit=(o.bonus.crit||0)+P.crit;if(P.sh0)o.shield=Math.round(o.maxHp*P.sh0);
+  if(I.d.role==='tank')o.bonus.dr=(o.bonus.dr||0)+.1;G.pets.push(p)})}
+function petTgt(p){return G.F[1-p.side]}
+function petHit(p,d,mult,fxc){if(!d||d.st==='ko'||d.hp<=0||G.st!=='fight')return 0;let dmg=Math.round(p.pw*mult*rnd(.9,1.1)*Math.max(.35,1-(d.bonus.dr||0)-(d.bf&&d.bf.dr||0)));
+  if(d.shield>0){const ab=Math.min(d.shield,dmg);d.shield-=ab;dmg-=ab}d.hp-=dmg;d.flash=.1;const hy=GY-d.y-14,c=fxc||ELC[p.I.m.el]||'#fff';burst(d.x,hy,c,7,.1);sparks(d.x,hy,p.o.x<d.x?1:-1,c,6,120);if(dmg>0)txt(d.x+rnd(-3,3),hy-12,dmg+'',c,5.5,.7);SND.hit(false);
+  const P=p.P;if(P.burnC&&Math.random()<P.burnC&&!d.immB)d.burn={p:.03,t:3,k:0,c:'#ff7a2a'};if(P.psnC&&Math.random()<P.psnC)d.burn={p:.025,t:4,k:0,c:'#9ad84a'};if(P.stunC&&Math.random()<P.stunC*.5)d.stun=Math.max(d.stun||0,.35);
+  if(d.hp<=0){d.hp=1;if(G.st==='fight')KO(p.o,d)}hud();return dmg}
+function petSkill(p){const S=p.I.sk,d=petTgt(p),o=p.o,col=ELC[p.I.m.el]||'#ffd23c',hy=GY-p.y-8;txt(p.x,hy-14,p.I.d.sk,col,5.5,1.2);ring(p.x,hy,col,16,.4,2);SND.tone(700,1400,.15,.1,'triangle');
+  if(S.m){for(let i=0;i<S.hits;i++)setTimeout(()=>{if(G.st!=='fight')return;const dm=petHit(p,d,S.m*1.4,col);if(S.ls&&dm)o.hp=Math.min(o.maxHp,o.hp+Math.round(dm*S.ls));
+      if(i===0){if(S.burn)d.burn={p:.04,t:4,k:0,c:'#ff7a2a'};if(S.psn)d.burn={p:.035,t:5,k:0,c:'#9ad84a'};if(S.stun&&Math.random()<S.stun+.2)d.stun=Math.max(d.stun||0,.8);if(S.weak)d.bf={atk:-S.weak,t:5}}},i*180)}
+  if(S.heal){const h=Math.round(o.maxHp*S.heal*.6);o.hp=Math.min(o.maxHp,o.hp+h);txt(o.x,GY-o.y-34,'+'+h,'#7dff8a',6,1)}
+  if(S.sh){o.shield=(o.shield||0)+Math.round(o.maxHp*S.sh*.6);ring(o.x,GY-o.y-14,'#9ed4ff',18,.5,2)}
+  if(S.atk){o.bf={atk:S.atk*.6,t:5};ring(o.x,GY-o.y-14,'#ffd23c',18,.5,2)}if(S.inv)o.invul=Math.max(o.invul,S.inv*.6)}
+function updPets(dt){if(!G.pets||!G.pets.length)return;for(const p of G.pets){const o=p.o,d=petTgt(p),role=p.I.d.role;p.t+=dt;p.face=Math.sign(d.x-o.x)||o.face;
+  const home=o.x+(role==='tank'?p.face*13:-p.face*(role==='support'?15:11));if(p.st==='dash'){const tx=d.x-p.face*9;p.x+=(tx-p.x)*Math.min(1,dt*10);if(Math.abs(tx-p.x)<2){p.st='back';petHit(p,d,role==='tank'?.6:1)}}
+  else{p.x+=(home-p.x)*Math.min(1,dt*(p.st==='back'?8:5));if(p.st==='back'&&Math.abs(home-p.x)<2)p.st='idle'}
+  p.x=clamp(p.x,6,ARW-6);p.y=role==='support'||p.I.m.n.match(/Bat|Owl|Eagle|Fly|Hoot|Wyvern|Drake|Dragon/)?6+Math.sin(G.t*3+p.side)*2:Math.max(0,Math.abs(Math.sin(p.hop))*3);if(Math.abs(home-p.x)>1.5)p.hop+=dt*12;
+  if(G.st!=='fight'||G.sp||o.st==='ko')continue;p.cd-=dt;p.scd-=dt;
+  if(p.P.regen&&(p.rg=(p.rg||0)+dt)>10){p.rg=0;o.hp=Math.min(o.maxHp,o.hp+Math.round(o.maxHp*p.P.regen*.5))}
+  if(p.scd<=0){p.scd=12+Math.random()*2;petSkill(p);continue}
+  if(p.cd<=0){if(role==='support'){p.cd=6;const h=Math.round(o.maxHp*.04*PRK[p.I.m.r||'C']*.6+2);o.hp=Math.min(o.maxHp,o.hp+h);txt(o.x,GY-o.y-34,'+'+h,'#7dff8a',5,.8);ring(o.x,GY-o.y-14,'#7dff8a',12,.3,1.5)}
+    else if(role==='ranged'){p.cd=2.6+Math.random()*.6;G.pproj.push({p,x:p.x,y:GY-p.y-8,vx:p.face*150,c:ELC[p.I.m.el]})}
+    else{p.cd=(role==='tank'?4:2.8)+Math.random()*.6;if(Math.abs(d.x-p.x)<70)p.st='dash'}}}
+  for(const q of G.pproj){q.x+=q.vx*dt;const d=petTgt(q.p);if(Math.abs(q.x-d.x)<5){q.dead=1;petHit(q.p,d,.9)}if(q.x<0||q.x>ARW)q.dead=1;if(Math.random()<.5)fx({x:q.x,y:q.y,l:.15,s:.6,c:q.c,k:'sq'})}G.pproj=G.pproj.filter(q=>!q.dead)}
+function drawPets(g){if(!G.pets)return;for(const p of G.pets){const im=monImgC(p.I.id,(G.t*.8+p.side)%3<.1,((G.t*3)|0)%2,p.face<0),s=.62,y=GY-p.y;g.fillStyle='#00000035';g.beginPath();g.ellipse(p.x,GY+.5,6,1.3,0,0,7);g.fill();
+  g.save();g.translate(p.x,y);g.scale(s,s);g.drawImage(im,-im.width/2,-im.height+1);g.restore();
+  if(p.side===1&&p.t<3){g.font="700 4px 'Pixelify Sans',sans-serif";g.textAlign='center';g.fillStyle='#ff8aa0';g.fillText(p.I.m.n,p.x,y-im.height*s-2)}}
+  for(const q of G.pproj){g.fillStyle=q.c;g.beginPath();g.arc(q.x,q.y,1.6,0,7);g.fill();g.fillStyle='#fff';g.fillRect(q.x-.5,q.y-.5,1,1)}}
+/* ---------- koleksi pet ---------- */
+function pets(){PROF.pets=PROF.pets||[];return PROF.pets}
+function addPet(id,log){if(!LG.M[id])return;if(pets().some(p=>p.id===id)){const c={C:60,R:150,E:400,L:900}[LG.M[id].r]||60;PROF.coin+=c;log&&log.push(`🐾 ${LG.M[id].n} sudah kamu punya → +${c} 🪙`);return}
+  pets().push({id,nw:1});if(!PROF.pet)PROF.pet=id;log&&log.push(`🐾 <b>${LG.M[id].n}</b> menjadi pet-mu!`)}
+const ZPET={windy:'Netral',mirror:'Es',marsh:'Racun',wildwood:'Racun',coral:'Netral',desert:'Api',frost:'Es',ember:'Api'};
+function zonePet(z,kind){const el=ZPET[z]||'Netral',gi2=zIdx(z),allow=kind==='b'?(gi2<2?['C','R']:gi2<5?['R','E']:['E','L']):kind==='e'?(gi2<3?['C','R']:['R','E']):(gi2<4?['C']:['C','R']);
+  const L=Object.values(LG.M).filter(m=>m.el===el&&allow.includes(m.r));return(L.length?pick(L):pick(Object.values(LG.M))).id}
+function petCard(id,act){const I=petInfo(id),m=I.m;return`<div class="pcard" style="--rc:${RKC[PRK[m.r]||1]}"><img class="pxi" src="${monImgC(id,false,0,false).toDataURL()}" width="56" height="52"><div><b>${m.n}</b><small>${RK[PRK[m.r]||1]} · ${m.el} · ${ROLEN[I.d.role]}</small>
+  <div class="psk">✨ <b>${I.d.sk}</b> — ${I.d.ds}</div>${I.d.P.map(p=>`<div class="pps">◆ <b>${p[0]}</b> — ${p[1]}</div>`).join('')}${act?'':`<button class="mini" onclick="PROF.pet='${id}';saveP();SND.ok();openPets()">Jadikan pendamping</button>`}</div></div>`}
+function openPets(){const L=pets();L.forEach(p=>p.nw=0);saveP();
+  sheet(pxSvg('hero',22)+' Hero',heroStrip('pet')+(PROF.pet?`<div class="sec">Pendamping aktif</div>${petCard(PROF.pet,1)}`:'<div class="note">Belum punya pet. Dapatkan dari menjinakkan pet musuh, drop musuh, atau Toko Pet.</div>')+
+   (L.length>1?`<div class="sec">Koleksi (${L.length})</div>${L.filter(p=>p.id!==PROF.pet).map(p=>petCard(p.id,0)).join('')}`:'')+`<div class="note">Pet ikut bertarung sendiri (tidak memakai bar jurusmu): tank melindungi, penyerang menyerang, pendukung memulihkan & memperkuat. Kekuatan pet mengikuti levelmu.</div>`)}
+function petShop(){const d=today();if(PROF.petD!==d){PROF.petD=d;const C=Object.values(LG.M).filter(m=>m.r==='C'),R2=Object.values(LG.M).filter(m=>m.r==='R');PROF.petS=[pick(C).id,pick(C).id,pick(R2).id];saveP()}
+  return`<div class="sec">🐾 Toko Pet (berganti tiap hari)</div><div class="lst">${PROF.petS.map((id,i)=>{const m=LG.M[id],pr=m.r==='R'?1200:400,own=pets().some(p=>p.id===id);return`<div class="it ${own||PROF.coin<pr?'lk':''}" onclick="${own?'':`buyPet(${i})`}"><span class="ic"><img class="pxi" src="${monImgC(id,false,0,false).toDataURL()}" width="30" height="28"></span><span><b>${m.n}</b><small>${RK[PRK[m.r]]} · ${m.el} · ${ROLEN[(PETD[id]||{}).role]}${own?' · sudah punya':''}</small></span><i>${pr} 🪙</i></div>`}).join('')}</div>`}
+function buyPet(i){const id=PROF.petS[i],m=LG.M[id],pr=m.r==='R'?1200:400;if(PROF.coin<pr||pets().some(p=>p.id===id))return;PROF.coin-=pr;addPet(id);saveP();SND.win();lobbyHud();openShop()}
 
 /* ================= GAMBAR BARANG, DROP YANG JATUH, TAS BARU ================= */
 const SLI={w:'s_w',hat:'s_hat',shirt:'s_shirt',pants:'s_pants',shoes:'s_boots',back:'s_cape',acc:'s_acc'};
@@ -3199,15 +3274,17 @@ function thumb(it,sz){const key=it.s+':'+it.b;if(!THU[key])THU[key]=thumbCv(it).
 /* ---------- drop di arena ---------- */
 function preDrop(d,silent){const A=G.F[0],pd={gold:0,items:[],sig:0};
   if(G.mode==='path'){const R=PR(),k=d.kind||'n',L=d.lv||prLv();pd.gold=Math.round((6+3*L)*{n:1,e:2.5,b:6}[k]*ZDIF[R.d].g*(1+(A.bonus.coin||0)));
-    if(k!=='n'||Math.random()<.22)pd.items.push(rollItem(Math.min(5,dropR2()+(k==='b'&&R.d<2?1:0))));if(k==='b'&&Math.random()<.3){pd.items.push(mkItem('w',d.w.id,d.w.r));pd.sig=1}}
-  else if(G.mode==='rank'){const ti=tierOf(PROF.rp);pd.gold=50+ti*15;if(Math.random()<.3)pd.items.push(rollItem(Math.max(1,Math.min(5,rarRoll(ti)))))}
+    const il=()=>L+(Math.random()<.25?1+(Math.random()*3|0):0);if(k!=='n'||Math.random()<.22)pd.items.push(rollItem(rarZ(R.d,zIdx(R.z),k==='b'?1:0),null,null,il()));if(k==='b'&&Math.random()<.3){pd.items.push(mkItem('w',d.w.id,d.w.r,{lv:L}));pd.sig=1}
+    const ep=d.cfg&&d.cfg.pet;if(ep&&Math.random()<{n:.25,e:.35,b:.5}[k])pd.pet=ep;else if(Math.random()<{n:.04,e:.08,b:.15}[k])pd.pet=zonePet(R.z,k)}
+  else if(G.mode==='rank'){const ti=tierOf(PROF.rp);pd.gold=50+ti*15;if(d.cfg&&d.cfg.pet&&Math.random()<.15)pd.pet=d.cfg.pet;if(Math.random()<.3)pd.items.push(rollItem(Math.max(1,Math.min(5,rarRoll(ti))),null,null,PROF.lv+(Math.random()<.25?1:0)))}
   if(!silent){G.pend=pd;spawnDrops(d,pd)}return pd}
 function spawnDrops(d,pd){const n=Math.min(10,3+(pd.gold/25|0));for(let i=0;i<n;i++)G.drops.push({gold:1,x:d.x,y:16,vx:rnd(-55,55),vy:rnd(120,190),t:-i*.03,sz:5});
+  if(pd.pet)G.drops.push({pet:pd.pet,c:monImgC(pd.pet,false,0,false),x:d.x,y:22,vx:rnd(-30,30),vy:200,t:0,sz:13,col:'#ffd23c',r:3});
   pd.items.forEach((it,i)=>G.drops.push({it,c:thumbCv(it),x:d.x,y:20,vx:rnd(-40,40)+(i?20:-10),vy:rnd(170,220),t:0,sz:it.s==='w'?15:12,col:RKC[it.r],r:it.r}))}
 function updDrops(dt){const A=G.F[0];for(const p of G.drops){p.t+=dt;if(p.t<0)continue;
     if(p.t<1.25){p.vy-=GRAV*.8*dt;p.y+=p.vy*dt;p.x+=p.vx*dt;if(p.y<=0){p.y=0;p.vy=Math.abs(p.vy)>40?-p.vy*.42:0;p.vx*=.55}p.x=clamp(p.x,6,ARW-6)}
     else{const tx=A.x,ty=A.y+16,k=Math.min(1,dt*(6+p.t*4));p.x+=(tx-p.x)*k;p.y+=(ty-p.y)*k;
-      if(Math.abs(tx-p.x)<3&&Math.abs(ty-p.y)<4){p.dead=1;if(p.gold){SND.tone(1300,1900,.05,.05,'square')}else{SND.win();txt(A.x,GY-A.y-40,gi(p.it).n,p.col,5,1.4);ring(A.x,GY-A.y-16,p.col,14,.3,2)}burst(A.x,GY-A.y-16,p.gold?'#ffd23c':p.col,6,.12)}}}
+      if(Math.abs(tx-p.x)<3&&Math.abs(ty-p.y)<4){p.dead=1;if(p.gold){SND.tone(1300,1900,.05,.05,'square')}else{SND.win();txt(A.x,GY-A.y-40,p.pet?'🐾 '+LG.M[p.pet].n:gi(p.it).n,p.col,5,1.4);ring(A.x,GY-A.y-16,p.col,14,.3,2)}burst(A.x,GY-A.y-16,p.gold?'#ffd23c':p.col,6,.12)}}}
   G.drops=G.drops.filter(p=>!p.dead)}
 function drawDrops(g){const t=G.t;for(const p of G.drops){if(p.t<0)continue;const y=GY-p.y;
   if(p.gold){const w=Math.abs(Math.cos(t*8+p.x))*1.6+.5;g.fillStyle='#c88a10';g.fillRect(p.x-w,y-4,w*2,4);g.fillStyle='#ffd23c';g.fillRect(p.x-w+.3,y-3.6,Math.max(.3,w*2-.6),3.2);continue}
@@ -3226,22 +3303,22 @@ function openBag(){const P=PROF,E=eqItems(),worn=Object.values(P.eqp||{}),G2=gea
     <div class="brow"><button class="ghost" onclick="bestEq()">⚡ Pasang Terbaik</button><button class="ghost" onclick="quickSell()">🪙 Jual Cepat</button></div>
     <div class="chtab">${[['all','Semua'],['w','Senjata'],['ar','Armor'],['acc','Aksesoris']].map(([k,n])=>`<button class="${BAGF===k||(k==='ar'&&['hat','shirt','pants','shoes','back'].includes(BAGF))?'on':''}" onclick="BAGF='${k}';openBag()">${n}</button>`).join('')}</div>
     <div class="note">${bag().length}/80 barang · ketuk barang untuk pasang, copot, upgrade, kunci, atau jual</div>
-    <div class="tiles">${B.length?B.map(it=>{const cur=E[it.s],up=!cur||score(it)>score(cur);return`<button class="tile" style="--rc:${RKC[it.r]}" onclick="itemSheet('${it.u}')">${thumb(it,32)}${it.up?`<b>+${it.up}</b>`:''}${it.nw?'<i class="nw">BARU</i>':''}${it.lk?`<i class="lkk">${ico('lock',10)}</i>`:''}${up?'<em>▲</em>':''}</button>`}).join(''):'<div class="note">Kosong. Barang didapat dari petualangan, duel, peti, dan toko.</div>'}</div>`)}
+    <div class="tiles">${B.length?B.map(it=>{const cur=E[it.s],up=(it.lv||1)<=PROF.lv&&(!cur||score(it)>score(cur));return`<button class="tile" style="--rc:${RKC[it.r]}" onclick="itemSheet('${it.u}')">${thumb(it,32)}${it.up?`<b>+${it.up}</b>`:''}<u class="ilv ${(it.lv||1)>PROF.lv?'no':''}">Lv${it.lv||1}</u>${it.nw?'<i class="nw">BARU</i>':''}${it.lk?`<i class="lkk">${ico('lock',10)}</i>`:''}${up?'<em>▲</em>':''}</button>`}).join(''):'<div class="note">Kosong. Barang didapat dari petualangan, duel, peti, dan toko.</div>'}</div>`)}
 function itemSheet(u){const own=byU(u),it=own||(PROF.shopI||[]).find(x=>x.u===u);if(!it)return;if(own&&own.nw){own.nw=0;saveP()}
   const d=gi(it),E=eqItems(),cur=E[it.s],worn=PROF.eqp[it.s]===u,upC=Math.round(d.price*.6*(it.up+1));
   const lines=it.s==='w'?[`${TYPN[d.base.type]} · Serangan ×${Math.round(d.st.wa*100)/100}`,...stTxt(d.st)]:stTxt(d.st);
-  sheet(`<span style="color:${RKC[it.r]}">${d.n}</span>`,`<div class="ihead" style="--rc:${RKC[it.r]}">${thumb(it,64)}<div><b>${GSN[it.s]}</b><small>${RK[it.r]}${it.up?' · Upgrade +'+it.up:''}${it.lk?' · 🔒 terkunci':''}${worn?' · ✔ dipakai':''}</small></div></div>
+  sheet(`<span style="color:${RKC[it.r]}">${d.n}</span>`,`<div class="ihead" style="--rc:${RKC[it.r]}">${thumb(it,64)}<div><b>${GSN[it.s]} · Lv ${it.lv||1}</b><small>${RK[it.r]}${it.up?' · Upgrade +'+it.up:''}${it.lk?' · 🔒 terkunci':''}${worn?' · ✔ dipakai':''}</small></div></div>
     <div class="stl">${lines.map(l=>`<div>${l}</div>`).join('')}</div>${d.aff.length?`<div class="note">Affix: ${d.aff.map(a=>'<b>'+a.n+'</b>').join(', ')}</div>`:''}
     ${it.set?`<div class="note">✨ <b>${GSET[it.set].n}</b> · 2 bagian: ${GSET[it.set].t2} · 3 bagian: ${GSET[it.set].t3}</div>`:''}
     ${cur&&!worn?`<div class="cmp">${thumb(cur,28)}<span>Dipakai: <b style="color:${RKC[cur.r]}">${gi(cur).n}</b><br>${score(it)>score(cur)?'<em class="up">▲ barang ini lebih kuat</em>':score(it)<score(cur)?'<em class="dn">▼ barang ini lebih lemah</em>':'sama kuat'}</span></div>`:''}
     ${!own?`<button class="go px ${PROF.coin<d.price?'off':''}" onclick="buyI('${u}')">Beli ${d.price} 🪙</button><button class="ghost" onclick="openShop()">◀ Kembali</button>`:
-    `<div class="brow">${worn?(it.s==='w'?'<button class="ghost off">Senjata wajib dipakai</button>':`<button class="go px" onclick="unwear('${it.s}')">Copot</button>`):`<button class="go px" onclick="wear('${u}')">✔ Pasang</button>`}
+    `<div class="brow">${worn?(it.s==='w'?'<button class="ghost off">Senjata wajib dipakai</button>':`<button class="go px" onclick="unwear('${it.s}')">Copot</button>`):(it.lv||1)>PROF.lv?`<button class="go px off">Butuh Lv ${it.lv}</button>`:`<button class="go px" onclick="wear('${u}')">✔ Pasang</button>`}
       <button class="ghost" onclick="lockI('${u}')">${it.lk?'🔓 Buka kunci':'🔒 Kunci'}</button></div>
     ${it.up<3?`<button class="ghost ${PROF.coin<upC?'off':''}" onclick="upgI('${u}')">⚒ Upgrade ke +${it.up+1} (${upC} 🪙)</button>`:'<div class="note">Upgrade maksimal (+3)</div>'}
     ${worn||it.lk?'':`<button class="ghost" style="color:#ff8a7a" onclick="sellI('${u}')">Jual ${Math.round(d.price*.4)} 🪙</button>`}<button class="ghost" onclick="openBag()">◀ Kembali ke Tas</button>`}`)}
 function unwear(sl){if(sl==='w')return;delete PROF.eqp[sl];saveP();LCH=null;SND.ok();lobbyHud();openBag()}
 function lockI(u){const it=byU(u);if(!it)return;it.lk=it.lk?0:1;saveP();SND.ok();itemSheet(u)}
-function bestEq(){const n0=JSON.stringify(PROF.eqp);for(const sl of GSL){const c=bag().filter(x=>x.s===sl);if(!c.length)continue;const b=c.reduce((a,x)=>score(x)>score(a)?x:a);PROF.eqp[sl]=b.u}
+function bestEq(){const n0=JSON.stringify(PROF.eqp);for(const sl of GSL){const c=bag().filter(x=>x.s===sl&&(x.lv||1)<=PROF.lv);if(!c.length)continue;const b=c.reduce((a,x)=>score(x)>score(a)?x:a);PROF.eqp[sl]=b.u}
   syncW();saveP();LCH=null;lobbyHud();SND.win();openBag();if(n0===JSON.stringify(PROF.eqp))$('shB').insertAdjacentHTML('afterbegin','<div class="note" style="color:#7dff8a">✔ Semua slot sudah memakai barang terkuat.</div>')}
 function quickSell(){const worn=Object.values(PROF.eqp),L=bag().filter(x=>!worn.includes(x.u)&&!x.lk&&x.r<=2),tot=L.reduce((a,x)=>a+Math.round(gi(x).price*.4),0);
   sheet('🪙 Jual Cepat',L.length?`<div class="note">Jual <b>${L.length}</b> barang Common & Rare yang tidak dipakai dan tidak dikunci.</div><div class="tiles">${L.map(it=>`<span class="tile" style="--rc:${RKC[it.r]}">${thumb(it,28)}</span>`).join('')}</div><button class="go px" onclick="sellAll()">Jual semua: +${tot} 🪙</button><button class="ghost" onclick="openBag()">Batal</button>`:'<div class="note">Tidak ada barang Common/Rare yang bisa dijual.</div><button class="ghost" onclick="openBag()">◀ Kembali</button>')}
@@ -3251,7 +3328,8 @@ function sellAll(){const worn=Object.values(PROF.eqp),L=bag().filter(x=>!worn.in
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
 const dayN=s=>Math.floor(new Date(s.replace(/-/g,'/')).getTime()/864e5);
 const startW=['pedang','tombak','ganda','busur','perisai','buku'].map(t=>WPN.find(w=>w.type===t&&w.r===1).id);
-const PROF=Object.assign({name:'Perintis',look:{g:'l',hs:'pendek',hc:AV.HAIRC[2],sk:1,ec:AV.EYES[1]},w:startW[0],set:'dasar_rookie',lv:1,exp:0,coin:200,rp:0,maxTier:0,
+if((LS.get('prof',{})||{}).ver!==2&&LS.get('prof',null))LS.set('prof',null);
+const PROF=Object.assign({ver:2,name:'Perintis',look:{g:'l',hs:'pendek',hc:AV.HAIRC[2],sk:1,ec:AV.EYES[1]},w:startW[0],set:'dasar_rookie',lv:1,exp:0,coin:200,rp:0,maxTier:0,
   inv:{w:startW.slice(),s:['none','dasar_rookie']},chests:[],ach:{},tot:{win:0,duel:0,q:0,sp:0,best:0,combo:0},daily:{d:'',p:{},c:{}},login:{last:'',streak:0,got:''},test:0,snd:1},LS.get('prof',{}));
 const saveP=()=>LS.set('prof',PROF);
 /* ---------- peringkat ---------- */
@@ -3302,7 +3380,7 @@ function openVS(){VSCFG=rankCfg();const T=TIERS[VSCFG.tier],a=VSCFG.a,b=VSCFG.b,
   [['vsA',a],['vsB',b]].forEach(([id,c],i)=>{const g=$(id).getContext('2d');g.imageSmoothingEnabled=false;if(i){g.translate(96,0);g.scale(-1,1)}preview(g,c,1.2,'idle')});
   $('vsGo').onclick=()=>{closeSheet();G.lob=0;startMatch(VSCFG)};$('vsRe').onclick=()=>openVS()}
 function rankResult(win,draw,s){const log=[],ti0=tierOf(PROF.rp);let rp=win?25+Math.max(0,G.wins[0]-G.wins[1]-1)*5:draw?0:-15;const floor=TIERS[ti0].rp;PROF.rp=Math.max(floor,PROF.rp+rp);
-  const [am,at]=accMul(s),coin=Math.round(((win?50+ti0*15:15)+s.qok*2)*am),exp=Math.round(((win?60:25)+s.qok*5)*am);if(at)log.push(at);PROF.coin+=coin;addExp(exp,log);const pd=G.pend;G.pend=null;if(win&&pd)pd.items.forEach(it=>{if(bag().length<80)giveItem(it,log)});addMastery(G.F[0].w.type,(win?30:15)+s.qok*2+Math.floor(s.hit/4),log);
+  const [am,at]=accMul(s),coin=Math.round(((win?50+ti0*15:15)+s.qok*2)*am),exp=Math.round(((win?60:25)+s.qok*5)*am);if(at)log.push(at);PROF.coin+=coin;addExp(exp,log);const pd=G.pend;G.pend=null;if(win&&pd){pd.items.forEach(it=>{if(bag().length<80)giveItem(it,log)});if(pd.pet)addPet(pd.pet,log)}addMastery(G.F[0].w.type,(win?30:15)+s.qok*2+Math.floor(s.hit/4),log);
   const T=PROF.tot;T.duel++;if(win)T.win++;T.q+=s.qok;T.sp+=s.sp;T.combo=Math.max(T.combo,s.maxc);T.best=Math.max(T.best,s.bst||0);
   prog('play3',1);if(win)prog('win2',1);prog('q10',s.qok);prog('sp3',s.sp);if(s.maxc>=6)prog('combo6',1,1);if((s.bst||0)>=5)prog('st5',1,1);
   const ti1=tierOf(PROF.rp);if(ti1>PROF.maxTier){PROF.maxTier=ti1;const ch=['','silver','gold','legend','abyss'][ti1];grantChest(ch);log.push(`🎉 Naik ke liga ${TIERS[ti1].ic} <b>${TIERS[ti1].n}</b>! Hadiah ${CHEST[ch].n}`)}
