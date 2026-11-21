@@ -3602,7 +3602,7 @@ function openVS(){VSCFG=rankCfg();const T=TIERS[VSCFG.tier],a=VSCFG.a,b=VSCFG.b,
   sheet('⚔️ Duel Peringkat',`<div class="vsbox"><div><canvas id="vsA" width="96" height="100"></canvas><b style="color:#7cc4ff">${esc(PROF.name)}</b><small>${wa.n}</small></div><div class="px vsx2">VS</div><div><canvas id="vsB" width="96" height="100"></canvas><b style="color:#ff8a8a">${VSCFG.nb}</b><small>${wb.n}</small></div></div>
     <div class="mu ${av>0?'b':av<0?'r':''}">${av>0?`💪 Senjatamu unggul atas ${TN[wb.type]}`:av<0?`⚠️ ${TN[wb.type]} unggul atas senjatamu`:'⚖️ Seimbang'}</div>
     <div class="note">Liga ${T.ic} <b style="color:${T.c}">${T.n}</b> · Lawan AI ${['Mudah','Sedang','Sulit'][VSCFG.diff]}<br>Menang: +25 RP, ±60 EXP, 50+ 🪙 · Kalah: −15 RP</div>
-    <button class="go px" id="vsGo">⚔️ MULAI DUEL</button><button class="ghost" id="vsRe">🎲 Cari lawan lain</button>`);
+    <button class="go px" id="vsGo">⚔️ MULAI DUEL</button><button class="ghost" id="vsRe">🎲 Cari lawan lain</button><button class="ghost" onclick="openFriends()">👥 Tantang Teman Sekelas</button>`);
   [['vsA',a],['vsB',b]].forEach(([id,c],i)=>{const g=$(id).getContext('2d');g.imageSmoothingEnabled=false;if(i){g.translate(96,0);g.scale(-1,1)}preview(g,c,1.2,'idle')});
   $('vsGo').onclick=()=>{closeSheet();G.lob=0;startMatch(VSCFG)};$('vsRe').onclick=()=>openVS()}
 function rankResult(win,draw,s){const log=[],ti0=tierOf(PROF.rp);let rp=win?25+Math.max(0,G.wins[0]-G.wins[1]-1)*5:draw?0:-15;const floor=TIERS[ti0].rp;PROF.rp=Math.max(floor,PROF.rp+rp);
@@ -3640,6 +3640,7 @@ function openTab(k){SND.init();const P=PROF;if(k==='char'||k==='hero')return ope
   else if(k==='set'){sheet('⚙️ Pengaturan',`<button class="ghost" onclick="closeSheet();G.scr='sel';G.lob=0;show('scSel')">🛠️ Latihan Bebas (atur 2 petarung)</button><div class="row2"><label>Nama</label><b>${esc(P.name)}</b></div>
     <div class="row2"><label>Suara</label><button class="mini" id="stS">${SND.on?'🔊 Nyala':'🔇 Mati'}</button></div>
     <div class="row2"><label>Mode Uji</label><button class="mini ${P.test?'':'off'}" id="stT">${P.test?'✅ Semua terbuka':'Mati'}</button></div><div class="note">Mode Uji membuka semua senjata & armor untuk dinilai (progres asli tetap tersimpan).</div>
+    <div class="row2"><label>Kode kelas (online)</label><span><input id="stKl" maxlength="20" value="${esc(SEL.kelas||'KELAS6')}" style="width:110px;text-transform:uppercase"><button class="mini" onclick="SEL.kelas=($('stKl').value||'KELAS6').trim().toUpperCase();save();knSync&&knSync(true);this.textContent='✔'">Simpan</button></span></div><div class="note">Kode kelas yang sama = bisa saling tantang. Kode temanmu: <b>${PROF.kcode||'(muncul setelah online)'}</b></div>
     <div class="row2"><label>Knowledge Orb (soal)</label><button class="mini ${SEL.manual?'off':''}" id="stK">${SEL.manual?'Mati · manual':'✅ Nyala'}</button></div><div class="note">Kalau dimatikan, kamu bertarung sendiri dengan joystick &amp; tombol, tanpa soal. Hadiah ×0,5.</div>
     <div class="row2"><label>🧪 Mode Pengembang</label><button class="mini ${DEV.on?'':'off'}" id="stD">${DEV.on?'✅ Nyala':'Mati'}</button></div>${DEV.on?'<button class="ghost" onclick="openDev()">🧪 Buka panel pengembang</button>':''}
     <button class="ghost" id="stR" style="margin-top:14px;color:#ff8a7a">🗑️ Hapus semua progres</button>`);
@@ -4157,6 +4158,38 @@ function boxBuy(k){const p=boxPrice(),B=BOXDF[k];if(PROF.coin<p)return;if(bag().
   sheet('🎁 '+B.n,`<div class="bxo" style="--rc:${RKC[it.r]}"><div class="bxs">${boxImg(k,90)}</div><div class="bxr"><div class="bxg"></div><span class="tile" style="--rc:${RKC[it.r]}">${thumb(it,64)}</span><b style="color:${RKC[it.r]}">${gi(it).n}</b><small>${RK[it.r]} · ${GSN[it.s]} · Lv ${it.lv||1}</small></div></div>
   <div class="brow"><button class="go px ${PROF.coin<p?'off':''}" onclick="boxBuy('${k}')">Buka lagi · ${p} 🪙</button><button class="ghost" onclick="itemSheet('${it.u}')">Lihat barang</button></div><button class="ghost" onclick="openBoxShop()">◀ Kembali</button>`);
   setTimeout(()=>{const o=document.querySelector('.bxo');if(o){o.classList.add('open');if(it.r>=3)SND.win&&SND.win()}},1100)}
+
+// ===== Online langkah 2: akun otomatis, kode kelas, data karakter di server, Tantang Teman =====
+const KN={url:'https://kttfformjoyraqsrjrrv.supabase.co',key:'sb_publishable_noV7z0rqJIq2J24M6z1nXw_y4BwW5DE',last:0,st:'',board:null,fr:null};
+function knTok(){if(!PROF.ktok){const a=new Uint8Array(24);crypto.getRandomValues(a);PROF.ktok=Array.from(a,x=>x.toString(16).padStart(2,'0')).join('');saveP()}return PROF.ktok}
+async function knRpc(fn,args){const c=new AbortController(),t=setTimeout(()=>c.abort(),9000);try{const r=await fetch(KN.url+'/rest/v1/rpc/'+fn,{method:'POST',signal:c.signal,headers:{apikey:KN.key,'Content-Type':'application/json'},body:JSON.stringify(args)});if(!r.ok)throw new Error(r.status);return await r.json()}finally{clearTimeout(t)}}
+const knKelas=()=>(SEL.kelas||'KELAS6');
+async function knSync(force){if(!PROF.made)return null;if(!force&&Date.now()-KN.last<180e3)return null;KN.last=Date.now();
+  try{const d=await knRpc('kn_sync',{p_tok:knTok(),p_kelas:knKelas(),p_name:PROF.name||'Ksatria',p_lv:PROF.lv,p_gp:gp(),p_rp:PROF.rp||0,p_look:PROF.look,p_build:myCfg()});if(d&&d.ok){PROF.kcode=d.code;KN.st='on';saveP()}else KN.st='off';return d}catch(e){KN.st='off';return null}}
+const knAgo=s=>s<120?'baru saja':s<3600?Math.round(s/60)+' mnt lalu':s<86400?Math.round(s/3600)+' jam lalu':Math.round(s/86400)+' hari lalu';
+function knAvatar(cv,p){try{const f=mkFighter({look:p.look,w:p.w||'pedang_1_1',eq:p.eq||{},lv:p.lv||1},1),g=cv.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,32,32);g.drawImage(f.fr.PR,0,6,16,16,0,0,32,32)}catch(e){}}
+async function openFriends(){sheet('👥 Papan Duel Teman','<div class="note">Menghubungkan ke server…</div>');
+  await knSync(true);let d=null;try{d=await knRpc('kn_board',{p_tok:knTok()})}catch(e){}
+  if(!d||!d.ok){sheet('👥 Papan Duel Teman',`<div class="note warn">📶 Tidak bisa terhubung ke server. Periksa internet, lalu coba lagi.</div><button class="go px" onclick="openFriends()">Coba lagi</button>`);return}
+  KN.board=d;const me=d.me,L=d.list||[],In=d.inbox||[];
+  sheet('👥 Papan Duel Teman',`<div class="note">Tantang <b>bayangan</b> teman sekelas: karakter temanmu dikendalikan komputer dengan perlengkapan aslinya. Kode kelas: <b>${esc(me.kelas)}</b> · kode temanmu: <b class="px">${me.code}</b> · rekor: <b style="color:#7dff8a">${me.wins} M</b> / <b style="color:#ff8a7a">${me.losses} K</b></div>
+  ${In.length?`<h4 class="dvh">📨 Bayanganmu ditantang</h4><div class="lst">${In.map(x=>`<div class="it"><span><b>${esc(x.name)}</b><small style="display:block">${knAgo(x.ago)}</small></span><i style="color:${x.a_win?'#ff8a7a':'#7dff8a'}">${x.a_win?'bayanganmu kalah':'bayanganmu menang!'}</i></div>`).join('')}</div>`:''}
+  <h4 class="dvh">⚔ Teman sekelas</h4><div class="lst">${L.length?L.map((p,i)=>`<div class="it"><span class="ic"><canvas class="kav" data-i="${i}" width="32" height="32"></canvas></span><span><b>${esc(p.name)}</b><small>Lv ${p.lv} · kekuatan ${p.gp} · ${tierName(p.rp)} · ${p.wins}M/${p.losses}K · ${knAgo(p.ago)}</small></span><button class="mini" onclick="knChallenge('${p.code}')">Tantang</button></div>`).join(''):'<div class="note">Belum ada teman sekelas yang online. Ajak temanmu main dan pakai kode kelas yang sama!</div>'}</div>
+  <div class="note">Menang melawan bayangan teman: +gold (sekali per teman per hari). Peringkat tidak berubah.</div>`);
+  document.querySelectorAll('canvas.kav').forEach(c=>knAvatar(c,L[+c.dataset.i]))}
+function tierName(rp){try{return TIERS[tierOf(rp||0)].n}catch(e){return ''}}
+async function knChallenge(code){let d=null;try{d=await knRpc('kn_build',{p_tok:knTok(),p_code:code})}catch(e){}
+  if(!d||!d.ok||!d.build){sheet('👥 Papan Duel Teman','<div class="note warn">Data teman tidak bisa diambil. Coba lagi nanti.</div><button class="ghost" onclick="openFriends()">◀ Kembali</button>');return}
+  closeSheet();KN.fr={code,name:d.name};const b=Object.assign({},d.build);startMatch({a:myCfg(),b,diff:1,arena:Math.random()*6|0,mode:'rank',na:PROF.name,nb:d.name+' 👻'});G.friend=code}
+// hasil Tantang Teman (memakai layar hasil Duel Peringkat, tanpa mengubah peringkat & tanpa drop)
+{const r=rankResult;rankResult=function(win,draw,s){if(!G.friend)return r(win,draw,s);const fr=KN.fr||{},d=today();PROF.frD=PROF.frD&&PROF.frD.d===d?PROF.frD:{d,c:{}};let coin=0;
+  if(win&&!PROF.frD.c[fr.code]){coin=Math.round((40+PROF.lv*6)*devM('gold'));PROF.coin+=coin;PROF.frD.c[fr.code]=1}saveP();lobbyHud();
+  knRpc('kn_fight_log',{p_tok:knTok(),p_code:fr.code,p_win:!!win}).catch(()=>{});G.friend=null;setTimeout(()=>{$('bAgain').textContent='👥 Papan Duel Teman';$('bAgain').dataset.fr=1},0);
+  return`<div class="note">${win?`Kamu mengalahkan bayangan <b>${esc(fr.name)}</b>!${coin?` +${coin} 🪙`:' (hadiah gold untuk teman ini sudah diambil hari ini)'}`:draw?'Seri!':`Bayangan <b>${esc(fr.name)}</b> masih terlalu kuat. Perkuat perlengkapanmu dan coba lagi!`}</div>`}}
+{const p=preDrop;preDrop=function(d,silent){if(G.friend){const pd={gold:0,items:[],pet:null};if(!silent)G.pend=pd;return pd}return p(d,silent)}}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#bAgain');if(b&&b.dataset.fr){e.stopImmediatePropagation();e.preventDefault();delete b.dataset.fr;$('ovR').classList.add('hide');goLobby();openFriends()}},true);
+// sinkron otomatis saat masuk kota (paling sering tiap 3 menit)
+{const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Halaman awal + prolog: Lumimon : Knight =====
 const IW=180,IH=135;let INT={sc:0,t:0,run:0,typ:0,full:''};
