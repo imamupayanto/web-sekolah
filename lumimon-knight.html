@@ -255,6 +255,13 @@ body,#app{background:#120b28}
 .prbox{flex:1;padding:16px 20px;color:#ece6ff;font-size:16.5px;line-height:1.55;display:flex;flex-direction:column;gap:12px}.prbox p{margin:0;min-height:5.2em;cursor:pointer}
 .prdots{display:flex;gap:6px;justify-content:center}.prdots i{width:8px;height:8px;border-radius:50%;background:#3a2a78}.prdots i.on{background:#ffe680}
 #prSkip{position:absolute;top:10px;right:10px;background:#0008;color:#d8ceff;border:1px solid #5a44a8;border-radius:10px;padding:6px 10px;font:inherit;font-size:12px}#prGo{align-self:center;padding:12px 26px;font-size:17px}
+.kri{display:inline-block;vertical-align:middle;image-rendering:pixelated}
+.kr3{filter:drop-shadow(0 0 2px #b07aff);animation:krp 1.8s ease-in-out infinite}.kr4{filter:drop-shadow(0 0 3px #ffd23c);animation:krp 1.4s ease-in-out infinite}.kr5{filter:drop-shadow(0 0 4px #ff3a4a) drop-shadow(0 0 2px #ffd0c0);animation:krm 1.1s ease-in-out infinite}
+@keyframes krp{50%{filter:drop-shadow(0 0 6px #ffffffcc) brightness(1.25)}}@keyframes krm{0%,100%{filter:drop-shadow(0 0 4px #ff3a4a) brightness(1)}50%{filter:drop-shadow(0 0 9px #ff6a3a) drop-shadow(0 0 3px #fff) brightness(1.4) hue-rotate(15deg)}}
+.krbar{display:flex;justify-content:space-around;background:#120b28;border:2px solid #3a2a78;border-radius:12px;padding:5px 4px;margin:8px 0}.krbar span{display:flex;align-items:center;gap:3px}.krbar b{font-size:13px;color:#fff}
+.krlist{display:flex;flex-direction:column;gap:4px}.krrow{display:flex;align-items:center;gap:10px;background:#1d1540;border:2px solid #3a2a78;border-radius:12px;padding:6px 10px}.krrow>span:nth-child(2){flex:1}.krrow small{display:block;font-size:10px;color:#9a8ed0}.krn{font-size:20px;color:#fff}
+.krrow.fx{animation:kin .4s ease-out;border-color:#ffe680}.krbig{position:relative;display:flex}.krbig::after{content:'';position:absolute;inset:-6px;border-radius:50%;background:radial-gradient(circle,#ffffff22,transparent 70%);pointer-events:none}
+.krjoin{display:flex;align-items:center;gap:6px;justify-content:flex-end;font-size:11px;color:#c8bff0;padding:0 4px 4px}.krjoin span{flex:1;display:flex;align-items:center;gap:3px}
 #app{display:flex;flex-direction:column;height:100%}
 .shh .pxi{display:inline-block;vertical-align:-4px;margin-right:2px}
 .cvw{position:relative;margin:0 auto;max-width:100%}.cvw::after{content:"";position:absolute;left:0;right:0;bottom:0;height:26px;background:linear-gradient(transparent,var(--gd,#4a3418));pointer-events:none}#zOv{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none}
@@ -1022,6 +1029,32 @@ kid = function (o, dir, f) {
   }
   return g;
 };
+/* ===== Paket Armor: Set Dasar lengkap (sepatu + jubah) & 8 set Epic "Champion" ===== */
+const KDAS = { rookie: { f: ['#5a3a20', '#8a6a3a'], b: ['#4a4a52', '#7a7a86', '#a8a8b4', '#5a5a64'], sn: 'Rookie' }, ember: { f: ['#6a1a10', '#c84a2a'], b: ['#6a1a10', '#b8341a', '#e8603a', '#ffb03c'], sn: 'Ember' }, frost: { f: ['#5a7a9a', '#d8e8f8'], b: ['#2a5a8a', '#5aa0d0', '#9ad0f0', '#e6f4ff'], sn: 'Frost' }, moss: { f: ['#2a3a1a', '#5a7a3a'], b: ['#1e3014', '#3e6a2a', '#5a8a3a', '#a8d060'], sn: 'Moss' } };
+for (const k in KDAS) { const D = KDAS[k]; SHOES['f_d' + k] = { c: D.f }; KCAPE['b_d' + k] = D.b; SH['f_d' + k] = { id: 'f_d' + k, slot: 'shoes', n: D.sn + ' Shoes', p: 0, rk: 1, tk: 'dasar', tset: k, tv: 4 }; SH['b_d' + k] = { id: 'b_d' + k, slot: 'back', n: D.sn + ' Scarf', p: 0, rk: 1, tk: 'dasar', tset: k, tv: 4 }; }
+const KCH = { meadow: 'Meadow Champion', mirror: 'Mirror Paladin', marsh: 'Bog Revenant', wild: 'Elder Archdruid', coral: 'Tide Admiral', desert: 'Sun Pharaoh', frost2: 'Frost Highguard', ember2: 'Magma Overlord' };
+const KCHG = '#ffd23c', KCHG2 = '#fff3a0';
+const darken = (h, f) => '#' + [1, 3, 5].map(i => Math.round(parseInt(h.slice(i, i + 2), 16) * f).toString(16).padStart(2, '0')).join('');
+for (const k in KCH) {
+  const nm = KCH[k], E = k + 'E';
+  SHIRTS['s_' + E] = { r: SHIRTS['s_' + k].r.map((c, i) => i === 2 ? c : darken(c, .8)) }; SHIRT_PAT['s_' + E] = SHIRT_PAT['s_' + k];
+  PANTS['p_' + E] = Object.assign({}, PANTS['p_' + k], { r: PANTS['p_' + k].r.map(c => darken(c, .85)), knee: KCHG });
+  SHOES['f_' + E] = { c: [darken(SHOES['f_' + k].c[0], .85), KCHG], tall: 1 };
+  const cp = KCAPE['b_' + k]; KCAPE['b_' + E] = [cp[0], cp[1], cp[2], /^#/.test(cp[3]) ? KCHG : cp[3], 'gold'];
+  const base = TK_HAT['h_' + k];
+  TK_HAT['h_' + E] = function (g, dir) { base(g, dir); const up = dir === 'up', lf = dir === 'left';
+    // sayap emas di sisi kepala + permata
+    for (const [x, s] of lf ? [[12, 1]] : [[1, -1], [14, 1]]) { P(g, x, 2, KCHG); P(g, x + s, 1, KCHG); P(g, x + s, 0, KCHG2); P(g, x, 3, '#c8941a'); P(g, x + 2 * s, -1, KCHG2) }
+    if (!up && !lf) { P(g, 8, 3, '#ff3a6a'); P(g, 7, 3, KCHG); P(g, 9, 3, KCHG) } };
+  KOM_SETS[E] = { n: nm, z: KOM_SETS[{ frost2: 'frost', ember2: 'ember' }[k] || k].z, items: [['h_' + E, 'hat', nm.split(' ')[1] + ' Helm'], ['s_' + E, 'shirt', nm.split(' ')[1] + ' Armor'], ['p_' + E, 'pants', nm.split(' ')[1] + ' Greaves'], ['f_' + E, 'shoes', nm.split(' ')[1] + ' Boots'], ['b_' + E, 'back', nm.split(' ')[1] + ' Mantle']] };
+  for (const [id, slot, n] of KOM_SETS[E].items) SH[id] = { id, slot, n, p: 0, rk: 3, tk: 'champ', tset: E, tv: 7 };
+}
+const _kidCH = kid;
+kid = function (o, dir, f) { const g = _kidCH(o, dir, f), up = dir === 'up', sd = dir === 'left';
+  const at = (x, y) => { y = Math.floor(y + g.oy); return x < 0 || y < 0 || x >= g.w || y >= g.h ? 1 : g.d[y * g.w + x]; }, ON = (x, y, c) => { const v = at(x, y); if (v && v !== 1) P(g, x, y, c) };
+  if (o.sid && /E$/.test(o.sid) && !up) { for (const x of sd ? [4, 5] : [3, 4, 11, 12]) { ON(x, 11, KCHG); ON(x, 12, '#c8941a') } for (let x = 3; x <= 12; x++) ON(x, 17, '#c8941a'); ON(sd ? 6 : 8, 17, KCHG2); ON(sd ? 6 : 8, 14, KCHG) }
+  const c = o.bk && KCAPE[o.bk]; if (c && c[4] === 'gold') { for (let x = 0; x < 16; x++) { const v = at(x, 21); if (v && v !== 1 && v !== '#0b0614' && !(o.bk && up && false)) { } } for (let x = 1; x <= 14; x++) { const v = at(x, up ? 22 : 22); if (v === c[1] || v === c[2] || v === c[0]) P(g, x, 22, KCHG) } }
+  return g };
 
 return{setNoArm:v=>{AV_NOARM=v},kidImg,accIcon,SH,TK_SETS,EL_SETS,NG_SETS,HAIRC,EYES,SHIRTS,PANTS,ramp,KC,HSTYLES,SKINS,grid,P,R,E,outline,toCanvas};
 })();
@@ -2117,6 +2150,8 @@ const SETS=[{id:'none',n:'No Set',r:0,eq:{}}];
 [['dasar',AV.TK_SETS,1],['elemen',AV.EL_SETS,2],['bos',AV.EL_SETS,3],['naga',AV.NG_SETS,4]].forEach(([tk,S,r])=>{for(const k in S){const eq={};
   S[k].items.forEach(([id,slot])=>{const iid=tk==='bos'?'b_'+id:id;if(AV.SH[iid]&&slot!=='glass')eq[slot]=iid});
   SETS.push({id:tk+'_'+k,n:tk==='bos'?S[k].n.replace(' Set',' King'):S[k].n.replace(' Set',''),r,eq,c:S[k].c})}});
+['rookie','ember','frost','moss'].forEach(k=>{const S=SETS.find(s=>s.id==='dasar_'+k);if(S){S.eq.shoes='f_d'+k;S.eq.back='b_d'+k}});
+[['meadowE','Meadow Champion','#ffd23c'],['mirrorE','Mirror Paladin','#ffd23c'],['marshE','Bog Revenant','#ffd23c'],['wildE','Elder Archdruid','#ffd23c'],['coralE','Tide Admiral','#ffd23c'],['desertE','Sun Pharaoh','#ffd23c'],['frost2E','Frost Highguard','#ffd23c'],['ember2E','Magma Overlord','#ffd23c']].forEach(([k,n,c])=>SETS.push({id:'champ_'+k.slice(0,-1),n,r:3,c,eq:{hat:'h_'+k,shirt:'s_'+k,pants:'p_'+k,shoes:'f_'+k,back:'b_'+k}}));
 [['meadow','Meadow Ranger','#4e8a2e'],['mirror','Mirror Knight','#a3b2cc'],['marsh','Bog Warden','#566448'],['wild','Thornwood Druid','#6e4a26'],['coral','Tide Corsair','#2f4a8a'],['desert','Dune Pharaoh','#ffc93c'],['frost2','Frost Sentinel','#c8e4f8'],['ember2','Magma Warlord','#ff6a1a']].forEach(([k,n,c])=>SETS.push({id:'zona_'+k,n,r:2,c,eq:{hat:'h_'+k,shirt:'s_'+k,pants:'p_'+k,shoes:'f_'+k,back:'b_'+k}}));
 ABYSS.forEach(S=>{const eq={};S.parts.forEach(([id,slot])=>eq[slot]=id);SETS.push({id:'abyss_'+S.k,n:S.n.replace(' Set',''),r:S.r,eq,c:S.c,abyss:S})});
 const SET_HP=[1,1.1,1.2,1.3,1.45,1.6], SET_ATK=[1,1,1.05,1.1,1.16,1.22];
@@ -2934,7 +2969,7 @@ function openBag(){const P=PROF,E=eqItems(),B=bag().filter(it=>!Object.values(P.
     <div class="lst">${B.length?B.map(it=>{const d=gi(it),cur=E[it.s],dv=cur?score(it)-score(cur):1;return`<div class="it" onclick="itemSheet('${it.u}')"><span class="ic">${itIcon(it)}</span><span><b style="color:${RKC[it.r]}">${d.n}</b><small>${GSN[it.s]} · ${RK[it.r]}${it.set?' · ✨Set':''} ${dv>0?'<em class="up">▲</em>':dv<0?'<em class="dn">▼</em>':''}</small></span></div>`}).join(''):'<div class="note">Kosong. Barang didapat dari dungeon, peti, dan toko.</div>'}</div>`)}
 function itemSheet(u){const it=byU(u)||(PROF.shopI||[]).find(x=>x.u===u);if(!it)return;const d=gi(it),E=eqItems(),cur=E[it.s],worn=PROF.eqp[it.s]===u,inShop=!byU(u),upC=Math.round(d.price*.6*(it.up+1));
   const lines=it.s==='w'?[`${TYPN[d.base.type]} · Serangan ×${Math.round(d.st.wa*100)/100}`,...stTxt(d.st)]:stTxt(d.st);
-  sheet(`${itIcon(it)} <span style="color:${RKC[it.r]}">${d.n}</span>`,`<div class="note">${GSN[it.s]} · ${RK[it.r]}${it.up?' · Upgrade +'+it.up:''}</div>
+  sheet(`${itIcon(it)} <span style="color:${RKC[it.r]}">${d.n}</span>`,`<div class="note">${GSN[it.s]} · ${RK[it.r]}${it.up?' · Tempa +'+it.up:''}</div>
     <div class="stl">${lines.map(l=>`<div>${l}</div>`).join('')}</div>${d.aff.length?`<div class="note">Affix: ${d.aff.map(a=>'<b>'+a.n+'</b>').join(', ')}</div>`:''}
     ${it.set?`<div class="note">✨ <b>${GSET[it.set].n}</b> · 2 bagian: ${GSET[it.set].t2} · 3 bagian: ${GSET[it.set].t3}</div>`:''}
     ${cur&&!worn?`<div class="note">Dibanding yang dipakai (${gi(cur).n}): ${score(it)>score(cur)?'<em class="up">▲ lebih baik</em>':score(it)<score(cur)?'<em class="dn">▼ lebih lemah</em>':'sama'}</div>`:''}
@@ -2943,7 +2978,7 @@ function itemSheet(u){const it=byU(u)||(PROF.shopI||[]).find(x=>x.u===u);if(!it)
     ${worn?'':`<button class="ghost" style="color:#ff8a7a" onclick="sellI('${u}')">Jual ${Math.round(d.price*.4)} 🪙</button>`}`}<button class="ghost" onclick="${inShop?"openShop()":"openBag()"}">◀ Kembali</button>`)}
 function wear(u){const it=byU(u);if(!it)return;if((it.lv||1)>PROF.lv){SND.bad&&SND.bad();return}PROF.eqp[it.s]=u;syncW();saveP();LCH=null;SND.ok();lobbyHud();openBag()}
 const UPMAX=[0,4,6,8,10,12],upM=up=>up<=3?1+.12*up:1.36+.06*(up-3),upCost=it=>Math.round(gi(it).price*.5*Math.pow(it.up+1,1.5)),upMat=it=>it.up<3?null:bag().filter(x=>x!==it&&x.s===it.s&&x.r>=it.r&&!x.lk&&!Object.values(PROF.eqp).includes(x.u)).sort((a,b)=>a.r-b.r||score(a)-score(b))[0]||0;
-function upgI(u){const it=byU(u),c=upCost(it),m=upMat(it);if(it.up>=UPMAX[it.r]||PROF.coin<c||m===0)return;PROF.coin-=c;if(m)PROF.bag=bag().filter(x=>x!==m);it.up++;saveP();SND.win();lobbyHud();itemSheet(u)}
+function upgI(u){const it=byU(u),c=upCost(it),k=krNeed(it.up);PROF.kr=PROF.kr||[0,0,0,0,0,0];if(it.up>=UPMAX[it.r]||PROF.coin<c||PROF.kr[it.r]<k)return;PROF.coin-=c;PROF.kr[it.r]-=k;it.up++;saveP();SND.win();lobbyHud();itemSheet(u)}
 function sellI(u){const it=byU(u);if(!it||Object.values(PROF.eqp).includes(u))return;PROF.coin+=Math.round(gi(it).price*.4);PROF.bag=bag().filter(x=>x!==it);saveP();SND.ok();lobbyHud();openBag()}
 /* ---------- Toko (6 barang/hari, acak sesuai level) ---------- */
 function openShop(){const d=today();if(!PROF.shopI||PROF.shopD!==d){PROF.shopD=d;const t=Math.min(4,Math.floor(PROF.lv/6));PROF.shopI=[0,1,2,3,4,5].map(i=>rollItem(Math.min(4,rarRoll(t)),i<2?'w':null,i===0?(WPN.find(x=>x.id===PROF.w)||WPN[0]).type:null));saveP()}
@@ -3427,15 +3462,19 @@ const SLI={w:'s_w',hat:'s_hat',shirt:'s_shirt',pants:'s_pants',shoes:'s_boots',b
 const ICI={};function icoImg(k){if(!ICI[k]&&ICO[k]){const im=new Image();im.src='data:image/png;base64,'+ICO[k];ICI[k]=im}return ICI[k]}
 Object.keys(ICO).forEach(icoImg);
 const THC={},THU={};let THL0=null,THB=null;
-let THBU;function thumbCv(it){const key=it.s+':'+it.b;if(THC[key])return THC[key];let c;
-  if(it.s==='w'){const w=WPN.find(x=>x.id===it.b)||WPN[0],a=wpnArt(w).c,s=Math.min(1.4,31/Math.max(a.height,a.width));c=mk(24,24);const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.translate(12,12);g.rotate(Math.PI/4);g.scale(s,s);g.drawImage(a,-a.width/2,-a.height/2)}
-  else if(it.s==='acc'||it.s==='gold'){const im=icoImg(it.s==='gold'?'coin':'s_acc');c=mk(16,16);if(im.complete)c.getContext('2d').drawImage(im,0,0);else{im.onload=()=>{delete THC[key];delete THU[key]};return c}}
+let THBU;function thumbCv(it){const key=it.s+':'+it.b+(it.s==='acc'?':'+(it.r||1):'');if(THC[key])return THC[key];let c;
+  if(it.s==='w'&&(WPN.find(x=>x.id===it.b)||{}).type==='perisai'){const w=WPN.find(x=>x.id===it.b),a=wpnArt(w).c,sh=shieldArt(w).c,s=Math.min(1.1,22/Math.max(a.height,a.width)),s2=Math.min(1.2,20/Math.max(sh.height,sh.width));c=mk(24,24);const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.save();g.translate(14,10);g.rotate(Math.PI/4);g.scale(s,s);g.drawImage(a,-a.width/2,-a.height/2);g.restore();g.save();g.translate(10,14);g.scale(s2,s2);g.drawImage(sh,-sh.width/2,-sh.height/2);g.restore()}
+  else if(it.s==='w'){const w=WPN.find(x=>x.id===it.b)||WPN[0],a=wpnArt(w).c,s=Math.min(1.4,31/Math.max(a.height,a.width));c=mk(24,24);const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.translate(12,12);g.rotate(Math.PI/4);g.scale(s,s);g.drawImage(a,-a.width/2,-a.height/2)}
+  else if(it.s==='acc'){c=accIcon(it.b,it.r||1)}
+  else if(it.s==='gold'){const im=icoImg(it.s==='gold'?'coin':'s_acc');c=mk(16,16);if(im.complete)c.getContext('2d').drawImage(im,0,0);else{im.onload=()=>{delete THC[key];delete THU[key]};return c}}
   else{if(!THL0){THL0={g:'l',hs:AV.HSTYLES.l[0][0],hc:AV.HAIRC[0],sk:1,ec:AV.EYES[0]};THB=abyssFrame(THL0,{},'down',0).getContext('2d').getImageData(0,0,16,32).data;THBU=abyssFrame(THL0,{},'up',0).getContext('2d').getImageData(0,0,16,32).data}const BK=it.s==='back',TB=BK?THBU:THB;
     const f=abyssFrame(THL0,{[it.s]:it.b},BK?'up':'down',0),d=f.getContext('2d').getImageData(0,0,16,32).data,o=mk(16,32),og=o.getContext('2d'),od=og.createImageData(16,32);let x0=16,y0=32,x1=-1,y1=-1;
     for(let i=0;i<16*32;i++){const j=i*4;if(d[j+3]>10&&(d[j]!==TB[j]||d[j+1]!==TB[j+1]||d[j+2]!==TB[j+2]||d[j+3]!==TB[j+3])){od.data[j]=d[j];od.data[j+1]=d[j+1];od.data[j+2]=d[j+2];od.data[j+3]=255;const x=i%16,y=i/16|0;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}}
-    og.putImageData(od,0,0);if(x1>=0&&(it.s==='pants'||it.s==='shoes')){let yb=y1;for(let y=y1;y<32;y++)for(let x=0;x<16;x++)if(d[(y*16+x)*4+3]>10)yb=y;const ya=Math.max(0,y0-(it.s==='shoes'?0:1)),h=yb-ya+1,S=Math.max(12,h)+2;c=mk(S,S);const cg=c.getContext('2d');cg.imageSmoothingEnabled=false;cg.drawImage(f,2,ya,12,h,(S-12)>>1,(S-h)>>1,12,h)}else if(x1<0){c=mk(16,16);c.getContext('2d').drawImage(icoImg(SLI[it.s]),0,0)}else{const w=x1-x0+1,h=y1-y0+1,S=Math.max(w,h)+2;c=mk(S,S);c.getContext('2d').drawImage(o,x0,y0,w,h,(S-w)>>1,(S-h)>>1,w,h)}}
+    og.putImageData(od,0,0);if(x1<0){c=mk(16,16);c.getContext('2d').drawImage(icoImg(SLI[it.s]),0,0)}else{
+      const P={hat:[1,1,1,4],shirt:[1,1,1,1],pants:[1,0,1,0],shoes:[1,0,1,0],back:[1,1,1,1]}[it.s]||[1,1,1,1];let yb=y1+P[3];if(it.s==='pants'||it.s==='shoes'){for(let y=y1;y<32;y++)for(let x=0;x<16;x++)if(d[(y*16+x)*4+3]>10)yb=y}
+      const xa=Math.max(0,x0-P[0]),ya=Math.max(0,y0-P[1]),w=Math.min(15,x1+P[2])-xa+1,h=Math.min(31,yb)-ya+1,S=Math.max(w,h)+2;c=mk(S,S);const cg=c.getContext('2d');cg.imageSmoothingEnabled=false;cg.drawImage(f,xa,ya,w,h,(S-w)>>1,(S-h)>>1,w,h)}}
   return THC[key]=c}
-function thumb(it,sz){const key=it.s+':'+it.b;if(!THU[key])THU[key]=thumbCv(it).toDataURL();return`<img class="pxi th" src="${THU[key]}" width="${sz||28}" height="${sz||28}" alt="">`}
+function thumb(it,sz){const key=it.s+':'+it.b+(it.s==='acc'?':'+(it.r||1):'');if(!THU[key])THU[key]=thumbCv(it).toDataURL();return`<img class="pxi th" src="${THU[key]}" width="${sz||28}" height="${sz||28}" alt="">`}
 /* ---------- drop di arena ---------- */
 function preDrop(d,silent){const A=G.F[0],pd={gold:0,items:[],sig:0};
   if(G.mode==='path'){const R=PR(),k=d.kind||'n',L=d.lv||prLv();pd.gold=Math.round((6+3*L)*{n:1,e:2.5,b:6}[k]*ZDIF[R.d].g*(1+(A.bonus.coin||0)));
@@ -3465,22 +3504,22 @@ function openBag(){const P=PROF,E=eqItems(),worn=Object.values(P.eqp||{}),G2=gea
   sheet(pxSvg('hero',22)+' Hero',heroStrip('tas')+`${P.chests.length?`<div class="sec">${ico('gift',16)} Peti (${P.chests.length})</div><div class="lst">${P.chests.map((c,i)=>`<div class="it"><span class="ic">${ico('chest',24)}</span><span><b>${CHEST[c.type].n}</b><small>Isi: ${c.it?`<span style="color:${RKC[c.it.r]}">${gi(c.it).n}</span> + `:''}${c.coin} 🪙</small></span><button class="mini" onclick="openChest(${i})">Buka</button></div>`).join('')}</div>`:''}
     <div class="doll"><div class="dcol">${['hat','shirt','pants'].map(s=>slotBtn(E,s)).join('')}</div><div class="dmid"><canvas id="chPv" width="120" height="126"></canvas>${slotBtn(E,'acc')}</div><div class="dcol">${['w','back','shoes'].map(s=>slotBtn(E,s)).join('')}</div></div>
     ${Object.entries(G2.sets).map(([k,n])=>`<div class="note">✨ ${GSET[k].n} ${n} bagian: ${n>=2?'✔ ':''}${GSET[k].t2}${n>=3?' · ✔ '+GSET[k].t3:' · 3 bagian: '+GSET[k].t3}</div>`).join('')}
-    <button class="ghost lkb" onclick="openLook()">${ico('hero',16)} Penampilan</button><div class="brow"><button class="ghost" onclick="bestEq()">⚡ Pasang Terbaik</button><button class="ghost" onclick="quickSell()">🪙 Jual Cepat</button></div>
+    <button class="ghost lkb" onclick="openLook()">${ico('hero',16)} Penampilan</button><div class="brow"><button class="ghost" onclick="bestEq()">⚡ Pasang Terbaik</button><button class="ghost" onclick="quickSell()">🪙 Jual Cepat</button></div><div class="brow"><button class="ghost" onclick="uraiWeak()">✦ Urai yang lebih lemah</button><button class="ghost" onclick="openKr()">${krImg(3,16)} Kristal</button></div>${krBar()}
     <div class="chtab">${[['all','Semua'],['w','Senjata'],['ar','Armor'],['acc','Aksesoris']].map(([k,n])=>`<button class="${BAGF===k||(k==='ar'&&['hat','shirt','pants','shoes','back'].includes(BAGF))?'on':''}" onclick="BAGF='${k}';openBag()">${n}</button>`).join('')}</div>
-    <div class="note">${bag().length}/80 barang · ketuk barang untuk pasang, copot, upgrade, kunci, atau jual</div>
+    <div class="note">${bag().length}/80 barang · ketuk barang untuk pasang, copot, tempa, urai, kunci, atau jual</div>
     <div class="tiles">${B.length?B.map(it=>{const cur=E[it.s],up=(it.lv||1)<=PROF.lv&&(!cur||score(it)>score(cur));return`<button class="tile" style="--rc:${RKC[it.r]}" onclick="itemSheet('${it.u}')">${thumb(it,32)}${it.up?`<b>+${it.up}</b>`:''}<u class="ilv ${(it.lv||1)>PROF.lv?'no':''}">Lv${it.lv||1}</u>${it.nw?'<i class="nw">BARU</i>':''}${it.lk?`<i class="lkk">${ico('lock',10)}</i>`:''}${up?'<em>▲</em>':''}</button>`}).join(''):'<div class="note">Kosong. Barang didapat dari petualangan, duel, peti, dan toko.</div>'}</div>`)}
 function itemSheet(u){const own=byU(u),it=own||(PROF.shopI||[]).find(x=>x.u===u);if(!it)return;if(own&&own.nw){own.nw=0;saveP()}
   const d=gi(it),E=eqItems(),cur=E[it.s],worn=PROF.eqp[it.s]===u,upC=upCost(it),upMt=upMat(it),upX=UPMAX[it.r];
   const lines=it.s==='w'?[`${TYPN[d.base.type]} · Serangan ×${Math.round(d.st.wa*100)/100}`,...stTxt(d.st)]:stTxt(d.st);
-  sheet(`<span style="color:${RKC[it.r]}">${d.n}</span>`,`<div class="ihead" style="--rc:${RKC[it.r]}">${thumb(it,64)}<div><b>${GSN[it.s]} · Lv ${it.lv||1}</b><small>${RK[it.r]}${it.up?' · Upgrade +'+it.up:''}${it.lk?' · 🔒 terkunci':''}${worn?' · ✔ dipakai':''}</small></div></div>
+  sheet(`<span style="color:${RKC[it.r]}">${d.n}</span>`,`<div class="ihead" style="--rc:${RKC[it.r]}">${thumb(it,64)}<div><b>${GSN[it.s]} · Lv ${it.lv||1}</b><small>${RK[it.r]}${it.up?' · Tempa +'+it.up:''}${it.lk?' · 🔒 terkunci':''}${worn?' · ✔ dipakai':''}</small></div></div>
     <div class="stl">${lines.map(l=>`<div>${l}</div>`).join('')}</div>${d.aff.length?`<div class="note">Affix: ${d.aff.map(a=>'<b>'+a.n+'</b>').join(', ')}</div>`:''}
     ${it.set?`<div class="note">✨ <b>${GSET[it.set].n}</b> · 2 bagian: ${GSET[it.set].t2} · 3 bagian: ${GSET[it.set].t3}</div>`:''}
     ${cur&&!worn?`<div class="cmp">${thumb(cur,28)}<span>Dipakai: <b style="color:${RKC[cur.r]}">${gi(cur).n}</b><br>${score(it)>score(cur)?'<em class="up">▲ barang ini lebih kuat</em>':score(it)<score(cur)?'<em class="dn">▼ barang ini lebih lemah</em>':'sama kuat'}</span></div>`:''}
     ${!own?`<button class="go px ${PROF.coin<shopPrice(it)?'off':''}" onclick="buyI('${u}')">Beli ${shopPrice(it)} 🪙</button><button class="ghost" onclick="openShop()">◀ Kembali</button>`:
     `<div class="brow">${worn?(it.s==='w'?'<button class="ghost off">Senjata wajib dipakai</button>':`<button class="go px" onclick="unwear('${it.s}')">Copot</button>`):(it.lv||1)>PROF.lv?`<button class="go px off">Butuh Lv ${it.lv}</button>`:`<button class="go px" onclick="wear('${u}')">✔ Pasang</button>`}
       <button class="ghost" onclick="lockI('${u}')">${it.lk?'🔓 Buka kunci':'🔒 Kunci'}</button></div>
-    ${it.up<upX?`<button class="ghost ${PROF.coin<upC||upMt===0?'off':''}" onclick="upgI('${u}')">⚒ Tempa ke +${it.up+1} (${upC} 🪙${it.up>=3?' + 1 bahan':''})</button>${it.up>=3?`<div class="note">${upMt?`Bahan: <b style="color:${RKC[upMt.r]}">${gi(upMt).n}</b> (${GSN[upMt.s]} ${RK[upMt.r]} atau lebih tinggi, barang terlemah dipakai otomatis)`:`Butuh 1 bahan: ${GSN[it.s]} lain ${RK[it.r]} atau lebih tinggi yang tidak dipakai/dikunci`}</div>`:''}`:`<div class="note">Tempa maksimal (+${upX}) untuk ${RK[it.r]}</div>`}
-    ${worn||it.lk?'':`<button class="ghost" style="color:#ff8a7a" onclick="sellI('${u}')">Jual ${Math.round(d.price*.4)} 🪙</button>`}<button class="ghost" onclick="openBag()">◀ Kembali ke Tas</button>`}`)}
+    ${it.up<upX?`<button class="ghost ${PROF.coin<upC||(PROF.kr||[])[it.r]<krNeed(it.up)?'off':''}" onclick="upgI('${u}')">⚒ Tempa ke +${it.up+1} · ${upC} 🪙 + ${krNeed(it.up)}× ${krImg(it.r,16)}</button><div class="note">Punya ${(PROF.kr||[])[it.r]||0}× ${KRN[it.r]}${(PROF.kr||[])[it.r]<krNeed(it.up)?' (kurang, urai barang '+RK[it.r]+' atau gabung kristal di Tas)':''}</div>`:`<div class="note">Tempa maksimal (+${upX}) untuk ${RK[it.r]}</div>`}
+    ${worn||it.lk?'':`<div class="brow"><button class="ghost" onclick="uraiI('${u}')">✦ Urai → ${krBack(it)}× ${krImg(it.r,16)}</button><button class="ghost" style="color:#ff8a7a" onclick="sellI('${u}')">Jual ${Math.round(d.price*.4)} 🪙</button></div>`}<button class="ghost" onclick="openBag()">◀ Kembali ke Tas</button>`}`)}
 function unwear(sl){if(sl==='w')return;delete PROF.eqp[sl];saveP();LCH=null;SND.ok();lobbyHud();openBag()}
 function lockI(u){const it=byU(u);if(!it)return;it.lk=it.lk?0:1;saveP();SND.ok();itemSheet(u)}
 function bestEq(){const n0=JSON.stringify(PROF.eqp);for(const sl of GSL){const c=bag().filter(x=>x.s===sl&&(x.lv||1)<=PROF.lv);if(!c.length)continue;const b=c.reduce((a,x)=>score(x)>score(a)?x:a);PROF.eqp[sl]=b.u}
@@ -3488,6 +3527,18 @@ function bestEq(){const n0=JSON.stringify(PROF.eqp);for(const sl of GSL){const c
 function quickSell(){const worn=Object.values(PROF.eqp),L=bag().filter(x=>!worn.includes(x.u)&&!x.lk&&x.r<=2),tot=L.reduce((a,x)=>a+Math.round(gi(x).price*.4),0);
   sheet('🪙 Jual Cepat',L.length?`<div class="note">Jual <b>${L.length}</b> barang Common & Rare yang tidak dipakai dan tidak dikunci.</div><div class="tiles">${L.map(it=>`<span class="tile" style="--rc:${RKC[it.r]}">${thumb(it,28)}</span>`).join('')}</div><button class="go px" onclick="sellAll()">Jual semua: +${tot} 🪙</button><button class="ghost" onclick="openBag()">Batal</button>`:'<div class="note">Tidak ada barang Common/Rare yang bisa dijual.</div><button class="ghost" onclick="openBag()">◀ Kembali</button>')}
 function sellAll(){const worn=Object.values(PROF.eqp),L=bag().filter(x=>!worn.includes(x.u)&&!x.lk&&x.r<=2);PROF.coin+=L.reduce((a,x)=>a+Math.round(gi(x).price*.4),0);PROF.bag=bag().filter(x=>!L.includes(x));saveP();SND.win();lobbyHud();openBag()}
+
+// ikon aksesoris per jenis (pixel 16x16), warna permata & logam ikut kelangkaan
+const ACCM=[0,['#7a7a86','#b8b8c4','#e8e8f0'],['#6a7a98','#c8d4e8','#ffffff'],['#6a4aa0','#c8b0f0','#f4e8ff'],['#a8620a','#ffc93c','#fff6c0'],['#7a0a1a','#e04a3a','#ffd0a0']];
+function accIcon(k,r){const c=mk(16,16),g=c.getContext('2d'),[d,m,l]=ACCM[r]||ACCM[1],gem=RKC[r]||'#7fe8ff',P=(x,y,col)=>{g.fillStyle=col;g.fillRect(x,y,1,1)},R=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x,y,w,h)};
+  if(k==='ring'){for(let a=0;a<24;a++){const t=a/24*6.283,x=8+Math.cos(t)*5,y=10+Math.sin(t)*4;P(Math.round(x),Math.round(y),a<12?m:d)}R(6,2,5,4,gem);P(7,3,'#ffffff');R(5,5,7,1,d)}
+  else if(k==='pendant'){for(let x=3;x<=12;x++)P(x,1+Math.round(Math.abs(x-7.5)*-.5+3),m);R(6,6,5,7,gem);R(7,5,3,1,gem);R(7,13,3,1,gem);P(7,7,'#ffffff');P(8,8,'#ffffff');R(5,8,1,3,d);R(11,8,1,3,d);P(8,4,l)}
+  else if(k==='badge'){const S=[[8,1],[9,4],[12,5],[10,8],[11,12],[8,10],[5,12],[6,8],[4,5],[7,4]];g.fillStyle=m;g.beginPath();S.forEach(([x,y],i)=>i?g.lineTo(x+.5,y+.5):g.moveTo(x+.5,y+.5));g.fill();R(7,6,3,3,gem);P(7,6,'#ffffff');P(8,2,l);R(6,13,1,3,'#c83a3a');R(10,13,1,3,'#3a6ac8')}
+  else if(k==='feather'){for(let i=0;i<12;i++){const x=12-i*.7,y=2+i;R(Math.round(x)-2,y,4-Math.abs(i-6)*.4,1,i%3?gem:l)}for(let i=0;i<14;i++)P(Math.round(12.5-i*.75),1+i,d);P(3,14,d)}
+  else if(k==='bell'){R(7,1,2,2,d);g.fillStyle=m;g.beginPath();g.moveTo(4,12);g.quadraticCurveTo(4,3,8,3);g.quadraticCurveTo(12,3,12,12);g.fill();R(3,12,10,1,d);R(7,13,2,2,gem);P(6,5,l);P(5,7,l)}
+  else{R(5,7,3,3,'#3ab03a');R(8,7,3,3,'#3ab03a');R(5,4,3,3,'#3ab03a');R(8,4,3,3,'#5ad05a');R(7,10,1,4,'#2a7a2a');P(6,5,'#b0ffb0');R(7,6,2,2,gem)}
+  const o=mk(18,18),og=o.getContext('2d');og.drawImage(c,1,1);const D=og.getImageData(0,0,18,18),E=og.createImageData(18,18);for(let y=0;y<18;y++)for(let x=0;x<18;x++){const i=(y*18+x)*4;if(D.data[i+3])continue;for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1]]){const X=x+a,Y=y+b;if(X<0||Y<0||X>17||Y>17)continue;if(D.data[(Y*18+X)*4+3]>0){E.data[i]=11;E.data[i+1]=6;E.data[i+2]=20;E.data[i+3]=255;break}}}
+  for(let i=0;i<D.data.length;i+=4)if(D.data[i+3]){E.data[i]=D.data[i];E.data[i+1]=D.data[i+1];E.data[i+2]=D.data[i+2];E.data[i+3]=255}og.putImageData(E,0,0);return o}
 
 /* ================= LOBBY · PROFIL · PERINGKAT · TAS · MISI · TOKO · PRESTASI ================= */
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
@@ -3765,11 +3816,11 @@ const LSL=['hat','shirt','pants','shoes','back'],ZSETK={windy:'zona_meadow',mirr
 // kelas set tetap: Common=Dasar, Rare=set zona, Epic=King, Legendary=Naga (hanya dari naga), Mythic=Abyss
 const KCLS={1:'dasar',3:'bos',4:'naga',5:'naga'};let ARMHI=0;
 function zoneSetNow(){try{if(G.mode==='path'&&PR())return ZSETK[PR().z]}catch(e){}const ok=ZONE8.filter((z,i)=>i===0||zst(ZONE8[i-1].id).clr);return ZSETK[pick(ok).id]}
-function clsPiece(sl,r){if(r===2){const S=SETS.find(s=>s.id===zoneSetNow());if(S&&S.eq[sl])return S.eq[sl]}let pool=PIECES.filter(p=>p.sl===sl&&p.kind===KCLS[r]);if(!pool.length&&r===1)pool=PIECES.filter(p=>p.sl===sl&&p.kind==='elemen');return pool.length?pick(pool).id:null}
+function clsPiece(sl,r){if(r===2||r===3){const z=zoneSetNow(),S=SETS.find(s=>s.id===(r===3?z.replace('zona_','champ_'):z));if(S&&S.eq[sl])return S.eq[sl]}let pool=PIECES.filter(p=>p.sl===sl&&p.kind===KCLS[r]);if(!pool.length&&r===1)pool=PIECES.filter(p=>p.sl===sl&&p.kind==='elemen');return pool.length?pick(pool).id:null}
 {const r0=rollPiece;rollPiece=function(sl,rr){return clsPiece(sl,Math.min(5,rr))||r0(sl,rr)}}
 {const ri=rollItem;rollItem=function(r,sl,wt,lv){if(!ARMHI&&r>=4&&LSL.includes(sl))sl=Math.random()<.5?'w':'acc';let it=ri(r,sl,wt,lv);if(!ARMHI&&it.r>=4&&LSL.includes(it.s))it=ri(r,Math.random()<.5?'w':'acc',wt,lv);
   try{if(it.s==='w'&&G.mode==='path'&&PR()&&Math.random()<.45){const zw=WPN.filter(w=>w.z===PR().z&&!w.sig&&w.r===it.r);if(zw.length)it.b=pick(zw).id}}catch(e){}return it}}
-(function clsMigrate(){if(PROF.cls)return;(PROF.bag||[]).forEach(it=>{if(!LSL.includes(it.s)||it.set)return;if(it.r>=4)it.r=3;const b=clsPiece(it.s,it.r);if(b){it.b=b;delete it.set}});PROF.cls=1;try{saveP()}catch(e){}})();
+(function clsMigrate(){if(PROF.cls>=2)return;const v1=PROF.cls;(PROF.bag||[]).forEach(it=>{if(!LSL.includes(it.s)||it.set)return;if(it.r>=4)it.r=3;if(v1&&it.r===2)return;if(v1&&it.r===1&&!['shoes','back'].includes(it.s))return;const b=clsPiece(it.s,it.r);if(b){it.b=b;delete it.set}});PROF.cls=2;try{saveP()}catch(e){}})();
 function wdAdd(it){if(it&&LSL.includes(it.s)){PROF.wd=PROF.wd||{};PROF.wd[it.b]=1}}
 {const g=giveItem;giveItem=function(it,log){wdAdd(it);return g(it,log)}}
 (PROF.bag||[]).forEach(wdAdd);
@@ -3805,12 +3856,35 @@ function gateTxt(){if(PROF.lv>=LVMAX)return '';const q=gpReq(PROF.lv+1),g=gp();r
 // ===== bonus set zona (2/3/5 bagian) =====
 const ZSB={zona_meadow:[{atk:.04},{ev:.04},{jf:.10}],zona_mirror:[{hp:.05},{dr:.04},{cdr:.08}],zona_marsh:[{hp:.05},{ls:.03},{dr:.06}],zona_wild:[{hp:.06},{jf:.06},{ls:.04}],
   zona_coral:[{atk:.05},{crit:.04},{ev:.05}],zona_desert:[{atk:.05},{jf:.08},{crit:.06}],zona_frost2:[{hp:.07},{dr:.05},{cdr:.10}],zona_ember2:[{atk:.07},{crit:.06},{ls:.05}]};
+for(const k in Object.assign({},ZSB))ZSB[k.replace('zona_','champ_')]=ZSB[k].map(b=>Object.fromEntries(Object.entries(b).map(([a,v])=>[a,Math.round(v*1.5*1000)/1000])));
 const ZSN={atk:'Serangan',ev:'Menghindar',jf:'Jurus terisi',hp:'HP',dr:'Tahan kerusakan',cdr:'Jeda skill',ls:'Sedot darah',crit:'Kritis'},ZST=[2,3,5];
 const zsTxt=b=>Object.entries(b).map(([k,v])=>`${ZSN[k]} +${Math.round(v*100)}%`).join(', ');
 {const gc=gearCfg;gearCfg=function(eq){const o=gc(eq),cnt={};for(const sl of LSL){const it=eq[sl];if(!it)continue;const P=PIECE(it.b);if(P&&ZSB[P.set])cnt[P.set]=(cnt[P.set]||0)+1}
   for(const k in cnt)ZSB[k].forEach((b,i)=>{if(cnt[k]>=ZST[i])addB(o.gb,b)});o.zs=cnt;return o}}
 {const ob=openBag;openBag=function(){ob.apply(this,arguments);const G2=gearCfg(eqItems()),d=document.querySelector('#shB .doll');if(!d||!G2.zs)return;
   d.insertAdjacentHTML('afterend',Object.entries(G2.zs).map(([k,n])=>{const S=SETS.find(s=>s.id===k);return`<div class="note">✨ <b>${S.n}</b> ${n}/5: ${ZSB[k].map((b,i)=>`${n>=ZST[i]?'✔':'○'} ${ZST[i]} bagian: ${zsTxt(b)}`).join(' · ')}</div>`}).join(''))}}
+
+// ===== Kristal Lumi: urai, gabung, bahan tempa =====
+const KRN=['','Kristal Putih','Kristal Biru','Kristal Ungu','Kristal Emas','Kristal Merah'],KRP=[0,['#8a94b0','#d8e0f0','#ffffff'],['#1a4ab0','#3a9aff','#bfe8ff'],['#4a1a9a','#9a5aff','#e6ccff'],['#a8620a','#ffc93c','#fff6c0'],['#8a0a1a','#ff3a4a','#ffd0c0']],KRU={};
+const krNeed=up=>Math.ceil((up+1)/2),krSpent=up=>{let s=0;for(let k=0;k<up;k++)s+=krNeed(k);return s},krBack=it=>1+Math.floor(krSpent(it.up||0)/2);
+function krUrl(t){if(KRU[t])return KRU[t];const c=document.createElement('canvas');c.width=c.height=16;const g=c.getContext('2d'),[d,m,l]=KRP[t],P=(x,y,col)=>{g.fillStyle=col;g.fillRect(x,y,1,1)};
+  // kristal segi: puncak runcing, sisi kiri terang, kanan gelap, kaki runcing
+  const rows=[[7,8],[6,9],[5,10],[4,11],[4,11],[3,12],[3,12],[3,12],[4,11],[4,11],[5,10],[6,9],[7,8]];rows.forEach(([a,b],i)=>{for(let x=a;x<=b;x++)P(x,i+1,x<7?l:x<9?m:d)});
+  for(let i=2;i<12;i++)P(7,i,'#ffffff');P(5,4,'#ffffff');P(5,5,l);P(10,8,d);
+  if(t>=2){P(2,4,m);P(13,9,m)}if(t>=4){P(1,2,'#ffffff');P(14,12,'#ffffff');P(13,2,l)}
+  const o=document.createElement('canvas');o.width=o.height=18;const og=o.getContext('2d');og.fillStyle='#0b0614';for(const[dx,dy]of[[0,1],[2,1],[1,0],[1,2]])og.drawImage(c,dx,dy);og.globalCompositeOperation='source-in';og.fillRect(0,0,18,18);og.globalCompositeOperation='source-over';og.drawImage(c,1,1);
+  return KRU[t]=o.toDataURL()}
+function krImg(t,sz=20){return`<img class="kri kr${t}" src="${krUrl(t)}" width="${sz}" height="${sz}" alt="${KRN[t]}">`}
+function krBar(){const K=PROF.kr||[];return`<div class="krbar">${[1,2,3,4,5].map(t=>`<span>${krImg(t,22)}<b>${K[t]||0}</b></span>`).join('')}</div>`}
+function uraiI(u,quiet){const it=byU(u);if(!it||Object.values(PROF.eqp).includes(u)||it.lk)return 0;PROF.kr=PROF.kr||[0,0,0,0,0,0];const n=krBack(it);PROF.kr[it.r]+=n;PROF.bag=bag().filter(x=>x!==it);if(!quiet){saveP();SND.ok();openBag()}return n}
+function weakList(){const E=eqItems(),worn=Object.values(PROF.eqp);return bag().filter(x=>!worn.includes(x.u)&&!x.lk&&E[x.s]&&score(x)<score(E[x.s]))}
+function uraiWeak(go){const L=weakList();if(!go){sheet('✦ Urai yang lebih lemah',`${L.length?`<div class="note">Urai <b>${L.length}</b> barang yang lebih lemah dari yang kamu pakai (tidak dipakai & tidak dikunci). Tampilan armornya tetap tersimpan di Penampilan.</div><div class="tiles">${L.map(it=>`<span class="tile" style="--rc:${RKC[it.r]}">${thumb(it,28)}</span>`).join('')}</div><div class="krbar">${[1,2,3,4,5].map(t=>{const n=L.filter(x=>x.r===t).reduce((a,x)=>a+krBack(x),0);return n?`<span>${krImg(t,22)}<b>+${n}</b></span>`:''}).join('')}</div><button class="go px" onclick="uraiWeak(1)">✦ Urai semuanya</button>`:'<div class="note">Tidak ada barang yang lebih lemah dari perlengkapanmu.</div>'}<button class="ghost" onclick="openBag()">◀ Kembali ke Tas</button>`);return}
+  L.forEach(it=>uraiI(it.u,1));saveP();SND.ok();openBag();$('shB').insertAdjacentHTML('afterbegin',`<div class="note" style="color:#7dff8a">✦ ${L.length} barang diurai menjadi Kristal Lumi.</div>`)}
+function krJoin(t,all){PROF.kr=PROF.kr||[0,0,0,0,0,0];let n=all?Math.floor(PROF.kr[t]/5):1;if(PROF.kr[t]<5*n||n<1)return;PROF.kr[t]-=5*n;PROF.kr[t+1]+=n;saveP();SND.ok&&SND.ok();openKr(t+1)}
+function openKr(fx){const K=PROF.kr=PROF.kr||[0,0,0,0,0,0];sheet(krImg(3,22)+' Kristal Lumi',`<div class="note">Kristal didapat dari <b>Urai</b> barang. Dipakai untuk <b>Tempa</b> barang dengan warna kelangkaan yang sama. Gabungkan 5 kristal menjadi 1 kristal tingkat di atasnya.</div>
+  <div class="krlist">${[1,2,3,4,5].map(t=>`<div class="krrow ${fx===t?'fx':''}"><span class="krbig">${krImg(t,40)}</span><span><b style="color:${RKC[t]}">${KRN[t]}</b><small>untuk tempa barang ${RK[t]}</small></span><b class="krn">${K[t]||0}</b></div>${t<5?`<div class="krjoin"><span>5× ${krImg(t,18)} → 1× ${krImg(t+1,18)}</span><button class="mini ${K[t]<5?'off':''}" onclick="krJoin(${t})">Gabung</button><button class="mini ${K[t]<10?'off':''}" onclick="krJoin(${t},1)">Gabung semua</button></div>`:''}`).join('')}</div>
+  <button class="ghost" onclick="openBag()">◀ Kembali ke Tas</button>`)}
+PROF.kr=PROF.kr||[0,0,0,0,0,0];
 
 // ===== Naga Legenda: sprite bersayap prosedural + perilaku bos =====
 const DRG={
