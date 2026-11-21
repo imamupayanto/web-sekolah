@@ -41,8 +41,8 @@ select{width:100%;padding:8px;border-radius:10px;background:#241a50;color:#e9ecf
 .mini{background:#3a2a78;padding:6px 10px;border-radius:9px;font-size:12px}
 .help{font-size:11.5px;color:#8f99ba;margin-top:10px;text-align:center}
 /* ---------- arena ---------- */
-#scFight{background:#120b28}
-#hud{display:grid;grid-template-columns:1fr 52px 1fr;gap:6px;padding:8px 8px 6px;align-items:start}
+#scFight{position:relative;background:linear-gradient(var(--sk0,#120b28),var(--sk1,#120b28) var(--cb,60%),var(--gd,#4a3418) var(--cb,60%),var(--g2,#1a1420) 85%)}
+#hud{position:absolute;left:0;right:0;top:0;z-index:4;background:linear-gradient(#0a0618d0,#0a061870 65%,transparent);padding-bottom:16px!important;text-shadow:0 1px 0 #000;display:grid;grid-template-columns:1fr 52px 1fr;gap:6px;padding:8px 8px 6px;align-items:start}
 .pb .nm{font-size:12px;font-weight:700;display:flex;justify-content:space-between;gap:4px}
 .pb.r .nm{flex-direction:row-reverse}
 .bar{height:13px;background:#2a1020;border-radius:4px;position:relative;overflow:hidden;border:2px solid #0a0c18;margin-top:3px}
@@ -56,8 +56,8 @@ select{width:100%;padding:8px;border-radius:10px;background:#241a50;color:#e9ecf
 .pips{font-size:10px;margin-top:2px;letter-spacing:2px;color:#ffd23c}.pb.r .pips{text-align:right}
 #tm{text-align:center;font-size:26px;font-weight:700;color:#ffd23c;line-height:1}#tm small{display:block;font-size:10px;color:#a99cd8;font-weight:400}
 #qp{--g0:#6a4a2a;--g1:#4a3418;flex:1;display:flex;flex-direction:column;gap:8px;padding:8px 12px 14px;position:relative;
-  background:radial-gradient(circle at 20% 30%,#0002 1px,transparent 2px) 0 0/9px 9px,radial-gradient(circle at 70% 60%,#fff1 1px,transparent 2px) 0 0/13px 13px,linear-gradient(var(--g0),var(--g1) 26px,#1a1420 75%,#120e18)}
-#qp::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:#0004}
+  background:radial-gradient(circle at 20% 30%,#0002 1px,transparent 2px) 0 0/9px 9px,radial-gradient(circle at 70% 60%,#fff1 1px,transparent 2px) 0 0/13px 13px,linear-gradient(var(--gd,var(--g0)),var(--g1) 30px,var(--g2,#1a1420) 75%,#120e18)}
+
 .qe{display:flex;align-items:center;gap:8px}.ql{font-size:13px;font-weight:700;color:#9ee8ff;text-shadow:0 2px 0 #0a1a30}
 .qbar{flex:1;height:16px;background:#0e1430;border:2px solid #0a0c18;border-radius:6px;position:relative;overflow:hidden;box-shadow:inset 0 2px 0 #0006}
 .qbar i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(#bff4ff,#3aa0ff 60%,#2a6ad0);transition:width .35s cubic-bezier(.2,1.4,.4,1)}
@@ -222,7 +222,7 @@ body,#app{background:#120b28}
 @keyframes kup{from{transform:translateY(100%)}}@keyframes kin{from{opacity:0;transform:translateX(-14px)}}
 #app{display:flex;flex-direction:column;height:100%}
 .shh .pxi{display:inline-block;vertical-align:-4px;margin-right:2px}
-.cvw{position:relative;margin:0 auto;max-width:100%}#zOv{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none}
+.cvw{position:relative;margin:0 auto;max-width:100%}.cvw::after{content:"";position:absolute;left:0;right:0;bottom:0;height:26px;background:linear-gradient(transparent,var(--gd,#4a3418));pointer-events:none}#zOv{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none}
 #zBar{position:absolute;left:8px;right:8px;top:6px;display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;background:#120b28cc;border:1.5px solid #6a52d0;border-radius:10px;padding:4px 9px}
 #zBar i{flex:1;height:6px;background:#ffffff22;border-radius:6px;overflow:hidden}#zBar s{display:block;height:100%;background:linear-gradient(90deg,#5ee7ff,#ffd23c);transition:width .3s}
 #zLog{position:absolute;left:8px;bottom:8px;display:flex;flex-direction:column-reverse;gap:3px;max-width:75%}#zLog div{font-size:11px;background:#120b28d8;border-radius:8px;padding:3px 8px;transition:opacity .5s}#zLog div.out{opacity:0}
@@ -2386,7 +2386,7 @@ function frame(now){requestAnimationFrame(frame);if(G.scr!=='fight')return;let d
 /* ---------- gambar ---------- */
 function vhFix(){const H=(window.visualViewport&&visualViewport.height)||innerHeight;document.documentElement.style.height=H+'px';document.body.style.height=H+'px';return H}
 if(window.visualViewport)visualViewport.addEventListener('resize',()=>{vhFix();if(G.scr==='fight')fit()});
-function fit(){const H=vhFix(),hd=($('hud')&&$('hud').offsetHeight)||64;let w=Math.min(innerWidth,480);const mx=H-hd-250;if(w*VH/VW>mx)w=Math.max(180,Math.floor(mx*VW/VH));cv.parentNode.style.width=w+'px';const dpr=Math.min(3,devicePixelRatio||1);cv.style.width=w+'px';cv.style.height=(w*VH/VW)+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(w*VH/VW*dpr);K=cv.width/VW}
+function fit(){const H=vhFix(),hd=($('hud')&&$('hud').offsetHeight)||64;let w=Math.min(innerWidth,480);const mx=H-250;if(w*VH/VW>mx)w=Math.max(180,Math.floor(mx*VW/VH));cv.parentNode.style.width=w+'px';const dpr=Math.min(3,devicePixelRatio||1);cv.style.width=w+'px';cv.style.height=(w*VH/VW)+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(w*VH/VW*dpr);K=cv.width/VW}
 addEventListener('resize',fit);
 function drawWeaponL(g,f,r,th){if(f.hideW)return;g.save();g.translate(r.H.x,r.H.y);g.rotate((th==null?f.th:th)*Math.PI/180);
   if(f.w.glow||f.st==='chg'){g.shadowColor=f.st==='chg'?'#ffd23c':f.w.glow;g.shadowBlur=(f.st==='chg'?10:6)*K/4}g.drawImage(f.art.c,-f.art.px,-f.art.py-r.slide);g.restore()}
@@ -2614,6 +2614,12 @@ renderSel();
   if(G.scr==='sel')[0,1].forEach(i=>{const g=$('pv'+i).getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,96,100);if(i){g.save();g.translate(96,0);g.scale(-1,1)}preview(g,SEL[i],t+i*1.1);if(i)g.restore()})})();
 G.last=performance.now();requestAnimationFrame(frame);
 window.__DUEL={G,SEL,buildWorld,ZONES,startMatch,doSpecial,mk:mkFighter,atkPose,draw1:drawFighter,GY};
+
+// blend arena dengan panel atas/bawah: ambil warna tepi kanvas
+let BGK='';function bgSample(){if(G.scr!=='fight'||!cv.width)return;try{const c=cv.getContext('2d'),x=2,px=y=>{const d=c.getImageData(x,Math.round(y*K),1,1).data;return[d[0],d[1],d[2]]},
+ a=px(3),m=px(GY-24),g=px(GY+5),h=(v,f)=>'rgb('+v.map(n=>Math.round(n*f)).join(',')+')',k=a+m+g;if(k===BGK)return;BGK=k;const r=document.getElementById('scFight').style,cb=cv.parentNode.offsetTop+cv.offsetHeight*(GY/VH);
+ r.setProperty('--sk0',h(a,1));r.setProperty('--sk1',h(m,1));r.setProperty('--cb',cb+'px');r.setProperty('--gd',h(g,.8));r.setProperty('--g1',h(g,.5));r.setProperty('--g2',h(g,.22))}catch(e){}}
+setInterval(bgSample,1000);
 
 /* ================= ikon pixel art khas (tema Kristal Lumi) ================= */
 const PXP={k:'#1a1030',w:'#ffffff',s:'#a9b6e6',S:'#6a76b0',c:'#5ee7ff',d:'#2a8ab8',g:'#ffd23c',y:'#c88a10',b:'#8a5a2a',p:'#f6e6c0',P:'#d8c08a',r:'#e8303a',v:'#9a6ae8',V:'#5a3aa8',m:'#ff8ad8'};
