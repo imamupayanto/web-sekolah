@@ -222,6 +222,7 @@ body,#app{background:#120b28}
 @keyframes kup{from{transform:translateY(100%)}}@keyframes kin{from{opacity:0;transform:translateX(-14px)}}
 #devW{display:none;position:absolute;left:8px;top:64px;z-index:6;font-size:11px;background:#7a2ad0;color:#fff;border:2px solid #c88aff;border-radius:9px;padding:4px 8px}body.dev #devW{display:block}
 .dvh{margin:14px 0 4px;font-size:13px;color:#ffe680}.row2 span{display:flex;gap:6px;align-items:center}.row2 input{width:72px;background:#120b28;border:2px solid #3a2a78;border-radius:8px;color:#fff;padding:5px;font:inherit}
+.lkno{width:18px;height:18px;border:2px solid #8a7ac8;border-radius:50%;position:relative;display:block}.lkno::after{content:'';position:absolute;left:7px;top:-2px;width:2px;height:18px;background:#8a7ac8;transform:rotate(45deg)}.lkb{width:100%;margin:8px 0 0}.lkpv{display:flex;justify-content:center}.lkrow{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}.lkrow button{flex:none;width:58px;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:#1d1540;border:2px solid #3a2a78;border-radius:10px;color:#d8ceff;font:inherit;font-size:9.5px;padding:3px}.lkrow button.on{border-color:#ffe680;background:#2a1f60}
 #app{display:flex;flex-direction:column;height:100%}
 .shh .pxi{display:inline-block;vertical-align:-4px;margin-right:2px}
 .cvw{position:relative;margin:0 auto;max-width:100%}.cvw::after{content:"";position:absolute;left:0;right:0;bottom:0;height:26px;background:linear-gradient(transparent,var(--gd,#4a3418));pointer-events:none}#zOv{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none}
@@ -908,6 +909,86 @@ function accIcon(id) {
   const [x, y, w, h] = it.hj ? [0, 0, 16, 14] : ACC_CROP[it.slot], k = document.createElement('canvas'); k.width = w; k.height = h;
   k.getContext('2d').drawImage(c, x, y + 4, w, h, 0, 0, w, h); return (ACC_IC_C[id] = k.toDataURL());
 }
+/* ================= Knight of Math: Set Zona (digambar khusus) ================= */
+const KOM_SETS = {
+  meadow: { n: 'Meadow Ranger', z: 'windy', items: [['h_meadow', 'hat', 'Ranger Cap'], ['s_meadow', 'shirt', 'Ranger Tunic'], ['p_meadow', 'pants', 'Ranger Trousers'], ['f_meadow', 'shoes', 'Ranger Boots'], ['b_meadow', 'back', 'Meadow Cloak']] },
+  mirror: { n: 'Mirror Knight', z: 'mirror', items: [['h_mirror', 'hat', 'Mirror Helm'], ['s_mirror', 'shirt', 'Mirror Mail'], ['p_mirror', 'pants', 'Mirror Greaves'], ['f_mirror', 'shoes', 'Mirror Sabatons'], ['b_mirror', 'back', 'Lake Cape']] },
+  marsh: { n: 'Bog Warden', z: 'marsh', items: [['h_marsh', 'hat', 'Warden Hood'], ['s_marsh', 'shirt', 'Mossleather Vest'], ['p_marsh', 'pants', 'Bog Wraps'], ['f_marsh', 'shoes', 'Mud Boots'], ['b_marsh', 'back', 'Tattered Shroud']] },
+  wild: { n: 'Thornwood Druid', z: 'wildwood', items: [['h_wild', 'hat', 'Antler Crown'], ['s_wild', 'shirt', 'Barkweave Robe'], ['p_wild', 'pants', 'Vine Leggings'], ['f_wild', 'shoes', 'Root Boots'], ['b_wild', 'back', 'Leafmantle']] },
+  coral: { n: 'Tide Corsair', z: 'coral', items: [['h_coral', 'hat', 'Corsair Tricorn'], ['s_coral', 'shirt', 'Sailor Coat'], ['p_coral', 'pants', 'Deckhand Trousers'], ['f_coral', 'shoes', 'Buckle Boots'], ['b_coral', 'back', 'Sailcloth Cape']] },
+  desert: { n: 'Dune Pharaoh', z: 'desert', items: [['h_desert', 'hat', 'Pharaoh Nemes'], ['s_desert', 'shirt', 'Sunlinen Robe'], ['p_desert', 'pants', 'Dune Wraps'], ['f_desert', 'shoes', 'Gilded Sandals'], ['b_desert', 'back', 'Crimson Mantle']] },
+  frost: { n: 'Frost Sentinel', z: 'frost', items: [['h_frost2', 'hat', 'Fur Hood'], ['s_frost2', 'shirt', 'Furlined Mail'], ['p_frost2', 'pants', 'Snowguard Pants'], ['f_frost2', 'shoes', 'Icetread Boots'], ['b_frost2', 'back', 'Snowfur Cloak']] },
+  ember: { n: 'Magma Warlord', z: 'ember', items: [['h_ember2', 'hat', 'Obsidian Horns'], ['s_ember2', 'shirt', 'Magmacrack Plate'], ['p_ember2', 'pants', 'Cinder Greaves'], ['f_ember2', 'shoes', 'Ashwalker Boots'], ['b_ember2', 'back', 'Inferno Cape']] }
+};
+for (const k in KOM_SETS) for (const [id, slot, n] of KOM_SETS[k].items) SH[id] = { id, slot, n, p: 0, rk: 1, tk: 'zona', tset: k, tv: 6 };
+Object.assign(SHIRTS, { s_marsh: { r: ['#3a3a26', '#5a5a3a', '#7a7a52'] }, s_wild: { r: ['#4a3018', '#6e4a26', '#94683a'] }, s_coral: { r: ['#1a2a5a', '#2f4a8a', '#e6ecf4'] }, s_desert: { r: ['#b8ae94', '#efe8d6', '#ffffff'] }, s_frost2: { r: ['#3a6a9a', '#7aaad8', '#c8e4f8'] }, s_ember2: { r: ['#1a1220', '#2e2236', '#4a3a56'] }, s_meadow: { r: ['#2a4f1c', '#3f7a2a', '#6aa83e'] }, s_mirror: { r: ['#56627e', '#a3b2cc', '#e4ecf8'] } });
+Object.assign(SHIRT_PAT, { s_marsh: 'rompi', s_wild: 'robe', s_coral: 'kemeja', s_desert: 'koko', s_frost2: 'zirah', s_ember2: 'zirah', s_meadow: 'rompi', s_mirror: 'zirah' });
+Object.assign(PANTS, { p_marsh: { r: ['#262e1e', '#3a4630', '#566448'], k: 'long' }, p_wild: { r: ['#2a3a1a', '#3e5a28', '#5a7a3a'], k: 'long' }, p_coral: { r: ['#6a5a3a', '#a8946a', '#d4c08a'], k: 'long' }, p_desert: { r: ['#a8946a', '#d9cba0', '#efe6cc'], k: 'long' }, p_frost2: { r: ['#4a5a7a', '#8a9ab8', '#d6e4f0'], k: 'long' }, p_ember2: { r: ['#140e18', '#2a2030', '#3e3248'], k: 'long', knee: '#ff6a1a' }, p_meadow: { r: ['#3e2a18', '#5e4026', '#82603a'], k: 'long' }, p_mirror: { r: ['#3a4660', '#6e7e9c', '#b4c0d6'], k: 'long', knee: '#e4ecf8' } });
+Object.assign(SHOES, { f_marsh: { c: ['#3a2a1a', '#5a4a2a'], tall: 1 }, f_wild: { c: ['#3e2a14', '#5a7a3a'], tall: 1 }, f_coral: { c: ['#1a1418', '#ffd23c'], tall: 1 }, f_desert: { c: ['#c97a0a', '#ffd23c'], sandal: 1 }, f_frost2: { c: ['#e6f0f8', '#7aaad8'], tall: 1 }, f_ember2: { c: ['#1a1220', '#ff6a1a'], tall: 1 }, f_meadow: { c: ['#4a2c18', '#8a5a30'], tall: 1 }, f_mirror: { c: ['#7e8aa4', '#e4ecf8'], tall: 1 } });
+Object.assign(TK_HAT, {
+  h_marsh(g, dir) { const up = dir === 'up', lf = dir === 'left', H = ['#262e1e', '#3a4630', '#566448', '#76866a'];
+    E(g, 8, 3.6, 7, 4, H); if (!up) { if (lf) { R(g, 11, 4, 4, 7, H[1]); R(g, 14, 5, 1, 6, H[0]); R(g, 1, 4, 2, 3, H[1]); } else { R(g, 1, 4, 3, 7, H[1]); R(g, 12, 4, 3, 7, H[1]); R(g, 3, 5, 10, 1, H[0]); P(g, 1, 10, H[0]); P(g, 14, 10, H[0]); } }
+    else R(g, 2, 5, 12, 6, H[1]); P(g, 8, 1, '#efe6cc'); P(g, 8, 2, '#c9b890'); P(g, 7, 2, '#efe6cc'); },
+  h_wild(g, dir) { const up = dir === 'up', lf = dir === 'left', A = '#8a6a3a', A2 = '#b8945a', L = ['#2e5420', '#4a8a2e', '#7fd35a'];
+    R(g, 2, 4, 12, 2, L[0]); for (const x of [3, 6, 9, 12]) { P(g, x, 3, L[2]); P(g, x + 1, 3, L[1]); P(g, x, 4, L[1]); }
+    for (const [x, d] of [[4, -1], [11, 1]]) { R(g, x, 0, 1, 4, A); P(g, x + d, -1, A2); P(g, x + d, -2, A); P(g, x + 2 * d, -3, A2); P(g, x - d, -1, A2); P(g, x - d, -2, A); }
+    if (!up && !lf) { P(g, 8, 4, '#ff6a8a'); P(g, 7, 4, '#ffd23c'); } },
+  h_coral(g, dir) { const up = dir === 'up', lf = dir === 'left', K = '#1a1418', K2 = '#2e2630';
+    R(g, 3, 0, 10, 3, K2); R(g, 4, 0, 8, 1, '#3e3640'); R(g, 0, 3, 16, 2, K); P(g, 0, 2, K); P(g, 15, 2, K); P(g, 1, 2, K2); P(g, 14, 2, K2); R(g, 1, 4, 14, 1, '#ffd23c');
+    if (!up && !lf) { R(g, 6, 5, 4, 1, K); P(g, 7, 1, '#f3f3f8'); P(g, 8, 1, '#f3f3f8'); P(g, 7, 2, '#c9c9d4'); P(g, 8, 2, '#c9c9d4'); } if (lf) { R(g, 0, 5, 3, 1, K); P(g, 4, 1, '#f3f3f8'); } },
+  h_desert(g, dir) { const up = dir === 'up', lf = dir === 'left', Gd = '#ffc93c', Bl = '#2a4ab0';
+    E(g, 8, 3, 6.8, 3.3, ['#c97a0a', Gd, '#ffe680', '#fff3b0'], 1); R(g, 3, 1, 10, 1, Bl); R(g, 2, 3, 12, 1, Bl);
+    const dr = (x) => { R(g, x, 5, 3, 6, Gd); for (const y of [6, 8, 10]) R(g, x, y, 3, 1, Bl); };
+    if (up) R(g, 3, 5, 10, 6, Gd); else if (lf) dr(12); else { dr(1); dr(12); }
+    R(g, 2, 4, 12, 1, '#c97a0a'); if (!up && !lf) { P(g, 8, 4, '#e0302a'); P(g, 8, 3, '#2ad0a0'); } },
+  h_frost2(g, dir) { const up = dir === 'up', lf = dir === 'left', W = ['#9ab0c8', '#d6e4f0', '#f3f8fc', '#ffffff'];
+    E(g, 8, 3.4, 7, 3.9, W); if (!up) { const fur = (x, y) => P(g, x, y, (x + y) & 1 ? '#ffffff' : '#c8d8e8'); if (lf) { for (let y = 4; y < 10; y++) { fur(12, y); fur(13, y); } for (let x = 1; x < 5; x++) fur(x, 5); }
+      else { for (let x = 2; x < 14; x++) fur(x, 5); for (let y = 5; y < 10; y++) { fur(1, y); fur(2, y); fur(13, y); fur(14, y); } } } else R(g, 2, 5, 12, 5, W[1]);
+    P(g, 8, 2, '#7fe8ff'); P(g, 8, 1, '#bff4ff'); },
+  h_ember2(g, dir) { const up = dir === 'up', lf = dir === 'left', O = ['#140e18', '#2a2030', '#3e3248', '#5a4a66'], H = '#efe6cc', T = '#ffb03c';
+    E(g, 8, 3.2, 6.8, 3.4, O); for (const [x, y, c] of [[5, 2, '#ff6a1a'], [6, 3, T], [10, 1, '#ff6a1a'], [11, 2, '#ff6a1a'], [9, 0, T]]) P(g, x, y, c);
+    for (const sx of lf ? [1] : [1, -1]) { const b = sx > 0 ? 2 : 13; [[0, 2], [-1, 1], [-1, 0], [-1, -1], [0, -2]].forEach(([dx, y], i) => P(g, b + dx * sx, y, i === 4 ? T : H)); }
+    if (!up && !lf) { R(g, 3, 5, 10, 1, O[1]); P(g, 5, 5, '#ff6a1a'); P(g, 10, 5, '#ff6a1a'); } else if (lf) R(g, 0, 5, 5, 1, O[1]); },
+
+  h_meadow(g, dir) { const up = dir === 'up', lf = dir === 'left', G = ['#22421a', '#3a6a26', '#58923a', '#84bc56'];
+    E(g, 7.6, 2.8, 5.9, 3, G); R(g, 2, 4, 12, 1, '#22421a'); R(g, 11, 0, 3, 2, G[2]); P(g, 13, -1, G[2]); P(g, 14, 0, G[1]); P(g, 14, -1, G[3]);
+    if (lf) R(g, 0, 5, 6, 1, '#2e5420');
+    else if (!up) { R(g, 2, 5, 8, 1, '#2e5420'); R(g, 3, 4, 9, 1, '#8a5a30'); P(g, 7, 4, '#ffd23c'); }
+    const fx = lf ? 11 : 12; [[0, 2], [1, 1], [1, 0], [2, -1], [2, -2], [3, -3]].forEach(([dx, y], i) => P(g, fx + dx, y, i > 3 ? '#ffffff' : '#e0402a')); P(g, fx + 1, 2, '#ffd23c'); },
+  h_mirror(g, dir) { const up = dir === 'up', lf = dir === 'left', S = ['#5e6a84', '#a3b2cc', '#d4ddec', '#ffffff'];
+    E(g, 8, 3.2, 6.8, 3.5, S); R(g, 1, 5, 14, 1, '#7e8aa4'); R(g, 1, 4, 14, 1, '#c3cee0');
+    if (!up) { if (lf) { R(g, 0, 6, 5, 1, '#5e6a84'); P(g, 3, 4, '#5ad0ff'); } else { R(g, 3, 6, 10, 1, '#5e6a84'); P(g, 8, 4, '#5ad0ff'); P(g, 7, 4, '#2a8ad8'); } }
+    const B = ['#1f4f9a', '#2f78d0', '#6ab8ff'];
+    if (lf) { for (let i = 0; i < 7; i++) { const x = 6 + i, y = -1 + (i > 3 ? i - 3 : 0); P(g, x, y, B[i % 3]); P(g, x, y + 1, B[1]); } P(g, 13, 3, B[0]); P(g, 13, 4, B[0]); }
+    else for (let y = -3; y <= 1; y++) { P(g, 7, y, B[y & 1 ? 1 : 2]); P(g, 8, y, B[y & 1 ? 0 : 1]); } }
+});
+const KCAPE = { b_meadow: ['#1c3612', '#2e5420', '#4a7a30', '#ffd23c'], b_mirror: ['#142a5a', '#1f4f9a', '#2f78d0', '#e4ecf8'], b_marsh: ['#20261a', '#3a4630', '#566448', 'rag'], b_wild: ['#1c3612', '#3a6a26', '#58923a', 'leaf'], b_coral: ['#8a7a5a', '#e6dcc8', '#f8f2e4', '#c8302a'], b_desert: ['#5a0a0a', '#a81a1a', '#d8302a', '#ffd23c'], b_frost2: ['#9ab0c8', '#e6f0f8', '#ffffff', 'fur'], b_ember2: ['#3a0a08', '#8a1a0a', '#c8302a', 'fire'] };
+const _kidKOM = kid;
+kid = function (o, dir, f) {
+  const g = _kidKOM(o, dir, f), c = o.bk && KCAPE[o.bk], up = dir === 'up', sd = dir === 'left';
+  const at = (x, y) => { y = Math.floor(y + g.oy); return x < 0 || y < 0 || x >= g.w || y >= g.h ? 1 : g.d[y * g.w + x]; };
+  const BP = (x, y, col) => { if (!at(x, y)) P(g, x, y, col); }, ON = (x, y, col) => { const v = at(x, y); if (v && v !== 1) P(g, x, y, col); };
+  const hem = (x, y) => { const st = c[3], fr = (f || 0); if (st === 'rag') return (x * 7 + y) % 3 === 0 ? null : c[0]; if (st === 'leaf') return (x & 1) ? c[2] : '#7fd35a'; if (st === 'fur') return (x + y) & 1 ? '#ffffff' : '#c8d8e8'; if (st === 'fire') return ['#ff6a1a', '#ffb03c', '#ffe680'][(x + fr + y) % 3]; return c[3]; };
+  const CP = (x, y, col, behind) => { if (y >= 22) { const h = hem(x, y); if (!h) return; col = h; } behind ? BP(x, y, col) : P(g, x, y, col); };
+  const belt = (bc, kc) => { for (let x = 3; x <= 12; x++) ON(x, 17, bc); ON(sd ? 6 : 8, 17, kc); };
+  if (!up) { const id = o.sid;
+    if (id === 's_meadow') belt('#4a2c18', '#ffd23c');
+    if (id === 's_mirror' && !sd) { ON(8, 13, '#5ad0ff'); ON(7, 13, '#2a8ad8'); ON(8, 14, '#2a8ad8'); }
+    if (id === 's_marsh') { belt('#8a7a5a', '#efe6cc'); ON(7, 13, '#efe6cc'); ON(7, 15, '#efe6cc'); }
+    if (id === 's_wild') { belt('#3a6a26', '#7fd35a'); ON(sd ? 6 : 7, 12, '#7fd35a'); ON(sd ? 7 : 8, 12, '#ff6a8a'); }
+    if (id === 's_coral') { for (let i = 0; i < 6; i++) ON(5 + i, 12 + i, '#c8302a'); ON(10, 13, '#ffd23c'); ON(10, 15, '#ffd23c'); }
+    if (id === 's_desert') { for (let x = 4; x <= 11; x++) ON(x, 12, x & 1 ? '#ffd23c' : '#2a4ab0'); belt('#ffd23c', '#e0302a'); }
+    if (id === 's_frost2') { for (let x = 3; x <= 12; x++) ON(x, 12, (x & 1) ? '#ffffff' : '#c8d8e8'); belt('#3a6a9a', '#7fe8ff'); }
+    if (id === 's_ember2') { for (const [x, y, cc] of [[6, 14, '#ff6a1a'], [7, 15, '#ffb03c'], [9, 13, '#ff6a1a'], [10, 14, '#ffb03c'], [5, 16, '#ff6a1a']]) ON(x, y, cc); belt('#140e18', '#ff6a1a'); } }
+  if (c) { const w = (f || 0) % 2;
+    if (up) { for (let y = 11; y <= 23; y++) { const half = y < 13 ? 4 : 5 + (y > 19 ? 1 : 0); for (let x = 8 - half; x < 8 + half; x++) CP(x, y, (y + w) % 4 === 0 ? c[1] : c[2]); } R(g, 3, 11, 10, 1, c[0]); }
+    else if (sd) { for (let y = 11; y <= 23; y++) { const x1 = 9 + Math.min(4, Math.floor((y - 11) / 3)) + (y > 18 ? w : 0); for (let x = 8; x <= x1; x++) CP(x, y, x === x1 ? c[0] : c[1], 1); } }
+    else { for (let y = 12; y <= 23; y++) { const s = y > 18 ? 1 : 0; for (const x of [2 - s, 3 - s, 12 + s, 13 + s]) CP(x, y, c[1], 1); CP(1 - s, y, c[0], 1); CP(14 + s, y, c[0], 1); }
+      for (let x = 4; x <= 11; x++) CP(x, 23, c[3], 1); }
+  }
+  return g;
+};
+
 return{setNoArm:v=>{AV_NOARM=v},kidImg,accIcon,SH,TK_SETS,EL_SETS,NG_SETS,HAIRC,EYES,SHIRTS,PANTS,ramp,KC,HSTYLES,SKINS,grid,P,R,E,outline,toCanvas};
 })();
 
@@ -1993,6 +2074,7 @@ const SETS=[{id:'none',n:'No Set',r:0,eq:{}}];
 [['dasar',AV.TK_SETS,1],['elemen',AV.EL_SETS,2],['bos',AV.EL_SETS,3],['naga',AV.NG_SETS,4]].forEach(([tk,S,r])=>{for(const k in S){const eq={};
   S[k].items.forEach(([id,slot])=>{const iid=tk==='bos'?'b_'+id:id;if(AV.SH[iid]&&slot!=='glass')eq[slot]=iid});
   SETS.push({id:tk+'_'+k,n:tk==='bos'?S[k].n.replace(' Set',' King'):S[k].n.replace(' Set',''),r,eq,c:S[k].c})}});
+[['meadow','Meadow Ranger','#4e8a2e'],['mirror','Mirror Knight','#a3b2cc'],['marsh','Bog Warden','#566448'],['wild','Thornwood Druid','#6e4a26'],['coral','Tide Corsair','#2f4a8a'],['desert','Dune Pharaoh','#ffc93c'],['frost2','Frost Sentinel','#c8e4f8'],['ember2','Magma Warlord','#ff6a1a']].forEach(([k,n,c])=>SETS.push({id:'zona_'+k,n,r:2,c,eq:{hat:'h_'+k,shirt:'s_'+k,pants:'p_'+k,shoes:'f_'+k,back:'b_'+k}}));
 ABYSS.forEach(S=>{const eq={};S.parts.forEach(([id,slot])=>eq[slot]=id);SETS.push({id:'abyss_'+S.k,n:S.n.replace(' Set',''),r:S.r,eq,c:S.c,abyss:S})});
 const SET_HP=[1,1.1,1.2,1.3,1.45,1.6], SET_ATK=[1,1,1.05,1.1,1.16,1.22];
 
@@ -3301,13 +3383,13 @@ const SLI={w:'s_w',hat:'s_hat',shirt:'s_shirt',pants:'s_pants',shoes:'s_boots',b
 const ICI={};function icoImg(k){if(!ICI[k]&&ICO[k]){const im=new Image();im.src='data:image/png;base64,'+ICO[k];ICI[k]=im}return ICI[k]}
 Object.keys(ICO).forEach(icoImg);
 const THC={},THU={};let THL0=null,THB=null;
-function thumbCv(it){const key=it.s+':'+it.b;if(THC[key])return THC[key];let c;
+let THBU;function thumbCv(it){const key=it.s+':'+it.b;if(THC[key])return THC[key];let c;
   if(it.s==='w'){const w=WPN.find(x=>x.id===it.b)||WPN[0],a=wpnArt(w).c,s=Math.min(1.4,31/Math.max(a.height,a.width));c=mk(24,24);const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.translate(12,12);g.rotate(Math.PI/4);g.scale(s,s);g.drawImage(a,-a.width/2,-a.height/2)}
   else if(it.s==='acc'||it.s==='gold'){const im=icoImg(it.s==='gold'?'coin':'s_acc');c=mk(16,16);if(im.complete)c.getContext('2d').drawImage(im,0,0);else{im.onload=()=>{delete THC[key];delete THU[key]};return c}}
-  else{if(!THL0){THL0={g:'l',hs:AV.HSTYLES.l[0][0],hc:AV.HAIRC[0],sk:1,ec:AV.EYES[0]};THB=abyssFrame(THL0,{},'down',0).getContext('2d').getImageData(0,0,16,32).data}
-    const f=abyssFrame(THL0,{[it.s]:it.b},'down',0),d=f.getContext('2d').getImageData(0,0,16,32).data,o=mk(16,32),og=o.getContext('2d'),od=og.createImageData(16,32);let x0=16,y0=32,x1=-1,y1=-1;
-    for(let i=0;i<16*32;i++){const j=i*4;if(d[j+3]>10&&(d[j]!==THB[j]||d[j+1]!==THB[j+1]||d[j+2]!==THB[j+2]||d[j+3]!==THB[j+3])){od.data[j]=d[j];od.data[j+1]=d[j+1];od.data[j+2]=d[j+2];od.data[j+3]=255;const x=i%16,y=i/16|0;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}}
-    og.putImageData(od,0,0);if(x1<0){c=mk(16,16);c.getContext('2d').drawImage(icoImg(SLI[it.s]),0,0)}else{const w=x1-x0+1,h=y1-y0+1,S=Math.max(w,h)+2;c=mk(S,S);c.getContext('2d').drawImage(o,x0,y0,w,h,(S-w)>>1,(S-h)>>1,w,h)}}
+  else{if(!THL0){THL0={g:'l',hs:AV.HSTYLES.l[0][0],hc:AV.HAIRC[0],sk:1,ec:AV.EYES[0]};THB=abyssFrame(THL0,{},'down',0).getContext('2d').getImageData(0,0,16,32).data;THBU=abyssFrame(THL0,{},'up',0).getContext('2d').getImageData(0,0,16,32).data}const BK=it.s==='back',TB=BK?THBU:THB;
+    const f=abyssFrame(THL0,{[it.s]:it.b},BK?'up':'down',0),d=f.getContext('2d').getImageData(0,0,16,32).data,o=mk(16,32),og=o.getContext('2d'),od=og.createImageData(16,32);let x0=16,y0=32,x1=-1,y1=-1;
+    for(let i=0;i<16*32;i++){const j=i*4;if(d[j+3]>10&&(d[j]!==TB[j]||d[j+1]!==TB[j+1]||d[j+2]!==TB[j+2]||d[j+3]!==TB[j+3])){od.data[j]=d[j];od.data[j+1]=d[j+1];od.data[j+2]=d[j+2];od.data[j+3]=255;const x=i%16,y=i/16|0;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}}
+    og.putImageData(od,0,0);if(x1>=0&&(it.s==='pants'||it.s==='shoes')){let yb=y1;for(let y=y1;y<32;y++)for(let x=0;x<16;x++)if(d[(y*16+x)*4+3]>10)yb=y;const ya=Math.max(0,y0-(it.s==='shoes'?0:1)),h=yb-ya+1,S=Math.max(12,h)+2;c=mk(S,S);const cg=c.getContext('2d');cg.imageSmoothingEnabled=false;cg.drawImage(f,2,ya,12,h,(S-12)>>1,(S-h)>>1,12,h)}else if(x1<0){c=mk(16,16);c.getContext('2d').drawImage(icoImg(SLI[it.s]),0,0)}else{const w=x1-x0+1,h=y1-y0+1,S=Math.max(w,h)+2;c=mk(S,S);c.getContext('2d').drawImage(o,x0,y0,w,h,(S-w)>>1,(S-h)>>1,w,h)}}
   return THC[key]=c}
 function thumb(it,sz){const key=it.s+':'+it.b;if(!THU[key])THU[key]=thumbCv(it).toDataURL();return`<img class="pxi th" src="${THU[key]}" width="${sz||28}" height="${sz||28}" alt="">`}
 /* ---------- drop di arena ---------- */
@@ -3339,7 +3421,7 @@ function openBag(){const P=PROF,E=eqItems(),worn=Object.values(P.eqp||{}),G2=gea
   sheet(pxSvg('hero',22)+' Hero',heroStrip('tas')+`${P.chests.length?`<div class="sec">${ico('gift',16)} Peti (${P.chests.length})</div><div class="lst">${P.chests.map((c,i)=>`<div class="it"><span class="ic">${ico('chest',24)}</span><span><b>${CHEST[c.type].n}</b><small>Isi: ${c.it?`<span style="color:${RKC[c.it.r]}">${gi(c.it).n}</span> + `:''}${c.coin} 🪙</small></span><button class="mini" onclick="openChest(${i})">Buka</button></div>`).join('')}</div>`:''}
     <div class="doll"><div class="dcol">${['hat','shirt','pants'].map(s=>slotBtn(E,s)).join('')}</div><div class="dmid"><canvas id="chPv" width="120" height="126"></canvas>${slotBtn(E,'acc')}</div><div class="dcol">${['w','back','shoes'].map(s=>slotBtn(E,s)).join('')}</div></div>
     ${Object.entries(G2.sets).map(([k,n])=>`<div class="note">✨ ${GSET[k].n} ${n} bagian: ${n>=2?'✔ ':''}${GSET[k].t2}${n>=3?' · ✔ '+GSET[k].t3:' · 3 bagian: '+GSET[k].t3}</div>`).join('')}
-    <div class="brow"><button class="ghost" onclick="bestEq()">⚡ Pasang Terbaik</button><button class="ghost" onclick="quickSell()">🪙 Jual Cepat</button></div>
+    <button class="ghost lkb" onclick="openLook()">${ico('hero',16)} Penampilan</button><div class="brow"><button class="ghost" onclick="bestEq()">⚡ Pasang Terbaik</button><button class="ghost" onclick="quickSell()">🪙 Jual Cepat</button></div>
     <div class="chtab">${[['all','Semua'],['w','Senjata'],['ar','Armor'],['acc','Aksesoris']].map(([k,n])=>`<button class="${BAGF===k||(k==='ar'&&['hat','shirt','pants','shoes','back'].includes(BAGF))?'on':''}" onclick="BAGF='${k}';openBag()">${n}</button>`).join('')}</div>
     <div class="note">${bag().length}/80 barang · ketuk barang untuk pasang, copot, upgrade, kunci, atau jual</div>
     <div class="tiles">${B.length?B.map(it=>{const cur=E[it.s],up=(it.lv||1)<=PROF.lv&&(!cur||score(it)>score(cur));return`<button class="tile" style="--rc:${RKC[it.r]}" onclick="itemSheet('${it.u}')">${thumb(it,32)}${it.up?`<b>+${it.up}</b>`:''}<u class="ilv ${(it.lv||1)>PROF.lv?'no':''}">Lv${it.lv||1}</u>${it.nw?'<i class="nw">BARU</i>':''}${it.lk?`<i class="lkk">${ico('lock',10)}</i>`:''}${up?'<em>▲</em>':''}</button>`}).join(''):'<div class="note">Kosong. Barang didapat dari petualangan, duel, peti, dan toko.</div>'}</div>`)}
@@ -3615,6 +3697,7 @@ function openDev(){const P=PROF,ps=Object.keys(LG.M).sort((a,b)=>LG.M[a].n.local
   <div class="row2"><label>Pet</label><span><select id="dvP">${ps.map(id=>`<option value="${id}">${LG.M[id].n} (${LG.M[id].r})</option>`).join('')}</select><button class="mini" onclick="devPet()">Beri</button></span></div>
   <h4 class="dvh">Alat uji battle</h4>
   ${devTg('ko1','Musuh KO sekali pukul')}${devTg('god','Pemain kebal')}${devTg('en','Energi jurus selalu penuh')}
+  <button class="ghost" onclick="devDragon('shadow')">🐉 Uji lawan Shadow Drake (Lv20)</button>
   <div class="note">Tombol <b>🧪 MENANG</b> muncul di layar battle selama mode ini menyala.</div>
   <div class="note" id="dvMsg"></div>
   <button class="ghost" style="margin-top:10px;color:#ff8a7a" id="dvR0">🗑️ Reset progres</button>`);
@@ -3623,8 +3706,113 @@ function devMsg(t){const m=$('dvMsg');if(m)m.innerHTML='✅ '+t;saveP();lobbyHud
 function devSet(k){const P=PROF;if(k==='lv'){P.lv=Math.max(1,Math.min(LVMAX,+$('dvL').value|0));P.exp=0;devMsg('Level → '+P.lv)}
   else if(k==='coin'){P.coin=Math.max(0,+$('dvG').value|0);devMsg('Gold → '+P.coin)}
   else{const i=+$('dvM').value;P.mas=P.mas||{};WT.forEach(t=>P.mas[t]=MTX[i]);devMsg('Mastery → '+MTN[i])}}
-function devItem(){if(bag().length>=80)return devMsg('Tas penuh (80)');const it=rollItem(+$('dvR').value,$('dvS').value,null,+$('dvIL').value||1);giveItem(it,null);devMsg(`${gi(it).n} masuk tas`)}
+function devItem(){if(bag().length>=80)return devMsg('Tas penuh (80)');ARMHI=1;const it=rollItem(+$('dvR').value,$('dvS').value,null,+$('dvIL').value||1);ARMHI=0;giveItem(it,null);devMsg(`${gi(it).n} masuk tas`)}
 function devPet(){const l=[];addPet($('dvP').value,l);devMsg(l[0]||LG.M[$('dvP').value].n+' bergabung')}
+
+// ===== Tampilan perlengkapan: aura kelangkaan, set zona, Penampilan =====
+const LSL=['hat','shirt','pants','shoes','back'],ZSETK={windy:'zona_meadow',mirror:'zona_mirror',marsh:'zona_marsh',wildwood:'zona_wild',coral:'zona_coral',desert:'zona_desert',frost:'zona_frost2',ember:'zona_ember2'};
+// kelas set tetap: Common=Dasar, Rare=set zona, Epic=King, Legendary=Naga (hanya dari naga), Mythic=Abyss
+const KCLS={1:'dasar',3:'bos',4:'naga',5:'naga'};let ARMHI=0;
+function zoneSetNow(){try{if(G.mode==='path'&&PR())return ZSETK[PR().z]}catch(e){}const ok=ZONE8.filter((z,i)=>i===0||zst(ZONE8[i-1].id).clr);return ZSETK[pick(ok).id]}
+function clsPiece(sl,r){if(r===2){const S=SETS.find(s=>s.id===zoneSetNow());if(S&&S.eq[sl])return S.eq[sl]}let pool=PIECES.filter(p=>p.sl===sl&&p.kind===KCLS[r]);if(!pool.length&&r===1)pool=PIECES.filter(p=>p.sl===sl&&p.kind==='elemen');return pool.length?pick(pool).id:null}
+{const r0=rollPiece;rollPiece=function(sl,rr){return clsPiece(sl,Math.min(5,rr))||r0(sl,rr)}}
+{const ri=rollItem;rollItem=function(r,sl,wt,lv){if(!ARMHI&&r>=4&&LSL.includes(sl))sl=Math.random()<.5?'w':'acc';let it=ri(r,sl,wt,lv);if(!ARMHI&&it.r>=4&&LSL.includes(it.s))it=ri(r,Math.random()<.5?'w':'acc',wt,lv);return it}}
+(function clsMigrate(){if(PROF.cls)return;(PROF.bag||[]).forEach(it=>{if(!LSL.includes(it.s)||it.set)return;if(it.r>=4)it.r=3;const b=clsPiece(it.s,it.r);if(b){it.b=b;delete it.set}});PROF.cls=1;try{saveP()}catch(e){}})();
+function wdAdd(it){if(it&&LSL.includes(it.s)){PROF.wd=PROF.wd||{};PROF.wd[it.b]=1}}
+{const g=giveItem;giveItem=function(it,log){wdAdd(it);return g(it,log)}}
+(PROF.bag||[]).forEach(wdAdd);
+{const m=myCfg;myCfg=function(){const c=m(),A=PROF.app||{},E=eqItems();c.eq=Object.assign({},c.eq||{});
+  for(const sl of LSL){if(A[sl]==='none')delete c.eq[sl];else if(A[sl])c.eq[sl]=A[sl]}
+  const rs=Object.values(E).map(it=>it.r).sort((a,b)=>b-a);c.ar=rs[2]||0;c.wr=E.w?E.w.r:0;return c}}
+{const m=mkFighter;mkFighter=function(cfg,side){const f=m(cfg,side);f.ar=cfg.ar||0;f.wr=cfg.wr||0;return f}}
+function kAura(g,f){const t=G.t||performance.now()/1000,c=RKC[f.ar],x=f.x,y=GY-f.y,a=(f.ar===5?.22:.15)+.06*Math.sin(t*3);g.save();g.fillStyle=c;
+  g.globalAlpha=a;g.beginPath();g.ellipse(x,y-13,8+(f.ar-3)*1.5,15,0,0,7);g.fill();g.globalAlpha=a*1.8;g.beginPath();g.ellipse(x,y,10,2.2,0,0,7);g.fill();
+  if(f.ar>=4){const n=f.ar===5?6:3;for(let i=0;i<n;i++){const p=(t*.55+i/n)%1;g.globalAlpha=1-p;g.fillStyle=f.ar===5&&i%2?'#ffd23c':c;g.fillRect(Math.round(x-7+((i*37)%15)+Math.sin(t*2+i)*1.5),Math.round(y-2-p*27),1,1)}}g.restore()}
+function kTrail(g,f){const x=f.x,y=GY-f.y,r=f.face>0;g.save();g.globalAlpha=.6;g.strokeStyle=RKC[f.wr];g.lineWidth=1.6;g.beginPath();g.arc(x+(r?3:-3),y-14,12,r?-1.3:Math.PI-.3,r?.3:Math.PI+1.3);g.stroke();g.globalAlpha=.3;g.lineWidth=3.2;g.stroke();g.restore()}
+{const d=drawFighter;drawFighter=function(g,f){if(!f._bd&&!f.mon&&f.ar>=3)kAura(g,f);const o=d(g,f);if(!f._bd&&!f.mon&&f.wr>=4&&(f.st==='atk'||f.st==='sp'))kTrail(g,f);return o}}
+function lookOpt(sl,id,lbl){const A=PROF.app||{},on=(A[sl]||'')===id;return`<button class="${on?'on':''}" onclick="lookSet('${sl}','${id}')">${id&&id!=='none'?thumb({s:sl,b:id},30):(id==='none'?'<i class="lkno"></i>':ico(SLI[sl],20))}<span>${lbl||''}</span></button>`}
+function lookSet(sl,id){PROF.app=PROF.app||{};if(id)PROF.app[sl]=id;else delete PROF.app[sl];saveP();const y=$('shB').scrollTop;openLook();$('shB').scrollTop=y}
+function openLook(){const own=Object.keys(PROF.wd||{}).filter(id=>AV.SH[id]);
+  sheet(ico('hero',22)+' Penampilan',`<div class="note">Pilih tampilan karaktermu. Kekuatan tetap dari barang yang kamu pakai.</div><div class="lkpv"><canvas id="chPv" width="120" height="126"></canvas></div>`+
+  LSL.map(sl=>`<div class="sec">${GSN[sl]}</div><div class="lkrow">${lookOpt(sl,'','Ikut barang')}${lookOpt(sl,'none','Kosong')}${own.filter(id=>AV.SH[id].slot===sl).map(id=>lookOpt(sl,id)).join('')}</div>`).join('')+
+  `<button class="ghost" style="margin-top:10px" onclick="openBag()">Kembali ke Tas</button>`)}
+
+// ===== Naga Legenda: sprite bersayap prosedural + perilaku bos =====
+const DRG={
+  shadow:{n:'Shadow Drake',lv:20,z:'coral',body:['#140c26','#2a1a4c','#43307a','#6a55aa'],belly:['#2e2250','#4e4080','#7a6ab4'],mem:['#20123e','#3a2466','#56399a'],bone:'#8a7ac8',horn:'#e4dcff',eye:'#ff5ad8',claw:'#efeaff',br:'#c86aff',br2:'#ff8af0'}
+};
+// --- grid kecil bergaya avlib ---
+const DW=84,DH=82,DGY=78,DOY=8;
+function dgN(){return{d:new Array(DW*DH).fill(null)}}
+function dP(g,x,y,c){x=Math.round(x);y=Math.round(y+DOY);if(x>=0&&y>=0&&x<DW&&y<DH)g.d[y*DW+x]=c}
+function dE(g,cx,cy,rx,ry,r){for(let y=Math.floor(cy-ry);y<=Math.ceil(cy+ry);y++)for(let x=Math.floor(cx-rx);x<=Math.ceil(cx+rx);x++){const nx=(x+.5-cx)/rx,ny=(y+.5-cy)/ry;if(nx*nx+ny*ny>1)continue;const l=-(nx*.5+ny*.85)+(((x+y)&1)?.08:-.08);dP(g,x,y,r[Math.min(l>.6?3:l>.1?2:l>-.5?1:0,r.length-1)])}}
+function dL(g,x0,y0,x1,y1,w,c){const n=Math.ceil(Math.hypot(x1-x0,y1-y0))+1;for(let i=0;i<=n;i++){const t=i/n,x=x0+(x1-x0)*t,y=y0+(y1-y0)*t;for(let a=-w/2;a<w/2;a++)for(let b=-w/2;b<w/2;b++)dP(g,x+a+.5,y+b+.5,c)}}
+function dT(g,a,b,c,col){const xs=[a[0],b[0],c[0]],ys=[a[1],b[1],c[1]],d=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(!d)return;
+  for(let y=Math.floor(Math.min(...ys));y<=Math.ceil(Math.max(...ys));y++)for(let x=Math.floor(Math.min(...xs));x<=Math.ceil(Math.max(...xs));x++){const px=x+.5,py=y+.5,l1=((b[1]-c[1])*(px-c[0])+(c[0]-b[0])*(py-c[1]))/d,l2=((c[1]-a[1])*(px-c[0])+(a[0]-c[0])*(py-c[1]))/d;if(l1>=0&&l2>=0&&l1+l2<=1)dP(g,x,y,col)}}
+function dOut(g){const o=g.d.slice();for(let y=0;y<DH;y++)for(let x=0;x<DW;x++){if(g.d[y*DW+x])continue;for(const[dx,dy]of[[0,1],[0,-1],[1,0],[-1,0]]){const X=x+dx,Y=y+dy;if(X<0||Y<0||X>=DW||Y>=DH)continue;if(g.d[Y*DW+X]){o[y*DW+x]='#0b0614';break}}}g.d=o}
+const lerp=(a,b,t)=>a+(b-a)*t,lp2=(A,B,t)=>[lerp(A[0],B[0],t),lerp(A[1],B[1],t)];
+const WUP={E:[34,14],F:[[4,4],[16,-4],[32,-6],[48,4]]},WMID={E:[30,28],F:[[6,22],[10,36],[20,44],[32,46]]},WDN={E:[34,44],F:[[16,60],[24,66],[34,66],[42,60]]};
+function dWing(g,w,ox,oy,D,dark){const A=[46+ox,44+oy],P0=w>=0?WMID:WDN,P1=w>=0?WUP:WMID,t=w>=0?w:w+1,sh=(v,j)=>v+(j?oy:ox);const E=lp2(P0.E,P1.E,t).map(sh),F=P0.F.map((f,i)=>lp2(f,P1.F[i],t).map(sh));
+  const m=dark?D.mem[0]:D.mem[1],m2=dark?D.mem[0]:D.mem[2];dT(g,A,E,F[0],m2);for(let i=0;i<3;i++)dT(g,A,F[i],F[i+1],i%2?m2:m);dT(g,A,F[3],[A[0]+6,A[1]+3],m);
+  if(!dark)for(let i=0;i<3;i++){const M=lp2(F[i],F[i+1],.5),v=[M[0]-A[0],M[1]-A[1]],L=Math.hypot(...v)||1;dT(g,F[i],F[i+1],[M[0]-v[0]/L*5,M[1]-v[1]/L*5],null)}
+  const bc=dark?D.body[1]:D.bone;dL(g,A[0],A[1],E[0],E[1],3,bc);F.forEach(f=>dL(g,E[0],E[1],f[0],f[1],1,bc));dL(g,E[0],E[1],E[0]-2,E[1]-3,1,D.horn)}
+function dLeg(g,hx,hy,fx,fy,R,claw,th){dE(g,hx,hy,th+1.5,th+2.5,R);const kx=(hx+fx)/2-1,ky=(hy+fy)/2+1;dL(g,hx,hy,kx,ky,th,R[1]);dL(g,kx,ky,fx,fy,th-1,R[1]);dL(g,fx-3,fy,fx+2,fy,2,R[1]);dP(g,fx-4,fy,claw);dP(g,fx-2,fy+.4,claw);dP(g,fx,fy+.4,claw)}
+function dragonCanvas(k,p){const D=DRG[k],g=dgN(),by=p.by,G0=DGY-1-DOY,far=[D.body[0],D.body[0],D.body[1],D.body[1]];
+  dWing(g,p.wing,9,-3,D,1);
+  dLeg(g,36,54+by,34-p.fl*6+p.st,G0,far,D.claw,4);dLeg(g,56,54+by,57-p.st,G0,far,D.claw,4);
+  let tx=58,ty=50+by;for(let i=0;i<11;i++){const nx=tx+2.4,ny=ty+(i<4?.6:-1.3)+Math.sin(p.tail+i*.75)*1.1,w=Math.max(1.5,6-i*.45);dL(g,tx,ty,nx,ny,w,D.body[i<6?1:2]);if(i%2===0&&i<9)dT(g,[tx,ty-w/2],[tx+2,ty-w/2-2.5],[tx+3,ty-w/2],D.horn);tx=nx;ty=ny}
+  dT(g,[tx-1,ty-4],[tx+7,ty-1],[tx-1,ty+3],D.body[2]);dT(g,[tx,ty-2],[tx+4,ty-1],[tx,ty+1],D.horn);
+  dE(g,46,50+by,15.5,10,D.body);dE(g,44,55+by,12,4.5,D.belly);for(let x=36;x<=58;x+=4)dT(g,[x-2,41+by+Math.abs(x-47)*.12],[x,37+by+Math.abs(x-47)*.12],[x+2,41+by+Math.abs(x-47)*.12],D.horn);
+  dLeg(g,38,55+by,35-p.fl*14+p.st*.6,G0-p.fl*13,D.body,D.claw,5);dLeg(g,57,55+by,60+p.st,G0,D.body,D.claw,5);dE(g,56,51+by,6,7,D.body);
+  const cs=Math.cos(p.nk),s2=Math.sin(p.nk),bx=36,bY=46+by,rot=(x,y)=>[bx+(x-bx)*cs-(y-bY)*s2,bY+(x-bx)*s2+(y-bY)*cs];
+  const Q=t=>{const u=1-t;return rot(u*u*bx+2*u*t*26+t*t*24,u*u*bY+2*u*t*(bY-4)+t*t*(bY-18))};
+  for(let i=0;i<=14;i++){const[x,y]=Q(i/14);dE(g,x,y,5-i*.1,4.6-i*.08,D.body)}for(let i=1;i<14;i++){const[x,y]=Q(i/14);dP(g,x-3.5,y+.5,D.belly[1]);dP(g,x-3,y+1.5,D.belly[2])}
+  const[hx,hy]=Q(1.12),j=p.jaw*4;
+  dE(g,hx-9,hy+3+j,6,2.2,D.belly);if(j>.6){dE(g,hx-8,hy+1.5+j*.5,5.5,j*.5+.6,['#2a0618','#5a1032','#7a1a46']);for(const x of[-13,-10,-7])dP(g,hx+x,hy+1.2,D.claw)}
+  dE(g,hx,hy,7,5.4,D.body);dE(g,hx-8,hy-.2,7,3,D.body);dP(g,hx-14,hy-1,D.body[0]);dP(g,hx-13,hy-2,D.body[0]);
+  dL(g,hx-4,hy-4,hx+1,hy-4.5,1,D.body[3]);dP(g,hx-2,hy-2,D.eye);dP(g,hx-1,hy-2,D.eye);dP(g,hx-1,hy-3,'#ffffff');
+  dL(g,hx+3,hy-4,hx+13,hy-10,2,D.horn);dL(g,hx+11,hy-9,hx+15,hy-10,1,D.horn);dL(g,hx+4,hy-1,hx+12,hy-3,1,D.horn);for(const d of[0,3,6])dT(g,[hx+5+d,hy+2],[hx+8+d,hy+5],[hx+7+d,hy+1],D.mem[2]);
+  dWing(g,p.wing,0,0,D,0);
+  dOut(g);const c=document.createElement('canvas');c.width=DW;c.height=DH;const x=c.getContext('2d'),im=x.createImageData(DW,DH);
+  g.d.forEach((v,i)=>{if(!v)return;const n=parseInt(v.slice(1),16);im.data[i*4]=n>>16;im.data[i*4+1]=n>>8&255;im.data[i*4+2]=n&255;im.data[i*4+3]=255});x.putImageData(im,0,0);return c}
+const DRC={};let DRN=0;
+function dragonImg(k,p){const q=v=>Math.round(v*4)/4,key=[k,q(p.by),q(p.wing),q(p.fl),q(p.jaw),q(p.nk),Math.round(p.st),q(p.tail%6.28)].join();
+  if(!DRC[key]){if(++DRN>500){for(const z in DRC)delete DRC[z];DRN=0}DRC[key]=dragonCanvas(k,p)}return DRC[key]}
+function dragonPose(f){const t=G.t,A=f.act,p={by:Math.sin(t*3)*.8,wing:.05+Math.sin(t*2)*.15,fl:0,jaw:0,nk:0,st:0,tail:t*2.4};
+  if(f.st==='walk'){p.st=Math.sin(f.walk*Math.PI*2)*2;p.by=Math.abs(Math.sin(f.walk*Math.PI*2))*-1}
+  if(f.st==='atk'&&f.mv){const k=Math.min(1,f.t/f.mv.dur),s=Math.sin(k*Math.PI);if(/Bite/.test(f.mv.n)){p.nk=k<.35?.25*(k/.35):-.55*s;p.jaw=k<.45?k/.45:Math.max(0,1-(k-.45)*4);p.by+=s*1.5}else{p.nk=k<.4?.35*(k/.4):-.8*s;p.jaw=.15;p.by+=s*2.5;p.wing=.1-.3*s}}
+  if(f.st==='hurt'||f.st==='launch'){p.nk=.35;p.by=1;p.wing=-.2}
+  if(A&&A.k==='br'){const k=A.t;p.nk=k<.5?.4*(k/.5):-.25;p.jaw=k<.5?0:1;p.wing=.2;p.by=k<.5?-1:1}
+  if(A&&A.k==='fly'){p.wing=Math.sin(t*16);p.fl=.5;p.st=-2}
+  if(f.st==='ko'){p.wing=-1;p.nk=.6;p.jaw=.5}
+  if(f.st==='win'){p.nk=-.2+Math.sin(t*2)*.05;p.jaw=1;p.wing=.45+Math.sin(t*3)*.1;p.by=0}
+  return p}
+function drawDragon(g,f){const D=DRG[f.drg],img=dragonImg(f.drg,dragonPose(f)),x=Math.round(f.x),y=GY-f.y,s=f.face>0?-1:1;g.save();g.translate(x,y);
+  if(f.st==='ko'){g.globalAlpha=Math.max(0,1-Math.max(0,f.t-1.2));g.rotate(-s*Math.min(.5,f.t*.8))}
+  if(f.flash>0)g.translate(Math.sin(G.t*90)*1,0);g.scale(s,1);
+  g.fillStyle='#00000055';g.beginPath();g.ellipse(4,0,30,3.5,0,0,7);g.fill();
+  if(f.act&&f.act.k==='fly'&&f.y>2){g.globalAlpha=.25;g.fillStyle=D.br;g.beginPath();g.ellipse(4,f.y,20-f.y*.2,2.5,0,0,7);g.fill();g.globalAlpha=1}
+  g.drawImage(img,-DW/2-2,-DGY);g.restore()}
+// --- pembuatan & perilaku ---
+function mkDragon(cfg){const k=cfg.mon.drg,D=DRG[k],L=cfg.lv||D.lv,f=mkFighter({look:PROF.look,w:startW[0],set:'none',lv:L},1),MV=MOVES.pedang;
+  const M=Object.assign({},MV,{list:[{n:'Bite',dur:.55,a0:.24,a1:.34,reach:40,dmg:1.3,kb:120,stun:.45,lunge:20,th:[0,0]},{n:'Head Bash',dur:.6,a0:.28,a1:.38,reach:38,dmg:1.35,kb:170,stun:.5,lunge:24,th:[0,0]},{n:'Bite',dur:.55,a0:.24,a1:.34,reach:40,dmg:1.3,kb:130,stun:.45,lunge:20,th:[0,0],fin:1}],
+    air:{n:'Bite',dur:.55,a0:.24,a1:.34,reach:38,dmg:1.2,kb:110,stun:.4,lunge:10,th:[0,0],air:1},heavy:{n:'Crushing Bite',dur:.85,a0:.42,a1:.54,reach:42,dmg:2.3,kb:230,lift:100,stun:.8,lunge:36,th:[0,0],fin:1,heavy:1},idle:30});
+  const hp=Math.round(f.maxHp*4.5);return Object.assign(f,{mon:{drg:1,sc:2},drg:k,M,maxHp:hp,hp,atk:f.atk*1.05,hw:18,bonus:{},sk:null,face:-1,brCD:3,flyCD:11,act:null})}
+{const m=mkMon;mkMon=function(cfg){return cfg.mon&&cfg.mon.drg?mkDragon(cfg):m(cfg)}}
+{const d=drawFighter;drawFighter=function(g,f){return f.drg?drawDragon(g,f):d(g,f)}}
+function dragonTick(f,dt){const D=DRG[f.drg],o=opp(f);if(f.st==='win'){f.hover=1;f.y=0;f.vy=0;f.vx=0;f.act=null;if(Math.random()<.6){const mx=f.x+f.face*36,my=GY-40;fx({x:mx+rnd(-2,2),y:my+rnd(-2,2),vx:f.face*rnd(40,90),vy:rnd(-25,5),l:.5,s:rnd(1.2,2.4),c:Math.random()<.5?D.br:D.br2,k:'ci'})}return}if(f.st==='ko'){f.hover=0;f.act=null;return}if(f.st==='launch'||f.st==='hurt'){f.st='idle';f.vy=0;f.vx*=.3}f.stun=0;if(f.st==='down')f.st='idle';
+  if(G.st!=='fight'){f.act=null;f.hover=0;return}
+  const A=f.act,mouth=()=>[f.x+f.face*36,GY-f.y-40];
+  if(!A){f.brCD-=dt;f.flyCD-=dt;if(['idle','walk'].includes(f.st)){if(f.flyCD<=0){f.act={k:'fly',t:0,ph:0};f.flyCD=13+Math.random()*3;txt(f.x,GY-60,'🐉 Sky Crash','#ffe26a',6.5,1.2)}else if(f.brCD<=0&&Math.abs(o.x-f.x)<110){f.act={k:'br',t:0,n:0};f.brCD=5+Math.random()*2;f.face=Math.sign(o.x-f.x)||f.face;txt(f.x,GY-60,'🐉 '+D.n.split(' ')[0]+' Breath','#ffe26a',6.5,1.2)}}return}
+  A.t+=dt;if(f.st==='atk')f.st='idle';f.inp.mv=0;f.inp.atk=0;f.inp.hv=0;f.vx=0;
+  if(A.k==='br'){if(A.t<.5){if(Math.random()<.5)fx({x:mouth()[0],y:mouth()[1],l:.3,s:1.4,c:D.br,k:'ci',vy:-10})}
+    else if(A.t<1.4){if(A.t-.5>A.n*.11){A.n++;const[mx,my]=mouth();G.proj.push({x:mx,y:my,vx:f.face*(130+Math.random()*30),vy:rnd(-12,22),g:0,owner:f,kind:'fire',r:3.2,aoe:0,homing:0,life:1.1,c:A.n%2?D.br:D.br2,mv:{n:D.n+' Breath',dmg:.42,kb:40,lift:0,stun:.15,fin:0,heavy:0,ranged:1}});G.shake=Math.max(G.shake,1.5)}}
+    else f.act=null}
+  else if(A.k==='fly'){f.hover=1;if(A.t<.7){f.y=lerp(f.y,34,dt*5)}else if(A.t<1.5){f.y=34+Math.sin(A.t*8)*2;f.x+=(o.x-f.x)*Math.min(1,dt*2.6);f.face=Math.sign(o.x-f.x)||f.face}
+    else{f.y-=260*dt;if(f.y<=0){f.y=0;f.hover=0;f.act=null;G.shake=7;SND.boom&&SND.boom();ring(f.x,GY-2,D.br,30,.45,3);dust(f.x,8);burst(f.x,GY-4,D.br2,14,.16);
+      if(Math.abs(o.x-f.x)<28&&o.y<10&&o.invul<=0&&!['ko','down'].includes(o.st))resolveHit(f,o,{n:'Sky Crash',dmg:2.2,kb:200,lift:140,stun:.7,fin:1,heavy:1},Math.sign(o.x-f.x)||1)}}}}
+{const s=skTick;skTick=function(f,dt){if(f.drg)return dragonTick(f,dt);return s(f,dt)}}
+function devDragon(k){closeSheet();SND.init();startMatch({a:myCfg(),b:{mon:{drg:k},lv:DRG[k].lv},diff:1,arena:Math.max(0,ZONES.findIndex(z=>/pantai|coral|beach/i.test(z.id||z.n||''))),mode:'prac',na:PROF.name,nb:DRG[k].n})}
 
 </script>
 </body></html>
