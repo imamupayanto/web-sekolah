@@ -324,6 +324,7 @@ body,#app{background:#120b28}
 .pardn{display:flex;align-items:center;gap:8px;font-size:18px}.pardm{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.pardm span{background:#0006;border-radius:9px;padding:3px 8px;font-size:12px;color:#aab}.pardm span.ok{color:#7fffb0}.pardb .go{width:100%}.pardb small{font-size:11px;color:#b8c0d8}
 .pahud{position:absolute;left:50%;top:44px;transform:translateX(-50%);z-index:6;background:#0a1430d0;border:1.5px solid #5ad0ff;border-radius:10px;padding:3px 8px;display:flex;flex-wrap:wrap;align-items:center;gap:5px;width:min(92%,330px);font-size:10px;color:#fff;pointer-events:none}
 .pahud i{flex:1;height:7px;background:#0008;border-radius:4px;overflow:hidden}.pahud s{display:block;height:100%;background:linear-gradient(90deg,#ff5a3a,#ffb83a);transition:width .2s}.pahud div{width:100%;display:flex;gap:6px;justify-content:center}.pahud em{font-style:normal;color:#ffe680}.pahud em.d{color:#7fffb0}.pahud em.k{color:#ff8a7a}.pahud em.x{color:#888}
+.gver{position:absolute;right:8px;bottom:6px;font-size:10px;color:#ffffff88;z-index:5;pointer-events:none}
 </style></head>
 <body><div id="app">
 
@@ -337,7 +338,7 @@ body,#app{background:#120b28}
   <div class="hide"><button id="lAdv"><small id="lAdvS"></small></button><button id="lDuel"><small id="lRank"></small><i id="lRankBar"></i></button></div>
 </section>
 
-<section id="scTitle" class="sc"><canvas id="tiCv"></canvas><div class="tiwrap"><div class="tilogo px"><b>LUMIMON</b><span>: KNIGHT :</span><small>Duel · Adventure · Belajar</small></div><div class="tibtn"><button id="tiGo" class="go px">▶ Lanjutkan</button><button id="tiNew" class="ghost px">✦ Main Baru</button><button id="tiSet" class="ghost">⚙ Settings</button></div></div></section>
+<section id="scTitle" class="sc"><div class="gver" id="gVer"></div><canvas id="tiCv"></canvas><div class="tiwrap"><div class="tilogo px"><b>LUMIMON</b><span>: KNIGHT :</span><small>Duel · Adventure · Belajar</small></div><div class="tibtn"><button id="tiGo" class="go px">▶ Lanjutkan</button><button id="tiNew" class="ghost px">✦ Main Baru</button><button id="tiSet" class="ghost">⚙ Settings</button></div></div></section>
 <section id="scProlog" class="sc"><canvas id="prCv"></canvas><div class="prbox"><p id="prT"></p><div class="prdots" id="prDots"></div><button id="prGo" class="go px hide">⚔ Jadilah Ksatria</button></div><button id="prSkip">Lewati ▸▸</button></section>
 <section id="scMake" class="sc"><div class="mkbox"><div class="logo px"><i data-ic="gem" data-sz="34"></i><b>LUMIMON</b><small>: KNIGHT :</small></div><h2 class="px">Buat Karakter</h2><div class="mkpv"><canvas id="mkPv" width="150" height="158"></canvas></div>
 <div id="mkEd"></div><div class="row2"><label>Nama</label><input id="mkN" maxlength="12" placeholder="Tulis namamu" oninput="this.classList.remove('err')"></div>
@@ -3660,7 +3661,7 @@ function openTab(k){SND.init();const P=PROF;if(k==='char'||k==='hero')return ope
     <p>💪 <b>Keunggulan senjata</b>:</p><table>${Object.keys(ADV).map(t=>`<tr><td>${TN[t]}</td><td>${ADV[t].length?'unggul atas '+ADV[t].map(x=>TN[x]).join(', '):'netral'}</td></tr>`).join('')}</table>
     <p>💎 <b>Rarity</b>: Common → Rare → Epic → Legendary → Mythic. Makin langka makin kuat. Armor Abyss punya bonus set khusus.</p>
     <p>🎁 <b>Chest</b>: isinya sudah terlihat sebelum dibuka — tidak ada untung-untungan.</p></div>`)}
-  else if(k==='set'){sheet('⚙️ Settings',`<button class="ghost" onclick="closeSheet();G.scr='sel';G.lob=0;show('scSel')">🛠️ Free Training (atur 2 petarung)</button><div class="row2"><label>Nama</label><b>${esc(P.name)}</b></div>
+  else if(k==='set'){sheet('⚙️ Settings',`<button class="ghost" onclick="closeSheet();G.scr='sel';G.lob=0;show('scSel')">🛠️ Free Training (atur 2 petarung)</button><div class="row2"><label>Nama</label><b>${esc(P.name)}</b></div><div class="row2"><label>Versi game</label><b>${typeof GAMEV!=="undefined"?GAMEV:""}</b></div>
     <div class="row2"><label>Suara</label><button class="mini" id="stS">${SND.on?'🔊 Nyala':'🔇 Mati'}</button></div>
     <div class="note">💡 Knowledge Orb (nyala/tidur) diatur di <b>Banyan Park</b> di tengah kota.</div>
     <div class="row2"><label>🧪 Developer Mode</label><button class="mini ${DEV.on?'':'off'}" id="stD">${DEV.on?'✅ Nyala':'Mati'}</button></div>${DEV.on?'<button class="ghost" onclick="openDev()">🧪 Buka panel pengembang</button>':''}
@@ -4245,18 +4246,20 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
+const GAMEV='v48';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
 const lvMe=()=>PROF.kcode||('T'+knTok().slice(0,7));
-function lvPayload(){const c=myCfg();return{n:PROF.name||'Ksatria',lk:PROF.look,eq:c.eq,w:c.w,lv:PROF.lv,x:Math.round(TWN.x),tx:Math.round(TJ.mv?Math.max(8,Math.min(TW-8,TWN.x+TJ.mv*150)):TWN.tx==null?TWN.x:TWN.tx)}}
-async function townJoin(){if(LV.ch||document.hidden)return;await knSync();const sb=await sbClient();if(!sb||G.scr!=='town'||LV.ch)return;LV.me=lvMe();
+function lvPayload(){const c=myCfg();return{v:GAMEV,n:PROF.name||'Ksatria',lk:PROF.look,eq:c.eq,w:c.w,lv:PROF.lv,x:Math.round(TWN.x),tx:Math.round(TJ.mv?Math.max(8,Math.min(TW-8,TWN.x+TJ.mv*150)):TWN.tx==null?TWN.x:TWN.tx)}}
+async function sbFresh(sb,name){if(LV.rm)await LV.rm.catch(()=>{});for(const c of sb.getChannels())if(c.topic==='realtime:'+name)try{await sb.removeChannel(c)}catch(e){}}
+async function townJoin(){if(LV.ch||LV.joining||document.hidden)return;LV.joining=1;try{await knSync();const sb=await sbClient();if(!sb||G.scr!=='town'||LV.ch)return;LV.me=lvMe();await sbFresh(sb,'kn-town-'+knKelas());if(G.scr!=='town'||LV.ch||document.hidden)return;
   const ch=LV.ch=sb.channel('kn-town-'+knKelas(),{config:{broadcast:{self:false},presence:{key:LV.me}}});
   ch.on('presence',{event:'sync'},()=>{if(ch===LV.ch)lvSync()});
   ch.on('broadcast',{event:'inv'},({payload:p})=>{if(ch===LV.ch&&p&&p.to===LV.me)lvGotInvite(p)});
   ch.on('broadcast',{event:'ans'},({payload:p})=>{if(ch===LV.ch&&p&&p.to===LV.me)lvGotAnswer(p)});
-  ch.subscribe(st=>{if(st==='SUBSCRIBED'&&ch===LV.ch){LV.lastTrack=Date.now();ch.track(lvPayload()).catch(()=>{})}})}
-function townLeave(){const ch=LV.ch;LV.ch=null;LV.gh={};if(ch&&LV.sb){try{ch.untrack()}catch(e){}try{LV.sb.removeChannel(ch)}catch(e){}}}
+  ch.subscribe(st=>{if(ch!==LV.ch)return;if(st==='SUBSCRIBED'){LV.lastTrack=Date.now();ch.track(lvPayload()).catch(()=>{})}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){townLeave();setTimeout(()=>{if(G.scr==='town')townJoin()},3000)}})}finally{LV.joining=0}}
+function townLeave(){const ch=LV.ch;LV.ch=null;LV.gh={};if(ch&&LV.sb){try{ch.untrack()}catch(e){}try{LV.rm=Promise.resolve(LV.sb.removeChannel(ch))}catch(e){}}}
 // posisi dikirim hanya saat mengetuk tujuan, jeda minimal 3 detik (yang dikirim tujuan terakhir)
 function lvMove(){if(!LV.ch)return;clearTimeout(LV.mt);const w=Math.max(0,3000-(Date.now()-LV.lastTrack));LV.mt=setTimeout(()=>{if(!LV.ch)return;LV.lastTrack=Date.now();LV.ch.track(lvPayload()).catch(()=>{})},w)}
 function lvSync(){const st=LV.ch.presenceState(),seen={};for(const k in st){if(k===LV.me)continue;const m=st[k][st[k].length-1];if(!m)continue;seen[k]=1;let g=LV.gh[k];
@@ -4265,7 +4268,7 @@ function lvSync(){const st=LV.ch.presenceState(),seen={};for(const k in st){if(k
   for(const k in LV.gh)if(!seen[k])delete LV.gh[k]}
 function townGhosts(g,dt){for(const k in LV.gh){const o=LV.gh[k],f=o.f,d=(o.tx??o.x)-o.x;if(Math.abs(d)>1.5){const v=Math.sign(d)*46;o.x+=v*dt;f.face=Math.sign(d);f.st='walk';f.walk+=46*dt/6.5}else{f.st='idle'}f.fv=(f.fv??f.face)+(f.face-(f.fv??f.face))*Math.min(1,dt*22);f.x=o.x;f.t=(f.t||0)+dt;
   g.fillStyle='#0004';g.beginPath();g.ellipse(f.x,TGY,6,1.5,0,0,7);g.fill();g.save();g.translate(0,TGY-GY);g.globalAlpha=.95;drawFighter(g,f);g.restore()}}
-function townGhostLabels(g,Kk,ox){g.textAlign='center';for(const k in LV.gh){const o=LV.gh[k],sx=(o.x+ox)*Kk,sy=(TGY-34+(TWN.oy||0))*Kk,fs=Math.round(Kk*3.4);if(sx<-60||sx>lcv.width+60)continue;g.font=`700 ${fs}px "Pixelify Sans",system-ui,sans-serif`;const t=`${o.n} · Lv${o.lv||1}`,tw=g.measureText(t).width+fs;g.fillStyle='#0a3a6acc';g.fillRect(sx-tw/2,sy-fs*1.1,tw,fs*1.5);g.fillStyle='#bfe8ff';g.fillText(t,sx,sy)}}
+function townGhostLabels(g,Kk,ox){g.textAlign='center';for(const k in LV.gh){const o=LV.gh[k],sx=(o.x+ox)*Kk,sy=(TGY-34+(TWN.oy||0))*Kk,fs=Math.round(Kk*3.4);if(sx<-60||sx>lcv.width+60)continue;g.font=`700 ${fs}px "Pixelify Sans",system-ui,sans-serif`;const t=`${o.m&&o.m.v===GAMEV?'':'⚠ '}${o.n} · Lv${o.lv||1}`,tw=g.measureText(t).width+fs;g.fillStyle='#0a3a6acc';g.fillRect(sx-tw/2,sy-fs*1.1,tw,fs*1.5);g.fillStyle='#bfe8ff';g.fillText(t,sx,sy)}}
 function townGhostAt(wx,wy){for(const k in LV.gh){const o=LV.gh[k];if(Math.abs(o.x-wx)<9&&wy>TGY-36&&wy<TGY+4)return o}return null}
 function lvGhostMenu(o){sheet('👤 '+esc(o.n),`<div class="note">${esc(o.n)} · Lv ${o.lv||1} sedang berjalan-jalan di kota.</div>
   <button class="go px" onclick="lvInvite('${o.code}')">⚔ Ajak Live Duel</button><button class="ghost off">👥 Ajak Hunting <small>(segera hadir)</small></button>`)}
@@ -4283,7 +4286,7 @@ function lvAccept(){const p=LV.inv;LV.inv=null;clearTimeout(LV.it);$('lvInv')&&$
   LV.ch.send({type:'broadcast',event:'inv',payload:{k:'acc',to:p.from,from:LV.me,fn:PROF.name,id:p.id,cfg:myCfg()}});sheet('⚔ Live Duel','<div class="note">Menyiapkan arena…</div>');setTimeout(()=>{if(LV.wait&&LV.wait.id===p.id){LV.wait=null;sheet('⚔ Live Duel','<div class="note">Koneksi terputus. Coba lagi.</div>')}},8000)}
 function lvDecline(){const p=LV.inv;LV.inv=null;clearTimeout(LV.it);$('lvInv')&&$('lvInv').classList.add('hide');if(p&&LV.ch)LV.ch.send({type:'broadcast',event:'inv',payload:{k:'no',to:p.from,from:LV.me,fn:PROF.name,id:p.id}})}
 // ---------- Live Duel: pengundang = penentu (host), lawan menyalin keadaan host tiap 1 detik ----------
-function lvStart(role,id,peer,pname,pcfg,arena){closeSheet();const sb=LV.sb;LV.peer=peer;LV.lastSnap=Date.now();KN.fr={code:peer,name:pname};
+function lvStart(role,id,peer,pname,pcfg,arena){closeSheet();const sb=LV.sb;for(const c of sb.getChannels())if(c.topic==='realtime:kn-duel-'+id)try{sb.removeChannel(c)}catch(e){}LV.peer=peer;LV.lastSnap=Date.now();KN.fr={code:peer,name:pname};
   const dch=LV.dch=sb.channel('kn-duel-'+id,{config:{broadcast:{self:false}}});
   dch.on('broadcast',{event:'s'},({payload:p})=>{if(dch===LV.dch&&G.live==='guest')lvApplySnap(p)});
   dch.on('broadcast',{event:'e'},({payload:p})=>{if(dch===LV.dch)lvEvent(p)});dch.subscribe();
@@ -4310,6 +4313,8 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)townLeave()
 
 setInterval(()=>{if(G.scr==='town'&&TJ.mv&&typeof LV!=='undefined'&&LV.ch)lvMove()},3000);
 
+try{$('gVer').textContent='Lumimon : Knight '+GAMEV}catch(e){}
+
 // ===== Online langkah 4: Co-op Hunt (party versi C) =====
 // Maks 3 orang · pemimpin memilih pos · EXP ×0,75 · satu arena bersama, HP musuh dibagi rata
 const PA={id:null,lead:'',ch:null,pres:{},inPath:{},pick:null,st:{},list:[],me:'',final:0,al:[]};
@@ -4317,13 +4322,13 @@ const paOn=()=>!!PA.id,paLead=()=>PA.id&&PA.lead===LV.me,paInRun=()=>{const R=PR
 function paSend(k,o){if(PA.ch)try{PA.ch.send({type:'broadcast',event:'m',payload:Object.assign({k,from:LV.me,fn:PROF.name},o||{})})}catch(e){}}
 function paMembers(){return Object.keys(PA.pres)}
 function paName(c){return c===LV.me?PROF.name:(PA.pres[c]&&PA.pres[c].n)||'Teman'}
-async function paJoin(id,lead){const sb=await sbClient();if(!sb)return false;LV.me=LV.me||lvMe();paQuit(1);Object.assign(PA,{id,lead,pres:{},inPath:{},pick:null});
+async function paJoin(id,lead){const sb=await sbClient();if(!sb)return false;LV.me=LV.me||lvMe();paQuit(1);if(PA.rm)await PA.rm.catch(()=>{});for(const c of sb.getChannels())if(c.topic==='realtime:kn-party-'+id)try{await sb.removeChannel(c)}catch(e){}Object.assign(PA,{id,lead,pres:{},inPath:{},pick:null,seenLead:0});
   const ch=PA.ch=sb.channel('kn-party-'+id,{config:{broadcast:{self:false},presence:{key:LV.me}}});
   ch.on('presence',{event:'sync'},()=>{if(ch!==PA.ch)return;const s=ch.presenceState(),P={};for(const k in s){const m=s[k][s[k].length-1];if(m)P[k]=m}const gone=Object.keys(PA.pres).filter(k=>!P[k]);PA.pres=P;gone.forEach(paGone);if(PA.id&&!P[PA.lead]&&PA.seenLead)paLeadGone();if(P[PA.lead])PA.seenLead=1;paChip()});
   ch.on('broadcast',{event:'m'},({payload:p})=>{if(ch===PA.ch&&p)paMsg(p)});
   ch.subscribe(st=>{if(st==='SUBSCRIBED'&&ch===PA.ch)ch.track({n:PROF.name||'Ksatria',lv:PROF.lv,cfg:myCfg()}).catch(()=>{})});paChip();return true}
 function paQuit(silent){if(!PA.id)return;if(!silent)paSend(paLead()?'bye':'lv');const ch=PA.ch;PA.ch=null;PA.id=null;PA.pres={};PA.inPath={};PA.seenLead=0;paRdyHide();
-  if(ch&&LV.sb){try{ch.untrack()}catch(e){}try{LV.sb.removeChannel(ch)}catch(e){}}const R=PR();if(R&&R.party){delete R.party;saveP()}paChip()}
+  if(ch&&LV.sb){try{ch.untrack()}catch(e){}try{PA.rm=Promise.resolve(LV.sb.removeChannel(ch))}catch(e){}}const R=PR();if(R&&R.party){delete R.party;saveP()}paChip()}
 function paLeadGone(){clearTimeout(PA.lgT);PA.lgT=setTimeout(()=>{if(PA.id&&!PA.pres[PA.lead]&&!paLead()){paQuit(1);toastP('📶 Leader party terputus. Kamu lanjut sendiri.')}},15000)}
 function toastP(t){const b=$('paToast')||Object.assign(document.createElement('div'),{id:'paToast',className:'patoast'});document.body.appendChild(b);b.innerHTML=t;b.classList.remove('hide');clearTimeout(PA.tt);PA.tt=setTimeout(()=>b.classList.add('hide'),3200)}
 // ---------- chip party (kota / peta / jalur) ----------
@@ -4338,18 +4343,19 @@ function paSheet(){const M=paMembers();sheet('👥 Party Hunting',`<div class="n
 // ---------- undangan lewat saluran kota ----------
 function paInvite(code){if(!LV.ch)return;if(PA.id&&!paLead())return sheet('👥 Party','<div class="note">Hanya pemimpin party yang bisa mengajak.</div>');
   if(PA.id&&paMembers().length>=3)return sheet('👥 Party','<div class="note">Party sudah penuh (3 orang).</div>');
-  const go=()=>{const id=PA.id;LV.ch.send({type:'broadcast',event:'inv',payload:{k:'pinv',to:code,from:LV.me,fn:PROF.name,pid:id,lv:PROF.lv}});sheet('👥 Co-op Hunt',`<div class="note">Ajakan terkirim ke <b>${esc((LV.gh[code]||{}).n||'teman')}</b>. Menunggu jawaban…</div>`)};
-  if(!PA.id)paJoin(Math.random().toString(36).slice(2,10),LV.me).then(ok=>ok&&go());else go()}
+  const pid=PA.id||Math.random().toString(36).slice(2,10);PA.pend={to:code,pid,t:Date.now()};LV.ch.send({type:'broadcast',event:'inv',payload:{k:'pinv',to:code,from:LV.me,fn:PROF.name,pid,lv:PROF.lv}});
+  sheet('👥 Co-op Hunt',`<div class="note">Ajakan terkirim ke <b>${esc((LV.gh[code]||{}).n||'teman')}</b>. Menunggu jawaban… <span id="paCd2">15</span> dtk</div><button class="ghost" onclick="PA.pend=null;closeSheet()">Batal</button>`);
+  let n=15;clearInterval(PA.pi);PA.pi=setInterval(()=>{n--;const e=$('paCd2');if(e)e.textContent=n;if(!PA.pend||PA.pend.pid!==pid)return clearInterval(PA.pi);if(n<=0){clearInterval(PA.pi);PA.pend=null;sheet('👥 Co-op Hunt','<div class="note">Temanmu belum menjawab. Coba lagi nanti.</div>')}},1000)}
 {const g=lvGotInvite;lvGotInvite=function(p){
-  if(p.k==='pinv'){if(G.scr!=='town'||PA.id){LV.ch.send({type:'broadcast',event:'inv',payload:{k:'pno',to:p.from,from:LV.me,fn:PROF.name}});return}
+  if(p.k==='pinv'){if(G.scr!=='town'||(PA.id&&paMembers().length>1)){LV.ch.send({type:'broadcast',event:'inv',payload:{k:'pno',to:p.from,from:LV.me,fn:PROF.name}});return}
     PA.inv=p;const b=$('lvInv')||Object.assign(document.createElement('div'),{id:'lvInv',className:'lvinv'});document.body.appendChild(b);
     b.innerHTML=`<b>👥 ${esc(p.fn)}</b> (Lv ${p.lv||1}) mengajakmu <b>Co-op Hunt</b>!<div><button class="go px" onclick="paAccept()">Ikut</button><button class="ghost" onclick="paDecline()">Tolak</button></div>`;b.classList.remove('hide');clearTimeout(PA.it);PA.it=setTimeout(paDecline,15000);SND.ok&&SND.ok();return}
-  if(p.k==='pacc'){toastP(`👥 <b>${esc(p.fn)}</b> masuk party!`);closeSheet();return}
-  if(p.k==='pno'){sheet('👥 Co-op Hunt',`<div class="note">${esc(p.fn)} sedang tidak bisa ikut.</div>`);return}
+  if(p.k==='pacc'){const pd=PA.pend;if(!pd||pd.pid!==p.pid)return;PA.pend=null;clearInterval(PA.pi);closeSheet();const done=()=>toastP(`👥 <b>${esc(p.fn)}</b> masuk party!`);if(PA.id===p.pid)done();else paJoin(p.pid,LV.me).then(ok=>ok?done():toastP('📶 Gagal membuat party. Coba lagi.'));return}
+  if(p.k==='pno'){if(!PA.pend)return;PA.pend=null;clearInterval(PA.pi);sheet('👥 Co-op Hunt',`<div class="note">${esc(p.fn)} sedang tidak bisa ikut.</div>`);return}
   return g(p)}}
-function paAccept(){const p=PA.inv;PA.inv=null;clearTimeout(PA.it);$('lvInv')&&$('lvInv').classList.add('hide');if(!p)return;paJoin(p.pid,p.from).then(ok=>{if(ok&&LV.ch)LV.ch.send({type:'broadcast',event:'inv',payload:{k:'pacc',to:p.from,from:LV.me,fn:PROF.name}});toastP(`👥 Kamu masuk party <b>${esc(p.fn)}</b>. Tunggu ia memilih zona.`)})}
+function paAccept(){const p=PA.inv;PA.inv=null;clearTimeout(PA.it);$('lvInv')&&$('lvInv').classList.add('hide');if(!p)return;paJoin(p.pid,p.from).then(ok=>{if(ok&&LV.ch)LV.ch.send({type:'broadcast',event:'inv',payload:{k:'pacc',to:p.from,from:LV.me,fn:PROF.name,pid:p.pid}});if(!ok){toastP('📶 Gagal bergabung. Coba lagi.');return}toastP(`👥 Kamu masuk party <b>${esc(p.fn)}</b>. Tunggu ia memilih zona.`)})}
 function paDecline(){const p=PA.inv;PA.inv=null;clearTimeout(PA.it);$('lvInv')&&$('lvInv').classList.add('hide');if(p&&LV.ch)LV.ch.send({type:'broadcast',event:'inv',payload:{k:'pno',to:p.from,from:LV.me,fn:PROF.name}})}
-lvGhostMenu=function(o){sheet('👤 '+esc(o.n),`<div class="note">${esc(o.n)} · Lv ${o.lv||1} sedang berjalan-jalan di kota.</div>
+lvGhostMenu=function(o){const old=!o.m||o.m.v!==GAMEV;if(old)return sheet('👤 '+esc(o.n),`<div class="note">${esc(o.n)} · Lv ${o.lv||1}</div><div class="note" style="color:#ff8a7a">⚠ ${esc(o.n)} memakai versi game yang berbeda (${esc(o.m&&o.m.v||'lama')}, kamu ${GAMEV}). Minta ia menutup lalu membuka ulang game (atau tarik layar ke bawah untuk muat ulang) supaya bisa duel & party bersama.</div>`);sheet('👤 '+esc(o.n),`<div class="note">${esc(o.n)} · Lv ${o.lv||1} sedang berjalan-jalan di kota.</div>
   <button class="go px" onclick="lvInvite('${o.code}')">⚔ Ajak Live Duel</button><button class="go px" style="background:linear-gradient(#7ad0ff,#2a7ad8)" onclick="paInvite('${o.code}')">👥 Ajak Co-op Hunt</button>`)};
 // ---------- pesan party ----------
 function paMsg(p){const R=PR();switch(p.k){
