@@ -272,6 +272,7 @@ body,#app{background:#120b28}
 .bxg{position:absolute;width:200px;height:200px;border-radius:50%;background:conic-gradient(from 0deg,transparent,var(--rc),transparent 30%,var(--rc),transparent 60%,var(--rc),transparent 90%);-webkit-mask:radial-gradient(circle,#000 20%,transparent 70%);mask:radial-gradient(circle,#000 20%,transparent 70%);animation:krot 5s linear infinite;opacity:.9}
 .bxo.open .bxs{animation:bxpop .35s forwards}.bxo.open .bxr{animation:bxin .5s .15s forwards}
 @keyframes bxsh{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg) translateY(-2px)}}@keyframes bxpop{to{transform:scale(1.8);opacity:0;filter:brightness(3)}}@keyframes bxin{to{opacity:1;transform:scale(1)}}
+.lvinv{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:70;background:linear-gradient(#2a1f60,#1d1540);border:2px solid #ffe680;border-radius:14px;padding:10px 14px;color:#fff;font-size:14px;text-align:center;box-shadow:0 6px 20px #000a;animation:kin .3s ease-out;width:min(92vw,360px)}.lvinv div{display:flex;gap:8px;margin-top:8px}.lvinv button{flex:1;padding:8px}.lvinv.hide{display:none}
 #app{display:flex;flex-direction:column;height:100%}
 .shh .pxi{display:inline-block;vertical-align:-4px;margin-right:2px}
 .cvw{position:relative;margin:0 auto;max-width:100%}.cvw::after{content:"";position:absolute;left:0;right:0;bottom:0;height:26px;background:linear-gradient(transparent,var(--gd,#4a3418));pointer-events:none}#zOv{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none}
@@ -4093,7 +4094,7 @@ function townOpen(){G.scr='town';TWN.f=null;TWN.tx=null;TWN.go=null;show('scLobb
 {const gl=goLobby;goLobby=function(){gl.apply(this,arguments);townOpen()}}
 function tEnter(id){SND.init&&SND.init();({gate:()=>openWorld(),wpn:()=>openStall('w'),arm:()=>openStall('ar'),acc:()=>openStall('acc'),smith:openSmith,park:()=>korbOpen(),box:openBoxShop})[id]()}
 lcv.addEventListener('pointerdown',e=>{if(G.scr!=='town')return;e.stopPropagation();const r=lcv.getBoundingClientRect(),wx=TWN.cam+((e.clientX-r.left)/r.width-.5)*VW,wy=(e.clientY-r.top)/r.width*VW;
-  const b=TBL.find(b=>wx>=b.x-4&&wx<=b.x+b.w+4&&wy>20&&wy<TGY);TWN.go=b?b.id:null;TWN.tx=Math.max(8,Math.min(TW-8,b?b.dx:wx));TWN.mk=.6;$('tHint').classList.add('hide')},true);
+  const gh=typeof townGhostAt==='function'&&townGhostAt(wx,wy);if(gh){lvGhostMenu(gh);return}const b=TBL.find(b=>wx>=b.x-4&&wx<=b.x+b.w+4&&wy>20&&wy<TGY);TWN.go=b?b.id:null;TWN.tx=Math.max(8,Math.min(TW-8,b?b.dx:wx));TWN.mk=.6;$('tHint').classList.add('hide');if(typeof lvMove==='function')lvMove()},true);
 (function townLoop(){requestAnimationFrame(townLoop);if(G.scr!=='town')return;const now=performance.now(),dt=Math.min(.05,(now-(TWN.lt||now))/1000);TWN.lt=now;G.t+=dt;TWN.t+=dt;
   const f=tChar(),tod=TWN.tod;if(TWN.tx!=null){const d=TWN.tx-f.x;if(Math.abs(d)<1.5){f.x=TWN.tx;TWN.tx=null;f.st='idle';f.vx=0;if(TWN.go){const id=TWN.go;TWN.go=null;f.face=1;tEnter(id)}}else{f.vx=Math.sign(d)*46;f.x+=f.vx*dt;f.face=Math.sign(d);f.st='walk';f.walk+=Math.abs(f.vx)*dt/6.5}}
   f.t=(f.t||0)+dt;TWN.x=f.x;TWN.cam+=(Math.max(VW/2,Math.min(TW-VW/2,f.x))-TWN.cam)*Math.min(1,dt*4);
@@ -4122,6 +4123,7 @@ lcv.addEventListener('pointerdown',e=>{if(G.scr!=='town')return;e.stopPropagatio
   if(tod>=2)TWN.lamps.forEach(x=>{const r=g.createRadialGradient(x+1,TGY-38,0,x+1,TGY-38,16);r.addColorStop(0,'#ffd86a88');r.addColorStop(1,'#ffd86a00');g.fillStyle=r;g.fillRect(x-15,TGY-54,32,40);g.fillStyle='#ffe8a0';g.fillRect(x,TGY-38,2,2)});
   // penanda tujuan
   if(TWN.tx!=null&&TWN.mk>0){TWN.mk-=dt;g.globalAlpha=Math.min(1,TWN.mk*2);g.strokeStyle='#ffe680';g.lineWidth=1;g.beginPath();g.ellipse(TWN.tx,TGY-1,5,1.6,0,0,7);g.stroke();g.globalAlpha=1}
+  if(typeof townGhosts==='function')townGhosts(g,dt);
   // karakter
   g.fillStyle='#0004';g.beginPath();g.ellipse(f.x,TGY,6,1.5,0,0,7);g.fill();g.save();g.translate(0,TGY-GY);drawFighter(g,f);g.restore();
   for(const p of G.fx){p.l-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=(p.g||0)*dt}G.fx=G.fx.filter(p=>p.l>0);drawFx(g);
@@ -4132,6 +4134,7 @@ lcv.addEventListener('pointerdown',e=>{if(G.scr!=='town')return;e.stopPropagatio
     g.font=`700 ${fs}px "Pixelify Sans",system-ui,sans-serif`;const tw=g.measureText(b.n).width+fs*1.4;g.fillStyle=on?'#ffe680ee':'#120b28cc';g.strokeStyle=on?'#fff':'#ffe68088';g.lineWidth=Math.max(1,Kk*.4);
     g.beginPath();g.roundRect?g.roundRect(sx-tw/2,sy-fs*1.3,tw,fs*1.9,fs*.5):g.rect(sx-tw/2,sy-fs*1.3,tw,fs*1.9);g.fill();g.stroke();g.fillStyle=on?'#2a1a00':'#ffe680';g.fillText(b.n,sx,sy);
     if(on){g.font=`${Math.round(Kk*3.2)}px sans-serif`;g.fillStyle='#fff';g.strokeStyle='#000a';g.lineWidth=Kk;g.strokeText('ketuk untuk masuk',sx,sy+fs*1.6);g.fillText('ketuk untuk masuk',sx,sy+fs*1.6)}}
+  if(typeof townGhostLabels==='function')townGhostLabels(g,Kk,ox);
   const vg=g.createLinearGradient(0,lcv.height*.88,0,lcv.height);vg.addColorStop(0,'#0d102000');vg.addColorStop(1,'#0d1020');g.fillStyle=vg;g.fillRect(0,0,lcv.width,lcv.height)})();
 addEventListener('resize',()=>{if(G.scr==='town')lfit()});
 // ===== Toko per jenis (stok harian) =====
@@ -4190,6 +4193,70 @@ async function knChallenge(code){let d=null;try{d=await knRpc('kn_build',{p_tok:
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#bAgain');if(b&&b.dataset.fr){e.stopImmediatePropagation();e.preventDefault();delete b.dataset.fr;$('ovR').classList.add('hide');goLobby();openFriends()}},true);
 // sinkron otomatis saat masuk kota (paling sering tiap 3 menit)
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
+
+// ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Duel Langsung =====
+const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
+function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
+async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
+const lvMe=()=>PROF.kcode||('T'+knTok().slice(0,7));
+function lvPayload(){const c=myCfg();return{n:PROF.name||'Ksatria',lk:PROF.look,eq:c.eq,w:c.w,lv:PROF.lv,x:Math.round(TWN.x),tx:Math.round(TWN.tx==null?TWN.x:TWN.tx)}}
+async function townJoin(){if(LV.ch||document.hidden)return;await knSync();const sb=await sbClient();if(!sb||G.scr!=='town'||LV.ch)return;LV.me=lvMe();
+  const ch=LV.ch=sb.channel('kn-town-'+knKelas(),{config:{broadcast:{self:false},presence:{key:LV.me}}});
+  ch.on('presence',{event:'sync'},()=>{if(ch===LV.ch)lvSync()});
+  ch.on('broadcast',{event:'inv'},({payload:p})=>{if(ch===LV.ch&&p&&p.to===LV.me)lvGotInvite(p)});
+  ch.on('broadcast',{event:'ans'},({payload:p})=>{if(ch===LV.ch&&p&&p.to===LV.me)lvGotAnswer(p)});
+  ch.subscribe(st=>{if(st==='SUBSCRIBED'&&ch===LV.ch){LV.lastTrack=Date.now();ch.track(lvPayload()).catch(()=>{})}})}
+function townLeave(){const ch=LV.ch;LV.ch=null;LV.gh={};if(ch&&LV.sb){try{ch.untrack()}catch(e){}try{LV.sb.removeChannel(ch)}catch(e){}}}
+// posisi dikirim hanya saat mengetuk tujuan, jeda minimal 3 detik (yang dikirim tujuan terakhir)
+function lvMove(){if(!LV.ch)return;clearTimeout(LV.mt);const w=Math.max(0,3000-(Date.now()-LV.lastTrack));LV.mt=setTimeout(()=>{if(!LV.ch)return;LV.lastTrack=Date.now();LV.ch.track(lvPayload()).catch(()=>{})},w)}
+function lvSync(){const st=LV.ch.presenceState(),seen={};for(const k in st){if(k===LV.me)continue;const m=st[k][st[k].length-1];if(!m)continue;seen[k]=1;let g=LV.gh[k];
+    if(!g){let f=null;try{f=mkFighter({look:m.lk,w:m.w||'pedang_1_1',eq:m.eq||{},lv:m.lv||1},1)}catch(e){continue}g=LV.gh[k]={f,x:m.x||300};f.x=g.x;f.y=0;f.st='idle';f.walk=0}
+    g.n=m.n;g.lv=m.lv;g.tx=m.tx;g.code=k;g.m=m}
+  for(const k in LV.gh)if(!seen[k])delete LV.gh[k]}
+function townGhosts(g,dt){for(const k in LV.gh){const o=LV.gh[k],f=o.f,d=(o.tx??o.x)-o.x;if(Math.abs(d)>1.5){const v=Math.sign(d)*46;o.x+=v*dt;f.face=Math.sign(d);f.st='walk';f.walk+=46*dt/6.5}else{f.st='idle'}f.x=o.x;f.t=(f.t||0)+dt;
+  g.fillStyle='#0004';g.beginPath();g.ellipse(f.x,TGY,6,1.5,0,0,7);g.fill();g.save();g.translate(0,TGY-GY);g.globalAlpha=.95;drawFighter(g,f);g.restore()}}
+function townGhostLabels(g,Kk,ox){g.textAlign='center';for(const k in LV.gh){const o=LV.gh[k],sx=(o.x+ox)*Kk,sy=(TGY-34)*Kk,fs=Math.round(Kk*3.4);if(sx<-60||sx>lcv.width+60)continue;g.font=`700 ${fs}px "Pixelify Sans",system-ui,sans-serif`;const t=`${o.n} · Lv${o.lv||1}`,tw=g.measureText(t).width+fs;g.fillStyle='#0a3a6acc';g.fillRect(sx-tw/2,sy-fs*1.1,tw,fs*1.5);g.fillStyle='#bfe8ff';g.fillText(t,sx,sy)}}
+function townGhostAt(wx,wy){for(const k in LV.gh){const o=LV.gh[k];if(Math.abs(o.x-wx)<9&&wy>TGY-36&&wy<TGY+4)return o}return null}
+function lvGhostMenu(o){sheet('👤 '+esc(o.n),`<div class="note">${esc(o.n)} · Lv ${o.lv||1} sedang berjalan-jalan di kota.</div>
+  <button class="go px" onclick="lvInvite('${o.code}')">⚔ Ajak Duel Langsung</button><button class="ghost off">👥 Ajak Hunting <small>(segera hadir)</small></button>`)}
+// ---------- undangan ----------
+function lvInvite(code){if(!LV.ch)return;const id=Math.random().toString(36).slice(2,10);LV.pend={id,to:code,t:Date.now()};
+  LV.ch.send({type:'broadcast',event:'inv',payload:{k:'inv',to:code,from:LV.me,fn:PROF.name,id,cfg:myCfg()}});
+  const o=LV.gh[code];sheet('⚔ Duel Langsung',`<div class="note">Menunggu jawaban <b>${esc(o?o.n:'teman')}</b>… <span id="lvCd">20</span> dtk</div><button class="ghost" onclick="LV.pend=null;closeSheet()">Batal</button>`);
+  let n=20;clearInterval(LV.ci);LV.ci=setInterval(()=>{n--;const e=$('lvCd');if(e)e.textContent=n;if(n<=0||!LV.pend){clearInterval(LV.ci);if(LV.pend&&LV.pend.id===id){LV.pend=null;sheet('⚔ Duel Langsung','<div class="note">Temanmu belum menjawab. Coba lagi nanti.</div>')}}},1000)}
+function lvGotInvite(p){if(p.k==='inv'){if(G.scr!=='town'){return}LV.inv=p;const b=$('lvInv')||Object.assign(document.createElement('div'),{id:'lvInv',className:'lvinv'});document.body.appendChild(b);
+    b.innerHTML=`<b>⚔ ${esc(p.fn)}</b> mengajakmu <b>Duel Langsung</b>!<div><button class="go px" onclick="lvAccept()">Terima</button><button class="ghost" onclick="lvDecline()">Tolak</button></div>`;b.classList.remove('hide');clearTimeout(LV.it);LV.it=setTimeout(lvDecline,15000);SND.ok&&SND.ok()}
+  else if(p.k==='acc'&&LV.pend&&p.id===LV.pend.id){clearInterval(LV.ci);LV.pend=null;LV.ch.send({type:'broadcast',event:'inv',payload:{k:'go',to:p.from,from:LV.me,id:p.id,arena:Math.random()*6|0}});lvStart('host',p.id,p.from,p.fn,p.cfg,null)}
+  else if(p.k==='no'&&LV.pend&&p.id===LV.pend.id){clearInterval(LV.ci);LV.pend=null;sheet('⚔ Duel Langsung',`<div class="note">${esc(p.fn)} sedang tidak bisa duel.</div>`)}
+  else if(p.k==='go'&&LV.wait&&p.id===LV.wait.id){const w=LV.wait;LV.wait=null;lvStart('guest',p.id,w.from,w.fn,w.cfg,p.arena)}}
+function lvAccept(){const p=LV.inv;LV.inv=null;clearTimeout(LV.it);$('lvInv')&&$('lvInv').classList.add('hide');if(!p||!LV.ch)return;LV.wait={id:p.id,from:p.from,fn:p.fn,cfg:p.cfg};
+  LV.ch.send({type:'broadcast',event:'inv',payload:{k:'acc',to:p.from,from:LV.me,fn:PROF.name,id:p.id,cfg:myCfg()}});sheet('⚔ Duel Langsung','<div class="note">Menyiapkan arena…</div>');setTimeout(()=>{if(LV.wait&&LV.wait.id===p.id){LV.wait=null;sheet('⚔ Duel Langsung','<div class="note">Koneksi terputus. Coba lagi.</div>')}},8000)}
+function lvDecline(){const p=LV.inv;LV.inv=null;clearTimeout(LV.it);$('lvInv')&&$('lvInv').classList.add('hide');if(p&&LV.ch)LV.ch.send({type:'broadcast',event:'inv',payload:{k:'no',to:p.from,from:LV.me,fn:PROF.name,id:p.id}})}
+// ---------- Duel Langsung: pengundang = penentu (host), lawan menyalin keadaan host tiap 1 detik ----------
+function lvStart(role,id,peer,pname,pcfg,arena){closeSheet();const sb=LV.sb;LV.peer=peer;LV.lastSnap=Date.now();KN.fr={code:peer,name:pname};
+  const dch=LV.dch=sb.channel('kn-duel-'+id,{config:{broadcast:{self:false}}});
+  dch.on('broadcast',{event:'s'},({payload:p})=>{if(dch===LV.dch&&G.live==='guest')lvApplySnap(p)});
+  dch.on('broadcast',{event:'e'},({payload:p})=>{if(dch===LV.dch)lvEvent(p)});dch.subscribe();
+  const SM=SEL.manual;SEL.manual=0;startMatch({a:myCfg(),b:Object.assign({},pcfg),diff:1,arena:role==='host'?(Math.random()*6|0):arena,mode:'rank',na:PROF.name,nb:pname+' 📶'});SEL.manual=SM;G.friend=peer;G.live=role;townLeave()}
+function lvSend(ev,p){if(LV.dch)try{LV.dch.send({type:'broadcast',event:ev,payload:p})}catch(e){}}
+setInterval(()=>{if(G.scr!=='fight'||!G.live)return;
+  if(G.live==='host'&&G.st!=='over'){const F=G.F;lvSend('s',{r:G.round,t:Math.round(G.time*10)/10,w:G.wins,f:F.map(f=>[Math.round(f.x),Math.round(f.y),Math.round(f.hp),Math.round(f.energy)])})}
+  if(G.live==='guest'&&G.st!=='over'&&Date.now()-LV.lastSnap>9000){G.live=null;lvEnd();sheet('📶 Duel Langsung','<div class="note warn">Koneksi dengan lawan terputus. Duel dibatalkan.</div>');goLobby()}},1000);
+function lvApplySnap(p){LV.lastSnap=Date.now();const F=G.F;if(!F)return;G.time=p.t;[[0,1],[1,0]].forEach(([mi,hi])=>{const s=p.f[hi],f=F[mi],tx=ARW-s[0];if(Math.abs(f.x-tx)>14)f.x=tx;else f.x+=(tx-f.x)*.5;f.hp=Math.max(0,s[2]);f.energy=s[3]})}
+function lvEvent(p){if(G.live!=='guest')return;if(p.k==='ko'){const l=1-p.l;LV.allowKO=1;KO(G.F[1-l],G.F[l]);LV.allowKO=0}
+  else if(p.k==='tu'){const w=p.w<0?-1:1-p.w;banner('WAKTU HABIS!','','#ffd23c',1.4,13);G.st='ko';if(w>=0){G.F[w].st='win';G.F[w].t=0}const mid=G.mid;setTimeout(()=>{if(G.mid===mid)endRound(w)},2200)}}
+function lvEnd(){const d=LV.dch;LV.dch=null;if(d&&LV.sb)try{LV.sb.removeChannel(d)}catch(e){}}
+{const k=KO;KO=function(a,d){if(G.live==='guest'&&!LV.allowKO)return;if(G.live==='host')lvSend('e',{k:'ko',l:d.side});return k(a,d)}}
+{const t=timeUp;timeUp=function(){if(G.live==='guest')return;if(G.live==='host'){const[A,B]=G.F,a=A.hp/A.maxHp,b=B.hp/B.maxHp;lvSend('e',{k:'tu',w:a===b?-1:a>b?0:1})}return t()}}
+{const r=resolveHit;resolveHit=function(a,d){if(G.live==='guest'){const h=d.hp,o=r.apply(this,arguments);d.hp=Math.max(1,h);return o}return r.apply(this,arguments)}}
+{const a=aiAns;aiAns=function(){if(G.live)return;return a()}}
+{const q=qAnswer;qAnswer=function(v){const F=G.F,e0=F&&F[0].energy;const o=q(v);if(G.live==='guest'&&F){const d=F[0].energy-e0;if(d)lvSend('e',{k:'a',d})}return o}}
+{const ev=lvEvent;lvEvent=function(p){if(p.k==='a'&&G.live==='host'&&G.F){const f=G.F[1];f.energy=Math.max(0,Math.min(100,f.energy+p.d));return}return ev(p)}}
+{const r=result;result=function(){const o=r.apply(this,arguments);if(G.live){G.live=null;setTimeout(lvEnd,1500)}return o}}
+// masuk/keluar kota
+{const t=townOpen;townOpen=function(){t.apply(this,arguments);setTimeout(townJoin,300)}}
+{const s=show;show=function(id){if(id!=='scLobby')townLeave();return s.apply(this,arguments)}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)townLeave();else if(G.scr==='town')townJoin()});
 
 // ===== Halaman awal + prolog: Lumimon : Knight =====
 const IW=180,IH=135;let INT={sc:0,t:0,run:0,typ:0,full:''};
