@@ -331,6 +331,11 @@ body,#app{background:#120b28}
 .tbtn{position:absolute;z-index:3;border-radius:50%;border:3px solid #ffffff70;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:26px;line-height:1;touch-action:none;text-shadow:0 2px 0 #0006}.tbtn small{font-size:8px;margin-top:2px}.tbtn:active{transform:translateY(3px)}
 .tatk{right:16px;bottom:30px;width:88px;height:88px;background:radial-gradient(circle at 35% 28%,#ff9a7a,#d8402a 58%,#6a1408);box-shadow:0 5px 0 #4a0a04,0 0 14px #ff6a4a66}
 .tjmp{right:112px;bottom:22px;width:62px;height:62px;font-size:22px;background:radial-gradient(circle at 35% 28%,#a8e8ff,#2a8ad8 58%,#0a3a7a);box-shadow:0 5px 0 #06204a}
+.tile.ua{box-shadow:0 0 5px var(--rc)}.tile.ub{box-shadow:0 0 10px var(--rc),inset 0 0 8px color-mix(in srgb,var(--rc) 50%,transparent)}.tile.uc{animation:upP 1.1s ease-in-out infinite alternate}.tile.um{animation:upP .8s ease-in-out infinite alternate;border-color:#ffe27a}
+.tile.um::after{content:"✦";position:absolute;left:3px;top:0;font-size:11px;color:#fff6b0;text-shadow:0 0 4px #ffd23c;animation:spin 2.4s linear infinite}
+.tile.ub b{color:#7fffb0}.tile.uc b{color:#7fd8ff}.tile.um b{color:#fff;text-shadow:0 0 4px #ffd23c,0 1px 0 #000}
+@keyframes upP{from{box-shadow:0 0 6px var(--rc)}to{box-shadow:0 0 16px var(--rc),inset 0 0 10px color-mix(in srgb,var(--rc) 55%,transparent)}}@keyframes spin{to{transform:rotate(360deg)}}
+.eqs.ua{box-shadow:0 0 5px var(--rc,#fff)}.eqs.ub{box-shadow:0 0 10px var(--rc,#fff)}.eqs.uc,.eqs.um{animation:upP 1s ease-in-out infinite alternate}
 </style></head>
 <body><div id="app">
 
@@ -2924,7 +2929,7 @@ function openChar(tab){if(tab)CHT=tab;const P=PROF,w=WPN.find(x=>x.id===P.w)||WP
   let h='';
   if(CHT==='eq'){const a=P.act&&P.act[t]&&SKI[P.act[t]]||SKT[t][0],E=eqItems();
     h=`<div class="chhead"><canvas id="chPv" width="120" height="126"></canvas><div><div class="chn">${esc(P.name)}</div><div class="chl">Lv.${P.lv} · ${WIC[t]} ${MTN[mTier((P.mas||{})[t]||0)]}</div><div class="xbar"><i style="width:${P.lv>=LVMAX?100:P.exp/needExp(P.lv)*100}%"></i></div><small>${P.lv>=LVMAX?'Level MAX':`EXP ${P.exp}/${needExp(P.lv)}`+gateTxt()}</small></div></div>
-    <div class="eqg">${GSL.map(sl=>{const it=E[sl];return`<button class="eqs" onclick="${it?`itemSheet('${it.u}')`:'openBag()'}" style="border-color:${it?RKC[it.r]:'#ffffff22'}"><span>${it?itIcon(it):GSI[sl]}</span><small>${GSN[sl]}</small><b style="color:${it?RKC[it.r]:'#667'}">${it?gi(it).n:'— kosong —'}</b></button>`}).join('')}</div>
+    <div class="eqg">${GSL.map(sl=>{const it=E[sl];return`<button class="eqs ${it?upCls(it):''}" onclick="${it?`itemSheet('${it.u}')`:'openBag()'}" style="--rc:${it?RKC[it.r]:'#fff'};border-color:${it?RKC[it.r]:'#ffffff22'}"><span>${it?itIcon(it):GSI[sl]}</span><small>${GSN[sl]}</small><b style="color:${it?RKC[it.r]:'#667'}">${it?gi(it).n:'— kosong —'}</b></button>`}).join('')}</div>
     <div class="eqc"><span class="eqi">${a.ic}</span><div><small>Skill aktif</small><b>${a.n}</b><small>${a.d} Jeda ${a.cd} dtk.</small></div></div>
     <button class="go px" onclick="openBag()">🎒 Ganti perlengkapan</button>`}
   else if(CHT==='st'){h=`<div class="note">Stat naik otomatis setiap level (HP +4%, Serangan +3%, Tahan +0,3%). Pasif bawaan terbuka di level tertentu.</div><div class="stg">${statRows().map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join('')}</div>
@@ -3518,9 +3523,9 @@ function thumb(it,sz){const key=it.s+':'+it.b+(it.s==='acc'?':'+(it.r||1):'');if
 /* ---------- drop di arena ---------- */
 function preDrop(d,silent){const A=G.F[0],pd={gold:0,items:[],sig:0};
   if(G.mode==='path'){const R=PR(),k=d.kind||'n',L=d.lv||prLv();pd.gold=Math.round((6+3*L)*{n:1,e:2.5,b:6}[k]*ZDIF[R.d].g*(1+(A.bonus.coin||0)));
-    const il=()=>L+(Math.random()<.25?1+(Math.random()*3|0):0);if(k!=='n'||Math.random()<.22+.12*R.d)pd.items.push(rollItem(rarZ(R.d,zIdx(R.z),k==='b'?1:0),null,null,il()));if(k!=='n'&&Math.random()<.3*R.d)pd.items.push(rollItem(rarZ(R.d,zIdx(R.z),0),null,null,il()));if(k==='b'&&Math.random()<.3){pd.items.push(mkItem('w',d.w.id,d.w.r,{lv:L}));pd.sig=1}
+    const il=()=>L+(Math.random()<.25?1+(Math.random()*3|0):0);if(k!=='n'||Math.random()<Math.min(1,2*(.22+.12*R.d)))pd.items.push(rollItem(rarZ(R.d,zIdx(R.z),k==='b'?1:0),null,null,il()));if(k!=='n'&&Math.random()<Math.min(1,.6*R.d))pd.items.push(rollItem(rarZ(R.d,zIdx(R.z),0),null,null,il()));if(k==='b'&&Math.random()<.3){pd.items.push(mkItem('w',d.w.id,d.w.r,{lv:L}));pd.sig=1}
     const ep=d.cfg&&d.cfg.pet;if(ep&&Math.random()<{n:.25,e:.35,b:.5}[k])pd.pet=ep;else if(Math.random()<{n:.04,e:.08,b:.15}[k])pd.pet=zonePet(R.z,k)}
-  else if(G.mode==='rank'){const ti=tierOf(PROF.rp);pd.gold=50+ti*15;if(d.cfg&&d.cfg.pet&&Math.random()<.15)pd.pet=d.cfg.pet;if(Math.random()<.3)pd.items.push(rollItem(Math.max(1,Math.min(5,rarRoll(ti))),null,null,PROF.lv+(Math.random()<.25?1:0)))}
+  else if(G.mode==='rank'){const ti=tierOf(PROF.rp);pd.gold=50+ti*15;if(d.cfg&&d.cfg.pet&&Math.random()<.15)pd.pet=d.cfg.pet;if(Math.random()<.6)pd.items.push(rollItem(Math.max(1,Math.min(5,rarRoll(ti))),null,null,PROF.lv+(Math.random()<.25?1:0)))}
   if(!silent){G.pend=pd;spawnDrops(d,pd)}return pd}
 function spawnDrops(d,pd){const n=Math.min(10,3+(pd.gold/25|0));for(let i=0;i<n;i++)G.drops.push({gold:1,x:d.x,y:16,vx:rnd(-55,55),vy:rnd(120,190),t:-i*.03,sz:5});
   if(pd.pet)G.drops.push({pet:pd.pet,c:monImgC(pd.pet,false,0,false),x:d.x,y:22,vx:rnd(-30,30),vy:200,t:0,sz:13,col:'#ffd23c',r:3});
@@ -3547,7 +3552,7 @@ function openBag(){const P=PROF,E=eqItems(),worn=Object.values(P.eqp||{}),G2=gea
     <button class="ghost lkb" onclick="openLook()">${ico('hero',16)} Wardrobe</button><div class="brow"><button class="ghost" onclick="bestEq()">⚡ Pasang Terbaik</button><button class="ghost" onclick="quickSell()">🪙 Quick Sell</button></div><div class="brow"><button class="ghost" onclick="uraiWeak()">✦ Dismantle yang lebih lemah</button><button class="ghost" onclick="openKr()">${krImg(3,16)} Crystal</button></div>${krBar()}
     <div class="chtab">${[['all','All'],['w','Weapon'],['ar','Armor'],['acc','Accessory']].map(([k,n])=>`<button class="${BAGF===k||(k==='ar'&&['hat','shirt','pants','shoes','back'].includes(BAGF))?'on':''}" onclick="BAGF='${k}';openBag()">${n}</button>`).join('')}</div>
     <div class="note">${bag().length}/80 barang · ketuk barang untuk pasang, copot, tempa, urai, kunci, atau jual</div>
-    <div class="tiles">${B.length?B.map(it=>{const cur=E[it.s],up=(it.lv||1)<=PROF.lv&&(!cur||score(it)>score(cur));return`<button class="tile" style="--rc:${RKC[it.r]}" onclick="itemSheet('${it.u}')">${thumb(it,32)}${it.up?`<b>+${it.up}</b>`:''}<u class="ilv ${(it.lv||1)>PROF.lv?'no':''}">Lv${it.lv||1}</u>${it.nw?'<i class="nw">BARU</i>':''}${it.lk?`<i class="lkk">${ico('lock',10)}</i>`:''}${up?'<em>▲</em>':''}</button>`}).join(''):'<div class="note">Kosong. Barang didapat dari petualangan, duel, peti, dan toko.</div>'}</div>`)}
+    <div class="tiles">${B.length?B.map(it=>{const cur=E[it.s],up=(it.lv||1)<=PROF.lv&&(!cur||score(it)>score(cur));return`<button class="tile ${upCls(it)}" style="--rc:${RKC[it.r]}" onclick="itemSheet('${it.u}')">${thumb(it,32)}${it.up?`<b>+${it.up}</b>`:''}<u class="ilv ${(it.lv||1)>PROF.lv?'no':''}">Lv${it.lv||1}</u>${it.nw?'<i class="nw">BARU</i>':''}${it.lk?`<i class="lkk">${ico('lock',10)}</i>`:''}${up?'<em>▲</em>':''}</button>`}).join(''):'<div class="note">Kosong. Barang didapat dari petualangan, duel, peti, dan toko.</div>'}</div>`)}
 function itemSheet(u){const own=byU(u),it=own||(PROF.shopI||[]).find(x=>x.u===u);if(!it)return;if(own&&own.nw){own.nw=0;saveP()}
   const d=gi(it),E=eqItems(),cur=E[it.s],worn=PROF.eqp[it.s]===u,upC=upCost(it),upMt=upMat(it),upX=UPMAX[it.r];
   const lines=it.s==='w'?[`${TYPN[d.base.type]} · Serangan ×${Math.round(d.st.wa*100)/100}`,...stTxt(d.st)]:stTxt(d.st);
@@ -3909,7 +3914,7 @@ const zsTxt=b=>Object.entries(b).map(([k,v])=>`${ZSN[k]} +${Math.round(v*100)}%`
 
 // ===== Lumi Crystal: urai, gabung, bahan tempa =====
 const KRN=['','White Crystal','Blue Crystal','Purple Crystal','Gold Crystal','Red Crystal'],KRP=[0,['#8a94b0','#d8e0f0','#ffffff'],['#1a4ab0','#3a9aff','#bfe8ff'],['#4a1a9a','#9a5aff','#e6ccff'],['#a8620a','#ffc93c','#fff6c0'],['#8a0a1a','#ff3a4a','#ffd0c0']],KRU={};
-const krNeed=up=>Math.ceil((up+1)/2),krSpent=up=>{let s=0;for(let k=0;k<up;k++)s+=krNeed(k);return s},krBack=it=>1+Math.floor(krSpent(it.up||0)/2);
+const krNeed=up=>Math.ceil((up+1)/2),krSpent=up=>{let s=0;for(let k=0;k<up;k++)s+=krNeed(k);return s},krBack=it=>1;
 function krUrl(t){if(KRU[t])return KRU[t];const c=document.createElement('canvas');c.width=c.height=16;const g=c.getContext('2d'),[d,m,l]=KRP[t],P=(x,y,col)=>{g.fillStyle=col;g.fillRect(x,y,1,1)};
   // kristal segi: puncak runcing, sisi kiri terang, kanan gelap, kaki runcing
   const rows=[[7,8],[6,9],[5,10],[4,11],[4,11],[3,12],[3,12],[3,12],[4,11],[4,11],[5,10],[6,9],[7,8]];rows.forEach(([a,b],i)=>{for(let x=a;x<=b;x++)P(x,i+1,x<7?l:x<9?m:d)});
@@ -4127,7 +4132,7 @@ function tBake(){const tod=todNow();if(TWN.tod===tod&&TWN.lay)return;TWN.tod=tod
   TWN.lamps=[56,116,178,246,356,418,482];TWN.lamps.forEach(x=>{R(x,TGY-36,2,26,'#2a2a32');R(x-2,TGY-38,6,3,'#3a3a44');R(x-1,TGY-40,4,2,'#2a2a32')});
   TWN.lay=c;const px=(cv,x,y)=>{const d=cv.getContext('2d').getImageData(x,y,1,1).data;return`rgb(${d[0]},${d[1]},${d[2]})`};TWN.skyC=px(TWN.far,2,0);TWN.grC=px(c,30,VH-1);{const d=c.getContext('2d').getImageData(30,VH-1,1,1).data;TWN.grL=`rgb(${d[0]*.8|0},${d[1]*.8|0},${d[2]*.8|0})`}}
 function darkC(h,f){if(f===1||!h||h[0]!=='#')return h;return'#'+[1,3,5].map(i=>Math.round(parseInt(h.slice(i,i+2),16)*f).toString(16).padStart(2,'0')).join('')}
-function tChar(){const now=performance.now();if(TWN.f&&now-(TWN.sigT||0)<400)return TWN.f;TWN.sigT=now;const cf=myCfg(),sig=JSON.stringify([cf.look,cf.w,cf.eq,cf.set,cf.up,PROF.wd]);if(TWN.f&&TWN.fsig===sig)return TWN.f;const o=TWN.f;if(o&&typeof lvMove==='function')setTimeout(lvMove,50);TWN.fsig=sig;const f=mkFighter(cf,0);if(o){f.face=o.face;f.fv=o.face}f.x=TWN.x;f.y=0;f.st='idle';f.face=1;f.walk=0;TWN.f=f;const a=$('lAv').getContext('2d');a.imageSmoothingEnabled=false;a.clearRect(0,0,32,32);a.drawImage(f.fr.PR,0,6,16,16,0,0,32,32);return f}
+function tChar(){const now=performance.now();if(TWN.f&&now-(TWN.sigT||0)<400)return TWN.f;TWN.sigT=now;const cf=myCfg(),sig=JSON.stringify([cf.look,cf.w,cf.eq,cf.set,cf.wu,PROF.wd]);if(TWN.f&&TWN.fsig===sig)return TWN.f;const o=TWN.f;if(o&&typeof lvMove==='function')setTimeout(lvMove,50);TWN.fsig=sig;const f=mkFighter(cf,0);if(o){f.face=o.face;f.fv=o.face}f.x=TWN.x;f.y=0;f.st='idle';f.face=1;f.walk=0;TWN.f=f;const a=$('lAv').getContext('2d');a.imageSmoothingEnabled=false;a.clearRect(0,0,32,32);a.drawImage(f.fr.PR,0,6,16,16,0,0,32,32);return f}
 function townOpen(){G.scr='town';TJ.key=null;TWN.f=null;TWN.tx=null;TWN.go=null;show('scLobby');lfit();tBake();tChar();TWN.cam=Math.max(VW/2,Math.min(TW-VW/2,TWN.x));$('tHint').classList.remove('hide');clearTimeout(TWN.ht);TWN.ht=setTimeout(()=>$('tHint').classList.add('hide'),5000)}
 {const gl=goLobby;goLobby=function(){gl.apply(this,arguments);townOpen()}}
 function tEnter(id){SND.init&&SND.init();({gate:()=>openWorld(),wpn:()=>openStall('w'),arm:()=>openStall('ar'),acc:()=>openStall('acc'),smith:openSmith,park:()=>korbOpen(),box:openBoxShop,arena:()=>openVS()})[id]()}
@@ -4191,11 +4196,11 @@ function openSmith(){const E=eqItems();sheet('⚒ Blacksmith',`<div class="note"
   <h4 class="dvh">Forge perlengkapan yang dipakai</h4><div class="lst">${Object.values(E).map(it=>{const g=gi(it),mx=UPMAX[it.r];return`<div class="it" onclick="itemSheet('${it.u}')"><span class="ic">${itIcon(it)}</span><span><b style="color:${RKC[it.r]}">${g.n}</b><small>${GSN[it.s]} · +${it.up||0}/${mx}${it.up<mx?` · butuh ${krNeed(it.up||0)}× ${KRN[it.r]}`:' · maksimal'}</small></span><i>›</i></div>`}).join('')}</div>
   <div class="brow"><button class="ghost" onclick="uraiWeak()">✦ Dismantle yang lebih lemah</button><button class="ghost" onclick="openKr()">${krImg(3,16)} Fuse Crystal</button></div>`)}
 // ===== Mystery Box =====
-const BOXDF={ar:{n:'Kotak Armor',c:'#3a9aff',odds:[0,55,33,12,0,0]},w:{n:'Kotak Weapon',c:'#ffc93c',odds:[0,50,32,14,4,0]},acc:{n:'Kotak Accessory',c:'#c83aff',odds:[0,50,32,14,4,0]}};
-const boxPrice=()=>Math.round(150*(1+.2*(PROF.lv-1))/10)*10;
+const BOXDF={ar:{n:'Kotak Armor',c:'#3a9aff',odds:[0,60,32,8,0,0],k:3.3},w:{n:'Kotak Weapon',c:'#ffc93c',odds:[0,55,33,11,1,0],k:4},acc:{n:'Kotak Accessory',c:'#c83aff',odds:[0,55,33,11,1,0],k:4}};
+const boxPrice=(k='w')=>Math.round(50*(1+.25*((PROF.lv||1)-1))*BOXDF[k].k/10)*10;
 function boxImg(k,sz){return`<span class="bxi" style="--bc:${BOXDF[k].c};width:${sz}px;height:${sz}px"><i></i><b>?</b></span>`}
-function openBoxShop(){const p=boxPrice();sheet('🎁 Mystery Box',`<div class="note">"Hehehe… apa isinya? Tidak ada yang tahu!" Isi kotak memakai level barang ${curILv()}.</div><div class="bxl">${Object.keys(BOXDF).map(k=>{const B=BOXDF[k];return`<div class="bxc"><div class="bxa">${boxImg(k,54)}</div><b>${B.n}</b><small>${B.odds.map((o,r)=>o?`<span style="color:${RKC[r]}">${RK[r]} ${o}%</span>`:'').filter(Boolean).join(' · ')}</small><button class="go px ${PROF.coin<p?'off':''}" onclick="boxBuy('${k}')">${p} 🪙</button></div>`}).join('')}</div><div class="note">Kamu punya <b>${PROF.coin} 🪙</b>. Armor paling tinggi Epic; senjata & aksesoris bisa Legendary.</div>`)}
-function boxBuy(k){const p=boxPrice(),B=BOXDF[k];if(PROF.coin<p)return;if(bag().length>=80){alert('Bag penuh (80). Dismantle atau jual barang dulu.');return}PROF.coin-=p;
+function openBoxShop(){sheet('🎁 Mystery Box',`<div class="note">"Hehehe… apa isinya? Tidak ada yang tahu!" Isi kotak memakai level barang ${curILv()}.</div><div class="bxl">${Object.keys(BOXDF).map(k=>{const B=BOXDF[k];const p=boxPrice(k);return`<div class="bxc"><div class="bxa">${boxImg(k,54)}</div><b>${B.n}</b><small>${B.odds.map((o,r)=>o?`<span style="color:${RKC[r]}">${RK[r]} ${o}%</span>`:'').filter(Boolean).join(' · ')}</small><button class="go px ${PROF.coin<p?'off':''}" onclick="boxBuy('${k}')">${p} 🪙</button></div>`}).join('')}</div><div class="note">Kamu punya <b>${PROF.coin} 🪙</b>. Armor paling tinggi Epic; senjata & aksesoris bisa Legendary.</div>`)}
+function boxBuy(k){const p=boxPrice(k),B=BOXDF[k];if(PROF.coin<p)return;if(bag().length>=80){alert('Bag penuh (80). Dismantle atau jual barang dulu.');return}PROF.coin-=p;
   let q=Math.random()*100,r=1;for(let i=1;i<6;i++){if(q<B.odds[i]){r=i;break}q-=B.odds[i]}const it=rollItem(r,k==='w'?'w':k==='acc'?'acc':pick(LSL));giveItem(it);saveP();lobbyHud();SND.ok&&SND.ok();
   sheet('🎁 '+B.n,`<div class="bxo" style="--rc:${RKC[it.r]}"><div class="bxs">${boxImg(k,90)}</div><div class="bxr"><div class="bxg"></div><span class="tile" style="--rc:${RKC[it.r]}">${thumb(it,64)}</span><b style="color:${RKC[it.r]}">${gi(it).n}</b><small>${RK[it.r]} · ${GSN[it.s]} · Lv ${it.lv||1}</small></div></div>
   <div class="brow"><button class="go px ${PROF.coin<p?'off':''}" onclick="boxBuy('${k}')">Buka lagi · ${p} 🪙</button><button class="ghost" onclick="itemSheet('${it.u}')">Lihat barang</button></div><button class="ghost" onclick="openBoxShop()">◀ Kembali</button>`);
@@ -4253,12 +4258,12 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v53';
+const GAMEV='v55';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
 const lvMe=()=>PROF.kcode||('T'+knTok().slice(0,7));
-function lvPayload(){const c=myCfg(),ta=typeof taPack==='function'?taPack():{};return{...ta,v:GAMEV,n:PROF.name||'Ksatria',lk:PROF.look,eq:c.eq,w:c.w,lv:PROF.lv,x:Math.round(TWN.x),tx:Math.round(TJ.mv?Math.max(8,Math.min(TW-8,TWN.x+TJ.mv*150)):TWN.tx==null?TWN.x:TWN.tx)}}
+function lvPayload(){const c=myCfg(),ta=typeof taPack==='function'?taPack():{};return{...ta,wu:c.wu||0,wr:c.wr||1,v:GAMEV,n:PROF.name||'Ksatria',lk:PROF.look,eq:c.eq,w:c.w,lv:PROF.lv,x:Math.round(TWN.x),tx:Math.round(TJ.mv?Math.max(8,Math.min(TW-8,TWN.x+TJ.mv*150)):TWN.tx==null?TWN.x:TWN.tx)}}
 async function sbFresh(sb,name){if(LV.rm)await LV.rm.catch(()=>{});for(const c of sb.getChannels())if(c.topic==='realtime:'+name)try{await sb.removeChannel(c)}catch(e){}}
 async function townJoin(){if(LV.ch||LV.joining||document.hidden)return;LV.joining=1;try{await knSync();const sb=await sbClient();if(!sb||G.scr!=='town'||LV.ch)return;LV.me=lvMe();await sbFresh(sb,'kn-town-'+knKelas());if(G.scr!=='town'||LV.ch||document.hidden)return;
   const ch=LV.ch=sb.channel('kn-town-'+knKelas(),{config:{broadcast:{self:false},presence:{key:LV.me}}});
@@ -4270,8 +4275,8 @@ function townLeave(){const ch=LV.ch;LV.ch=null;LV.gh={};if(ch&&LV.sb){try{ch.unt
 // posisi dikirim hanya saat mengetuk tujuan, jeda minimal 3 detik (yang dikirim tujuan terakhir)
 function lvMove(){if(!LV.ch)return;clearTimeout(LV.mt);const w=Math.max(0,3000-(Date.now()-LV.lastTrack));LV.mt=setTimeout(()=>{if(!LV.ch)return;LV.lastTrack=Date.now();LV.ch.track(lvPayload()).catch(()=>{})},w)}
 function lvSync(){const st=LV.ch.presenceState(),seen={};for(const k in st){if(k===LV.me)continue;const m=st[k][st[k].length-1];if(!m)continue;seen[k]=1;let g=LV.gh[k];
-    if(!g){let f=null;try{f=mkFighter({look:m.lk,w:m.w||'pedang_1_1',eq:m.eq||{},lv:m.lv||1},1)}catch(e){continue}g=LV.gh[k]={f,x:m.x||300};f.x=g.x;f.y=0;f.st='idle';f.walk=0}
-    {const sg=JSON.stringify([m.lk,m.w,m.eq]);if(g.sg&&g.sg!==sg){try{const nf=mkFighter({look:m.lk,w:m.w||'pedang_1_1',eq:m.eq||{},lv:m.lv||1},1);nf.x=g.f.x;nf.y=0;nf.st='idle';nf.walk=0;nf.face=g.f.face;g.f=nf}catch(e){}}g.sg=sg}g.n=m.n;g.lv=m.lv;g.tx=m.tx;g.code=k;g.m=m;typeof taRecv==='function'&&taRecv(g,m)}
+    if(!g){let f=null;try{f=mkFighter({look:m.lk,w:m.w||'pedang_1_1',eq:m.eq||{},lv:m.lv||1,wu:m.wu,wr:m.wr},1)}catch(e){continue}g=LV.gh[k]={f,x:m.x||300};f.x=g.x;f.y=0;f.st='idle';f.walk=0}
+    {const sg=JSON.stringify([m.lk,m.w,m.eq,m.wu]);if(g.sg&&g.sg!==sg){try{const nf=mkFighter({look:m.lk,w:m.w||'pedang_1_1',eq:m.eq||{},lv:m.lv||1,wu:m.wu,wr:m.wr},1);nf.x=g.f.x;nf.y=0;nf.st='idle';nf.walk=0;nf.face=g.f.face;g.f=nf}catch(e){}}g.sg=sg}g.n=m.n;g.lv=m.lv;g.tx=m.tx;g.code=k;g.m=m;typeof taRecv==='function'&&taRecv(g,m)}
   for(const k in LV.gh)if(!seen[k])delete LV.gh[k]}
 function townGhosts(g,dt){for(const k in LV.gh){const o=LV.gh[k],f=o.f,d=(o.tx??o.x)-o.x;if(typeof taGhostRun==='function'){taGhostRun(o,f,dt)}else if(Math.abs(d)>1.5){const v=Math.sign(d)*46;o.x+=v*dt;f.face=Math.sign(d);f.st='walk';f.walk+=46*dt/6.5}else{f.st='idle'}if(typeof taGhostRun!=='function'){f.fv=(f.fv??f.face)+(f.face-(f.fv??f.face))*Math.min(1,dt*22);f.x=o.x;f.t=(f.t||0)+dt}
   g.fillStyle='#0004';g.beginPath();g.ellipse(f.x,TGY,6,1.5,0,0,7);g.fill();g.save();g.translate(0,TGY-GY);g.globalAlpha=.95;drawFighter(g,f);g.restore()}}
@@ -4476,6 +4481,14 @@ const AIG=8;function aiOwn(){return G.F&&!G.live&&typeof aiQuiz==='function'&&ai
 {const a=aiAns;aiAns=function(){if(aiOwn())return;return a.apply(this,arguments)}}
 {const s=step;step=function(dt){const B=G.F&&G.F[1];if(B&&G.st==='fight'&&!G.sp&&!B.mon&&B.st!=='ko'&&aiOwn()){B.aiq=(B.aiq||0)+dt;if(B.aiq>=AIG){B.aiq=0;
     if(Math.random()<[.6,.75,.85][G.diff|0])B.energy=Math.min(100,B.energy+20*qBars()*(1+(B.bonus.jf||0)));else B.energy-=Math.min(B.energy,20)}}return s(dt)}}
+// ===== v55: tanda Forge (+N) — cahaya senjata di karakter =====
+{const m=myCfg;myCfg=function(){const c=m.apply(this,arguments);try{const E=eqItems(),w=E&&(E.w||Object.values(E).find(x=>x&&x.s==='w'));if(w){c.wu=w.up||0;c.wr=w.r}}catch(e){}return c}}
+{const mk=mkFighter;mkFighter=function(cfg,side){const f=mk.apply(this,arguments);if(cfg&&cfg.wu){f.wu=cfg.wu;f.wr=cfg.wr||1}return f}}
+{const df=drawFighter;drawFighter=function(g,f){const r=df.apply(this,arguments);if(f.wu>0&&f.st!=='ko'&&f.hp!==0){try{const h=hand(f),u=f.wu,mx=UPMAX[f.wr||1]||12,col=RKC[f.wr||1]||'#fff',t=performance.now()/1000,q=u/mx,pul=q>=.75?.75+.25*Math.sin(t*6):1;
+    const x=h.x+f.fv*5,y=h.y-3,rad=(5+u*.9)*pul,gr=g.createRadialGradient(x,y,0,x,y,rad);gr.addColorStop(0,col+(q>=.4?'aa':'66'));gr.addColorStop(1,col+'00');
+    g.save();g.globalCompositeOperation='lighter';g.fillStyle=gr;g.beginPath();g.arc(x,y,rad,0,7);g.fill();
+    if(u>=mx){for(let i=0;i<3;i++){const a=t*3+i*2.1;g.fillStyle='#fff';g.fillRect(Math.round(x+Math.cos(a)*rad*.8),Math.round(y+Math.sin(a)*rad*.8),1,1)}}g.restore()}catch(e){}}return r}}
+function upCls(it){if(!it||!it.up)return'';const mx=UPMAX[it.r]||12;const q=it.up/mx;return q>=1?'um':q>=.75?'uc':q>=.4?'ub':'ua'}
 
 // ===== v50: Town — loncat & serang (tombol manual), tersinkron hemat kuota =====
 // Karakter kota digerakkan MESIN BATTLE (updF) dengan lawan bayangan jauh → gerakan sama persis, tanpa damage.
