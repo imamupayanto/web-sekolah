@@ -326,6 +326,10 @@ body,#app{background:#120b28}
 .pahud i{flex:1;height:7px;background:#0008;border-radius:4px;overflow:hidden}.pahud s{display:block;height:100%;background:linear-gradient(90deg,#ff5a3a,#ffb83a);transition:width .2s}.pahud div{width:100%;display:flex;gap:6px;justify-content:center}.pahud em{font-style:normal;color:#ffe680}.pahud em.d{color:#7fffb0}.pahud em.k{color:#ff8a7a}.pahud em.x{color:#888}
 .gver{position:absolute;right:8px;bottom:6px;font-size:10px;color:#ffffff88;z-index:5;pointer-events:none}
 .fkb{position:absolute;left:8px;top:66px;z-index:6;background:#3a2408e0;border:1.5px solid #ffb83a;color:#ffe2a0;border-radius:9px;padding:2px 8px;font-size:11px;pointer-events:none}.fkb.tired{background:#22223ae8;border-color:#8a8aa8;color:#d0d0e8;animation:enf .6s infinite alternate}.fkb small{font-size:9px;opacity:.85}.fkb.hide{display:none}
+#scLobby .tact{right:14px;bottom:132px;width:70px;height:70px;font-size:9px;padding:4px}#scLobby .tact b{font-size:12px}#scLobby .tact span{max-width:60px}
+.tbtn{position:absolute;z-index:3;border-radius:50%;border:3px solid #ffffff70;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:26px;line-height:1;touch-action:none;text-shadow:0 2px 0 #0006}.tbtn small{font-size:8px;margin-top:2px}.tbtn:active{transform:translateY(3px)}
+.tatk{right:16px;bottom:30px;width:88px;height:88px;background:radial-gradient(circle at 35% 28%,#ff9a7a,#d8402a 58%,#6a1408);box-shadow:0 5px 0 #4a0a04,0 0 14px #ff6a4a66}
+.tjmp{right:112px;bottom:22px;width:62px;height:62px;font-size:22px;background:radial-gradient(circle at 35% 28%,#a8e8ff,#2a8ad8 58%,#0a3a7a);box-shadow:0 5px 0 #06204a}
 </style></head>
 <body><div id="app">
 
@@ -333,7 +337,7 @@ body,#app{background:#120b28}
   <div class="lsc"><canvas id="lcv"></canvas>
     <div class="ltop"><div class="prof"><canvas id="lAv" width="32" height="32"></canvas><div><b id="lName"></b> <span id="lLv" class="lv"></span><div class="xb"><i id="lExp"></i></div></div></div><div class="coin"><i data-ic="coin" data-sz="18"></i><b id="lCoin"></b></div></div>
     <nav id="tabs2"><button data-t="hero"><i data-ic="hero" data-sz="26"></i><span class="px">Hero</span></button><button data-t="tas"><i data-ic="tas" data-sz="26"></i><span class="px">Bag</span></button><button data-t="lumi"><i data-ic="lumi" data-sz="26"></i><span class="px">Lumi</span></button><button data-t="tugas"><i data-ic="tugas" data-sz="26"></i><span class="px">Quests</span></button><button data-t="set"><i data-ic="atur" data-sz="26"></i><span class="px">Settings</span></button></nav>
-    <div class="mjoy tjoy" id="tJoy"><i class="mjb"></i><i class="mjk" id="tJk"></i></div><button id="tAct" class="tact px"><b id="tActI"></b><span id="tActT">—</span></button>
+    <div class="mjoy tjoy" id="tJoy"><i class="mjb"></i><i class="mjk" id="tJk"></i></div><button id="tAtk" class="tbtn tatk px">⚔<small>ATTACK</small></button><button id="tJump" class="tbtn tjmp px">⤒<small>JUMP</small></button><button id="tAct" class="tact px"><b id="tActI"></b><span id="tActT">—</span></button>
     <div id="tHint" class="thint hide">Geser joystick untuk berjalan · ketuk papan nama untuk masuk</div><div class="ltest hide" id="lTest">🧪 MODE UJI</div><div class="hide"><div id="lAct"></div><div id="lGear"></div><div id="lToday"></div></div>
   </div>
   <div class="hide"><button id="lAdv"><small id="lAdvS"></small></button><button id="lDuel"><small id="lRank"></small><i id="lRankBar"></i></button></div>
@@ -4203,7 +4207,7 @@ const TJ={x:0,pid:null,mv:0};
     const nx=Math.abs(x)<.25?0:Math.sign(x)*Math.min(1,(Math.abs(x)-.15)/.6),d=Math.sign(nx);if(d!==TJ.mv){TJ.mv=d;typeof lvMove==='function'&&lvMove()}TJ.x=nx;setK(x,y);if(nx)$('tHint').classList.add('hide')};
   J.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();TJ.pid=e.pointerId;J.setPointerCapture(e.pointerId);mv(e)});J.addEventListener('pointermove',mv);
   const end=e=>{if(e.pointerId!==TJ.pid)return;TJ.pid=null;TJ.x=0;setK(0,0);if(TJ.mv){TJ.mv=0;typeof lvMove==='function'&&lvMove()}};J.addEventListener('pointerup',end);J.addEventListener('pointercancel',end);
-  const KS={};addEventListener('keydown',e=>{if(G.scr!=='town'||!$('sheet').classList.contains('hide'))return;const k={ArrowLeft:-1,KeyA:-1,ArrowRight:1,KeyD:1}[e.code];if(e.code==='Enter'||e.code==='Space'){e.preventDefault();$('tAct').click();return}if(!k||e.repeat)return;KS[k]=1;TJ.x=(KS[1]?1:0)-(KS[-1]?1:0);if(Math.sign(TJ.x)!==TJ.mv){TJ.mv=Math.sign(TJ.x);typeof lvMove==='function'&&lvMove()}});
+  const KS={};addEventListener('keydown',e=>{if(G.scr!=='town'||!$('sheet').classList.contains('hide'))return;const k={ArrowLeft:-1,KeyA:-1,ArrowRight:1,KeyD:1}[e.code];if(e.code==='Enter'){e.preventDefault();$('tAct').click();return}if(!k||e.repeat)return;KS[k]=1;TJ.x=(KS[1]?1:0)-(KS[-1]?1:0);if(Math.sign(TJ.x)!==TJ.mv){TJ.mv=Math.sign(TJ.x);typeof lvMove==='function'&&lvMove()}});
   addEventListener('keyup',e=>{const k={ArrowLeft:-1,KeyA:-1,ArrowRight:1,KeyD:1}[e.code];if(!k)return;KS[k]=0;if(G.scr!=='town')return;TJ.x=(KS[1]?1:0)-(KS[-1]?1:0);if(Math.sign(TJ.x)!==TJ.mv){TJ.mv=Math.sign(TJ.x);typeof lvMove==='function'&&lvMove()}});
   $('tAct').onclick=()=>{const t=TJ.tg;if(!t)return;SND.init&&SND.init();if(t.gh)return lvGhostMenu(t.gh);const f=TWN.f;if(f)f.face=1;tEnter(t.id)}})();
 const TAI={gate:'gem',wpn:'s_w',arm:'s_hat',smith:'gem',park:'star',acc:'s_acc',box:'mystery',arena:'duel'};
@@ -4248,12 +4252,12 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v49';
+const GAMEV='v50';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
 const lvMe=()=>PROF.kcode||('T'+knTok().slice(0,7));
-function lvPayload(){const c=myCfg();return{v:GAMEV,n:PROF.name||'Ksatria',lk:PROF.look,eq:c.eq,w:c.w,lv:PROF.lv,x:Math.round(TWN.x),tx:Math.round(TJ.mv?Math.max(8,Math.min(TW-8,TWN.x+TJ.mv*150)):TWN.tx==null?TWN.x:TWN.tx)}}
+function lvPayload(){const c=myCfg(),ta=typeof taPack==='function'?taPack():{};return{...ta,v:GAMEV,n:PROF.name||'Ksatria',lk:PROF.look,eq:c.eq,w:c.w,lv:PROF.lv,x:Math.round(TWN.x),tx:Math.round(TJ.mv?Math.max(8,Math.min(TW-8,TWN.x+TJ.mv*150)):TWN.tx==null?TWN.x:TWN.tx)}}
 async function sbFresh(sb,name){if(LV.rm)await LV.rm.catch(()=>{});for(const c of sb.getChannels())if(c.topic==='realtime:'+name)try{await sb.removeChannel(c)}catch(e){}}
 async function townJoin(){if(LV.ch||LV.joining||document.hidden)return;LV.joining=1;try{await knSync();const sb=await sbClient();if(!sb||G.scr!=='town'||LV.ch)return;LV.me=lvMe();await sbFresh(sb,'kn-town-'+knKelas());if(G.scr!=='town'||LV.ch||document.hidden)return;
   const ch=LV.ch=sb.channel('kn-town-'+knKelas(),{config:{broadcast:{self:false},presence:{key:LV.me}}});
@@ -4266,9 +4270,9 @@ function townLeave(){const ch=LV.ch;LV.ch=null;LV.gh={};if(ch&&LV.sb){try{ch.unt
 function lvMove(){if(!LV.ch)return;clearTimeout(LV.mt);const w=Math.max(0,3000-(Date.now()-LV.lastTrack));LV.mt=setTimeout(()=>{if(!LV.ch)return;LV.lastTrack=Date.now();LV.ch.track(lvPayload()).catch(()=>{})},w)}
 function lvSync(){const st=LV.ch.presenceState(),seen={};for(const k in st){if(k===LV.me)continue;const m=st[k][st[k].length-1];if(!m)continue;seen[k]=1;let g=LV.gh[k];
     if(!g){let f=null;try{f=mkFighter({look:m.lk,w:m.w||'pedang_1_1',eq:m.eq||{},lv:m.lv||1},1)}catch(e){continue}g=LV.gh[k]={f,x:m.x||300};f.x=g.x;f.y=0;f.st='idle';f.walk=0}
-    g.n=m.n;g.lv=m.lv;g.tx=m.tx;g.code=k;g.m=m}
+    g.n=m.n;g.lv=m.lv;g.tx=m.tx;g.code=k;g.m=m;typeof taRecv==='function'&&taRecv(g,m)}
   for(const k in LV.gh)if(!seen[k])delete LV.gh[k]}
-function townGhosts(g,dt){for(const k in LV.gh){const o=LV.gh[k],f=o.f,d=(o.tx??o.x)-o.x;if(Math.abs(d)>1.5){const v=Math.sign(d)*46;o.x+=v*dt;f.face=Math.sign(d);f.st='walk';f.walk+=46*dt/6.5}else{f.st='idle'}f.fv=(f.fv??f.face)+(f.face-(f.fv??f.face))*Math.min(1,dt*22);f.x=o.x;f.t=(f.t||0)+dt;
+function townGhosts(g,dt){for(const k in LV.gh){const o=LV.gh[k],f=o.f,d=(o.tx??o.x)-o.x;if(Math.abs(d)>1.5){const v=Math.sign(d)*46;o.x+=v*dt;f.face=Math.sign(d);f.st='walk';f.walk+=46*dt/6.5}else{f.st='idle'}f.fv=(f.fv??f.face)+(f.face-(f.fv??f.face))*Math.min(1,dt*22);f.x=o.x;f.t=(f.t||0)+dt;typeof taGhost==='function'&&taGhost(o,f,dt);
   g.fillStyle='#0004';g.beginPath();g.ellipse(f.x,TGY,6,1.5,0,0,7);g.fill();g.save();g.translate(0,TGY-GY);g.globalAlpha=.95;drawFighter(g,f);g.restore()}}
 function townGhostLabels(g,Kk,ox){g.textAlign='center';for(const k in LV.gh){const o=LV.gh[k],sx=(o.x+ox)*Kk,sy=(TGY-34+(TWN.oy||0))*Kk,fs=Math.round(Kk*3.4);if(sx<-60||sx>lcv.width+60)continue;g.font=`700 ${fs}px "Pixelify Sans",system-ui,sans-serif`;const t=`${o.m&&o.m.v===GAMEV?'':'⚠ '}${o.n} · Lv${o.lv||1}`,tw=g.measureText(t).width+fs;g.fillStyle='#0a3a6acc';g.fillRect(sx-tw/2,sy-fs*1.1,tw,fs*1.5);g.fillStyle='#bfe8ff';g.fillText(t,sx,sy)}}
 function townGhostAt(wx,wy){for(const k in LV.gh){const o=LV.gh[k];if(Math.abs(o.x-wx)<9&&wy>TGY-36&&wy<TGY+4)return o}return null}
@@ -4471,6 +4475,30 @@ const AIG=8;function aiOwn(){return G.F&&!G.live&&typeof aiQuiz==='function'&&ai
 {const a=aiAns;aiAns=function(){if(aiOwn())return;return a.apply(this,arguments)}}
 {const s=step;step=function(dt){const B=G.F&&G.F[1];if(B&&G.st==='fight'&&!G.sp&&!B.mon&&B.st!=='ko'&&aiOwn()){B.aiq=(B.aiq||0)+dt;if(B.aiq>=AIG){B.aiq=0;
     if(Math.random()<[.6,.75,.85][G.diff|0])B.energy=Math.min(100,B.energy+20*qBars()*(1+(B.bonus.jf||0)));else B.energy-=Math.min(B.energy,20)}}return s(dt)}}
+
+// ===== v50: Town — loncat & serang (tombol manual), tersinkron hemat kuota =====
+const TA={q:[],seq:0};
+function taAnim(f,dt){if(f.y>0||f.vy>0){f.vy-=GRAV*dt;f.y=Math.max(0,f.y+f.vy*dt);if(f.y===0&&f.vy<0){f.vy=0;dust(f.x,3)}}
+  if(f.at>0){f.at-=dt;f.st='atk';f.t=(f.mv.dur||.4)-Math.max(0,f.at)}else if(f.y>0)f.st='jump'}
+function taJump(f){if(!f||f.y>0)return 0;f.vy=JV*.85;f.y=.01;f.sq=1.3;SND.jump&&SND.jump();return 1}
+function taAtk(f){if(!f||f.at>0)return 0;const L=f.M.list.filter(m=>!m.heavy&&!m.proj).length?f.M.list.filter(m=>!m.heavy&&!m.proj):f.M.list;f.cmb=((f.cmb||0)+1)%L.length;const mv=L[f.cmb];
+  f.st='atk';f.mv=mv;f.t=0;f.hit=true;f.atkId=(f.atkId||0)+1;f.trail=[];f.at=mv.dur||.4;SND.swing&&SND.swing(f.w.type==='tombak');return 1}
+function taDo(k){if(G.scr!=='town'||!$('sheet').classList.contains('hide'))return;const f=TWN.f;if(!f)return;if(!(k==='j'?taJump(f):taAtk(f)))return;
+  $('tHint').classList.add('hide');if(typeof LV!=='undefined'&&LV.ch){TA.q.push([Date.now(),k]);if(TA.q.length>12)TA.q.shift();lvMove()}}
+// kemas aksi ke pesan posisi berikutnya (tidak ada pesan tambahan)
+function taPack(){if(!TA.q.length)return{};const t0=TA.q[0][0],a=TA.q.map(([t,k])=>k+Math.round((t-t0)/100)).join('');TA.q=[];return{a,as:++TA.seq}}
+function taRecv(g,m){if(!g.seen){g.seen=1;g.as=m.as;return}if(!m.a||m.as===g.as)return;g.as=m.as;const now=performance.now();g.aq=(g.aq||[]);
+  for(const x of m.a.match(/[ja]\d+/g)||[])g.aq.push([now+(+x.slice(1))*100,x[0]])}
+function taGhost(o,f,dt){if(o.aq&&o.aq.length){const now=performance.now();while(o.aq.length&&o.aq[0][0]<=now){const k=o.aq.shift()[1];if(k==='j'){if(!(f.y>0)){f.vy=JV*.85;f.y=.01}}else if(!(f.at>0)){const L=f.M.list.filter(m=>!m.heavy&&!m.proj);const mv=(L.length?L:f.M.list)[(f.cmb=((f.cmb||0)+1)%(L.length||1))];f.mv=mv;f.t=0;f.at=mv.dur||.4;f.atkId=(f.atkId||0)+1;f.trail=[]}}}
+  taAnim(f,dt)}
+{const u=tActUpd;tActUpd=function(f,dt){taAnim(f,dt);return u(f,dt)}}
+for(const[id,k]of[['tJump','j'],['tAtk','a']]){const b=$(id);if(b)b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();SND.init&&SND.init();taDo(k)})}
+addEventListener('keydown',e=>{if(G.scr!=='town'||e.repeat)return;if(e.code==='ArrowUp'||e.code==='KeyW'||e.code==='Space'){e.preventDefault();e.stopImmediatePropagation();taDo('j')}else if(e.code==='KeyJ'||e.code==='KeyK'){taDo('a')}},true);
+// ===== Duel cepat (Ranked Duel lawan komputer) =====
+const RKX={time:40,dmg:1.35,foe:1.15,dif:[1,1,1,2,2]};
+{const s=startMatch;startMatch=function(cfg){const rk=!!(cfg&&cfg.mode==='rank'&&cfg.tier!=null);if(rk)cfg.diff=RKX.dif[cfg.tier]??cfg.diff;const r=s.apply(this,arguments);G.rkFast=rk;
+  if(rk&&G.F){const[A,B]=G.F;A.atk*=RKX.dmg;B.atk*=RKX.dmg*RKX.foe;B.maxHp=B.hp=Math.round(B.maxHp*RKX.foe);G.time=RKX.time}return r}}
+{const i=introRound;introRound=function(){const r=i.apply(this,arguments);if(G.rkFast)G.time=RKX.time;return r}}
 
 // ===== Halaman awal + prolog: Lumimon : Knight =====
 const IW=180,IH=135;let INT={sc:0,t:0,run:0,typ:0,full:''};
