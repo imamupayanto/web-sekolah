@@ -3328,10 +3328,10 @@ function npcCfg(kind){const R=PR(),Z=ZONE8[zIdx(R.z)],span=Z.lv[1]-Z.lv[0],L=Z.l
   const m=kind==='b'?Z.boss:kind==='e'?pick(Z.el):pick(Z.mob),[nm,wt,cr]=m;const G2=gearCfg(randEq(tier,wt,L)),mx=Math.min(5,zt+R.d+(kind==='b'?2:kind==='e'?1:0)),tr=Math.floor(Math.random()*(mx+1)),acts=SKT[wt].filter(s=>s.a&&s.tier<=mTier(MTX[tr]));
   const look=cr?{g:'l',hs:AV.HSTYLES.l[0][0],hc:AV.HAIRC[0],sk:1,ec:AV.EYES[0],noArmor:1}:npcLook();
   const c=rpgCfg({look,w:G2.w,eq:cr?{}:G2.eq,gear:G2.gear,gb:G2.gb},L,{[wt]:MTX[tr]},pick(acts).id);if(kind==='b'){const sg=WPN.find(w=>w.sig&&w.z===R.z&&w.type===wt);if(sg)c.w=sg.id}c.kind=kind;c.npcN=nm;c.cr=cr||null;c.pet=kind!=='n'||(zIdx(R.z)>0&&Math.random()<.3)?zonePet(R.z,kind):null;return c}
-const PK={n:[1.35,1.3],e:[1.6,1.5],b:[1,.85]},PGAP=[2,.06],PDIF={n:1,e:1,b:1},PTIME={n:75,e:90,b:150};let PHX=2;const ZN=[1,1,1,1,.75,1,1,1];
+const PK={n:[1.35,1.3],e:[1.75,1.65],b:[1.12,.95]},PGAP=[2,.06],PDIF={n:1,e:1,b:1},PTIME={n:45,e:60,b:90},PDMG={n:2.2,e:1.7,b:1.7},PSPX=1.4;let PHX=2;const ZN=[1,1,1,1,.75,1,1,1];
 function prDuel(kind){const R=PR(),b=npcCfg(kind),diff=Math.min(2,PDIF[kind]+R.d);
   startMatch({a:myCfg(),b,diff,arena:ZARENA[R.z],mode:'path',na:PROF.name,nb:b.npcN});
-  W.noCrowd=1;const[A,B]=G.F,K=PK[kind];B.maxHp=B.hp=Math.round(B.maxHp*K[0]);B.atk*=K[1];{const gap=(b.lv||0)-PROF.lv;if(gap>PGAP[0]){const m=1+PGAP[1]*(gap-PGAP[0]);B.maxHp=B.hp=Math.round(B.maxHp*m);B.atk*=m}}{const zn=ZN[zIdx(R.z)]||1;B.maxHp=B.hp=Math.round(B.maxHp*zn);B.atk*=zn}A.maxHp=Math.round(A.maxHp*PHX);B.maxHp=B.hp=Math.round(B.maxHp*PHX);G.time=PTIME[kind];if(R.buff)A.atk*=1+R.buff;if(kind==='b'){const Z=ZONE8[zIdx(R.z)],q=Z.sk;B.big=1.35;B.M=Object.assign({},B.M,{list:B.M.list.map(x=>Object.assign({},x,{reach:x.reach*1.25})),heavy:Object.assign({},B.M.heavy,{reach:B.M.heavy.reach*1.25})});B.sk=Object.assign({n:q[0],ic:'👑',cd:10,m:(q[1]||0)*.8},q[2]);B.skCD=5;B.bossCol=q[3]}A.hp=Math.max(1,Math.round(A.maxHp*R.hpf));B.kind=kind;G.ph2=0;
+  W.noCrowd=1;const[A,B]=G.F,K=PK[kind];B.maxHp=B.hp=Math.round(B.maxHp*K[0]);B.atk*=K[1];{const gap=(b.lv||0)-PROF.lv;if(gap>PGAP[0]){const m=1+PGAP[1]*(gap-PGAP[0]);B.maxHp=B.hp=Math.round(B.maxHp*m);B.atk*=m}}{const zn=ZN[zIdx(R.z)]||1;B.maxHp=B.hp=Math.round(B.maxHp*zn);B.atk*=zn}A.maxHp=Math.round(A.maxHp*PHX);B.maxHp=B.hp=Math.round(B.maxHp*PHX);A.atk*=PDMG[kind];B.atk*=PDMG[kind];G.time=PTIME[kind];if(R.buff)A.atk*=1+R.buff;if(kind==='b'){const Z=ZONE8[zIdx(R.z)],q=Z.sk;B.big=1.35;B.M=Object.assign({},B.M,{list:B.M.list.map(x=>Object.assign({},x,{reach:x.reach*1.25})),heavy:Object.assign({},B.M.heavy,{reach:B.M.heavy.reach*1.25})});B.sk=Object.assign({n:q[0],ic:'👑',cd:10,m:(q[1]||0)*.8},q[2]);B.skCD=5;B.bossCol=q[3]}A.hp=Math.max(1,Math.round(A.maxHp*R.hpf));B.kind=kind;G.ph2=0;
   $('w1').innerHTML=`<span style="color:${kind==='b'?'#ffd23c':kind==='e'?'#ff8aa0':RKC[B.w.r]}">Lv ${b.lv} · ${kind==='b'?'BOSS':kind==='e'?'Elite':B.w.n}</span>`;hud()}
 function prTick(dt){const B=G.F[1];if(B.kind==='b'&&!G.ph2&&B.hp>0&&B.hp<B.maxHp*.5&&G.st==='fight'){G.ph2=1;B.atk*=1.15;B.energy=Math.max(B.energy,60);B.bf={atk:.15,t:99};banner('PHASE 2!',ZONE8[zIdx(PR().z)].boss[0]+' mengamuk!','#ff5a3a',1.4,20);ring(B.x,GY-B.y-14,'#ff5a3a',30,.5,4);G.shake=4;SND.heavy();B.skCD=1}
   if((B.kind==='e'||G.ph2)&&Math.random()<dt*12)fx({x:B.x+rnd(-7,7),y:GY-B.y-rnd(2,28),vy:rnd(-30,-12),l:.5,s:1.2,c:G.ph2?'#ff5a3a':'#ff8aa0',k:'ci',g:-10})}
@@ -4258,7 +4258,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v55';
+const GAMEV='v56';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4447,7 +4447,7 @@ function paAlAct(c,big){const o=PA.al.find(a=>a.c===c);if(!o)return;const f=o.f,
 {const s=show;show=function(id){if(id!=='scFight'){$('paHud')&&$('paHud').classList.add('hide');G.paFight=0;G.paWait=0}const o=s.apply(this,arguments);setTimeout(paChip,50);return o}}
 
 // ===== v49: FOCUS / TIRED (soal wajib, versi lunak) + amukan Boss =====
-const FK={idle:20,step:5,per:.05,min:.7,buf:.05,max:3,dur:15};
+const FK={idle:12,step:3,per:.05,min:.7,buf:.05,max:3,dur:15};
 function fkOn(){return G.scr==='fight'&&G.F&&!G.manualMatch&&!SEL.manual&&!G.live}
 function fkMul(f){const k=f.fk;if(!k)return 1;const id=G.t-k.last;let m=1;if(id>FK.idle)m=Math.max(FK.min,1-FK.per*(1+Math.floor((id-FK.idle)/FK.step)));
   if(k.st&&G.t<k.exp)m+=FK.buf*k.st;else k.st=0;return m}
@@ -4460,7 +4460,7 @@ function fkBadge(m){let b=$('fkB');if(!b){b=document.createElement('div');b.id='
       if(m<w&&w>=1)txt(A.x,GY-A.y-34,'TIRED…','#b8b8d0',6,1);else if(m>w&&m>1)txt(A.x,GY-A.y-34,'FOCUS +'+Math.round((m-1)*100)+'%','#ffb83a',6,.9)}}
   return s(dt)}}
 {const s=startMatch;startMatch=function(){const r=s.apply(this,arguments);fkBadge(1);return r}}
-{const q=qAnswer;qAnswer=function(v){const A=G.F&&G.F[0],n=A?A.stats.qok:0;const r=q.apply(this,arguments);if(A&&A.stats.qok>n)fkOk(A);return r}}
+{const q=qAnswer;qAnswer=function(v){const A=G.F&&G.F[0],n=A?A.stats.qok:0,e0=A?A.energy:0;const r=q.apply(this,arguments);if(A&&A.stats.qok>n){fkOk(A);if(G.mode==='path'&&A.energy>e0)A.energy=Math.min(100,A.energy+(A.energy-e0)*(PSPX-1))}return r}}
 // ---------- amukan Boss (HP < 50%) ----------
 const RAGE={heal:['HEAL','#7dff8a'],atk:['POWER UP','#ff5a3a'],haste:['SPEED UP','#ffe14a'],def:['GUARD UP','#7fd8ff']};
 const ZRAGE=[['heal','atk'],['haste','def'],['heal','def'],['atk','haste'],['def','heal'],['haste','atk'],['def','atk'],['heal','haste']];
@@ -4480,7 +4480,7 @@ function bossRage(B){if(B.rage)return;const zi=G.mode==='path'&&PR()?zIdx(PR().z
 const AIG=8;function aiOwn(){return G.F&&!G.live&&typeof aiQuiz==='function'&&aiQuiz()}
 {const a=aiAns;aiAns=function(){if(aiOwn())return;return a.apply(this,arguments)}}
 {const s=step;step=function(dt){const B=G.F&&G.F[1];if(B&&G.st==='fight'&&!G.sp&&!B.mon&&B.st!=='ko'&&aiOwn()){B.aiq=(B.aiq||0)+dt;if(B.aiq>=AIG){B.aiq=0;
-    if(Math.random()<[.6,.75,.85][G.diff|0])B.energy=Math.min(100,B.energy+20*qBars()*(1+(B.bonus.jf||0)));else B.energy-=Math.min(B.energy,20)}}return s(dt)}}
+    if(Math.random()<[.6,.75,.85][G.diff|0])B.energy=Math.min(100,B.energy+20*qBars()*(1+(B.bonus.jf||0))*(G.mode==='path'?PSPX:1));else B.energy-=Math.min(B.energy,20)}}return s(dt)}}
 // ===== v55: tanda Forge (+N) — cahaya senjata di karakter =====
 {const m=myCfg;myCfg=function(){const c=m.apply(this,arguments);try{const E=eqItems(),w=E&&(E.w||Object.values(E).find(x=>x&&x.s==='w'));if(w){c.wu=w.up||0;c.wr=w.r}}catch(e){}return c}}
 {const mk=mkFighter;mkFighter=function(cfg,side){const f=mk.apply(this,arguments);if(cfg&&cfg.wu){f.wu=cfg.wu;f.wr=cfg.wr||1}return f}}
