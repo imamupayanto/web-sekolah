@@ -3833,6 +3833,7 @@ function devTg(k,n){return `<div class="row2"><label>${n}</label><button class="
 function openDev(){const P=PROF,ps=Object.keys(LG.M).sort((a,b)=>LG.M[a].n.localeCompare(LG.M[b].n));
   sheet('🧪 Developer Mode',`<div class="note">Semua di bawah hanya berlaku saat Developer Mode menyala. Matikan di Settings → game kembali normal (perubahan profil tetap tersimpan).</div>
   <button class="go px" onclick="openGift()">🎁 Gift Player</button>
+  <button class="go px" onclick="openLock()">📚 Lock Mapel</button>
   <button class="ghost" style="color:#ff8a7a" onclick="devResetAsk()">🗑️ Reset Semua Player</button>
   <h4 class="dvh">Pengali hadiah</h4>
   <div class="row2"><label>EXP</label>${devSel('xp')}</div><div class="row2"><label>Gold</label>${devSel('gold')}</div>
@@ -4260,7 +4261,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v66';
+const GAMEV='v68';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4641,6 +4642,30 @@ let NOCAP=0;     // 1 = jangan batasi (dipakai Gift guru & panel pengembang)
 // Migrasi sekali: Mythic milik pemain < MYLV diganti Legendary sejenis (slot, level, upgrade tetap; barang yang dipakai tetap terpasang)
 function myFix(){try{if(!PROF||!PROF.bag||(PROF.lv||1)>=MYLV)return;let n=0;PROF.bag.forEach((it,i)=>{if(it.r!==5)return;let wt=null;if(it.s==='w'){const w=WPN.find(x=>x.id===it.b);wt=w&&w.type}NOCAP=1;let nw;try{nw=rollItem(4,it.s,wt,it.lv)}finally{NOCAP=0}if(!nw||nw.r!==4)return;nw.u=it.u;nw.up=it.up||0;nw.lv=it.lv;if(it.lk)nw.lk=1;nw.nw=1;PROF.bag[i]=nw;n++});if(n){try{DG.add('Mythic→Legendary x'+n)}catch(e){}saveP()}}catch(e){}}
 {const k=lobbyHud;lobbyHud=function(){myFix();return k.apply(this,arguments)}}
+// v67: set-item (peti Abyss, dungeon) juga dibatasi; peti yang belum dibuka ikut dimigrasi
+{const s=setItem;setItem=function(k,sl,r,lv){if(!NOCAP&&r>=5&&(PROF.lv||1)<MYLV)return rollItem(4,sl||null,null,lv);return s.apply(this,arguments)}}
+{const k=lobbyHud;lobbyHud=function(){try{if(PROF&&PROF.chests&&(PROF.lv||1)<MYLV)PROF.chests.forEach(c=>{if(c.it&&c.it.r===5){NOCAP=0;const n=rollItem(4,c.it.s,null,c.it.lv);n.u=c.it.u;c.it=n}})}catch(e){}return k.apply(this,arguments)}}
+
+// ===== v68: Lock Mapel — guru menentukan mapel yang BOLEH dipilih di Knowledge Orb (disimpan di server, berlaku untuk semua pemain) =====
+let LKA=[];try{LKA=JSON.parse(localStorage.getItem('kn_lock')||'[]')||[]}catch(e){}
+const lkOn=()=>LKA.length>0,lkOk=k=>!lkOn()||LKA.includes(k);
+function lkEnf(){if(!lkOn())return;if(lkOk(SEL.mapel||'hitung'))return;const f=MAPEL.find(m=>lkOk(m.k));if(f){SEL.mapel=f.k;try{save()}catch(e){}try{korbSet()}catch(e){}}}
+async function lkFetch(){try{const d=await knRpc('kn_lock_get',{});if(d&&Array.isArray(d.a)){const a=d.a.filter(k=>MAPEL.some(m=>m.k===k));LKA=a;try{localStorage.setItem('kn_lock',JSON.stringify(a))}catch(e){}lkEnf();return true}}catch(e){}return false}
+{const g=getQ;getQ=function(){lkEnf();return g.apply(this,arguments)}}
+{const p=korbPick;korbPick=function(k){if(!lkOk(k)){typeof snd=='function'&&snd('bad');return}return p.apply(this,arguments)}}
+{const o=korbOpen;korbOpen=function(){lkEnf();o.apply(this,arguments);if(!lkOn())return;const L=$('kPick').querySelector('.kpl');if(!L)return;
+  [...L.children].forEach(b=>{const m=(b.getAttribute('onclick')||'').match(/korbPick\('([^']+)'\)/);if(m&&!lkOk(m[1])){b.classList.add('lk');b.removeAttribute('onclick');const s=b.querySelector('span:not(.kob)');if(s)s.insertAdjacentHTML('beforeend','<small>🔒 Dikunci guru</small>')}});
+  const h=$('kPick').querySelector('.kph small');if(h)h.textContent='🔒 Guru membatasi mapel yang boleh dipelajari'}}
+if($('mapel')){$('mapel').addEventListener('change',()=>lkEnf())}
+{const st=document.createElement('style');st.textContent='.kpl button.lk{opacity:.45;filter:grayscale(.8)}.lkr{display:flex;align-items:center;gap:8px;padding:6px 8px;margin:3px 0;background:#1d1540;border:2px solid #3a2a78;border-radius:10px;font-size:13px}.lkr input{width:20px;height:20px}';document.head.appendChild(st)}
+setTimeout(lkFetch,2000);setInterval(()=>{if(!document.hidden)lkFetch()},120e3);document.addEventListener('visibilitychange',()=>{if(!document.hidden)lkFetch()});
+// --- panel pengembang ---
+function openLock(){const draw=a=>sheet('📚 Lock Mapel',`<div class="note">Centang mapel yang <b>BOLEH</b> dipelajari pemain. Yang tidak dicentang akan terkunci 🔒 di Knowledge Orb (berlaku untuk semua pemain, semua mode soal). Tidak ada yang dicentang = <b>tanpa lock</b>.</div>
+  ${MAPEL.map(m=>`<label class="lkr"><input type="checkbox" class="lkc" value="${m.k}" ${a.includes(m.k)?'checked':''}>${korbHTML(m.k)}<span>${m.n}</span></label>`).join('')}
+  <div class="note" id="lkM"></div><button class="go px" onclick="lkSave()">💾 Simpan ke server</button><button class="ghost" onclick="document.querySelectorAll('.lkc').forEach(c=>c.checked=false)">Kosongkan (buka semua)</button><button class="ghost" onclick="openDev()">◀ Kembali</button>`);draw(LKA)}
+async function lkSave(){const a=[...document.querySelectorAll('.lkc')].filter(c=>c.checked).map(c=>c.value);$('lkM').textContent='Menyimpan…';let d=null,er='';try{d=await knRpc('kn_lock_set',{p_pw:gfPw(),p_allowed:a})}catch(e){er=String(e.message||e)}
+  if(!d||!d.ok){$('lkM').innerHTML='<span style="color:#ff8a7a">'+(er==='404'?'Fungsi belum ada di Supabase. Jalankan kn_lock.sql di SQL Editor (sekali saja), lalu coba lagi.':d&&d.ok===false?'Password ditolak server. Tutup tab lalu masuk ulang.':/^\d+$/.test(er)?'Server menolak (kode '+er+'). Cek kn_lock.sql sudah dijalankan.':'Tidak bisa terhubung ke internet/server.')+'</span>';try{DG.add('Lock gagal: '+(er||'ok=false'))}catch(e){}return}
+  LKA=a;try{localStorage.setItem('kn_lock',JSON.stringify(a))}catch(e){}lkEnf();$('lkM').innerHTML='<span style="color:#7aff9a">✅ Tersimpan. '+(a.length?a.length+' mapel boleh, sisanya terkunci.':'Tanpa lock.')+' HP pemain memperbarui dalam ±2 menit (atau saat game dibuka).</span>'}
 
 // ===== v59: player tidak boleh 'tersangkut' di party yang sudah ditinggal leader =====
 paLeadGone=function(){};   // diganti pemantau di bawah (tidak bergantung pada event presence)
