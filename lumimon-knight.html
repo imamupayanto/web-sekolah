@@ -3833,6 +3833,7 @@ function devTg(k,n){return `<div class="row2"><label>${n}</label><button class="
 function openDev(){const P=PROF,ps=Object.keys(LG.M).sort((a,b)=>LG.M[a].n.localeCompare(LG.M[b].n));
   sheet('🧪 Developer Mode',`<div class="note">Semua di bawah hanya berlaku saat Developer Mode menyala. Matikan di Settings → game kembali normal (perubahan profil tetap tersimpan).</div>
   <button class="go px" onclick="openGift()">🎁 Gift Player</button>
+  <button class="ghost" style="color:#ff8a7a" onclick="devResetAsk()">🗑️ Reset Semua Player</button>
   <h4 class="dvh">Pengali hadiah</h4>
   <div class="row2"><label>EXP</label>${devSel('xp')}</div><div class="row2"><label>Gold</label>${devSel('gold')}</div>
   <div class="row2"><label>Drop barang</label>${devSel('drop')}</div><div class="row2"><label>Drop pet</label>${devSel('pet')}</div>
@@ -4259,7 +4260,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v60';
+const GAMEV='v61';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4650,6 +4651,39 @@ setInterval(()=>{try{if(!PA.id)return;
 // sisa penanda party di profil (mis. setelah HP ditutup/dimuat ulang) dibersihkan
 function paClean(){try{const R=PR();if(!PA.id&&R&&R.party){delete R.party;saveP()}}catch(e){}}
 setTimeout(paClean,1500);{const g=goLobby;goLobby=function(){const r=g.apply(this,arguments);paClean();return r}}
+
+// ===== v61: menu Rank + reset semua player =====
+PXI.rank=['..kkkkkkkk..','kkkgwggggykk','kgkgwgggykgk','kgkgwgggykgk','.kkgggggykk.','...kgggyk...','....kggk....','.....kyk....','....kgyk....','...kkkkkk...','..kbbbbbbk..','..kkkkkkkk..'];
+{const n=document.querySelector('#tabs2'),s=n&&n.querySelector('[data-t="set"]');if(n&&s){const b=document.createElement('button');b.dataset.t='rank';b.innerHTML='<i data-ic="rank" data-sz="26"></i><span class="px">Rank</span>';n.insertBefore(b,s);b.onclick=()=>openTab('rank');try{iconize(n)}catch(e){}}}
+{const o=openTab;openTab=function(k){if(k==='rank'){SND.init&&SND.init();return openRank()}return o.apply(this,arguments)}}
+const rkMed=['#ffd23c','#c8d4e8','#d8935a'];
+async function openRank(){const T=pxSvg('rank',22)+' Rank';sheet(T,'<div class="note">Memuat peringkat…</div>');
+  let d=null,er='';try{await knSync(true);d=await knRpc('kn_rank',{p_tok:knTok()})}catch(e){er=String(e.message||e)}
+  if(!d||!d.ok){sheet(T,`<div class="note warn">${er==='404'?'Fungsi Rank belum ada di Supabase. Minta guru menjalankan kn_reset.sql.':'Tidak bisa terhubung ke server. Periksa internet lalu coba lagi.'}</div><button class="go px" onclick="openRank()">Coba lagi</button>`);return}
+  const L=d.list||[],me=L.findIndex(x=>x.code===d.me);
+  sheet(T,`<div class="note">${me>=0?`Peringkatmu: <b style="color:#ffd23c">#${me+1}</b> dari ${L.length} pemain`:`${L.length} pemain`} · diurutkan Level lalu Power (kekuatan perlengkapan).</div>
+  <div class="lst">${L.map((x,i)=>`<div class="it" style="${x.code===d.me?'outline:2px solid #ffd23c;background:#3a2c6a':''}"><span style="width:26px;display:inline-block;text-align:center;font-weight:800;color:${rkMed[i]||'#9fa8d8'}" class="px">${i+1}</span><span style="flex:1"><b>${esc(x.name)}</b>${x.code===d.me?' <small>(kamu)</small>':''}<small style="display:block">Lv ${x.lv} · Power ${x.gp}</small></span><i style="color:${rkMed[i]||'#9fa8d8'};font-style:normal"><b>Lv ${x.lv}</b></i></div>`).join('')||'<div class="note">Belum ada pemain.</div>'}</div>
+  <div class="note">Power & Level diperbarui otomatis tiap beberapa menit; menu ini memperbarui datamu saat dibuka.</div>`)}
+
+// ---- reset: HP siswa menghapus progres lokal bila server naik epoch ----
+let EPN=0,EPW=0;
+function epWipe(ep){window.__reset=1;try{localStorage.removeItem('lmduel_prof');localStorage.removeItem('lmduel_sel');localStorage.setItem('lmduel_epoch',String(ep))}catch(e){}
+  const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:9999;background:#120a26f2;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font:700 15px system-ui';o.innerHTML='<div>🔄 Server direset oleh guru.<br><small style="font-weight:400">Progres lamamu dihapus. Game dimulai dari awal…</small></div>';document.body.appendChild(o);setTimeout(()=>location.reload(),2200)}
+async function epCheck(){if(window.__reset)return true;if(Date.now()-EPN<60e3)return false;EPN=Date.now();
+  try{const d=await knRpc('kn_epoch',{});if(!d||d.epoch==null)return false;const st=+localStorage.getItem('lmduel_epoch')||0;
+    if(d.epoch>st){if(localStorage.getItem('lmduel_prof')){epWipe(d.epoch);return true}localStorage.setItem('lmduel_epoch',String(d.epoch))}}catch(e){}return false}
+{const s=LS.set;LS.set=function(k,v){if(window.__reset&&k==='prof')return;return s.apply(this,arguments)}}
+{const k=knSync;knSync=async function(force){if(await epCheck())return null;return k.apply(this,arguments)}}
+setTimeout(epCheck,2500);setInterval(()=>{if(!document.hidden)epCheck()},180e3);document.addEventListener('visibilitychange',()=>{if(!document.hidden)epCheck()});
+
+// ---- tombol reset di panel pengembang ----
+function devResetAsk(){sheet('🗑️ Reset Semua Player',`<div class="note warn"><b>Tidak bisa dibatalkan.</b> Akan menghapus: semua pemain & rekor duel di server, riwayat gift, dan progres game di setiap HP siswa (level, gold, tas, pet, zona, karakter). Siswa harus membuat karakter baru. HP yang belum memakai versi ini tidak ikut terhapus.</div>
+  <div class="row2"><label>Ketik RESET</label><input id="rsT" autocomplete="off" style="width:110px"></div><div class="note" id="rsM"></div>
+  <button class="go px" style="background:#a82a3a" onclick="devResetDo()">🗑️ Reset sekarang</button><button class="ghost" onclick="openDev()">◀ Batal</button>`)}
+async function devResetDo(){if(($('rsT').value||'').trim().toUpperCase()!=='RESET'){$('rsM').innerHTML='<span style="color:#ff8a7a">Ketik RESET dulu untuk melanjutkan.</span>';return}
+  $('rsM').textContent='Mereset…';let d=null,er='';try{d=await knRpc('kn_adm_reset',{p_pw:gfPw()})}catch(e){er=String(e.message||e)}
+  if(!d||!d.ok){$('rsM').innerHTML='<span style="color:#ff8a7a">'+(er==='404'?'Fungsi reset belum ada. Jalankan kn_reset.sql di Supabase.':d&&d.ok===false?'Password ditolak server.':'Gagal terhubung ke server.')+'</span>';return}
+  sheet('🗑️ Reset selesai',`<div class="note">✅ ${d.n} pemain dihapus dari server. HP siswa akan menghapus progres saat membuka game (atau dalam ±3 menit bila sedang bermain). HP ini ikut direset sebentar lagi.</div>`);setTimeout(()=>epWipe(d.epoch),2500)}
 
 // ===== Halaman awal + prolog: Lumimon : Knight =====
 const IW=180,IH=135;let INT={sc:0,t:0,run:0,typ:0,full:''};
