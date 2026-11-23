@@ -4259,7 +4259,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v58';
+const GAMEV='v60';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4335,11 +4335,11 @@ const paOn=()=>!!PA.id,paLead=()=>PA.id&&PA.lead===LV.me,paInRun=()=>{const R=PR
 function paSend(k,o){if(PA.ch)try{PA.ch.send({type:'broadcast',event:'m',payload:Object.assign({k,from:LV.me,fn:PROF.name},o||{})})}catch(e){}}
 function paMembers(){return Object.keys(PA.pres)}
 function paName(c){return c===LV.me?PROF.name:(PA.pres[c]&&PA.pres[c].n)||'Teman'}
-async function paJoin(id,lead){const sb=await sbClient();if(!sb)return false;LV.me=LV.me||lvMe();paQuit(1);if(PA.rm)await PA.rm.catch(()=>{});for(const c of sb.getChannels())if(c.topic==='realtime:kn-party-'+id)try{await sb.removeChannel(c)}catch(e){}Object.assign(PA,{id,lead,pres:{},inPath:{},pick:null,seenLead:0});
+async function paJoin(id,lead){const sb=await sbClient();if(!sb)return false;LV.me=LV.me||lvMe();paQuit(1);if(PA.rm)await PA.rm.catch(()=>{});for(const c of sb.getChannels())if(c.topic==='realtime:kn-party-'+id)try{await sb.removeChannel(c)}catch(e){}Object.assign(PA,{id,lead,pres:{},inPath:{},pick:null,seenLead:0,ll:Date.now(),bad:0});
   const ch=PA.ch=sb.channel('kn-party-'+id,{config:{broadcast:{self:false},presence:{key:LV.me}}});
-  ch.on('presence',{event:'sync'},()=>{if(ch!==PA.ch)return;const s=ch.presenceState(),P={};for(const k in s){const m=s[k][s[k].length-1];if(m)P[k]=m}const gone=Object.keys(PA.pres).filter(k=>!P[k]);PA.pres=P;gone.forEach(paGone);if(PA.id&&!P[PA.lead]&&PA.seenLead)paLeadGone();if(P[PA.lead])PA.seenLead=1;paChip()});
+  ch.on('presence',{event:'sync'},()=>{if(ch!==PA.ch)return;const s=ch.presenceState(),P={};for(const k in s){const m=s[k][s[k].length-1];if(m)P[k]=m}const gone=Object.keys(PA.pres).filter(k=>!P[k]);PA.pres=P;gone.forEach(paGone);if(PA.id&&!P[PA.lead]&&PA.seenLead)paLeadGone();if(P[PA.lead]){PA.seenLead=1;PA.ll=Date.now()}paChip()});
   ch.on('broadcast',{event:'m'},({payload:p})=>{if(ch===PA.ch&&p)paMsg(p)});
-  ch.subscribe(st=>{if(st==='SUBSCRIBED'&&ch===PA.ch)ch.track({n:PROF.name||'Ksatria',lv:PROF.lv,cfg:myCfg()}).catch(()=>{})});paChip();return true}
+  ch.subscribe(st=>{if(ch!==PA.ch)return;if(st==='SUBSCRIBED'){PA.bad=0;ch.track({n:PROF.name||'Ksatria',lv:PROF.lv,cfg:myCfg()}).catch(()=>{})}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED'){PA.bad=PA.bad||Date.now()}});paChip();return true}
 function paQuit(silent){if(!PA.id)return;if(!silent)paSend(paLead()?'bye':'lv');const ch=PA.ch;PA.ch=null;PA.id=null;PA.pres={};PA.inPath={};PA.seenLead=0;paRdyHide();
   if(ch&&LV.sb){try{ch.untrack()}catch(e){}try{PA.rm=Promise.resolve(LV.sb.removeChannel(ch))}catch(e){}}const R=PR();if(R&&R.party){delete R.party;saveP()}paChip()}
 function paLeadGone(){clearTimeout(PA.lgT);PA.lgT=setTimeout(()=>{if(PA.id&&!PA.pres[PA.lead]&&!paLead()){paQuit(1);toastP('📶 Leader party terputus. Kamu lanjut sendiri.')}},15000)}
@@ -4573,8 +4573,9 @@ const GFD={t:'ALL',note:'Hadiah dari Guru',xp:0,dr:0,g:0,k:[0,0,0,0,0],it:[],pet
 const gfV=id=>{const e=$(id);return e?e.value:''};
 function gfRead(){if(!$('gfT'))return;GFD.t=gfV('gfT');GFD.note=gfV('gfN');GFD.xp=+gfV('gfX')||0;GFD.dr=+gfV('gfD')||0;GFD.g=+gfV('gfG')||0;GFD.k=[1,2,3,4,5].map(i=>+gfV('gfK'+i)||0);GFD.pet=gfV('gfPt');GFD.s=gfV('gfS');GFD.r=+gfV('gfR')||1;GFD.lv=+gfV('gfL')||1;GFD.up=+gfV('gfU')||0;GFD.n=+gfV('gfC')||1}
 async function openGift(){sheet('🎁 Gift Player','<div class="note">Memuat daftar pemain…</div>');
-  let d=null;try{d=await knRpc('kn_adm_players',{p_pw:gfPw()})}catch(e){}
-  if(!d||!d.ok){sheet('🎁 Gift Player','<div class="note warn">Tidak bisa terhubung ke server, atau SQL kn_gift.sql belum dijalankan di Supabase.</div><button class="ghost" onclick="openDev()">◀ Kembali</button>');return}
+  let d=null,er='';try{d=await knRpc('kn_adm_players',{p_pw:gfPw()})}catch(e){er=String(e.message||e)}
+  if(!d||!d.ok){const why=er==='404'?'Fungsi gift belum ada di Supabase. Jalankan kn_gift.sql di SQL Editor (sekali saja), lalu coba lagi.':er==='401'||er==='403'?'Server menolak akses (kode '+er+'). Periksa kunci API Supabase.':d&&d.ok===false?'Password ditolak server. Tutup tab lalu masuk ulang dengan password yang benar.':er&&/^\d+$/.test(er)?'Server error (kode '+er+'). Kemungkinan kn_gift.sql belum dijalankan penuh; jalankan ulang di SQL Editor.':'Tidak bisa terhubung ke internet/server. Periksa koneksi lalu coba lagi.';
+    DG&&DG.add('Gift Player gagal: '+(er||'ok=false'));sheet('🎁 Gift Player','<div class="note warn">'+why+'</div><button class="go px" onclick="openGift()">Coba lagi</button><button class="ghost" onclick="openDev()">◀ Kembali</button>');return}
   GFD.pl=d.list;gfDraw()}
 function gfDraw(msg){const P=PROF,ps=Object.keys(LG.M).sort((a,b)=>LG.M[a].n.localeCompare(LG.M[b].n)),D=GFD,num=(id,v,w,st)=>`<input id="${id}" type="number" min="0" ${st?'step="'+st+'"':''} value="${v}" style="width:${w||60}px">`;
   sheet('🎁 Gift Player',`<div class="row2"><label>Kirim ke</label><select id="gfT"><option value="ALL" ${D.t==='ALL'?'selected':''}>👥 Semua player</option>${(D.pl||[]).map(p=>`<option value="${p.code}" ${D.t===p.code?'selected':''}>${esc(p.name)} (Lv${p.lv}) ${p.code}</option>`).join('')}</select></div>
@@ -4599,7 +4600,7 @@ function gfRm(i){gfRead();GFD.it.splice(i,1);gfDraw()}
 async function gfSend(){gfRead();const D=GFD,p={};if(D.xp>0||D.dr>0)p.b={xp:Math.min(720,D.xp),drop:Math.min(720,D.dr)};if(D.g>0)p.g=Math.floor(D.g);if(D.k.some(n=>n>0))p.k=D.k.map(n=>Math.max(0,Math.floor(n)));if(D.it.length)p.it=D.it;if(D.pet)p.pet=D.pet;
   if(!Object.keys(p).length){$('gfM').innerHTML='<span style="color:#ff8a7a">Gift masih kosong.</span>';return}
   const who=D.t==='ALL'?'semua player':((D.pl.find(x=>x.code===D.t)||{}).name||D.t);$('gfM').textContent='Mengirim…';
-  let d=null;try{d=await knRpc('kn_adm_send',{p_pw:gfPw(),p_target:D.t,p_note:D.note||'Hadiah dari Guru',p_payload:p})}catch(e){}
+  let d=null;try{d=await knRpc('kn_adm_send',{p_pw:gfPw(),p_target:D.t,p_note:D.note||'Hadiah dari Guru',p_payload:p})}catch(e){d={ok:false,e:String(e.message||e)}}
   if(!d||!d.ok){$('gfM').innerHTML='<span style="color:#ff8a7a">Gagal mengirim ('+((d&&d.e)||'jaringan')+').</span>';return}
   Object.assign(D,{xp:0,dr:0,g:0,k:[0,0,0,0,0],it:[],pet:''});gfDraw(`<span style="color:#7dff8a">✅ Terkirim ke ${who}. Pemain menerimanya otomatis saat login.</span>`)}
 async function gfHist(){gfRead();sheet('📜 Riwayat Gift','<div class="note">Memuat…</div>');let d=null;try{d=await knRpc('kn_adm_list',{p_pw:gfPw()})}catch(e){}
@@ -4614,9 +4615,9 @@ addEventListener('unhandledrejection',e=>DG.add('REJ '+String(e.reason&&e.reason
 // --- penjaga gambar petarung: perbaiki nilai rusak & jangan biarkan satu error menghapus petarung lain ---
 {const df=drawFighter;drawFighter=function(g,f){
   if(!f)return;let fixed='';
-  if(!isFinite(f.x)){f.x=ARW/2;fixed+='x '}if(!isFinite(f.y)||f.y<-5||f.y>200){f.y=0;f.vy=0;fixed+='y '}
+  if(!isFinite(f.x)){f.x=ARW/2;fixed+='x '}if(!isFinite(f.y)||(G.scr==='fight'&&(f.y<-5||f.y>200))){f.y=0;f.vy=0;fixed+='y '}
   if(!f.mon){if(!isFinite(f.fv)||Math.abs(f.fv)<.001){f.fv=f.face||1;fixed+='fv '}if(!isFinite(f.sq)||f.sq<=.05){f.sq=1;fixed+='sq '}if(!isFinite(f.tilt)){f.tilt=0;fixed+='tilt '}}
-  if(f.x<-20||f.x>ARW+20){f.x=Math.max(10,Math.min(ARW-10,f.x));fixed+='out '}
+  if(G.scr==='fight'&&(f.x<-20||f.x>ARW+20)){f.x=Math.max(10,Math.min(ARW-10,f.x));fixed+='out '}
   if(fixed)DG.add('perbaiki petarung ('+(G.F&&f===G.F[1]?'musuh':'lain')+') '+fixed+(G.mode||G.scr));
   const sv=g.getTransform(),al=g.globalAlpha;
   try{return df.apply(this,arguments)}catch(e){DG.add('gagal gambar '+(f.mon?'monster':'petarung')+': '+String(e.message).slice(0,60));try{g.setTransform(sv);g.globalAlpha=al;g.globalCompositeOperation='source-over';g.shadowBlur=0}catch(x){}}}}
@@ -4631,6 +4632,24 @@ function dgBadge(){let e=$('dgBadge');if(!e){e=document.createElement('div');e.i
   if(G.scr!=='town'){e.textContent='';return}const n=Object.keys(LV.gh||{}).length;e.textContent=LV.ch?`● online · ${n} teman`:(LV.joining?'○ menghubungkan…':'○ offline')}
 setInterval(dgBadge,1500);
 function openDiag(){sheet('🩺 Log Bug',`<div class="note">Catatan otomatis kejadian aneh (musuh hilang, koneksi online). Kirim isinya ke guru/pengembang bila ada masalah.</div><div class="lst" style="font:10px monospace;white-space:pre-wrap;max-height:240px;overflow:auto">${DG.log.length?DG.log.slice().reverse().map(x=>esc(x.s+' '+x.m)).join('\n'):'(kosong)'}</div><div class="row2"><label>Versi</label><b>${GAMEV}</b></div><div class="row2"><label>Online</label><b>${LV.ch?'tersambung':'tidak'}</b></div><button class="ghost" onclick="DG.log=[];openDiag()">Hapus log</button>`)}
+
+// ===== v59: player tidak boleh 'tersangkut' di party yang sudah ditinggal leader =====
+paLeadGone=function(){};   // diganti pemantau di bawah (tidak bergantung pada event presence)
+function paDissolve(msg){const inF=!!G.paFight&&G.scr==='fight',me=PA.me;
+  try{DG.add('party bubar: '+msg)}catch(e){}
+  paQuit(1);
+  if(inF&&G.F){const[A,B]=G.F;G.paFight=0;G.paWait=0;PA.final=0;PA.me='';PA.al=[];PA.st={};$('paHud')&&$('paHud').classList.add('hide');$('tm')&&($('tm').style.visibility='');G.time=Math.max(G.time>200?60:G.time,30);
+    if(me==='d'){B.invul=0;B.hp=0;KO(A,B)}                       // bagianku sudah beres → musuh dianggap kalah
+    else if(me==='k'){A.hp=Math.max(1,Math.round(A.maxHp*.3));A.st='idle';A.t=0;A.vy=0;A.vx=0;A.invul=1.5;A.y=0}}   // bangkit & lanjut sendiri
+  toastP(msg)}
+setInterval(()=>{try{if(!PA.id)return;
+  if(!paLead()){const now=Date.now();
+    if(PA.pres[PA.lead]){PA.ll=now}
+    else if(now-(PA.ll||now)>(PA.seenLead?15000:25000)){paDissolve(PA.seenLead?'📶 Leader meninggalkan party. Kamu lanjut sendiri.':'👥 Party tidak ditemukan (leader sudah pergi). Kamu lanjut sendiri.');return}}
+  if(PA.bad&&Date.now()-PA.bad>15000){paDissolve('📶 Koneksi party terputus. Kamu lanjut sendiri.')}}catch(e){}},3000);
+// sisa penanda party di profil (mis. setelah HP ditutup/dimuat ulang) dibersihkan
+function paClean(){try{const R=PR();if(!PA.id&&R&&R.party){delete R.party;saveP()}}catch(e){}}
+setTimeout(paClean,1500);{const g=goLobby;goLobby=function(){const r=g.apply(this,arguments);paClean();return r}}
 
 // ===== Halaman awal + prolog: Lumimon : Knight =====
 const IW=180,IH=135;let INT={sc:0,t:0,run:0,typ:0,full:''};
