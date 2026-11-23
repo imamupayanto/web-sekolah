@@ -3523,7 +3523,7 @@ function thumb(it,sz){const key=it.s+':'+it.b+(it.s==='acc'?':'+(it.r||1):'');if
 /* ---------- drop di arena ---------- */
 function preDrop(d,silent){const A=G.F[0],pd={gold:0,items:[],sig:0};
   if(G.mode==='path'){const R=PR(),k=d.kind||'n',L=d.lv||prLv();pd.gold=Math.round((6+3*L)*{n:1,e:2.5,b:6}[k]*ZDIF[R.d].g*(1+(A.bonus.coin||0)));
-    const il=()=>L+(Math.random()<.25?1+(Math.random()*3|0):0);if(k!=='n'||Math.random()<Math.min(1,2*(.22+.12*R.d)))pd.items.push(rollItem(rarZ(R.d,zIdx(R.z),k==='b'?1:0),null,null,il()));if(k!=='n'&&Math.random()<Math.min(1,.6*R.d))pd.items.push(rollItem(rarZ(R.d,zIdx(R.z),0),null,null,il()));if(k==='b'&&Math.random()<.3){pd.items.push(mkItem('w',d.w.id,d.w.r,{lv:L}));pd.sig=1}
+    const il=()=>L+(Math.random()<.25?1+(Math.random()*3|0):0);if(k!=='n'||Math.random()<Math.min(1,2*(.22+.12*R.d)))pd.items.push(rollItem(rarZ(R.d,zIdx(R.z),k==='b'?1:0),null,null,il()));if(k!=='n'&&Math.random()<Math.min(1,.6*R.d))pd.items.push(rollItem(rarZ(R.d,zIdx(R.z),0),null,null,il()));if(k==='b'&&Math.random()<.3){if(d.w.r>=5&&(PROF.lv||1)<MYLV)pd.items.push(rollItem(4,'w',null,L));else{pd.items.push(mkItem('w',d.w.id,d.w.r,{lv:L}));pd.sig=1}}
     const ep=d.cfg&&d.cfg.pet;if(ep&&Math.random()<{n:.25,e:.35,b:.5}[k])pd.pet=ep;else if(Math.random()<{n:.04,e:.08,b:.15}[k])pd.pet=zonePet(R.z,k)}
   else if(G.mode==='rank'){const ti=tierOf(PROF.rp);pd.gold=50+ti*15;if(d.cfg&&d.cfg.pet&&Math.random()<.15)pd.pet=d.cfg.pet;if(Math.random()<.6)pd.items.push(rollItem(Math.max(1,Math.min(5,rarRoll(ti))),null,null,PROF.lv+(Math.random()<.25?1:0)))}
   if(!silent){G.pend=pd;spawnDrops(d,pd)}return pd}
@@ -3858,7 +3858,7 @@ function devMsg(t){const m=$('dvMsg');if(m)m.innerHTML='✅ '+t;saveP();lobbyHud
 function devSet(k){const P=PROF;if(k==='lv'){P.lv=Math.max(1,Math.min(LVMAX,+$('dvL').value|0));P.exp=0;devMsg('Level → '+P.lv)}
   else if(k==='coin'){P.coin=Math.max(0,+$('dvG').value|0);devMsg('Gold → '+P.coin)}
   else{const i=+$('dvM').value;P.mas=P.mas||{};WT.forEach(t=>P.mas[t]=MTX[i]);devMsg('Mastery → '+MTN[i])}}
-function devItem(){if(bag().length>=80)return devMsg('Bag penuh (80)');ARMHI=1;const it=rollItem(+$('dvR').value,$('dvS').value,null,+$('dvIL').value||1);ARMHI=0;giveItem(it,null);devMsg(`${gi(it).n} masuk tas`)}
+function devItem(){if(bag().length>=80)return devMsg('Bag penuh (80)');ARMHI=1;NOCAP=1;const it=rollItem(+$('dvR').value,$('dvS').value,null,+$('dvIL').value||1);NOCAP=0;ARMHI=0;giveItem(it,null);devMsg(`${gi(it).n} masuk tas`)}
 function devPet(){const l=[];addPet($('dvP').value,l);devMsg(l[0]||LG.M[$('dvP').value].n+' bergabung')}
 
 // ===== Tampilan perlengkapan: aura kelangkaan, set zona, Wardrobe =====
@@ -4260,7 +4260,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v64';
+const GAMEV='v66';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4553,7 +4553,7 @@ function gfApply(p){let over=0;const L=gfLines(p);
   if(p.b){PROF.gb=PROF.gb||{xp:0,drop:0};['xp','drop'].forEach(k=>{if(p.b[k]>0)PROF.gb[k]=Math.min(720*3600,gbT(k)+p.b[k]*3600)})}
   if(p.g>0)PROF.coin+=Math.min(1e7,Math.floor(p.g));
   const K=PROF.kr=PROF.kr||[0,0,0,0,0,0];(p.k||[]).forEach((n,i)=>{if(n>0)K[i+1]=(K[i+1]||0)+Math.min(999,Math.floor(n))});
-  PROF.gpend=PROF.gpend||[];(p.it||[]).forEach(x=>{for(let i=0;i<Math.min(30,x.n||1);i++){ARMHI=1;const it=rollItem(x.r,x.s,null,x.lv||1);ARMHI=0;it.up=Math.min(x.up||0,UPMAX[x.r]||0);PROF.gpend.push(it)}});
+  PROF.gpend=PROF.gpend||[];(p.it||[]).forEach(x=>{for(let i=0;i<Math.min(30,x.n||1);i++){ARMHI=1;NOCAP=1;const it=rollItem(x.r,x.s,null,x.lv||1);NOCAP=0;ARMHI=0;it.up=Math.min(x.up||0,UPMAX[x.r]||0);PROF.gpend.push(it)}});
   if(p.pet)addPet(p.pet,[]);return L}
 function gfFlush(){const q=PROF.gpend||[];let n=0;while(q.length&&bag().length<80){giveItem(q.shift(),null);n++}return n}
 let GFQ=[],gfBusy=0,gfLast=0;
@@ -4633,6 +4633,14 @@ function dgBadge(){let e=$('dgBadge');if(!e){e=document.createElement('div');e.i
   if(G.scr!=='town'){e.textContent='';return}const n=Object.keys(LV.gh||{}).length;e.textContent=LV.ch?`● online · ${n} teman`:(LV.joining?'○ menghubungkan…':'○ offline')}
 setInterval(dgBadge,1500);
 function openDiag(){sheet('🩺 Log Bug',`<div class="note">Catatan otomatis kejadian aneh (musuh hilang, koneksi online). Kirim isinya ke guru/pengembang bila ada masalah.</div><div class="lst" style="font:10px monospace;white-space:pre-wrap;max-height:240px;overflow:auto">${DG.log.length?DG.log.slice().reverse().map(x=>esc(x.s+' '+x.m)).join('\n'):'(kosong)'}</div><div class="row2"><label>Versi</label><b>${GAMEV}</b></div><div class="row2"><label>Online</label><b>${LV.ch?'tersambung':'tidak'}</b></div><button class="ghost" onclick="DG.log=[];openDiag()">Hapus log</button>`)}
+
+// ===== v65: Mythic tidak boleh jatuh ke pemain level rendah =====
+const MYLV=16;   // level minimal untuk bisa mendapat barang Mythic dari drop/toko/duel
+let NOCAP=0;     // 1 = jangan batasi (dipakai Gift guru & panel pengembang)
+{const r=rollItem;rollItem=function(rr,sl,wt,lv){if(!NOCAP&&rr>=5&&(PROF.lv||1)<MYLV){rr=4;try{DG.add('Mythic dibatasi → Legendary (Lv'+PROF.lv+')')}catch(e){}}return r.call(this,rr,sl,wt,lv)}}
+// Migrasi sekali: Mythic milik pemain < MYLV diganti Legendary sejenis (slot, level, upgrade tetap; barang yang dipakai tetap terpasang)
+function myFix(){try{if(!PROF||!PROF.bag||(PROF.lv||1)>=MYLV)return;let n=0;PROF.bag.forEach((it,i)=>{if(it.r!==5)return;let wt=null;if(it.s==='w'){const w=WPN.find(x=>x.id===it.b);wt=w&&w.type}NOCAP=1;let nw;try{nw=rollItem(4,it.s,wt,it.lv)}finally{NOCAP=0}if(!nw||nw.r!==4)return;nw.u=it.u;nw.up=it.up||0;nw.lv=it.lv;if(it.lk)nw.lk=1;nw.nw=1;PROF.bag[i]=nw;n++});if(n){try{DG.add('Mythic→Legendary x'+n)}catch(e){}saveP()}}catch(e){}}
+{const k=lobbyHud;lobbyHud=function(){myFix();return k.apply(this,arguments)}}
 
 // ===== v59: player tidak boleh 'tersangkut' di party yang sudah ditinggal leader =====
 paLeadGone=function(){};   // diganti pemantau di bawah (tidak bergantung pada event presence)
