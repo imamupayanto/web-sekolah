@@ -4260,7 +4260,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v62';
+const GAMEV='v64';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4656,14 +4656,31 @@ setTimeout(paClean,1500);{const g=goLobby;goLobby=function(){const r=g.apply(thi
 PXI.rank=['..kkkkkkkk..','kkkgwggggykk','kgkgwgggykgk','kgkgwgggykgk','.kkgggggykk.','...kgggyk...','....kggk....','.....kyk....','....kgyk....','...kkkkkk...','..kbbbbbbk..','..kkkkkkkk..'];
 {const n=document.querySelector('#tabs2'),s=n&&n.querySelector('[data-t="set"]');if(n&&s){const b=document.createElement('button');b.dataset.t='rank';b.innerHTML='<i data-ic="rank" data-sz="26"></i><span class="px">Rank</span>';n.insertBefore(b,s);b.onclick=()=>openTab('rank');try{iconize(n)}catch(e){}}}
 {const o=openTab;openTab=function(k){if(k==='rank'){SND.init&&SND.init();return openRank()}return o.apply(this,arguments)}}
+PXI.crown=['k..k..k..k..','kgkkgkkgkkgk','kgggggggggyk','kgrggggrggyk','.kyyyyyyyyk.','..kkkkkkkk..'];
 const rkMed=['#ffd23c','#c8d4e8','#d8935a'];
+function rkDraw(cv,t,face){try{const S=3,W=cv.width/S,H=cv.height/S,f=mkFighter(Object.assign({},t.build||{},{look:t.look||(t.build&&t.build.look)}),1),g=cv.getContext('2d');
+  g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cv.width,cv.height);g.imageSmoothingEnabled=false;g.setTransform(S,0,0,S,0,0);
+  g.fillStyle='#0006';g.beginPath();g.ellipse(W/2,H-1.5,9,2,0,0,7);g.fill();
+  f.x=W/2;f.y=0;f.st='idle';f.walk=0;f.face=face||1;f.fv=f.face;g.translate(0,H-3.5-GY);drawFighter(g,f)}catch(e){try{DG.add('rank gambar gagal: '+String(e.message).slice(0,50))}catch(x){}}}
 async function openRank(){const T=pxSvg('rank',22)+' Rank';sheet(T,'<div class="note">Memuat peringkat…</div>');
   let d=null,er='';try{await knSync(true);d=await knRpc('kn_rank',{p_tok:knTok()})}catch(e){er=String(e.message||e)}
   if(!d||!d.ok){sheet(T,`<div class="note warn">${er==='404'?'Fungsi Rank belum ada di Supabase. Minta guru menjalankan kn_reset.sql.':'Tidak bisa terhubung ke server. Periksa internet lalu coba lagi.'}</div><button class="go px" onclick="openRank()">Coba lagi</button>`);return}
-  const L=d.list||[],me=L.findIndex(x=>x.code===d.me);
-  sheet(T,`<div class="note">${me>=0?`Peringkatmu: <b style="color:#ffd23c">#${me+1}</b> dari ${L.length} pemain`:`${L.length} pemain`} · diurutkan Level lalu Power (kekuatan perlengkapan).</div>
-  <div class="lst">${L.map((x,i)=>`<div class="it" style="${x.code===d.me?'outline:2px solid #ffd23c;background:#3a2c6a':''}"><span style="width:26px;display:inline-block;text-align:center;font-weight:800;color:${rkMed[i]||'#9fa8d8'}" class="px">${i+1}</span><span style="flex:1"><b>${esc(x.name)}</b>${x.code===d.me?' <small>(kamu)</small>':''}<small style="display:block">Lv ${x.lv} · Power ${x.gp}</small></span><i style="color:${rkMed[i]||'#9fa8d8'};font-style:normal"><b>Lv ${x.lv}</b></i></div>`).join('')||'<div class="note">Belum ada pemain.</div>'}</div>
-  <div class="note">Power & Level diperbarui otomatis tiap beberapa menit; menu ini memperbarui datamu saat dibuka.</div>`)}
+  const L=(d.list||[]).slice(0,10),me=L.findIndex(x=>x.code===d.me),top=d.top||[],tot=d.total||L.length,mine=d.mine||(me>=0?{rk:me+1}:null),pod=L.slice(0,3),H=[84,62,46],ord=pod.length>=3?[1,0,2]:pod.length===2?[1,0]:[0];
+  const col=i=>{const x=pod[i],isMe=x.code===d.me,cs=i===0?110:90;return `<div style="flex:1;min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:flex-end">
+    <div style="position:relative;width:${cs}px;height:${cs}px">${i===0?`<div style="position:absolute;left:50%;top:${Math.round(cs*.1)}px;transform:translateX(-50%);z-index:2">${pxSvg('crown',22)}</div>`:''}
+    <canvas id="rkC${i}" width="${cs*1.2}" height="${cs*1.2}" style="width:${cs}px;height:${cs}px;image-rendering:pixelated;${i===0?'animation:rkB 1.6s ease-in-out infinite':''}"></canvas></div>
+    <div style="width:94%;height:${H[i]}px;margin-top:-2px;border-radius:6px 6px 0 0;background:linear-gradient(${rkMed[i]},${rkMed[i]}aa);border:2px solid #1a1030;display:flex;align-items:center;justify-content:center;font:800 26px 'Press Start 2P',monospace;color:#1a1030;text-shadow:0 1px 0 #fff6" class="px">${i+1}</div>
+    <div style="font-weight:800;font-size:${i===0?14:12}px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px;color:${isMe?'#ffd23c':'#fff'}">${esc(x.name)}${isMe?' ★':''}</div>
+    <div style="font-size:10px;color:#b9c0ee">Lv ${x.lv} · Power ${x.gp}</div></div>`};
+  const rest=L.slice(pod.length);
+  sheet(T,`<style>@keyframes rkB{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}</style>
+  <div class="note">${mine?`Peringkatmu: <b style="color:#ffd23c">#${mine.rk}</b> dari ${tot} pemain`:`${tot} pemain`} · 10 besar, urut Level lalu Power (kekuatan perlengkapan).</div>
+  ${pod.length?`<div style="display:flex;align-items:flex-end;gap:4px;margin:6px 0 10px;padding:8px 4px 0;border-radius:10px;background:radial-gradient(ellipse at 50% 100%,#4a3a8a66,transparent 70%)">${ord.map(col).join('')}</div>`:''}
+  ${rest.length?`<div class="lst">${rest.map((x,k)=>{const i=k+pod.length;return `<div class="it" style="${x.code===d.me?'outline:2px solid #ffd23c;background:#3a2c6a':''}"><span style="width:26px;display:inline-block;text-align:center;font-weight:800;color:#9fa8d8" class="px">${i+1}</span><span style="flex:1"><b>${esc(x.name)}</b>${x.code===d.me?' <small>(kamu)</small>':''}<small style="display:block">Lv ${x.lv} · Power ${x.gp}</small></span><i style="color:#9fa8d8;font-style:normal"><b>Lv ${x.lv}</b></i></div>`}).join('')}</div>`:''}
+  ${mine&&me<0&&mine.name?`<div class="lst"><div class="it" style="outline:2px solid #ffd23c;background:#3a2c6a"><span style="width:26px;display:inline-block;text-align:center;font-weight:800;color:#ffd23c" class="px">${mine.rk}</span><span style="flex:1"><b>${esc(mine.name)}</b> <small>(kamu)</small><small style="display:block">Lv ${mine.lv} · Power ${mine.gp}</small></span><i style="color:#9fa8d8;font-style:normal"><b>Lv ${mine.lv}</b></i></div></div>`:''}
+  ${!pod.length?'<div class="note">Belum ada pemain.</div>':''}
+  <div class="note">Level & Power diperbarui otomatis tiap beberapa menit; datamu diperbarui saat menu ini dibuka.</div>`);
+  pod.forEach((x,i)=>{const t=top.find(q=>q.code===x.code),cv=$('rkC'+i);if(t&&cv)rkDraw(cv,t,i===1?1:i===2?-1:1)})}
 
 // ---- reset: HP siswa menghapus progres lokal bila server naik epoch ----
 let EPN=0,EPW=0;
