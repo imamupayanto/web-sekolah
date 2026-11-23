@@ -4260,7 +4260,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v61';
+const GAMEV='v62';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4682,7 +4682,7 @@ function devResetAsk(){sheet('🗑️ Reset Semua Player',`<div class="note warn
   <button class="go px" style="background:#a82a3a" onclick="devResetDo()">🗑️ Reset sekarang</button><button class="ghost" onclick="openDev()">◀ Batal</button>`)}
 async function devResetDo(){if(($('rsT').value||'').trim().toUpperCase()!=='RESET'){$('rsM').innerHTML='<span style="color:#ff8a7a">Ketik RESET dulu untuk melanjutkan.</span>';return}
   $('rsM').textContent='Mereset…';let d=null,er='';try{d=await knRpc('kn_adm_reset',{p_pw:gfPw()})}catch(e){er=String(e.message||e)}
-  if(!d||!d.ok){$('rsM').innerHTML='<span style="color:#ff8a7a">'+(er==='404'?'Fungsi reset belum ada. Jalankan kn_reset.sql di Supabase.':d&&d.ok===false?'Password ditolak server.':'Gagal terhubung ke server.')+'</span>';return}
+  if(!d||!d.ok){$('rsM').innerHTML='<span style="color:#ff8a7a">'+(er==='404'?'Fungsi reset belum ada di Supabase. Jalankan kn_reset.sql di SQL Editor (sekali saja), lalu coba lagi.':d&&d.ok===false?'Password ditolak server. Tutup tab lalu masuk ulang.':/^\d+$/.test(er)?'Server menolak (kode '+er+'). Jalankan ulang kn_reset.sql versi terbaru di SQL Editor.':'Tidak bisa terhubung ke internet/server.')+'</span>';try{DG.add('Reset gagal: '+(er||'ok=false'))}catch(e){}return}
   sheet('🗑️ Reset selesai',`<div class="note">✅ ${d.n} pemain dihapus dari server. HP siswa akan menghapus progres saat membuka game (atau dalam ±3 menit bila sedang bermain). HP ini ikut direset sebentar lagi.</div>`);setTimeout(()=>epWipe(d.epoch),2500)}
 
 // ===== Halaman awal + prolog: Lumimon : Knight =====
