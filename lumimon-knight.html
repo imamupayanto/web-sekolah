@@ -3677,9 +3677,9 @@ function openTab(k){SND.init();const P=PROF;if(k==='char'||k==='hero')return ope
     <div class="row2"><label>Suara</label><button class="mini" id="stS">${SND.on?'🔊 Nyala':'🔇 Mati'}</button></div>
     <div class="note">💡 Knowledge Orb (nyala/tidur) diatur di <b>Banyan Park</b> di tengah kota.</div>
     <div class="row2"><label>🧪 Developer Mode</label><button class="mini ${DEV.on?'':'off'}" id="stD">${DEV.on?'✅ Nyala':'Mati'}</button></div>${DEV.on?'<button class="ghost" onclick="openDev()">🧪 Buka panel pengembang</button>':''}
-    <button class="ghost" id="stR" style="margin-top:14px;color:#ff8a7a">🗑️ Hapus semua progres</button>`);
+    <button class="ghost" onclick="openDiag()">🩺 Log Bug</button><button class="ghost" id="stR" style="margin-top:14px;color:#ff8a7a">🗑️ Hapus semua progres</button>`);
     $('stS').onclick=()=>{SND.on=!SND.on;P.snd=SND.on?1:0;saveP();openTab('set')};
-    $('stD').onclick=()=>{DEV.on=DEV.on?0:1;devSave();openTab('set')};$('stR').onclick=()=>{if($('stR').dataset.ok){LS.set('prof',null);location.reload()}else{$('stR').dataset.ok=1;$('stR').textContent='Yakin? Ketuk sekali lagi'}}}}
+    $('stD').onclick=()=>{if(DEV.on){DEV.on=0;devSave();openTab('set')}else devAuth(()=>{DEV.on=1;devSave();openTab('set')})};$('stR').onclick=()=>{if($('stR').dataset.ok){LS.set('prof',null);location.reload()}else{$('stR').dataset.ok=1;$('stR').textContent='Yakin? Ketuk sekali lagi'}}}}
 function equip(t,id){if(t==='w')PROF.w=id;else PROF.set=id;saveP();LCH=null;openTab('tas');lobbyHud();SND.ok()}
 function buy(k){const it=itemOf(k),pr=priceOf(it);if(PROF.coin<pr||owns(k))return;PROF.coin-=pr;give(k);saveP();SND.win();checkAch();openTab('toko');lobbyHud()}
 function claimM(id){const m=MISS.find(x=>x.id===id);if(PROF.daily.c[id])return;PROF.daily.c[id]=1;giveRw(m.rw);saveP();SND.ok();openTab('misi');lobbyHud()}
@@ -3832,6 +3832,7 @@ function devSel(k){return `<select onchange="DEV.${k}=+this.value;devSave()">${M
 function devTg(k,n){return `<div class="row2"><label>${n}</label><button class="mini ${DEV[k]?'':'off'}" onclick="DEV.${k}=DEV.${k}?0:1;devSave();openDev()">${DEV[k]?'✅ Nyala':'Mati'}</button></div>`}
 function openDev(){const P=PROF,ps=Object.keys(LG.M).sort((a,b)=>LG.M[a].n.localeCompare(LG.M[b].n));
   sheet('🧪 Developer Mode',`<div class="note">Semua di bawah hanya berlaku saat Developer Mode menyala. Matikan di Settings → game kembali normal (perubahan profil tetap tersimpan).</div>
+  <button class="go px" onclick="openGift()">🎁 Gift Player</button>
   <h4 class="dvh">Pengali hadiah</h4>
   <div class="row2"><label>EXP</label>${devSel('xp')}</div><div class="row2"><label>Gold</label>${devSel('gold')}</div>
   <div class="row2"><label>Drop barang</label>${devSel('drop')}</div><div class="row2"><label>Drop pet</label>${devSel('pet')}</div>
@@ -4258,7 +4259,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v56';
+const GAMEV='v58';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4277,8 +4278,8 @@ function lvMove(){if(!LV.ch)return;clearTimeout(LV.mt);const w=Math.max(0,3000-(
 function lvSync(){const st=LV.ch.presenceState(),seen={};for(const k in st){if(k===LV.me)continue;const m=st[k][st[k].length-1];if(!m)continue;seen[k]=1;let g=LV.gh[k];
     if(!g){let f=null;try{f=mkFighter({look:m.lk,w:m.w||'pedang_1_1',eq:m.eq||{},lv:m.lv||1,wu:m.wu,wr:m.wr},1)}catch(e){continue}g=LV.gh[k]={f,x:m.x||300};f.x=g.x;f.y=0;f.st='idle';f.walk=0}
     {const sg=JSON.stringify([m.lk,m.w,m.eq,m.wu]);if(g.sg&&g.sg!==sg){try{const nf=mkFighter({look:m.lk,w:m.w||'pedang_1_1',eq:m.eq||{},lv:m.lv||1,wu:m.wu,wr:m.wr},1);nf.x=g.f.x;nf.y=0;nf.st='idle';nf.walk=0;nf.face=g.f.face;g.f=nf}catch(e){}}g.sg=sg}g.n=m.n;g.lv=m.lv;g.tx=m.tx;g.code=k;g.m=m;typeof taRecv==='function'&&taRecv(g,m)}
-  for(const k in LV.gh)if(!seen[k])delete LV.gh[k]}
-function townGhosts(g,dt){for(const k in LV.gh){const o=LV.gh[k],f=o.f,d=(o.tx??o.x)-o.x;if(typeof taGhostRun==='function'){taGhostRun(o,f,dt)}else if(Math.abs(d)>1.5){const v=Math.sign(d)*46;o.x+=v*dt;f.face=Math.sign(d);f.st='walk';f.walk+=46*dt/6.5}else{f.st='idle'}if(typeof taGhostRun!=='function'){f.fv=(f.fv??f.face)+(f.face-(f.fv??f.face))*Math.min(1,dt*22);f.x=o.x;f.t=(f.t||0)+dt}
+  const now=Date.now();for(const k in LV.gh){const o=LV.gh[k];if(seen[k]){o.gone=0}else{if(!o.gone){o.gone=now;typeof DG!=='undefined'&&DG.add('teman hilang dari presence: '+(o.n||k))}}}}
+function townGhosts(g,dt){for(const k in LV.gh){const o=LV.gh[k];if(o.gone&&Date.now()-o.gone>8000){delete LV.gh[k];continue}const f=o.f,d=(o.tx??o.x)-o.x;if(typeof taGhostRun==='function'){taGhostRun(o,f,dt)}else if(Math.abs(d)>1.5){const v=Math.sign(d)*46;o.x+=v*dt;f.face=Math.sign(d);f.st='walk';f.walk+=46*dt/6.5}else{f.st='idle'}if(typeof taGhostRun!=='function'){f.fv=(f.fv??f.face)+(f.face-(f.fv??f.face))*Math.min(1,dt*22);f.x=o.x;f.t=(f.t||0)+dt}
   g.fillStyle='#0004';g.beginPath();g.ellipse(f.x,TGY,6,1.5,0,0,7);g.fill();g.save();g.translate(0,TGY-GY);g.globalAlpha=.95;drawFighter(g,f);g.restore()}}
 function townGhostLabels(g,Kk,ox){g.textAlign='center';for(const k in LV.gh){const o=LV.gh[k],sx=(o.x+ox)*Kk,sy=(TGY-34+(TWN.oy||0))*Kk,fs=Math.round(Kk*3.4);if(sx<-60||sx>lcv.width+60)continue;g.font=`700 ${fs}px "Pixelify Sans",system-ui,sans-serif`;const t=`${o.m&&o.m.v===GAMEV?'':'⚠ '}${o.n} · Lv${o.lv||1}`,tw=g.measureText(t).width+fs;g.fillStyle='#0a3a6acc';g.fillRect(sx-tw/2,sy-fs*1.1,tw,fs*1.5);g.fillStyle='#bfe8ff';g.fillText(t,sx,sy)}}
 function townGhostAt(wx,wy){for(const k in LV.gh){const o=LV.gh[k];if(Math.abs(o.x-wx)<9&&wy>TGY-36&&wy<TGY+4)return o}return null}
@@ -4518,6 +4519,118 @@ const RKX={time:40,dmg:1.35,foe:1.15,dif:[1,1,1,2,2]};
 {const s=startMatch;startMatch=function(cfg){const rk=!!(cfg&&cfg.mode==='rank'&&cfg.tier!=null);if(rk)cfg.diff=RKX.dif[cfg.tier]??cfg.diff;const r=s.apply(this,arguments);G.rkFast=rk;
   if(rk&&G.F){const[A,B]=G.F;A.atk*=RKX.dmg;B.atk*=RKX.dmg*RKX.foe;B.maxHp=B.hp=Math.round(B.maxHp*RKX.foe);G.time=RKX.time}return r}}
 {const i=introRound;introRound=function(){const r=i.apply(this,arguments);if(G.rkFast)G.time=RKX.time;return r}}
+
+// ===== Gift Player + password panel pengembang =====
+const GFH='1d9b72c7cdc3d4afbd66dba0a550444de2fd8af1e4788117cdf34edf545c3800';
+const gfPw=()=>{try{return sessionStorage.getItem('knpw')||''}catch(e){return''}};
+async function gfSha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,'0')).join('')}
+async function gfCheckPw(pw){if(window.crypto&&crypto.subtle)return(await gfSha(pw))===GFH;try{const d=await knRpc('kn_adm_players',{p_pw:pw});return!!(d&&d.ok)}catch(e){return false}}
+function devAuth(cb){if(gfPw()){cb();return}
+  sheet('🔒 Developer Access',`<div class="note">Masukkan password untuk membuka Developer Mode.</div><div class="row2"><label>Password</label><input id="gfP" type="password" autocomplete="off" style="width:140px"></div><div class="note" id="gfE"></div><button class="go px" id="gfG">Masuk</button>`);
+  const go=async()=>{const pw=$('gfP').value;$('gfE').textContent='Memeriksa…';if(await gfCheckPw(pw)){try{sessionStorage.setItem('knpw',pw)}catch(e){}closeSheet();cb()}else $('gfE').innerHTML='<span style="color:#ff8a7a">Password salah.</span>'};
+  $('gfG').onclick=go;$('gfP').onkeydown=e=>{if(e.key==='Enter')go()};setTimeout(()=>$('gfP')&&$('gfP').focus(),50)}
+{const o=openDev;openDev=function(){const a=arguments;devAuth(()=>o.apply(null,a))}}
+if(DEV.on&&!gfPw()){DEV.on=0;devSave()}   // Developer Mode lama dimatikan; nyalakan lagi lewat password
+
+// ---- buff EXP/DROP ×2 (hitungan jam bermain aktif) ----
+const gbT=k=>(PROF.gb&&PROF.gb[k])||0,gbOn=k=>gbT(k)>0;
+const gbFmt=s=>{s=Math.ceil(s/60);return s>=60?Math.floor(s/60)+'j '+String(s%60).padStart(2,'0')+'m':s+'m'};
+{const a=addExp;addExp=function(n,log){return a(gbOn('xp')?n*2:n,log)}}
+{const p=preDrop;preDrop=function(d,silent){const pd=p(d,true);if(gbOn('drop')){const e=p(d,true);pd.items.push(...e.items);pd.items=pd.items.slice(0,8)}if(!silent){G.pend=pd;spawnDrops(d,pd)}return pd}}
+let gbLast=Date.now();
+function gbPill(){let e=$('gbPill');if(!e){e=document.createElement('div');e.id='gbPill';e.style.cssText='position:fixed;top:1px;left:50%;transform:translateX(-50%);z-index:60;font:700 9px/1.2 monospace;color:#fff;pointer-events:none;display:flex;gap:4px;text-shadow:0 1px 2px #000';document.body.appendChild(e)}
+  const sc=G.scr==='town'||G.scr==='lobby';e.innerHTML=sc?[['xp','EXP×2','#7dff8a'],['drop','DROP×2','#ffc93c']].filter(x=>gbOn(x[0])).map(x=>`<span style="background:#0009;border:1px solid ${x[2]};color:${x[2]};padding:1px 4px;border-radius:4px">${x[1]} ${gbFmt(gbT(x[0]))}</span>`).join(''):''}
+setInterval(()=>{const n=Date.now(),dt=Math.min(30,(n-gbLast)/1000);gbLast=n;if(!PROF.made||document.hidden||!PROF.gb)return;let ch=0;['xp','drop'].forEach(k=>{if(PROF.gb[k]>0){PROF.gb[k]=Math.max(0,PROF.gb[k]-dt);ch=1}});if(ch){saveP();gbPill()}},15000);
+setInterval(gbPill,5000);
+
+// ---- menerima gift ----
+function gfLines(p){const L=[];if(p.b){if(p.b.xp)L.push(`⚡ EXP ×2 selama ${p.b.xp} jam bermain`);if(p.b.drop)L.push(`🍀 DROP ×2 selama ${p.b.drop} jam bermain`)}
+  if(p.g)L.push(`🪙 ${p.g} Gold`);(p.k||[]).forEach((n,i)=>{if(n>0)L.push(`✦ ${n}× ${KRN[i+1]}`)});
+  (p.it||[]).forEach(x=>L.push(`🎁 ${x.n||1}× <b style="color:${RKC[x.r]}">${RK[x.r]} ${GSN[x.s]}</b> Lv${x.lv||1}${x.up?' +'+x.up:''}`));
+  if(p.pet&&LG.M[p.pet])L.push(`🐾 Lumi ${LG.M[p.pet].n}`);return L}
+function gfApply(p){let over=0;const L=gfLines(p);
+  if(p.b){PROF.gb=PROF.gb||{xp:0,drop:0};['xp','drop'].forEach(k=>{if(p.b[k]>0)PROF.gb[k]=Math.min(720*3600,gbT(k)+p.b[k]*3600)})}
+  if(p.g>0)PROF.coin+=Math.min(1e7,Math.floor(p.g));
+  const K=PROF.kr=PROF.kr||[0,0,0,0,0,0];(p.k||[]).forEach((n,i)=>{if(n>0)K[i+1]=(K[i+1]||0)+Math.min(999,Math.floor(n))});
+  PROF.gpend=PROF.gpend||[];(p.it||[]).forEach(x=>{for(let i=0;i<Math.min(30,x.n||1);i++){ARMHI=1;const it=rollItem(x.r,x.s,null,x.lv||1);ARMHI=0;it.up=Math.min(x.up||0,UPMAX[x.r]||0);PROF.gpend.push(it)}});
+  if(p.pet)addPet(p.pet,[]);return L}
+function gfFlush(){const q=PROF.gpend||[];let n=0;while(q.length&&bag().length<80){giveItem(q.shift(),null);n++}return n}
+let GFQ=[],gfBusy=0,gfLast=0;
+async function gfCheck(force){if(gfBusy||!PROF.made)return;if(!force&&Date.now()-gfLast<120e3)return;gfBusy=1;gfLast=Date.now();
+  try{let d=await knRpc('kn_gift_pull',{p_tok:knTok()});if(d&&d.e==='me'){await knSync(true);d=await knRpc('kn_gift_pull',{p_tok:knTok()})}
+    if(d&&d.ok&&d.list&&d.list.length){d.list.forEach(g=>{GFQ.push({note:g.note||'Hadiah dari Guru',L:gfApply(g.p||{})})})}
+    gfFlush();saveP();lobbyHud();gbPill()}catch(e){}
+  gfBusy=0;gfShow()}
+function gfShow(){if(!GFQ.length||(G.scr!=='town'&&G.scr!=='lobby'))return;const q=GFQ;GFQ=[];const pend=(PROF.gpend||[]).length;
+  sheet('🎁 Hadiah dari Guru!',q.map(g=>`<div class="note"><b>${esc(g.note)}</b></div><div class="lst">${g.L.map(l=>`<div class="it"><span>${l}</span></div>`).join('')}</div>`).join('')+(pend?`<div class="note warn">Bag penuh: ${pend} barang menunggu. Kosongkan Bag, hadiah masuk otomatis.</div>`:''));try{SND.win()}catch(e){}}
+{const t=townOpen;townOpen=function(){t.apply(this,arguments);gfCheck();gfShow();gbPill()}}
+{const g=goLobby;goLobby=function(){g.apply(this,arguments);gfCheck();gfShow();gbPill();if((PROF.gpend||[]).length&&gfFlush())saveP()}}
+setInterval(()=>{if(G.scr==='town'||G.scr==='lobby')gfCheck()},300e3);
+setTimeout(()=>gfCheck(),4000);
+
+// ---- panel admin: kirim gift ----
+const GFD={t:'ALL',note:'Hadiah dari Guru',xp:0,dr:0,g:0,k:[0,0,0,0,0],it:[],pet:'',s:'w',r:3,lv:1,up:0,n:1,pl:null};
+const gfV=id=>{const e=$(id);return e?e.value:''};
+function gfRead(){if(!$('gfT'))return;GFD.t=gfV('gfT');GFD.note=gfV('gfN');GFD.xp=+gfV('gfX')||0;GFD.dr=+gfV('gfD')||0;GFD.g=+gfV('gfG')||0;GFD.k=[1,2,3,4,5].map(i=>+gfV('gfK'+i)||0);GFD.pet=gfV('gfPt');GFD.s=gfV('gfS');GFD.r=+gfV('gfR')||1;GFD.lv=+gfV('gfL')||1;GFD.up=+gfV('gfU')||0;GFD.n=+gfV('gfC')||1}
+async function openGift(){sheet('🎁 Gift Player','<div class="note">Memuat daftar pemain…</div>');
+  let d=null;try{d=await knRpc('kn_adm_players',{p_pw:gfPw()})}catch(e){}
+  if(!d||!d.ok){sheet('🎁 Gift Player','<div class="note warn">Tidak bisa terhubung ke server, atau SQL kn_gift.sql belum dijalankan di Supabase.</div><button class="ghost" onclick="openDev()">◀ Kembali</button>');return}
+  GFD.pl=d.list;gfDraw()}
+function gfDraw(msg){const P=PROF,ps=Object.keys(LG.M).sort((a,b)=>LG.M[a].n.localeCompare(LG.M[b].n)),D=GFD,num=(id,v,w,st)=>`<input id="${id}" type="number" min="0" ${st?'step="'+st+'"':''} value="${v}" style="width:${w||60}px">`;
+  sheet('🎁 Gift Player',`<div class="row2"><label>Kirim ke</label><select id="gfT"><option value="ALL" ${D.t==='ALL'?'selected':''}>👥 Semua player</option>${(D.pl||[]).map(p=>`<option value="${p.code}" ${D.t===p.code?'selected':''}>${esc(p.name)} (Lv${p.lv}) ${p.code}</option>`).join('')}</select></div>
+  <div class="row2"><label>Judul</label><input id="gfN" maxlength="40" value="${esc(D.note)}" style="width:150px"></div>
+  <h4 class="dvh">Buff (jam bermain aktif, 0 = tidak)</h4>
+  <div class="row2"><label>⚡ EXP ×2 (jam)</label>${num('gfX',D.xp,60,.5)}</div><div class="row2"><label>🍀 DROP ×2 (jam)</label>${num('gfD',D.dr,60,.5)}</div>
+  <h4 class="dvh">Gold & Crystal</h4>
+  <div class="row2"><label>🪙 Gold</label>${num('gfG',D.g,90)}</div>
+  ${KRN.slice(1).map((n,i)=>`<div class="row2"><label>✦ ${n}</label>${num('gfK'+(i+1),D.k[i],60)}</div>`).join('')}
+  <h4 class="dvh">Item</h4>
+  <div class="row2"><label>Slot</label><select id="gfS">${GSL.map(s=>`<option value="${s}" ${D.s===s?'selected':''}>${GSN[s]}</option>`).join('')}</select></div>
+  <div class="row2"><label>Rarity</label><select id="gfR">${RK.slice(1).map((n,i)=>`<option value="${i+1}" ${D.r===i+1?'selected':''} style="color:${RKC[i+1]}">${n}</option>`).join('')}</select></div>
+  <div class="row2"><label>Level · +Up · Jumlah</label><span>${num('gfL',D.lv,42)} ${num('gfU',D.up,36)} ${num('gfC',D.n,36)}</span></div>
+  <button class="mini" onclick="gfAddIt()">＋ Tambah item ke gift</button>
+  ${D.it.length?`<div class="lst">${D.it.map((x,i)=>`<div class="it"><span>${x.n}× <b style="color:${RKC[x.r]}">${RK[x.r]} ${GSN[x.s]}</b> Lv${x.lv}${x.up?' +'+x.up:''}</span><button class="mini" onclick="gfRm(${i})">✕</button></div>`).join('')}</div>`:''}
+  <div class="row2"><label>🐾 Lumi (pet)</label><select id="gfPt"><option value="">— tidak —</option>${ps.map(id=>`<option value="${id}" ${D.pet===id?'selected':''}>${LG.M[id].n} (${LG.M[id].r})</option>`).join('')}</select></div>
+  <div class="note" id="gfM">${msg||''}</div>
+  <button class="go px" onclick="gfSend()">🎁 Kirim Gift</button>
+  <button class="ghost" onclick="gfHist()">📜 Riwayat gift</button><button class="ghost" onclick="openDev()">◀ Panel pengembang</button>`)}
+function gfAddIt(){gfRead();const D=GFD;D.it.push({s:D.s,r:D.r,lv:Math.max(1,Math.min(40,D.lv)),up:Math.max(0,Math.min(UPMAX[D.r],D.up)),n:Math.max(1,Math.min(30,D.n))});gfDraw()}
+function gfRm(i){gfRead();GFD.it.splice(i,1);gfDraw()}
+async function gfSend(){gfRead();const D=GFD,p={};if(D.xp>0||D.dr>0)p.b={xp:Math.min(720,D.xp),drop:Math.min(720,D.dr)};if(D.g>0)p.g=Math.floor(D.g);if(D.k.some(n=>n>0))p.k=D.k.map(n=>Math.max(0,Math.floor(n)));if(D.it.length)p.it=D.it;if(D.pet)p.pet=D.pet;
+  if(!Object.keys(p).length){$('gfM').innerHTML='<span style="color:#ff8a7a">Gift masih kosong.</span>';return}
+  const who=D.t==='ALL'?'semua player':((D.pl.find(x=>x.code===D.t)||{}).name||D.t);$('gfM').textContent='Mengirim…';
+  let d=null;try{d=await knRpc('kn_adm_send',{p_pw:gfPw(),p_target:D.t,p_note:D.note||'Hadiah dari Guru',p_payload:p})}catch(e){}
+  if(!d||!d.ok){$('gfM').innerHTML='<span style="color:#ff8a7a">Gagal mengirim ('+((d&&d.e)||'jaringan')+').</span>';return}
+  Object.assign(D,{xp:0,dr:0,g:0,k:[0,0,0,0,0],it:[],pet:''});gfDraw(`<span style="color:#7dff8a">✅ Terkirim ke ${who}. Pemain menerimanya otomatis saat login.</span>`)}
+async function gfHist(){gfRead();sheet('📜 Riwayat Gift','<div class="note">Memuat…</div>');let d=null;try{d=await knRpc('kn_adm_list',{p_pw:gfPw()})}catch(e){}
+  if(!d||!d.ok){gfDraw('<span style="color:#ff8a7a">Gagal memuat riwayat.</span>');return}
+  sheet('📜 Riwayat Gift',`<div class="lst">${d.list.length?d.list.map(g=>`<div class="it"><span><b>${esc(g.note||'')}</b> → ${g.target==='ALL'?'Semua':esc(g.pname||g.target)}<small style="display:block">${gfLines(g.payload).join(' · ')}<br>${knAgo(g.ago)} · diambil ${g.got} pemain</small></span><button class="mini" onclick="gfDel(${g.id})">Batal</button></div>`).join(''):'<div class="note">Belum ada gift.</div>'}</div><div class="note">"Batal" menghapus gift yang belum diambil pemain (yang sudah diambil tidak ditarik).</div><button class="ghost" onclick="gfDraw()">◀ Kembali</button>`)}
+async function gfDel(id){try{await knRpc('kn_adm_del',{p_pw:gfPw(),p_id:id})}catch(e){}gfHist()}
+
+// ===== v58: penjaga bug (musuh hilang, teman hilang) + Log Bug =====
+const DG={log:[],add(m){const t=new Date(),s=String(t.getMinutes()).padStart(2,'0')+':'+String(t.getSeconds()).padStart(2,'0');if(this.log.length&&this.log[this.log.length-1].m===m)return;this.log.push({s,m});if(this.log.length>60)this.log.shift()}};
+addEventListener('error',e=>DG.add('ERR '+(e.message||'').slice(0,80)));
+addEventListener('unhandledrejection',e=>DG.add('REJ '+String(e.reason&&e.reason.message||e.reason).slice(0,80)));
+// --- penjaga gambar petarung: perbaiki nilai rusak & jangan biarkan satu error menghapus petarung lain ---
+{const df=drawFighter;drawFighter=function(g,f){
+  if(!f)return;let fixed='';
+  if(!isFinite(f.x)){f.x=ARW/2;fixed+='x '}if(!isFinite(f.y)||f.y<-5||f.y>200){f.y=0;f.vy=0;fixed+='y '}
+  if(!f.mon){if(!isFinite(f.fv)||Math.abs(f.fv)<.001){f.fv=f.face||1;fixed+='fv '}if(!isFinite(f.sq)||f.sq<=.05){f.sq=1;fixed+='sq '}if(!isFinite(f.tilt)){f.tilt=0;fixed+='tilt '}}
+  if(f.x<-20||f.x>ARW+20){f.x=Math.max(10,Math.min(ARW-10,f.x));fixed+='out '}
+  if(fixed)DG.add('perbaiki petarung ('+(G.F&&f===G.F[1]?'musuh':'lain')+') '+fixed+(G.mode||G.scr));
+  const sv=g.getTransform(),al=g.globalAlpha;
+  try{return df.apply(this,arguments)}catch(e){DG.add('gagal gambar '+(f.mon?'monster':'petarung')+': '+String(e.message).slice(0,60));try{g.setTransform(sv);g.globalAlpha=al;g.globalCompositeOperation='source-over';g.shadowBlur=0}catch(x){}}}}
+// jika musuh hidup tapi sprite-nya rusak/hilang, buat ulang bingkainya
+setInterval(()=>{try{if(G.scr!=='fight'||!G.F||G.st!=='fight')return;const B=G.F[1];if(!B||B.mon||B.st==='ko'||B.hp<=0)return;
+  const ok=B.fr&&B.fr.R&&B.fr.R[0]&&B.fr.R[0].width>0;if(!ok&&G.cfgB){DG.add('sprite musuh rusak → dibuat ulang');const n=mkFighter(G.cfgB,1);B.fr=n.fr}else if(!ok)DG.add('sprite musuh rusak (tanpa cfg)')}catch(e){}},1500);
+{const s=startMatch;startMatch=function(cfg){try{G.cfgB=cfg&&cfg.b}catch(e){}const r=s.apply(this,arguments);try{G.cfgB=cfg&&cfg.b}catch(e){}return r}}
+// --- pantau teman di kota ---
+{const t=townLeave;townLeave=function(){if(LV.ch)DG.add('keluar kota online ('+(G.scr||'')+')');return t.apply(this,arguments)}}
+{const j=townJoin;townJoin=async function(){const w=LV.ch?0:1;const r=await j.apply(this,arguments);if(w)DG.add(LV.ch?'masuk kota online':'gagal masuk kota online');return r}}
+function dgBadge(){let e=$('dgBadge');if(!e){e=document.createElement('div');e.id='dgBadge';e.style.cssText='position:fixed;top:17px;left:50%;transform:translateX(-50%);z-index:59;font:700 8px/1 monospace;color:#9fe;text-shadow:0 1px 2px #000;pointer-events:none';document.body.appendChild(e)}
+  if(G.scr!=='town'){e.textContent='';return}const n=Object.keys(LV.gh||{}).length;e.textContent=LV.ch?`● online · ${n} teman`:(LV.joining?'○ menghubungkan…':'○ offline')}
+setInterval(dgBadge,1500);
+function openDiag(){sheet('🩺 Log Bug',`<div class="note">Catatan otomatis kejadian aneh (musuh hilang, koneksi online). Kirim isinya ke guru/pengembang bila ada masalah.</div><div class="lst" style="font:10px monospace;white-space:pre-wrap;max-height:240px;overflow:auto">${DG.log.length?DG.log.slice().reverse().map(x=>esc(x.s+' '+x.m)).join('\n'):'(kosong)'}</div><div class="row2"><label>Versi</label><b>${GAMEV}</b></div><div class="row2"><label>Online</label><b>${LV.ch?'tersambung':'tidak'}</b></div><button class="ghost" onclick="DG.log=[];openDiag()">Hapus log</button>`)}
 
 // ===== Halaman awal + prolog: Lumimon : Knight =====
 const IW=180,IH=135;let INT={sc:0,t:0,run:0,typ:0,full:''};
