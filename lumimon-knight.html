@@ -4261,7 +4261,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v69';
+const GAMEV='v70';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4546,11 +4546,12 @@ setInterval(()=>{const n=Date.now(),dt=Math.min(30,(n-gbLast)/1000);gbLast=n;if(
 setInterval(gbPill,5000);
 
 // ---- menerima gift ----
-function gfLines(p){const L=[];if(p.b){if(p.b.xp)L.push(`⚡ EXP ×2 selama ${p.b.xp} jam bermain`);if(p.b.drop)L.push(`🍀 DROP ×2 selama ${p.b.drop} jam bermain`)}
+function gfLines(p){const L=[];if(p.lv>0)L.push(`⬆️ Levelmu diatur ke <b>Lv ${Math.min(LVMAX,Math.floor(p.lv))}</b> (EXP mulai dari 0)`);if(p.b){if(p.b.xp)L.push(`⚡ EXP ×2 selama ${p.b.xp} jam bermain`);if(p.b.drop)L.push(`🍀 DROP ×2 selama ${p.b.drop} jam bermain`)}
   if(p.g)L.push(`🪙 ${p.g} Gold`);(p.k||[]).forEach((n,i)=>{if(n>0)L.push(`✦ ${n}× ${KRN[i+1]}`)});
   (p.it||[]).forEach(x=>L.push(`🎁 ${x.n||1}× <b style="color:${RKC[x.r]}">${RK[x.r]} ${GSN[x.s]}</b> Lv${x.lv||1}${x.up?' +'+x.up:''}`));
   if(p.pet&&LG.M[p.pet])L.push(`🐾 Lumi ${LG.M[p.pet].n}`);return L}
 function gfApply(p){let over=0;const L=gfLines(p);
+  if(p.lv>0){PROF.lv=Math.max(1,Math.min(LVMAX,Math.floor(p.lv)));PROF.exp=0}
   if(p.b){PROF.gb=PROF.gb||{xp:0,drop:0};['xp','drop'].forEach(k=>{if(p.b[k]>0)PROF.gb[k]=Math.min(720*3600,gbT(k)+p.b[k]*3600)})}
   if(p.g>0)PROF.coin+=Math.min(1e7,Math.floor(p.g));
   const K=PROF.kr=PROF.kr||[0,0,0,0,0,0];(p.k||[]).forEach((n,i)=>{if(n>0)K[i+1]=(K[i+1]||0)+Math.min(999,Math.floor(n))});
@@ -4571,9 +4572,9 @@ setInterval(()=>{if(G.scr==='town'||G.scr==='lobby')gfCheck()},300e3);
 setTimeout(()=>gfCheck(),4000);
 
 // ---- panel admin: kirim gift ----
-const GFD={t:'ALL',note:'Hadiah dari Guru',xp:0,dr:0,g:0,k:[0,0,0,0,0],it:[],pet:'',s:'w',r:3,lv:1,up:0,n:1,pl:null};
+const GFD={sl:0,t:'ALL',note:'Hadiah dari Guru',xp:0,dr:0,g:0,k:[0,0,0,0,0],it:[],pet:'',s:'w',r:3,lv:1,up:0,n:1,pl:null};
 const gfV=id=>{const e=$(id);return e?e.value:''};
-function gfRead(){if(!$('gfT'))return;GFD.t=gfV('gfT');GFD.note=gfV('gfN');GFD.xp=+gfV('gfX')||0;GFD.dr=+gfV('gfD')||0;GFD.g=+gfV('gfG')||0;GFD.k=[1,2,3,4,5].map(i=>+gfV('gfK'+i)||0);GFD.pet=gfV('gfPt');GFD.s=gfV('gfS');GFD.r=+gfV('gfR')||1;GFD.lv=+gfV('gfL')||1;GFD.up=+gfV('gfU')||0;GFD.n=+gfV('gfC')||1}
+function gfRead(){if(!$('gfT'))return;GFD.t=gfV('gfT');GFD.sl=Math.max(0,Math.min(LVMAX,Math.floor(+gfV('gfLv')||0)));GFD.note=gfV('gfN');GFD.xp=+gfV('gfX')||0;GFD.dr=+gfV('gfD')||0;GFD.g=+gfV('gfG')||0;GFD.k=[1,2,3,4,5].map(i=>+gfV('gfK'+i)||0);GFD.pet=gfV('gfPt');GFD.s=gfV('gfS');GFD.r=+gfV('gfR')||1;GFD.lv=+gfV('gfL')||1;GFD.up=+gfV('gfU')||0;GFD.n=+gfV('gfC')||1}
 async function openGift(){sheet('🎁 Gift Player','<div class="note">Memuat daftar pemain…</div>');
   let d=null,er='';try{d=await knRpc('kn_adm_players',{p_pw:gfPw()})}catch(e){er=String(e.message||e)}
   if(!d||!d.ok){const why=er==='404'?'Fungsi gift belum ada di Supabase. Jalankan kn_gift.sql di SQL Editor (sekali saja), lalu coba lagi.':er==='401'||er==='403'?'Server menolak akses (kode '+er+'). Periksa kunci API Supabase.':d&&d.ok===false?'Password ditolak server. Tutup tab lalu masuk ulang dengan password yang benar.':er&&/^\d+$/.test(er)?'Server error (kode '+er+'). Kemungkinan kn_gift.sql belum dijalankan penuh; jalankan ulang di SQL Editor.':'Tidak bisa terhubung ke internet/server. Periksa koneksi lalu coba lagi.';
@@ -4582,6 +4583,9 @@ async function openGift(){sheet('🎁 Gift Player','<div class="note">Memuat daf
 function gfDraw(msg){const P=PROF,ps=Object.keys(LG.M).sort((a,b)=>LG.M[a].n.localeCompare(LG.M[b].n)),D=GFD,num=(id,v,w,st)=>`<input id="${id}" type="number" min="0" ${st?'step="'+st+'"':''} value="${v}" style="width:${w||60}px">`;
   sheet('🎁 Gift Player',`<div class="row2"><label>Kirim ke</label><select id="gfT"><option value="ALL" ${D.t==='ALL'?'selected':''}>👥 Semua player</option>${(D.pl||[]).map(p=>`<option value="${p.code}" ${D.t===p.code?'selected':''}>${esc(p.name)} (Lv${p.lv}) ${p.code}</option>`).join('')}</select></div>
   <div class="row2"><label>Judul</label><input id="gfN" maxlength="40" value="${esc(D.note)}" style="width:150px"></div>
+  <h4 class="dvh">Level pemain (0 = tidak diubah)</h4>
+  <div class="row2"><label>⬆️ Set Level (1–${LVMAX})</label>${num('gfLv',D.sl||0,60)}</div>
+  ${D.sl>0&&D.t==='ALL'?`<div class="note warn">Level akan diatur ke Lv${D.sl} untuk SEMUA pemain.</div>`:''}
   <h4 class="dvh">Buff (jam bermain aktif, 0 = tidak)</h4>
   <div class="row2"><label>⚡ EXP ×2 (jam)</label>${num('gfX',D.xp,60,.5)}</div><div class="row2"><label>🍀 DROP ×2 (jam)</label>${num('gfD',D.dr,60,.5)}</div>
   <h4 class="dvh">Gold & Crystal</h4>
@@ -4599,12 +4603,12 @@ function gfDraw(msg){const P=PROF,ps=Object.keys(LG.M).sort((a,b)=>LG.M[a].n.loc
   <button class="ghost" onclick="gfHist()">📜 Riwayat gift</button><button class="ghost" onclick="openDev()">◀ Panel pengembang</button>`)}
 function gfAddIt(){gfRead();const D=GFD;D.it.push({s:D.s,r:D.r,lv:Math.max(1,Math.min(40,D.lv)),up:Math.max(0,Math.min(UPMAX[D.r],D.up)),n:Math.max(1,Math.min(30,D.n))});gfDraw()}
 function gfRm(i){gfRead();GFD.it.splice(i,1);gfDraw()}
-async function gfSend(){gfRead();const D=GFD,p={};if(D.xp>0||D.dr>0)p.b={xp:Math.min(720,D.xp),drop:Math.min(720,D.dr)};if(D.g>0)p.g=Math.floor(D.g);if(D.k.some(n=>n>0))p.k=D.k.map(n=>Math.max(0,Math.floor(n)));if(D.it.length)p.it=D.it;if(D.pet)p.pet=D.pet;
+async function gfSend(){gfRead();const D=GFD,p={};if(D.sl>0)p.lv=D.sl;if(D.xp>0||D.dr>0)p.b={xp:Math.min(720,D.xp),drop:Math.min(720,D.dr)};if(D.g>0)p.g=Math.floor(D.g);if(D.k.some(n=>n>0))p.k=D.k.map(n=>Math.max(0,Math.floor(n)));if(D.it.length)p.it=D.it;if(D.pet)p.pet=D.pet;
   if(!Object.keys(p).length){$('gfM').innerHTML='<span style="color:#ff8a7a">Gift masih kosong.</span>';return}
   const who=D.t==='ALL'?'semua player':((D.pl.find(x=>x.code===D.t)||{}).name||D.t);$('gfM').textContent='Mengirim…';
   let d=null;try{d=await knRpc('kn_adm_send',{p_pw:gfPw(),p_target:D.t,p_note:D.note||'Hadiah dari Guru',p_payload:p})}catch(e){d={ok:false,e:String(e.message||e)}}
   if(!d||!d.ok){$('gfM').innerHTML='<span style="color:#ff8a7a">Gagal mengirim ('+((d&&d.e)||'jaringan')+').</span>';return}
-  Object.assign(D,{xp:0,dr:0,g:0,k:[0,0,0,0,0],it:[],pet:''});gfDraw(`<span style="color:#7dff8a">✅ Terkirim ke ${who}. Pemain menerimanya otomatis saat login.</span>`)}
+  Object.assign(D,{sl:0,xp:0,dr:0,g:0,k:[0,0,0,0,0],it:[],pet:''});gfDraw(`<span style="color:#7dff8a">✅ Terkirim ke ${who}. Pemain menerimanya otomatis saat login.</span>`)}
 async function gfHist(){gfRead();sheet('📜 Riwayat Gift','<div class="note">Memuat…</div>');let d=null;try{d=await knRpc('kn_adm_list',{p_pw:gfPw()})}catch(e){}
   if(!d||!d.ok){gfDraw('<span style="color:#ff8a7a">Gagal memuat riwayat.</span>');return}
   sheet('📜 Riwayat Gift',`<div class="lst">${d.list.length?d.list.map(g=>`<div class="it"><span><b>${esc(g.note||'')}</b> → ${g.target==='ALL'?'Semua':esc(g.pname||g.target)}<small style="display:block">${gfLines(g.payload).join(' · ')}<br>${knAgo(g.ago)} · diambil ${g.got} pemain</small></span><button class="mini" onclick="gfDel(${g.id})">Batal</button></div>`).join(''):'<div class="note">Belum ada gift.</div>'}</div><div class="note">"Batal" menghapus gift yang belum diambil pemain (yang sudah diambil tidak ditarik).</div><button class="ghost" onclick="gfDraw()">◀ Kembali</button>`)}
