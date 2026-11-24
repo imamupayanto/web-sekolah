@@ -4261,7 +4261,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v68';
+const GAMEV='v69';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4717,10 +4717,12 @@ async function openRank(){const T=pxSvg('rank',22)+' Rank';sheet(T,'<div class="
 
 // ---- reset: HP siswa menghapus progres lokal bila server naik epoch ----
 let EPN=0,EPW=0;
-function epWipe(ep){window.__reset=1;try{localStorage.removeItem('lmduel_prof');localStorage.removeItem('lmduel_sel');localStorage.setItem('lmduel_epoch',String(ep))}catch(e){}
+function epWipe(ep){window.__reset=1;try{const bk=localStorage.getItem('lmduel_prof');if(bk)localStorage.setItem('lmduel_prof_bak',bk);localStorage.removeItem('lmduel_prof');localStorage.removeItem('lmduel_sel');localStorage.setItem('lmduel_epoch',String(ep))}catch(e){}
   const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:9999;background:#120a26f2;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font:700 15px system-ui';o.innerHTML='<div>🔄 Server direset oleh guru.<br><small style="font-weight:400">Progres lamamu dihapus. Game dimulai dari awal…</small></div>';document.body.appendChild(o);setTimeout(()=>location.reload(),2200)}
 async function epCheck(){if(window.__reset)return true;if(Date.now()-EPN<60e3)return false;EPN=Date.now();
-  try{const d=await knRpc('kn_epoch',{});if(!d||d.epoch==null)return false;const st=+localStorage.getItem('lmduel_epoch')||0;
+  try{const d=await knRpc('kn_epoch',{});if(!d||d.epoch==null)return false;const raw=localStorage.getItem('lmduel_epoch');
+    if(raw===null){localStorage.setItem('lmduel_epoch',String(d.epoch));return false}  /* v69: HP yang belum pernah mencatat epoch TIDAK dihapus (profil bisa dibuat setelah reset) */
+    const st=+raw||0;
     if(d.epoch>st){if(localStorage.getItem('lmduel_prof')){epWipe(d.epoch);return true}localStorage.setItem('lmduel_epoch',String(d.epoch))}}catch(e){}return false}
 {const s=LS.set;LS.set=function(k,v){if(window.__reset&&k==='prof')return;return s.apply(this,arguments)}}
 {const k=knSync;knSync=async function(force){if(await epCheck())return null;return k.apply(this,arguments)}}
