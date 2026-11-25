@@ -438,4 +438,221 @@
       { no: 20, nama: "LUTHFIE SAKHI ZAIDAN", ppkn: 75.0, indo: 82.0, ipas: 73.0 },
       { no: 21, nama: "MAULANA SAMAN HIDAYATULLOH", ppkn: 80.88235294117648, indo: 73.0, ipas: 65.0 },
       { no: 22, nama: "MAULIDATUL MUSTAFIDAH", ppkn: 66.17647058823529, indo: 50.0, ipas: 50.0 },
-      { no: 23, nama: "MIKAILA DEVI NAMIRA", ppkn: 94.11764705882352
+      { no: 23, nama: "MIKAILA DEVI NAMIRA", ppkn: 94.11764705882352, indo: 80.0, ipas: 77.0 },
+      { no: 24, nama: "MUHAMAD THORIQ ZIYAD", ppkn: 83.82352941176471, indo: 87.0, ipas: 88.0 },
+      { no: 25, nama: "NAFISA NAYLA SALSABILA", ppkn: 92.64705882352942, indo: 80.0, ipas: 83.0 },
+      { no: 26, nama: "NAILA ZIFANA KHOIRUNISA", ppkn: 94.11764705882352, indo: 90.0, ipas: 68.0 },
+      { no: 27, nama: "RAFA AZKA PUTRA PRATAMA", ppkn: 77.94117647058823, indo: 75.0, ipas: 58.0 },
+      { no: 28, nama: "RESTU IBNU PRATAMA", ppkn: 97.05882352941177, indo: 78.0, ipas: 72.0 },
+      { no: 29, nama: "REVAN AZKA ADI UTAMA", ppkn: 90.0, indo: 78.0, ipas: 83.0 },
+      { no: 30, nama: "SOFIYANA DEWI SEPTIANI", ppkn: 94.11764705882352, indo: 80.0, ipas: 88.0 },
+      { no: 31, nama: "WIDYA DAVINA QUINN", ppkn: 76.47058823529412, indo: 65.0, ipas: 65.0 },
+      { no: 32, nama: "SRI MARFUAH RAHAYU NINGSIH", ppkn: 83.82352941176471, indo: 77.0, ipas: 65.0 },
+      { no: 33, nama: "ADZAN ABIYU ABBAS", ppkn: 66.17647058823529, indo: 50.0, ipas: 50.0 }
+    ];
+
+    function calcMean(arr) {
+      const valid = arr.filter(v => typeof v === "number" && !Number.isNaN(v));
+      return valid.length ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
+    }
+
+    function getMaxScore(arr) {
+      const valid = arr.filter(v => typeof v === "number" && !Number.isNaN(v));
+      return valid.length ? Math.max(...valid) : null;
+    }
+
+    function getHighlightType(val, avg) {
+      if (typeof val !== "number" || Number.isNaN(val) || avg === null) return null;
+      if (val >= avg) return null;
+      return val < 70 ? "red" : "yellow";
+    }
+
+    const avgPpkn = calcMean(students.map(s => s.ppkn));
+    const avgIndo = calcMean(students.map(s => s.indo));
+    const avgIpas = calcMean(students.map(s => s.ipas));
+
+    const maxPpkn = getMaxScore(students.map(s => s.ppkn));
+    const maxIndo = getMaxScore(students.map(s => s.indo));
+    const maxIpas = getMaxScore(students.map(s => s.ipas));
+
+    const enriched = students.map(s => {
+      const rata = calcMean([s.ppkn, s.indo, s.ipas]);
+      const starPpkn = typeof s.ppkn === "number" && maxPpkn !== null && s.ppkn === maxPpkn;
+      const starIndo = typeof s.indo === "number" && maxIndo !== null && s.indo === maxIndo;
+      const starIpas = typeof s.ipas === "number" && maxIpas !== null && s.ipas === maxIpas;
+
+      const hlPpkn = getHighlightType(s.ppkn, avgPpkn);
+      const hlIndo = getHighlightType(s.indo, avgIndo);
+      const hlIpas = getHighlightType(s.ipas, avgIpas);
+
+      return {
+        ...s,
+        rata,
+        starPpkn,
+        starIndo,
+        starIpas,
+        hasStar: starPpkn || starIndo || starIpas,
+        hlPpkn,
+        hlIndo,
+        hlIpas
+      };
+    });
+
+    // Hitung peringkat 1, 2, 3 berdasarkan rata-rata tertinggi
+    const rankedList = [...enriched]
+      .filter(s => typeof s.rata === "number" && !Number.isNaN(s.rata))
+      .sort((a, b) => b.rata - a.rata || a.no - b.no);
+
+    const rankByNo = {};
+    rankedList.forEach((item, idx) => {
+      rankByNo[item.no] = idx + 1;
+    });
+
+    const avgOverall = calcMean(enriched.map(s => s.rata));
+    enriched.forEach(s => {
+      s.rank = rankByNo[s.no] || 999;
+      s.hlRata = getHighlightType(s.rata, avgOverall);
+      const allHl = [s.hlPpkn, s.hlIndo, s.hlIpas, s.hlRata];
+      s.hasRed = allHl.includes("red");
+      s.hasYellow = allHl.includes("yellow");
+      s.hasAnyBelow = s.hasRed || s.hasYellow;
+    });
+
+    function fmt(num) {
+      if (num === null || num === undefined || Number.isNaN(num)) return null;
+      return num.toFixed(2);
+    }
+
+    function renderRankBadge(rank) {
+      if (rank === 1) return `<span class="rank-badge rank-1">🥇 Peringkat 1</span>`;
+      if (rank === 2) return `<span class="rank-badge rank-2">🥈 Peringkat 2</span>`;
+      if (rank === 3) return `<span class="rank-badge rank-3">🥉 Peringkat 3</span>`;
+      return "";
+    }
+
+    function renderScoreCell(num, hlType, isTopStar = false, bold = false) {
+      if (num === null || num === undefined || Number.isNaN(num)) {
+        return `<span class="missing">Kosong</span>`;
+      }
+      const formatted = fmt(num);
+      const text = bold ? `<strong>${formatted}</strong>` : formatted;
+      const starHtml = isTopStar ? `<span class="star-icon" title="Nilai tertinggi mata pelajaran">⭐</span>` : "";
+
+      if (hlType === "red") {
+        return `<span class="score-red">${text}</span>${starHtml}`;
+      }
+      if (hlType === "yellow") {
+        return `<span class="score-yellow">${text}</span>${starHtml}`;
+      }
+      return `${text}${starHtml}`;
+    }
+
+    function summarizeSubject(arr, avgLabel, maxLabel) {
+      const below = arr.filter(v => v !== null);
+      const red = below.filter(v => v === "red").length;
+      const yellow = below.filter(v => v === "yellow").length;
+      return `${below.length} < ${avgLabel} (${red} merah, ${yellow} kuning) • Max ${maxLabel} ⭐`;
+    }
+
+    function renderStats() {
+      document.getElementById("avgPpkn").textContent = fmt(avgPpkn);
+      document.getElementById("avgIndo").textContent = fmt(avgIndo);
+      document.getElementById("avgIpas").textContent = fmt(avgIpas);
+      document.getElementById("avgOverall").textContent = fmt(avgOverall);
+
+      document.getElementById("subBelowPpkn").textContent =
+        summarizeSubject(enriched.map(d => d.hlPpkn), fmt(avgPpkn), fmt(maxPpkn));
+      document.getElementById("subBelowIndo").textContent =
+        summarizeSubject(enriched.map(d => d.hlIndo), fmt(avgIndo), fmt(maxIndo));
+      document.getElementById("subBelowIpas").textContent =
+        summarizeSubject(enriched.map(d => d.hlIpas), fmt(avgIpas), fmt(maxIpas));
+
+      const rataBelow = enriched.filter(d => d.hlRata !== null);
+      const rataRed = rataBelow.filter(d => d.hlRata === "red").length;
+      const rataYellow = rataBelow.filter(d => d.hlRata === "yellow").length;
+      document.getElementById("subBelowRata").textContent =
+        `${rataBelow.length} < ${fmt(avgOverall)} (${rataRed} merah, ${rataYellow} kuning)`;
+
+      document.getElementById("avgLegend").textContent =
+        `Max mapel (⭐): PPKN ${fmt(maxPpkn)}, B. Indo ${fmt(maxIndo)}, IPAS ${fmt(maxIpas)} • Merah: < rata-rata & < 70 • Kuning: < rata-rata & ≥ 70.`;
+    }
+
+    let currentFilter = "all";
+    let currentQuery = "";
+    let sortKey = "no";
+    let sortAsc = true;
+
+    function renderTable() {
+      const filtered = enriched.filter(item => {
+        const matchesQuery = item.nama.toLowerCase().includes(currentQuery.toLowerCase());
+        if (!matchesQuery) return false;
+        if (currentFilter === "top3Rank") return item.rank <= 3;
+        if (currentFilter === "hasStar") return item.hasStar;
+        if (currentFilter === "hasBelow") return item.hasAnyBelow;
+        if (currentFilter === "hasRed") return item.hasRed;
+        if (currentFilter === "hasYellow") return item.hasYellow;
+        return true;
+      });
+
+      filtered.sort((a, b) => {
+        const valA = a[sortKey];
+        const valB = b[sortKey];
+        if (typeof valA === "string" && typeof valB === "string") {
+          return sortAsc ? valA.localeCompare(valB, "id") : valB.localeCompare(valA, "id");
+        }
+        return sortAsc ? valA - valB : valB - valA;
+      });
+
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = filtered.map(item => `
+        <tr>
+          <td class="center">${item.no}</td>
+          <td>
+            <div class="student-cell">
+              <span>${item.nama}</span>
+              ${renderRankBadge(item.rank)}
+            </div>
+          </td>
+          <td class="num">${renderScoreCell(item.ppkn, item.hlPpkn, item.starPpkn)}</td>
+          <td class="num">${renderScoreCell(item.indo, item.hlIndo, item.starIndo)}</td>
+          <td class="num">${renderScoreCell(item.ipas, item.hlIpas, item.starIpas)}</td>
+          <td class="num">${renderScoreCell(item.rata, item.hlRata, false, true)}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("shownCount").textContent =
+        `Menampilkan ${filtered.length} dari ${enriched.length} siswa`;
+    }
+
+    document.getElementById("searchInput").addEventListener("input", e => {
+      currentQuery = e.target.value.trim();
+      renderTable();
+    });
+
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentFilter = btn.dataset.filter;
+        renderTable();
+      });
+    });
+
+    document.querySelectorAll("thead th[data-sort]").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.sort;
+        if (sortKey === key) {
+          sortAsc = !sortAsc;
+        } else {
+          sortKey = key;
+          sortAsc = true;
+        }
+        renderTable();
+      });
+    });
+
+    renderStats();
+    renderTable();
+  </script>
+</body>
+</html>
