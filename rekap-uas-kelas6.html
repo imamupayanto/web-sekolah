@@ -17,6 +17,9 @@
       --danger-text: #b91c1c;
       --danger-bg: #fee2e2;
       --danger-border: #fca5a5;
+      --warn: #854d0e;
+      --warn-bg: #fef9c3;
+      --warn-border: #fde047;
     }
 
     * {
@@ -231,7 +234,7 @@
       vertical-align: middle;
     }
 
-    .score-below-avg {
+    .score-red {
       background-color: var(--danger-bg);
       color: var(--danger);
       font-weight: 700;
@@ -239,6 +242,16 @@
       padding: 3px 8px;
       display: inline-block;
       border: 1px solid var(--danger-border);
+    }
+
+    .score-yellow {
+      background-color: var(--warn-bg);
+      color: var(--warn);
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 3px 8px;
+      display: inline-block;
+      border: 1px solid var(--warn-border);
     }
 
     .missing {
@@ -319,8 +332,9 @@
         </div>
         <div class="filter-group">
           <button class="filter-btn active" data-filter="all">Semua (33)</button>
-          <button class="filter-btn" data-filter="hasBelow">Ada Nilai &lt; Rata-Rata Mapel</button>
-          <button class="filter-btn" data-filter="allAbove">Semua ≥ Rata-Rata Mapel</button>
+          <button class="filter-btn" data-filter="hasBelow">Ada Highlight</button>
+          <button class="filter-btn" data-filter="hasRed">Ada Merah (&lt; 70)</button>
+          <button class="filter-btn" data-filter="hasYellow">Ada Kuning (≥ 70)</button>
         </div>
       </div>
 
@@ -341,7 +355,7 @@
       </div>
 
       <div class="footer-note">
-        <span id="avgLegend">Highlight merah: nilai di bawah rata-rata masing-masing mapel.</span>
+        <span id="avgLegend">Merah: di bawah rata-rata &amp; &lt; 70 • Kuning: di bawah rata-rata &amp; ≥ 70.</span>
         <span id="shownCount">Menampilkan 33 dari 33 siswa</span>
       </div>
     </div>
@@ -389,28 +403,31 @@
       return valid.length ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
     }
 
+    function getHighlightType(val, avg) {
+      if (typeof val !== "number" || Number.isNaN(val) || avg === null) return null;
+      if (val >= avg) return null;
+      return val < 70 ? "red" : "yellow";
+    }
+
     const avgPpkn = calcMean(students.map(s => s.ppkn));
     const avgIndo = calcMean(students.map(s => s.indo));
     const avgIpas = calcMean(students.map(s => s.ipas));
 
     const enriched = students.map(s => {
       const rata = calcMean([s.ppkn, s.indo, s.ipas]);
-      const belowPpkn = typeof s.ppkn === "number" && avgPpkn !== null && s.ppkn < avgPpkn;
-      const belowIndo = typeof s.indo === "number" && avgIndo !== null && s.indo < avgIndo;
-      const belowIpas = typeof s.ipas === "number" && avgIpas !== null && s.ipas < avgIpas;
-      return {
-        ...s,
-        rata,
-        belowPpkn,
-        belowIndo,
-        belowIpas,
-        hasBelowSubject: belowPpkn || belowIndo || belowIpas
-      };
+      const hlPpkn = getHighlightType(s.ppkn, avgPpkn);
+      const hlIndo = getHighlightType(s.indo, avgIndo);
+      const hlIpas = getHighlightType(s.ipas, avgIpas);
+      return { ...s, rata, hlPpkn, hlIndo, hlIpas };
     });
 
     const avgOverall = calcMean(enriched.map(s => s.rata));
     enriched.forEach(s => {
-      s.belowRata = typeof s.rata === "number" && avgOverall !== null && s.rata < avgOverall;
+      s.hlRata = getHighlightType(s.rata, avgOverall);
+      const allHl = [s.hlPpkn, s.hlIndo, s.hlIpas, s.hlRata];
+      s.hasRed = allHl.includes("red");
+      s.hasYellow = allHl.includes("yellow");
+      s.hasAnyHl = s.hasRed || s.hasYellow;
     });
 
     function fmt(num) {
@@ -418,35 +435,44 @@
       return num.toFixed(2);
     }
 
-    function renderScoreCell(num, highlight, bold = false) {
+    function renderScoreCell(num, hlType, bold = false) {
       if (num === null || num === undefined || Number.isNaN(num)) {
         return `<span class="missing">Kosong</span>`;
       }
       const text = bold ? `<strong>${fmt(num)}</strong>` : fmt(num);
-      if (highlight) {
-        return `<span class="score-below-avg">${text}</span>`;
+      if (hlType === "red") {
+        return `<span class="score-red">${text}</span>`;
+      }
+      if (hlType === "yellow") {
+        return `<span class="score-yellow">${text}</span>`;
       }
       return text;
     }
 
-    function renderStats() {
-      const cntPpkn = enriched.filter(d => d.belowPpkn).length;
-      const cntIndo = enriched.filter(d => d.belowIndo).length;
-      const cntIpas = enriched.filter(d => d.belowIpas).length;
-      const cntRata = enriched.filter(d => d.belowRata).length;
+    function summarizeHighlight(arr, avgLabel) {
+      const below = arr.filter(v => v !== null);
+      const red = below.filter(v => v === "red").length;
+      const yellow = below.filter(v => v === "yellow").length;
+      return `${below.length} < ${avgLabel} (${red} merah, ${yellow} kuning)`;
+    }
 
+    function renderStats() {
       document.getElementById("avgPpkn").textContent = fmt(avgPpkn);
       document.getElementById("avgIndo").textContent = fmt(avgIndo);
       document.getElementById("avgIpas").textContent = fmt(avgIpas);
       document.getElementById("avgOverall").textContent = fmt(avgOverall);
 
-      document.getElementById("subBelowPpkn").textContent = `${cntPpkn} siswa < ${fmt(avgPpkn)}`;
-      document.getElementById("subBelowIndo").textContent = `${cntIndo} siswa < ${fmt(avgIndo)}`;
-      document.getElementById("subBelowIpas").textContent = `${cntIpas} siswa < ${fmt(avgIpas)}`;
-      document.getElementById("subBelowRata").textContent = `${cntRata} siswa < ${fmt(avgOverall)}`;
+      document.getElementById("subBelowPpkn").textContent =
+        summarizeHighlight(enriched.map(d => d.hlPpkn), fmt(avgPpkn));
+      document.getElementById("subBelowIndo").textContent =
+        summarizeHighlight(enriched.map(d => d.hlIndo), fmt(avgIndo));
+      document.getElementById("subBelowIpas").textContent =
+        summarizeHighlight(enriched.map(d => d.hlIpas), fmt(avgIpas));
+      document.getElementById("subBelowRata").textContent =
+        summarizeHighlight(enriched.map(d => d.hlRata), fmt(avgOverall));
 
       document.getElementById("avgLegend").textContent =
-        `Highlight merah: PPKN < ${fmt(avgPpkn)}, B. Indo < ${fmt(avgIndo)}, IPAS < ${fmt(avgIpas)}, Rata-Rata < ${fmt(avgOverall)}.`;
+        `Rata-rata: PPKN ${fmt(avgPpkn)} • B. Indo ${fmt(avgIndo)} • IPAS ${fmt(avgIpas)} • Gabungan ${fmt(avgOverall)} (Merah < 70, Kuning ≥ 70).`;
     }
 
     let currentFilter = "all";
@@ -458,8 +484,9 @@
       const filtered = enriched.filter(item => {
         const matchesQuery = item.nama.toLowerCase().includes(currentQuery.toLowerCase());
         if (!matchesQuery) return false;
-        if (currentFilter === "hasBelow") return item.hasBelowSubject;
-        if (currentFilter === "allAbove") return !item.hasBelowSubject;
+        if (currentFilter === "hasBelow") return item.hasAnyHl;
+        if (currentFilter === "hasRed") return item.hasRed;
+        if (currentFilter === "hasYellow") return item.hasYellow;
         return true;
       });
 
@@ -477,10 +504,10 @@
         <tr>
           <td class="center">${item.no}</td>
           <td>${item.nama}</td>
-          <td class="num">${renderScoreCell(item.ppkn, item.belowPpkn)}</td>
-          <td class="num">${renderScoreCell(item.indo, item.belowIndo)}</td>
-          <td class="num">${renderScoreCell(item.ipas, item.belowIpas)}</td>
-          <td class="num">${renderScoreCell(item.rata, item.belowRata, true)}</td>
+          <td class="num">${renderScoreCell(item.ppkn, item.hlPpkn)}</td>
+          <td class="num">${renderScoreCell(item.indo, item.hlIndo)}</td>
+          <td class="num">${renderScoreCell(item.ipas, item.hlIpas)}</td>
+          <td class="num">${renderScoreCell(item.rata, item.hlRata, true)}</td>
         </tr>
       `).join("");
 
