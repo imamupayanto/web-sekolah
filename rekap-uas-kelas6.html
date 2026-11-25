@@ -231,7 +231,7 @@
       vertical-align: middle;
     }
 
-    .score-low {
+    .score-below-avg {
       background-color: var(--danger-bg);
       color: var(--danger);
       font-weight: 700;
@@ -293,27 +293,22 @@
       <div class="stat-card">
         <div class="stat-label">Rata-Rata PPKN</div>
         <div class="stat-value" id="avgPpkn">-</div>
-        <div class="stat-sub">33 siswa terisi</div>
+        <div class="stat-sub" id="subBelowPpkn">-</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Rata-Rata B. Indonesia</div>
         <div class="stat-value" id="avgIndo">-</div>
-        <div class="stat-sub">33 siswa terisi</div>
+        <div class="stat-sub" id="subBelowIndo">-</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Rata-Rata IPAS</div>
         <div class="stat-value" id="avgIpas">-</div>
-        <div class="stat-sub">33 siswa terisi</div>
+        <div class="stat-sub" id="subBelowIpas">-</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Rata-Rata Gabungan</div>
         <div class="stat-value" id="avgOverall">-</div>
-        <div class="stat-sub">Rata-rata 3 mapel</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Nilai &lt; 70</div>
-        <div class="stat-value" id="countLowScores" style="color: var(--danger);">-</div>
-        <div class="stat-sub" id="subLowStudents">-</div>
+        <div class="stat-sub" id="subBelowRata">-</div>
       </div>
     </div>
 
@@ -324,8 +319,8 @@
         </div>
         <div class="filter-group">
           <button class="filter-btn active" data-filter="all">Semua (33)</button>
-          <button class="filter-btn" data-filter="hasLow">Ada Nilai &lt; 70</button>
-          <button class="filter-btn" data-filter="noLow">Semua ≥ 70</button>
+          <button class="filter-btn" data-filter="hasBelow">Ada Nilai &lt; Rata-Rata Mapel</button>
+          <button class="filter-btn" data-filter="allAbove">Semua ≥ Rata-Rata Mapel</button>
         </div>
       </div>
 
@@ -346,7 +341,7 @@
       </div>
 
       <div class="footer-note">
-        <span>Highlight merah menandakan nilai di bawah 70. Pembulatan 2 angka di belakang koma.</span>
+        <span id="avgLegend">Highlight merah: nilai di bawah rata-rata masing-masing mapel.</span>
         <span id="shownCount">Menampilkan 33 dari 33 siswa</span>
       </div>
     </div>
@@ -389,58 +384,69 @@
       { no: 33, nama: "ADZAN ABIYU ABBAS", ppkn: 66.17647058823529, indo: 50.0, ipas: 50.0 }
     ];
 
-    const CUTOFF = 70;
-
-    function isLow(num) {
-      return typeof num === "number" && !Number.isNaN(num) && num < CUTOFF;
+    function calcMean(arr) {
+      const valid = arr.filter(v => typeof v === "number" && !Number.isNaN(v));
+      return valid.length ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
     }
 
-    function enrichStudent(s) {
-      const vals = [s.ppkn, s.indo, s.ipas].filter(v => typeof v === "number" && !Number.isNaN(v));
-      const rata = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
-      const lowCountInRow = [s.ppkn, s.indo, s.ipas, rata].filter(v => isLow(v)).length;
-      return { ...s, rata, hasLow: lowCountInRow > 0 };
-    }
+    const avgPpkn = calcMean(students.map(s => s.ppkn));
+    const avgIndo = calcMean(students.map(s => s.indo));
+    const avgIpas = calcMean(students.map(s => s.ipas));
 
-    const enriched = students.map(enrichStudent);
+    const enriched = students.map(s => {
+      const rata = calcMean([s.ppkn, s.indo, s.ipas]);
+      const belowPpkn = typeof s.ppkn === "number" && avgPpkn !== null && s.ppkn < avgPpkn;
+      const belowIndo = typeof s.indo === "number" && avgIndo !== null && s.indo < avgIndo;
+      const belowIpas = typeof s.ipas === "number" && avgIpas !== null && s.ipas < avgIpas;
+      return {
+        ...s,
+        rata,
+        belowPpkn,
+        belowIndo,
+        belowIpas,
+        hasBelowSubject: belowPpkn || belowIndo || belowIpas
+      };
+    });
+
+    const avgOverall = calcMean(enriched.map(s => s.rata));
+    enriched.forEach(s => {
+      s.belowRata = typeof s.rata === "number" && avgOverall !== null && s.rata < avgOverall;
+    });
 
     function fmt(num) {
       if (num === null || num === undefined || Number.isNaN(num)) return null;
       return num.toFixed(2);
     }
 
-    function renderScoreCell(num, bold = false) {
+    function renderScoreCell(num, highlight, bold = false) {
       if (num === null || num === undefined || Number.isNaN(num)) {
         return `<span class="missing">Kosong</span>`;
       }
       const text = bold ? `<strong>${fmt(num)}</strong>` : fmt(num);
-      if (isLow(num)) {
-        return `<span class="score-low">${text}</span>`;
+      if (highlight) {
+        return `<span class="score-below-avg">${text}</span>`;
       }
       return text;
     }
 
     function renderStats() {
-      const avg = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
-      const avgP = avg(enriched.map(d => d.ppkn));
-      const avgI = avg(enriched.map(d => d.indo));
-      const avgS = avg(enriched.map(d => d.ipas));
-      const avgAll = avg(enriched.map(d => d.rata));
+      const cntPpkn = enriched.filter(d => d.belowPpkn).length;
+      const cntIndo = enriched.filter(d => d.belowIndo).length;
+      const cntIpas = enriched.filter(d => d.belowIpas).length;
+      const cntRata = enriched.filter(d => d.belowRata).length;
 
-      let totalLowScores = 0;
-      let studentsWithLow = 0;
-      enriched.forEach(d => {
-        const subjectLows = [d.ppkn, d.indo, d.ipas].filter(v => isLow(v)).length;
-        totalLowScores += subjectLows;
-        if (subjectLows > 0) studentsWithLow += 1;
-      });
+      document.getElementById("avgPpkn").textContent = fmt(avgPpkn);
+      document.getElementById("avgIndo").textContent = fmt(avgIndo);
+      document.getElementById("avgIpas").textContent = fmt(avgIpas);
+      document.getElementById("avgOverall").textContent = fmt(avgOverall);
 
-      document.getElementById("avgPpkn").textContent = fmt(avgP);
-      document.getElementById("avgIndo").textContent = fmt(avgI);
-      document.getElementById("avgIpas").textContent = fmt(avgS);
-      document.getElementById("avgOverall").textContent = fmt(avgAll);
-      document.getElementById("countLowScores").textContent = `${totalLowScores} nilai`;
-      document.getElementById("subLowStudents").textContent = `Pada ${studentsWithLow} siswa`;
+      document.getElementById("subBelowPpkn").textContent = `${cntPpkn} siswa < ${fmt(avgPpkn)}`;
+      document.getElementById("subBelowIndo").textContent = `${cntIndo} siswa < ${fmt(avgIndo)}`;
+      document.getElementById("subBelowIpas").textContent = `${cntIpas} siswa < ${fmt(avgIpas)}`;
+      document.getElementById("subBelowRata").textContent = `${cntRata} siswa < ${fmt(avgOverall)}`;
+
+      document.getElementById("avgLegend").textContent =
+        `Highlight merah: PPKN < ${fmt(avgPpkn)}, B. Indo < ${fmt(avgIndo)}, IPAS < ${fmt(avgIpas)}, Rata-Rata < ${fmt(avgOverall)}.`;
     }
 
     let currentFilter = "all";
@@ -452,8 +458,8 @@
       const filtered = enriched.filter(item => {
         const matchesQuery = item.nama.toLowerCase().includes(currentQuery.toLowerCase());
         if (!matchesQuery) return false;
-        if (currentFilter === "hasLow") return item.hasLow;
-        if (currentFilter === "noLow") return !item.hasLow;
+        if (currentFilter === "hasBelow") return item.hasBelowSubject;
+        if (currentFilter === "allAbove") return !item.hasBelowSubject;
         return true;
       });
 
@@ -471,10 +477,10 @@
         <tr>
           <td class="center">${item.no}</td>
           <td>${item.nama}</td>
-          <td class="num">${renderScoreCell(item.ppkn)}</td>
-          <td class="num">${renderScoreCell(item.indo)}</td>
-          <td class="num">${renderScoreCell(item.ipas)}</td>
-          <td class="num">${renderScoreCell(item.rata, true)}</td>
+          <td class="num">${renderScoreCell(item.ppkn, item.belowPpkn)}</td>
+          <td class="num">${renderScoreCell(item.indo, item.belowIndo)}</td>
+          <td class="num">${renderScoreCell(item.ipas, item.belowIpas)}</td>
+          <td class="num">${renderScoreCell(item.rata, item.belowRata, true)}</td>
         </tr>
       `).join("");
 
