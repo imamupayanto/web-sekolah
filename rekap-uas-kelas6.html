@@ -13,12 +13,10 @@
       --primary: #2563eb;
       --primary-light: #eff6ff;
       --border: #e2e8f0;
-      --success: #15803d;
-      --success-bg: #dcfce7;
-      --warn: #b45309;
-      --warn-bg: #fef3c7;
-      --danger: #b91c1c;
+      --danger: #991b1b;
+      --danger-text: #b91c1c;
       --danger-bg: #fee2e2;
+      --danger-border: #fca5a5;
     }
 
     * {
@@ -36,7 +34,7 @@
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 1020px;
       margin: 0 auto;
     }
 
@@ -84,7 +82,7 @@
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
       gap: 14px;
       margin-bottom: 20px;
     }
@@ -98,7 +96,7 @@
     }
 
     .stat-label {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -106,7 +104,7 @@
     }
 
     .stat-value {
-      font-size: 1.5rem;
+      font-size: 1.45rem;
       font-weight: 700;
       color: var(--text);
       margin-top: 4px;
@@ -140,7 +138,6 @@
     .search-box {
       flex: 1 1 240px;
       max-width: 360px;
-      position: relative;
     }
 
     .search-box input {
@@ -234,31 +231,18 @@
       vertical-align: middle;
     }
 
-    .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 600;
-    }
-
-    .badge-pass {
-      background: var(--success-bg);
-      color: var(--success);
-    }
-
-    .badge-remedial {
-      background: var(--warn-bg);
-      color: var(--warn);
-    }
-
-    .badge-incomplete {
-      background: var(--danger-bg);
+    .score-low {
+      background-color: var(--danger-bg);
       color: var(--danger);
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 3px 8px;
+      display: inline-block;
+      border: 1px solid var(--danger-border);
     }
 
     .missing {
-      color: var(--danger);
+      color: var(--danger-text);
       font-weight: 600;
       font-style: italic;
     }
@@ -279,6 +263,8 @@
       body {
         background: #fff;
         padding: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
       .btn-print, .toolbar {
         display: none !important;
@@ -298,7 +284,7 @@
     <div class="header">
       <div>
         <h1>Rekap Nilai UAS Semester 1 — Kelas 6</h1>
-        <p>Mata Pelajaran: PPKN &amp; Bahasa Indonesia • Total Siswa: 33</p>
+        <p>Mata Pelajaran: PPKN, Bahasa Indonesia &amp; IPAS • Total Siswa: 33</p>
       </div>
       <button class="btn-print" onclick="window.print()">🖨️ Cetak Rekap</button>
     </div>
@@ -307,7 +293,7 @@
       <div class="stat-card">
         <div class="stat-label">Rata-Rata PPKN</div>
         <div class="stat-value" id="avgPpkn">-</div>
-        <div class="stat-sub" id="subPpkn">32 siswa terisi</div>
+        <div class="stat-sub">33 siswa terisi</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Rata-Rata B. Indonesia</div>
@@ -315,14 +301,19 @@
         <div class="stat-sub">33 siswa terisi</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Rata-Rata Gabungan</div>
-        <div class="stat-value" id="avgOverall">-</div>
-        <div class="stat-sub">Nilai rata-rata kelas</div>
+        <div class="stat-label">Rata-Rata IPAS</div>
+        <div class="stat-value" id="avgIpas">-</div>
+        <div class="stat-sub">33 siswa terisi</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Perlu Perhatian</div>
-        <div class="stat-value" id="countAttention">-</div>
-        <div class="stat-sub">Nilai &lt; 75 atau data kosong</div>
+        <div class="stat-label">Rata-Rata Gabungan</div>
+        <div class="stat-value" id="avgOverall">-</div>
+        <div class="stat-sub">Rata-rata 3 mapel</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Nilai &lt; 70</div>
+        <div class="stat-value" id="countLowScores" style="color: var(--danger);">-</div>
+        <div class="stat-sub" id="subLowStudents">-</div>
       </div>
     </div>
 
@@ -333,9 +324,8 @@
         </div>
         <div class="filter-group">
           <button class="filter-btn active" data-filter="all">Semua (33)</button>
-          <button class="filter-btn" data-filter="good">Tuntas (≥ 75)</button>
-          <button class="filter-btn" data-filter="low">Di Bawah 75</button>
-          <button class="filter-btn" data-filter="incomplete">Data Kosong</button>
+          <button class="filter-btn" data-filter="hasLow">Ada Nilai &lt; 70</button>
+          <button class="filter-btn" data-filter="noLow">Semua ≥ 70</button>
         </div>
       </div>
 
@@ -347,8 +337,8 @@
               <th data-sort="nama">Nama Siswa ↕</th>
               <th class="num" data-sort="ppkn">PPKN ↕</th>
               <th class="num" data-sort="indo">Bahasa Indonesia ↕</th>
+              <th class="num" data-sort="ipas">IPAS ↕</th>
               <th class="num" data-sort="rata">Rata-Rata ↕</th>
-              <th class="center" data-sort="status">Status ↕</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -356,7 +346,7 @@
       </div>
 
       <div class="footer-note">
-        <span>Catatan: Nilai ditampilkan dengan pembulatan 2 desimal. Ambang batas tuntas acuan: 75.</span>
+        <span>Highlight merah menandakan nilai di bawah 70. Pembulatan 2 angka di belakang koma.</span>
         <span id="shownCount">Menampilkan 33 dari 33 siswa</span>
       </div>
     </div>
@@ -364,60 +354,52 @@
 
   <script>
     const students = [
-      { no: 1, nama: "ADITYA IRFANUL HAKIM", ppkn: 94.11764705882352, indo: 88 },
-      { no: 2, nama: "AGUNG RIYAJI WIJAKSONO", ppkn: 91.17647058823529, indo: 72 },
-      { no: 3, nama: "AHZAMI FATAH ALBARI", ppkn: 83.82352941176471, indo: 75 },
-      { no: 4, nama: "ALIF ALARSIL RAMADAN", ppkn: 83.82352941176471, indo: 77 },
-      { no: 5, nama: "ALIKA INDRIANA RAMADANI", ppkn: 75.0, indo: 80 },
-      { no: 6, nama: "ALZIA SATYA KINARA", ppkn: 88.23529411764706, indo: 70 },
-      { no: 7, nama: "ANAS NUR KHOLIK", ppkn: 85.29411764705883, indo: 82 },
-      { no: 8, nama: "ANNISA RAMADANI", ppkn: 97.05882352941177, indo: 92 },
-      { no: 9, nama: "AQILA PUTRI NUR HASANAH", ppkn: 92.64705882352942, indo: 92 },
-      { no: 10, nama: "ARKAN NADHIF FAHRIAN", ppkn: 86.76470588235294, indo: 88 },
-      { no: 11, nama: "ATHFAL AZZIS ALDIANSYAH", ppkn: 72.05882352941177, indo: 60 },
-      { no: 12, nama: "AZAHRAN AZKIYA SHIDQI", ppkn: 97.05882352941177, indo: 92 },
-      { no: 13, nama: "AZRINA ZIA FATHIAN", ppkn: 95.58823529411765, indo: 90 },
-      { no: 14, nama: "ERINA SIPTA RENATA", ppkn: 94.11764705882352, indo: 93 },
-      { no: 15, nama: "FAKHRIE ZHAFRAN KHAIRY", ppkn: 86.76470588235294, indo: 80 },
-      { no: 16, nama: "FAREL GAYUH WIBOWO", ppkn: 86.76470588235294, indo: 78 },
-      { no: 17, nama: "FAUZAN ADLI AZHIM", ppkn: 95.58823529411765, indo: 78 },
-      { no: 18, nama: "FAZILAH ZAHIA AZZALFA", ppkn: 95.58823529411765, indo: 92 },
-      { no: 19, nama: "FIRDAUS ARDIANSYAH SUDRAJAT", ppkn: 73.52941176470588, indo: 70 },
-      { no: 20, nama: "LUTHFIE SAKHI ZAIDAN", ppkn: 75.0, indo: 82 },
-      { no: 21, nama: "MAULANA SAMAN HIDAYATULLOH", ppkn: 80.88235294117646, indo: 73 },
-      { no: 22, nama: "MAULIDATUL MUSTAFIDAH", ppkn: 66.17647058823529, indo: 50 },
-      { no: 23, nama: "MIKAILA DEVI NAMIRA", ppkn: 94.11764705882352, indo: 80 },
-      { no: 24, nama: "MUHAMAD THORIQ ZIYAD", ppkn: 83.82352941176471, indo: 87 },
-      { no: 25, nama: "NAFISA NAYLA SALSABILA", ppkn: 92.64705882352942, indo: 80 },
-      { no: 26, nama: "NAILA ZIFANA KHOIRUNISA", ppkn: 94.11764705882352, indo: 90 },
-      { no: 27, nama: "RAFA AZKA PUTRA PRATAMA", ppkn: 77.94117647058823, indo: 75 },
-      { no: 28, nama: "RESTU IBNU PRATAMA", ppkn: 97.05882352941177, indo: 78 },
-      { no: 29, nama: "REVAN AZKA ADI UTAMA", ppkn: null, indo: 78 },
-      { no: 30, nama: "SOFIYANA DEWI SEPTIANI", ppkn: 94.11764705882352, indo: 80 },
-      { no: 31, nama: "WIDYA DAVINA QUINN", ppkn: 76.47058823529412, indo: 65 },
-      { no: 32, nama: "SRI MARFUAH RAHAYU NINGSIH", ppkn: 83.82352941176471, indo: 77 },
-      { no: 33, nama: "ADZAN ABIYU ABBAS", ppkn: 66.17647058823529, indo: 50 }
+      { no: 1, nama: "ADITYA IRFANUL HAKIM", ppkn: 94.11764705882352, indo: 88.0, ipas: 87.0 },
+      { no: 2, nama: "AGUNG RIYAJI WIJAKSONO", ppkn: 91.17647058823529, indo: 72.0, ipas: 83.0 },
+      { no: 3, nama: "AHZAMI FATAH ALBARI", ppkn: 83.82352941176471, indo: 75.0, ipas: 82.0 },
+      { no: 4, nama: "ALIF ALARSIL RAMADAN", ppkn: 83.82352941176471, indo: 77.0, ipas: 95.0 },
+      { no: 5, nama: "ALIKA INDRIANA RAMADANI", ppkn: 75.0, indo: 80.0, ipas: 75.0 },
+      { no: 6, nama: "ALZIA SATYA KINARA", ppkn: 88.23529411764706, indo: 70.0, ipas: 67.0 },
+      { no: 7, nama: "ANAS NUR KHOLIK", ppkn: 85.29411764705883, indo: 82.0, ipas: 80.0 },
+      { no: 8, nama: "ANNISA RAMADANI", ppkn: 97.05882352941177, indo: 92.0, ipas: 95.0 },
+      { no: 9, nama: "AQILA PUTRI NUR HASANAH", ppkn: 92.64705882352942, indo: 92.0, ipas: 98.0 },
+      { no: 10, nama: "ARKAN NADHIF FAHRIAN", ppkn: 86.76470588235294, indo: 88.0, ipas: 90.0 },
+      { no: 11, nama: "ATHFAL AZZIS ALDIANSYAH", ppkn: 72.05882352941177, indo: 60.0, ipas: 65.0 },
+      { no: 12, nama: "AZAHRAN AZKIYA SHIDQI", ppkn: 97.05882352941177, indo: 92.0, ipas: 100.0 },
+      { no: 13, nama: "AZRINA ZIA FATHIAN", ppkn: 95.58823529411765, indo: 90.0, ipas: 92.0 },
+      { no: 14, nama: "ERINA SIPTA RENATA", ppkn: 94.11764705882352, indo: 93.0, ipas: 82.0 },
+      { no: 15, nama: "FAKHRIE ZHAFRAN KHAIRY", ppkn: 86.76470588235294, indo: 80.0, ipas: 87.0 },
+      { no: 16, nama: "FAREL GAYUH WIBOWO", ppkn: 86.76470588235294, indo: 78.0, ipas: 77.0 },
+      { no: 17, nama: "FAUZAN ADLI AZHIM", ppkn: 95.58823529411765, indo: 78.0, ipas: 83.0 },
+      { no: 18, nama: "FAZILAH ZAHIA AZZALFA", ppkn: 95.58823529411765, indo: 92.0, ipas: 100.0 },
+      { no: 19, nama: "FIRDAUS ARDIANSYAH SUDRAJAT", ppkn: 73.52941176470588, indo: 70.0, ipas: 67.0 },
+      { no: 20, nama: "LUTHFIE SAKHI ZAIDAN", ppkn: 75.0, indo: 82.0, ipas: 73.0 },
+      { no: 21, nama: "MAULANA SAMAN HIDAYATULLOH", ppkn: 80.88235294117648, indo: 73.0, ipas: 65.0 },
+      { no: 22, nama: "MAULIDATUL MUSTAFIDAH", ppkn: 66.17647058823529, indo: 50.0, ipas: 50.0 },
+      { no: 23, nama: "MIKAILA DEVI NAMIRA", ppkn: 94.11764705882352, indo: 80.0, ipas: 77.0 },
+      { no: 24, nama: "MUHAMAD THORIQ ZIYAD", ppkn: 83.82352941176471, indo: 87.0, ipas: 88.0 },
+      { no: 25, nama: "NAFISA NAYLA SALSABILA", ppkn: 92.64705882352942, indo: 80.0, ipas: 83.0 },
+      { no: 26, nama: "NAILA ZIFANA KHOIRUNISA", ppkn: 94.11764705882352, indo: 90.0, ipas: 68.0 },
+      { no: 27, nama: "RAFA AZKA PUTRA PRATAMA", ppkn: 77.94117647058823, indo: 75.0, ipas: 58.0 },
+      { no: 28, nama: "RESTU IBNU PRATAMA", ppkn: 97.05882352941177, indo: 78.0, ipas: 72.0 },
+      { no: 29, nama: "REVAN AZKA ADI UTAMA", ppkn: 90.0, indo: 78.0, ipas: 83.0 },
+      { no: 30, nama: "SOFIYANA DEWI SEPTIANI", ppkn: 94.11764705882352, indo: 80.0, ipas: 88.0 },
+      { no: 31, nama: "WIDYA DAVINA QUINN", ppkn: 76.47058823529412, indo: 65.0, ipas: 65.0 },
+      { no: 32, nama: "SRI MARFUAH RAHAYU NINGSIH", ppkn: 83.82352941176471, indo: 77.0, ipas: 65.0 },
+      { no: 33, nama: "ADZAN ABIYU ABBAS", ppkn: 66.17647058823529, indo: 50.0, ipas: 50.0 }
     ];
 
-    const THRESHOLD = 75;
+    const CUTOFF = 70;
+
+    function isLow(num) {
+      return typeof num === "number" && !Number.isNaN(num) && num < CUTOFF;
+    }
 
     function enrichStudent(s) {
-      const hasPpkn = typeof s.ppkn === "number" && !Number.isNaN(s.ppkn);
-      const hasIndo = typeof s.indo === "number" && !Number.isNaN(s.indo);
-      const vals = [hasPpkn ? s.ppkn : null, hasIndo ? s.indo : null].filter(v => v !== null);
+      const vals = [s.ppkn, s.indo, s.ipas].filter(v => typeof v === "number" && !Number.isNaN(v));
       const rata = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
-
-      let category = "good";
-      let statusLabel = "Tuntas";
-      if (!hasPpkn || !hasIndo) {
-        category = "incomplete";
-        statusLabel = "Data Kosong";
-      } else if (s.ppkn < THRESHOLD || s.indo < THRESHOLD || (rata !== null && rata < THRESHOLD)) {
-        category = "low";
-        statusLabel = "Perlu Perhatian";
-      }
-
-      return { ...s, rata, category, statusLabel };
+      const lowCountInRow = [s.ppkn, s.indo, s.ipas, rata].filter(v => isLow(v)).length;
+      return { ...s, rata, hasLow: lowCountInRow > 0 };
     }
 
     const enriched = students.map(enrichStudent);
@@ -427,20 +409,38 @@
       return num.toFixed(2);
     }
 
-    function renderStats() {
-      const ppknVals = enriched.map(d => d.ppkn).filter(v => typeof v === "number");
-      const indoVals = enriched.map(d => d.indo).filter(v => typeof v === "number");
-      const rataVals = enriched.map(d => d.rata).filter(v => typeof v === "number");
+    function renderScoreCell(num, bold = false) {
+      if (num === null || num === undefined || Number.isNaN(num)) {
+        return `<span class="missing">Kosong</span>`;
+      }
+      const text = bold ? `<strong>${fmt(num)}</strong>` : fmt(num);
+      if (isLow(num)) {
+        return `<span class="score-low">${text}</span>`;
+      }
+      return text;
+    }
 
-      const avgP = ppknVals.reduce((a, b) => a + b, 0) / ppknVals.length;
-      const avgI = indoVals.reduce((a, b) => a + b, 0) / indoVals.length;
-      const avgAll = rataVals.reduce((a, b) => a + b, 0) / rataVals.length;
-      const attentionCount = enriched.filter(d => d.category !== "good").length;
+    function renderStats() {
+      const avg = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+      const avgP = avg(enriched.map(d => d.ppkn));
+      const avgI = avg(enriched.map(d => d.indo));
+      const avgS = avg(enriched.map(d => d.ipas));
+      const avgAll = avg(enriched.map(d => d.rata));
+
+      let totalLowScores = 0;
+      let studentsWithLow = 0;
+      enriched.forEach(d => {
+        const subjectLows = [d.ppkn, d.indo, d.ipas].filter(v => isLow(v)).length;
+        totalLowScores += subjectLows;
+        if (subjectLows > 0) studentsWithLow += 1;
+      });
 
       document.getElementById("avgPpkn").textContent = fmt(avgP);
       document.getElementById("avgIndo").textContent = fmt(avgI);
+      document.getElementById("avgIpas").textContent = fmt(avgS);
       document.getElementById("avgOverall").textContent = fmt(avgAll);
-      document.getElementById("countAttention").textContent = `${attentionCount} siswa`;
+      document.getElementById("countLowScores").textContent = `${totalLowScores} nilai`;
+      document.getElementById("subLowStudents").textContent = `Pada ${studentsWithLow} siswa`;
     }
 
     let currentFilter = "all";
@@ -448,32 +448,18 @@
     let sortKey = "no";
     let sortAsc = true;
 
-    function getBadgeClass(category) {
-      if (category === "good") return "badge-pass";
-      if (category === "incomplete") return "badge-incomplete";
-      return "badge-remedial";
-    }
-
     function renderTable() {
       const filtered = enriched.filter(item => {
         const matchesQuery = item.nama.toLowerCase().includes(currentQuery.toLowerCase());
         if (!matchesQuery) return false;
-        if (currentFilter === "all") return true;
-        return item.category === currentFilter;
+        if (currentFilter === "hasLow") return item.hasLow;
+        if (currentFilter === "noLow") return !item.hasLow;
+        return true;
       });
 
       filtered.sort((a, b) => {
-        let valA = a[sortKey];
-        let valB = b[sortKey];
-
-        if (sortKey === "status") {
-          valA = a.statusLabel;
-          valB = b.statusLabel;
-        }
-
-        if (valA === null || valA === undefined) return 1;
-        if (valB === null || valB === undefined) return -1;
-
+        const valA = a[sortKey];
+        const valB = b[sortKey];
         if (typeof valA === "string" && typeof valB === "string") {
           return sortAsc ? valA.localeCompare(valB, "id") : valB.localeCompare(valA, "id");
         }
@@ -481,22 +467,16 @@
       });
 
       const tbody = document.getElementById("tableBody");
-      tbody.innerHTML = filtered.map(item => {
-        const ppknText = item.ppkn !== null ? fmt(item.ppkn) : `<span class="missing">Kosong</span>`;
-        const indoText = item.indo !== null ? fmt(item.indo) : `<span class="missing">Kosong</span>`;
-        const rataText = item.rata !== null ? `<strong>${fmt(item.rata)}</strong>` : `-`;
-
-        return `
-          <tr>
-            <td class="center">${item.no}</td>
-            <td>${item.nama}</td>
-            <td class="num">${ppknText}</td>
-            <td class="num">${indoText}</td>
-            <td class="num">${rataText}</td>
-            <td class="center"><span class="badge ${getBadgeClass(item.category)}">${item.statusLabel}</span></td>
-          </tr>
-        `;
-      }).join("");
+      tbody.innerHTML = filtered.map(item => `
+        <tr>
+          <td class="center">${item.no}</td>
+          <td>${item.nama}</td>
+          <td class="num">${renderScoreCell(item.ppkn)}</td>
+          <td class="num">${renderScoreCell(item.indo)}</td>
+          <td class="num">${renderScoreCell(item.ipas)}</td>
+          <td class="num">${renderScoreCell(item.rata, true)}</td>
+        </tr>
+      `).join("");
 
       document.getElementById("shownCount").textContent =
         `Menampilkan ${filtered.length} dari ${enriched.length} siswa`;
