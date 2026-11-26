@@ -46,7 +46,7 @@
     }
 
     .container {
-      max-width: 1060px;
+      max-width: 1140px;
       margin: 0 auto;
     }
 
@@ -94,7 +94,7 @@
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
       gap: 14px;
       margin-bottom: 20px;
     }
@@ -149,7 +149,7 @@
 
     .search-box {
       flex: 1 1 240px;
-      max-width: 360px;
+      max-width: 340px;
     }
 
     .search-box input {
@@ -206,7 +206,7 @@
       color: #334155;
       font-weight: 600;
       text-align: left;
-      padding: 12px 16px;
+      padding: 12px 14px;
       border-bottom: 2px solid var(--border);
       white-space: nowrap;
       cursor: pointer;
@@ -239,7 +239,7 @@
     }
 
     tbody td {
-      padding: 11px 16px;
+      padding: 11px 14px;
       vertical-align: middle;
     }
 
@@ -348,7 +348,7 @@
     <div class="header">
       <div>
         <h1>Rekap Nilai UAS Semester 1 — Kelas 6</h1>
-        <p>Mata Pelajaran: PPKN, Bahasa Indonesia &amp; IPAS • Total Siswa: 33</p>
+        <p>Mata Pelajaran: PPKN, Bahasa Indonesia, IPAS &amp; Matematika • Total Siswa: 33</p>
       </div>
       <button class="btn-print" onclick="window.print()">🖨️ Cetak Rekap</button>
     </div>
@@ -368,6 +368,11 @@
         <div class="stat-label">Rata-Rata IPAS</div>
         <div class="stat-value" id="avgIpas">-</div>
         <div class="stat-sub" id="subBelowIpas">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rata-Rata Matematika</div>
+        <div class="stat-value" id="avgMtk">-</div>
+        <div class="stat-sub" id="subBelowMtk">-</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Rata-Rata Gabungan</div>
@@ -400,6 +405,7 @@
               <th class="num" data-sort="ppkn">PPKN ↕</th>
               <th class="num" data-sort="indo">Bahasa Indonesia ↕</th>
               <th class="num" data-sort="ipas">IPAS ↕</th>
+              <th class="num" data-sort="mtk">Matematika ↕</th>
               <th class="num" data-sort="rata">Rata-Rata ↕</th>
             </tr>
           </thead>
@@ -416,39 +422,39 @@
 
   <script>
     const students = [
-      { no: 1, nama: "ADITYA IRFANUL HAKIM", ppkn: 94.11764705882352, indo: 88.0, ipas: 87.0 },
-      { no: 2, nama: "AGUNG RIYAJI WIJAKSONO", ppkn: 91.17647058823529, indo: 72.0, ipas: 83.0 },
-      { no: 3, nama: "AHZAMI FATAH ALBARI", ppkn: 83.82352941176471, indo: 75.0, ipas: 82.0 },
-      { no: 4, nama: "ALIF ALARSIL RAMADAN", ppkn: 83.82352941176471, indo: 77.0, ipas: 95.0 },
-      { no: 5, nama: "ALIKA INDRIANA RAMADANI", ppkn: 75.0, indo: 80.0, ipas: 75.0 },
-      { no: 6, nama: "ALZIA SATYA KINARA", ppkn: 88.23529411764706, indo: 70.0, ipas: 67.0 },
-      { no: 7, nama: "ANAS NUR KHOLIK", ppkn: 85.29411764705883, indo: 82.0, ipas: 80.0 },
-      { no: 8, nama: "ANNISA RAMADANI", ppkn: 97.05882352941177, indo: 92.0, ipas: 95.0 },
-      { no: 9, nama: "AQILA PUTRI NUR HASANAH", ppkn: 92.64705882352942, indo: 92.0, ipas: 98.0 },
-      { no: 10, nama: "ARKAN NADHIF FAHRIAN", ppkn: 86.76470588235294, indo: 88.0, ipas: 90.0 },
-      { no: 11, nama: "ATHFAL AZZIS ALDIANSYAH", ppkn: 72.05882352941177, indo: 60.0, ipas: 65.0 },
-      { no: 12, nama: "AZAHRAN AZKIYA SHIDQI", ppkn: 97.05882352941177, indo: 92.0, ipas: 100.0 },
-      { no: 13, nama: "AZRINA ZIA FATHIAN", ppkn: 95.58823529411765, indo: 90.0, ipas: 92.0 },
-      { no: 14, nama: "ERINA SIPTA RENATA", ppkn: 94.11764705882352, indo: 93.0, ipas: 82.0 },
-      { no: 15, nama: "FAKHRIE ZHAFRAN KHAIRY", ppkn: 86.76470588235294, indo: 80.0, ipas: 87.0 },
-      { no: 16, nama: "FAREL GAYUH WIBOWO", ppkn: 86.76470588235294, indo: 78.0, ipas: 77.0 },
-      { no: 17, nama: "FAUZAN ADLI AZHIM", ppkn: 95.58823529411765, indo: 78.0, ipas: 83.0 },
-      { no: 18, nama: "FAZILAH ZAHIA AZZALFA", ppkn: 95.58823529411765, indo: 92.0, ipas: 100.0 },
-      { no: 19, nama: "FIRDAUS ARDIANSYAH SUDRAJAT", ppkn: 73.52941176470588, indo: 70.0, ipas: 67.0 },
-      { no: 20, nama: "LUTHFIE SAKHI ZAIDAN", ppkn: 75.0, indo: 82.0, ipas: 73.0 },
-      { no: 21, nama: "MAULANA SAMAN HIDAYATULLOH", ppkn: 80.88235294117648, indo: 73.0, ipas: 65.0 },
-      { no: 22, nama: "MAULIDATUL MUSTAFIDAH", ppkn: 66.17647058823529, indo: 50.0, ipas: 50.0 },
-      { no: 23, nama: "MIKAILA DEVI NAMIRA", ppkn: 94.11764705882352, indo: 80.0, ipas: 77.0 },
-      { no: 24, nama: "MUHAMAD THORIQ ZIYAD", ppkn: 83.82352941176471, indo: 87.0, ipas: 88.0 },
-      { no: 25, nama: "NAFISA NAYLA SALSABILA", ppkn: 92.64705882352942, indo: 80.0, ipas: 83.0 },
-      { no: 26, nama: "NAILA ZIFANA KHOIRUNISA", ppkn: 94.11764705882352, indo: 90.0, ipas: 68.0 },
-      { no: 27, nama: "RAFA AZKA PUTRA PRATAMA", ppkn: 77.94117647058823, indo: 75.0, ipas: 58.0 },
-      { no: 28, nama: "RESTU IBNU PRATAMA", ppkn: 97.05882352941177, indo: 78.0, ipas: 72.0 },
-      { no: 29, nama: "REVAN AZKA ADI UTAMA", ppkn: 90.0, indo: 78.0, ipas: 83.0 },
-      { no: 30, nama: "SOFIYANA DEWI SEPTIANI", ppkn: 94.11764705882352, indo: 80.0, ipas: 88.0 },
-      { no: 31, nama: "WIDYA DAVINA QUINN", ppkn: 76.47058823529412, indo: 65.0, ipas: 65.0 },
-      { no: 32, nama: "SRI MARFUAH RAHAYU NINGSIH", ppkn: 83.82352941176471, indo: 77.0, ipas: 65.0 },
-      { no: 33, nama: "ADZAN ABIYU ABBAS", ppkn: 66.17647058823529, indo: 50.0, ipas: 50.0 }
+      { no: 1, nama: "ADITYA IRFANUL HAKIM", ppkn: 94.11764705882352, indo: 88.0, ipas: 87.0, mtk: 67.0 },
+      { no: 2, nama: "AGUNG RIYAJI WIJAKSONO", ppkn: 91.17647058823529, indo: 72.0, ipas: 83.0, mtk: 67.0 },
+      { no: 3, nama: "AHZAMI FATAH ALBARI", ppkn: 83.82352941176471, indo: 75.0, ipas: 82.0, mtk: 83.0 },
+      { no: 4, nama: "ALIF ALARSIL RAMADAN", ppkn: 83.82352941176471, indo: 77.0, ipas: 95.0, mtk: 83.0 },
+      { no: 5, nama: "ALIKA INDRIANA RAMADANI", ppkn: 75.0, indo: 80.0, ipas: 75.0, mtk: 0.0 },
+      { no: 6, nama: "ALZIA SATYA KINARA", ppkn: 88.23529411764706, indo: 70.0, ipas: 67.0, mtk: 53.0 },
+      { no: 7, nama: "ANAS NUR KHOLIK", ppkn: 85.29411764705883, indo: 82.0, ipas: 80.0, mtk: 80.0 },
+      { no: 8, nama: "ANNISA RAMADANI", ppkn: 97.05882352941177, indo: 92.0, ipas: 95.0, mtk: 93.0 },
+      { no: 9, nama: "AQILA PUTRI NUR HASANAH", ppkn: 92.64705882352942, indo: 92.0, ipas: 98.0, mtk: 90.0 },
+      { no: 10, nama: "ARKAN NADHIF FAHRIAN", ppkn: 86.76470588235294, indo: 88.0, ipas: 90.0, mtk: 97.0 },
+      { no: 11, nama: "ATHFAL AZZIS ALDIANSYAH", ppkn: 72.05882352941177, indo: 60.0, ipas: 65.0, mtk: 0.0 },
+      { no: 12, nama: "AZAHRAN AZKIYA SHIDQI", ppkn: 97.05882352941177, indo: 92.0, ipas: 100.0, mtk: 97.0 },
+      { no: 13, nama: "AZRINA ZIA FATHIAN", ppkn: 95.58823529411765, indo: 90.0, ipas: 92.0, mtk: 97.0 },
+      { no: 14, nama: "ERINA SIPTA RENATA", ppkn: 94.11764705882352, indo: 93.0, ipas: 82.0, mtk: 80.0 },
+      { no: 15, nama: "FAKHRIE ZHAFRAN KHAIRY", ppkn: 86.76470588235294, indo: 80.0, ipas: 87.0, mtk: 73.0 },
+      { no: 16, nama: "FAREL GAYUH WIBOWO", ppkn: 86.76470588235294, indo: 78.0, ipas: 77.0, mtk: 60.0 },
+      { no: 17, nama: "FAUZAN ADLI AZHIM", ppkn: 95.58823529411765, indo: 78.0, ipas: 83.0, mtk: 67.0 },
+      { no: 18, nama: "FAZILAH ZAHIA AZZALFA", ppkn: 95.58823529411765, indo: 92.0, ipas: 100.0, mtk: 97.0 },
+      { no: 19, nama: "FIRDAUS ARDIANSYAH SUDRAJAT", ppkn: 73.52941176470588, indo: 70.0, ipas: 67.0, mtk: 57.0 },
+      { no: 20, nama: "LUTHFIE SAKHI ZAIDAN", ppkn: 75.0, indo: 82.0, ipas: 73.0, mtk: 53.0 },
+      { no: 21, nama: "MAULANA SAMAN HIDAYATULLOH", ppkn: 80.88235294117648, indo: 73.0, ipas: 65.0, mtk: 63.0 },
+      { no: 22, nama: "MAULIDATUL MUSTAFIDAH", ppkn: 66.17647058823529, indo: 50.0, ipas: 50.0, mtk: 53.0 },
+      { no: 23, nama: "MIKAILA DEVI NAMIRA", ppkn: 94.11764705882352, indo: 80.0, ipas: 77.0, mtk: 77.0 },
+      { no: 24, nama: "MUHAMAD THORIQ ZIYAD", ppkn: 83.82352941176471, indo: 87.0, ipas: 88.0, mtk: 73.0 },
+      { no: 25, nama: "NAFISA NAYLA SALSABILA", ppkn: 92.64705882352942, indo: 80.0, ipas: 83.0, mtk: 67.0 },
+      { no: 26, nama: "NAILA ZIFANA KHOIRUNISA", ppkn: 94.11764705882352, indo: 90.0, ipas: 68.0, mtk: 73.0 },
+      { no: 27, nama: "RAFA AZKA PUTRA PRATAMA", ppkn: 77.94117647058823, indo: 75.0, ipas: 58.0, mtk: 0.0 },
+      { no: 28, nama: "RESTU IBNU PRATAMA", ppkn: 97.05882352941177, indo: 78.0, ipas: 72.0, mtk: 80.0 },
+      { no: 29, nama: "REVAN AZKA ADI UTAMA", ppkn: 90.0, indo: 78.0, ipas: 83.0, mtk: 63.0 },
+      { no: 30, nama: "SOFIYANA DEWI SEPTIANI", ppkn: 94.11764705882352, indo: 80.0, ipas: 88.0, mtk: 77.0 },
+      { no: 31, nama: "WIDYA DAVINA QUINN", ppkn: 76.47058823529412, indo: 65.0, ipas: 65.0, mtk: 53.0 },
+      { no: 32, nama: "SRI MARFUAH RAHAYU NINGSIH", ppkn: 83.82352941176471, indo: 77.0, ipas: 65.0, mtk: 63.0 },
+      { no: 33, nama: "ADZAN ABIYU ABBAS", ppkn: 66.17647058823529, indo: 50.0, ipas: 50.0, mtk: 57.0 }
     ];
 
     function calcMean(arr) {
@@ -470,20 +476,24 @@
     const avgPpkn = calcMean(students.map(s => s.ppkn));
     const avgIndo = calcMean(students.map(s => s.indo));
     const avgIpas = calcMean(students.map(s => s.ipas));
+    const avgMtk  = calcMean(students.map(s => s.mtk));
 
     const maxPpkn = getMaxScore(students.map(s => s.ppkn));
     const maxIndo = getMaxScore(students.map(s => s.indo));
     const maxIpas = getMaxScore(students.map(s => s.ipas));
+    const maxMtk  = getMaxScore(students.map(s => s.mtk));
 
     const enriched = students.map(s => {
-      const rata = calcMean([s.ppkn, s.indo, s.ipas]);
+      const rata = calcMean([s.ppkn, s.indo, s.ipas, s.mtk]);
       const starPpkn = typeof s.ppkn === "number" && maxPpkn !== null && s.ppkn === maxPpkn;
       const starIndo = typeof s.indo === "number" && maxIndo !== null && s.indo === maxIndo;
       const starIpas = typeof s.ipas === "number" && maxIpas !== null && s.ipas === maxIpas;
+      const starMtk  = typeof s.mtk  === "number" && maxMtk  !== null && s.mtk  === maxMtk;
 
       const hlPpkn = getHighlightType(s.ppkn, avgPpkn);
       const hlIndo = getHighlightType(s.indo, avgIndo);
       const hlIpas = getHighlightType(s.ipas, avgIpas);
+      const hlMtk  = getHighlightType(s.mtk,  avgMtk);
 
       return {
         ...s,
@@ -491,14 +501,15 @@
         starPpkn,
         starIndo,
         starIpas,
-        hasStar: starPpkn || starIndo || starIpas,
+        starMtk,
+        hasStar: starPpkn || starIndo || starIpas || starMtk,
         hlPpkn,
         hlIndo,
-        hlIpas
+        hlIpas,
+        hlMtk
       };
     });
 
-    // Hitung peringkat 1, 2, 3 berdasarkan rata-rata tertinggi
     const rankedList = [...enriched]
       .filter(s => typeof s.rata === "number" && !Number.isNaN(s.rata))
       .sort((a, b) => b.rata - a.rata || a.no - b.no);
@@ -512,7 +523,7 @@
     enriched.forEach(s => {
       s.rank = rankByNo[s.no] || 999;
       s.hlRata = getHighlightType(s.rata, avgOverall);
-      const allHl = [s.hlPpkn, s.hlIndo, s.hlIpas, s.hlRata];
+      const allHl = [s.hlPpkn, s.hlIndo, s.hlIpas, s.hlMtk, s.hlRata];
       s.hasRed = allHl.includes("red");
       s.hasYellow = allHl.includes("yellow");
       s.hasAnyBelow = s.hasRed || s.hasYellow;
@@ -558,6 +569,7 @@
       document.getElementById("avgPpkn").textContent = fmt(avgPpkn);
       document.getElementById("avgIndo").textContent = fmt(avgIndo);
       document.getElementById("avgIpas").textContent = fmt(avgIpas);
+      document.getElementById("avgMtk").textContent = fmt(avgMtk);
       document.getElementById("avgOverall").textContent = fmt(avgOverall);
 
       document.getElementById("subBelowPpkn").textContent =
@@ -566,6 +578,8 @@
         summarizeSubject(enriched.map(d => d.hlIndo), fmt(avgIndo), fmt(maxIndo));
       document.getElementById("subBelowIpas").textContent =
         summarizeSubject(enriched.map(d => d.hlIpas), fmt(avgIpas), fmt(maxIpas));
+      document.getElementById("subBelowMtk").textContent =
+        summarizeSubject(enriched.map(d => d.hlMtk), fmt(avgMtk), fmt(maxMtk));
 
       const rataBelow = enriched.filter(d => d.hlRata !== null);
       const rataRed = rataBelow.filter(d => d.hlRata === "red").length;
@@ -574,7 +588,7 @@
         `${rataBelow.length} < ${fmt(avgOverall)} (${rataRed} merah, ${rataYellow} kuning)`;
 
       document.getElementById("avgLegend").textContent =
-        `Max mapel (⭐): PPKN ${fmt(maxPpkn)}, B. Indo ${fmt(maxIndo)}, IPAS ${fmt(maxIpas)} • Merah: < rata-rata & < 70 • Kuning: < rata-rata & ≥ 70.`;
+        `Max mapel (⭐): PPKN ${fmt(maxPpkn)}, B. Indo ${fmt(maxIndo)}, IPAS ${fmt(maxIpas)}, MTK ${fmt(maxMtk)} • Merah: < rata-rata & < 70 • Kuning: < rata-rata & ≥ 70.`;
     }
 
     let currentFilter = "all";
@@ -616,6 +630,7 @@
           <td class="num">${renderScoreCell(item.ppkn, item.hlPpkn, item.starPpkn)}</td>
           <td class="num">${renderScoreCell(item.indo, item.hlIndo, item.starIndo)}</td>
           <td class="num">${renderScoreCell(item.ipas, item.hlIpas, item.starIpas)}</td>
+          <td class="num">${renderScoreCell(item.mtk, item.hlMtk, item.starMtk)}</td>
           <td class="num">${renderScoreCell(item.rata, item.hlRata, false, true)}</td>
         </tr>
       `).join("");
