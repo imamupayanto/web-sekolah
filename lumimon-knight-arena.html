@@ -5026,7 +5026,8 @@ body.arnf .cvw{margin:0 auto;border-radius:0}
 
 // ---------- gambar karakter ----------
 function arnCfg(p){return p&&p.cfg}
-function arnDraw(cv,cfg,face,pose){try{if(!cv)return;const S=cv.width/56,W=56,H=cv.height/S,key=JSON.stringify([cfg,face]);if(cv._k!==key){cv._k=key;cv._f=mkFighter(Object.assign({},cfg),face<0?1:0)}const f=cv._f,g=cv.getContext('2d');
+const AFC=new Map(),ATH={};
+function arnDraw(cv,cfg,face,pose){try{if(!cv)return;const S=cv.width/56,W=56,H=cv.height/S,key=JSON.stringify([cfg,face]);if(cv._k!==key){cv._k=key;cv._f=AFC.get(key);if(!cv._f){cv._f=mkFighter(Object.assign({},cfg),face<0?1:0);AFC.set(key,cv._f);if(AFC.size>60)AFC.delete(AFC.keys().next().value)}}const f=cv._f,g=cv.getContext('2d');
   g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cv.width,cv.height);g.imageSmoothingEnabled=false;g.setTransform(S,0,0,S,0,0);
   g.fillStyle='#0006';g.beginPath();g.ellipse(W/2,H-2,12,2.5,0,0,7);g.fill();
   f.x=W/2;f.y=0;f.st=pose||'idle';f.t=(performance.now()/1000)%4;f.walk=0;f.face=face||1;f.fv=f.face;g.translate(0,H-4-GY);g.scale(1,1);drawFighter(g,f)}catch(e){}}
@@ -5066,7 +5067,10 @@ async function arnPick(i,force){const hd=`<div class="hd"><span>👥 ${AN[i]}: p
     if(!Array.isArray(d)){arnModal(AC[i],hd+`<div class="asec" style="color:#ff8a7a">${er==='404'?'Fungsi belum ada di Supabase. Jalankan kn_arena.sql di SQL Editor (sekali saja).':'Tidak bisa terhubung ke server. Periksa internet, atau pakai Kustom Karakter.'}</div>`);return}ARN.list=d}
   const L=ARN.list.filter(p=>p.build&&(p.look||p.build.look));
   arnModal(AC[i],hd+(L.length?`<div class="agrid">${L.map((p,k)=>`<button onclick="arnUse(${i},${k})"><canvas id="alc${k}" width="96" height="100"></canvas><b>${esc(p.name)}</b><small>Lv ${p.lv} · Power ${p.gp}</small></button>`).join('')}</div>`:'<div class="asec">Belum ada pemain di server.</div>'));
-  L.forEach((p,k)=>arnDraw($('alc'+k),Object.assign({},p.build,{look:p.look||p.build.look}),1));ARN.L=L}
+  ARN.L=L;const tok=ARN.pk=(ARN.pk||0)+1;let k=0;
+  const nxt=()=>{if(ARN.pk!==tok||k>=L.length)return;const m=$('amod');if(!m||m.classList.contains('hide'))return;const p=L[k],cv=$('alc'+k),id=p.code+':'+p.lv;
+    if(cv){if(ATH[id])cv.getContext('2d').drawImage(ATH[id],0,0);else{arnDraw(cv,Object.assign({},p.build,{look:p.look||p.build.look}),1);const c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;c.getContext('2d').drawImage(cv,0,0);ATH[id]=c}}
+    k++;if(ATH[(L[k]||{}).code+':'+(L[k]||{}).lv])nxt();else setTimeout(nxt,30)};setTimeout(nxt,60)}
 function arnUse(i,k){const p=ARN.L[k];ARN.p[i]={name:p.name,src:'kelas',lv:p.lv,gp:p.gp,cfg:Object.assign({},p.build,{look:p.look||p.build.look})};arnClose();arnSetup();try{SND.ok()}catch(e){}}
 
 // ---------- kustom karakter ----------
