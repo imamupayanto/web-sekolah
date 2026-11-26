@@ -2826,7 +2826,7 @@ G.last=performance.now();requestAnimationFrame(frame);
 window.__DUEL={G,SEL,buildWorld,ZONES,startMatch,doSpecial,mk:mkFighter,atkPose,draw1:drawFighter,GY};
 
 // blend arena dengan panel atas/bawah: ambil warna tepi kanvas
-let BGK='';function bgSample(){if(G.scr!=='fight'||!cv.width)return;try{const c=cv.getContext('2d'),x=2,px=y=>{const d=c.getImageData(x,Math.round(y*K),1,1).data;return[d[0],d[1],d[2]]},
+let BGK='';function bgSample(){if(window.NOBG||G.scr!=='fight'||!cv.width)return;try{const c=cv.getContext('2d'),x=2,px=y=>{const d=c.getImageData(x,Math.round(y*K),1,1).data;return[d[0],d[1],d[2]]},
  a=px(3),m=px(GY-24),g=px(GY+5),h=(v,f)=>'rgb('+v.map(n=>Math.round(n*f)).join(',')+')',k=a+m+g;if(k===BGK)return;BGK=k;const r=document.getElementById('scFight').style,cb=cv.parentNode.offsetTop+cv.offsetHeight*(GY/VH);
  r.setProperty('--sk0',h(a,1));r.setProperty('--sk1',h(m,1));r.setProperty('--cb',cb+'px');r.setProperty('--gd',h(g,.8));r.setProperty('--g1',h(g,.5));r.setProperty('--g2',h(g,.22))}catch(e){}}
 setInterval(bgSample,1000);
@@ -4936,7 +4936,8 @@ $('prCv').onclick=proTap;$('prT').onclick=proTap;$('prSkip').onclick=proEnd;$('p
 <script>
 // ===== LUMIMON KNIGHT ARENA — layar besar (IFP 71"), 2 pemain, auto-battle + jawab soal =====
 // Memakai mesin battle Lumimon : Knight. Tidak menulis progres game utama.
-window.__reset=1;                       // blokir tulis profil & reset epoch (lihat rank.js)
+window.__reset=1;window.NOBG=1;            // NOBG: hentikan getImageData tiap detik (berat di GPU IFP)
+                       // blokir tulis profil & reset epoch (lihat rank.js)
 try{LKA=[]}catch(e){}lkFetch=async()=>false;   // Lock Mapel game utama tidak berlaku di Arena
 SEL.manual=0;try{INT.run=0}catch(e){}
 document.title='Lumimon Knight Arena';
@@ -4946,7 +4947,8 @@ const AC=['#4aa8ff','#ff5a6a'],AN=['PEMAIN 1','PEMAIN 2'];
 
 // ---------- gaya ----------
 {const s=document.createElement('style');s.textContent=`
-body.arn{background:#0a061a;overflow:hidden}
+body.arn{background:#0a061a;overflow:hidden;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+body.arnf,body.arnf *{touch-action:none}#arn button,#amod button,#ares button{touch-action:manipulation}
 #arn{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 30%,#2a1a5a 0%,#0a061a 75%);color:#fff;font-family:system-ui,sans-serif;padding:2vh 2vw;gap:1.5vh}
 #arn.hide,#ares.hide,#amod.hide,.afp.hide{display:none!important}
 .ah{display:flex;align-items:center;justify-content:space-between}
@@ -4956,7 +4958,7 @@ body.arn{background:#0a061a;overflow:hidden}
 .ab{flex:1;display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:2vw;min-height:0}
 .apc{background:#1a1238cc;border:.5vh solid var(--c);border-radius:3vh;padding:2vh;display:flex;flex-direction:column;align-items:center;gap:1.2vh;box-shadow:0 0 4vh -1vh var(--c)}
 .apc .tg{font:700 2.6vh 'Pixelify Sans',system-ui,sans-serif;color:var(--c)}
-.apc canvas{height:34vh;image-rendering:pixelated;filter:drop-shadow(0 1vh 1vh #0008)}
+.apc canvas{height:34vh;image-rendering:pixelated}
 .apc .nm{font:700 3.6vh 'Pixelify Sans',system-ui,sans-serif;text-align:center}.apc .sb{font-size:2vh;color:#b8aee8;text-align:center}
 .apc .bs{display:flex;flex-direction:column;gap:1.2vh;width:100%;margin-top:auto}
 .apc .bs .abtn{width:100%;font-size:2.6vh;padding:1.8vh}
@@ -4996,9 +4998,9 @@ body.arnf .cvw{margin:0 auto;border-radius:0}
 .afp .st{flex-shrink:0;font-size:3.4vh;color:#ffd23c;letter-spacing:.4vh}
 .afp .lb{font:700 1.9vh 'Pixelify Sans',system-ui,sans-serif;color:#b8aee8;margin-bottom:.5vh}
 .abar{height:4.2vh;background:#000a;border:.4vh solid #fff3;border-radius:1.2vh;overflow:hidden;position:relative}
-.abar i{position:absolute;inset:0;width:100%;transition:width .15s}.abar.hp i{background:linear-gradient(#7dff8a,#2ab04a)}.abar.hp.mid i{background:linear-gradient(#ffe26a,#d8a010)}.abar.hp.low i{background:linear-gradient(#ff8a7a,#c82a2a)}
+.abar i{position:absolute;inset:0;width:100%;transform-origin:left center;will-change:transform}.abar.hp i{background:linear-gradient(#7dff8a,#2ab04a)}.abar.hp.mid i{background:linear-gradient(#ffe26a,#d8a010)}.abar.hp.low i{background:linear-gradient(#ff8a7a,#c82a2a)}
 .abar.en{height:3.4vh}.abar.en i{background:linear-gradient(90deg,#5ad0ff,#bff4ff)}.abar.en.full i{background:linear-gradient(90deg,#ffd23c,#fff6b0);animation:aGlow .5s infinite alternate}
-@keyframes aGlow{to{filter:brightness(1.4)}}
+@keyframes aGlow{to{opacity:.7}}
 .apor{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}.apor canvas{height:100%;max-height:30vh;image-rendering:pixelated}
 .aq{margin-top:auto;display:flex;flex-direction:column;gap:1.6vh}
 .aqc{background:#fff8e8;color:#2a1a00;border-radius:2vh;padding:2vh;min-height:20vh;display:flex;flex-direction:column;gap:1vh;border:.6vh solid #e8d0a0;transition:transform .15s}
@@ -5104,7 +5106,7 @@ function arnPanels(){for(const k in HV)delete HV[k];ARN.q.forEach(q=>{if(q)q.bk=
    <div><div class="lb">❤️ HP</div><div class="abar hp" id="ahb${i}"><i id="ah${i}"></i></div></div>
    <div><div class="lb">⚡ SPECIAL <span id="aep${i}"></span></div><div class="abar en" id="aeb${i}"><i id="ae${i}"></i></div></div>
    <div class="apor"><canvas id="apf${i}" width="168" height="150"></canvas></div><div class="aq"><div class="aqc" id="aqc${i}"><div class="h"><span id="aqm${i}"></span><span id="aqs${i}"></span></div><div class="q" id="aqq${i}">Bersiap…</div><div class="f" id="aqf${i}"></div></div>
-   <div class="aqbs"><button class="aqb t" id="aqt${i}" onclick="arnAns(${i},true)">✔ BENAR</button><button class="aqb f" id="aqx${i}" onclick="arnAns(${i},false)">✖ SALAH</button></div>
+   <div class="aqbs"><button class="aqb t" id="aqt${i}" onpointerdown="arnAns(${i},true)">✔ BENAR</button><button class="aqb f" id="aqx${i}" onpointerdown="arnAns(${i},false)">✖ SALAH</button></div>
    <div class="akey">Keyboard: ${i?'K = Benar · L = Salah':'A = Benar · S = Salah'}</div></div>`});
   let t=$('aft');if(!t){t=document.createElement('div');t.id='aft';document.body.appendChild(t)}t.classList.remove('hide');t.innerHTML=`<small id="arR">RONDE 1</small><span id="arT">60</span><button class="abtn" id="arX" onclick="arnQuit()">✖</button>`}
 function arnQuit(){const b=$('arX');if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Keluar? ketuk lagi';setTimeout(()=>{if(b.isConnected){b.dataset.ok='';b.textContent='✖'}},2500);return}arnSetup()}
@@ -5124,7 +5126,7 @@ function arnAns(i,v){const Q=ARN.q[i];if(!aqOpen()||Q.lock||Q.rd||!Q.q)return;SN
   arnQSt(i);arnQBtn(i)}
 addEventListener('keydown',e=>{if(!ARN.fight)return;const k=e.key.toLowerCase();if(k==='a')arnAns(0,true);else if(k==='s')arnAns(0,false);else if(k==='k')arnAns(1,true);else if(k==='l')arnAns(1,false)});
 // HUD besar
-const HV={};function hset(id,k,v){if(HV[id+k]===v)return;HV[id+k]=v;const e=$(id);if(!e)return;if(k==='w')e.style.width=v;else if(k==='t')e.textContent=v;else e.className=v}
+const HV={};function hset(id,k,v){if(HV[id+k]===v)return;HV[id+k]=v;const e=$(id);if(!e)return;if(k==='w')e.style.transform='scaleX('+(parseFloat(v)/100)+')';else if(k==='t')e.textContent=v;else e.className=v}
 (function arnHud(){requestAnimationFrame(arnHud);if(!ARN.fight||!G.F||G.scr!=='fight')return;[0,1].map(arnF).forEach((f,i)=>{const p=Math.max(0,Math.round(f.hp/f.maxHp*200)/2);if(!$('ah'+i))return;hset('ah'+i,'w',p+'%');hset('ahb'+i,'c','abar hp'+(p<25?' low':p<50?' mid':''));
   const e=Math.round(f.energy);hset('ae'+i,'w',e+'%');hset('aeb'+i,'c','abar en'+(e>=100?' full':''));hset('aep'+i,'t',e+'%');if(!ARN.coop)hset('aw'+i,'t','★'.repeat(Math.min(2,G.wins[i]))+'☆'.repeat(Math.max(0,2-G.wins[i])));arnQBtn(i)});
   if(!ARN.pt||performance.now()-ARN.pt>120){ARN.pt=performance.now();[0,1].forEach(i=>{const c=$('apf'+i);if(c&&ARN.cf)arnDraw(c,ARN.cf[i],i?-1:1)})}
@@ -5141,6 +5143,12 @@ function arnResult(wi){let r=$('ares');if(!r){r=document.createElement('div');r.
 function arnAgain(){$('ares').classList.add('hide');arnGo()}
 // mulai
 G.scr='arena';try{show('none')}catch(e){}arnSetup();
+
+// ketuk toleran untuk layar sentuh besar: tombol dijalankan saat jari diangkat walau bergeser sedikit (≤40 px); klik bawaan setelahnya diabaikan
+{let TB=null,TX=0,TY=0;const SEL_B='#arn button,#amod button,#ares button,#aft button';
+ document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest(SEL_B);TB=b&&b.onclick?b:null;TX=e.clientX;TY=e.clientY},true);
+ document.addEventListener('pointerup',e=>{const b=TB;TB=null;if(!b||!b.isConnected||b.disabled)return;if(Math.hypot(e.clientX-TX,e.clientY-TY)>40)return;b._tap=Date.now();try{b.onclick.call(b,e)}catch(x){}},true);
+ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest(SEL_B);if(b&&b._tap&&Date.now()-b._tap<800){e.stopPropagation();e.preventDefault()}},true)}
 
 // ===== Arena co-op: 2 ksatria vs bos / horde tak terbatas + papan skor lokal =====
 const ABOSS=()=>ZONE8.map((z,zi)=>({zi,n:z.boss[0],z:z.n})).concat([{drg:'shadow',n:'Shadow Drake',z:'Naga Legenda'}]);
@@ -5233,7 +5241,7 @@ function arnBoard(){const b=boardGet(),D=['Normal','Sulit','Legenda'];
 function arnBoardRs(){const b=$('abRs');if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Yakin? ketuk lagi';return}try{localStorage.removeItem(BKEY)}catch(e){}arnBoard()}
 {const s=document.createElement('style');s.textContent=`
 #aft.boss{min-width:44vw;flex-wrap:wrap;justify-content:center}.coi{display:flex;align-items:center;gap:1.6vh}
-.abhp{order:3;width:100%;height:2.6vh;background:#000a;border:.3vh solid #ffd23c88;border-radius:1vh;overflow:hidden}.abhp i{display:block;height:100%;width:100%;background:linear-gradient(#ff8a5a,#c82a2a);transition:width .15s}
+.abhp{order:3;width:100%;height:2.6vh;background:#000a;border:.3vh solid #ffd23c88;border-radius:1vh;overflow:hidden}.abhp i{display:block;height:100%;width:100%;background:linear-gradient(#ff8a5a,#c82a2a);transform-origin:left center}
 .atb{width:100%;border-collapse:collapse;font-size:2.4vh}.atb td{padding:1vh;border-bottom:.2vh solid #3a2a78}.atb small{display:block;color:#b8aee8;font-size:1.7vh}.atb .s{text-align:right;font:700 3vh 'Pixelify Sans',system-ui;color:#ffd23c}`;document.head.appendChild(s)}
 {const o=arnSetup;arnSetup=function(){ARN.coop=0;ARN.K=null;G.F3=null;CO.over=1;const t=$('aft');if(t)t.classList.remove('boss');return o.apply(this,arguments)}}
 
