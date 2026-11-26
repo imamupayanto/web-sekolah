@@ -3835,6 +3835,7 @@ function openDev(){const P=PROF,ps=Object.keys(LG.M).sort((a,b)=>LG.M[a].n.local
   sheet('🧪 Developer Mode',`<div class="note">Semua di bawah hanya berlaku saat Developer Mode menyala. Matikan di Settings → game kembali normal (perubahan profil tetap tersimpan).</div>
   <button class="go px" onclick="openGift()">🎁 Gift Player</button>
   <button class="go px" onclick="openLock()">📚 Lock Mapel</button>
+  <button class="go px" onclick="openRcList()">🔑 Kode Pemulihan Siswa</button>
   <button class="ghost" style="color:#ff8a7a" onclick="devResetAsk()">🗑️ Reset Semua Player</button>
   <h4 class="dvh">Pengali hadiah</h4>
   <div class="row2"><label>EXP</label>${devSel('xp')}</div><div class="row2"><label>Gold</label>${devSel('gold')}</div>
@@ -4263,7 +4264,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v77';
+const GAMEV='v78';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4273,7 +4274,7 @@ async function sbFresh(sb,name){if(LV.rm)await LV.rm.catch(()=>{});for(const c o
 async function townJoin(){if(LV.ch||LV.joining||document.hidden)return;LV.joining=1;try{await knSync();const sb=await sbClient();if(!sb||G.scr!=='town'||LV.ch)return;LV.me=lvMe();await sbFresh(sb,'kn-town-'+knKelas());if(G.scr!=='town'||LV.ch||document.hidden)return;
   const ch=LV.ch=sb.channel('kn-town-'+knKelas(),{config:{broadcast:{self:false},presence:{key:LV.me}}});
   ch.on('presence',{event:'sync'},()=>{if(ch===LV.ch)lvSync()});
-  ch.on('broadcast',{event:'inv'},({payload:p})=>{if(ch===LV.ch&&p&&p.to===LV.me)lvGotInvite(p)});
+  ch.on('broadcast',{event:'inv'},({payload:p})=>{if(ch===LV.ch&&p&&p.to===LV.me)lvGotInvite(p)});ch.on('broadcast',{event:'emo'},({payload:p})=>{if(ch===LV.ch&&p&&typeof emoGot==='function')emoGot(p)});
   ch.on('broadcast',{event:'ans'},({payload:p})=>{if(ch===LV.ch&&p&&p.to===LV.me)lvGotAnswer(p)});
   ch.subscribe(st=>{if(ch!==LV.ch)return;if(st==='SUBSCRIBED'){LV.lastTrack=Date.now();ch.track(lvPayload()).catch(()=>{})}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){townLeave();setTimeout(()=>{if(G.scr==='town')townJoin()},3000)}})}finally{LV.joining=0}}
 function townLeave(){const ch=LV.ch;LV.ch=null;LV.gh={};if(ch&&LV.sb){try{ch.untrack()}catch(e){}try{LV.rm=Promise.resolve(LV.sb.removeChannel(ch))}catch(e){}}}
@@ -4974,6 +4975,113 @@ setInterval(()=>{try{if(TS>=0||!PROF||!PROF.made||PROF.tut||document.hidden)retu
   const un=()=>{G.paused=false};b.querySelector('.nx').addEventListener('click',un)},1800)}}catch(e){}return r}}
 // tombol ulangi di Settings
 {const o=openTab;openTab=function(k){const r=o.apply(this,arguments);if(k==='set'){const s=$('stS'),row=s&&s.closest('.row2');if(row&&!$('tutRe'))row.insertAdjacentHTML('afterend','<div class="row2"><label>📘 Tutorial</label><span><button class="mini" id="tutRe" onclick="closeSheet();setTimeout(tutStart,300)">Ulangi</button></span></div>')}return r}}
+
+// ===== v78: perbaikan party 3 orang =====
+// 1) Tombol INVITE di kota tidak lagi menargetkan teman yang SUDAH satu party (sebelumnya leader sering mengajak anggota ke-2 lagi → ditolak, orang ke-3 tidak pernah terajak)
+{const o=tActUpd;tActUpd=function(f,dt){if(!PA.id||typeof LV==='undefined'||!LV.gh)return o.apply(this,arguments);const sv=LV.gh,F={};for(const k in sv)if(!PA.pres[k])F[k]=sv[k];LV.gh=F;try{return o.apply(this,arguments)}finally{LV.gh=sv}}}
+// 2) penolakan hanya dihitung dari orang yang memang diajak
+{const o=lvGotInvite;lvGotInvite=function(p){if(p&&p.k==='pno'&&PA.pend&&p.from&&PA.pend.to&&p.from!==PA.pend.to)return;return o.apply(this,arguments)}}
+// 3) ajak langsung dari daftar di lembar Party (tidak perlu mendekat)
+{const o=paSheet;paSheet=function(){const r=o.apply(this,arguments);try{if(PA.id&&paLead()&&paMembers().length<3&&typeof LV!=='undefined'&&LV.gh){const L=Object.values(LV.gh).filter(g=>g&&g.code&&!PA.pres[g.code]);
+  const h=L.length?`<div class="sec">Ajak teman di kota (${3-paMembers().length} tempat lagi)</div><div class="lst">${L.map(g=>`<div class="it"><span class="ic">👤</span><span><b>${esc(g.n)}</b><small>Lv ${g.lv||1}</small></span><button class="mini" onclick="paInvite('${g.code}')">Ajak</button></div>`).join('')}</div>`:'<div class="note">Belum ada teman lain di kota.</div>';
+  const sb=document.querySelector('#sheet .lst');if(sb)sb.insertAdjacentHTML('afterend',h)}}catch(e){}return r}}
+// 4) menu teman: kalau sudah satu party, beri tahu
+{const o=lvGhostMenu;lvGhostMenu=function(g){if(g&&g.npc)return npcTalk(g.npc);if(g&&PA.id&&PA.pres[g.code])return sheet('👤 '+esc(g.n),`<div class="note">${esc(g.n)} sudah satu party denganmu.</div>`);return o.apply(this,arguments)}}
+
+// ===== v78: warga kota (NPC) — berjalan, mengobrol, bisa diketuk (tips; 3 warga per hari membawa hadiah kecil) =====
+const NPCD=[['Bu Sari','Guru'],['Pak Darto','Petani'],['Mbak Rina','Pedagang'],['Kakek Joyo','Sesepuh'],['Dimas','Siswa'],['Ayu','Siswi'],['Pak Bima','Penjaga Kota'],['Raka','Pengelana']];
+const NPCT=['Jawab soal dengan benar untuk mengisi SPECIAL!','Pilih mapel di Knowledge Orb sebelum berpetualang.','Tempa senjatamu di Blacksmith supaya makin kuat.','Kunci barang favoritmu supaya tidak terjual.','Set armor lengkap memberi bonus kekuatan!','Ajak teman Co-op Hunt, lebih seru bersama.','Belajar sedikit setiap hari lebih baik daripada banyak sekaligus.','Kalau kalah, coba lagi. Ksatria hebat tidak menyerah!','Pasang perlengkapan terbaik di Bag sebelum melawan bos.','Bos zona menjatuhkan senjata khas yang langka.'];
+const NPCG=['Halo, Ksatria!','Cuaca bagus hari ini.','Sudah belajar hari ini?','Hati-hati di Misty Marsh!','Katanya ada naga di Coral Coast…','Semangat!','Selamat datang di kota!','Hmm… lapar.'];
+let NPCS=null;
+function npcInit(){const r=srnd(777);NPCS=NPCD.map(([n,role],i)=>{let f=null;try{const look=npcLook(),SS=SETS.filter(s=>s.eq&&s.eq.shirt&&s.r>=1&&s.r<=2),S=SS[(i*5+3)%SS.length];f=mkFighter({look,w:'pedang_1_1',lv:1,eq:Object.assign({},S.eq)},0);f.hideW=1}catch(e){}return{i,n,role,f,x:40+r()*(TW-80),tx:0,w:0,sp:rnd(11,17),bub:null,bt:rnd(4,14)}}).filter(o=>o.f);
+  NPCS.push({i:90,cat:1,n:'Kucing',x:TBL[4].dx-20,tx:0,w:rnd(2,5),sp:20,bt:99},{i:91,cat:1,n:'Kucing',x:TW*.75,tx:0,w:rnd(2,5),sp:24,bt:99})}
+const npcDay=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+function npcGiftIds(){const d=npcDay();let h=0;for(const c of d)h=(h*31+c.charCodeAt(0))>>>0;const ids=[];for(let k=0;ids.length<3&&k<20;k++){const v=(h>>>(k%24)^(k*2654435761>>>0))%NPCD.length;if(!ids.includes(v))ids.push(v)}return ids}
+function npcHasGift(o){if(o.cat)return false;const D=PROF.npcD;return npcGiftIds().includes(o.i)&&!(D&&D.d===npcDay()&&D.g&&D.g[o.i])}
+function npcStep(dt){if(!NPCS)npcInit();for(const o of NPCS){if(o.w>0){o.w-=dt;if(o.w<=0)o.tx=clamp(o.x+rnd(-120,120),20,TW-20)}
+    else{const d=o.tx-o.x;if(Math.abs(d)<2){o.w=rnd(2,6)}else{o.x+=Math.sign(d)*o.sp*dt;o.dir=Math.sign(d)}}
+    if(o.f){o.f.x=o.x;o.f.y=0;o.f.st=o.w>0?'idle':'walk';o.f.vx=(o.dir||1)*o.sp;o.f.face=o.f.fv=o.dir||1;if(o.w<=0)o.f.walk=(o.f.walk||0)+dt*2.6}
+    o.bt-=dt;if(o.bt<=0&&!o.cat){o.bt=rnd(9,22);o.bub={t:Math.random()<.55?pick(NPCT):pick(NPCG),l:4}}if(o.bub){o.bub.l-=dt;if(o.bub.l<=0)o.bub=null}}}
+function npcBubble(g,x,y,t,col){g.font="600 4.6px system-ui,sans-serif";const L=[];let line='';for(const w of t.split(' ')){const s=line?line+' '+w:w;if(g.measureText(s).width>58&&line){L.push(line);line=w}else line=s}L.push(line);
+  const W=Math.min(62,Math.max(...L.map(s=>g.measureText(s).width)))+6,H=L.length*5.4+3,bx=x-W/2,by=y-H-4;g.fillStyle=col||'#fff8e8';g.strokeStyle='#2a1a00';g.lineWidth=.5;
+  g.beginPath();g.roundRect?g.roundRect(bx,by,W,H,2.5):g.rect(bx,by,W,H);g.fill();g.stroke();g.beginPath();g.moveTo(x-2,by+H);g.lineTo(x,by+H+3);g.lineTo(x+2,by+H);g.fill();
+  g.fillStyle='#2a1a00';g.textAlign='center';g.textBaseline='top';L.forEach((s,i)=>g.fillText(s,x,by+2+i*5.4))}
+function npcDraw(g,dt,cam){if(!NPCS)npcInit();npcStep(dt);const L=cam-VW/2-30,R=cam+VW/2+30;
+  for(const o of NPCS){if(o.x<L||o.x>R)continue;
+    if(o.cat){const x=o.x,y=TGY,fl=o.dir<0?-1:1,b=o.w>0?0:Math.sin(G.t*14)*.6;g.fillStyle='#00000040';g.fillRect(x-4,y,8,1);g.fillStyle=o.i===90?'#e8a050':'#5a5a6a';g.fillRect(x-4,y-4+b,8,3);g.fillRect(x+fl*3-1.5,y-6+b,3,3);g.fillRect(x-fl*4,y-6+b,1,3);g.fillRect(x+fl*3-1.5,y-7+b,1,1);g.fillRect(x+fl*3+0.5,y-7+b,1,1);continue}
+    try{drawFighter(g,o.f)}catch(e){}
+    g.font="700 4px system-ui,sans-serif";g.textAlign='center';g.textBaseline='alphabetic';g.fillStyle='#000a';g.fillText(o.n,o.x+.4,TGY-35.6);g.fillStyle='#e8e0ff';g.fillText(o.n,o.x,TGY-36);
+    if(npcHasGift(o)){const y=TGY-44+Math.sin(G.t*4)*1.2;g.fillStyle='#ffd23c';g.beginPath();g.arc(o.x,y,3.2,0,7);g.fill();g.fillStyle='#2a1a00';g.font="800 5px system-ui";g.fillText('!',o.x,y+1.8)}
+    if(o.bub)npcBubble(g,o.x,TGY-38,o.bub.t)}}
+function npcAt(wx,wy){if(!NPCS)return null;let b=null,bd=9;for(const o of NPCS){if(o.cat)continue;const d=Math.abs(o.x-wx);if(d<bd&&wy>TGY-40&&wy<TGY+4){bd=d;b=o}}return b}
+function npcTalk(o){const gift=npcHasGift(o);let rw='';
+  if(gift){const D=PROF.npcD&&PROF.npcD.d===npcDay()?PROF.npcD:(PROF.npcD={d:npcDay(),g:{}});D.g[o.i]=1;const gold=15+(PROF.lv||1)*3;PROF.coin+=gold;rw=`<div class="note" style="color:#ffd23c">🎁 ${esc(o.n)} memberimu <b>${gold} gold</b>!</div>`;
+    if(Math.random()<.3){PROF.kr=PROF.kr||[0,0,0,0,0,0];PROF.kr[1]++;rw+=`<div class="note" style="color:#9ae8ff">+1 Crystal Common</div>`}saveP();lobbyHud&&lobbyHud();try{SND.win()}catch(e){}}
+  else try{SND.ok()}catch(e){}
+  o.w=Math.max(o.w,4);o.bub=null;sheet(`💬 ${esc(o.n)}`,`<div class="note"><small>${esc(o.role)}</small></div><div class="note" style="font-size:15px">"${esc(pick(NPCT))}"</div>${rw}${gift?'':'<div class="note" style="color:#a99cd8">Warga yang membawa tanda <b style="color:#ffd23c">!</b> punya hadiah kecil hari ini (3 warga per hari).</div>'}`)}
+// ketuk warga di kota
+{const o=townGhostAt;townGhostAt=function(wx,wy){const g=o.apply(this,arguments);if(g)return g;const n=npcAt(wx,wy);return n?{npc:n}:null}}
+// gambar warga (dipanggil dari townFx2 dalam koordinat dunia kota)
+{const o=townFx2;townFx2=function(g,dt,cam,tod){try{npcDraw(g,dt,cam)}catch(e){}return o.apply(this,arguments)}}
+
+// ===== v78: Cadangan akun ke server + Kode Pemulihan (1a), banner versi baru (1b) =====
+const RCA='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function rcGet(){if(!PROF.rc){let s='';const a=new Uint8Array(6);crypto.getRandomValues(a);a.forEach(v=>s+=RCA[v%RCA.length]);PROF.rc=s;saveP()}return PROF.rc}
+const BK={t:0,sig:'',st:''};
+async function bkPush(force){try{if(!PROF||!PROF.made||window.__reset||!PROF.kcode)return;const sig=PROF.lv+'|'+PROF.exp+'|'+PROF.coin+'|'+(PROF.bag||[]).length+'|'+JSON.stringify(PROF.eqp||{});
+  if(!force&&(sig===BK.sig||Date.now()-BK.t<240e3))return;BK.t=Date.now();const d=await knRpc('kn_save_put',{p_tok:knTok(),p_rc:rcGet(),p_data:PROF});if(d&&d.ok){BK.sig=sig;BK.st='ok';PROF.bkAt=Date.now();LS.set('prof',PROF)}else BK.st=d&&d.e||'gagal'}catch(e){BK.st=String(e.message||e)}}
+setTimeout(()=>bkPush(true),20000);setInterval(()=>{if(!document.hidden)bkPush()},60e3);
+{const o=addExp;addExp=function(){const b=PROF.lv,r=o.apply(this,arguments);if(PROF.lv>b)setTimeout(()=>bkPush(true),3000);return r}}
+// Settings: tampilkan kode pemain + kode pemulihan
+{const o=openTab;openTab=function(k){const r=o.apply(this,arguments);if(k==='set'&&PROF.made){const s=$('stS'),row=s&&s.closest('.row2');if(row&&!$('rcBox')){const ago=PROF.bkAt?knAgo((Date.now()-PROF.bkAt)/1000):'belum';
+  row.insertAdjacentHTML('afterend',`<div class="note" id="rcBox" style="border:2px solid #ffd23c;border-radius:12px;padding:10px">🔑 <b>Kode Pemulihan Akun</b><br>Kode Pemain: <b style="font-size:17px;letter-spacing:2px">${esc(PROF.kcode||'(belum online)')}</b><br>Kode Pemulihan: <b style="font-size:17px;letter-spacing:2px;color:#ffd23c">${rcGet()}</b><br><small>Catat dua kode ini. Kalau ganti HP atau data terhapus, pilih "Pulihkan Akun" di layar judul. Cadangan terakhir: ${ago}.</small><br><button class="mini" onclick="bkPush(true).then(()=>openTab('set'))">☁ Cadangkan sekarang</button></div>`)}}return r}}
+// Layar judul: Pulihkan Akun
+function rcOpen(){sheet('🔑 Pulihkan Akun',`<div class="note">Masukkan Kode Pemain dan Kode Pemulihan (lihat di Settings HP lama, atau tanya guru).</div>
+  <div class="row2"><label>Kode Pemain</label><input id="rcC" maxlength="8" style="text-transform:uppercase;font-size:18px;letter-spacing:2px;width:100%"></div>
+  <div class="row2"><label>Kode Pemulihan</label><input id="rcR" maxlength="6" style="text-transform:uppercase;font-size:18px;letter-spacing:2px;width:100%"></div>
+  <div class="note" id="rcM"></div><button class="go px" onclick="rcDo()">Pulihkan</button>`)}
+async function rcDo(){const c=$('rcC').value.trim().toUpperCase(),k=$('rcR').value.trim().toUpperCase(),m=$('rcM');if(c.length<4||k.length!==6){m.innerHTML='<span style="color:#ff8a7a">Kode belum lengkap.</span>';return}
+  if(PROF.made&&!rcDo.ok){rcDo.ok=1;m.innerHTML=`<span style="color:#ffd23c">⚠ Di HP ini sudah ada karakter <b>${esc(PROF.name)}</b> (Lv ${PROF.lv}). Karakter itu akan DIGANTI. Tekan Pulihkan sekali lagi untuk lanjut.</span>`;return}
+  m.textContent='Menghubungi server…';let d=null,er='';try{d=await knRpc('kn_save_get',{p_code:c,p_rc:k})}catch(e){er=String(e.message||e)}
+  if(!d||!d.ok||!d.data){m.innerHTML='<span style="color:#ff8a7a">'+(er==='404'?'Fitur pemulihan belum dipasang di server (kn_save.sql).':d&&d.e==='ep'?'Cadangan ini dari sebelum reset semua pemain, jadi tidak bisa dipulihkan.':er?'Tidak bisa terhubung ke server.':'Kode tidak cocok. Periksa lagi.')+'</span>';rcDo.ok=0;return}
+  try{localStorage.setItem('lmduel_prof',JSON.stringify(d.data));localStorage.setItem('lmduel_prof_safe',JSON.stringify(d.data));if(d.epoch!=null)localStorage.setItem('lmduel_epoch',String(d.epoch))}catch(e){}
+  m.innerHTML='<span style="color:#7dff8a">✅ Akun '+esc(d.data.name||'')+' dipulihkan! Memuat ulang…</span>';setTimeout(()=>location.reload(),1200)}
+{const o=openTitle;openTitle=function(){const r=o.apply(this,arguments);try{const go=$('tiGo');if(go&&!$('tiRc'))go.insertAdjacentHTML('afterend','<button id="tiRc" class="ghost" style="margin-top:6px" onclick="rcOpen()">🔑 Pulihkan Akun</button>')}catch(e){}return r}}
+try{if(G.scr==='title'&&$('tiGo')&&!$('tiRc'))$('tiGo').insertAdjacentHTML('afterend','<button id="tiRc" class="ghost" style="margin-top:6px" onclick="rcOpen()">🔑 Pulihkan Akun</button>')}catch(e){}
+// Panel pengembang: daftar kode pemulihan (password guru)
+async function openRcList(){sheet('🔑 Kode Pemulihan Siswa','<div class="note">Memuat…</div>');let d=null,er='';try{d=await knRpc('kn_adm_saves',{p_pw:gfPw()})}catch(e){er=String(e.message||e)}
+  if(!d||!d.ok){sheet('🔑 Kode Pemulihan Siswa',`<div class="note" style="color:#ff8a7a">${er==='404'?'Jalankan kn_save.sql di Supabase dulu.':d&&d.ok===false?'Password ditolak. Masuk ulang ke Panel Pengembang.':'Tidak bisa terhubung ke server.'}</div><button class="ghost" onclick="openDev()">◀ Kembali</button>`);return}
+  sheet('🔑 Kode Pemulihan Siswa',`<div class="note">Berikan Kode Pemain + Kode Pemulihan ke siswa yang ganti HP / datanya hilang. Siswa memilih "Pulihkan Akun" di layar judul.</div><div class="lst">${(d.list||[]).map(p=>`<div class="it"><span><b>${esc(p.name)}</b><small>Lv ${p.lv} · cadangan ${knAgo((Date.now()-new Date(p.upd).getTime())/1000)}</small></span><span style="text-align:right;font-family:monospace;font-size:13px">${esc(p.code)}<br><b style="color:#ffd23c">${esc(p.rc)}</b></span></div>`).join('')||'<div class="note">Belum ada cadangan.</div>'}</div><button class="ghost" onclick="openDev()">◀ Kembali</button>`)}
+// ---------- banner versi baru (1b): cek ETag/Last-Modified file game tiap 5 menit ----------
+const VB={tag:null};
+async function vbCheck(){if(location.protocol==='file:'||document.hidden)return;try{const r=await fetch(location.pathname+'?vc='+Date.now(),{method:'HEAD',cache:'no-store'});const t=r.headers.get('etag')||r.headers.get('last-modified')||r.headers.get('content-length');if(!t)return;
+  if(VB.tag===null){VB.tag=t;return}if(t!==VB.tag)vbShow()}catch(e){}}
+function vbShow(){if($('vbBan'))return;const b=document.createElement('button');b.id='vbBan';b.className='px';b.style.cssText='position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:9400;background:linear-gradient(#ffe680,#ffb02a);color:#2a1a00;border:3px solid #fff6c0;border-radius:14px;padding:10px 16px;font-weight:700;box-shadow:0 4px 0 #a86a10';
+  b.innerHTML='✨ Versi baru tersedia! Ketuk untuk memperbarui';b.onclick=()=>{try{if(PROF&&PROF.made)saveP()}catch(e){}location.replace(location.pathname+'?v='+Date.now())};
+  const put=()=>{if(G.scr==='fight')return setTimeout(put,5000);document.body.appendChild(b)};put()}
+setTimeout(vbCheck,8000);setInterval(vbCheck,300e3);
+
+// ===== v78: emote & chat cepat (Town + party) =====
+const EMOS=['😀','👍','❤️','😂','😮','😢','🔥','🎉'];
+const EPHR=['Halo!','Ayo party!','Ayo duel!','Terima kasih!','Hebat!','Tunggu sebentar','Ayo belajar!','Semangat!'];
+const EMO={};let EMT=0;
+function emoPick(){sheet('💬 Emote & Chat',`<div class="emg">${EMOS.map((e,i)=>`<button onclick="emoSend('e${i}')">${e}</button>`).join('')}</div><div class="emp">${EPHR.map((t,i)=>`<button onclick="emoSend('p${i}')">${t}</button>`).join('')}</div>`)}
+const emoTxt=k=>k[0]==='e'?EMOS[+k.slice(1)]:EPHR[+k.slice(1)];
+function emoSend(k){if(!emoTxt(k))return;closeSheet();if(Date.now()-EMT<2000)return;EMT=Date.now();const me=(typeof LV!=='undefined'&&LV.me)||lvMe();emoShow(me,k);
+  try{if(G.scr==='town'&&LV.ch)LV.ch.send({type:'broadcast',event:'emo',payload:{from:me,k}})}catch(e){}try{if(PA.id)paSend('emo',{e:k})}catch(e){}}
+function emoGot(p){if(!p||!p.from||!emoTxt(p.k))return;emoShow(p.from,p.k)}
+function emoShow(c,k){EMO[c]={k,l:4};if(G.scr==='fight'&&G.paFight){const me=(typeof LV!=='undefined'&&LV.me)||lvMe();let f=null;if(c===me)f=G.F&&G.F[0];else{const a=(PA.al||[]).find(a=>a.c===c);f=a&&a.f}if(f)txt(f.x,GY-f.y-42,emoTxt(k),'#ffffff',k[0]==='e'?9:5.5,2.2)}}
+{const o=paMsg;paMsg=function(p){if(p&&p.k==='emo')return emoGot({from:p.from,k:p.e});return o.apply(this,arguments)}}
+// gelembung di kota: di atas karakter sendiri & teman
+{const o=townFx2;townFx2=function(g,dt,cam,tod){const r=o.apply(this,arguments);try{const me=(typeof LV!=='undefined'&&LV.me)||lvMe();for(const c in EMO){const E=EMO[c];E.l-=dt;if(E.l<=0){delete EMO[c];continue}
+  let x=null;if(c===me||c==='me'){x=TWN.f&&TWN.f.x}else if(LV.gh&&LV.gh[c])x=LV.gh[c].x;if(x==null)continue;const t=emoTxt(E.k);
+  if(E.k[0]==='e'){g.font='10px system-ui';g.textAlign='center';g.textBaseline='bottom';g.globalAlpha=Math.min(1,E.l);g.fillText(t,x,TGY-38-Math.max(0,(E.l-3.6))*20);g.globalAlpha=1}else npcBubble(g,x,TGY-38,t,'#e8f4ff')}}catch(e){}return r}}
+// tombol 💬 di kota & saat party battle
+{const st=document.createElement('style');st.textContent=`.emg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}.emg button{font-size:30px;padding:8px;border-radius:12px;background:#1d1540;border:2px solid #3a2a78}
+.emp{display:grid;grid-template-columns:1fr 1fr;gap:8px}.emp button{padding:10px;border-radius:12px;background:#2a1f60;border:2px solid #5a4aa8;color:#fff;font-weight:700}
+#emoB{position:fixed;z-index:30;left:10px;top:64px;width:44px;height:44px;border-radius:50%;font-size:22px;background:#1d1540ee;border:2px solid #5a4aa8;color:#fff;display:none}#emoB.on{display:block}`;document.head.appendChild(st)}
+{const b=document.createElement('button');b.id='emoB';b.textContent='💬';b.onclick=emoPick;document.body.appendChild(b);
+ setInterval(()=>{const on=(G.scr==='town')||(G.scr==='fight'&&!!G.paFight&&!!PA.id);b.classList.toggle('on',on&&$('sheet').classList.contains('hide'))},500)}
 
 // ===== v59: player tidak boleh 'tersangkut' di party yang sudah ditinggal leader =====
 paLeadGone=function(){};   // diganti pemantau di bawah (tidak bergantung pada event presence)
