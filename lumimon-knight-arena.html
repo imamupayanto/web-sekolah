@@ -5062,7 +5062,7 @@ function arnFS(){try{const d=document.documentElement;(d.requestFullscreen||d.we
 setInterval(()=>{if(G.scr!=='arena')return;(ARN.cvs||[]).forEach(([cv,cfg,f])=>{if(cv&&cv.isConnected)arnDraw(cv,cfg,f)})},160);
 
 // ---------- pilih dari kelas ----------
-function arnModal(c,html){let m=$('amod');if(!m){m=document.createElement('div');m.id='amod';document.body.appendChild(m);m.onclick=e=>{if(e.target===m)arnClose()}}m.classList.remove('hide');m.innerHTML=`<div class="box" style="--c:${c}">${html}</div>`}
+function arnModal(c,html){let m=$('amod');if(!m){m=document.createElement('div');m.id='amod';document.body.appendChild(m);m.onpointerdown=e=>{m._dn=e.target===m};m.onclick=e=>{if(e.target===m&&m._dn)arnClose();m._dn=0}}m.classList.remove('hide');m.innerHTML=`<div class="box" style="--c:${c}">${html}</div>`}
 function arnClose(){$('amod')&&$('amod').classList.add('hide');ARN.cvs=ARN.cvs.filter(x=>x[0]&&x[0].id&&x[0].id.startsWith('apv'))}
 async function arnPick(i,force){const hd=`<div class="hd"><span>👥 ${AN[i]}: pilih karaktermu</span><span><button class="abtn" onclick="arnPick(${i},1)">🔄 Muat ulang</button> <button class="abtn" onclick="arnClose()">✖</button></span></div>`;
   if(!ARN.list||force){arnModal(AC[i],hd+'<div class="asec">Memuat daftar pemain…</div>');let d=null,er='';try{d=await knRpc('kn_arena_list',{})}catch(e){er=String(e.message||e)}
@@ -5151,10 +5151,11 @@ function arnAgain(){$('ares').classList.add('hide');arnGo()}
 G.scr='arena';try{show('none')}catch(e){}arnSetup();
 
 // ketuk toleran untuk layar sentuh besar: tombol dijalankan saat jari diangkat walau bergeser sedikit (≤40 px); klik bawaan setelahnya diabaikan
-{let TB=null,TX=0,TY=0;const SEL_B='#arn button,#amod button,#ares button,#aft button';
+{let TB=null,TX=0,TY=0,LT=0;const SEL_B='#arn button,#amod button,#ares button,#aft button';
  document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest(SEL_B);TB=b&&b.onclick?b:null;TX=e.clientX;TY=e.clientY},true);
- document.addEventListener('pointerup',e=>{const b=TB;TB=null;if(!b||!b.isConnected||b.disabled)return;if(Math.hypot(e.clientX-TX,e.clientY-TY)>40)return;b._tap=Date.now();try{b.onclick.call(b,e)}catch(x){}},true);
- document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest(SEL_B);if(b&&b._tap&&Date.now()-b._tap<800){e.stopPropagation();e.preventDefault()}},true)}
+ document.addEventListener('pointerup',e=>{const b=TB;TB=null;if(!b||!b.isConnected||b.disabled)return;if(Math.hypot(e.clientX-TX,e.clientY-TY)>40)return;LT=Date.now();try{b.onclick.call(b,e)}catch(x){}},true);
+ // klik bawaan yang menyusul ketukan TIDAK boleh mengenai elemen baru di bawah jari (menu sudah berganti / dialog baru terbuka)
+ document.addEventListener('click',e=>{if(Date.now()-LT<400){e.stopPropagation();e.preventDefault()}},true)}
 
 // ---------- tanpa glow (ringan untuk layar 4K): bayangan blur, cahaya teks, latar gradien besar ----------
 {const s=document.createElement('style');s.textContent=`
