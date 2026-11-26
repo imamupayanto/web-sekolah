@@ -5024,7 +5024,7 @@ body.arnf .cvw{margin:0 auto;border-radius:0}
 
 // ---------- gambar karakter ----------
 function arnCfg(p){return p&&p.cfg}
-function arnDraw(cv,cfg,face,pose){try{const S=cv.width/56,W=56,H=cv.height/S,f=mkFighter(Object.assign({},cfg),face<0?1:0),g=cv.getContext('2d');
+function arnDraw(cv,cfg,face,pose){try{if(!cv)return;const S=cv.width/56,W=56,H=cv.height/S,key=JSON.stringify([cfg,face]);if(cv._k!==key){cv._k=key;cv._f=mkFighter(Object.assign({},cfg),face<0?1:0)}const f=cv._f,g=cv.getContext('2d');
   g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cv.width,cv.height);g.imageSmoothingEnabled=false;g.setTransform(S,0,0,S,0,0);
   g.fillStyle='#0006';g.beginPath();g.ellipse(W/2,H-2,12,2.5,0,0,7);g.fill();
   f.x=W/2;f.y=0;f.st=pose||'idle';f.t=(performance.now()/1000)%4;f.walk=0;f.face=face||1;f.fv=f.face;g.translate(0,H-4-GY);g.scale(1,1);drawFighter(g,f)}catch(e){}}
@@ -5095,11 +5095,11 @@ function arnGo(){if(ARN.mode!=='duel')return coStart();ARN.coop=0;SND.init();arn
   const cf=i=>{const p=ARN.p[i],c=JSON.parse(JSON.stringify(p.cfg));if(ARN.fair){delete c.pet}else if(!c.lv)c.lv=15;return c};
   ARN.cf=[cf(0),cf(1)];arnPanels();startMatch({a:ARN.cf[0],b:ARN.cf[1],diff:1,arena:pick([0,1,2,3,4,5,7,8]),mode:'prac',na:ARN.p[0].name,nb:ARN.p[1].name});
   if(ARN.fair)G.F.forEach((f,i)=>{const t=f.w.type,rw=WPN.find(w=>w.type===t&&w.r===3&&!w.z&&!w.sig)||f.w,ref=mkFighter({look:f.cfg.look,w:rw.id,lv:15},i);f.maxHp=f.hp=ref.maxHp;f.atk=ref.atk;f.bonus={};f.lv=15});
-  arnPanels();fit()}
+  W.noCrowd=1;arnPanels();fit()}
 // layout: kanvas di tengah setinggi layar, panel pemain di kiri & kanan
-{const o=fit;fit=function(){if(!ARN.fight)return o.apply(this,arguments);const H=innerHeight,w0=Math.floor(Math.min(innerWidth*.5,H*VW/VH)),lo=typeof gqLo==='function'&&gqLo(),dpr=Math.min(devicePixelRatio||1,(lo?900:1500)/w0);
+{const o=fit;fit=function(){if(!ARN.fight)return o.apply(this,arguments);const H=innerHeight,w0=Math.floor(Math.min(innerWidth*.5,H*VW/VH)),lo=typeof gqLo==='function'&&gqLo(),dpr=Math.min(devicePixelRatio||1,(lo?480:720)/w0);
   cv.style.width=w0+'px';cv.style.height=Math.floor(w0*VH/VW)+'px';cv.parentNode.style.width=w0+'px';cv.width=Math.round(w0*dpr);cv.height=Math.round(w0*VH/VW*dpr);K=cv.width/VW;document.documentElement.style.setProperty('--cw',w0+'px')}}
-function arnPanels(){[0,1].forEach(i=>{let p=$('afp'+i);if(!p){p=document.createElement('div');p.id='afp'+i;p.className='afp';document.body.appendChild(p)}p.classList.remove('hide');p.style.setProperty('--c',AC[i]);
+function arnPanels(){for(const k in HV)delete HV[k];ARN.q.forEach(q=>{if(q)q.bk=null});[0,1].forEach(i=>{let p=$('afp'+i);if(!p){p=document.createElement('div');p.id='afp'+i;p.className='afp';document.body.appendChild(p)}p.classList.remove('hide');p.style.setProperty('--c',AC[i]);
   p.innerHTML=`<div class="nm"><span>${i?'🔴':'🔵'} ${esc(ARN.p[i].name)}</span><span class="st" id="aw${i}">☆☆</span></div>
    <div><div class="lb">❤️ HP</div><div class="abar hp" id="ahb${i}"><i id="ah${i}"></i></div></div>
    <div><div class="lb">⚡ SPECIAL <span id="aep${i}"></span></div><div class="abar en" id="aeb${i}"><i id="ae${i}"></i></div></div>
@@ -5112,9 +5112,9 @@ function arnQuit(){const b=$('arX');if(!b.dataset.ok){b.dataset.ok=1;b.textConte
 {const o=qStart;qStart=function(){if(!ARN.fight)return o.apply(this,arguments);[0,1].forEach(i=>{ARN.q[i]={n:0,ok:0,st:0,best:0};arnQNext(i)})}}
 const aqOpen=()=>ARN.fight&&G.scr==='fight'&&(G.st==='fight'||G.st==='intro');
 function arnQNext(i){const Q=ARN.q[i];Q.q=getQ();Q.lock=0;Q.rd=1;Q.n++;clearTimeout(Q.rdT);Q.rdT=setTimeout(()=>{Q.rd=0;arnQBtn(i)},800);
-  const c=$('aqc'+i);if(!c)return;c.classList.remove('ok','bad');$('aqq'+i).textContent=Q.q.q;$('aqf'+i).textContent='';$('aqm'+i).textContent=`${Q.q.ic} Soal ${Q.n}`;arnQSt(i);arnQBtn(i)}
+  const c=$('aqc'+i);if(!c)return;c.classList.remove('ok','bad');const qe=$('aqq'+i),L=Q.q.q.length;qe.textContent=Q.q.q;qe.style.fontSize=L<60?'3.6vh':L<110?'2.8vh':'2.3vh';$('aqf'+i).textContent='';$('aqm'+i).textContent=`${Q.q.ic} Soal ${Q.n}`;arnQSt(i);arnQBtn(i)}
 function arnQSt(i){const Q=ARN.q[i];$('aqs'+i).textContent=Q.st>=2?`🔥 ${Q.st} beruntun`:`✔ ${Q.ok} benar`}
-function arnQBtn(i){const Q=ARN.q[i],on=aqOpen()&&!Q.lock&&!Q.rd;const a=$('aqt'+i),b=$('aqx'+i);if(a){a.disabled=b.disabled=!on;$('aqc'+i).classList.toggle('rd',!!Q.rd)}}
+function arnQBtn(i){const Q=ARN.q[i],on=aqOpen()&&!Q.lock&&!Q.rd,k=on+'|'+!!Q.rd;if(Q.bk===k)return;Q.bk=k;const a=$('aqt'+i),b=$('aqx'+i);if(a){a.disabled=b.disabled=!on;$('aqc'+i).classList.toggle('rd',!!Q.rd)}}
 function arnAns(i,v){const Q=ARN.q[i];if(!aqOpen()||Q.lock||Q.rd||!Q.q)return;SND.init();Q.lock=1;const ok=v===Q.q.ans,F=arnF(i),c=$('aqc'+i);F.stats.q++;const hy=GY-F.y-14;
   if(ok){F.stats.qok++;Q.ok++;Q.st++;Q.best=Math.max(Q.best,Q.st);const gain=Math.round((20*qBars()+(Q.st>=2?5:0))*(1+(F.bonus.jf||0)));F.energy=Math.min(100,F.energy+gain);
     c.classList.add('ok');$('aqf'+i).innerHTML=`✔ Tepat! ⚡+${String(qBars()).replace('.',',')} bar`;SND.ok();ring(F.x,hy,AC[i],14,.35,2);burst(F.x,hy,'#ffffff',6,.15);
@@ -5124,10 +5124,11 @@ function arnAns(i,v){const Q=ARN.q[i];if(!aqOpen()||Q.lock||Q.rd||!Q.q)return;SN
   arnQSt(i);arnQBtn(i)}
 addEventListener('keydown',e=>{if(!ARN.fight)return;const k=e.key.toLowerCase();if(k==='a')arnAns(0,true);else if(k==='s')arnAns(0,false);else if(k==='k')arnAns(1,true);else if(k==='l')arnAns(1,false)});
 // HUD besar
-(function arnHud(){requestAnimationFrame(arnHud);if(!ARN.fight||!G.F||G.scr!=='fight')return;[0,1].map(arnF).forEach((f,i)=>{const p=Math.max(0,f.hp/f.maxHp*100),h=$('ah'+i);if(!h)return;h.style.width=p+'%';$('ahb'+i).className='abar hp'+(p<25?' low':p<50?' mid':'');
-  const e=Math.round(f.energy);$('ae'+i).style.width=e+'%';$('aeb'+i).classList.toggle('full',e>=100);$('aep'+i).textContent=e+'%';$('aw'+i).textContent='★'.repeat(Math.min(2,G.wins[i]))+'☆'.repeat(Math.max(0,2-G.wins[i]));arnQBtn(i)});
+const HV={};function hset(id,k,v){if(HV[id+k]===v)return;HV[id+k]=v;const e=$(id);if(!e)return;if(k==='w')e.style.width=v;else if(k==='t')e.textContent=v;else e.className=v}
+(function arnHud(){requestAnimationFrame(arnHud);if(!ARN.fight||!G.F||G.scr!=='fight')return;[0,1].map(arnF).forEach((f,i)=>{const p=Math.max(0,Math.round(f.hp/f.maxHp*200)/2);if(!$('ah'+i))return;hset('ah'+i,'w',p+'%');hset('ahb'+i,'c','abar hp'+(p<25?' low':p<50?' mid':''));
+  const e=Math.round(f.energy);hset('ae'+i,'w',e+'%');hset('aeb'+i,'c','abar en'+(e>=100?' full':''));hset('aep'+i,'t',e+'%');if(!ARN.coop)hset('aw'+i,'t','★'.repeat(Math.min(2,G.wins[i]))+'☆'.repeat(Math.max(0,2-G.wins[i])));arnQBtn(i)});
   if(!ARN.pt||performance.now()-ARN.pt>120){ARN.pt=performance.now();[0,1].forEach(i=>{const c=$('apf'+i);if(c&&ARN.cf)arnDraw(c,ARN.cf[i],i?-1:1)})}
-  if(ARN.coop){coHud();return}const tt=$('arT');if(tt)tt.textContent=Math.max(0,Math.ceil(G.time||0));const rr=$('arR');if(rr)rr.textContent=G.round>=3?'FINAL':'RONDE '+G.round})();
+  if(ARN.coop){coHud();return}hset('arT','t',String(Math.max(0,Math.ceil(G.time||0))));hset('arR','t',G.round>=3?'FINAL':'RONDE '+G.round)})();
 // hasil
 result=function(){if(ARN.coop)return;G.st='over';const w0=G.wins[0],w1=G.wins[1],wi=w0===w1?-1:w0>w1?0:1;setTimeout(()=>arnResult(wi),900)};
 function arnResult(wi){let r=$('ares');if(!r){r=document.createElement('div');r.id='ares';document.body.appendChild(r)}r.classList.remove('hide');r.style.setProperty('--c',wi<0?'#ffd23c':AC[wi]);
@@ -5168,8 +5169,8 @@ function coStart(){SND.init();arnFS();SEL.mapel=ARN.mapel;SEL.manual=0;root.clas
   arnPanels();startMatch({a:ARN.cf[0],b,diff:ARN.mode==='boss'?[1,2,2][ARN.bd]:1,arena,mode:'prac',na:ARN.p[0].name,nb:b.npcN||CO.bn||'Musuh'});
   const A=G.F[0],N=mkFighter(ARN.cf[1],0);ARN.K=[A,N];G.F3=[N];
   ARN.K.forEach((f,i)=>{if(ARN.fair){const t=f.w.type,rw=WPN.find(w=>w.type===t&&w.r===3&&!w.z&&!w.sig)||f.w,ref=mkFighter({look:f.cfg.look,w:rw.id,lv:15},0);f.maxHp=ref.maxHp;f.atk=ref.atk;f.bonus={};f.lv=15}f.maxHp=f.hp=Math.round(f.maxHp*1.5);f.atk*=1.5});
-  coBuff(G.F[1],ARN.mode==='boss'?'b':'n',1);N.x=ARW/2-100;N.face=N.fv=1;G.time=9999;
-  const t=$('aft');t.innerHTML=`<div class="coi"><small id="arR"></small><span id="arT"></span></div>${ARN.mode==='boss'?'<div class="abhp"><i id="abh"></i></div>':''}<button class="abtn" id="arX" onclick="arnQuit()">✖</button>`;t.classList.toggle('boss',ARN.mode==='boss');fit()}
+  W.noCrowd=1;coBuff(G.F[1],ARN.mode==='boss'?'b':'n',1);N.x=ARW/2-100;N.face=N.fv=1;G.time=9999;
+  for(const k in HV)delete HV[k];const t=$('aft');t.innerHTML=`<div class="coi"><small id="arR"></small><span id="arT"></span></div>${ARN.mode==='boss'?'<div class="abhp"><i id="abh"></i></div>':''}<button class="abtn" id="arX" onclick="arnQuit()">✖</button>`;t.classList.toggle('boss',ARN.mode==='boss');fit()}
 {const o=introRound;introRound=function(){const r=o.apply(this,arguments);if(!ARN.coop||!ARN.K)return r;const N=ARN.K[1];N.x=ARW/2-104;N.face=N.fv=1;N.st='idle';G.ban=[];
   if(CO.mode==='boss'){G.it=2.8;G.dimT=G.dim=.55;G.bi=1;banner(CO.bn.toUpperCase(),['NORMAL','SULIT','LEGENDA'][ARN.bd]+' · lawan bersama!','#ffd23c',2.4,15);fx({x:G.F[1].x,y:0,l:1.4,c:'#ffd23c',k:'pillar'});try{SND.boom()}catch(e){}}
   else banner('WAVE 1',coN(1)+' musuh','#7dff8a',1.5,18);return r}}
@@ -5206,9 +5207,9 @@ function coSpawn(){const w=CO.wave,zi=Math.min(7,Math.floor((w-1)/3)),L=Math.max
   g.font="700 5px 'Pixelify Sans',system-ui";g.textAlign='center';g.fillText('P'+(i+1),f.x,y-1.5);if(f.st==='ko'&&f.rev>0){g.fillStyle='#ff8a7a';g.fillText(Math.ceil(f.rev)+'',f.x,y-8)}}}return r}}
 // HUD atas
 function coHud(){const B=G.F[1],tm=Math.floor(CO.t),mm=Math.floor(tm/60)+':'+String(tm%60).padStart(2,'0'),r=$('arR'),t=$('arT');
-  if(CO.mode==='boss'){if(r)r.textContent=CO.bn+' · '+['Normal','Sulit','Legenda'][ARN.bd];if(t)t.textContent=mm;const h=$('abh');if(h&&B)h.style.width=Math.max(0,B.hp/B.maxHp*100)+'%'}
-  else{if(r)r.textContent='WAVE '+CO.wave+' · sisa '+(CO.left+(B&&B.st!=='ko'?1:0));if(t)t.textContent='⭐ '+CO.score}
-  ARN.K.forEach((f,i)=>{const e=$('aw'+i);if(e)e.textContent=f.st==='ko'?'💤':''})}
+  if(CO.mode==='boss'){hset('arR','t',CO.bn+' · '+['Normal','Sulit','Legenda'][ARN.bd]);hset('arT','t',mm);if(B)hset('abh','w',Math.max(0,Math.round(B.hp/B.maxHp*200)/2)+'%')}
+  else{hset('arR','t','WAVE '+CO.wave+' · sisa '+(CO.left+(B&&B.st!=='ko'?1:0)));hset('arT','t','⭐ '+CO.score)}
+  ARN.K.forEach((f,i)=>hset('aw'+i,'t',f.st==='ko'?'💤':''))}
 
 // ---------- akhir & papan skor ----------
 const BKEY='lka_board';
