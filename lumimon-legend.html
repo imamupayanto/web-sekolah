@@ -995,6 +995,24 @@ body.dev #K #devW{display:block}
 #K .nd.fog{opacity:.3;filter:blur(1.5px);border-style:dashed;pointer-events:none}
 #K .nd.fog b{font-size:20px;color:#a99cd8}
 #K .exfog{position:absolute;left:0;right:0;top:0;background:linear-gradient(#141832ee,#14183299 70%,#14183200);pointer-events:none}
+/* v14 battle UI */
+#K .pips{display:none}
+#K .llv{color:#ffe680;font-weight:700}
+#K .llLm{font-size:10px;color:#bfe9c8;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 0 #000}
+#K .llLm b{color:#ffe680}
+#K #bQuit{top:46px;font-size:10px;padding:2px 8px;background:#0007;border:1px solid #fff2}
+#K #qp{gap:7px;padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px))}
+#K #qp:not(.man) .sign{flex:1 1 auto;display:flex;flex-direction:column;min-height:92px}
+#K #qp .qq{flex:1;justify-content:center;text-align:center;font-size:clamp(22px,7.4vw,34px);line-height:1.2;margin:2px 0;min-height:0}
+#K #qp .qq.lng{font-size:clamp(17px,5.2vw,25px)}#K #qp .qq.xl{font-size:clamp(14px,4.3vw,19px)}
+#K #qp .qf{text-align:center;font-size:13px}
+#K #qp .qh{font-size:11.5px}
+#K #qp .sign.ok{background:repeating-linear-gradient(#e2f6d2 0 18px,#d6efc4 18px 19px)}
+#K #qp .sign.bad{background:repeating-linear-gradient(#fbe2d8 0 18px,#f4d2c6 18px 19px)}
+#K #qp .qbs{flex:0 0 auto;height:clamp(64px,11.5vh,108px);max-height:none;min-height:0;gap:10px}
+#K #qp .qb{font-size:clamp(20px,6.2vw,28px);border-radius:16px}
+#K #qp .qb:disabled{filter:grayscale(.75) brightness(.65)}
+#K #qp .qhist{min-height:8px;flex:0 0 auto}
 </style></head>
 <body>
 <canvas id="c"></canvas>
@@ -3513,7 +3531,7 @@ function frame(now){requestAnimationFrame(frame);if(G.scr!=='fight')return;let d
 /* ---------- gambar ---------- */
 function vhFix(){const H=(window.visualViewport&&visualViewport.height)||innerHeight;document.documentElement.style.height=H+'px';document.body.style.height=H+'px';return H}
 if(window.visualViewport)visualViewport.addEventListener('resize',()=>{vhFix();if(G.scr==='fight')fit()});vhFix();addEventListener('resize',vhFix);
-function fit(){const H=vhFix(),hd=($('khud')&&$('khud').offsetHeight)||64;let w=Math.min(innerWidth,480);const mx=H-(typeof manOn==='function'&&manOn()?190:250);if(w*VH/VW>mx)w=Math.max(180,Math.floor(mx*VW/VH));cv.parentNode.style.width=w+'px';const dpr=Math.min(3,devicePixelRatio||1);cv.style.width=w+'px';cv.style.height=(w*VH/VW)+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(w*VH/VW*dpr);K=cv.width/VW}
+function fit(){const H=vhFix(),hd=($('khud')&&$('khud').offsetHeight)||64;let w=Math.min(innerWidth,480);const qh=typeof llFitVW==='function'?llFitVW(H,w):250;const mx=H-(typeof manOn==='function'&&manOn()?190:qh);if(w*VH/VW>mx)w=Math.max(180,Math.floor(mx*VW/VH));cv.parentNode.style.width=w+'px';const dpr=Math.min(3,devicePixelRatio||1);cv.style.width=w+'px';cv.style.height=(w*VH/VW)+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(w*VH/VW*dpr);K=cv.width/VW;if(typeof G!=='undefined')G.comboY=Math.max(30,(hd+16)*VW/w)}
 addEventListener('resize',fit);
 function drawWeaponL(g,f,r,th){if(f.hideW)return;g.save();g.translate(r.H.x,r.H.y);g.rotate((th==null?f.th:th)*Math.PI/180);
   if(f.w.glow||f.st==='chg'){g.shadowColor=f.st==='chg'?'#ffd23c':f.w.glow;g.shadowBlur=(f.st==='chg'?10:6)*K/4}g.drawImage(f.art.c,-f.art.px,-f.art.py-r.slide);g.restore()}
@@ -3630,7 +3648,7 @@ function draw(){const g=ctx;g.setTransform(1,0,0,1,0,0);g.imageSmoothingEnabled=
   drawPets(g);const order=[A,B].concat(G.F3||[]).sort((a,b)=>(['atk','sp','chg'].includes(a.st))-(['atk','sp','chg'].includes(b.st)));order.forEach(f=>drawFighter(g,f));
   drawProj(g);drawTufts(g);drawFx(g);if(G.drops&&G.drops.length)drawDrops(g);
   g.setTransform(K,0,0,K,0,0);
-  for(const f of G.F)if(f.chain>=2&&f.chainT>0){const x=f.side?VW-5:5,sc=1+Math.max(0,f.chainT-.95)*3;g.save();g.globalAlpha=Math.min(1,f.chainT*3);g.translate(x,30);g.scale(sc,sc);g.textAlign=f.side?'right':'left';g.font="700 13px 'Pixelify Sans',sans-serif";g.lineWidth=2.5;g.strokeStyle='#120e18';g.fillStyle=f.side?'#ff8a7a':'#7cc4ff';
+  for(const f of G.F)if(f.chain>=2&&f.chainT>0){const x=f.side?VW-5:5,sc=1+Math.max(0,f.chainT-.95)*3;g.save();g.globalAlpha=Math.min(1,f.chainT*3);g.translate(x,G.comboY||30);g.scale(sc,sc);g.textAlign=f.side?'right':'left';g.font="700 13px 'Pixelify Sans',sans-serif";g.lineWidth=2.5;g.strokeStyle='#120e18';g.fillStyle=f.side?'#ff8a7a':'#7cc4ff';
     g.strokeText(f.chain+' HIT',0,0);g.fillText(f.chain+' HIT',0,0);const w=f.chain>=8?'GODLIKE!':f.chain>=6?'AMAZING!':f.chain>=4?'GREAT!':'COMBO';g.font="700 6px 'Pixelify Sans',sans-serif";g.fillStyle='#ffd23c';g.strokeText(w,0,8);g.fillText(w,0,8);g.restore()}
   if(G.flashW>0){g.globalAlpha=Math.min(.85,G.flashW*2.5);g.fillStyle=G.flashC;g.fillRect(0,0,VW,VH);g.globalAlpha=1}
   if(A.hp/A.maxHp<.25&&A.st!=='ko'&&G.st==='fight'){const pa=.22+.14*Math.sin(G.t*9),vg=g.createRadialGradient(VW/2,VH/2,VH*.3,VW/2,VH/2,VH*.75);vg.addColorStop(0,'#ff000000');vg.addColorStop(1,`rgba(255,20,30,${pa})`);g.fillStyle=vg;g.fillRect(0,0,VW,VH)}
@@ -3663,7 +3681,7 @@ function qNext(){QZ.aiDone=0;clearTimeout(QZ.aiT);QZ.aiT=setTimeout(aiAns,15000)
   $('qQ').textContent=QZ.q.q;$('qF').textContent='';$('qMap').textContent=`${QZ.q.ic} Soal ${QZ.n}`;qStreak();qBtns()}
 function qStreak(){$('qStreak').innerHTML=QZ.streak>=2?`🔥 ${QZ.streak} beruntun`:`✔ ${QZ.ok} benar`}
 function qBtns(){const on=qOpen()&&!QZ.lock&&!QZ.rd;$('qp').classList.toggle('rd',!!QZ.rd);$('qT').disabled=$('qS').disabled=!on;$('qp').classList.toggle('wait',!qOpen())}
-function qAnswer(v){if(!qOpen()||QZ.lock||!QZ.q)return;if(QZ.rd){$('qF').innerHTML='📖 Baca dulu soalnya!';return}SND.init();QZ.lock=true;const ok=v===QZ.q.ans,A=G.F[0],c=$('qCard'),btn=$(v?'qT':'qS');btn.classList.add('hit');setTimeout(()=>btn.classList.remove('hit'),300);
+function qAnswer(v){if(!qOpen()||QZ.lock||!QZ.q)return;if(QZ.rd){$('qF').innerHTML='📖 Baca dulu soalnya!';return}SND.init();QZ.lock=true;const ok=(typeof devF==='function'&&devF('auto'))||v===QZ.q.ans,A=G.F[0],c=$('qCard'),btn=$(v?'qT':'qS');btn.classList.add('hit');setTimeout(()=>btn.classList.remove('hit'),300);
   aiAns();A.stats.q++;if(ok){A.stats.qok++;QZ.ok++;QZ.streak++;A.stats.bst=Math.max(A.stats.bst||0,QZ.streak);QZ.best=Math.max(QZ.best,QZ.streak);const gain=Math.round((20*qBars()+(QZ.streak>=2?5:0))*(1+(A.bonus.jf||0)));A.energy=Math.min(100,A.energy+gain);
     c.classList.add('ok');$('qF').innerHTML=`✔ Tepat! <b>⚡+${String(qBars()).replace('.',',')} bar</b>`+(QZ.streak>=2?' · bonus beruntun':'');SND.ok();qFly(btn);
     const hy=GY-A.y-14;ring(A.x,hy,'#5ad0ff',14,.35,2);burst(A.x,hy,'#9ee8ff',6,.15);for(let i=0;i<8;i++)fx({x:A.x+rnd(-8,8),y:GY-A.y-rnd(0,24),vx:rnd(-10,10),vy:rnd(-40,-15),l:rnd(.4,.7),s:rnd(.8,1.4),c:pick(['#5ad0ff','#bff4ff','#ffffff']),k:'st',g:-10});
@@ -3898,7 +3916,7 @@ function openBag(){const P=PROF,E=eqItems(),B=bag().filter(it=>!Object.values(P.
   sheet(pxSvg('hero',22)+' Hero',heroStrip('tas')+`${P.chests.length?`<div class="sec">🎁 Chest (${P.chests.length}) — isinya sudah pasti</div><div class="lst">${P.chests.map((c,i)=>`<div class="it"><span class="ic">${CHEST[c.type].ic}</span><span><b>${CHEST[c.type].n}</b><small>Isi: ${c.it?`<span style="color:${RKC[c.it.r]}">${gi(c.it).n}</span> + `:''}${c.coin} 🪙</small></span><button class="mini" onclick="openChest(${i})">Buka</button></div>`).join('')}</div>`:''}
     <div class="sec">🧍 Dipakai</div><div class="eqg">${GSL.map(sl=>{const it=E[sl];return`<button class="eqs" ${it?`onclick="itemSheet('${it.u}')"`:''} style="border-color:${it?RKC[it.r]:'#ffffff22'}"><span>${it?itIcon(it):GSI[sl]}</span><small>${GSN[sl]}</small><b style="color:${it?RKC[it.r]:'#667'}">${it?gi(it).n:'— kosong —'}</b></button>`}).join('')}</div>
     ${Object.entries(G2.sets).map(([k,n])=>`<div class="note">✨ ${GSET[k].n} ${n} bagian: ${n>=2?'✔ '+GSET[k].t2:'2 bagian: '+GSET[k].t2}${n>=3?' · ✔ '+GSET[k].t3:' · 3 bagian: '+GSET[k].t3}</div>`).join('')}
-    <div class="sec">🎒 Isi tas (${bag().length}/80)</div><div class="chtab">${[['all','All'],['w','Weapon'],['ar','Armor'],['acc','Accessory']].map(([k,n])=>`<button class="${BAGF===k?'on':''}" onclick="BAGF='${k}';openBag()">${n}</button>`).join('')}</div>
+    <div class="sec">🎒 Bag (${bag().length}/${bagMax()})</div><div class="chtab">${[['all','All'],['w','Weapon'],['ar','Armor'],['acc','Accessory']].map(([k,n])=>`<button class="${BAGF===k?'on':''}" onclick="BAGF='${k}';openBag()">${n}</button>`).join('')}</div>
     <div class="lst">${B.length?B.map(it=>{const d=gi(it),cur=E[it.s],dv=cur?score(it)-score(cur):1;return`<div class="it" onclick="itemSheet('${it.u}')"><span class="ic">${itIcon(it)}</span><span><b style="color:${RKC[it.r]}">${d.n}</b><small>${GSN[it.s]} · ${RK[it.r]}${it.set?' · ✨Set':''} ${dv>0?'<em class="up">▲</em>':dv<0?'<em class="dn">▼</em>':''}</small></span></div>`}).join(''):'<div class="note">Kosong. Barang didapat dari dungeon, peti, dan toko.</div>'}</div>`)}
 function itemSheet(u){const it=byU(u)||(PROF.shopI||[]).find(x=>x.u===u);if(!it)return;const d=gi(it),E=eqItems(),cur=E[it.s],worn=PROF.eqp[it.s]===u,inShop=!byU(u),upC=Math.round(d.price*.6*(it.up+1));
   const lines=it.s==='w'?[`${TYPN[d.base.type]} · Serangan ×${Math.round(d.st.wa*100)/100}`,...stTxt(d.st)]:stTxt(d.st);
@@ -3916,7 +3934,7 @@ function sellI(u){const it=byU(u);if(!it||Object.values(PROF.eqp).includes(u))re
 /* ---------- Toko (6 barang/hari, acak sesuai level) ---------- */
 function openShop(){const d=today();if(!PROF.shopI||PROF.shopD!==d){PROF.shopD=d;const t=Math.min(4,Math.floor(PROF.lv/6));PROF.shopI=[0,1,2,3,4,5].map(i=>rollItem(Math.min(4,rarRoll(t)),i<2?'w':null,i===0?(WPN.find(x=>x.id===PROF.w)||WPN[0]).type:null));saveP()}
   sheet(pxSvg('toko',22)+' Toko',`<div class="note">Barang berganti setiap hari. Kamu punya <b>${PROF.coin} 🪙</b>. Barang lama bisa dijual di 🎒 Bag (harga jual jauh di bawah harga beli).</div><div class="lst">${PROF.shopI.map(it=>{const g=gi(it);return`<div class="it" onclick="itemSheet('${it.u}')"><span class="ic">${itIcon(it)}</span><span><b style="color:${RKC[it.r]}">${g.n}</b><small>${GSN[it.s]} · ${RK[it.r]}</small></span><i>${shopPrice(it)} 🪙</i></div>`}).join('')}</div>${petShop()}`)}
-function buyI(u){const i=PROF.shopI.findIndex(x=>x.u===u),it=PROF.shopI[i];if(!it)return;const p=shopPrice(it);if(PROF.coin<p)return;if(bag().length>=80){alert('Bag penuh (80). Sell barang dulu.');return}PROF.coin-=p;PROF.shopI.splice(i,1);giveItem(it);saveP();SND.win();lobbyHud();checkAch();openShop()}
+function buyI(u){const i=PROF.shopI.findIndex(x=>x.u===u),it=PROF.shopI[i];if(!it)return;const p=shopPrice(it);if(PROF.coin<p)return;if(bag().length>=bagMax()){alert('Bag penuh (80). Sell barang dulu.');return}PROF.coin-=p;PROF.shopI.splice(i,1);giveItem(it);saveP();SND.win();lobbyHud();checkAch();openShop()}
 /* ---------- Chest: isi ditentukan saat didapat ---------- */
 function grantChest(type){const C=CHEST[type],it=type==='abyss'?(Math.random()<.5?setItem('abyss_'+pick(ABYSS).k,null,5):rollItem(5,'w')):rollItem(C.r);PROF.chests.push({type,it,coin:C.coin});saveP();lobbyHud()}
 function openChest(i){const c=PROF.chests[i];if(!c)return;PROF.chests.splice(i,1);if(c.it)giveItem(c.it);PROF.coin+=c.coin;saveP();SND.win();
@@ -4012,11 +4030,11 @@ function zEnd(){const A=G.F[0],B=G.F[1],R=ZR();G.ended=G.round;G.round++;
 function zKill(S,B){const R=ZR(),L=S.L,K={c:1,r:1.5,e:3,b:7}[S.k],A=G.F[0],g=Math.round((4+2*L)*K*ZDIF[R.d].g*(1+(A.bonus.coin||0)));R.loot.coin+=g;R.mas+={c:2,r:3,e:8,b:20}[S.k];
   const hy=GY-20;for(let i=0;i<Math.min(10,3+g/8);i++)fx({x:B.x,y:hy,vx:rnd(-50,50),vy:rnd(-110,-50),l:.9,s:1.4,c:'#ffd23c',k:'ci',g:260});txt(B.x,hy-6,'+'+g+' 🪙','#ffd23c',6,1.1);
   const lg=[];addExp(Math.round((8+3*L)*K*(1+(A.bonus.exp||0))),lg);lg.forEach(zLog);
-  if(Math.random()<{c:.14,r:.25,e:.55,b:1}[S.k]&&bag().length<80){const it=giveItem(rollItem(Math.min(5,dropR()+(S.k==='b'&&R.d<2?1:0))));R.loot.n++;txt(B.x,hy-16,itIcon(it)+' '+gi(it).n,RKC[it.r],5,1.8);zLog(`${itIcon(it)} <b style="color:${RKC[it.r]}">${gi(it).n}</b>`);SND.win()}
+  if(Math.random()<{c:.14,r:.25,e:.55,b:1}[S.k]&&bag().length<bagMax()){const it=giveItem(rollItem(Math.min(5,dropR()+(S.k==='b'&&R.d<2?1:0))));R.loot.n++;txt(B.x,hy-16,itIcon(it)+' '+gi(it).n,RKC[it.r],5,1.8);zLog(`${itIcon(it)} <b style="color:${RKC[it.r]}">${gi(it).n}</b>`);SND.win()}
   saveP();zUI()}
 function zChest(e){const R=ZR(),A=G.F[0],L=1+R.a*2+ZDIF[R.d].lv,g=Math.round((20+6*L)*(e.big?1.6:1)*ZDIF[R.d].g);R.loot.coin+=g;e.open=1;SND.win();
   burst(e.x,GY-8,'#ffd23c',12,.2);for(let i=0;i<12;i++)fx({x:e.x,y:GY-8,vx:rnd(-60,60),vy:rnd(-140,-60),l:1,s:1.4,c:'#ffd23c',k:'ci',g:260});txt(e.x,GY-24,'+'+g+' 🪙','#ffd23c',6,1.2);zLog(`🎁 Chest: +${g} 🪙`);
-  if(Math.random()<(e.big?.85:.6)&&bag().length<80){const it=giveItem(rollItem(dropR()));R.loot.n++;txt(e.x,GY-34,itIcon(it)+' '+gi(it).n,RKC[it.r],5,1.8);zLog(`${itIcon(it)} <b style="color:${RKC[it.r]}">${gi(it).n}</b>`)}saveP();zUI()}
+  if(Math.random()<(e.big?.85:.6)&&bag().length<bagMax()){const it=giveItem(rollItem(dropR()));R.loot.n++;txt(e.x,GY-34,itIcon(it)+' '+gi(it).n,RKC[it.r],5,1.8);zLog(`${itIcon(it)} <b style="color:${RKC[it.r]}">${gi(it).n}</b>`)}saveP();zUI()}
 function zStats(){const A=G.F[0],s=A.stats,T=PROF.tot;T.q+=s.qok;T.sp+=s.sp;T.combo=Math.max(T.combo,s.maxc);prog('q10',s.qok);prog('sp3',s.sp);if(s.maxc>=6)prog('combo6',1,1);
   const R=ZR();if(R&&R.mas){const lg=[];addMastery(A.w.type,R.mas,lg);R.mas=0;lg.forEach(zLog)}}
 /* ---------- percabangan ---------- */
@@ -4278,8 +4296,8 @@ function prEnter(i,k){const R=PR();if(!prReach(i,k))return;SND.init();R.cur=[i,k
 function prDone(msg,log){const R=PR(),[i,k]=R.cur;R.done.push([i,k]);R.row=i+1;R.k=k;delete R.cur;saveP();openExp();
   sheet('🏰 '+DGN[R.z],`<div class="note">${msg}</div>${log&&log.length?`<div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div>`:''}<button class="go px" onclick="closeSheet()">▶ Lanjut</button>`)}
 function prCamp(c){const R=PR();if(c)R.buff=(R.buff||0)+.1;else R.hpf=Math.min(1,R.hpf+.35);SND.ok();prDone(c?'Senjatamu diasah tajam! Serangan +10%.':'Kamu beristirahat di api unggun. HP +35%.',[])}
-function prChest(){const R=PR(),L=prLv(),g=Math.round((25+8*L)*ZDIF[R.d].g),log=[`🪙 +${g} gold`];R.loot.coin+=g;if(Math.random()<.7&&bag().length<80){giveItem(rollItem(dropR2()),log);R.loot.n++}SND.win();prDone('Kamu menemukan peti harta!',log)}
-const RTAB=[[.55,.88,.985,.998,1],[.35,.75,.95,.99,1],[.2,.6,.9,.98,1]];
+function prChest(){const R=PR(),L=prLv(),g=Math.round((25+8*L)*ZDIF[R.d].g),log=[`🪙 +${g} gold`];R.loot.coin+=g;if(Math.random()<.7&&bag().length<bagMax()){giveItem(rollItem(dropR2()),log);R.loot.n++}SND.win();prDone('Kamu menemukan peti harta!',log)}
+const RTAB=[[.45,.80,.95,.99,1],[.30,.68,.92,.98,1],[.15,.52,.85,.96,1]];
 function rarZ(d,zi,bump){const q=Math.random(),t=RTAB[d];let r=1;while(r<5&&q>=t[r-1])r++;r=Math.min(5,r+(bump||0));const mx=zi<2?3:zi<4?4:5;return Math.max(1,Math.min(r,mx))}
 function dropR2(){const R=PR();return rarZ(R.d,zIdx(R.z))}
 function dropR2_old(){const R=PR(),t=ZDIF[R.d].rr,q=Math.random(),zb=Math.floor(ZONE8[zIdx(R.z)].gs/3);for(const[r,pp]of t)if(q<pp)return Math.min(5,r+zb);return Math.min(5,t[t.length-1][0]+zb)}
@@ -4289,7 +4307,7 @@ function prShop(first){const R=PR(),L=prLv();if(first||!R.shop)R.shop={it:[0,1,2
     ${R.shop.it.map((it,i)=>{const g=gi(it),p=Math.round(shopPrice(it)*.6/10)*10;return it.sold?'':`<div class="it ${R.loot.coin>=p?'':'lk'}" onclick="prBuy(${i})"><span class="ic">${itIcon(it)}</span><span><b style="color:${RKC[it.r]}">${g.n}</b><small>${GSN[it.s]} · ${RK[it.r]} · ${stTxt(g.st).slice(0,2).join(', ')}</small></span><i>${p} 🪙</i></div>`}).join('')}</div>
     <button class="go px" onclick="prDone('Kamu meninggalkan pedagang.',[])">▶ Lanjut perjalanan</button>`,1)}
 function prBuy(i){const R=PR(),L=prLv();if(i<0){const pp=20+5*L;if(!R.shop.pot||R.loot.coin<pp)return;R.loot.coin-=pp;R.shop.pot--;R.hpf=Math.min(1,R.hpf+.3)}
-  else{const it=R.shop.it[i],p=Math.round(shopPrice(it)*.6/10)*10;if(it.sold||R.loot.coin<p||bag().length>=80)return;R.loot.coin-=p;it.sold=1;giveItem(mkItem(it.s,it.b,it.r,{sd:it.sd,set:it.set}));R.loot.n++}SND.win();saveP();prShop(0)}
+  else{const it=R.shop.it[i],p=Math.round(shopPrice(it)*.6/10)*10;if(it.sold||R.loot.coin<p||bag().length>=bagMax())return;R.loot.coin-=p;it.sold=1;giveItem(mkItem(it.s,it.b,it.r,{sd:it.sd,set:it.set}));R.loot.n++}SND.win();saveP();prShop(0)}
 function prTrap(n,ok){const R=PR();if(n>=3){let m;if(ok===3){const g=Math.round((20+6*prLv())*ZDIF[R.d].g);R.loot.coin+=g;m=`Semua benar! Trap terbuka. +${g} 🪙`}else m=`Benar ${ok}/3. HP berkurang ${(3-ok)*10}%.`;return prDone('⚠️ '+m,[])}
   const q=getQ();sheet(ico('trap',22)+' Trap '+(n+1)+'/3',`<div class="note">Jawab benar agar jebakan tidak aktif. Salah = HP −10%.</div><div class="tq">${q.ic} ${q.q}</div><div class="tqb"><button class="go px" id="tqT">✔ BENAR</button><button class="go px bad" id="tqF">✖ SALAH</button></div>`,1);
   const ans=v=>{const good=v===q.ans;if(!good){R.hpf=Math.max(.05,R.hpf-.1);SND.bad()}else SND.ok();prTrap(n+1,ok+(good?1:0))};$('tqT').onclick=()=>ans(true);$('tqF').onclick=()=>ans(false)}
@@ -4318,7 +4336,7 @@ function pathEnd(w){const R=PR(),[A,B]=G.F;G.ended=G.round;G.st='over';const los
   if(lose)return prFail();
   R.hpf=Math.max(.05,A.hp/A.maxHp);const k=B.kind,L=B.lv||prLv(),[am,at]=accMul(s),Km={n:1,e:2.5,b:6}[k]*am,log=at?[at]:[];const pd=G.pend||preDrop(B,1);G.pend=null;const g=Math.round(pd.gold*am);R.loot.coin+=g;log.push(`🪙 +${g} gold`);
   {const L0=L-ZDIF[R.d].lv,pn=PROF.lv>L0+2?Math.max(.1,1-.2*(PROF.lv-L0-2)):1;if(pn<1&&PROF.lv<LVMAX)log.push(`📉 Musuh terlalu lemah untuk levelmu → EXP ×${String(Math.round(pn*10)/10).replace('.',',')}`);addExp(Math.round((30+8*L0)*Km*(1+.15*R.d)*pn*(1+(A.bonus.exp||0))),log)}addMastery(A.w.type,{n:4,e:10,b:25}[k]+s.qok,log);
-  pd.items.forEach(it=>{if(bag().length<80){giveItem(it,log);R.loot.n++}});if(pd.pet)addPet(pd.pet,log);if(pd.sig)log.push(`👑 Weapon khas ${ZONE8[zIdx(R.z)].boss[0]}!`);
+  pd.items.forEach(it=>{if(bag().length<bagMax()){giveItem(it,log);R.loot.n++}});if(pd.pet)addPet(pd.pet,log);if(pd.sig)log.push(`👑 Weapon khas ${ZONE8[zIdx(R.z)].boss[0]}!`);
   saveP();if(k==='b')return prClear(log);G.scr='exp';prDone(`<b>Menang!</b> HP tersisa ${Math.round(R.hpf*100)}%`,log)}
 function prPay(f,log){const R=PR(),c=Math.round(R.loot.coin*f);PROF.coin+=c;log.push(`+${c} 🪙 gold`);return c}
 function prClear(log){const R=PR(),S=zst(R.z);S.clr++;if(R.d>=S.d&&S.d<2){S.d=R.d+1;log.push(`🔓 Tingkat <b>${ZDIF[S.d].n}</b> terbuka!`)}const ch=['silver','gold','legend'][R.d];grantChest(ch);log.push(`🎁 ${CHEST[ch].n}`);prPay(1,log);
@@ -4441,7 +4459,7 @@ function openBag(){const P=PROF,E=eqItems(),worn=Object.values(P.eqp||{}),G2=gea
     ${llSetNote()}
     <div class="brow"><button class="ghost" onclick="bestEq()">⚡ Equip Best</button><button class="ghost" onclick="quickSell()">🪙 Quick Sell</button></div><div class="brow"><button class="ghost" onclick="uraiWeak()">✦ Dismantle yang lebih lemah</button><button class="ghost" onclick="openKr()">${krImg(3,16)} Crystal</button></div>${krBar()}
     <div class="chtab">${[['all','All'],['w','Weapon'],['ar','Armor'],['acc','Artifact']].map(([k,n])=>`<button class="${BAGF===k||(k==='ar'&&['hat','shirt','pants','shoes','back'].includes(BAGF))?'on':''}" onclick="setBagF('${k}')">${n}</button>`).join('')}</div>
-    <div class="note">${bag().length}/80 barang · ketuk barang untuk pasang, copot, tempa, urai, kunci, atau jual</div>
+    <div class="note">${bag().length}/${bagMax()} barang · ${bagExpBtn()}<br>ketuk barang untuk pasang, copot, tempa, urai, kunci, atau jual</div>
     <div class="tiles">${B.length?B.map(it=>{const cur=E[it.s],up=(it.lv||1)<=PROF.lv&&(!cur||score(it)>score(cur));return`<button class="tile ${upCls(it)}" style="--rc:${RKC[it.r]}" onclick="itemSheet('${it.u}')">${thumb(it,32)}${it.up?`<b>+${it.up}</b>`:''}<u class="ilv ${(it.lv||1)>PROF.lv?'no':''}">Lv${it.lv||1}</u>${it.nw?'<i class="nw">BARU</i>':''}${it.lk?`<i class="lkk">${ico('lock',10)}</i>`:''}${up?'<em>▲</em>':''}</button>`}).join(''):'<div class="note">Kosong. Barang didapat dari petualangan, duel, peti, dan toko.</div>'}</div>`)}
 function itemSheet(u){const own=byU(u),it=own||(PROF.shopI||[]).find(x=>x.u===u);if(!it)return;if(own&&own.nw){own.nw=0;saveP()}
   const d=gi(it),E=eqItems(),cur=E[it.s],worn=PROF.eqp[it.s]===u,upC=upCost(it),upMt=upMat(it),upX=UPMAX[it.r];
@@ -4531,7 +4549,7 @@ function openVS(){VSCFG=rankCfg();const T=TIERS[VSCFG.tier],a=VSCFG.a,b=VSCFG.b,
   [['vsA',a],['vsB',b]].forEach(([id,c],i)=>{const g=$(id).getContext('2d');g.imageSmoothingEnabled=false;if(i){g.translate(96,0);g.scale(-1,1)}preview(g,c,1.2,'idle')});
   $('vsGo').onclick=()=>{closeSheet();G.lob=0;startMatch(VSCFG)};$('vsRe').onclick=()=>openVS()}
 function rankResult(win,draw,s){const log=[],ti0=tierOf(PROF.rp);let rp=win?25+Math.max(0,G.wins[0]-G.wins[1]-1)*5:draw?0:-15;const floor=TIERS[ti0].rp;PROF.rp=Math.max(floor,PROF.rp+rp);
-  const [am,at]=accMul(s),coin=Math.round(((win?50+ti0*15:15)+s.qok*2)*am*devM('gold')),exp=Math.round(((win?60:25)+s.qok*5)*am);if(at)log.push(at);PROF.coin+=coin;addExp(exp,log);const pd=G.pend;G.pend=null;if(win&&pd){pd.items.forEach(it=>{if(bag().length<80)giveItem(it,log)});if(pd.pet)addPet(pd.pet,log)}addMastery(G.F[0].w.type,(win?30:15)+s.qok*2+Math.floor(s.hit/4),log);
+  const [am,at]=accMul(s),coin=Math.round(((win?50+ti0*15:15)+s.qok*2)*am*devM('gold')),exp=Math.round(((win?60:25)+s.qok*5)*am);if(at)log.push(at);PROF.coin+=coin;addExp(exp,log);const pd=G.pend;G.pend=null;if(win&&pd){pd.items.forEach(it=>{if(bag().length<bagMax())giveItem(it,log)});if(pd.pet)addPet(pd.pet,log)}addMastery(G.F[0].w.type,(win?30:15)+s.qok*2+Math.floor(s.hit/4),log);
   const T=PROF.tot;T.duel++;if(win)T.win++;T.q+=s.qok;T.sp+=s.sp;T.combo=Math.max(T.combo,s.maxc);T.best=Math.max(T.best,s.bst||0);
   prog('play3',1);if(win)prog('win2',1);prog('q10',s.qok);prog('sp3',s.sp);if(s.maxc>=6)prog('combo6',1,1);if((s.bst||0)>=5)prog('st5',1,1);
   const ti1=tierOf(PROF.rp);if(ti1>PROF.maxTier){PROF.maxTier=ti1;const ch=['','silver','gold','legend','abyss'][ti1];grantChest(ch);log.push(`🎉 Naik ke liga ${TIERS[ti1].ic} <b>${TIERS[ti1].n}</b>! Hadiah ${CHEST[ch].n}`)}
@@ -4822,7 +4840,7 @@ function chestFx(c){const it=c.it,col=it?RKC[it.r]:'#ffd23c';
       if(p.t<1.25){g.globalAlpha=.3;g.fillStyle=col;g.fillRect(p.x-4,y-60,8,60);g.globalAlpha=1}}}
   return o.apply(this,arguments)}}
 {const o=updDrops;updDrops=function(dt){const pv=G.drops.filter(p=>p.it&&p.r>=4&&!p.dead);for(const p of G.drops)if(p.it&&p.r>=3&&!p.lnd&&p.t>0&&p.y<=0){p.lnd=1;ring(p.x,GY-2,p.col,p.r>=4?16:10,.35,2)}
-  const r=o.apply(this,arguments);pv.forEach(p=>{if(p.dead)banner(RK[p.r].toUpperCase()+'!',gi(p.it).n,p.col,1.5,15)});return r}}
+  const r=o.apply(this,arguments);pv.forEach(p=>{if(p.dead)banner(RK[p.r].toUpperCase()+' DROP!',gi(p.it).n,p.col,1.5,15)});return r}}
 
 // ---------- Intro bos & elite (jalur petualangan) ----------
 {const o=introRound;introRound=function(){const r=o.apply(this,arguments);try{const B=G.F&&G.F[1];if(G.mode!=='path'||!B||G.round!==1)return r;const k=B.kind||(B.cfg&&B.cfg.kind),nm=(B.cfg&&B.cfg.npcN)||'';
@@ -4894,7 +4912,7 @@ const ARS=['hat','shirt','pants','shoes','back'];
 const APST={warrior:{hp:.045,dr:.016},assassin:{atk:.022,crit:.012,ev:.008},mage:{atk:.03,hp:.015},lumi:{pet:.04,dr:.008}};
 const ASLM={hat:.8,shirt:1.25,pants:1,shoes:.8,back:.9};
 /* ---------- kelangkaan ---------- */
-const RPROB=[.55,.88,.985,.998,1];   // C55 R33 E10,5 L1,3 M0,2
+const RPROB=[.45,.80,.95,.99,1];   // C45 R35 E15 L4 M1 (v13)
 function rarLL(zn,kind){const l=zoneLvOf(zn),zi=l?Object.keys(LZ).indexOf(zn):0,cap=zi<2?3:zi<4?4:5,q=Math.random();let r=1;for(let i=0;i<5;i++)if(q<RPROB[i]){r=i+1;break}
   if(kind==='e'||kind==='b')r++;return Math.max(1,Math.min(cap,r))}
 /* item ber-level: pilih barang yang levelnya ±2 dari level musuh */
@@ -5792,19 +5810,21 @@ function llFight(enc,cb){const P=PROF;let b,nb,L,ar;closeSheet();
 function llDone(res){G.st='over';G.scr='map';G.mid++;$('ksheet').classList.add('hide');KEL().classList.add('hide');KEL().classList.remove('fight');const f=LLF;LLF=null;saveP();if(f&&f.cb)f.cb(res)}
 function llFlee(){llDone({flee:1})}
 function llEnd(w){if(!LLF)return;const[A,B]=G.F;G.ended=G.round;G.st='over';const lose=w===undefined?A.st==='ko'||A.hp<=0:w===1;const f=LLF;
-  f.res=lose?{lose:1}:{win:1};setTimeout(()=>{if(lose){sheet('😵 LOSE',`<div class="note">${f.enc.kind==='lumi'?'Lumi liar':'Musuh'} terlalu kuat. Kamu dibawa pulang ke Baniara untuk istirahat.</div><div class="note">💡 Naikkan level, ganti Equipment di 🎒 Bag, atau beli di toko.</div><button class="go px" id="llOk">🏠 Return to Town</button>`);$('llOk').onclick=()=>llDone({lose:1});return}
-    const log=llReward(f,A);sheet('🏆 WIN!',`<div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div><button class="go px" id="llOk">▶ Continue</button>`);$('llOk').onclick=()=>llDone({win:1})},lose?300:900)}
-function llReward(f,A){const P=PROF,L=f.L,e=f.enc,K=e.kind==='mob'?(e.m.k==='e'?2.5:1.3):1,ob=1+ORBB[orbLv()-1],log=[],s=A.stats||{};
-  const FX=llFxAll(),gold=Math.round((5+2.5*L)*K*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*(.9+Math.random()*.2)*devM('gold')),xp=Math.round((10+4*L)*K*ob*(1+(A.bonus.exp||0))*(SEL.manual?.25:1));
+  f.res=lose?{lose:1}:{win:1};let dl=lose?300:900;
+  if(!lose){const e=f.enc;f.items=[];f.ac=llAcc(A.stats);if(e.kind==='mob'){const n=lootN(e.m.k==='e'?[.8,.5,.2]:[.8,.3,.08],lootMul()*f.ac.d);for(let i=0;i<n;i++)f.items.push(llGear(f.L,rarLL(e.zn,e.m.k),e.zn))}dl=llDropFx(B,f.items,10+f.L)}
+  const bq=$('bQuit');if(bq)bq.style.visibility='hidden';setTimeout(()=>{if(bq)bq.style.visibility='';if(lose){sheet('😵 LOSE',`<div class="note">${f.enc.kind==='lumi'?'Lumi liar':'Musuh'} terlalu kuat. Kamu dibawa pulang ke Baniara untuk istirahat.</div><div class="note">💡 Naikkan level, ganti Equipment di 🎒 Bag, atau beli di toko.</div><button class="go px" id="llOk">🏠 Return to Town</button>`);$('llOk').onclick=()=>llDone({lose:1});return}
+    const log=llReward(f,A);sheet('🏆 WIN!',`<div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div><button class="go px" id="llOk">▶ Continue</button>`);$('llOk').onclick=()=>llDone({win:1})},dl)}
+function llReward(f,A){const AC=f.ac||{m:1,d:1,t:''},P=PROF,L=f.L,e=f.enc,K=e.kind==='mob'?(e.m.k==='e'?2.5:1.3):1,ob=1+ORBB[orbLv()-1],log=[],s=A.stats||{};
+  const FX=llFxAll(),gold=Math.round((5+2.5*L)*K*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*(.9+Math.random()*.2)*devM('gold')*AC.m),xp=Math.round((10+4*L)*K*ob*(1+(A.bonus.exp||0))*(SEL.manual?.25:1)*AC.m);
   P.coin+=gold;log.push(`🪙 +${gold} gold`);llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':ob>1?` <small>(Orb +${Math.round((ob-1)*100)}%)</small>`:''));
   if(P.pet){llLumiExp(P.pet,Math.round(xp*.9),log)}
-  if(s.qok)log.push(`🧠 ${s.qok} soal benar`);
-  if(e.kind==='lumi'){if(Math.random()<(e.shiny?1:.08*devM('drop'))&&LG.M[e.id]){const nw=!lumis()[e.id]||!(P.lumiOwn||[]).includes(e.id);P.lumiOwn=P.lumiOwn||[];if(nw){P.lumiOwn.push(e.id);lumis()[e.id]={lv:Math.max(1,L-3),exp:0};log.push(`🐾 <b>${LG.M[e.id].n}</b> ingin ikut denganmu! (Lv ${Math.max(1,L-3)})`)}else{P.coin+=40;log.push(`🐾 ${LG.M[e.id].n} sudah kamu punya → +40 🪙`)}}}
-  else{const ch=(e.m.k==='e'?1:.3)*(FX.lucky?1.15:1)*devM('drop');if(Math.random()<ch&&bag().length<80){const it=giveItem(llGear(L,rarLL(e.zn,e.m.k),e.zn));log.push(`${itIcon(it)} <b style="color:${RKC[it.r]}">${gi(it).n}</b> <small>Lv ${it.lv} · ${RK[it.r]}</small>`)}}
+  if(s.qok)log.push(`🧠 ${s.qok} soal benar`);if(AC.t)log.push(AC.t);
+  if(e.kind==='lumi'){if(Math.random()<(e.shiny?1:.12*devM('drop'))&&LG.M[e.id]){const nw=!lumis()[e.id]||!(P.lumiOwn||[]).includes(e.id);P.lumiOwn=P.lumiOwn||[];if(nw){P.lumiOwn.push(e.id);lumis()[e.id]={lv:Math.max(1,L-3),exp:0};log.push(`🐾 <b>${LG.M[e.id].n}</b> ingin ikut denganmu! (Lv ${Math.max(1,L-3)})`)}else{P.coin+=40;log.push(`🐾 ${LG.M[e.id].n} sudah kamu punya → +40 🪙`)}}}
+  else(f.items||[]).forEach(it=>llGive(it,log));
   saveP();return log}
 /* ---------- barang di peta ---------- */
 function llPick(chest,zn,nm){const P=PROF,l=zoneLvOf(zn)||[1,3];if(chest){const g=30+Math.floor(Math.random()*20)+l[0]*4;P.coin+=g;let t=`+${g} 🪙`;
-    if(Math.random()<.5&&bag().length<80){const it=giveItem(llGear(l[0]+Math.floor(Math.random()*(l[1]-l[0]+1)),rarLL(zn,'n'),zn));LLW_hint(`📦 Peti berisi <b>${gi(it).n}</b>!`)}else LLW_hint(`📦 Peti harta! +${g} gold`);saveP();return t}
+    const n=lootN([.8,.25],lootMul()),got=[];for(let i=0;i<n;i++){const it=llGear(l[0]+Math.floor(Math.random()*(l[1]-l[0]+1)),rarLL(zn,'n'),zn),ok=llGive(it);got.push(`<b style="color:${RKC[it.r]}">${gi(it).n}</b>${ok?'':' (dijual)'}`)}LLW_hint(got.length?`📦 Peti berisi ${got.join(', ')}!`:`📦 Peti harta! +${g} gold`);saveP();return t}
   const g=3+Math.floor(Math.random()*4);P.coin+=g;const lg=[];llAddExp(2,lg);saveP();return`+${g} 🪙`}
 function LLW_hint(h){const W=window.__LLW;if(W)W.showHint(h.replace(/<[^>]+>/g,''),2600)}
 /* ---------- tampilan perlengkapan untuk peta ---------- */
@@ -5814,7 +5834,7 @@ window.LLK={spend:n=>{if(PROF.coin<n)return false;PROF.coin-=n;saveP();return tr
   petId:()=>PROF.pet||null,reset(){try{for(const k of Object.keys(localStorage))if(k.startsWith('llg_'))localStorage.removeItem(k)}catch(e){}location.reload()},
   fight:llFight,zoneLv:zoneLvOf,zoneMobs:zn=>LZ[zn]?{n:LZ[zn].n}:null,mobPick,mobSheet:m=>mobSheet2(m),mapWpn:(g,x,y,d,f,l)=>myMapWpn(g,x,y,d,f,l),mobWpn:(g,m,x,y,d,f,l,md)=>mapWpn(g,m.wid||(m.wid=mobWid(m)),x,y,d,f,0,l,m.k==='e'?3:1,0),wToggle:()=>wToggle(),wDraw:()=>!!PROF.wdraw,hasW:()=>!!eqItems().w,gearVis,pick:llPick,q:()=>orbQ(orbLv()),
   make:done=>llMake(done),dungeon:id=>openZone(id),quests:()=>llQuests(),smith:()=>llSmith(),mbox:()=>llMBox(),villageGift:(v,n)=>llVillageGift(v,n),dgName:id=>DGN[id],dgCol:id=>DGC[id],dgActive:()=>PR()&&PR().z,bag:()=>{openBag()},hero:()=>llHero(),lumi:()=>llLumi(),shop:k=>llShop(k),orb:()=>orbOpen(),settings:()=>llSettings()};
-window.__LLK={get PROF(){return PROF},G,llAddExp,giveItem:(it,l)=>giveItem(it,l),llGear,gi,eqItems,orbQ,genQ,ORBQ,WLAD,llWeapon,llArmor,llArtifact,setBonus,llFxAll,get ARTS(){return ARTS},saveP,syncW};
+window.__LLK={get PROF(){return PROF},get G(){return G},get QZ(){return QZ},bagMax:()=>bagMax(),llDropFx:(B,i,g)=>llDropFx(B,i,g),llAddExp,giveItem:(it,l)=>giveItem(it,l),llGear,gi,eqItems,orbQ,genQ,ORBQ,WLAD,llWeapon,llArmor,llArtifact,setBonus,llFxAll,get ARTS(){return ARTS},saveP,syncW};
 
 /* ================= LUMIMON LEGENDS · buat karakter: nama, tampilan, job, Lumi awal ================= */
 const STARTERS=[['fox','Api','🔥'],['frost','Es','❄️'],['moss','Racun','🟢']];
@@ -5893,7 +5913,7 @@ function llShop(k){if(k==='lumi'){sheet('🐾 Lumi Center',`<div class="note"><b
     return`<div class="it ${PROF.coin<p?'lk':''}" data-u="${it.u}"><span class="ic">${ic}</span><span><b style="color:${RKC[it.r]}">${d.n}</b><small>${lk?'<span style="color:#ff8a7a">🔒 Lv '+it.lv+'</span>':'Lv '+it.lv} · ${RK[it.r]} · ${stTxt(d.st).slice(0,2).join(', ')||'Weapon'}${it.s==='w'&&!fit(it)?' · <span style="color:#ffb02a">other job</span>':''}</small></span><i>🪙 ${p}</i></div>`}).join('');
   sheet(k==='w'?'⚔️ Weapon Shop':'🛡️ Armor Shop',`<div class="note">Gold: <b>🪙 ${PROF.coin}</b> · ${k==='w'?`Job ${J.n} memakai ${J.w.map(w=>KIND[w]).join(', ')}.`:'Armor Adaptif: bonusnya mengikuti job-mu.'} Stok berganti tiap hari.</div><div class="lst">${rows||'<div class="note">Stok habis.</div>'}</div>`);
   $('ksheet').querySelectorAll('[data-u]').forEach(el=>el.onclick=()=>{const P=PROF,i=P.st[k].findIndex(x=>x.u===el.dataset.u),it=P.st[k][i];if(!it)return;const p=llPrice(it);
-    if(P.coin<p){SND.bad&&SND.bad();return}if(bag().length>=80)return;P.coin-=p;P.st[k].splice(i,1);it.u=uid();giveItem(it);saveP();SND.win&&SND.win();llShop(k)})}
+    if(P.coin<p){SND.bad&&SND.bad();return}if(bag().length>=bagMax())return;P.coin-=p;P.st[k].splice(i,1);it.u=uid();giveItem(it);saveP();SND.win&&SND.win();llShop(k)})}
 function llSettings(){sheet('⚙️ Settings',`<div class="lst"><div class="it" id="stM"><span class="ic">🎮</span><span><b>Battle Mode: ${SEL.manual?'Manual':'Auto'}</b><small>${SEL.manual?'Kamu gerakkan ksatria sendiri, tanpa soal. EXP battle hanya ¼':'Ksatria bertarung otomatis, kamu menjawab soal untuk jurus. EXP penuh'}</small></span><i>Change</i></div>
   ${window.LLW?(()=>{const o=LLW.opt();return`<div class="it" id="stS"><span class="ic">${o.snd?'🔊':'🔇'}</span><span><b>Sound: ${o.snd?'On':'Off'}</b><small>Suara suasana & efek</small></span><i>Change</i></div><div class="it" id="stMu"><span class="ic">🎵</span><span><b>Music: ${o.mus?'On':'Off'}</b><small>Musik latar</small></span><i>Change</i></div><div class="it" id="stZ"><span class="ic">🔍</span><span><b>Zoom: ${['Near','Medium','Far'][o.zoom]}</b><small>Jarak pandang peta</small></span><i>Change</i></div>`})():''}
   <div class="it" id="stD"><span class="ic">🧪</span><span><b>Developer Mode: ${DEV.on?'On':'Off'}</b><small>Untuk pengujian (butuh password)</small></span><i>${DEV.on?'Off':'On'}</i></div>${DEV.on?'<button class="ghost" onclick="openDev()">🧪 Open Developer Panel</button>':''}
@@ -5955,29 +5975,31 @@ function prDuel(kind){const R=PR(),b=npcCfg(kind);
 function pathEnd(w){const R=PR(),[A,B]=G.F;G.ended=G.round;G.st='over';const lose=w===undefined?A.st==='ko'||A.hp<=0:w===1;G.mid++;
   if(lose)return prFail();
   R.hpf=Math.max(.05,A.hp/A.maxHp);const k=B.kind,L=B.lv||prLv(),Km={n:1.2,e:2.5,b:6}[k],ob=1+ORBB[orbLv()-1],log=[],zn=zOfId(R.z),zi=zIdx(R.z);
-  const FX=llFxAll(),g=Math.round((6+3*L)*Km*ZDIF[R.d].g*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*devM('gold'));R.loot.coin+=g;log.push(`🪙 +${g} gold <small>(dibawa)</small>`);
-  const xp=Math.round((10+4*L)*Km*(1+.15*R.d)*ob*(SEL.manual?.25:1)*(1+(A.bonus.exp||0)));llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':''));
-  if(PROF.pet)llLumiExp(PROF.pet,Math.round(xp*.9),log);
-  if(k!=='b'&&Math.random()<(k==='e'?1:.35*(FX.lucky?1.15:1)*devM('drop'))&&bag().length<80){const it=giveItem(llGear(L,rarZ(R.d,zi,k==='e'?1:0),zn));R.loot.n++;log.push(dgLine(it))}
-  saveP();if(k==='b')return prClear(log);G.scr='exp';prDone(`<b>WIN!</b> HP tersisa ${Math.round(R.hpf*100)}%`,log)}
+  const AC=llAcc(A.stats),FX=llFxAll(),g=Math.round((6+3*L)*Km*ZDIF[R.d].g*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*devM('gold')*AC.m);R.loot.coin+=g;log.push(`🪙 +${g} gold <small>(dibawa)</small>`);
+  const xp=Math.round((10+4*L)*Km*(1+.15*R.d)*ob*(SEL.manual?.25:1)*(1+(A.bonus.exp||0))*AC.m);llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':''));
+  if(PROF.pet)llLumiExp(PROF.pet,Math.round(xp*.9),log);if(AC.t)log.push(AC.t);
+  const mul=lootMul()*AC.d,items=[];
+  if(k==='b'){const LB=prLv()+1;items.push(llArmor(LB,Math.max(2,rarZ(R.d,zi,1)),pick(ARS)));const n=lootN([1,1,.6],mul);for(let i=0;i<n;i++)items.push(llGear(LB,rarZ(R.d,zi,1),zn))}
+  else{const n=lootN(k==='e'?[1,1,.6]:[1,.45,.15],mul);for(let i=0;i<n;i++)items.push(llGear(L,rarZ(R.d,zi,k==='e'?1:0),zn))}
+  saveP();const dl=llDropFx(B,items,10+L),bq=$('bQuit');if(bq)bq.style.visibility='hidden';
+  setTimeout(()=>{if(bq)bq.style.visibility='';items.forEach((it,i)=>{if(llGive(it,log,k==='b'&&!i?x=>'👑 '+dgLine(x):null))R.loot.n++});saveP();
+    if(k==='b')return prClear(log);G.scr='exp';prDone(`<b>WIN!</b> HP tersisa ${Math.round(R.hpf*100)}%`,log)},dl)}
 function prClear(log){const R=PR(),S=zst(R.z),zi=zIdx(R.z),zn=zOfId(R.z),L=prLv()+1;S.clr++;
   if(R.d>=S.d&&S.d<2){S.d=R.d+1;log.push(`🔓 Tingkat <b>${ZDIF[S.d].n}</b> terbuka!`)}
-  if(bag().length<80){const it=giveItem(llArmor(L,Math.max(2,rarZ(R.d,zi,1)),pick(ARS)));log.push('👑 '+dgLine(it));R.loot.n++}
-  if(Math.random()<.3+.15*R.d&&bag().length<80){const it=giveItem(llGear(L,rarZ(R.d,zi,1),zn));log.push(dgLine(it))}
   PROF.tugu=PROF.tugu||{};const first=!PROF.tugu[R.z];PROF.tugu[R.z]=Math.max(PROF.tugu[R.z]||0,R.d+1);if(first)log.push(`🗿 Tugu Angka ${zn} menyala kembali!`);
   prPay(1,log);PROF.pr=null;saveP();openWorld();
   sheet('🏆 Dungeon Clear!',`<div class="reveal"><div class="rv-ic">👑</div><b>${DGN[R.z]} · ${ZDIF[R.d].n}</b><small>Boss ${ZONE8[zi].boss[0]} dikalahkan</small></div><div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div><button class="go px" onclick="closeSheet()">Mantap!</button>`)}
 function prFail(){const R=PR(),log=[];prPay(.5,log);PROF.pr=null;saveP();openWorld();
   sheet('😵 Knocked Out',`<div class="note">Kamu pingsan di ${DGN[R.z]}. Separuh gold yang dibawa tetap kamu dapat; barang tetap di Bag.</div><div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div><div class="note">💡 Naikkan level, perkuat perlengkapan, atau pilih Campfire saat HP rendah.</div><button class="go px" onclick="closeSheet()">OK</button>`)}
 function prLeave(){const R=PR();if(!R)return;const log=[];prPay(1,log);PROF.pr=null;saveP();openWorld();sheet('🏃 Retreat',`<div class="note">Kamu keluar dari ${DGN[R.z]} dengan selamat.</div><div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div><button class="go px" onclick="closeSheet()">OK</button>`)}
-function prChest(){const R=PR(),L=prLv(),g=Math.round((25+8*L)*ZDIF[R.d].g),log=[`🪙 +${g} gold`];R.loot.coin+=g;if(Math.random()<.7&&bag().length<80){const it=giveItem(llGear(L,dropR2(),zOfId(R.z)));log.push(dgLine(it));R.loot.n++}if(Math.random()<.12+.04*R.d){PROF.mbox=(PROF.mbox||0)+1;log.push('🎁 Mystery Box +1 <small>(buka di kota)</small>')}SND.win();prDone('Kamu menemukan Chest!',log)}
+function prChest(){const R=PR(),L=prLv(),g=Math.round((25+8*L)*ZDIF[R.d].g),log=[`🪙 +${g} gold`];R.loot.coin+=g;{const n=lootN([1,1,.5],lootMul());for(let i=0;i<n;i++)if(llGive(llGear(L,dropR2(),zOfId(R.z)),log))R.loot.n++}if(Math.random()<(.12+.04*R.d)*devM('drop')){PROF.mbox=(PROF.mbox||0)+1;log.push('🎁 Mystery Box +1 <small>(buka di kota)</small>')}SND.win();prDone('Kamu menemukan Chest!',log)}
 function prShop(first){const R=PR(),L=prLv(),zn=zOfId(R.z);if(first||!R.shop)R.shop={it:[0,1,2].map(i=>i===0?llWeapon(L,dropR2()):llGear(L,dropR2(),zn)),pot:2};
   const pp=20+5*L;sheet('🛒 Merchant',`<div class="note">Bayar dengan gold yang dibawa: <b>🪙 ${R.loot.coin}</b></div><div class="lst">
     <div class="it ${R.shop.pot&&R.loot.coin>=pp?'':'lk'}" onclick="prBuy(-1)"><span class="ic">🧪</span><span><b>Potion</b><small>Pulihkan 30% HP · sisa ${R.shop.pot}</small></span><i>${pp} 🪙</i></div>
     ${R.shop.it.map((it,i)=>{const p=Math.round(llPrice(it)*.6/5)*5;return it.sold?'':`<div class="it ${R.loot.coin>=p?'':'lk'}" onclick="prBuy(${i})"><span class="ic">${itIcon(it)}</span><span><b style="color:${RKC[it.r]}">${gi(it).n}</b><small>${GSN[it.s]} · Lv ${it.lv} · ${RK[it.r]}</small></span><i>${p} 🪙</i></div>`}).join('')}</div>
     <button class="go px" onclick="prDone('Kamu meninggalkan Merchant.',[])">▶ Continue</button>`)}
 function prBuy(i){const R=PR(),L=prLv();if(i<0){const pp=20+5*L;if(!R.shop.pot||R.loot.coin<pp)return;R.loot.coin-=pp;R.shop.pot--;R.hpf=Math.min(1,R.hpf+.3)}
-  else{const it=R.shop.it[i],p=Math.round(llPrice(it)*.6/5)*5;if(!it||it.sold||R.loot.coin<p||bag().length>=80)return;R.loot.coin-=p;it.sold=1;giveItem(Object.assign({},it,{u:uid(),sold:0}));R.loot.n++}SND.win();saveP();prShop(0)}
+  else{const it=R.shop.it[i],p=Math.round(llPrice(it)*.6/5)*5;if(!it||it.sold||R.loot.coin<p||bag().length>=bagMax())return;R.loot.coin-=p;it.sold=1;giveItem(Object.assign({},it,{u:uid(),sold:0}));R.loot.n++}SND.win();saveP();prShop(0)}
 function dgOpenId(id){const R=PR();openZone(id)}
 
 /* ================= 30 ARTIFACT (gambar dari Lumimon World jewel.js) ================= */
@@ -6086,7 +6108,7 @@ function llMBox(msg){const P=PROF,n=P.mbox||0,p=mbPrice();
    <div class="rew"><div>🎁 Mystery Box milikmu: <b>${n}</b></div><div>🪙 Gold: <b>${P.coin}</b></div></div>
    <div class="brow">${n?`<button class="go px" onclick="mbOpen(0)">🎁 Open</button>`:''}<button class="go px ${P.coin<p?'off':''}" onclick="mbOpen(1)">🪙 ${p} · Buy & Open</button></div>
    <div class="note">💡 Mystery Box juga bisa ditemukan di Chest dungeon.</div>`)}
-function mbOpen(buy){const P=PROF,p=mbPrice();if(buy){if(P.coin<p){SND.bad&&SND.bad();return}if(bag().length>=80)return;P.coin-=p}else{if(!(P.mbox>0)||bag().length>=80)return;P.mbox--}
+function mbOpen(buy){const P=PROF,p=mbPrice();if(buy){if(P.coin<p){SND.bad&&SND.bad();return}if(bag().length>=bagMax())return;P.coin-=p}else{if(!(P.mbox>0)||bag().length>=bagMax())return;P.mbox--}
   const q=Math.random();let r=q<.3?1:q<.72?2:q<.94?3:q<.99?4:5;r=Math.min(r,mbCap());const lv=Math.max(1,P.lv+Math.floor(Math.random()*5)-2),it=giveItem(llGear(lv,r));saveP();SND.win&&SND.win();
   llMBox(`<div class="reveal"><div class="rv-ic">${thumb(it,64)}</div><b style="color:${RKC[it.r]}">${gi(it).n}</b><small>${GSN[it.s]} · Lv ${it.lv} · ${RK[it.r]}</small></div>`)}
 
@@ -6099,7 +6121,7 @@ function sha256h(s){const K=[],H=[];let n=2,c=0;const ip=x=>{for(let d=2;d*d<=x;
       const S1=r(a[4],6)^r(a[4],11)^r(a[4],25),ch=a[4]&a[5]^~a[4]&a[6],t1=a[7]+S1+ch+K[i]+W[i]|0,S0=r(a[0],2)^r(a[0],13)^r(a[0],22),mj=a[0]&a[1]^a[0]&a[2]^a[1]&a[2],t2=S0+mj|0;a.pop();a.unshift(t1+t2|0);a[4]=a[4]+t1|0}
     for(let i=0;i<8;i++)H[i]=H[i]+a[i]|0}
   return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('')}
-const DEV=Object.assign({on:0,xp:1,gold:1,drop:1,ko1:0,god:0,en:0},LS.get('dev',null)||{});
+const DEV=Object.assign({on:0,xp:1,gold:1,drop:1,ko1:0,god:0,en:0,auto:0},LS.get('dev',null)||{});
 const devSave=()=>{LS.set('dev',DEV);document.body.classList.toggle('dev',!!DEV.on)};
 const devM=k=>DEV.on?(+DEV[k]||1):1,devF=k=>!!(DEV.on&&DEV[k]);
 const devPwOk=()=>{try{return sessionStorage.getItem('llpw')==='1'}catch(e){return false}};
@@ -6136,7 +6158,7 @@ function openDev(){const P=PROF,W=window.__LLW,ls=Object.keys(LG.M).filter(k=>PE
    <div class="sec">Lumi</div><div class="row2"><label>Lumi</label><select id="dvLm">${ls.map(k=>`<option value="${k}">${LG.M[k].n}</option>`).join('')}</select><button class="mini" onclick="devLumi()">Add</button></div>
    <div class="row2"><label>Lumi Lv</label><button class="mini" onclick="devLumiLv()">= level pemain</button></div>
    ${W?`<div class="sec">Teleport</div><div class="row2"><select id="dvD" style="flex:1">${dest}</select><button class="mini" onclick="devTp()">Go</button></div>`:''}
-   <div class="sec">Battle Tools</div>${devTg('ko1','KO 1 hit')}${devTg('god','Invincible')}${devTg('en','SPECIAL always full')}<div class="note">Tombol 🧪 WIN muncul di layar battle.</div>
+   <div class="sec">Battle Tools</div>${devTg('ko1','KO 1 hit')}${devTg('god','Invincible')}${devTg('en','SPECIAL always full')}${devTg('auto','✅ Auto Correct (jawaban apa pun benar)')}<div class="note">Tombol 🧪 WIN muncul di layar battle.</div>
    <div id="dvMsg" class="note"></div>`)}
 const devMsg=t=>{const e=$('dvMsg');if(e)e.innerHTML=t};
 function devLv(){const v=Math.max(1,Math.min(50,+$('dvL').value||1));PROF.lv=v;PROF.exp=0;saveP();devMsg('✔ Level = '+v)}
@@ -6196,7 +6218,43 @@ function mobSheet2(m){const key='v2'+m.n+m.k+(m.sd||0);if(MSH[key])return MSH[ke
     g.drawImage(fr,f*16,di*32+(cr?0:0))}});return MSH[key]=c}
 function mobWid(m){const L=WLAD[m.wt]||WLAD.pedang;return llNear(L,m.lv).id}
 
-Object.assign(window,{bestEq,buyI,claimA,claimLogin,claimM,closeSheet,devDg,devGive,devGold,devJob,devLumi,devLumiLv,devLv,devMBox,devSet,devToggle,devTp,dgResume,dgStart,gqSet,itemSheet,krJoin,lockI,lookSet,mbOpen,openBag,openChest,openDev,openExp,openKr,openShop,openTab,openWorld,openZone,prBuy,prCamp,prDone,prEnter,prStart,quickSell,sellAll,sellI,setAct,setBagF,setChW,sheet,unwear,upgI,uraiI,uraiWeak,wear,zGo,zPick,zStart});
+/* ===== v13: drop meriah, Bag 100 + Expand, auto-sell ===== */
+const BAGX=5000,BAGMX=500;
+function bagMax(){return Math.min(BAGMX,PROF.bagMax||100)}
+function bagExpand(){const P=PROF,m=bagMax();if(m>=BAGMX)return;if(P.coin<BAGX){SND.bad&&SND.bad();sheet('🎒 Expand Bag',`<div class="note">Gold belum cukup. Perlu 🪙 ${BAGX.toLocaleString('id')}.</div><button class="go px" onclick="openBag()">OK</button>`);return}
+  P.coin-=BAGX;P.bagMax=m+100;saveP();SND.win&&SND.win();try{lobbyHud()}catch(e){}openBag()}
+function bagExpBtn(){const m=bagMax();return m>=BAGMX?`<small>Bag maksimal (${BAGMX})</small>`:`<button class="mini" onclick="bagExpand()">➕ Expand Bag +100 · 🪙 ${BAGX.toLocaleString('id')}</button>`}
+/* peluang berjenjang: [p1,p2,p3] × pengali (Developer Mode / lucky) → jumlah barang */
+function lootN(ps,mul){mul=mul||1;let n=0;for(const p of ps){const e=p*mul,f=Math.floor(e);n+=f+(Math.random()<e-f?1:0)}return n}
+function lootMul(){const FX=llFxAll();return(FX.lucky?1.15:1)*devM('drop')}
+/* masuk Bag; bila penuh → dijual otomatis */
+function llGive(it,log,fmt){if(bag().length>=bagMax()){const g=Math.max(1,Math.round(gi(it).price*.4));PROF.coin+=g;if(log)log.push(`🪙 Bag penuh → <span style="color:${RKC[it.r]}">${gi(it).n}</span> dijual +${g} gold`);return null}
+  giveItem(it);if(log)log.push((fmt||dgLine)(it));return it}
+/* animasi: barang + koin menyembur dari musuh, lalu terbang ke pemain (updDrops/drawDrops Knight) */
+function llDropFx(B,items,gold){if(!G.drops)G.drops=[];spawnDrops({x:B.x},{gold:gold||0,items});
+  const top=items.reduce((a,i)=>Math.max(a,i.r),0),col=RKC[top]||'#fff';
+  if(top>=4){G.flashW=top>=5?.45:.3;G.flashC=col;G.shake=top>=5?5:3;try{fx({x:B.x,y:0,l:1.6,c:col,k:'pillar'})}catch(e){}ring(B.x,GY-14,col,top>=5?30:22,.8,3);try{SND.boom()}catch(e){}}
+  if(top>=5){G.slow=.4;G.slowT=.9;for(let i=0;i<3;i++)setTimeout(()=>{try{burst(B.x+rnd(-10,10),GY-rnd(6,24),i%2?'#ff7a2a':'#ff4a5a',14,.5)}catch(e){}},i*180)}
+  return items.length?(top>=5?2900:top>=4?2400:2000):1000}
+
+/* ===== v14: tata letak battle penuh layar + anti-curang hadiah ===== */
+/* arena ikut tinggi layar: VW (lebar pandang) disesuaikan, panel soal menempel di bawah */
+function llFitVW(H,w){if(typeof manOn==='function'&&manOn()){VW=120;return 190}
+  const need=Math.round(clamp(H*.40,250,380)),hA=H-need;VW=clamp(w*VH/hA,96,124);return need}
+/* ketepatan → pengali hadiah (gold/EXP) & drop. Manual tanpa soal = tanpa penalti */
+function llAcc(s){if(SEL.manual||!s)return{m:1,d:1,t:''};const q=s.q||0,ok=s.qok||0,dur=(Date.now()-(G.llT0||Date.now()))/1000;
+  if(!q)return dur<8?{m:1,d:1,t:''}:{m:.5,d:.5,t:'🎯 Tidak menjawab soal → gold, EXP & drop ×0,5'};
+  if(q<3)return{m:1,d:1,t:''};const a=ok/q,r=a>=.8?[1.5,1.2]:a<.5?[.7,.7]:[1,1],f=x=>String(x).replace('.',',');
+  return{m:r[0],d:r[1],t:`🎯 Accuracy ${Math.round(a*100)}% (${ok}/${q}) → gold & EXP ×${f(r[0])}`+(r[1]!==1?`, drop ×${f(r[1])}`:'')}}
+/* HUD: Lv pemain + chip Lumi */
+{const o=startMatch;startMatch=function(cfg){const r=o.apply(this,arguments);G.llT0=Date.now();
+  if(G.mode==='ll'||G.mode==='path'){try{$('w0').innerHTML=`<span class="llv">Lv ${PROF.lv}</span>`;let c=$('llLm');if(!c){c=document.createElement('div');c.id='llLm';c.className='llLm';$('ee0').after(c)}
+    const id=PROF.pet,m=id&&LG.M[id];c.innerHTML=m?`🐾 ${m.n} <b>Lv ${(lumis()[id]||{}).lv||1}</b>`:'';c.style.display=m?'':'none';fit()}catch(e){}}
+  return r}}
+/* soal panjang → huruf menyesuaikan */
+{const o=qNext;qNext=function(){const r=o.apply(this,arguments);try{const e=$('qQ'),n=(e.textContent||'').length;e.classList.toggle('lng',n>20&&n<=44);e.classList.toggle('xl',n>44)}catch(x){}return r}}
+
+Object.assign(window,{bagExpand,bestEq,buyI,claimA,claimLogin,claimM,closeSheet,devDg,devGive,devGold,devJob,devLumi,devLumiLv,devLv,devMBox,devSet,devToggle,devTp,dgResume,dgStart,gqSet,itemSheet,krJoin,lockI,lookSet,mbOpen,openBag,openChest,openDev,openExp,openKr,openShop,openTab,openWorld,openZone,prBuy,prCamp,prDone,prEnter,prStart,quickSell,sellAll,sellI,setAct,setBagF,setChW,sheet,unwear,upgI,uraiI,uraiWeak,wear,zGo,zPick,zStart});
 })();
 </script>
 <script>
