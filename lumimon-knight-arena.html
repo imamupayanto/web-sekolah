@@ -4948,7 +4948,7 @@ const AC=['#4aa8ff','#ff5a6a'],AN=['PEMAIN 1','PEMAIN 2'];
 // ---------- gaya ----------
 {const s=document.createElement('style');s.textContent=`
 body.arn{background:#0a061a;overflow:hidden;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
-body.arnf,body.arnf *{touch-action:none}#arn button,#amod button,#ares button{touch-action:manipulation}
+body.arnf,body.arnf *{touch-action:none}#arn .kob::after,#amod .kob::after{animation:none!important;display:none}.apc canvas,.abos canvas,.agrid canvas,.afp canvas{will-change:transform}#arn button,#amod button,#ares button{touch-action:manipulation}
 #arn{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 30%,#2a1a5a 0%,#0a061a 75%);color:#fff;font-family:system-ui,sans-serif;padding:2vh 2vw;gap:1.5vh}
 #arn.hide,#ares.hide,#amod.hide,.afp.hide{display:none!important}
 .ah{display:flex;align-items:center;justify-content:space-between}
@@ -5045,19 +5045,21 @@ function arnSetup(){ARN.fight=0;document.body.classList.remove('arnf');['afp0','
   <div class="ab">${[0,1].map(i=>`<div class="apc" style="--c:${AC[i]}"><div class="tg">${i?'🔴':'🔵'} ${AN[i]}</div><canvas id="apv${i}" width="192" height="200"></canvas><div class="nm">${esc(ARN.p[i].name)}</div><div class="sb">${arnSub(ARN.p[i])}</div>
     <div class="bs"><button class="abtn" onclick="arnPick(${i})">👥 Pilih dari Kelas</button><button class="abtn" onclick="arnEdit(${i})">🎨 Kustom Karakter</button></div></div>`).join('').replace('</div></div><div class="apc"',`</div></div><div class="amid">${arnMid()}</div><div class="apc"`)}</div>`;
   ARN.cvs=[0,1].map(i=>[$('apv'+i),ARN.p[i].cfg,i?-1:1])}
+const ABC={};
+function arnOn(el){const p=el.parentNode;[...p.children].forEach(x=>x.classList.remove('on'));el.classList.add('on');try{SND.tone&&SND.tone(700,900,.04,.04,'square')}catch(e){}}
 function arnMid(){const tab=(m,t)=>`<button class="abtn ${ARN.mode===m?'on':''}" onclick="ARN.mode='${m}';arnSetup()">${t}</button>`,co=ARN.mode!=='duel';
   let h=`<div class="amode">${tab('duel','⚔️ Duel')}${tab('boss','🐉 Lawan Bos')}${tab('horde','🌊 Horde')}<button class="abtn" onclick="arnBoard()">🏆 Skor</button></div>
-  <div class="asec">✨ Knowledge Orb — soal dari mapel:</div><div class="aorb ${co?'sm':''}">${MAPEL.map(m=>`<button class="${m.k===ARN.mapel?'on':''}" onclick="ARN.mapel='${m.k}';arnSetup()">${korbHTML(m.k)}<span>${co?(m.n.length>12?m.n.split(' ')[0]:m.n):m.n}</span></button>`).join('')}</div>`;
-  if(ARN.mode==='boss')h+=`<div class="asec">🐉 Pilih bos</div><div class="abos">${ABOSS().map((b,k)=>`<button class="${ARN.boss===k?'on':''}" onclick="ARN.boss=${k};arnSetup()">${b.drg?'<span class="bdi">🐉</span>':`<canvas id="abc${k}" width="84" height="80"></canvas>`}<b>${esc(b.n)}</b><small>${esc(b.z)}</small></button>`).join('')}</div>
-    <div class="afair">${['Normal','Sulit','Legenda'].map((n,k)=>`<button class="abtn ${ARN.bd===k?'on':''}" onclick="ARN.bd=${k};arnSetup()">${['🙂','😤','🔥'][k]} ${n}</button>`).join('')}</div>`;
+  <div class="asec">✨ Knowledge Orb — soal dari mapel:</div><div class="aorb ${co?'sm':''}">${MAPEL.map(m=>`<button class="${m.k===ARN.mapel?'on':''}" onclick="ARN.mapel='${m.k}';arnOn(this)">${korbHTML(m.k)}<span>${co?(m.n.length>12?m.n.split(' ')[0]:m.n):m.n}</span></button>`).join('')}</div>`;
+  if(ARN.mode==='boss')h+=`<div class="asec">🐉 Pilih bos</div><div class="abos">${ABOSS().map((b,k)=>`<button class="${ARN.boss===k?'on':''}" onclick="ARN.boss=${k};arnOn(this)">${b.drg?'<span class="bdi">🐉</span>':`<canvas id="abc${k}" width="84" height="80"></canvas>`}<b>${esc(b.n)}</b><small>${esc(b.z)}</small></button>`).join('')}</div>
+    <div class="afair">${['Normal','Sulit','Legenda'].map((n,k)=>`<button class="abtn ${ARN.bd===k?'on':''}" onclick="ARN.bd=${k};arnOn(this)">${['🙂','😤','🔥'][k]} ${n}</button>`).join('')}</div>`;
   if(ARN.mode==='horde')h+=`<div class="asec">🌊 Horde tak terbatas</div><div class="note2">Musuh datang satu per satu, tiap wave makin banyak dan makin kuat. Tiap 5 wave muncul bos zona. Ksatria yang tumbang bangkit lagi di wave berikutnya. Bertahan selama mungkin!</div>`;
-  h+=co?`<div class="afair sm"><button class="abtn ${ARN.fair?'on':''}" onclick="ARN.fair=1;arnSetup()">⚖️ Stat Setara</button><button class="abtn ${ARN.fair?'':'on'}" onclick="ARN.fair=0;arnSetup()">💪 Stat Asli</button></div>`:`<div class="asec">⚖️ Kekuatan karakter</div><div class="afair"><button class="abtn ${ARN.fair?'on':''}" onclick="ARN.fair=1;arnSetup()">⚖️ Setara<small>stat sama${co?'':', menang karena soal'}</small></button><button class="abtn ${ARN.fair?'':'on'}" onclick="ARN.fair=0;arnSetup()">💪 Asli<small>level & gear dari game</small></button></div>`;
+  h+=co?`<div class="afair sm"><button class="abtn ${ARN.fair?'on':''}" onclick="ARN.fair=1;arnOn(this)">⚖️ Stat Setara</button><button class="abtn ${ARN.fair?'':'on'}" onclick="ARN.fair=0;arnOn(this)">💪 Stat Asli</button></div>`:`<div class="asec">⚖️ Kekuatan karakter</div><div class="afair"><button class="abtn ${ARN.fair?'on':''}" onclick="ARN.fair=1;arnOn(this)">⚖️ Setara<small>stat sama${co?'':', menang karena soal'}</small></button><button class="abtn ${ARN.fair?'':'on'}" onclick="ARN.fair=0;arnOn(this)">💪 Asli<small>level & gear dari game</small></button></div>`;
   h+=`<button class="ago" onclick="arnGo()">${ARN.mode==='duel'?'⚔️ MULAI DUEL':ARN.mode==='boss'?'🐉 LAWAN BOS!':'🌊 MULAI HORDE'}</button>`;
-  setTimeout(()=>{if(ARN.mode==='boss')ABOSS().forEach((b,k)=>{const c=$('abc'+k);if(c&&!b.drg)arnDraw(c,arnBossCfg(b.zi,15),-1)})},0);return h}
+  setTimeout(()=>{if(ARN.mode==='boss')ABOSS().forEach((b,k)=>{const c=$('abc'+k);if(c&&!b.drg)arnDraw(c,ABC[b.zi]||(ABC[b.zi]=arnBossCfg(b.zi,15)),-1)})},0);return h}
 function arnSub(p){const w=WPN.find(x=>x.id===p.cfg.w);return(p.src==='kelas'?`Lv ${p.lv} · Power ${p.gp} · `:'Karakter kustom · ')+(w?`<span style="color:${RKC[w.r]}">${esc(w.n)}</span>`:'')}
 function arnFS(){try{const d=document.documentElement;(d.requestFullscreen||d.webkitRequestFullscreen).call(d)}catch(e){}}
 // animasi pratinjau
-setInterval(()=>{if(G.scr!=='arena')return;(ARN.cvs||[]).forEach(([cv,cfg,f])=>{if(cv&&cv.isConnected)arnDraw(cv,cfg,f)})},120);
+setInterval(()=>{if(G.scr!=='arena')return;(ARN.cvs||[]).forEach(([cv,cfg,f])=>{if(cv&&cv.isConnected)arnDraw(cv,cfg,f)})},160);
 
 // ---------- pilih dari kelas ----------
 function arnModal(c,html){let m=$('amod');if(!m){m=document.createElement('div');m.id='amod';document.body.appendChild(m);m.onclick=e=>{if(e.target===m)arnClose()}}m.classList.remove('hide');m.innerHTML=`<div class="box" style="--c:${c}">${html}</div>`}
@@ -5153,6 +5155,17 @@ G.scr='arena';try{show('none')}catch(e){}arnSetup();
  document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest(SEL_B);TB=b&&b.onclick?b:null;TX=e.clientX;TY=e.clientY},true);
  document.addEventListener('pointerup',e=>{const b=TB;TB=null;if(!b||!b.isConnected||b.disabled)return;if(Math.hypot(e.clientX-TX,e.clientY-TY)>40)return;b._tap=Date.now();try{b.onclick.call(b,e)}catch(x){}},true);
  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest(SEL_B);if(b&&b._tap&&Date.now()-b._tap<800){e.stopPropagation();e.preventDefault()}},true)}
+
+// ---------- tanpa glow (ringan untuk layar 4K): bayangan blur, cahaya teks, latar gradien besar ----------
+{const s=document.createElement('style');s.textContent=`
+#arn{background:#140c30!important}
+#arn *,#amod *,#ares *,.afp *,#aft,#aft *{text-shadow:none!important}
+.at,.at b{text-shadow:0 .4vh 0 #120e18!important}
+.apc,.aorb button.on,.amode .on,.abos .on,.afair button.on,#amod .box{box-shadow:none!important}
+.ago{box-shadow:0 .8vh 0 #a86a10!important}
+#arn .kob,#amod .kob{box-shadow:0 0 0 2px #120b28!important;animation:none!important}
+#ares{background:#0e0824f2!important}#ares .big{text-shadow:0 .8vh 0 #120e18!important}
+.aqc{transition:none!important}`;document.head.appendChild(s)}
 
 // ===== Arena co-op: 2 ksatria vs bos / horde tak terbatas + papan skor lokal =====
 const ABOSS=()=>ZONE8.map((z,zi)=>({zi,n:z.boss[0],z:z.n})).concat([{drg:'shadow',n:'Shadow Drake',z:'Naga Legenda'}]);
