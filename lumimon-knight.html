@@ -4174,6 +4174,7 @@ lcv.addEventListener('pointerdown',e=>{if(G.scr!=='town')return;e.stopPropagatio
   // karakter
   g.fillStyle='#0004';g.beginPath();g.ellipse(f.x,TGY,6,1.5,0,0,7);g.fill();g.save();g.translate(0,TGY-GY);drawFighter(g,f);g.restore();
   for(const p of G.fx){p.l-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=(p.g||0)*dt}G.fx=G.fx.filter(p=>p.l>0);drawFx(g);
+  let RN=0;try{RN=townFx2(g,dt,cam,tod)}catch(e){}try{townOver2(g,lcv.width,lcv.height,tod,RN);g.setTransform(Kk,0,0,Kk,Kk*ox,Kk*oy)}catch(e){}
   if(tod===3){g.setTransform(1,0,0,1,0,0);g.fillStyle='#0a0a3040';g.fillRect(0,0,lcv.width,lcv.height)}
   // label bangunan (teks tajam di ruang layar)
   g.setTransform(1,0,0,1,0,0);const near=TBL.reduce((a,b)=>Math.abs(b.dx-f.x)<Math.abs(a.dx-f.x)?b:a);g.textAlign='center';
@@ -4261,7 +4262,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 {const t=townOpen;townOpen=function(){t.apply(this,arguments);knSync()}}
 
 // ===== Online langkah 3: teman tampil di Town (Realtime hemat) + Live Duel =====
-const GAMEV='v71';
+const GAMEV='v74';
 const LV={sb:null,ch:null,dch:null,me:'',gh:{},inv:null,lastTrack:0,pend:null,snapT:0,lastSnap:0,peer:null};
 function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
 async function sbClient(){if(LV.sb)return LV.sb;if(!await sbLoad())return null;try{LV.sb=window.supabase.createClient(KN.url,KN.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}})}catch(e){LV.sb=null}return LV.sb}
@@ -4676,6 +4677,144 @@ function openLock(){const draw=a=>sheet('📚 Lock Mapel',`<div class="note">Cen
 async function lkSave(){const a=[...document.querySelectorAll('.lkc')].filter(c=>c.checked).map(c=>c.value);$('lkM').textContent='Menyimpan…';let d=null,er='';try{d=await knRpc('kn_lock_set',{p_pw:gfPw(),p_allowed:a})}catch(e){er=String(e.message||e)}
   if(!d||!d.ok){$('lkM').innerHTML='<span style="color:#ff8a7a">'+(er==='404'?'Fungsi belum ada di Supabase. Jalankan kn_lock.sql di SQL Editor (sekali saja), lalu coba lagi.':d&&d.ok===false?'Password ditolak server. Tutup tab lalu masuk ulang.':/^\d+$/.test(er)?'Server menolak (kode '+er+'). Cek kn_lock.sql sudah dijalankan.':'Tidak bisa terhubung ke internet/server.')+'</span>';try{DG.add('Lock gagal: '+(er||'ok=false'))}catch(e){}return}
   LKA=a;try{localStorage.setItem('kn_lock',JSON.stringify(a))}catch(e){}lkEnf();$('lkM').innerHTML='<span style="color:#7aff9a">✅ Tersimpan. '+(a.length?a.length+' mapel boleh, sisanya terkunci.':'Tanpa lock.')+' HP pemain memperbarui dalam ±2 menit (atau saat game dibuka).</span>'}
+
+// ===== v72: Kualitas grafis (Otomatis/Tinggi/Hemat) + aksen pukulan per senjata =====
+const GQ={mode:(()=>{try{return localStorage.getItem('kn_gq')||'auto'}catch(e){return 'auto'}})(),lo:0,n:0,t0:0};
+const gqLo=()=>GQ.mode==='lo'||(GQ.mode==='auto'&&GQ.lo===1);
+function gqSet(m){GQ.mode=m;try{localStorage.setItem('kn_gq',m)}catch(e){}if(m!=='auto')GQ.lo=0;fit()}
+// resolusi kanvas: Hemat = maks 1,5× piksel layar (HP murah jauh lebih ringan)
+{const o=fit;fit=function(){o.apply(this,arguments);if(!gqLo())return;const w=parseFloat(cv.style.width)||0,d=Math.min(1.5,devicePixelRatio||1);if(!w)return;cv.width=Math.round(w*d);cv.height=Math.round(w*VH/VW*d);K=cv.width/VW}}
+addEventListener('resize',()=>fit());
+// partikel: Hemat = separuh partikel kecil + batas jumlah
+const GQK={ln:1,ci:1,dm:1,st:1,rock:1,sq:1,lf:1,cf:1};
+{const o=fx;fx=function(p){if(GQK[p.k]){const lo=gqLo();if((lo&&Math.random()<.5)||G.fx.length>(lo?140:320))return}return o.apply(this,arguments)}}
+// pengukur FPS (Otomatis): rata-rata < 38 fps selama 3 dtk di battle/kota → Hemat (bertahan sampai game ditutup)
+(function gqLoop(now){requestAnimationFrame(gqLoop);if(GQ.mode!=='auto'||GQ.lo||document.hidden||(G.scr!=='fight'&&G.scr!=='town')){GQ.n=0;GQ.t0=now;return}
+  if(!GQ.n)GQ.t0=now;GQ.n++;const el=now-GQ.t0;if(el>=3000){const fps=(GQ.n-1)*1000/el;GQ.n=0;if(fps<38){GQ.lo=1;fit();try{DG.add('Grafis Hemat otomatis ('+Math.round(fps)+' fps)')}catch(e){}}}})(performance.now());
+// bayangan gerak (afterimage) dimatikan saat Hemat
+{const o=step;step=function(dt){o.apply(this,arguments);if(gqLo()&&G.ghost.length>2)G.ghost.length=2}}
+// angka damage tidak saling menumpuk: bergantian kiri-kanan, sedikit lebih tinggi
+let TXS=1;{const o=txt;txt=function(x,y,t,c,s,l){if(/^\d+!?$/.test(String(t))){TXS=-TXS;x+=TXS*5}return o.call(this,x,y,t,c,s,l)}}
+// aksen pukulan sesuai jenis senjata (menumpang elemFx yang dipanggil setiap kena)
+function wpnHit(w,x,y){const f=(G.F||[]).find(q=>q.w===w);if(!f||!w||!w.type)return;const fc=f.face||1,c=w.glow||w.trail||'#ffffff';
+  switch(w.type){
+   case 'pedang':fx({x,y,a:-.55*fc,s:15,c,k:'slash',l:.17});break;
+   case 'ganda':fx({x:x-2,y,a:.7,s:11,c,k:'slash',l:.15});fx({x:x+2,y,a:-.7,s:11,c,k:'slash',l:.15});break;
+   case 'tombak':for(let i=0;i<4;i++)fx({x:x-fc*rnd(6,14),y:y+rnd(-3,3),vx:fc*rnd(220,300),vy:0,l:rnd(.1,.16),s:rnd(.8,1.4),c,k:'ln',g:0});ring(x,y,c,8,.18,1.5);break;
+   case 'busur':for(let i=0;i<5;i++)fx({x,y,vx:rnd(-50,50)+fc*30,vy:rnd(-70,-20),l:rnd(.5,.8),s:rnd(1.2,1.8),a:rnd(0,TAU),c:pick(['#f4ecd8','#e0d0b0',c]),k:'lf',g:70});break;
+   case 'perisai':ring(x,y,'#ffffff',16,.25,2.5);if(f.y<=0||1)dust(x,5,fc);break;
+   case 'buku':for(let i=0;i<6;i++){const an=i/6*TAU;fx({x:x+Math.cos(an)*4,y:y+Math.sin(an)*4,vx:Math.cos(an)*60,vy:Math.sin(an)*60-20,l:rnd(.35,.55),s:rnd(1.4,2.2),c:pick([c,'#fff6b0','#c8b0ff']),k:'st',g:30})}ring(x,y,c,12,.3,1.2);break}}
+{const o=elemFx;elemFx=function(w,x,y){o.apply(this,arguments);try{wpnHit(w,x,y)}catch(e){}}}
+// tombol di Settings
+{const o=openTab;openTab=function(k){const r=o.apply(this,arguments);if(k==='set'){const s=$('stS'),row=s&&s.closest('.row2');if(row){const b=(m,t)=>`<button class="mini ${GQ.mode===m?'':'off'}" onclick="gqSet('${m}');openTab('set')">${t}</button>`;
+  row.insertAdjacentHTML('afterend',`<div class="row2"><label>🎨 Grafis</label><span>${b('auto','Otomatis')} ${b('hi','Tinggi')} ${b('lo','Hemat')}</span></div>${GQ.mode==='auto'&&GQ.lo?'<div class="note">⚡ HP terasa berat, jadi Mode Hemat menyala otomatis.</div>':''}`)}}return r}}
+
+// ===== v73: Momen seru — drop bersinar, naik level, buka peti, intro bos =====
+{const st=document.createElement('style');st.textContent=`
+.mfx{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(circle at 50% 44%,#2a1a5add 0%,#0a061af2 70%);color:#fff;text-align:center;animation:mfxIn .25s;overflow:hidden;padding:20px}
+@keyframes mfxIn{from{opacity:0}to{opacity:1}}
+.mfx .ray{position:absolute;width:560px;height:560px;left:50%;top:44%;margin:-280px 0 0 -280px;background:repeating-conic-gradient(from 0deg,var(--c) 0 7deg,transparent 7deg 22deg);opacity:.25;border-radius:50%;animation:mfxSpin 10s linear infinite;-webkit-mask:radial-gradient(circle,#000 15%,transparent 68%);mask:radial-gradient(circle,#000 15%,transparent 68%);pointer-events:none}
+@keyframes mfxSpin{to{transform:rotate(360deg)}}
+.mfx .big{position:relative;font:700 40px 'Pixelify Sans',system-ui;color:var(--c);text-shadow:0 3px 0 #120e18,0 0 18px var(--c);animation:mfxPop .55s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes mfxPop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
+.mfx .sub{position:relative;font:700 18px 'Pixelify Sans',system-ui;margin-top:4px;animation:mfxPop .5s .15s both}
+.mfx .ul{position:relative;margin-top:14px;display:flex;flex-direction:column;gap:6px;width:100%;max-width:310px}
+.mfx .ul div{background:#1d1540ee;border:2px solid #3a2a78;border-radius:10px;padding:7px 10px;font-size:13px;text-align:left;animation:mfxUp .4s both}
+.mfx .ul small{display:block;color:#a99cd8;font-size:11px}
+@keyframes mfxUp{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.mfx .tap{position:absolute;bottom:7%;font-size:12px;opacity:.7;animation:mfxBlink 1.2s infinite}
+@keyframes mfxBlink{50%{opacity:.25}}
+.mfx .chest{position:relative;animation:mfxShake .25s ease-in-out 4}
+.mfx .chest img{width:104px;height:104px;image-rendering:pixelated;filter:drop-shadow(0 0 14px var(--c))}
+@keyframes mfxShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg) scale(1.06)}75%{transform:rotate(9deg) scale(1.06)}}
+.mfx .flash{position:absolute;inset:0;background:var(--c);opacity:0;pointer-events:none}
+.mfx.open .flash{animation:mfxFlash .6s}
+@keyframes mfxFlash{0%{opacity:.85}100%{opacity:0}}
+.mfx .item{display:none;flex-direction:column;align-items:center;gap:4px;position:relative}
+.mfx.open .chest{display:none}.mfx.open .item{display:flex}
+.mfx .ic{display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 14px var(--c));animation:mfxPop .55s cubic-bezier(.2,1.6,.4,1)}
+.mfx .ic img,.mfx .ic canvas{width:76px;height:76px;image-rendering:pixelated}.mfx .ic{font-size:60px}
+.mfx .pt{position:absolute;left:50%;top:44%;width:6px;height:6px;background:var(--c);animation:mfxPt 1.3s ease-out forwards;pointer-events:none}
+@keyframes mfxPt{to{transform:translate(var(--x),var(--y)) rotate(420deg);opacity:0}}
+.mfx.my .big,.mfx.my .ray{animation:mfxSpin 10s linear infinite,mfxHue 2s linear infinite}.mfx.my .big{animation:mfxPop .55s cubic-bezier(.2,1.6,.4,1) both,mfxHue 2s linear infinite}
+@keyframes mfxHue{to{filter:hue-rotate(360deg)}}
+`;document.head.appendChild(st)}
+function mfxShow(html,col,lock){const o=document.createElement('div');o.className='mfx';o.style.setProperty('--c',col);o.innerHTML='<div class="ray"></div>'+html+'<div class="tap">Ketuk untuk lanjut</div>';o._t=Date.now()+(lock||700);o.onclick=()=>{if(Date.now()<o._t)return;o.remove()};document.body.appendChild(o);return o}
+function mfxBurst(o,n){if(typeof gqLo==='function'&&gqLo())n=Math.ceil(n/2);for(let i=0;i<n;i++){const d=document.createElement('i');d.className='pt';const an=Math.random()*6.28,r=90+Math.random()*170;d.style.cssText=`--x:${Math.cos(an)*r}px;--y:${Math.sin(an)*r}px;animation-delay:${Math.random()*.15}s;width:${3+Math.random()*5|0}px;height:${3+Math.random()*5|0}px;background:${Math.random()<.35?'#fff':'var(--c)'}`;o.appendChild(d)}}
+
+// ---------- Naik level ----------
+let LVQ=null;
+{const o=addExp;addExp=function(n,log){const b=PROF.lv;const r=o.apply(this,arguments);if(PROF.lv>b){LVQ=LVQ?[LVQ[0],PROF.lv]:[b,PROF.lv];clearTimeout(LVQ.t);setTimeout(lvShow,900)}return r}}
+function lvShow(){if(!LVQ)return;const[a,b]=LVQ;LVQ=null;const L=['<div>❤️ HP & ⚔️ Serangan naik</div>'];
+  for(let lv=a+1;lv<=b;lv++){const p=LVP.find(x=>x.lv===lv);if(p)L.push(`<div>${p.ic} Pasif baru: <b>${p.n}</b><small>${p.d}</small></div>`);
+    if(typeof maxRar==='function'&&maxRar(lv)>maxRar(lv-1)){const r=maxRar(lv);L.push(`<div>💎 Barang <b style="color:${RKC[r]}">${RK[r]}</b> kini bisa didapat</div>`)}
+    if(lv%5===0)L.push(`<div>🎁 Chest hadiah level ${lv} masuk ke Bag</div>`)}
+  if(b>=LVMAX)L.push('<div>👑 <b>Level MAX!</b></div>');
+  const ov=mfxShow(`<div class="big">LEVEL UP!</div><div class="sub">Lv ${a} → <span style="color:#ffd23c">Lv ${b}</span></div><div class="ul">${L.map((x,i)=>x.replace('<div>',`<div style="animation-delay:${.35+i*.12}s">`)).join('')}</div>`,'#ffd23c',1000);mfxBurst(ov,30);try{SND.win()}catch(e){}}
+
+// ---------- Buka peti ----------
+{const o=openChest;openChest=function(i){const c=PROF.chests&&PROF.chests[i];const r=o.apply(this,arguments);if(c)try{chestFx(c)}catch(e){}return r}}
+function chestFx(c){const it=c.it,col=it?RKC[it.r]:'#ffd23c';
+  const ov=mfxShow(`<div class="chest">${ico('gift',104)}</div><div class="item"><div class="ic">${it?itIcon(it):ico('coin',76)}</div><div class="big" style="font-size:24px;max-width:300px">${it?esc(gi(it).n):'Gold'}</div>${it?`<div class="sub" style="color:${col}">${RK[it.r]}</div>`:''}<div class="sub" style="color:#ffd23c">+${c.coin} Gold</div></div><div class="flash"></div>`,col,1500);
+  if(it&&it.r>=5)ov.classList.add('my');const tp=ov.querySelector('.tap');tp.style.visibility='hidden';try{SND.tone&&SND.tone(300,500,.15,.06,'square')}catch(e){}
+  setTimeout(()=>{ov.classList.add('open');mfxBurst(ov,it&&it.r>=4?40:22);try{SND.win()}catch(e){}tp.style.visibility=''},1000)}
+
+// ---------- Drop di battle: Rare ke atas bersinar, Legendary/Mythic punya sinar berputar + banner ----------
+{const o=drawDrops;drawDrops=function(g){const t=G.t;
+  for(const p of G.drops){if(p.gold||p.t<0||!p.it||p.r<2)continue;const y=GY-p.y-p.sz/2,col=p.r>=5?`hsl(${(t*160)%360},100%,65%)`:p.col;
+    if(p.r===2&&p.t<1.25){g.globalAlpha=.16+.08*Math.sin(t*6);g.fillStyle=col;g.fillRect(p.x-1.5,y-34,3,34);g.globalAlpha=1}
+    if(p.r>=4){g.save();g.translate(p.x,y);g.rotate(t*1.4);g.globalCompositeOperation='lighter';g.globalAlpha=.22+.08*Math.sin(t*5);g.fillStyle=col;const R=p.r>=5?26:20,n=p.r>=5?10:8;
+      for(let i=0;i<n;i++){g.rotate(TAU/n);g.beginPath();g.moveTo(0,0);g.lineTo(R,-2.2);g.lineTo(R,2.2);g.closePath();g.fill()}g.restore();g.globalAlpha=1;
+      if(p.t<1.25){g.globalAlpha=.3;g.fillStyle=col;g.fillRect(p.x-4,y-60,8,60);g.globalAlpha=1}}}
+  return o.apply(this,arguments)}}
+{const o=updDrops;updDrops=function(dt){const pv=G.drops.filter(p=>p.it&&p.r>=4&&!p.dead);for(const p of G.drops)if(p.it&&p.r>=3&&!p.lnd&&p.t>0&&p.y<=0){p.lnd=1;ring(p.x,GY-2,p.col,p.r>=4?16:10,.35,2)}
+  const r=o.apply(this,arguments);pv.forEach(p=>{if(p.dead)banner(RK[p.r].toUpperCase()+'!',gi(p.it).n,p.col,1.5,15)});return r}}
+
+// ---------- Intro bos & elite (jalur petualangan) ----------
+{const o=introRound;introRound=function(){const r=o.apply(this,arguments);try{const B=G.F&&G.F[1];if(G.mode!=='path'||!B||G.round!==1)return r;const k=B.kind||(B.cfg&&B.cfg.kind),nm=(B.cfg&&B.cfg.npcN)||'';
+  if(k==='b'){G.ban=[];G.it=Math.max(G.it,2.9);G.bi=1;G.dimT=G.dim=.6;banner((nm||'BOSS').toUpperCase(),'BOSS'+(B.cfg&&B.cfg.lv?' · Lv '+B.cfg.lv:''),'#ffd23c',2.5,15);fx({x:B.x,y:0,l:1.4,c:'#ffd23c',k:'pillar'});ring(B.x,GY-14,'#ffd23c',26,.9,3);try{SND.boom()}catch(e){}G.shake=4}
+  else if(k==='e'){G.ban=[];G.it=Math.max(G.it,2.1);G.bi=1;G.dimT=G.dim=.35;banner((nm||'ELITE').toUpperCase(),'ELITE','#ff8aa0',1.8,13);ring(B.x,GY-14,'#ff8aa0',20,.7,2)}}catch(e){}return r}}
+{const o=step;step=function(dt){const r=o.apply(this,arguments);if(G.bi&&G.st!=='intro'){G.bi=0;G.dimT=0}return r}}
+
+// ===== v74: Dunia indah — suasana arena per zona + Town hidup (cuaca, burung, bintang jatuh, sinar matahari) =====
+const W2={rain:[],birds:[],shoot:null};
+const lo2=()=>typeof gqLo==='function'&&gqLo();
+// ---------- ARENA ----------
+const ZFX={0:{ray:1},1:{ray:1},2:{mist:1},3:{},4:{heat:1},5:{ray:1,bub:1},6:{dust:1,vig:.55},7:{ray:1,mist:.5},8:{ray:1,sand:1}};
+const zfx=()=>W&&W.Z?ZFX[ZONES.indexOf(W.Z)]||{}:{};
+{const o=stepWorld;stepWorld=function(dt){o.apply(this,arguments);if(!W||lo2())return;const Z=zfx(),cx=G.camx;
+  if(Z.bub&&Math.random()<dt*4)fx({x:cx+rnd(-75,75),y:GY+2,vx:rnd(-3,3),vy:rnd(-22,-12),l:4,s:rnd(.8,1.6),c:'#e8fbff',k:'ci',g:0});
+  if(Z.sand&&Math.random()<dt*10)fx({x:cx-80,y:GY-rnd(2,40),vx:rnd(90,150),vy:rnd(-4,4),l:1.6,s:.6,c:pick(['#f0d8a0','#e8c080']),k:'ln',g:0});
+  if(Z.dust&&Math.random()<dt*4)fx({x:cx+rnd(-75,75),y:GY-rnd(10,80),vx:rnd(-3,3),vy:rnd(-3,3),l:3,s:.7,c:'#d8d0c0',k:'sq',g:0});
+  if(Z.heat&&Math.random()<dt*3)fx({x:cx+rnd(-75,75),y:GY,vx:0,vy:rnd(-30,-18),l:2,s:.6,c:'#ffd23c',k:'ci',g:0})}}
+{const o=drawWorld;drawWorld=function(g,camx,z,ox,oy){const r=o.apply(this,arguments);if(!W)return r;const Z=zfx(),t=G.t;g.save();g.setTransform(K,0,0,K,0,0);
+  if(!lo2()){
+    if(Z.ray){g.globalCompositeOperation='lighter';for(let i=0;i<3;i++){const x=(i*58+20-(camx*.08)%60+VW)%(VW+40)-20,w=14+i*6,a=.05+.03*Math.sin(t*.7+i*2);const gd=g.createLinearGradient(0,0,0,GY);gd.addColorStop(0,`rgba(255,248,210,${a})`);gd.addColorStop(1,'rgba(255,248,210,0)');g.fillStyle=gd;g.beginPath();g.moveTo(x,0);g.lineTo(x+w,0);g.lineTo(x+w+30,GY);g.lineTo(x+30,GY);g.closePath();g.fill()}g.globalCompositeOperation='source-over'}
+    if(Z.mist){const m=Z.mist===1?1:Z.mist;for(let i=0;i<4;i++){const x=((i*90+t*(4+i)-camx*.3)%(VW+120)+VW+120)%(VW+120)-60,y=GY-8-i*7;g.globalAlpha=(.10+.04*Math.sin(t*.5+i))*m;g.fillStyle='#e8eef8';g.beginPath();g.ellipse(x,y,60,5+i,0,0,7);g.fill()}g.globalAlpha=1}}
+  const vg=g.createRadialGradient(VW/2,VH*.45,VH*.35,VW/2,VH*.45,VW*.75);vg.addColorStop(0,'rgba(10,6,26,0)');vg.addColorStop(1,`rgba(10,6,26,${Z.vig||.32})`);g.fillStyle=vg;g.fillRect(0,0,VW,VH);
+  g.restore();return r}}
+// ---------- TOWN ----------
+function wxRain(){const d=new Date(),k=(d.getFullYear()*372+d.getMonth()*31+d.getDate())*24+d.getHours();return((k*2654435761)>>>0)%5===0}
+function townFx2(g,dt,cam,tod){const lo=lo2(),L=cam-VW/2,R=cam+VW/2,t=TWN.t,rain=wxRain();
+  // genangan cahaya lampu di jalan (senja & malam)
+  if(tod>=2)TWN.lamps.forEach(x=>{if(x<L-20||x>R+20)return;g.globalAlpha=.22+.04*Math.sin(t*3+x);g.fillStyle='#ffd86a';g.beginPath();g.ellipse(x+1,TGY+1,12,2.2,0,0,7);g.fill();g.globalAlpha=1});
+  if(rain){const n=lo?30:70;while(W2.rain.length<n)W2.rain.push({x:L+Math.random()*(VW+40),y:-Math.random()*VH});g.strokeStyle='#bcd4ff';g.lineWidth=.6;g.globalAlpha=.55;g.beginPath();
+    for(const p of W2.rain){p.y+=dt*190;p.x+=dt*-30;if(p.y>TGY){if(!lo&&Math.random()<.5)fx({x:p.x,y:TGY-1,vx:rnd(-12,12),vy:rnd(-18,-8),l:.25,s:.6,c:'#cfe0ff',k:'sq',g:120});p.y=-rnd(0,40);p.x=L+Math.random()*(VW+40)}if(p.x<L-20)p.x+=VW+40;g.moveTo(p.x,p.y);g.lineTo(p.x-1.5,p.y+6)}g.stroke();g.globalAlpha=1}else W2.rain.length=0;
+  if(lo)return rain;
+  // burung (pagi & siang, tidak hujan)
+  if(!rain&&tod<=1){if(W2.birds.length<4&&Math.random()<dt*.15){const y=12+Math.random()*30,d=Math.random()<.5?1:-1;for(let i=0;i<3+(Math.random()*3|0);i++)W2.birds.push({x:(d>0?L-10:R+10)-d*i*7,y:y+i%2*4+i,v:d*rnd(18,24),ph:Math.random()*6})}
+    g.strokeStyle='#2a2a3a';g.lineWidth=.7;for(const b of W2.birds){b.x+=b.v*dt;b.ph+=dt*9;const w=Math.sin(b.ph)*1.6;g.beginPath();g.moveTo(b.x-2.5,b.y-w);g.lineTo(b.x,b.y);g.lineTo(b.x+2.5,b.y-w);g.stroke()}W2.birds=W2.birds.filter(b=>b.x>L-60&&b.x<R+60)}
+  // kunang-kunang di sepanjang jalan & bintang jatuh (malam)
+  if(tod===3&&!rain){if(Math.random()<dt*2)fx({x:L+Math.random()*VW,y:TGY-rnd(4,40),vx:rnd(-5,5),vy:rnd(-5,5),l:3,s:.9,c:'#e8ff8a',k:'ff',ph:rnd(0,6)});
+    if(!W2.shoot&&Math.random()<dt*.06)W2.shoot={x:L+Math.random()*VW*.7+20,y:5+Math.random()*20,l:.9};
+    if(W2.shoot){const s=W2.shoot;s.l-=dt;s.x-=dt*90;s.y+=dt*40;g.strokeStyle='#ffffff';g.globalAlpha=Math.max(0,s.l);g.lineWidth=.8;g.beginPath();g.moveTo(s.x,s.y);g.lineTo(s.x+12,s.y-5);g.stroke();g.globalAlpha=1;if(s.l<=0)W2.shoot=null}}
+  // daun & kelopak dari beringin (siang)
+  if(tod<=2&&!rain&&Math.random()<dt*1.2){const pk=TBL[4];fx({x:pk.dx+rnd(-50,50),y:TGY-rnd(70,95),vx:rnd(-8,8),vy:rnd(8,14),l:6,s:1.1,c:pick(['#7ac84a','#b8d84a','#ffb8d8']),k:'lf',a:rnd(0,6)})}
+  return rain}
+function townOver2(g,W0,H0,tod,rain){if(lo2()&&!rain)return;g.setTransform(1,0,0,1,0,0);
+  if(rain){g.fillStyle='rgba(40,50,80,.18)';g.fillRect(0,0,W0,H0)}
+  else if(tod===2){g.fillStyle='rgba(255,130,60,.08)';g.fillRect(0,0,W0,H0)}
+  else if(tod===0){const gd=g.createLinearGradient(0,0,W0,H0*.6);gd.addColorStop(0,'rgba(255,240,200,.16)');gd.addColorStop(1,'rgba(255,240,200,0)');g.fillStyle=gd;g.fillRect(0,0,W0,H0)}}
 
 // ===== v59: player tidak boleh 'tersangkut' di party yang sudah ditinggal leader =====
 paLeadGone=function(){};   // diganti pemantau di bawah (tidak bergantung pada event presence)
