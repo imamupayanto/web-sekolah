@@ -1013,6 +1013,21 @@ body.dev #K #devW{display:block}
 #K #qp .qb{font-size:clamp(20px,6.2vw,28px);border-radius:16px}
 #K #qp .qb:disabled{filter:grayscale(.75) brightness(.65)}
 #K #qp .qhist{min-height:8px;flex:0 0 auto}
+
+/* v15 goa naga */
+#K .cvmap{flex:1;overflow:auto;padding:8px 10px;background:radial-gradient(120% 80% at 50% 0,#2a2048,#0d0a18)}
+#K .cvg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px;max-width:420px;margin:0 auto}
+#K .cvr{position:relative;aspect-ratio:1;border-radius:9px;border:2px solid #5a5088;background:#2a2446;color:#fff;font-size:clamp(16px,5vw,22px);display:flex;align-items:center;justify-content:center;padding:0}
+#K .cvr.fog{background:#16122a;border-color:#1e1838}
+#K .cvr.nr{background:#211c3a;color:#8a80b0;border-style:dashed}
+#K .cvr.sn{background:#3e3668}
+#K .cvr.adj{border-color:#ffe680;cursor:pointer;box-shadow:0 0 0 2px #ffe68033}
+#K .cvr.me{border-color:#ffd23c;background:#5a4a88;box-shadow:0 0 12px #ffd23c88}
+#K .cvr.me::before{content:'';position:absolute;top:-5px;right:-5px;width:12px;height:12px;border-radius:50%;background:#ffd23c;border:2px solid #1a1030}
+#K .cvr.lair{background:#4a1a5a;border-color:#ff8af0}
+#K .cvr .ce{position:absolute;left:100%;top:40%;width:11px;height:20%;background:#4a4270;pointer-events:none}
+#K .cvr .cs{position:absolute;top:100%;left:40%;height:11px;width:20%;background:#4a4270;pointer-events:none}
+#K .cvk{font-size:12px;text-align:center;margin-top:10px}
 </style></head>
 <body>
 <canvas id="c"></canvas>
@@ -2781,11 +2796,195 @@ kid = function (o, dir, f) { const g = _kidCH(o, dir, f), up = dir === 'up', sd 
   const c = o.bk && KCAPE[o.bk]; if (c && c[4] === 'gold') { for (let x = 0; x < 16; x++) { const v = at(x, 21); if (v && v !== 1 && v !== '#0b0614' && !(o.bk && up && false)) { } } for (let x = 1; x <= 14; x++) { const v = at(x, up ? 22 : 22); if (v === c[1] || v === c[2] || v === c[0]) P(g, x, 22, KCHG) } }
   return g };
 
-return{setNoArm:v=>{AV_NOARM=v},kidImg,accIcon,SH,TK_SETS,EL_SETS,NG_SETS,HAIRC,EYES,SHIRTS,PANTS,ramp,KC,HSTYLES,SKINS,grid,P,R,E,outline,toCanvas};
+/* ===== Legends: Set Naga v2 — 4 set × laki-laki/perempuan (id nh_/ns_/np_/nf_/nw_) ===== */
+const N2 = {
+  sage:    { d: '#0c2a1c', m: '#1d6a45', l: '#3fae74', x: '#8fe6b4', h: '#e8cc6a', h2: '#fff3b0', b: '#e8cc6a', gl: '#7affc8', e: '#fff36a' },
+  shadow:  { d: '#140c26', m: '#3a2466', l: '#6a55aa', x: '#a898e0', h: '#d8ccff', h2: '#ffffff', b: '#7a6ab4', gl: '#ff5ad8', e: '#ff5ad8' },
+  frost:   { d: '#1c3a5e', m: '#3a6c9c', l: '#6aa6d6', x: '#c4e8ff', h: '#e2f6ff', h2: '#ffffff', b: '#c4e2f4', gl: '#6af6ff', e: '#6af6ff' },
+  crimson: { d: '#2a0606', m: '#8c1a12', l: '#c4321c', x: '#ff6a3d', h: '#3a2a24', h2: '#6a5a50', b: '#e8902e', gl: '#ffe14a', e: '#ffe14a' },
+  white:   { d: '#7a84a4', m: '#d4dcee', l: '#f2f6ff', x: '#ffffff', h: '#ffd23c', h2: '#fff6c8', b: '#e8cc6a', gl: '#8affff', e: '#8affff', p: ['#ff9ad8', '#8affff', '#fff36a'] },
+  prince:  { d: '#5a7aa8', m: '#c8dcf4', l: '#eef6ff', x: '#ffffff', h: '#d8ecff', h2: '#ffffff', b: '#8ac8ff', gl: '#5ad0ff', e: '#5ad0ff', small: 1 },
+  servant: { d: '#6a6a80', m: '#d6d8e4', l: '#f4f4fa', x: '#ffffff', h: '#c8ccd8', h2: '#ffffff', b: '#5a6a9a', gl: '#8ab8ff', e: '#8ab8ff', cloth: 1 }
+};
+const N2ID = {};
+for (const k in N2) { const s = N2[k]; ['nh_', 'ns_', 'np_', 'nf_', 'nw_'].forEach(p => { N2ID[p + k] = k; });
+  SHIRTS['ns_' + k] = { r: [s.d, s.m, s.l] }; SHIRT_PAT['ns_' + k] = 'n2'; PANTS['np_' + k] = { r: [s.d, s.m, s.l], k: 'long', long: 1 }; SHOES['nf_' + k] = { c: [s.d, s.m], tall: 1 }; }
+let N2C = null;
+const _pxN2 = pxLook;
+pxLook = function (o) { const r = _pxN2(o); r.gg = gOf(o); if (N2ID[o.pants] && r.gg === 'p') r.pk = 'skirt'; return r; };
+const _kidN2 = kid;
+kid = function (L, dir, f) { N2C = { L, dir, f: f || 0 }; try { return _kidN2(L, dir, f); } finally { N2C = null; } };
+/* --- tanduk per naga --- */
+function n2Horn(g, k, s, x0, sx, small) {
+  const H = (pts, c) => pts.forEach(([dx, y]) => P(g, x0 + dx * sx, y, c));
+  if (k === 'sage') { H([[0, 1], [0, 0], [-1, -1], [-1, -2], [-2, -3]], s.h); H([[0, -2], [1, -3]], s.h); if (!small) { H([[-2, -4], [-3, -4]], s.h2); P(g, x0 + sx, -4, s.h2); } }
+  else if (k === 'shadow') { H([[0, 1], [-1, 0], [-2, 0], [-3, -1]], s.h); if (!small) H([[-3, -2], [-2, -3], [-2, -4]], s.h2); else P(g, x0 - 3 * sx, -2, s.h2); }
+  else if (k === 'frost') { H([[0, 1], [0, 0], [0, -1]], s.h); P(g, x0, -2, s.h2); if (!small) { H([[-1, 0], [-2, -1], [-2, -2]], s.x); P(g, x0 - 2 * sx, -3, s.h2); } }
+  else if (k === 'white') { H([[0, 1], [0, 0], [-1, -1], [-1, -2], [-2, -3], [-2, -4]], s.h); H([[-3, -5]], s.h2); if (!small) { H([[1, -1], [1, -2], [2, -3]], s.l); P(g, x0 + 2 * sx, -4, s.h2); } }
+  else if (k === 'prince') { H([[0, 1], [0, 0], [-1, -1]], s.h); P(g, x0 - sx, -2, s.h2); }
+  else if (k === 'servant' || k.startsWith('sv_')) { H([[0, 1], [0, 0]], s.h); }
+  else { H([[0, 1], [-1, 0], [-2, -1], [-2, -2], [-1, -3]], s.h); P(g, x0 - sx, -4, s.x); P(g, x0, -4, s.gl); if (!small) { H([[-1, -1], [-1, 1]], s.h2); P(g, x0 - 2 * sx, -3, s.x); } }
+}
+const _hatN2 = hat;
+hat = function (g, h, dir) { const k = N2ID[h]; if (!k) return _hatN2(g, h, dir);
+  const s = N2[k], up = dir === 'up', sd = dir === 'left', fem = N2C && N2C.L.gg === 'p' && !N2C.L.hijab;
+  if (s.cloth) { /* tudung pelayan */ E(g, 8, 3.2, 7.4, 4, [s.d, s.m, s.l, s.x]);
+    if (up) { R(g, 1, 5, 14, 7, s.m); R(g, 1, 11, 14, 1, s.d); for (let y = 6; y <= 10; y += 2) P(g, 8, y, s.b); }
+    else if (sd) { R(g, 9, 4, 6, 8, s.m); R(g, 14, 4, 1, 8, s.d); R(g, 2, 4, 8, 1, s.d); P(g, 4, 2, s.b); P(g, 5, 2, s.gl); }
+    else { R(g, 1, 5, 2, 7, s.m); R(g, 13, 5, 2, 7, s.m); R(g, 1, 5, 1, 7, s.l); R(g, 14, 5, 1, 7, s.d); R(g, 3, 4, 10, 1, s.d); P(g, 8, 2, s.b); P(g, 7, 2, s.b); P(g, 9, 2, s.b); P(g, 8, 1, s.gl); P(g, 8, 3, s.b); }
+    n2Horn(g, k, s, 4, 1, 1); n2Horn(g, k, s, 11, -1, 1); return; }
+  const crown = () => { if (k !== 'white') return; for (const [x, y] of [[5, -1], [8, -2], [11, -1]]) { P(g, x, y, s.h); P(g, x, y - 1, s.h2); } P(g, 8, -4, s.p[1]); P(g, 5, -3, s.p[0]); P(g, 11, -3, s.p[2]); };
+  if (fem) { /* mahkota naga: rambut tetap terlihat */
+    if (up) { R(g, 2, 3, 12, 1, s.d); R(g, 3, 2, 10, 1, s.l); n2Horn(g, k, s, 4, 1, 1); n2Horn(g, k, s, 11, -1, 1); return; }
+    if (sd) { R(g, 3, 3, 11, 1, s.m); R(g, 3, 2, 9, 1, s.l); P(g, 4, 3, s.gl); n2Horn(g, k, s, 11, -1, 1); for (const [x, y] of [[13, 4], [14, 4], [14, 5], [15, 5], [14, 6]]) P(g, x, y, y === 4 ? s.l : s.m); return; }
+    R(g, 3, 3, 10, 1, s.m); R(g, 4, 2, 8, 1, s.l); P(g, 8, 1, s.h2); P(g, 7, 2, s.h); P(g, 9, 2, s.h); P(g, 8, 2, s.gl); P(g, 8, 3, s.gl); P(g, 7, 3, s.d); P(g, 9, 3, s.d);
+    n2Horn(g, k, s, 4, 1, 1); n2Horn(g, k, s, 11, -1, 1);
+    for (const [x, y, c] of [[2, 4, s.l], [1, 4, s.m], [1, 5, s.m], [0, 5, s.d], [13, 4, s.l], [14, 4, s.m], [14, 5, s.m], [15, 5, s.d]]) P(g, x, y, c);
+    crown(); return; }
+  /* helm naga penuh */
+  if (up) { E(g, 8, 3.6, 7.2, 4.4, [s.d, s.m, s.l, s.x]); R(g, 2, 5, 12, 5, s.m); for (let y = 0; y <= 8; y += 2) for (let x = 3 + (y & 2 ? 1 : 0); x < 13; x += 2) P(g, x, y, s.d);
+    for (let y = -1; y <= 9; y++) P(g, 8, y, y & 1 ? s.h : s.h2); R(g, 2, 9, 12, 1, s.d); n2Horn(g, k, s, 3, 1); n2Horn(g, k, s, 12, -1); crown(); return; }
+  if (sd) { E(g, 8.6, 3.6, 6.6, 4.4, [s.d, s.m, s.l, s.x]); R(g, 0, 4, 5, 3, s.m); R(g, 0, 4, 5, 1, s.l); R(g, 0, 6, 4, 1, s.d); P(g, 0, 5, s.d); P(g, 1, 7, s.h2); P(g, 3, 7, s.h2);
+    P(g, 4, 3, s.e); P(g, 5, 3, s.gl); R(g, 10, 4, 4, 6, s.m); R(g, 13, 4, 1, 6, s.d); for (const y of [5, 7]) P(g, 11, y, s.d);
+    if (!s.small) { R(g, 0, 4, 6, 2, s.m); R(g, 0, 4, 6, 1, s.l); R(g, 1, 6, 4, 1, s.d); P(g, 0, 6, s.d); P(g, 3, 3, '#0b0614'); P(g, 4, 4, s.e); P(g, 3, 4, s.gl); P(g, 1, 6, s.h2); P(g, 3, 6, s.h2); P(g, 1, 7, s.x); P(g, 10, 9, s.h2); P(g, 10, 10, s.h2); }
+    for (let x = 6; x <= 13; x += 2) P(g, x, 1, s.d); for (const [x, y] of [[9, -1], [11, 0], [13, 1]]) P(g, x, y, s.h); n2Horn(g, k, s, 12, -1); crown(); return; }
+  E(g, 8, 3.4, 7.2, 4.2, [s.d, s.m, s.l, s.x]); for (let y = 0; y <= 2; y += 2) for (let x = 4 + (y ? 1 : 0); x < 12; x += 2) P(g, x, y, s.d);
+  R(g, 2, 5, 12, 1, s.d); R(g, 4, 4, 8, 1, s.l); P(g, 5, 4, s.e); P(g, 10, 4, s.e); P(g, 7, 3, s.h); P(g, 8, 3, s.gl); P(g, 8, 2, s.h2);
+  for (let y = -1; y <= 1; y++) P(g, 8, y, s.h);
+  R(g, 1, 5, 2, 6, s.m); R(g, 13, 5, 2, 6, s.m); R(g, 1, 5, 1, 6, s.l); R(g, 14, 5, 1, 6, s.d); P(g, 2, 11, s.h2); P(g, 13, 11, s.h2); P(g, 1, 11, s.h); P(g, 14, 11, s.h);
+  /* moncong segitiga: mata naga di atas, mata pemain terlihat, taring kecil */
+  if (!s.small) { R(g, 3, 5, 10, 1, s.m); R(g, 5, 6, 6, 1, s.m); R(g, 7, 7, 2, 1, s.m); R(g, 4, 5, 8, 1, s.l); P(g, 6, 6, s.l); P(g, 7, 6, s.x);
+    P(g, 3, 5, s.d); P(g, 12, 5, s.d); P(g, 4, 6, s.d); P(g, 11, 6, s.d); P(g, 6, 7, s.d); P(g, 9, 7, s.d); P(g, 7, 8, s.d); P(g, 8, 8, s.d);
+    for (const x of [5, 10]) { P(g, x, 4, '#0b0614'); P(g, x, 5, s.e); } P(g, 6, 4, s.gl); P(g, 9, 4, s.gl); P(g, 7, 4, s.d); P(g, 8, 4, s.d);
+    P(g, 5, 7, s.h2); P(g, 10, 7, s.h2); P(g, 4, 7, s.x);  P(g, 11, 7, s.x);
+    for (const x of [3, 12]) { P(g, x, 9, s.h2); P(g, x, 10, s.h2); P(g, x, 11, s.x); } }
+  n2Horn(g, k, s, 3, 1); n2Horn(g, k, s, 12, -1); crown();
+};
+/* --- sayap & ekor (lapisan belakang) --- */
+const _backN2 = backAt;
+const N2W = { 5: 3, 6: 1, 7: 0, 8: 0, 9: 0, 10: 1, 11: 0, 12: 1, 13: 2, 14: 1, 15: 2, 16: 3, 17: 4 };
+backAt = function (g, o, dir, front) { const k = N2ID[o.bk]; if (!k) return _backN2(g, o, dir, front);
+  const s = N2[k], up = dir === 'up', sd = dir === 'left', fl = (N2C && N2C.f) % 2;
+  if (up ? !front : front) return;
+  if (s.cloth) { /* jubah pendek pelayan */ if (up) { for (let y = 11; y <= 21; y++) { const h = y < 13 ? 4 : 5; for (let x = 8 - h; x < 8 + h; x++) P(g, x, y + (y > 18 ? fl : 0), y === 21 ? s.d : (x === 8 - h || x === 7 + h) ? s.d : s.m); } R(g, 6, 14, 4, 4, s.b); P(g, 7, 15, s.gl); P(g, 8, 15, s.gl); P(g, 7, 13, s.h2); P(g, 8, 13, s.h2); }
+    else if (sd) { for (let y = 11; y <= 20; y++) for (let x = 9; x <= 10 + Math.min(3, (y - 11) >> 1); x++) P(g, x, y, s.m); } else for (let y = 12; y <= 20; y++) { P(g, 2, y, s.m); P(g, 13, y, s.m); P(g, 1, y, s.d); P(g, 14, y, s.d); } return; }
+  const wing = (sx, inner) => { const X = v => sx > 0 ? v : 15 - v;
+    for (let y = 5; y <= 17; y++) { const xo = N2W[y]; for (let x = xo; x <= inner; x++) P(g, X(x), y + (x < 2 ? fl : 0), x === xo ? s.d : (y + x) % 4 === 0 ? s.d : s.m); }
+    for (const [x0, y0, x1, y1] of [[inner, 11, 0, 7], [Math.min(inner, 4), 9, 0, 10], [Math.min(inner, 4), 11, 1, 13]]) { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)); for (let i = 0; i <= n; i++) P(g, X(Math.round(x0 + (x1 - x0) * i / n)), Math.round(y0 + (y1 - y0) * i / n), i < 2 ? s.l : s.x); }
+    P(g, X(0), 6 + fl, s.h2); P(g, X(1), 5, s.h); };
+  const tail = (side) => { const pts = side ? [[11, 18], [12, 19], [13, 20], [14, 21], [14, 22], [15, 22]] : [[8, 19], [9, 20], [10, 21], [11, 22], [12, 23], [13, 23]];
+    pts.forEach(([x, y], i) => { P(g, x, y, s.m); P(g, x, y - 1, i % 2 ? s.l : s.h); if (i > 1) P(g, x - 1, y, s.d); });
+    const [tx, ty] = pts[pts.length - 1]; P(g, Math.min(15, tx + 1), ty - 1, s.gl); P(g, tx, ty - 1, s.h2); };
+  if (up) { tail(0); return; }
+  if (sd) { tail(1); return; for (let y = 5; y <= 16; y++) { const xo = 15 - N2W[y]; for (let x = 9; x <= xo; x++) P(g, x, y + (x > 13 ? fl : 0), x === xo ? s.d : (x + y) % 4 === 0 ? s.d : s.m); }
+    for (const [x, y] of [[9, 11], [10, 9], [11, 8], [12, 7], [13, 6], [14, 5]]) P(g, x, y, s.l); P(g, 15, 5, s.h2); tail(1); return; }
+};
+/* --- detail zirah, rok sisik, greave, cakar (sebelum garis tepi) --- */
+const _olN2 = outline;
+outline = function (g) {
+  if (N2C) { const L = N2C.L, dir = N2C.dir, up = dir === 'up', sd = dir === 'left', fr = dir === 'down';
+    const ks = N2ID[L.sid], kp = N2ID[L.pant], kf = N2ID[L.shoes], kb = N2ID[L.bk];
+    if (ks && N2[ks].cloth) { const s = N2[ks];
+      if (!up) { R(g, sd ? 5 : 4, 17, sd ? 6 : 8, 1, s.b); if (fr) { R(g, 7, 12, 2, 5, s.x); P(g, 7, 13, s.b); P(g, 8, 13, s.b); P(g, 7, 14, s.gl); P(g, 8, 14, s.gl); P(g, 6, 12, s.d); P(g, 9, 12, s.d); for (const x of [3, 12]) P(g, x, 13, s.b); } else P(g, 6, 14, s.b); }
+      else R(g, 4, 17, 8, 1, s.b); }
+    else if (ks) { const s = N2[ks];
+      if (fr) { for (let y = 13; y <= 16; y++) for (let x = 5; x <= 10; x++) P(g, x, y, (x + (y & 1)) % 2 ? s.m : (y & 1 ? s.d : s.l));
+        R(g, 7, 13, 2, 4, s.b); P(g, 7, 14, s.d); P(g, 8, 14, s.d); P(g, 7, 16, s.d); P(g, 8, 16, s.d); R(g, 5, 12, 6, 1, s.x); P(g, 7, 12, s.gl); P(g, 8, 12, s.h2);
+        for (const x of [2, 11]) { R(g, x, 11, 3, 2, s.m); R(g, x, 11, 3, 1, s.l); } P(g, 1, 11, s.h); P(g, 14, 11, s.h); P(g, 2, 10, s.h2); P(g, 13, 10, s.h2);
+        R(g, 3, 15, 1, 2, s.l); R(g, 12, 15, 1, 2, s.l); P(g, 3, 17, s.h); P(g, 12, 17, s.h); R(g, 4, 17, 8, 1, s.d); P(g, 7, 17, s.gl); P(g, 8, 17, s.h); }
+      else if (sd) { for (let y = 13; y <= 16; y++) for (let x = 5; x <= 9; x++) P(g, x, y, (x + (y & 1)) % 2 ? s.m : (y & 1 ? s.d : s.l)); R(g, 4, 13, 2, 3, s.b); R(g, 6, 11, 4, 2, s.m); R(g, 6, 11, 4, 1, s.l); P(g, 9, 10, s.h2);
+        R(g, 7, 15, 2, 2, s.l); P(g, 7, 17, s.h); R(g, 5, 17, 6, 1, s.d); P(g, 6, 17, s.gl); }
+      else { for (let y = 12; y <= 17; y++) P(g, 8, y, y & 1 ? s.h : s.l); for (const x of [2, 11]) { R(g, x, 11, 3, 2, s.m); R(g, x, 11, 3, 1, s.l); } R(g, 4, 17, 8, 1, s.d); }
+      if (ks === 'crimson' && !up) for (const [x, y] of [[5, 14], [6, 15], [10, 13], [9, 15]]) if (!sd || x < 10) P(g, x, y, y & 1 ? s.gl : s.x);
+      if (ks === 'frost' && !up) { P(g, sd ? 5 : 5, 13, s.h2); P(g, sd ? 9 : 10, 15, s.h2); }
+      if (ks === 'sage' && fr) { P(g, 5, 15, s.gl); P(g, 10, 14, s.gl); }
+      if (ks === 'shadow' && fr) { P(g, 6, 15, s.gl); P(g, 9, 13, s.gl); }
+      if (ks === 'white' && !up) { R(g, sd ? 5 : 4, 17, sd ? 6 : 8, 1, s.h); if (fr) { P(g, 7, 12, s.p[0]); P(g, 8, 12, s.p[1]); P(g, 5, 13, s.h); P(g, 10, 13, s.h); P(g, 2, 10, s.h); P(g, 13, 10, s.h); } } }
+    if (kp && N2[kp].cloth) { const s = N2[kp]; if (L.pk === 'skirt') { const x0 = sd ? 5 : 4, w = sd ? 6 : 8; R(g, x0, 21, w, 1, s.b); } else for (const x of sd ? [6, 8] : [5, 9]) P(g, x, 21, s.b); }
+    else if (kp) { const s = N2[kp];
+      if (L.pk === 'skirt') { const x0 = sd ? 5 : 4, w = sd ? 6 : 8; for (let x = x0; x < x0 + w; x++) for (let y = 18; y <= 21; y++) P(g, x, y, (x - x0) % 2 ? s.m : s.l);
+        for (let x = x0; x < x0 + w; x += 2) P(g, x, 22, s.d); R(g, x0, 18, w, 1, s.d); if (!up && !sd) { R(g, 7, 18, 2, 4, s.b); P(g, 7, 20, s.d); P(g, 8, 20, s.d); } P(g, x0 + 1, 21, s.h); P(g, x0 + w - 2, 21, s.h); }
+      else { const xs = sd ? [6, 8] : [5, 9]; for (const x of xs) { R(g, x, 20, 2, 1, s.l); P(g, x, 19, s.d); P(g, x + 1, 21, s.d); } if (!up) { R(g, sd ? 5 : 4, 18, sd ? 6 : 8, 1, s.l); if (!sd) R(g, 7, 18, 2, 1, s.b); } } }
+    if (kf && !N2[kf].cloth) { const s = N2[kf]; if (!up) { const xs = sd ? [5, 7] : [5, 6, 9, 10]; for (const x of xs) P(g, sd ? x - 1 : x, 23, s.h); if (!sd) { P(g, 4, 22, s.l); P(g, 11, 22, s.l); } else P(g, 3, 23, s.h2); } else { P(g, 5, 22, s.l); P(g, 10, 22, s.l); } }
+  }
+  return _olN2(g);
+};
+for (const k in N2) { const nm = { sage: 'Sage', shadow: 'Shadow', frost: 'Frost', crimson: 'Crimson', white: 'White', prince: 'Prince', servant: 'Servant' }[k];
+  [['nh_', 'hat', ' Dragon Helm'], ['ns_', 'shirt', 'scale Armor'], ['np_', 'pants', 'scale Greaves'], ['nf_', 'shoes', ' Talons'], ['nw_', 'back', ' Wings & Tail']].forEach(([p, slot, n]) => { SH[p + k] = { id: p + k, slot, n: nm + n, p: 0, rk: 1, tk: 'naga2', tset: k, tv: 14 }; }); }
+
+/* --- sayap besar: kanvas 34×30 terpisah, digambar di belakang (depan/samping) atau di atas (belakang) sprite --- */
+const N2WC = {};
+function n2Tri(g, a, b, c, col) { const xs = [a[0], b[0], c[0]], ys = [a[1], b[1], c[1]], d = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1]); if (!d) return;
+  for (let y = Math.floor(Math.min(...ys)); y <= Math.ceil(Math.max(...ys)); y++) for (let x = Math.floor(Math.min(...xs)); x <= Math.ceil(Math.max(...xs)); x++) { const px = x + .5, py = y + .5,
+    l1 = ((b[1] - c[1]) * (px - c[0]) + (c[0] - b[0]) * (py - c[1])) / d, l2 = ((c[1] - a[1]) * (px - c[0]) + (a[0] - c[0]) * (py - c[1])) / d; if (l1 >= 0 && l2 >= 0 && l1 + l2 <= 1) P(g, x, y, col); } }
+function n2Line(g, a, b, col) { const n = Math.max(Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])) || 1; for (let i = 0; i <= n; i++) P(g, Math.round(a[0] + (b[0] - a[0]) * i / n), Math.round(a[1] + (b[1] - a[1]) * i / n), col); }
+function n2WingCanvas(k, dir, f) { const key = k + dir + (f % 2); if (N2WC[key] !== undefined) return N2WC[key]; if (N2[k].cloth) return (N2WC[key] = null);
+  const s = N2[k], g = grid(34, 30, 0), fl = f % 2, up = dir === 'up', sd = dir === 'left' || dir === 'right';
+  const one = (S, W, E, T, far) => { if (s.small) { const sc = .62, f2 = q => [Math.round(S[0] + (q[0] - S[0]) * sc), Math.round(S[1] + (q[1] - S[1]) * sc)]; W = f2(W); E = f2(E); T = T.map(f2); } const mem = far ? s.d : s.m, mem2 = far ? s.d : s.l;
+    n2Tri(g, S, E, T[0], mem); for (let i = 0; i < T.length - 1; i++) n2Tri(g, S, T[i], T[i + 1], i % 2 ? mem : mem2 === s.l ? s.m : mem);
+    n2Tri(g, S, W, E, mem);
+    for (let i = 0; i < T.length - 1; i++) { const a = T[i], b = T[i + 1], m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], v = [S[0] - m[0], S[1] - m[1]], L = Math.hypot(...v) || 1; n2Tri(g, a, b, [m[0] + v[0] / L * 3.2, m[1] + v[1] / L * 3.2], null); }
+    if (!far) { T.forEach(t => n2Line(g, E, t, s.d)); n2Line(g, S, W, s.x); n2Line(g, W, E, s.l); P(g, E[0], E[1], s.h2); P(g, E[0] + (E[0] < S[0] ? -1 : 1), E[1] - 1, s.h);
+      if (k === 'crimson') T.forEach(t => P(g, t[0], t[1], s.gl)); if (k === 'sage') { P(g, (W[0] + T[1][0]) >> 1, (W[1] + T[1][1]) >> 1, s.gl); } if (k === 'frost') T.forEach(t => P(g, t[0], t[1], s.h2)); if (k === 'shadow') P(g, (E[0] + T[2][0]) >> 1, (E[1] + T[2][1]) >> 1, s.gl); if (k === 'white') { T.forEach((t, i) => { P(g, t[0], t[1], s.p[i % 3]); }); n2Line(g, W, E, s.h); n2Line(g, S, W, s.h2); P(g, E[0], E[1] - 2, s.p[1]); } } };
+  const mir = (pts) => pts.map(([x, y]) => [33 - x, y]);
+  if (sd) { const y = fl; one([18, 12], [21, 6 + y], [24, 3 + y], [[27, 6 + y], [26, 10 + y], [23, 13]], 1); one([20, 13], [25, 6 + y], [30, 2 + y], [[33, 9 + y], [32, 14 + y], [29, 18 + y], [24, 19]], 0); }
+  else { const y = fl, L = (sx) => { const S = up ? [15, 13] : [13, 12], W = [9, 6 + y], E = [4, 2 + y], T = [[0, 8 + y], [1, 13 + y], [3, 17 + y], [7, 19 + y], [11, 18]];
+      return sx ? [mir([S])[0], mir([W])[0], mir([E])[0], mir(T)] : [S, W, E, T]; };
+    const a = L(0), b = L(1); one(...a, 0); one(...b, 0); }
+  outline(g); const c = toCanvas(g, dir === 'right'); N2WC[key] = c; return c; }
+
+
+/* --- Dragon Servant (4 warna, kain) & Dragon Guard (4 warna, zirah prajurit) --- */
+Object.assign(N2, {
+  sv_sage:    { d: '#2a5a40', m: '#cfe8d8', l: '#effff5', x: '#ffffff', h: '#e8cc6a', h2: '#fff3b0', b: '#1d6a45', gl: '#7affc8', e: '#7affc8', cloth: 1 },
+  sv_shadow:  { d: '#3a2a5a', m: '#d8d0ec', l: '#f4f0ff', x: '#ffffff', h: '#a898e0', h2: '#ffffff', b: '#3a2466', gl: '#ff5ad8', e: '#ff5ad8', cloth: 1 },
+  sv_frost:   { d: '#3a5a7a', m: '#d4e6f6', l: '#f2f9ff', x: '#ffffff', h: '#e2f6ff', h2: '#ffffff', b: '#3a6c9c', gl: '#6af6ff', e: '#6af6ff', cloth: 1 },
+  sv_crimson: { d: '#5a2a1a', m: '#ecd8cc', l: '#fff4ee', x: '#ffffff', h: '#3a2a24', h2: '#6a5a50', b: '#8c1a12', gl: '#ffe14a', e: '#ffe14a', cloth: 1 },
+  gd_sage:    { d: '#2e3440', m: '#7a8496', l: '#b8c2d4', x: '#e6ecf6', h: '#1d6a45', h2: '#3fae74', b: '#1d6a45', gl: '#7affc8', e: '#7affc8', guard: 1 },
+  gd_shadow:  { d: '#2e3440', m: '#7a8496', l: '#b8c2d4', x: '#e6ecf6', h: '#3a2466', h2: '#6a55aa', b: '#3a2466', gl: '#ff5ad8', e: '#ff5ad8', guard: 1 },
+  gd_frost:   { d: '#2e3440', m: '#7a8496', l: '#b8c2d4', x: '#e6ecf6', h: '#3a6c9c', h2: '#6aa6d6', b: '#3a6c9c', gl: '#6af6ff', e: '#6af6ff', guard: 1 },
+  gd_crimson: { d: '#2e3440', m: '#7a8496', l: '#b8c2d4', x: '#e6ecf6', h: '#8c1a12', h2: '#c4321c', b: '#8c1a12', gl: '#ffe14a', e: '#ffe14a', guard: 1 }
+});
+for (const k of ['sv_sage','sv_shadow','sv_frost','sv_crimson','gd_sage','gd_shadow','gd_frost','gd_crimson']) { const s = N2[k]; ['nh_', 'ns_', 'np_', 'nf_', 'nw_'].forEach(p => { N2ID[p + k] = k; });
+  SHIRTS['ns_' + k] = { r: [s.d, s.m, s.l] }; SHIRT_PAT['ns_' + k] = 'n2'; PANTS['np_' + k] = { r: s.guard ? ['#2e3440', '#4a5262', '#6a7484'] : [s.d, s.m, s.l], k: 'long', long: 1 }; SHOES['nf_' + k] = { c: s.guard ? ['#2e3440', '#5a6272'] : [s.d, s.m], tall: 1 }; N2WC['x'] = 0; }
+const _hatGD = hat;
+hat = function (g, h, dir) { const k = N2ID[h]; if (!k || !N2[k].guard) return _hatGD(g, h, dir); const s = N2[k], up = dir === 'up', sd = dir === 'left';
+  /* helm prajurit: kubah baja, jambul kain warna naga, pelindung hidung */
+  E(g, 8, 3.6, 7, 4.2, [s.d, s.m, s.l, s.x]); R(g, 1, 5, 14, 1, s.d); for (let x = 3; x < 14; x += 3) P(g, x, 4, s.d);
+  for (let y = -3; y <= 1; y++) { P(g, 8, y, y < -1 ? s.h2 : s.h); P(g, 7, y + 1, s.h); } P(g, 9, -2, s.h2); P(g, 6, -1, s.h);
+  if (up) { R(g, 2, 5, 12, 4, s.m); R(g, 2, 8, 12, 1, s.d); for (let y = 2; y <= 7; y++) P(g, 8, y, s.h); return; }
+  if (sd) { R(g, 10, 5, 4, 5, s.m); R(g, 13, 5, 1, 5, s.d); R(g, 2, 5, 2, 1, s.l); P(g, 4, 5, s.gl); return; }
+  R(g, 1, 5, 2, 5, s.m); R(g, 13, 5, 2, 5, s.m); R(g, 7, 5, 2, 4, s.l); P(g, 7, 8, s.d); P(g, 8, 8, s.d); P(g, 8, 2, s.gl); P(g, 5, 4, s.l); P(g, 10, 4, s.l); };
+const _olGD = outline;
+outline = function (g) { if (N2C) { const L = N2C.L, dir = N2C.dir, up = dir === 'up', sd = dir === 'left', fr = dir === 'down', ks = N2ID[L.sid];
+  if (ks && N2[ks].guard) { const s = N2[ks];
+    if (fr) { for (let y = 12; y <= 16; y++) for (let x = 4; x <= 11; x++) P(g, x, y, (x + y) % 2 ? s.m : s.l); R(g, 6, 12, 4, 6, s.h); R(g, 6, 12, 4, 1, s.h2); P(g, 7, 14, s.gl); P(g, 8, 14, s.gl); P(g, 7, 15, s.b); P(g, 8, 15, s.b);
+      for (const x of [2, 11]) { R(g, x, 11, 3, 2, s.l); R(g, x, 12, 3, 1, s.d); } R(g, 4, 17, 8, 1, '#3a2a1a'); P(g, 8, 17, s.x); }
+    else if (sd) { for (let y = 12; y <= 16; y++) for (let x = 5; x <= 10; x++) P(g, x, y, (x + y) % 2 ? s.m : s.l); R(g, 5, 13, 2, 5, s.h); R(g, 6, 11, 4, 2, s.l); R(g, 5, 17, 6, 1, '#3a2a1a'); }
+    else { for (let y = 12; y <= 16; y++) for (let x = 4; x <= 11; x++) P(g, x, y, (x + y) % 2 ? s.m : s.l); for (const x of [2, 11]) R(g, x, 11, 3, 2, s.l); R(g, 4, 17, 8, 1, '#3a2a1a'); }
+    const kp = N2ID[L.pant]; if (kp && N2[kp].guard && !up) { for (const x of sd ? [6, 8] : [5, 9]) { R(g, x, 20, 2, 1, s.l); } }
+    const kf = N2ID[L.shoes]; if (kf && N2[kf].guard && !up) for (const x of sd ? [5, 7] : [5, 9]) P(g, x, 23, s.l); }
+  } return _olGD(g); };
+const _backGD = backAt;
+backAt = function (g, o, dir, front) { const k = N2ID[o.bk]; if (!k || !N2[k].guard) return _backGD(g, o, dir, front); const s = N2[k], up = dir === 'up', sd = dir === 'left';
+  if (up ? !front : front) return; /* perisai bundar berlambang naga di punggung */
+  if (up) { E(g, 8, 15, 4.6, 4.6, [s.d, s.h, s.h2, s.h2]); E(g, 8, 15, 2, 2, [s.b, s.gl, s.gl, '#ffffff']); for (const [x, y] of [[8, 10], [8, 20], [3, 15], [13, 15]]) P(g, x, y, s.l); return; }
+  if (sd) { R(g, 10, 11, 2, 8, s.h); R(g, 11, 11, 1, 8, s.d); return; }
+  R(g, 1, 11, 2, 8, s.h); R(g, 13, 11, 2, 8, s.h); };
+const _wcGD = n2WingCanvas;
+n2WingCanvas = function (k, dir, f) { if (N2[k] && N2[k].guard) return null; return _wcGD(k, dir, f); };
+
+for (const k of ['sv_sage','sv_shadow','sv_frost','sv_crimson','gd_sage','gd_shadow','gd_frost','gd_crimson']) { const g = k.startsWith('gd_'), nm = g ? 'Dragon Guard' : 'Dragon Servant';
+  [['nh_', 'hat', g ? 'Helm' : 'Hood'], ['ns_', 'shirt', g ? 'Mail' : 'Tunic'], ['np_', 'pants', g ? 'Greaves' : 'Trousers'], ['nf_', 'shoes', g ? 'Boots' : 'Shoes'], ['nw_', 'back', g ? 'Shield' : 'Cape']].forEach(([p, slot, n]) => { SH[p + k] = { id: p + k, slot, n: nm + ' ' + n, p: 0, rk: 1, tk: 'naga2', tset: k, tv: 10 }; }); }
+
+return{setNoArm:v=>{AV_NOARM=v},N2WING:(k,d,f)=>n2WingCanvas(k,d,f),N2ID,N2,kidImg,accIcon,SH,TK_SETS,EL_SETS,NG_SETS,HAIRC,EYES,SHIRTS,PANTS,ramp,KC,HSTYLES,SKINS,grid,P,R,E,outline,toCanvas};
 })();
 
 </script>
-<div id="K" class="hide"><div id="app"><section id="scExp" class="sc"><div class="wtop"><button class="ghost sm" onclick="openWorld()">◀ Map</button><b id="exT"></b><span></span></div>
+<div id="K" class="hide"><div id="app"><section id="scCave" class="sc"><div class="wtop"><button class="ghost sm" onclick="openWorld()">◀ Map</button><b id="cvT"></b><span></span></div>
+<div class="exhp"><div class="xbar big"><i id="cvHp"></i></div><span id="cvHpT"></span></div><div class="note exl2" id="cvL"></div>
+<div class="cvmap" id="cvMap"></div><div class="exbot"><button class="ghost" onclick="sheet('Retreat?','<div class=note>Retreat sekarang: semua gold yang dibawa pulang, tapi naga belum dikalahkan.</div><button class=&quot;go px&quot; onclick=&quot;cvLeave()&quot;>Retreat</button><button class=ghost onclick=closeSheet()>Cancel</button>')">🏃 Retreat</button></div></section>
+<section id="scExp" class="sc"><div class="wtop"><button class="ghost sm" onclick="openWorld()">◀ Map</button><b id="exT"></b><span></span></div>
 <div class="exhp"><div class="xbar big"><i id="exHp"></i></div><span id="exHpT"></span></div><div class="note exl2" id="exL"></div>
 <div class="exmap" id="exMap"></div><div class="exbot"><button class="ghost" onclick="sheet('Retreat?','<div class=note>Retreat sekarang: semua gold ekspedisi dibawa pulang, tapi bos belum dikalahkan.</div><button class=&quot;go px&quot; onclick=&quot;prLeave()&quot;>Retreat</button><button class=ghost onclick=closeSheet()>Cancel</button>')">🏃 Retreat</button></div></section>
 <section id="scFight" class="sc">
@@ -3114,6 +3313,72 @@ function wArt(d){const [type,r,n,shape,mk2,ak]=d,[m0,m1,m2]=MAT[mk2],[a0,a1,a2]=
 
 /* Shield = paket perisai + pedang pendek pasangan */
 function pairSword(d){const [type,r,n,,m,ak]=d,sh={1:'short',2:'sleaf',3:m==='magma'?'sflame':'srune',4:'short',5:'sflame'}[r];return{n:n.split(' ')[0]+' Shortsword',d:['pedang',r,'',sh,m,ak]}}
+
+/* ===== v15: Senjata Naga (7 jenis × 4 naga + White Dragon 7 + Prince 4) — gambar khusus, format wArt ===== */
+/* ===== Senjata Naga: 7 jenis × 4 naga (gambar piksel, format sama dengan wArt) ===== */
+const NDW = {
+  sage:    { b: ['#155a38', '#3fae74', '#c8ffe0'], a: ['#8a6a1a', '#e8cc6a', '#fff3b0'], gem: '#7affc8', sh: '#0c2a1c' },
+  shadow:  { b: ['#2a1a4c', '#6a55aa', '#e4dcff'], a: ['#140c26', '#3a2466', '#a898e0'], gem: '#ff5ad8', sh: '#140c26' },
+  frost:   { b: ['#3a6c9c', '#9adcff', '#ffffff'], a: ['#2a5a8a', '#b4e0ff', '#ffffff'], gem: '#6af6ff', sh: '#1c3a5e' },
+  crimson: { b: ['#5a0e0e', '#c4321c', '#ffb02e'], a: ['#1a1210', '#3a2a24', '#6a5a50'], gem: '#ffe14a', sh: '#2a0606' },
+  white: { b: ['#a8b4d0', '#eef4ff', '#ffffff'], a: ['#a87a10', '#ffd23c', '#fff6c8'], gem: '#8affff', sh: '#7a84a4' },
+  prince: { b: ['#6a8ac0', '#c8e0ff', '#ffffff'], a: ['#7a8aa8', '#d8e4f4', '#ffffff'], gem: '#5ad0ff', sh: '#3a5a8a' }
+};
+function ndwArt(type, k) {
+  const D = NDW[k], [m0, m1, m2] = D.b, [a0, a1, a2] = D.a, gem = D.gem, cvx = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+  const mk = (w, h) => { const c = cvx(w, h), g = c.getContext('2d'); return [c, (x, y, col) => { if (x >= 0 && x < w && y >= 0 && y < h && col) { g.fillStyle = col; g.fillRect(x, y, 1, 1); } }]; };
+  const head = (P, cx, y, up) => { /* kepala naga kecil (pommel / ujung) */ const d = up ? -1 : 1; P(cx - 1, y, a1); P(cx, y, a1); P(cx + 1, y, a1); P(cx, y + d, a1); P(cx, y, gem); P(cx - 2, y - d, a2); P(cx + 2, y - d, a2); P(cx, y + 2 * d, a0); };
+  if (type === 'pedang' || type === 'ganda') { const tw = type === 'ganda', L = tw ? 10 : 16, W = tw ? 11 : 13, cx = W >> 1, G = L + 1, [c, P] = mk(W, G + 9);
+    for (let y = 1; y < G; y++) { const t = y / G, off = tw ? Math.round((1 - t) * 2) : 0, x = cx + off, wd = tw ? 1 : (y > 3 ? 1 : 0);
+      P(x - 1 - wd, y, m1); P(x, y, m2); P(x + 1, y, m0); if (wd) P(x + 2, y, m0);
+      if (y % 3 === 0 && y > 2) { P(x + 2 + wd, y, m0); P(x + 2 + wd, y - 1, m1); } if (!tw && y > 3 && y < G - 1 && y % 4 === 1) P(x, y, gem); }
+    P(cx + (tw ? 2 : 0), 0, m2); P(cx - 1, 1, m2);
+    for (let x = 1; x < W - 1; x++) { P(x, G, a1); P(x, G + 1, a0); } P(0, G - 1, a2); P(W - 1, G - 1, a2); P(1, G - 2, a1); P(W - 2, G - 2, a1); if (!tw) { P(0, G - 2, a2); P(W - 1, G - 2, a2); P(2, G - 1, a1); P(W - 3, G - 1, a1); }
+    P(cx, G, gem); P(cx - 1, G, a2); P(cx + 1, G, a2);
+    for (let y = G + 2; y < G + 6; y++) P(cx, y, y % 2 ? D.sh : a1); head(P, cx, G + 7, 0);
+    return { c, px: cx + .5, py: G + 4 }; }
+  if (type === 'tombak' || type === 'staff') { const W = 11, H = 42, cx = 5, [c, P] = mk(W, H);
+    for (let y = 12; y < 38; y++) { P(cx, y, y % 3 ? a1 : a0); if (y % 5 === 0) { P(cx - 1, y, m1); P(cx + 1, y + 1, m1); } } P(cx, 38, a1); P(cx - 1, 39, a2); P(cx + 1, 39, a2); P(cx, 40, gem);
+    if (type === 'staff') { /* cakar naga menggenggam bola */ for (let a = 0; a < 16; a++) { const an = a / 16 * 6.28, x = Math.round(cx + Math.cos(an) * 3), y = Math.round(5 + Math.sin(an) * 3); P(x, y, gem); }
+      for (let y = 3; y <= 7; y++) for (let x = cx - 2; x <= cx + 2; x++) if ((x - cx) ** 2 + (y - 5) ** 2 <= 5) P(x, y, (x < cx && y < 5) ? '#ffffff' : m2);
+      for (const s of [-1, 1]) { P(cx + 4 * s, 6, a1); P(cx + 4 * s, 7, a1); P(cx + 4 * s, 4, a2); P(cx + 3 * s, 9, a1); P(cx + 2 * s, 10, a1); }
+      P(cx, 0, a2); P(cx, 10, a1); P(cx - 1, 11, a1); P(cx + 1, 11, a1); P(cx, 11, gem); P(cx - 3, 1, gem); P(cx + 3, 1, gem); return { c, px: cx + .5, py: 26 }; }
+    for (let y = 0; y < 9; y++) { const w = y < 1 ? 0 : y < 6 ? 1 : 2; for (let k2 = -w; k2 <= w; k2++) P(cx + k2, y, k2 < 0 ? m1 : k2 > 0 ? m0 : m2); }
+    P(cx, 3, gem); for (const s of [-1, 1]) { P(cx + 3 * s, 7, m1); P(cx + 4 * s, 6, m2); P(cx + 3 * s, 8, m0); P(cx + 4 * s, 5, m2); }
+    for (let x = cx - 2; x <= cx + 2; x++) { P(x, 9, a1); P(x, 10, a0); } P(cx - 1, 9, gem); P(cx + 1, 9, gem); P(cx - 3, 10, a2); P(cx + 3, 10, a2); P(cx, 11, a1); for (const x of [cx - 1, cx + 1]) P(x, 11, '#ffffff');
+    return { c, px: cx + .5, py: 26 }; }
+  if (type === 'busur') { const H = 27, W = 10, mid = 13, [c, P] = mk(W, H);
+    for (let y = 0; y < H; y++) { const t = (y - mid) / mid, x = Math.round(1 + 4 * (1 - t * t)); P(x, y, m0); P(x + 1, y, y < mid ? m2 : m1); if (y % 4 === 2 && Math.abs(t) > .2) { P(x - 1, y, m1); P(x - 2, y + 1, m0); } }
+    for (const [y, s] of [[0, 1], [H - 1, -1]]) { P(1, y, a2); P(0, y + s, a1); P(2, y + s, gem); }
+    for (let y = mid - 2; y <= mid + 2; y++) { P(6, y, a0); P(7, y, a1); } P(7, mid, gem); P(8, mid - 1, a2); P(8, mid + 1, a2);
+    return { c, px: 6.5, py: mid, tipT: [1, 0], tipB: [1, H - 1] }; }
+  if (type === 'perisai') { const W = 11, H = 13, [c, P] = mk(W + 2, H + 3), Q = (x, y, col) => P(x + 1, y + 2, col);
+    const ins = (x, y) => { const u = (x + .5) / W * 2 - 1, v = (y + .5) / H * 2 - 1; return v < 0 ? Math.abs(u) <= 1 : u * u * .8 + v * v * 1.15 <= 1; };
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (ins(x, y)) { const e = !ins(x - 1, y) || !ins(x + 1, y) || !ins(x, y - 1) || !ins(x, y + 1); Q(x, y, e ? a1 : y < 4 ? m2 : (x + y) % 3 ? m1 : m0); }
+    Q(-1, -1, a2); Q(-1, -2, a2); Q(0, -1, a1); Q(W, -1, a2); Q(W, -2, a2); Q(W - 1, -1, a1);
+    const cx = 5; Q(cx - 2, 4, gem); Q(cx + 2, 4, gem); Q(cx - 3, 3, a2); Q(cx + 3, 3, a2); for (let x = cx - 1; x <= cx + 1; x++) Q(x, 6, a1); Q(cx, 7, a1); Q(cx - 1, 8, '#ffffff'); Q(cx + 1, 8, '#ffffff'); Q(cx, 5, m2);
+    return { c, px: (W + 2) / 2, py: (H + 3) / 2 }; }
+  if (type === 'buku') { const [c, P] = mk(12, 10);
+    for (let y = 1; y < 9; y++) for (let x = 1; x < 11; x++) P(x, y, x === 1 || x === 10 || y === 1 || y === 8 ? a1 : (x + y) % 3 ? m1 : m0);
+    for (let y = 1; y < 9; y++) P(6, y, a0); P(3, 4, gem); P(4, 4, gem); P(3, 5, a2); P(4, 5, a2); P(8, 3, m2); P(8, 6, m2); P(9, 4, gem);
+    P(0, 0, a2); P(11, 0, a2); P(0, 9, a2); P(11, 9, a2); P(5, 0, a2); P(7, 0, a2); P(6, 0, gem);
+    return { c, px: 6, py: 4.5 }; }
+}
+const NDW_N = { pedang: 'Fang Blade', perisai: 'Scale Aegis', tombak: 'Wing Lance', ganda: 'Twin Fangs', busur: 'Wing Bow', buku: 'Dragon Codex', staff: 'Claw Staff' };
+const NDW_K = { sage: 'Sage', shadow: 'Shadow', frost: 'Frost', crimson: 'Crimson' };
+
+function ndwArt2(t,k){const a=ndwArt(t,k);if(k==='white'){const g=a.c.getContext('2d'),d=g.getImageData(0,0,a.c.width,a.c.height).data,L=[];for(let i=0;i<d.length;i+=4)if(d[i+3]&&d[i]>230&&d[i+1]>230&&d[i+2]>230)L.push(i/4);const P=['#ff9ad8','#8affff','#fff36a'];for(let j=0;j<Math.min(4,L.length);j++){const q=L[Math.floor((j+.5)*L.length/4)];g.fillStyle=P[j%3];g.fillRect(q%a.c.width,Math.floor(q/a.c.width),1,1)}}return a}
+
+const NDWG={sage:'star',shadow:'void',frost:'ice',crimson:'fire',white:'star',prince:'ice'};
+for(const k in NDW){const D=NDW[k];MAT['n2'+k]=D.b.slice();MAT['n2'+k+'a']=D.a.slice();GLOW['n2'+k]=[D.gem,NDWG[k]]}
+const NDWL=[];
+{const T=[['pedang','n2'],['perisai','n2'],['tombak','n2'],['ganda','n2'],['busur','n2'],['buku','n2'],['tombak','n2staff']],TN={pedang:'Fang Blade',perisai:'Scale Aegis',ganda:'Twin Fangs',busur:'Wing Bow',buku:'Dragon Codex'},
+  NOTE={sage:'Runes of the Sage Dragon glow on it.',shadow:'Drips with the Shadow Drake\'s venom.',frost:'Cold as the Frost Wyvern\'s breath.',crimson:'Forged in the Crimson Wyrm\'s lava.',white:'Blessed by the White Dragon itself.',prince:'A gift from the young White Dragon Prince.'},
+  KN={sage:'Sage',shadow:'Shadow',frost:'Frost',crimson:'Crimson',white:'White Dragon',prince:'Prince'};
+  for(const k of ['sage','shadow','frost','crimson','white','prince'])T.forEach(([t,sh])=>{if(k==='prince'&&!(t==='pedang'||t==='busur'||t==='buku'||sh==='n2staff'))return;
+    const nm=sh==='n2staff'?'Claw Staff':t==='tombak'?'Wing Lance':TN[t];WDB.push([t,k==='white'?5:4,KN[k]+' '+nm,sh,'n2'+k,'n2'+k+'a',NOTE[k]]);NDWL.push({k,t:sh==='n2staff'?'tongkat':t,n:KN[k]+' '+nm})})}
+{const w0=wArt;wArt=function(d){if(d[3]==='n2'||d[3]==='n2staff')return ndwArt2(d[3]==='n2staff'?'staff':d[0],String(d[4]).slice(2));return w0(d)}}
+{const p0=pairSword;pairSword=function(d){if(d[3]==='n2')return{n:d[2].replace('Scale Aegis','Fang Blade'),d:['pedang',d[1],'','n2',d[4],d[5]]};return p0(d)}}
 
 /* ================= LUMIMON DUEL ARENA v2 ================= */
 const $=id=>document.getElementById(id);
@@ -4329,7 +4594,7 @@ function prDuel(kind){const R=PR(),b=npcCfg(kind),diff=Math.min(2,PDIF[kind]+R.d
   startMatch({a:myCfg(),b,diff,arena:ZARENA[R.z],mode:'path',na:PROF.name,nb:b.npcN});
   W.noCrowd=1;const[A,B]=G.F,K=PK[kind];B.maxHp=B.hp=Math.round(B.maxHp*K[0]);B.atk*=K[1];{const gap=(b.lv||0)-PROF.lv;if(gap>PGAP[0]){const m=1+PGAP[1]*(gap-PGAP[0]);B.maxHp=B.hp=Math.round(B.maxHp*m);B.atk*=m}}{const zn=ZN[zIdx(R.z)]||1;B.maxHp=B.hp=Math.round(B.maxHp*zn);B.atk*=zn}A.maxHp=Math.round(A.maxHp*PHX);B.maxHp=B.hp=Math.round(B.maxHp*PHX);A.atk*=PDMG[kind];B.atk*=PDMG[kind];G.time=PTIME[kind];if(R.buff)A.atk*=1+R.buff;if(kind==='b'){const Z=ZONE8[zIdx(R.z)],q=Z.sk;B.big=1.35;B.M=Object.assign({},B.M,{list:B.M.list.map(x=>Object.assign({},x,{reach:x.reach*1.25})),heavy:Object.assign({},B.M.heavy,{reach:B.M.heavy.reach*1.25})});B.sk=Object.assign({n:q[0],ic:'👑',cd:10,m:(q[1]||0)*.8},q[2]);B.skCD=5;B.bossCol=q[3]}A.hp=Math.max(1,Math.round(A.maxHp*R.hpf));B.kind=kind;G.ph2=0;
   $('w1').innerHTML=`<span style="color:${kind==='b'?'#ffd23c':kind==='e'?'#ff8aa0':RKC[B.w.r]}">Lv ${b.lv} · ${kind==='b'?'BOSS':kind==='e'?'Elite':B.w.n}</span>`;hud()}
-function prTick(dt){const B=G.F[1];if(B.kind==='b'&&!G.ph2&&B.hp>0&&B.hp<B.maxHp*.5&&G.st==='fight'){G.ph2=1;B.atk*=1.15;B.energy=Math.max(B.energy,60);B.bf={atk:.15,t:99};banner('PHASE 2!',ZONE8[zIdx(PR().z)].boss[0]+' mengamuk!','#ff5a3a',1.4,20);ring(B.x,GY-B.y-14,'#ff5a3a',30,.5,4);G.shake=4;SND.heavy();B.skCD=1}
+function prTick(dt){const B=G.F[1];if(B.kind==='b'&&!G.ph2&&B.hp>0&&B.hp<B.maxHp*.5&&G.st==='fight'){G.ph2=1;B.atk*=1.15;B.energy=Math.max(B.energy,60);B.bf={atk:.15,t:99};banner('PHASE 2!',(PR()?ZONE8[zIdx(PR().z)].boss[0]:B.drg?DRG[B.drg].n:(B.cfg&&B.cfg.npcN)||'Musuh')+' mengamuk!','#ff5a3a',1.4,20);ring(B.x,GY-B.y-14,'#ff5a3a',30,.5,4);G.shake=4;SND.heavy();B.skCD=1}
   if((B.kind==='e'||G.ph2)&&Math.random()<dt*12)fx({x:B.x+rnd(-7,7),y:GY-B.y-rnd(2,28),vy:rnd(-30,-12),l:.5,s:1.2,c:G.ph2?'#ff5a3a':'#ff8aa0',k:'ci',g:-10})}
 function pathEnd(w){const R=PR(),[A,B]=G.F;G.ended=G.round;G.st='over';const lose=w===undefined?A.st==='ko'||A.hp<=0:w===1;G.mid++;
   const s=A.stats,T=PROF.tot;T.q+=s.qok;T.sp+=s.sp;T.combo=Math.max(T.combo,s.maxc);prog('q10',s.qok);prog('sp3',s.sp);if(s.maxc>=6)prog('combo6',1,1);
@@ -4877,6 +5142,105 @@ const PVE=()=>G.mode==='path'||G.mode==='zone'||G.mode==='ll';
 // pose menang: lompatan kecil & kilau berkala
 {const o=step;step=function(dt){const r=o.apply(this,arguments);if(G.F&&!lo3())for(const f of G.F)if(f.st==='win'&&Math.random()<dt*2.5)fx({x:f.x+rnd(-10,10),y:GY-f.y-rnd(14,34),vx:0,vy:rnd(-10,-4),l:.6,s:rnd(1,1.6),c:pick(['#ffd23c','#ffffff']),k:'st',g:0});return r}}
 
+/* ===== v15: Naga bos (4 naga bertubuh lengkap) + Dragonling — dari Knight dragon.js ===== */
+
+const DRG={
+ sage:{n:'Sage Dragon',lv:15,fx:'rune',body:['#0c2a1c','#155a38','#23875a','#4cc48a'],belly:['#5a4a1a','#a8892e','#e8cc6a'],mem:['#0f3a26','#1d6a45','#2e9a66'],bone:'#e8cc6a',horn:'#ffe9a0',eye:'#fff36a',claw:'#fff6d8',br:'#7affc8',br2:'#fff36a'},
+ shadow:{n:'Shadow Drake',lv:25,body:['#140c26','#2a1a4c','#43307a','#6a55aa'],belly:['#2e2250','#4e4080','#7a6ab4'],mem:['#20123e','#3a2466','#56399a'],bone:'#8a7ac8',horn:'#e4dcff',eye:'#ff5ad8',claw:'#efeaff',br:'#c86aff',br2:'#ff8af0'},
+ frost:{n:'Frost Wyvern',lv:35,fx:'ice',body:['#1c3a5e','#3a6c9c','#6aa6d6','#b4e0ff'],belly:['#8ab4d4','#c4e2f4','#f2fbff'],mem:['#2a5a8a','#4a8ac0','#7ab8e6'],bone:'#e2f6ff',horn:'#ffffff',eye:'#6af6ff',claw:'#ffffff',br:'#9af0ff',br2:'#ffffff'},
+ crimson:{n:'Crimson Wyrm',lv:45,fx:'lava',body:['#2a0606','#5a0e0e','#8c1a12','#c4321c'],belly:['#5a2a10','#a4501c','#e8902e'],mem:['#3a0a0a','#6a1410','#9a2416'],bone:'#2a1a14',horn:'#3a2a24',eye:'#ffe14a',claw:'#ffd27a',br:'#ff7a1a',br2:'#ffe14a'}};
+// --- grid kecil bergaya avlib ---
+const DW=84,DH=82,DGY=78,DOY=8;
+function dgN(){return{d:new Array(DW*DH).fill(null)}}
+function dP(g,x,y,c){x=Math.round(x);y=Math.round(y+DOY);if(x>=0&&y>=0&&x<DW&&y<DH)g.d[y*DW+x]=c}
+function dE(g,cx,cy,rx,ry,r){for(let y=Math.floor(cy-ry);y<=Math.ceil(cy+ry);y++)for(let x=Math.floor(cx-rx);x<=Math.ceil(cx+rx);x++){const nx=(x+.5-cx)/rx,ny=(y+.5-cy)/ry;if(nx*nx+ny*ny>1)continue;const l=-(nx*.5+ny*.85)+(((x+y)&1)?.08:-.08);dP(g,x,y,r[Math.min(l>.6?3:l>.1?2:l>-.5?1:0,r.length-1)])}}
+function dL(g,x0,y0,x1,y1,w,c){const n=Math.ceil(Math.hypot(x1-x0,y1-y0))+1;for(let i=0;i<=n;i++){const t=i/n,x=x0+(x1-x0)*t,y=y0+(y1-y0)*t;for(let a=-w/2;a<w/2;a++)for(let b=-w/2;b<w/2;b++)dP(g,x+a+.5,y+b+.5,c)}}
+function dT(g,a,b,c,col){const xs=[a[0],b[0],c[0]],ys=[a[1],b[1],c[1]],d=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(!d)return;
+  for(let y=Math.floor(Math.min(...ys));y<=Math.ceil(Math.max(...ys));y++)for(let x=Math.floor(Math.min(...xs));x<=Math.ceil(Math.max(...xs));x++){const px=x+.5,py=y+.5,l1=((b[1]-c[1])*(px-c[0])+(c[0]-b[0])*(py-c[1]))/d,l2=((c[1]-a[1])*(px-c[0])+(a[0]-c[0])*(py-c[1]))/d;if(l1>=0&&l2>=0&&l1+l2<=1)dP(g,x,y,col)}}
+function dOut(g){const o=g.d.slice();for(let y=0;y<DH;y++)for(let x=0;x<DW;x++){if(g.d[y*DW+x])continue;for(const[dx,dy]of[[0,1],[0,-1],[1,0],[-1,0]]){const X=x+dx,Y=y+dy;if(X<0||Y<0||X>=DW||Y>=DH)continue;if(g.d[Y*DW+X]){o[y*DW+x]='#0b0614';break}}}g.d=o}
+const lerp=(a,b,t)=>a+(b-a)*t,lp2=(A,B,t)=>[lerp(A[0],B[0],t),lerp(A[1],B[1],t)];
+const WUP={E:[32,12],F:[[2,8],[12,-6],[28,-9],[46,0]]},WMID={E:[30,28],F:[[6,22],[10,36],[20,44],[32,46]]},WDN={E:[34,44],F:[[16,60],[24,66],[34,66],[42,60]]};
+function dWing(g,w,ox,oy,D,dark){const A=[46+ox,44+oy],P0=w>=0?WMID:WDN,P1=w>=0?WUP:WMID,t=w>=0?w:w+1,sh=(v,j)=>v+(j?oy:ox);const E=lp2(P0.E,P1.E,t).map(sh),F=P0.F.map((f,i)=>lp2(f,P1.F[i],t).map(sh));
+  const m=dark?D.mem[0]:D.mem[1],m2=dark?D.mem[0]:D.mem[2];dT(g,A,E,F[0],m2);for(let i=0;i<3;i++)dT(g,A,F[i],F[i+1],i%2?m2:m);dT(g,A,F[3],[A[0]+6,A[1]+3],m);
+  if(!dark)for(let i=0;i<3;i++){const M=lp2(F[i],F[i+1],.5),v=[M[0]-A[0],M[1]-A[1]],L=Math.hypot(...v)||1;dT(g,F[i],F[i+1],[M[0]-v[0]/L*(4+Math.hypot(F[i][0]-F[i+1][0],F[i][1]-F[i+1][1])*.35),M[1]-v[1]/L*(4+Math.hypot(F[i][0]-F[i+1][0],F[i][1]-F[i+1][1])*.35)],null)}
+  if(!dark)for(let i=0;i<4;i++){const f=F[i];dL(g,lerp(A[0],f[0],.35),lerp(A[1],f[1],.35),lerp(E[0],f[0],.6),lerp(E[1],f[1],.6),1,D.mem[0])}
+  const bc=dark?D.body[1]:D.bone;dL(g,A[0],A[1],E[0],E[1],3,bc);F.forEach(f=>dL(g,E[0],E[1],f[0],f[1],1,bc));dL(g,E[0],E[1],E[0]-2,E[1]-3,1,D.horn)}
+function dLeg(g,hx,hy,fx,fy,R,claw,th){dE(g,hx,hy,th+1.5,th+2.5,R);const kx=(hx+fx)/2-1,ky=(hy+fy)/2+1;dL(g,hx,hy,kx,ky,th,R[1]);dL(g,kx,ky,fx,fy,th-1,R[1]);dL(g,fx-3,fy,fx+2,fy,2,R[1]);dP(g,fx-4,fy,claw);dP(g,fx-2,fy+.4,claw);dP(g,fx,fy+.4,claw)}
+function dragonCanvas(k,p){const D=DRG[k],g=dgN(),by=p.by,G0=DGY-1-DOY,far=[D.body[0],D.body[0],D.body[1],D.body[1]];
+  dWing(g,p.wing,9,-3,D,1);
+  dLeg(g,36,54+by,34-p.fl*6+p.st,G0,far,D.claw,4);dLeg(g,56,54+by,57-p.st,G0,far,D.claw,4);
+  let tx=58,ty=50+by;for(let i=0;i<11;i++){const nx=tx+2.4,ny=ty+(i<4?.6:-1.3)+Math.sin(p.tail+i*.75)*1.1,w=Math.max(1.5,6-i*.45);dL(g,tx,ty,nx,ny,w,D.body[i<6?1:2]);if(i%2===0&&i<9)dT(g,[tx,ty-w/2],[tx+2,ty-w/2-2.5],[tx+3,ty-w/2],D.horn);tx=nx;ty=ny}
+  dT(g,[tx-1,ty-4],[tx+7,ty-1],[tx-1,ty+3],D.body[2]);dT(g,[tx,ty-2],[tx+4,ty-1],[tx,ty+1],D.horn);
+  dE(g,46,50+by,15.5,10,D.body);dE(g,44,55+by,12,4.5,D.belly);for(let x=36;x<=58;x+=4)dT(g,[x-2,41+by+Math.abs(x-47)*.12],[x,37+by+Math.abs(x-47)*.12],[x+2,41+by+Math.abs(x-47)*.12],D.horn);
+  dLeg(g,38,55+by,35-p.fl*14+p.st*.6,G0-p.fl*13,D.body,D.claw,5);dLeg(g,57,55+by,60+p.st,G0,D.body,D.claw,5);dE(g,56,51+by,6,7,D.body);
+  const cs=Math.cos(p.nk),s2=Math.sin(p.nk),bx=36,bY=46+by,rot=(x,y)=>[bx+(x-bx)*cs-(y-bY)*s2,bY+(x-bx)*s2+(y-bY)*cs];
+  const Q=t=>{const u=1-t;return rot(u*u*bx+2*u*t*26+t*t*24,u*u*bY+2*u*t*(bY-4)+t*t*(bY-18))};
+  for(let i=0;i<=14;i++){const[x,y]=Q(i/14);dE(g,x,y,5-i*.1,4.6-i*.08,D.body)}for(let i=1;i<14;i++){const[x,y]=Q(i/14);dP(g,x-3.5,y+.5,D.belly[1]);dP(g,x-3,y+1.5,D.belly[2])}
+  const[hx,hy]=Q(1.12),j=p.jaw*4;
+  dE(g,hx-9,hy+3+j,6,2.2,D.belly);if(j>.6){dE(g,hx-8,hy+1.5+j*.5,5.5,j*.5+.6,['#2a0618','#5a1032','#7a1a46']);for(const x of[-13,-10,-7])dP(g,hx+x,hy+1.2,D.claw)}
+  dE(g,hx,hy,7,5.4,D.body);dE(g,hx-8,hy-.2,7,3,D.body);dP(g,hx-14,hy-1,D.body[0]);dP(g,hx-13,hy-2,D.body[0]);
+  dL(g,hx-4,hy-4,hx+1,hy-4.5,1,D.body[3]);dP(g,hx-2,hy-2,D.eye);dP(g,hx-1,hy-2,D.eye);dP(g,hx-1,hy-3,'#ffffff');
+  dL(g,hx+3,hy-4,hx+13,hy-10,2,D.horn);dL(g,hx+11,hy-9,hx+15,hy-10,1,D.horn);dL(g,hx+4,hy-1,hx+12,hy-3,1,D.horn);for(const d of[0,3,6])dT(g,[hx+5+d,hy+2],[hx+8+d,hy+5],[hx+7+d,hy+1],D.mem[2]);
+  if(D.fx)dFx(g,D,p,by,hx,hy,Q);
+  dWing(g,p.wing,0,0,D,0);if(D.fx)dFxW(g,D,p);
+  dOut(g);const c=document.createElement('canvas');c.width=DW;c.height=DH;const x=c.getContext('2d'),im=x.createImageData(DW,DH);
+  g.d.forEach((v,i)=>{if(!v)return;const n=parseInt(v.slice(1),16);im.data[i*4]=n>>16;im.data[i*4+1]=n>>8&255;im.data[i*4+2]=n&255;im.data[i*4+3]=255});x.putImageData(im,0,0);return c}
+
+function dFx(g,D,p,by,hx,hy,Q){
+ if(D.fx==='rune'){const R=['#fff36a','#7affc8'];for(const[x,y]of[[40,48],[46,47],[52,48],[44,52],[50,52]])dP(g,x,y+by,R[(x+y)&1]);
+   for(let i=3;i<12;i+=3){const[x,y]=Q(i/14);dP(g,x,y-3,'#fff36a')}
+   dL(g,hx-11,hy+4,hx-13,hy+10,1,D.horn);dL(g,hx-8,hy+5,hx-9,hy+9,1,D.horn);dP(g,hx+12,hy-11,'#7affc8');dP(g,hx+15,hy-11,'#7affc8')}
+ if(D.fx==='ice'){for(let x=36;x<=58;x+=4){const yy=41+by+Math.abs(x-47)*.12;dT(g,[x-2,yy],[x+.5,yy-8-((x/4)%2)*3],[x+2,yy],'#e2f6ff');dL(g,x,yy-1,x+.3,yy-5,1,'#ffffff')}
+   for(const d of[-12,-9,-6])dL(g,hx+d,hy+3,hx+d,hy+7,1,'#e2f6ff');dE(g,46,56+by,9,2,['#c4e2f4','#e2f6ff','#ffffff'])}
+ if(D.fx==='lava'){const L=['#ff7a1a','#ffb02e','#ffe14a'];const pts=[[34,47],[38,50],[42,48],[46,52],[50,49],[54,53],[58,50]];for(let i=0;i<pts.length-1;i++)dL(g,pts[i][0],pts[i][1]+by,pts[i+1][0],pts[i+1][1]+by,1,L[i%2]);
+   dL(g,40,44+by,43,47+by,1,L[1]);dL(g,52,44+by,50,47+by,1,L[0]);for(let i=2;i<13;i+=2){const[x,y]=Q(i/14);dP(g,x-1,y+1,L[i%3])}
+   dL(g,hx+12,hy-9,hx+13,hy-10,1,'#ff7a1a');dL(g,hx+14,hy-10,hx+15,hy-10,1,'#ffe14a');dP(g,hx-6,hy+1,'#ff7a1a')}}
+function dFxW(g,D,p){if(D.fx==='rune'){dP(g,30,30,'#fff36a');dP(g,22,36,'#7affc8');dP(g,36,38,'#fff36a')}
+ if(D.fx==='lava'){dP(g,30,34,'#ff7a1a');dP(g,24,40,'#ffb02e')}
+ if(D.fx==='ice'){dP(g,28,30,'#ffffff');dP(g,20,38,'#ffffff')}}
+
+
+const DGBR={sage:'Arcane Orb',shadow:'Shadow Breath',frost:'Ice Breath',crimson:'Fire Breath'},DGDIVE={sage:'Rune Blast',shadow:'Sky Crash',frost:'Blizzard Dive',crimson:'Meteor Crash'},DGST={sage:'rune',shadow:'poison',frost:'freeze',crimson:'burn'};
+const DRC={};let DRN=0;
+function dragonImg(k,p){const q=v=>Math.round(v*4)/4,key=[k,q(p.by),q(p.wing),q(p.fl),q(p.jaw),q(p.nk),Math.round(p.st),q(p.tail%6.28)].join();
+  if(!DRC[key]){if(++DRN>500){for(const z in DRC)delete DRC[z];DRN=0}DRC[key]=dragonCanvas(k,p)}return DRC[key]}
+function dragonPose(f){const t=G.t,A=f.act,p={by:Math.sin(t*3)*.8,wing:.05+Math.sin(t*2)*.15,fl:0,jaw:0,nk:0,st:0,tail:t*2.4};
+  if(f.st==='walk'){p.st=Math.sin(f.walk*Math.PI*2)*2;p.by=Math.abs(Math.sin(f.walk*Math.PI*2))*-1}
+  if(f.st==='atk'&&f.mv){const k=Math.min(1,f.t/f.mv.dur),s=Math.sin(k*Math.PI);if(/Bite/.test(f.mv.n)){p.nk=k<.35?.25*(k/.35):-.55*s;p.jaw=k<.45?k/.45:Math.max(0,1-(k-.45)*4);p.by+=s*1.5}else{p.nk=k<.4?.35*(k/.4):-.8*s;p.jaw=.15;p.by+=s*2.5;p.wing=.1-.3*s}}
+  if(f.st==='hurt'||f.st==='launch'){p.nk=.35;p.by=1;p.wing=-.2}
+  if(A&&A.k==='br'){const k=A.t;p.nk=k<.5?.4*(k/.5):-.25;p.jaw=k<.5?0:1;p.wing=.2;p.by=k<.5?-1:1}
+  if(A&&A.k==='fly'){p.wing=Math.sin(t*16);p.fl=.5;p.st=-2}
+  if(f.st==='ko'){p.wing=-1;p.nk=.6;p.jaw=.5}
+  if(f.st==='win'){p.nk=-.2+Math.sin(t*2)*.05;p.jaw=1;p.wing=.45+Math.sin(t*3)*.1;p.by=0}
+  return p}
+function drawDragon(g,f){const D=DRG[f.drg],img=dragonImg(f.drg,dragonPose(f)),x=Math.round(f.x),y=GY-f.y,s=f.face>0?-1:1;g.save();g.translate(x,y);if(f.dsc)g.scale(f.dsc,f.dsc);
+  if(f.st==='ko'){g.globalAlpha=Math.max(0,1-Math.max(0,f.t-1.2));g.rotate(-s*Math.min(.5,f.t*.8))}
+  if(f.flash>0)g.translate(Math.sin(G.t*90)*1,0);g.scale(s,1);
+  g.fillStyle='#00000055';g.beginPath();g.ellipse(4,0,30,3.5,0,0,7);g.fill();
+  if(f.act&&f.act.k==='fly'&&f.y>2){g.globalAlpha=.25;g.fillStyle=D.br;g.beginPath();g.ellipse(4,f.y,20-f.y*.2,2.5,0,0,7);g.fill();g.globalAlpha=1}
+  g.drawImage(img,-DW/2-2,-DGY);g.restore()}
+// --- pembuatan & perilaku ---
+function mkDragon(cfg){const k=cfg.mon.drg,D=DRG[k],L=cfg.lv||D.lv,f=mkFighter({look:PROF.look,w:startW[0],set:'none',lv:L},1),MV=MOVES.pedang;
+  const M=Object.assign({},MV,{list:[{n:'Bite',dur:.55,a0:.24,a1:.34,reach:40,dmg:1.3,kb:120,stun:.45,lunge:20,th:[0,0]},{n:'Head Bash',dur:.6,a0:.28,a1:.38,reach:38,dmg:1.35,kb:170,stun:.5,lunge:24,th:[0,0]},{n:'Bite',dur:.55,a0:.24,a1:.34,reach:40,dmg:1.3,kb:130,stun:.45,lunge:20,th:[0,0],fin:1}],
+    air:{n:'Bite',dur:.55,a0:.24,a1:.34,reach:38,dmg:1.2,kb:110,stun:.4,lunge:10,th:[0,0],air:1},heavy:{n:'Crushing Bite',dur:.85,a0:.42,a1:.54,reach:42,dmg:2.3,kb:230,lift:100,stun:.8,lunge:36,th:[0,0],fin:1,heavy:1},idle:30});
+  f.cfg=Object.assign({},f.cfg,{npcN:cfg.npcN||D.n,lv:L});const ling=!!cfg.mon.ling,hp=Math.round(f.maxHp*(ling?1.6:4.5));return Object.assign(f,{mon:{drg:1,sc:2},drg:k,ling,dsc:ling?.55:0,M,maxHp:hp,hp,atk:f.atk*(ling?.8:1.05),hw:ling?10:18,bonus:{},sk:null,face:-1,brCD:ling?4:3,flyCD:ling?999:11,act:null})}
+{const m=mkMon;mkMon=function(cfg){return cfg.mon&&cfg.mon.drg?mkDragon(cfg):m(cfg)}}
+{const d=drawFighter;drawFighter=function(g,f){return f.drg?drawDragon(g,f):d(g,f)}}
+function dragonTick(f,dt){const D=DRG[f.drg],o=opp(f);if(f.st==='win'){f.hover=1;f.y=0;f.vy=0;f.vx=0;f.act=null;if(Math.random()<.6){const mx=f.x+f.face*36,my=GY-40;fx({x:mx+rnd(-2,2),y:my+rnd(-2,2),vx:f.face*rnd(40,90),vy:rnd(-25,5),l:.5,s:rnd(1.2,2.4),c:Math.random()<.5?D.br:D.br2,k:'ci'})}return}if(f.st==='ko'){f.hover=0;f.act=null;return}if(f.st==='launch'||f.st==='hurt'){f.st='idle';f.vy=0;f.vx*=.3}f.stun=0;if(f.st==='down')f.st='idle';
+  if(G.st!=='fight'){f.act=null;f.hover=0;return}
+  const A=f.act,mouth=()=>[f.x+f.face*36*(f.dsc||1),GY-f.y-40*(f.dsc||1)];
+  if(!A){f.brCD-=dt;f.flyCD-=dt;if(['idle','walk'].includes(f.st)){if(f.flyCD<=0){f.act={k:'fly',t:0,ph:0};f.flyCD=13+Math.random()*3;txt(f.x,GY-60,'🐉 '+(DGDIVE[f.drg]||'Sky Crash'),'#ffe26a',6.5,1.2)}else if(f.brCD<=0&&Math.abs(o.x-f.x)<110){f.act={k:'br',t:0,n:0};f.brCD=5+Math.random()*2;f.face=Math.sign(o.x-f.x)||f.face;txt(f.x,GY-(f.ling?40:60),'🐉 '+(DGBR[f.drg]||'Breath'),'#ffe26a',6.5,1.2)}}return}
+  A.t+=dt;if(f.st==='atk')f.st='idle';f.inp.mv=0;f.inp.atk=0;f.inp.hv=0;f.vx=0;
+  if(A.k==='br'){if(A.t<.5){if(Math.random()<.5)fx({x:mouth()[0],y:mouth()[1],l:.3,s:1.4,c:D.br,k:'ci',vy:-10})}
+    else if(A.t<1.4){if(A.t-.5>A.n*.11){A.n++;const[mx,my]=mouth();if(f.drg==='sage'&&A.n%3)return;G.proj.push({x:mx,y:my,vx:f.face*(f.drg==='sage'?90:130+Math.random()*30),vy:rnd(-12,22),g:0,owner:f,kind:'fire',r:f.ling?2.2:f.drg==='sage'?4:3.2,aoe:0,homing:f.drg==='sage'?1:0,life:f.drg==='sage'?1.8:1.1,c:A.n%2?D.br:D.br2,mv:{n:DGBR[f.drg]||'Breath',dmg:f.ling?.3:f.drg==='sage'?.9:.42,kb:40,lift:0,stun:.15,fin:0,heavy:0,ranged:1,dst:DGST[f.drg],dch:f.ling?.12:.25}});G.shake=Math.max(G.shake,1.5)}}
+    else f.act=null}
+  else if(A.k==='fly'){f.hover=1;if(A.t<.7){f.y=lerp(f.y,34,dt*5)}else if(A.t<1.5){f.y=34+Math.sin(A.t*8)*2;f.x+=(o.x-f.x)*Math.min(1,dt*2.6);f.face=Math.sign(o.x-f.x)||f.face}
+    else{f.y-=260*dt;if(f.y<=0){f.y=0;f.hover=0;f.act=null;G.shake=7;SND.boom&&SND.boom();ring(f.x,GY-2,D.br,30,.45,3);dust(f.x,8);burst(f.x,GY-4,D.br2,14,.16);
+      if(Math.abs(o.x-f.x)<28&&o.y<10&&o.invul<=0&&!['ko','down'].includes(o.st))resolveHit(f,o,{n:DGDIVE[f.drg]||'Sky Crash',dmg:2.2,kb:200,lift:140,stun:.7,fin:1,heavy:1,dst:DGST[f.drg],dch:.6},Math.sign(o.x-f.x)||1)}}}}
+{const s=skTick;skTick=function(f,dt){if(f.drg)return dragonTick(f,dt);return s(f,dt)}}
+
+{const r0=resolveHit;resolveHit=function(a,d,mv,dir){const h=d.hp,res=r0.apply(this,arguments);if(a&&a.drg&&mv&&mv.dst&&d.hp<h&&d.side===0&&Math.random()<(mv.dch||.25)&&typeof dgStatus==='function')dgStatus(d,mv.dst);return res}}
+
 /* ================= LUMIMON LEGENDS · data inti (lingkup Knight) ================= */
 let LCH=null;   // dipakai modul Knight lama (cache lobby)
 const LLV='L1';
@@ -4895,14 +5259,14 @@ const JOBS={
   lumi:{n:'Lumi Master',ic:'🐾',c:'#7dff8a',st:[3,2,3,3],w:['tongkat'],hp:1,atk:.7,bon:{dr:.03},ps:'Soul Bond',pd:'Lumi HP & serangan ×1,5. Seranganmu sendiri ×0,7.',d:'Bertarung bersama Lumi. Lumimu jauh lebih kuat.'}};
 const KIND={pedang:'Sword',perisai:'Sword & Shield',tombak:'Spear',ganda:'Twin Blades',busur:'Bow',buku:'Spellbook',tongkat:'Staff'};
 const KIC={pedang:'🗡️',perisai:'🛡️',tombak:'🔱',ganda:'⚔️',busur:'🏹',buku:'📖',tongkat:'🪄'};
-const isStaff=w=>!!(w&&w.def&&w.def[3]==='staff');
+const isStaff=w=>!!(w&&w.def&&(w.def[3]==='staff'||w.def[3]==='n2staff'));
 const kindOf=w=>w?(isStaff(w)?'tongkat':w.type):'pedang';
 const jobOf=()=>JOBS[PROF.job]||JOBS.warrior;
 /* ---------- tangga senjata ber-level tetap ---------- */
 const WLV=[1,3,6,9,12,15,18,21,24,27,30,33,36,39,42,44,47,50];
 const WLAD={};
 (()=>{const order={pedang:['Wooden Sword','Training Blade','Stone Cleaver','Copper Shortsword','Iron Sword','Steel Longsword','Silverleaf Blade','Jade Edge','Azure Saber','Ripple Rapier','Ember Blade','Frostbite Sword','Thunderclap Saber','Bonebind Cleaver','Gale Reaper','Golden Dragon Sword','Sunforged Greatsword','Abyssal Starfall Blade']};
-  for(const k in KIND){let L=WPN.map((w,i)=>[w,i]).filter(([w])=>kindOf(w)===k).sort((a,b)=>a[0].r-b[0].r||a[1]-b[1]).map(x=>x[0]);const o=order[k];if(o){const a=o.map(n=>L.find(w=>w.n===n)).filter(Boolean);L=a.concat(L.filter(w=>!a.includes(w)))}
+  for(const k in KIND){let L=WPN.map((w,i)=>[w,i]).filter(([w])=>kindOf(w)===k&&!/^n2/.test(w.def[3])).sort((a,b)=>a[0].r-b[0].r||a[1]-b[1]).map(x=>x[0]);const o=order[k];if(o){const a=o.map(n=>L.find(w=>w.n===n)).filter(Boolean);L=a.concat(L.filter(w=>!a.includes(w)))}
     WLAD[k]=L.slice(0,WLV.length).map((w,i)=>({lv:WLV[i],id:w.id}))}})();
 /* ---------- tangga armor (set) ber-level tetap ---------- */
 const ALAD=[[1,'dasar_rookie'],[4,'zona_meadow'],[7,'dasar_frost'],[9,'zona_mirror'],[12,'dasar_moss'],[14,'zona_marsh'],[17,'elemen_wanderer'],[19,'zona_wild'],[22,'elemen_venom'],[24,'zona_coral'],
@@ -5832,9 +6196,9 @@ function gearVis(){const E=eqItems(),eq={},acc={},tier={};for(const sl of ARS){c
 /* ---------- API untuk dunia ---------- */
 window.LLK={spend:n=>{if(PROF.coin<n)return false;PROF.coin-=n;saveP();return true},busy:()=>!KEL().classList.contains('hide'),prof:()=>PROF,hasProf:()=>!!(PROF.made&&PROF.v===LLV),expPct:()=>PROF.lv>=LLMAX?100:Math.min(100,PROF.exp/needXP(PROF.lv)*100),
   petId:()=>PROF.pet||null,reset(){try{for(const k of Object.keys(localStorage))if(k.startsWith('llg_'))localStorage.removeItem(k)}catch(e){}location.reload()},
-  fight:llFight,zoneLv:zoneLvOf,zoneMobs:zn=>LZ[zn]?{n:LZ[zn].n}:null,mobPick,mobSheet:m=>mobSheet2(m),mapWpn:(g,x,y,d,f,l)=>myMapWpn(g,x,y,d,f,l),mobWpn:(g,m,x,y,d,f,l,md)=>mapWpn(g,m.wid||(m.wid=mobWid(m)),x,y,d,f,0,l,m.k==='e'?3:1,0),wToggle:()=>wToggle(),wDraw:()=>!!PROF.wdraw,hasW:()=>!!eqItems().w,gearVis,pick:llPick,q:()=>orbQ(orbLv()),
-  make:done=>llMake(done),dungeon:id=>openZone(id),quests:()=>llQuests(),smith:()=>llSmith(),mbox:()=>llMBox(),villageGift:(v,n)=>llVillageGift(v,n),dgName:id=>DGN[id],dgCol:id=>DGC[id],dgActive:()=>PR()&&PR().z,bag:()=>{openBag()},hero:()=>llHero(),lumi:()=>llLumi(),shop:k=>llShop(k),orb:()=>orbOpen(),settings:()=>llSettings()};
-window.__LLK={get PROF(){return PROF},get G(){return G},get QZ(){return QZ},bagMax:()=>bagMax(),llDropFx:(B,i,g)=>llDropFx(B,i,g),llAddExp,giveItem:(it,l)=>giveItem(it,l),llGear,gi,eqItems,orbQ,genQ,ORBQ,WLAD,llWeapon,llArmor,llArtifact,setBonus,llFxAll,get ARTS(){return ARTS},saveP,syncW};
+  fight:llFight,zoneLv:zoneLvOf,zoneMobs:zn=>LZ[zn]?{n:LZ[zn].n}:null,mobPick,mobSheet:m=>mobSheet2(m),mapWpn:(g,x,y,d,f,l)=>{myMapWing(g,x,y,d,f,l);myMapWpn(g,x,y,d,f,l)},mobWpn:(g,m,x,y,d,f,l,md)=>mapWpn(g,m.wid||(m.wid=mobWid(m)),x,y,d,f,0,l,m.k==='e'?3:1,0),wToggle:()=>wToggle(),wDraw:()=>!!PROF.wdraw,hasW:()=>!!eqItems().w,gearVis,pick:llPick,q:()=>orbQ(orbLv()),
+  make:done=>llMake(done),dungeon:id=>openZone(id),cave:id=>openCave(id),caveInfo:id=>({n:CAVES[id].n,lv:CAVES[id].lv,drg:CAVES[id].drg}),quests:()=>llQuests(),smith:()=>llSmith(),mbox:()=>llMBox(),villageGift:(v,n)=>llVillageGift(v,n),dgName:id=>DGN[id],dgCol:id=>DGC[id],dgActive:()=>PR()&&PR().z,bag:()=>{openBag()},hero:()=>llHero(),lumi:()=>llLumi(),shop:k=>llShop(k),orb:()=>orbOpen(),settings:()=>llSettings()};
+window.__LLK={get DGT(){return{cvDuel,cvMaze,openCaveMap,dgArmor,dgWeapon,dgArt,giveItem,thumbCv,gi,DGS,SETS,WPN,ART,WLAD,setBonus,llSetLine}},get PROF(){return PROF},get G(){return G},get QZ(){return QZ},bagMax:()=>bagMax(),llDropFx:(B,i,g)=>llDropFx(B,i,g),llAddExp,giveItem:(it,l)=>giveItem(it,l),llGear,gi,eqItems,orbQ,genQ,ORBQ,WLAD,llWeapon,llArmor,llArtifact,setBonus,llFxAll,get ARTS(){return ARTS},saveP,syncW};
 
 /* ================= LUMIMON LEGENDS · buat karakter: nama, tampilan, job, Lumi awal ================= */
 const STARTERS=[['fox','Api','🔥'],['frost','Es','❄️'],['moss','Racun','🟢']];
@@ -6068,7 +6432,7 @@ function llFxAll(){const E=eqItems(),o={};for(const sl in E){const it=E[sl];if(i
 const SETB={dasar_rookie:[{hp:.03},{dr:.02},{atk:.04}],zona_meadow:[{atk:.04},{ev:.04},{jf:.1}],dasar_frost:[{hp:.05},{dr:.03},{crit:.04}],zona_mirror:[{hp:.05},{dr:.04},{cdr:.08}],dasar_moss:[{hp:.05},{ls:.03},{atk:.05}],
   zona_marsh:[{hp:.05},{ls:.03},{dr:.06}],elemen_wanderer:[{atk:.05},{crit:.04},{ev:.05}],zona_wild:[{hp:.06},{jf:.06},{ls:.04}],elemen_venom:[{atk:.06},{crit:.05},{ls:.04}],zona_coral:[{atk:.05},{crit:.04},{ev:.05}],
   elemen_blaze:[{atk:.07},{crit:.05},{jf:.1}],zona_desert:[{atk:.05},{jf:.08},{crit:.06}],elemen_glacier:[{hp:.07},{dr:.05},{cdr:.1}],zona_frost2:[{hp:.07},{dr:.05},{cdr:.1}],zona_ember2:[{atk:.07},{crit:.06},{ls:.05}],abyss_devour:[{atk:.08},{crit:.08},{hp:.1}]};
-const setNm=id=>(SETS.find(s=>s.id===id)||{n:id}).n,setLv=id=>(ALAD.find(a=>a[1]===id)||[1])[0],setK=id=>1+setLv(id)/50;
+const setNm=id=>(SETS.find(s=>s.id===id)||{n:id}).n,setLv=id=>(typeof DGLV!=='undefined'&&DGLV[id])||(ALAD.find(a=>a[1]===id)||[1])[0],setK=id=>1+setLv(id)/50;
 function setCount(){const E=eqItems(),c={};ARS.forEach(sl=>{const it=E[sl];if(it&&it.lset)c[it.lset]=(c[it.lset]||0)+1});return c}
 function setBonus(){const B={};for(const[id,n]of Object.entries(setCount())){const T=SETB[id];if(!T)continue;[2,4,5].forEach((need,i)=>{if(n>=need)for(const k in T[i])B[k]=(B[k]||0)+T[i][k]*setK(id)})}return B}
 const bTxt=(o,id)=>Object.entries(o).map(([k,v])=>`${(STN[k]||[k])[0]} +${Math.round(v*setK(id)*1000)/10}%`).join(', ');
@@ -6142,7 +6506,7 @@ function devSet(k,v){DEV[k]=+v;devSave()}
 function devTg(k,n){return`<div class="row2"><label>${n}</label><button class="mini ${DEV[k]?'':'off'}" onclick="devToggle('${k}')">${DEV[k]?'✅ On':'Off'}</button></div>`}
 function devToggle(k){DEV[k]=DEV[k]?0:1;devSave();openDev()}
 function openDev(){const P=PROF,W=window.__LLW,ls=Object.keys(LG.M).filter(k=>PETD[k]).sort((a,b)=>LG.M[a].n.localeCompare(LG.M[b].n));
-  const dest=W?W.DESTS.map((d,i)=>`<option value="d${i}">${d.n}</option>`).join('')+Object.keys(DGN).map(id=>`<option value="g${id}">🏰 ${DGN[id]}</option>`).join(''):'';
+  const dest=W?W.DESTS.map((d,i)=>`<option value="d${i}">${d.n}</option>`).join('')+Object.keys(DGN).map(id=>`<option value="g${id}">🏰 ${DGN[id]}</option>`).join('')+Object.keys(CAVES).map(id=>`<option value="c${id}">🐉 ${CAVES[id].n}</option>`).join(''):'';
   sheet('🧪 Developer Mode',`<div class="note">Pengali & alat uji hanya berlaku saat Developer Mode menyala. Perubahan profil tetap tersimpan.</div>
    <div class="sec">Reward Multiplier</div><div class="row2"><label>EXP</label>${devSel('xp')}</div><div class="row2"><label>Gold</label>${devSel('gold')}</div><div class="row2"><label>Drop</label>${devSel('drop')}</div>
    <div class="sec">Profile</div>
@@ -6158,6 +6522,8 @@ function openDev(){const P=PROF,W=window.__LLW,ls=Object.keys(LG.M).filter(k=>PE
    <div class="sec">Lumi</div><div class="row2"><label>Lumi</label><select id="dvLm">${ls.map(k=>`<option value="${k}">${LG.M[k].n}</option>`).join('')}</select><button class="mini" onclick="devLumi()">Add</button></div>
    <div class="row2"><label>Lumi Lv</label><button class="mini" onclick="devLumiLv()">= level pemain</button></div>
    ${W?`<div class="sec">Teleport</div><div class="row2"><select id="dvD" style="flex:1">${dest}</select><button class="mini" onclick="devTp()">Go</button></div>`:''}
+   <div class="sec">🐉 Dragon Items</div><div class="row2"><select id="dvDS" style="flex:1">${Object.keys(DGS).map(k=>`<option value="${k}">${DGS[k].n} Set · Lv ${DGS[k].lv}</option>`).join('')}</select><button class="mini" onclick="devDragon()">Give</button></div>
+   <div class="note">Memberi 5 bagian set + semua senjata & artifact naga itu (bila ada). <button class="mini" onclick="devCvReset()">🔄 Reset jatah goa</button></div>
    <div class="sec">Battle Tools</div>${devTg('ko1','KO 1 hit')}${devTg('god','Invincible')}${devTg('en','SPECIAL always full')}${devTg('auto','✅ Auto Correct (jawaban apa pun benar)')}<div class="note">Tombol 🧪 WIN muncul di layar battle.</div>
    <div id="dvMsg" class="note"></div>`)}
 const devMsg=t=>{const e=$('dvMsg');if(e)e.innerHTML=t};
@@ -6170,7 +6536,13 @@ function devGive(){const t=$('dvT').value,r=+$('dvR').value,lv=Math.max(1,Math.m
 function devMBox(){PROF.mbox=(PROF.mbox||0)+5;saveP();devMsg('✔ Mystery Box = '+PROF.mbox)}
 function devLumi(){const id=$('dvLm').value;PROF.lumiOwn=PROF.lumiOwn||[];if(!PROF.lumiOwn.includes(id))PROF.lumiOwn.push(id);lumiOf(id);saveP();devMsg('✔ '+LG.M[id].n+' ditambahkan')}
 function devLumiLv(){(PROF.lumiOwn||[]).forEach(id=>{lumiOf(id).lv=PROF.lv});saveP();devMsg('✔ Semua Lumi Lv '+PROF.lv)}
-function devTp(){const W=window.__LLW,v=$('dvD').value;if(!W)return;closeSheet();if(v[0]==='d')W.flyTo(W.DESTS[+v.slice(1)]);else{const p=W.LLW.DGP[v.slice(1)];if(p)W.flyTo({n:DGN[v.slice(1)],x:Math.floor(p.x/16),y:Math.floor(p.y/16)+2})}}
+function devTp(){const W=window.__LLW,v=$('dvD').value;if(!W)return;closeSheet();if(v[0]==='d')W.flyTo(W.DESTS[+v.slice(1)]);else if(v[0]==='c'){const p=W.LLW.CVP[v.slice(1)];if(p)W.flyTo({n:CAVES[v.slice(1)].n,x:Math.floor(p.x/16),y:Math.floor(p.y/16)+2})}else{const p=W.LLW.DGP[v.slice(1)];if(p)W.flyTo({n:DGN[v.slice(1)],x:Math.floor(p.x/16),y:Math.floor(p.y/16)+2})}}
+
+function devDragon(){const k=$('dvDS').value,S=DGS[k];if(!S)return;let n=0;ARS.forEach(sl=>{giveItem(dgArmor(k,sl));n++});
+  const dk=k.replace(/^(gd_|sv_)/,'');if(!/^(gd_|sv_|servant)/.test(k)){dgWeapons(dk).forEach(w=>{giveItem(mkItem('w',w.id,w.r,{lv:S.lv,dgn:w.n}));n++});if(DGALV[dk])['eye','heart','scale'].forEach(t=>{giveItem(dgArt(dk,t));n++})}
+  saveP();devMsg(`✔ ${n} barang ${S.n} masuk Bag`)}
+
+function devCvReset(){PROF.cvd=null;saveP();devMsg('Jatah Goa Naga direset (3/3)')}
 
 /* ================= Tampilan: senjata di peta & baju musuh per zona ================= */
 const ZKEY={windy:'meadow',mirror:'mirror',marsh:'marsh',wildwood:'wild',coral:'coral',desert:'desert',frost:'frost2',ember:'ember2'};
@@ -6254,7 +6626,206 @@ function llAcc(s){if(SEL.manual||!s)return{m:1,d:1,t:''};const q=s.q||0,ok=s.qok
 /* soal panjang → huruf menyesuaikan */
 {const o=qNext;qNext=function(){const r=o.apply(this,arguments);try{const e=$('qQ'),n=(e.textContent||'').length;e.classList.toggle('lng',n>20&&n<=44);e.classList.toggle('xl',n>44)}catch(x){}return r}}
 
-Object.assign(window,{bagExpand,bestEq,buyI,claimA,claimLogin,claimM,closeSheet,devDg,devGive,devGold,devJob,devLumi,devLumiLv,devLv,devMBox,devSet,devToggle,devTp,dgResume,dgStart,gqSet,itemSheet,krJoin,lockI,lookSet,mbOpen,openBag,openChest,openDev,openExp,openKr,openShop,openTab,openWorld,openZone,prBuy,prCamp,prDone,prEnter,prStart,quickSell,sellAll,sellI,setAct,setBagF,setChW,sheet,unwear,upgI,uraiI,uraiWeak,wear,zGo,zPick,zStart});
+/* ===== v15: Item Naga — Set, Senjata, Artifact naga + efek & Bonus Naga ===== */
+/* ===== Artifact Naga: Eye / Heart / Scale × 4 naga (16×16) ===== */
+const DAP={sage:{d:'#0c2a1c',m:'#1d6a45',l:'#3fae74',x:'#8fe6b4',a:['#8a6a1a','#e8cc6a','#fff3b0'],g:'#7affc8',e:'#fff36a'},
+ shadow:{d:'#140c26',m:'#3a2466',l:'#6a55aa',x:'#a898e0',a:['#2a1a4c','#8a7ac8','#e4dcff'],g:'#ff5ad8',e:'#ff5ad8'},
+ frost:{d:'#1c3a5e',m:'#3a6c9c',l:'#6aa6d6',x:'#c4e8ff',a:['#6a8aa8','#d8eaf8','#ffffff'],g:'#6af6ff',e:'#6af6ff'},
+ crimson:{d:'#2a0606',m:'#8c1a12',l:'#c4321c',x:'#ff6a3d',a:['#1a1210','#3a2a24','#6a5a50'],g:'#ffe14a',e:'#ffe14a'},
+ white:{d:'#7a84a4',m:'#c4cee6',l:'#eef4ff',x:'#ffffff',a:['#a87a10','#ffd23c','#fff6c8'],g:'#8affff',e:'#ff9ad8'}};
+function dartCv(kind,k,my){const s=DAP[k],c=document.createElement('canvas');c.width=c.height=18;const g=c.getContext('2d'),P=(x,y,col)=>{if(col){g.fillStyle=col;g.fillRect(x+1,y+1,1,1)}};
+ const ell=(cx,cy,rx,ry,f)=>{for(let y=0;y<16;y++)for(let x=0;x<16;x++){const u=(x+.5-cx)/rx,v=(y+.5-cy)/ry;if(u*u+v*v<=1)P(x,y,f(x,y,u,v))}};
+ if(kind==='eye'){ /* bingkai bersisik + mata celah */
+  ell(8,8,7.5,6,(x,y,u,v)=>u*u+v*v>.62?((x+y)%3?s.a[1]:s.a[0]):null);
+  ell(8,8,5.6,4.2,(x,y,u,v)=>v<-.4?s.e:u*u+v*v>.55?s.m:s.g);
+  for(let y=4;y<=11;y++)P(8,y,'#0b0614');P(7,6,'#0b0614');P(7,9,'#0b0614');P(6,6,'#ffffff');P(5,7,'#ffffff');
+  for(const[x,y]of[[1,3],[0,5],[14,3],[15,5],[3,1],[12,1]])P(x,y,s.a[2]);P(8,1,s.g);P(8,14,s.g);}
+ if(kind==='heart'){ /* jantung kristal menyala dengan cakar emas */
+  const H=(x,y)=>{const u=(x+.5-8)/5.6,v=-(y+.5-7.2)/5.6,q=u*u+v*v-1;if(y<=3&&(x===7||x===8)||y<=2&&(x===6||x===9))return false;return q*q*q-u*u*v*v*v<=0};
+  for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(H(x,y)){const e=!H(x-1,y)||!H(x+1,y)||!H(x,y-1)||!H(x,y+1);P(x,y,e?s.d:y<6&&x<8?s.x:(x+y)%4===0?s.l:s.m)}
+  for(const[x,y]of[[8,6],[7,8],[9,9],[8,10],[6,7],[10,7]])P(x,y,s.g);P(5,4,'#ffffff');P(4,5,'#ffffff');
+  for(const[x,y]of[[2,9],[1,10],[1,11],[13,9],[14,10],[14,11],[5,13],[10,13],[8,15]])P(x,y,s.a[1]);P(1,12,s.a[2]);P(14,12,s.a[2]);}
+ if(kind==='scale'){ /* lempeng sisik besar dengan permata */
+  const S=(x,y)=>{const u=(x+.5-8)/7,v=(y+.5-8)/7.5;return v<.1?Math.abs(u)<=1-Math.max(0,-v-.6)*1.6:u*u*.9+v*v*1.6<=1.05};
+  for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(S(x,y)){const e=!S(x-1,y)||!S(x+1,y)||!S(x,y-1)||!S(x,y+1);P(x,y,e?s.a[1]:y<3?s.x:((y%4===0&&x%2===0)||((y+2)%4===0&&x%2===1))?s.d:y<8?s.l:s.m)}
+  for(let y=2;y<14;y++)P(8,y,y%2?s.a[1]:s.a[2]);ell(8,8,1.9,1.9,()=>s.g);P(7,7,'#ffffff');for(const x of[3,13])P(x,1,s.a[2]);}
+ if(my){g.globalCompositeOperation='source-over';for(const[x,y]of[[0,0],[15,0],[0,15],[15,15]]){P(x,y,'#ff4a5a')}P(15,1,'#ffd23c');P(1,15,'#ffd23c')}
+ const o=document.createElement('canvas');o.width=o.height=18;const q=o.getContext('2d');for(const[dx,dy]of[[0,1],[2,1],[1,0],[1,2]])q.drawImage(c,dx-1,dy-1);q.globalCompositeOperation='source-in';q.fillStyle='#0b0614';q.fillRect(0,0,18,18);q.globalCompositeOperation='source-over';q.drawImage(c,0,0);return o}
+const DAN={eye:'Eye',heart:'Heart',scale:'Scale'},DAK={sage:'Sage',shadow:'Shadow',frost:'Frost',crimson:'Crimson'};
+const DAFX={eye:{sage:'SPECIAL terisi +25% lebih cepat',shadow:'Serangan 25% meracuni (3 dtk)',frost:'Serangan 15% membekukan 1 dtk',crimson:'Serangan 25% membakar (3 dtk)'},
+ heart:{sage:'KO → bangkit 30% HP + SPECIAL penuh',shadow:'KO → bangkit 30% HP + kebal 2 dtk',frost:'KO → bangkit 30% HP + musuh beku 1,5 dtk',crimson:'KO → bangkit 30% HP + ledakan api'},
+ scale:{sage:'Perisai 15% HP di awal battle',shadow:'Perisai 15% HP + kebal racun',frost:'Perisai 15% HP + kebal beku',crimson:'Perisai 15% HP + kebal bakar'}};
+const DAST={eye:'Critical +8% · Attack +6%',heart:'HP +12% · pulih 1% HP/dtk',scale:'Defense +10% · Evasion +4%'};
+
+/* --- daftar set naga --- */
+const DGS={};const DGLV={};
+{const NM={sage:'Sage Dragon',shadow:'Shadow Dragon',frost:'Frost Wyvern',crimson:'Crimson Wyrm',white:'White Dragon',prince:'White Dragon Prince',servant:'White Dragon Servant'},
+  CK={sage:'Ancient',shadow:'Mist',frost:'Ice',crimson:'Fire'},LVS={sage:15,shadow:25,frost:35,crimson:45,white:50,prince:15,servant:10},CL={sage:10,shadow:20,frost:30,crimson:40},
+  RR={white:5,prince:4,servant:3};
+  const add=(key,n,lv,r,b)=>{const id='naga_'+key,eq={};['hat','shirt','pants','shoes','back'].forEach((sl,i)=>eq[sl]=['nh_','ns_','np_','nf_','nw_'][i]+key);SETS.push({id,n,r,eq,c:'#ffd23c'});DGS[key]={id,n,lv,r,eq};DGLV[id]=lv;SETB[id]=b};
+  add('sage',NM.sage,15,4,[{atk:.06},{jf:.10},{crit:.07}]);add('shadow',NM.shadow,25,4,[{atk:.07},{crit:.06},{ls:.05}]);add('frost',NM.frost,35,4,[{hp:.08},{dr:.06},{cdr:.12}]);add('crimson',NM.crimson,45,4,[{atk:.08},{crit:.07},{hp:.08}]);
+  add('white',NM.white,50,5,[{atk:.10},{crit:.08},{hp:.12}]);add('prince',NM.prince,15,4,[{atk:.06},{hp:.06},{crit:.06}]);add('servant',NM.servant,10,3,[{hp:.05},{dr:.04},{atk:.05}]);
+  for(const k in CL){add('gd_'+k,CK[k]+' Dragon Guard',CL[k],3,[{atk:.05},{dr:.04},{crit:.05}]);add('sv_'+k,CK[k]+' Dragon Servant',CL[k],2,[{hp:.04},{dr:.03},{atk:.04}])}}
+const DGSN={hat:'Helm',shirt:'Armor',pants:'Greaves',shoes:'Talons',back:'Wings & Tail'},DGSN2={hat:'Helm',shirt:'Mail',pants:'Greaves',shoes:'Boots',back:'Shield'},DGSN3={hat:'Hood',shirt:'Tunic',pants:'Trousers',shoes:'Shoes',back:'Cape'};
+function dgArmor(key,sl,r){const S=DGS[key];sl=sl||pick(ARS);const nm=key.startsWith('gd_')?DGSN2[sl]:key.startsWith('sv_')||key==='servant'?DGSN3[sl]:DGSN[sl];
+  return mkItem(sl,S.eq[sl],r||S.r,{lv:S.lv,lset:S.id,dgn:S.n+' '+nm})}
+/* --- senjata naga: id dari WPN (def[4]='n2'+naga) --- */
+function dgWeapons(k){return WPN.filter(w=>w.def[4]==='n2'+k)}
+function dgWeapon(k,kind){const L=dgWeapons(k),J=kind?[kind]:jobOf().w,c=L.filter(w=>J.includes(kindOf(w)));const w=pick(c.length?c:L);if(!w)return null;
+  const lv={sage:15,shadow:25,frost:35,crimson:45,white:50,prince:15}[k];return mkItem('w',w.id,w.r,{lv,dgn:w.n})}
+/* --- artifact naga --- */
+const DGAT={eye:{st:{crit:.08,atk:.06},fx:{sage:'rune',shadow:'poison',frost:'freeze',crimson:'blaze',white:'prism'}},heart:{st:{hp:.12,ls:.02},fx:{sage:'rv_sage',shadow:'rv_shadow',frost:'rv_frost',crimson:'rv_crimson',white:'rv_white'}},
+  scale:{st:{dr:.10,ev:.04},fx:{sage:'sc_sage',shadow:'sc_shadow',frost:'sc_frost',crimson:'sc_crimson',white:'sc_white'}}};
+const DGALV={sage:15,shadow:25,frost:35,crimson:45,white:50};
+for(const k in DGALV)for(const t in DGAT){const id='da_'+k+'_'+t,lv=DGALV[k],lm=1+.12*(lv-1),st={},nm=(k==='white'?'White':DAK[k])+' Dragon '+DAN[t];for(const s in DGAT[t].st)st[s]=DGAT[t].st[s]*1.25/lm;
+  ACC[id]=[nm,st];ART[id]={id,n:nm,t:k==='white'?4:3,lv,u:DGAT[t].fx[k],dr:null,dk:k,dt:t}}
+{const a0=artCv;artCv=function(id){const A=ART[id];if(A&&A.dk){if(ARTC[id])return ARTC[id];const c=document.createElement('canvas');c.width=c.height=24;const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(dartCv(A.dt,A.dk,A.t>=4),3,3);return ARTC[id]=c}return a0(id)}}
+function dgArt(k,t){t=t||pick(['eye','heart','scale']);const A=ART['da_'+k+'_'+t];const r=k==='white'?5:Math.random()<.05?5:4;const it=mkItem('acc',A.id,r,{lv:A.lv,dgn:A.n});it.fx=A.u;return it}
+/* nama tetap untuk barang naga */
+{const g0=gi;gi=function(it){const r=g0(it);if(it.dgn&&!r._dn){r.n=it.dgn+(it.up?' +'+it.up:'');r._dn=1}return r}}
+/* --- efek khusus baru --- */
+Object.assign(FXD,{rune:['Sage Insight','SPECIAL terisi 25% lebih cepat'],poison:['Shadow Venom','Serangan berpeluang 25% meracuni musuh 3 dtk'],freeze:['Frost Bite','Serangan berpeluang 15% membekukan musuh 1 dtk'],
+  blaze:['Crimson Flame','Serangan berpeluang 25% membakar musuh 3 dtk'],prism:['Prism Fang','Serangan berpeluang 25% meracuni, membekukan, atau membakar'],
+  rv_sage:['Sage Rebirth','Saat pingsan: bangkit 30% HP + SPECIAL penuh (1× per battle)'],rv_shadow:['Shadow Rebirth','Saat pingsan: bangkit 30% HP + kebal 2 dtk (1× per battle)'],
+  rv_frost:['Frost Rebirth','Saat pingsan: bangkit 30% HP + musuh beku 1,5 dtk (1× per battle)'],rv_crimson:['Phoenix Core','Saat pingsan: bangkit 30% HP + ledakan api (1× per battle)'],rv_white:['Heaven Rebirth','Saat pingsan: bangkit 50% HP + SPECIAL penuh (1× per battle)'],
+  sc_sage:['Sage Ward','Awal battle: perisai 15% HP + kebal penguras SPECIAL'],sc_shadow:['Shadow Ward','Awal battle: perisai 15% HP + kebal racun'],sc_frost:['Frost Ward','Awal battle: perisai 15% HP + kebal beku'],
+  sc_crimson:['Crimson Ward','Awal battle: perisai 15% HP + kebal bakar'],sc_white:['Heaven Ward','Awal battle: perisai 20% HP + kebal semua status naga']});
+const DGEL={sage:'rune',shadow:'poison',frost:'freeze',crimson:'burn'},DGCOL={sage:'#7affc8',shadow:'#ff5ad8',frost:'#6af6ff',crimson:'#ffb02e',white:'#fff6c8'};
+function dgBonusK(){const E=eqItems(),c=setCount();for(const k of ['sage','shadow','frost','crimson','white']){if((c['naga_'+k]||0)<5)continue;const w=E.w&&WPN.find(x=>x.id===E.w.b),a=E.acc&&ART[E.acc.b];if(w&&w.def[4]==='n2'+k&&a&&a.dk===k)return k}return null}
+{const s0=llFxStart;llFxStart=function(A){s0(A);const F=A.llfx||{};A.llImm={};
+  if(F.rune)A.bonus.jf=(A.bonus.jf||0)+.25*F.rune;
+  for(const k of ['sage','shadow','frost','crimson','white'])if(F['sc_'+k]){A.llSh=(A.llSh||0)+Math.round(A.maxHp*(k==='white'?.2:.15)*F['sc_'+k]);if(k==='white')Object.assign(A.llImm,{rune:1,poison:1,freeze:1,burn:1});else A.llImm[DGEL[k]]=1}
+  const bk=dgBonusK();if(bk){A.atk*=1.15;if(bk==='white')Object.assign(A.llImm,{rune:1,poison:1,freeze:1,burn:1});else A.llImm[DGEL[bk]]=1;A.llAura=Math.max(A.llAura||0,4);A.dgAura=DGCOL[bk];banner('🐉 DRAGON BOND','Attack +15%',DGCOL[bk],1,12)}}}
+function dgStatus(d,k,from){if(d.llImm&&d.llImm[k]){txt(d.x,GY-d.y-36,'IMMUNE','#ffffff',5,.7);return}
+  if(k==='poison'){d.burn={p:.03,t:3,k:0,c:'#c86aff'};txt(d.x,GY-d.y-34,'POISON!','#d88aff',5,.7)}
+  else if(k==='freeze'){d.stun=Math.max(d.stun||0,1);d.st='hurt';d.t=0;txt(d.x,GY-d.y-40,'FROZEN!','#9af0ff',5,.7);burst(d.x,GY-d.y-16,'#c8f6ff',10,.2)}
+  else if(k==='burn'){d.burn={p:.03,t:3,k:0,c:'#ff7a2a'};txt(d.x,GY-d.y-34,'BURN!','#ff8a3a',5,.7)}
+  else if(k==='rune'){d.energy=Math.max(0,(d.energy||0)-15);txt(d.x,GY-d.y-34,'SPECIAL −15%','#7affc8',5,.7)}}
+{const h0=llFxHit;llFxHit=function(a,d,dmg,crit){h0(a,d,dmg,crit);const F=a.llfx;if(!F||a.side!==0||d.hp<=0)return;
+  if(F.poison&&Math.random()<.25)dgStatus(d,'poison');if(F.freeze&&Math.random()<.15)dgStatus(d,'freeze');if(F.blaze&&Math.random()<.25)dgStatus(d,'burn');
+  if(F.prism&&Math.random()<.25)dgStatus(d,pick(['poison','freeze','burn']))}}
+{const r0=llRevive;llRevive=function(d){const F=d.llfx||{},k=['sage','shadow','frost','crimson','white'].find(k=>F['rv_'+k]);if(!k||d.side!==0||d.llOnce.rev)return r0(d);
+  d.llOnce.rev=1;d.hp=Math.round(d.maxHp*(k==='white'?.5:.3));d.st='idle';d.invul=k==='shadow'?2:1.2;const o=G.F[1];
+  if(k==='sage'||k==='white')d.energy=100;if(k==='frost'&&o){o.stun=Math.max(o.stun||0,1.5);o.st='hurt';o.t=0}if(k==='crimson'&&o){const dm=Math.round(o.maxHp*.08);o.hp=Math.max(1,o.hp-dm);burst(o.x,GY-o.y-16,'#ff7a2a',18,.3);txt(o.x,GY-o.y-36,'-'+dm,'#ffb02e',6,1)}
+  banner(FXD['rv_'+k][0].toUpperCase()+'!','',DGCOL[k],1.1,16);ring(d.x,GY-d.y-14,DGCOL[k],26,.5,3);burst(d.x,GY-d.y-14,DGCOL[k],14,.2);return true}}
+/* catatan Bonus Naga di kartu barang */
+{const l0=llSetLine;llSetLine=function(it){let h=l0(it);const k=it.lset&&it.lset.startsWith('naga_')?it.lset.slice(5):null;
+  if(k&&DGCOL[k]){const on=dgBonusK()===k;h+=`<div class="note" style="border-left:3px solid ${DGCOL[k]}">🐉 <b style="color:${DGCOL[k]}">Dragon Bond</b> ${on?'✔ aktif':''}<br><small>Set 5 bagian + Senjata ${k==='white'?'White Dragon':DAK[k]||k} + Artifact ${k==='white'?'White':DAK[k]||k} Dragon: Attack +15%, kebal status ${k==='white'?'naga':{sage:'penguras SPECIAL',shadow:'racun',frost:'beku',crimson:'bakar'}[k]}, aura naga</small></div>`}return h}}
+
+/* --- sayap naga besar: battle & peta --- */
+{const d0=drawCharL;drawCharL=function(g,f,i,ga){const id=f.cfg&&f.cfg.eq&&f.cfg.eq.back,k=id&&AV.N2ID[id];
+  if(k){const mv=f.st==='walk'||f.st==='jump'||f.st==='dash'||f.y>2,w=AV.N2WING(k,'right',mv?((G.t*7|0)%2):0);if(w)g.drawImage(w,-17,-28)}return d0(g,f,i,ga)}}
+let MWK={u:null,k:null};
+function myMapWing(g,x,y,dir,f,layer){const u=PROF.eqp&&PROF.eqp.back;if(MWK.u!==u){const it=u&&byU(u);MWK={u,k:it&&AV.N2ID[it.b]||null}}const k=MWK.k;if(!k)return;
+  const up=dir===1;if(up!==(layer===1))return;const w=AV.N2WING(k,['down','up','left','right'][dir]||'down',f%2);if(w)g.drawImage(w,x-17,y-26)}
+
+/* ===== v15: GOA NAGA — labirin berkabut 7×9, 3 Dragon Seal, Sarang Naga di ujung ===== */
+const CAVES={ancient:{n:'Ancient Cave',z:'wildwood',drg:'sage',k:'Ancient',lv:10,dl:15},mist:{n:'Mist Cave',z:'marsh',drg:'shadow',k:'Mist',lv:20,dl:25},
+  ice:{n:'Ice Cave',z:'frost',drg:'frost',k:'Ice',lv:30,dl:35},fire:{n:'Fire Cave',z:'ember',drg:'crimson',k:'Fire',lv:40,dl:45}};
+const CVC=7,CVR_=9,CVMAX=3,CVRM={sv:['🗡️','Dragon Servant'],ling:['🐲','Dragonling ×2'],gd:['💂','Dragon Guard'],chest:['📦','Chest'],spring:['💧','Mata Air'],trap:['⚠️','Jebakan'],lair:['🐉','Sarang Naga'],start:['🚪','Pintu Masuk']};
+const CVR=()=>PROF.cv;
+const cvDay=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+function cvLeft(){const D=PROF.cvd||{};return D.d===cvDay()?Math.max(0,CVMAX-(D.n||0)):CVMAX}
+function cvKey(a,b){return a<b?a+'|'+b:b+'|'+a}
+/* --- bangun labirin dari seed --- */
+function cvGen(seed){let s=seed%2147483646+1;const R=()=>(s=s*16807%2147483647)/2147483647,id=(x,y)=>y*CVC+x,op={},vis=new Set(),st=[[3,8]];vis.add(id(3,8));
+  while(st.length){const[cx,cy]=st[st.length-1],nb=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>[cx+dx,cy+dy]).filter(([a,b])=>a>=0&&b>=0&&a<CVC&&b<CVR_&&!vis.has(id(a,b)));
+    if(!nb.length){st.pop();continue}const[nx,ny]=nb[Math.floor(R()*nb.length)];op[cvKey(id(cx,cy),id(nx,ny))]=1;vis.add(id(nx,ny));st.push([nx,ny])}
+  for(let i=0;i<5;i++){const cx=Math.floor(R()*(CVC-1)),cy=1+Math.floor(R()*(CVR_-2));op[cvKey(id(cx,cy),id(cx+1,cy))]=1}
+  const nbr=n=>{const x=n%CVC,y=Math.floor(n/CVC);return[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>[x+dx,y+dy]).filter(([a,b])=>a>=0&&b>=0&&a<CVC&&b<CVR_&&op[cvKey(n,id(a,b))]).map(([a,b])=>id(a,b))};
+  const dist={},q=[id(3,8)];dist[id(3,8)]=0;while(q.length){const n=q.shift();for(const m of nbr(n))if(dist[m]==null){dist[m]=dist[n]+1;q.push(m)}}
+  const ty={},start=id(3,8),lair=id(3,0);ty[start]='start';ty[lair]='lair';
+  const free=()=>Object.keys(dist).map(Number).filter(n=>!ty[n]),dead=free().filter(n=>nbr(n).length===1).sort((a,b)=>dist[b]-dist[a]);
+  const take=(L,k,n)=>{for(let i=0;i<n&&L.length;i++){const j=Math.floor(R()*Math.min(L.length,4)),v=L.splice(j,1)[0];if(!ty[v])ty[v]=k;else i--}};
+  take(dead.slice(),'gd',3);take(free().filter(n=>nbr(n).length===1),'chest',2);
+  const mid=()=>free().filter(n=>dist[n]>=3).sort(()=>R()-.5);take(mid(),'ling',3);take(mid(),'spring',1);take(mid(),'trap',2);take(free().filter(n=>dist[n]>=1).sort(()=>R()-.5),'sv',11);
+  return{op,ty,nb:Object.fromEntries(Object.keys(dist).map(n=>[n,nbr(+n)]))}}
+const CVMZ={};function cvMaze(){const C=CVR();if(!C)return null;return CVMZ[C.seed]||(CVMZ[C.seed]=cvGen(C.seed))}
+/* --- layar masuk --- */
+function openCave(id){const Cv=CAVES[id],C=CVR(),left=cvLeft(),lk=PROF.lv<Cv.lv;
+  sheet(`🐉 ${Cv.n}`,`<div class="note"><b>${Cv.n}</b> · Musuh Lv ${Cv.lv}–${Cv.lv+4} · Naga <b>${DRG[Cv.drg].n}</b> Lv ${Cv.dl}.<br>Labirin berkabut 7×9. Kalahkan <b>3 Dragon Guard</b> untuk 3 Dragon Seal, lalu buka Sarang Naga. HP terbawa antarruangan.</div>
+   <div class="rew"><div>🗝️ Masuk hari ini: <b>${left}/${CVMAX}</b> (gabungan 4 goa)</div><div>⚔️ Musuh lebih kuat dari dungeon biasa — enak dimainkan party.</div></div>
+   ${lk?`<div class="note" style="color:#ffb07a">🔒 Butuh Lv ${Cv.lv}. Levelmu Lv ${PROF.lv}.</div>`:''}
+   ${C&&C.c===id?`<button class="go px" onclick="cvResume()">▶ Continue · Seal ${C.seals}/3 · HP ${Math.round(C.hpf*100)}%</button>`:''}
+   ${!lk?`<button class="go px ${left?'':'off'}" onclick="cvStart('${id}')">⚔️ ${C&&C.c===id?'Mulai baru':'Enter'} (pakai 1 jatah)</button>`:''}
+   ${C&&C.c!==id?`<div class="note">⚠️ Masuk goa ini membatalkan ${CAVES[C.c].n} yang sedang berjalan (gold yang dibawa tetap diberikan).</div>`:''}
+   <div class="sec">Penjaga</div><div class="lst">
+    <div class="it"><span class="ic">💂</span><span><b>Dragon Guard + Kristo</b><small>Terkuat · pasti Dragon Seal · 25% ${Cv.k} Dragon Guard Set (Epic)</small></span></div>
+    <div class="it"><span class="ic">🐲</span><span><b>Dragonling ×2</b><small>Sedang · senjata & artifact</small></span></div>
+    <div class="it"><span class="ic">🗡️</span><span><b>Dragon Servant</b><small>Terlemah · 20% ${Cv.k} Dragon Servant Set (Rare)</small></span></div>
+    <div class="it"><span class="ic">🐉</span><span><b>${DRG[Cv.drg].n}</b><small>Pasti 1 bagian ${DGS[Cv.drg].n} Set · 30% Senjata Naga · 40% Artifact Naga · 30% Artifact Epic–Mythic</small></span></div></div>
+   <div class="note">Knocked Out = keluar goa, separuh gold yang dibawa hilang; barang tetap di Bag.</div>`)}
+function cvStart(id){if(!cvLeft()||PROF.lv<CAVES[id].lv)return;const C=CVR();if(C){const l=[];cvPay(1,l)}
+  const D=PROF.cvd&&PROF.cvd.d===cvDay()?PROF.cvd:{d:cvDay(),n:0};D.n++;PROF.cvd=D;
+  PROF.cv={c:id,seed:Math.floor(Math.random()*2e9)+1,pos:3+8*CVC,seen:[3+8*CVC],done:[3+8*CVC],seals:0,hpf:1,loot:{coin:0,n:0}};saveP();closeSheet();if(window.LLW&&!LLW.dgEnter())return;openCaveMap()}
+function cvResume(){closeSheet();if(window.LLW&&!LLW.dgEnter())return;openCaveMap()}
+function cvPay(f,log){const C=CVR(),c=Math.round(C.loot.coin*f);PROF.coin+=c;log.push(`🪙 +${c} gold`);return c}
+/* --- peta labirin --- */
+function openCaveMap(){const C=CVR();if(!C)return openWorld();const M=cvMaze(),Cv=CAVES[C.c];G.scr='cave';kShow(1);show('scCave');
+  $('cvT').textContent=`🐉 ${Cv.n}`;$('cvHp').style.width=C.hpf*100+'%';$('cvHpT').textContent='❤️ '+Math.round(C.hpf*100)+'%';
+  $('cvL').innerHTML=`🗝️ Seal <b>${C.seals}/3</b> · 🪙 ${C.loot.coin} · 🎁 ${C.loot.n}`;
+  const seen=new Set(C.seen),near=new Set(),here=C.pos;(M.nb[here]||[]).forEach(n=>near.add(n));seen.forEach(n=>(M.nb[n]||[]).forEach(m=>{if(!seen.has(m))near.add(m)}));
+  let h='';for(let y=0;y<CVR_;y++)for(let x=0;x<CVC;x++){const n=y*CVC+x,t=M.ty[n]||'',sn=seen.has(n),nr=near.has(n),dn=C.done.includes(n),adj=(M.nb[here]||[]).includes(n);
+    const R=M.nb[n]||[],cn=(sn&&R.includes(n+1)&&x<CVC-1?'<i class="ce"></i>':'')+(sn&&R.includes(n+CVC)?'<i class="cs"></i>':'');
+    if(!sn&&!nr){h+=`<div class="cvr fog"></div>`;continue}
+    const ic=sn?(dn&&t!=='lair'&&t!=='start'?'·':(CVRM[t]||['',''])[0]):'?';
+    h+=`<button class="cvr${sn?' sn':' nr'}${n===here?' me':''}${adj?' adj':''}${t==='lair'&&sn?' lair':''}" ${adj?`onclick="cvMove(${n})"`:''} aria-label="${sn?(CVRM[t]||['',''])[1]:'?'}">${ic}${cn}</button>`}
+  $('cvMap').innerHTML=`<div class="cvg">${h}</div><div class="note cvk">🗡️ Servant · 🐲 Dragonling · 💂 Guard (Seal) · 📦 Chest · 💧 Mata Air · ⚠️ Jebakan · 🐉 Sarang (perlu 3 Seal)</div>`}
+function cvMove(n){const C=CVR(),M=cvMaze();if(!(M.nb[C.pos]||[]).includes(n))return;C.pos=n;if(!C.seen.includes(n))C.seen.push(n);saveP();SND.ok&&SND.ok();
+  const t=M.ty[n];if(C.done.includes(n)||!t)return openCaveMap();
+  if(t==='lair'){if(C.seals<3){openCaveMap();return sheet('🐉 Sarang Naga',`<div class="note">Pintu sarang tersegel. Butuh <b>3 Dragon Seal</b> (punya ${C.seals}). Kalahkan Dragon Guard 💂 di labirin.</div><button class="go px" onclick="closeSheet()">OK</button>`)}
+    return sheet('🐉 Sarang Naga',`<div class="note">3 Dragon Seal menyala… pintu terbuka. <b>${DRG[CAVES[C.c].drg].n}</b> menunggu! HP-mu ${Math.round(C.hpf*100)}%.</div><button class="go px" onclick="cvLair()">⚔️ Lawan Naga</button><button class="ghost" onclick="closeSheet()">Nanti dulu</button>`)}
+  if(t==='sv'||t==='ling'||t==='gd')return cvDuel(t);
+  if(t==='chest')return cvChest();if(t==='spring'){C.hpf=Math.min(1,C.hpf+.3);C.done.push(n);saveP();openCaveMap();return sheet('💧 Mata Air',`<div class="note">Air yang sejuk… HP +30% (sekarang ${Math.round(C.hpf*100)}%).</div><button class="go px" onclick="closeSheet()">▶ Lanjut</button>`)}
+  if(t==='trap'){const Q=orbQ(orbLv());C.trapQ=Q;openCaveMap();return sheet('⚠️ Jebakan!',`<div class="note">Lantai bergetar! Jawab dengan benar untuk menghindar.</div><div class="reveal"><b style="font-size:22px">${Q.q}</b></div><div class="brow"><button class="go px" onclick="cvTrap(true)">✔ BENAR</button><button class="go px" style="background:#c8302a" onclick="cvTrap(false)">✖ SALAH</button></div>`)}
+  openCaveMap()}
+function cvTrap(v){const C=CVR(),Q=C.trapQ;if(!Q)return closeSheet();const ok=(typeof devF==='function'&&devF('auto'))||v===Q.ans;C.trapQ=null;C.done.push(C.pos);if(!ok)C.hpf=Math.max(.05,C.hpf-.1);saveP();openCaveMap();
+  sheet('⚠️ Jebakan',`<div class="note">${ok?'✔ Tepat! Kamu melompat menghindari jebakan.':'✖ Kurang tepat… batu jatuh! HP −10%.'}</div><button class="go px" onclick="closeSheet()">▶ Lanjut</button>`)}
+function cvChest(){const C=CVR(),Cv=CAVES[C.c],L=Cv.lv+2,g=Math.round((30+9*L)*1.3),log=[`🪙 +${g} gold`];C.loot.coin+=g;
+  const n=lootN([1,1,.5],lootMul());for(let i=0;i<n;i++)if(llGive(llGear(L,rarLL(zOfId(Cv.z),'e'),zOfId(Cv.z)),log))C.loot.n++;
+  if(Math.random()<.2*devM('drop')){PROF.mbox=(PROF.mbox||0)+1;log.push('🎁 Mystery Box +1')}C.done.push(C.pos);saveP();SND.win&&SND.win();openCaveMap();
+  sheet('📦 Chest',`<div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div><button class="go px" onclick="closeSheet()">▶ Lanjut</button>`)}
+/* --- battle di goa --- */
+const CVK={sv:[1.7,1.3],ling:[1.15,1.2],gd:[2.8,1.65],lair:[1.25,1.35]};
+function cvDuel(kind){const C=CVR(),Cv=CAVES[C.c],L=kind==='lair'?Cv.dl:Cv.lv+({sv:0,ling:2,gd:4}[kind]);let b,nb;
+  if(kind==='ling'||kind==='lair'){b={mon:{drg:Cv.drg,ling:kind==='ling'},lv:L};nb=kind==='lair'?DRG[Cv.drg].n:'Dragonling';b.npcN=nb}
+  else{const Z=ZONE8[zIdx(Cv.z)],src=kind==='gd'?pick(Z.el):pick(Z.mob),pre=kind==='gd'?'gd_':'sv_',m={n:Cv.k+(kind==='gd'?' Dragon Guard':' Dragon Servant'),wt:src[1],cr:null,tk:src[3],k:kind==='gd'?'e':'n',lv:L,z:Cv.z,sd:Math.floor(Math.random()*1e9)};
+    b=mobCfg(m);{const L0=b.look||{};b.look={g:L0.g||'l',hs:L0.hs||'pendek',hc:L0.hc||'#2a1a10',sk:L0.sk!=null?L0.sk:1,ec:L0.ec}}b.eq={hat:'nh_'+pre+Cv.drg,shirt:'ns_'+pre+Cv.drg,pants:'np_'+pre+Cv.drg,shoes:'nf_'+pre+Cv.drg,back:'nw_'+pre+Cv.drg};b.lv=L;b.pet=kind==='gd'?(LG.M.kristo&&LG.M.kristo.hp?'kristo':zonePet(Cv.z,'e')):null;nb=m.n}
+  startMatch({a:llMyCfg(),b,diff:2,arena:ZARENA[Cv.z],mode:'path',na:PROF.name,nb});W.noCrowd=1;G.cvF=kind;
+  const[A,B]=G.F,K=CVK[kind];A.maxHp=Math.round(A.maxHp*jobOf().hp*1.6);A.atk*=jobOf().atk;
+  B.maxHp=B.hp=Math.round(B.maxHp*K[0]);B.atk*=K[1];{const gap=L-PROF.lv;if(gap>2){const m=1+.08*(gap-2);B.maxHp=B.hp=Math.round(B.maxHp*m);B.atk*=m}}
+  G.time=kind==='lair'?150:99;A.hp=Math.max(1,Math.round(A.maxHp*C.hpf));llFxStart(A);B.kind=kind==='lair'||kind==='gd'?'b':kind==='ling'?'e':'n';B.lv=L;G.ph2=0;
+  if(kind==='gd')B.big=1.15;
+  $('w1').innerHTML=`<span style="color:${kind==='lair'?'#ffd23c':kind==='gd'?'#ff8aa0':'#e9ecf5'}">Lv ${L} · ${kind==='lair'?'DRAGON':kind==='gd'?'Guard ★':kind==='ling'?'Dragonling':'Servant'}</span>`;hud();
+  if(kind==='ling'){B.x=Math.min(ARW-30,B.x+0)}
+  if(kind==='lair'){G.shake=8;banner('🐉 '+DRG[Cv.drg].n.toUpperCase(),'Lv '+L,DGCOL[Cv.drg],1.6,16);try{SND.boom()}catch(e){}}}
+{const p0=pathEnd;pathEnd=function(w){if(!G.cvF)return p0(w);return cvEnd(w)}}
+function cvEnd(w){const C=CVR(),[A,B]=G.F,kind=G.cvF;G.cvF=0;G.ended=G.round;G.st='over';const lose=w===undefined?A.st==='ko'||A.hp<=0:w===1;G.mid++;
+  if(lose)return cvFail();
+  const Cv=CAVES[C.c],zn=zOfId(Cv.z),L=B.lv,log=[],ob=1+ORBB[orbLv()-1],Km={sv:1.5,ling:2.2,gd:3.4,lair:9}[kind],AC=llAcc(A.stats),FX=llFxAll();
+  C.hpf=Math.max(.05,A.hp/A.maxHp);
+  const g=Math.round((7+3*L)*Km*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*devM('gold')*AC.m);C.loot.coin+=g;log.push(`🪙 +${g} gold <small>(dibawa)</small>`);
+  const xp=Math.round((10+4*L)*Km*1.2*ob*(SEL.manual?.25:1)*(1+(A.bonus.exp||0))*AC.m);llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':''));
+  if(PROF.pet)llLumiExp(PROF.pet,Math.round(xp*.9),log);if(AC.t)log.push(AC.t);
+  const mul=lootMul()*AC.d,items=[],r=k=>rarLL(zn,k);
+  if(kind==='sv'){const n=lootN([.6,.25],mul);for(let i=0;i<n;i++)items.push(llGear(L,r('n'),zn));if(Math.random()<.2*mul)items.push(dgArmor('sv_'+Cv.drg))}
+  if(kind==='ling'){const n=lootN([1,.4],mul);for(let i=0;i<n;i++)items.push(Math.random()<.5?llWeapon(L,r('e')):llArtifact(L,r('e')))}
+  if(kind==='gd'){C.seals=Math.min(3,C.seals+1);log.push(`🗝️ <b>Dragon Seal ${C.seals}/3</b>${C.seals>=3?' — Sarang Naga bisa dibuka!':''}`);const n=lootN([1,.5],mul);for(let i=0;i<n;i++)items.push(llGear(L,r('e'),zn));if(Math.random()<.25*mul)items.push(dgArmor('gd_'+Cv.drg))}
+  if(kind==='lair'){items.push(dgArmor(Cv.drg));if(Math.random()<.3*mul){const w=dgWeapon(Cv.drg);if(w)items.push(w)}if(Math.random()<.4*mul)items.push(dgArt(Cv.drg));
+    if(Math.random()<.3*mul)items.push(llArtifact(L,3+Math.floor(Math.random()*3)))}
+  C.done.push(C.pos);saveP();const dl=llDropFx(B,items,12+L),bq=$('bQuit');if(bq)bq.style.visibility='hidden';
+  setTimeout(()=>{if(bq)bq.style.visibility='';items.forEach((it,i)=>{if(llGive(it,log,kind==='lair'&&!i?x=>'👑 '+dgLine(x):null))C.loot.n++});saveP();
+    if(kind==='lair')return cvClear(log);openCaveMap();sheet('🐉 '+Cv.n,`<div class="note"><b>WIN!</b> HP tersisa ${Math.round(C.hpf*100)}%</div><div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div><button class="go px" onclick="closeSheet()">▶ Lanjut</button>`)},dl)}
+function cvClear(log){const C=CVR(),Cv=CAVES[C.c];PROF.cvClr=PROF.cvClr||{};const first=!PROF.cvClr[C.c];PROF.cvClr[C.c]=(PROF.cvClr[C.c]||0)+1;if(first)log.push(`🏅 Pertama kali menaklukkan ${DRG[Cv.drg].n}!`);
+  cvPay(1,log);PROF.cv=null;saveP();openWorld();
+  sheet('🏆 Naga Ditaklukkan!',`<div class="reveal"><div class="rv-ic">🐉</div><b>${Cv.n}</b><small>${DRG[Cv.drg].n} dikalahkan</small></div><div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div><button class="go px" onclick="closeSheet()">Mantap!</button>`)}
+function cvFail(){const C=CVR(),Cv=CAVES[C.c],log=[];cvPay(.5,log);PROF.cv=null;saveP();openWorld();
+  sheet('😵 Knocked Out',`<div class="note">Kamu pingsan di ${Cv.n}. Separuh gold yang dibawa tetap kamu dapat; barang tetap di Bag.</div><div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div><div class="note">💡 Goa naga lebih mudah bersama party (tahap online), atau naikkan level & perlengkapan dulu.</div><button class="go px" onclick="closeSheet()">OK</button>`)}
+function cvLeave(){const C=CVR();if(!C)return;const log=[];cvPay(1,log);PROF.cv=null;saveP();openWorld();sheet('🏃 Retreat',`<div class="note">Kamu keluar dari ${CAVES[C.c].n} dengan selamat.</div><div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div><button class="go px" onclick="closeSheet()">OK</button>`)}
+
+function cvLair(){closeSheet();cvDuel('lair')}
+
+Object.assign(window,{bagExpand,bestEq,buyI,claimA,claimLogin,claimM,closeSheet,cvLair,cvMove,cvResume,cvStart,cvTrap,devCvReset,devDg,devDragon,devGive,devGold,devJob,devLumi,devLumiLv,devLv,devMBox,devSet,devToggle,devTp,dgResume,dgStart,gqSet,itemSheet,krJoin,lockI,lookSet,mbOpen,openBag,openChest,openDev,openExp,openKr,openShop,openTab,openWorld,openZone,prBuy,prCamp,prDone,prEnter,prStart,quickSell,sellAll,sellI,setAct,setBagF,setChW,sheet,unwear,upgI,uraiI,uraiWeak,wear,zGo,zPick,zStart});
 })();
 </script>
 <script>
@@ -6926,6 +7497,17 @@ LLW.setSnd=function(v){SND.on=v;if(SV){SV.snd=v;save()}$('bSnd').textContent=v?'
 LLW.setMus=function(v){if(SV){SV.musOff=!v;save()}};
 LLW.setZoom=function(i){if(SV){SV.zoom=i;save()}resize()};
 
+/* v15: 4 Goa Naga di pulau */
+LLW.CVP=null;const CVLM={ancient:['Wildwood Forest','ruins',-14,8],mist:['Misty Marsh','stilt',-14,10],ice:['Frostpeak','igloo',-14,9],fire:['Ember Crater','totem',-14,8]};const CVP={};LLW.CVP=CVP;
+function initCaves(){const SP=(window.__W2&&__W2.LMSPOT)||[];
+  for(const id in CVLM){const[zn,lk,ox,oy]=CVLM[id],z=D.zones[ZID[zn]];if(!z)continue;const lm=SP.find(s=>s.k===lk&&ZON[Math.floor(s.y/TS)*N+Math.floor(s.x/TS)]===ZID[zn]);
+    const bx=lm?Math.floor(lm.x/TS)+ox:z.x+4,by=lm?Math.floor(lm.y/TS)+oy:z.y+12;let sp=null;for(let r0=2;r0<18&&!sp;r0+=2){const q=spotNear(bx,by,4,6,r0);if(q&&ZON[q[1]*N+q[0]]===ZID[zn]&&freeFoot(q[0],q[1]+3,4,2))sp=q}
+    if(!sp)sp=spotNear(bx,by,3,5,2);if(!sp)continue;blockFoot(sp[0],sp[1],3,5);
+    const I=LLK.caveInfo(id),wx=sp[0]*TS+8,wy=sp[1]*TS+14,lb='Lv.'+I.lv+'+';CVP[id]={x:wx,y:wy};
+    addS(wx,wy,(g,x,y)=>cvDraw(g,x,y,I.drg,I.n,lb),[],[0,-30,60]);ACTS.push({x:wx,y:wy+14,r:22,ic:'🐉',lb:'ENTER',fn:()=>{if(mode==='play')LLK.cave(id)}})}}
+
+{const i0=LLW.initDungeons;LLW.initDungeons=function(){const was=DGDONE;i0();if(!was)try{initCaves()}catch(e){console.warn(e)}}}
+
 /* ===== Bangunan dungeon besar per zona (lingkup IIFE World) ===== */
 const DGA={};
 function dgCanvas(id){if(DGA[id])return DGA[id];const W=112,H=104,c=mk(W,H),g=c.getContext('2d'),r=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x|0,y|0,w|0,h|0)},
@@ -6972,6 +7554,29 @@ function dgDraw(g,x,y,id,nm,lb){const c=dgCanvas(id),t=Date.now()/1000;g.drawIma
   g.font='bold 7px sans-serif';g.textAlign='center';g.strokeStyle='#1a1020';g.lineWidth=2;g.strokeText('🏰 '+nm,x,y-104);g.fillStyle='#ffe680';g.fillText('🏰 '+nm,x,y-104);
   g.font='bold 5.5px sans-serif';g.lineWidth=1.6;g.strokeText(lb,x,y-96);g.fillStyle='#ffffff';g.fillText(lb,x,y-96)}
 window.__DGA=id=>dgCanvas(id);
+
+/* v15: pintu Goa Naga — bukit batu, mulut goa bertaring, mata naga menyala, obor */
+const CVA={};
+const CVPAL={sage:{r:['#3a3a2e','#55553f','#727256'],ac:'#3aae6a',ac2:'#7affc8',e:'#fff36a'},shadow:{r:['#2a2438','#3e3652','#585070'],ac:'#6a55aa',ac2:'#c86aff',e:'#ff5ad8'},
+  frost:{r:['#5a7088','#8aa4be','#c4d8ea'],ac:'#e2f6ff',ac2:'#9af0ff',e:'#6af6ff'},crimson:{r:['#2a1a16','#4a2e24','#6a4434'],ac:'#ff6a2a',ac2:'#ffb02e',e:'#ffe14a'}};
+function cvCanvas(k){if(CVA[k])return CVA[k];const W=112,H=104,c=mk(W,H),g=c.getContext('2d'),P=CVPAL[k],B=H-6,cx=W/2,r=(x,y,w,h,col)=>{g.fillStyle=col;g.fillRect(x|0,y|0,w|0,h|0)};
+  const blob=(x0,y0,rx,ry,col)=>{g.fillStyle=col;g.beginPath();g.ellipse(x0,y0,rx,ry,0,Math.PI,0);g.fill()};
+  blob(cx,B,54,62,P.r[0]);blob(cx-14,B,38,52,P.r[1]);blob(cx+20,B,30,40,P.r[1]);blob(cx-24,B-8,18,30,P.r[2]);blob(cx+30,B-6,14,22,P.r[2]);
+  for(let i=0;i<40;i++){const x=8+((i*37)%96),y=B-6-((i*53)%54);if(Math.hypot(x-cx,(y-B)*1.1)<52)r(x,y,2,1,P.r[i%2?0:2])}
+  g.fillStyle='#0a0612';g.beginPath();g.ellipse(cx,B,22,30,0,Math.PI,0);g.fill();
+  for(let x=-18;x<=18;x+=6){g.fillStyle='#efe6d8';g.beginPath();const yy=B-Math.sqrt(Math.max(0,1-(x/22)**2))*30;g.moveTo(cx+x-2.5,yy);g.lineTo(cx+x+2.5,yy);g.lineTo(cx+x,yy+6);g.fill()}
+  for(const x of[-12,12]){g.fillStyle='#efe6d8';g.beginPath();g.moveTo(cx+x-2,B);g.lineTo(cx+x+2,B);g.lineTo(cx+x,B-6);g.fill()}
+  r(cx-24,B-2,48,4,P.r[0]);r(cx-20,B-1,40,1,P.r[2]);
+  if(k==='sage'){for(const[x,y]of[[18,B-24],[30,B-40],[84,B-30],[92,B-18],[74,B-50]]){r(x,y,6,3,P.ac);r(x+1,y-1,4,1,P.ac2)}}
+  if(k==='shadow'){for(const[x,y]of[[22,B-30],[88,B-26],[70,B-52]]){r(x,y,3,3,P.ac2);r(x+1,y-3,1,3,P.ac)}}
+  if(k==='frost'){for(let x=12;x<100;x+=7){const t=Math.abs(x-cx);if(t<50){const y=B-Math.sqrt(Math.max(0,1-(t/54)**2))*62;r(x,y-2,6,3,'#ffffff');r(x+2,y+1,1,4,'#e2f6ff')}}}
+  if(k==='crimson'){for(const[x,y,w]of[[20,B-20,10],[80,B-34,12],[60,B-54,8],[34,B-44,6]]){r(x,y,w,1,P.ac);r(x+2,y+1,w-4,1,P.ac2)}}
+  return CVA[k]=c}
+function cvDraw(g,x,y,k,nm,lb){const c=cvCanvas(k),t=Date.now()/1000,P=CVPAL[k];g.drawImage(c,x-56,y-100);
+  const e=.55+.45*Math.sin(t*1.7);g.fillStyle=P.e;g.globalAlpha=.5+.5*e;g.fillRect(x-7,y-20,3,2);g.fillRect(x+4,y-20,3,2);g.globalAlpha=1;
+  [-30,30].forEach(a=>{g.fillStyle='#5a3420';g.fillRect(x+a,y-22,2,14);const f=(t*8+a)|0;g.fillStyle=[P.ac2,'#ffd23c',P.ac][f%3];g.fillRect(x+a-1,y-26-(f%2),4,4)});
+  if(Math.random()<.04){}g.font='bold 6px sans-serif';g.textAlign='center';g.strokeStyle='#1a1020';g.lineWidth=1.6;g.strokeText('🐉 '+nm,x,y-70);g.fillStyle='#ffe680';g.fillText('🐉 '+nm,x,y-70);
+  g.font='bold 5px sans-serif';g.strokeText(lb,x,y-63);g.fillStyle='#ffffff';g.fillText(lb,x,y-63)}
 
 
 
