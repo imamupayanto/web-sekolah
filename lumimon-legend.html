@@ -328,6 +328,7 @@ body.incave #bt .ar:not(#K *){filter:brightness(.55) saturate(.75) hue-rotate(20
 body{position:fixed;top:0;left:0;right:0;height:var(--fh,100%)}
 html.frame{background:#0a0f22}
 html.frame body:not(#K *){left:var(--fl,0);right:auto;width:var(--fw);contain:layout paint;box-shadow:0 0 0 1px #24305a,0 0 40px rgba(0,0,0,.6)}
+@media(max-width:400px){#clock:not(#K *){display:none}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 #K #app{max-width:480px;height:100%;margin:0 auto;position:relative;background:#1d1540;display:flex;flex-direction:column}
 #K .px{font-family:'Pixelify Sans',system-ui,sans-serif}
@@ -1028,10 +1029,13 @@ body.dev #K #devW{display:block}
 #K .cvr .ce{position:absolute;left:100%;top:40%;width:11px;height:20%;background:#4a4270;pointer-events:none}
 #K .cvr .cs{position:absolute;top:100%;left:40%;height:11px;width:20%;background:#4a4270;pointer-events:none}
 #K .cvk{font-size:12px;text-align:center;margin-top:10px}
+
+#K #scCave .exl2,#K #scExp .exl2{padding-left:12px;padding-right:12px}
+#K .note .mini{display:inline-block;margin-top:4px}
 </style></head>
 <body>
 <canvas id="c"></canvas>
-<div id="hud" class="hide"><canvas id="hAv" width="16" height="13"></canvas><div class="hm"><div class="who"><span id="hName"></span><span class="lv" id="hLv">Lv.1</span></div><div id="hXp" class="bar"><i style="width:0"></i></div></div><div id="hKoin" class="chip2">🪙 0</div><div id="clock" class="chip2"></div><div id="zn">…</div></div>
+<div id="hud" class="hide"><canvas id="hAv" width="16" height="13"></canvas><div class="hm"><div class="who"><span id="hName"></span><span class="lv" id="hLv">Lv.1</span></div><div id="hXp" class="bar"><i style="width:0"></i></div></div><div id="hKoin" class="chip2">🪙 0</div><div id="hPow" class="chip2" style="color:#ffd27a"></div><div id="clock" class="chip2"></div><div id="zn">…</div></div>
 <canvas id="mini" class="hide" width="160" height="160"></canvas>
 <div id="side" class="hide"><button id="bFly" aria-label="Terbang">🎈<span>Terbang</span></button><button id="bSnd" aria-label="Suara">🔊</button><button id="bRide" aria-label="Tunggangan">🐾<span>Tunggang</span></button><button id="bRun" aria-label="Lari">🚶</button></div>
 <div id="zb" class="pan"><div class="zi"></div><div class="zt"></div><div class="zs"></div></div>
@@ -3978,7 +3982,7 @@ function result(){G.st='over';const win=G.wins[0]>G.wins[1],draw2=G.wins[0]===G.
   setTimeout(()=>{$('ovR').classList.remove('hide');win?SND.win():SND.bad()},300)}
 
 /* ---------- kontrol ---------- */
-$('bQuit').onclick=()=>{G.mid++;G.paused=false;G.mode==='ll'?llFlee():G.mode==='path'?openExp():G.mode==='zone'?zLeave():G.mode==='rank'?goLobby():(G.scr='sel',show('scSel'))};
+$('bQuit').onclick=()=>{G.mid++;G.paused=false;if(G.cvF)return cvFlee();G.mode==='ll'?llFlee():G.mode==='path'?openExp():G.mode==='zone'?zLeave():G.mode==='rank'?goLobby():(G.scr='sel',show('scSel'))};
 $('bAgain').onclick=()=>{$('ovR').classList.add('hide');G.mode==='rank'?openVS():startMatch()};$('bBack').onclick=()=>{$('ovR').classList.add('hide');G.mode==='rank'?goLobby():(G.scr='sel',show('scSel'))};
 function show(id){document.querySelectorAll('.sc').forEach(s=>s.classList.toggle('on',s.id===id))}
 
@@ -4135,7 +4139,7 @@ ABYSS.forEach(A=>{const k='abyss_'+A.k;GSET[k]={n:A.n,vis:k,b2:{atk:.05,hp:.05},
 const rng1=s=>()=>(s=(s*16807)%2147483647)/2147483647;
 const uid=()=>'i'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36);
 /* buat instance item */
-const WR=[0,1,1.06,1.13,1.21,1.3],RM2=[0,1,1.15,1.32,1.5,1.7],AM2=[0,0,1,1.25,1.5,1.8],PRR=[0,1,1.6,2.6,4,6];
+const WR=[0,.93,1,1.07,1.14,1.2],RM2=[0,.85,1,1.15,1.3,1.45],AM2=[0,0,1,1.1,1.2,1.3],PRR=[0,1,1.6,2.6,4,6];
 function curILv(){return PROF.pr&&typeof prLv==='function'?prLv():PROF.lv||1}
 function mkItem(s,b,r,o){return Object.assign({u:uid(),s,b,r,sd:1+Math.floor(Math.random()*2e9),up:0,lv:curILv()},o||{})}
 function rollPiece(sl,r){const pool=PIECES.filter(p=>p.sl===sl&&['dasar','elemen','bos'].includes(p.kind)),mr=Math.min(r,3);let c=pool.filter(p=>p.r===mr||p.r===mr-1);if(!c.length)c=pool;return pick(c).id}
@@ -4724,7 +4728,7 @@ function openBag(){const P=PROF,E=eqItems(),worn=Object.values(P.eqp||{}),G2=gea
     ${llSetNote()}
     <div class="brow"><button class="ghost" onclick="bestEq()">⚡ Equip Best</button><button class="ghost" onclick="quickSell()">🪙 Quick Sell</button></div><div class="brow"><button class="ghost" onclick="uraiWeak()">✦ Dismantle yang lebih lemah</button><button class="ghost" onclick="openKr()">${krImg(3,16)} Crystal</button></div>${krBar()}
     <div class="chtab">${[['all','All'],['w','Weapon'],['ar','Armor'],['acc','Artifact']].map(([k,n])=>`<button class="${BAGF===k||(k==='ar'&&['hat','shirt','pants','shoes','back'].includes(BAGF))?'on':''}" onclick="setBagF('${k}')">${n}</button>`).join('')}</div>
-    <div class="note">${bag().length}/${bagMax()} barang · ${bagExpBtn()}<br>ketuk barang untuk pasang, copot, tempa, urai, kunci, atau jual</div>
+    <div class="note">${typeof myPower==='function'?`<b style="color:#ffd27a">${powTxt(myPower())}</b> Power (disarankan ${powTxt(recPow(PROF.lv))} untuk Lv ${PROF.lv})<br>`:''}${bag().length}/${bagMax()} barang · ${bagExpBtn()}<br>ketuk barang untuk pasang, copot, tempa, urai, kunci, atau jual</div>
     <div class="tiles">${B.length?B.map(it=>{const cur=E[it.s],up=(it.lv||1)<=PROF.lv&&(!cur||score(it)>score(cur));return`<button class="tile ${upCls(it)}" style="--rc:${RKC[it.r]}" onclick="itemSheet('${it.u}')">${thumb(it,32)}${it.up?`<b>+${it.up}</b>`:''}<u class="ilv ${(it.lv||1)>PROF.lv?'no':''}">Lv${it.lv||1}</u>${it.nw?'<i class="nw">BARU</i>':''}${it.lk?`<i class="lkk">${ico('lock',10)}</i>`:''}${up?'<em>▲</em>':''}</button>`}).join(''):'<div class="note">Kosong. Barang didapat dari petualangan, duel, peti, dan toko.</div>'}</div>`)}
 function itemSheet(u){const own=byU(u),it=own||(PROF.shopI||[]).find(x=>x.u===u);if(!it)return;if(own&&own.nw){own.nw=0;saveP()}
   const d=gi(it),E=eqItems(),cur=E[it.s],worn=PROF.eqp[it.s]===u,upC=upCost(it),upMt=upMat(it),upX=UPMAX[it.r];
@@ -6134,11 +6138,11 @@ const orbLv=()=>Math.max(1,Math.min(5,PROF.orb||1));
 /* ================= LUMIMON LEGENDS · jembatan battle & profil (lingkup Knight) ================= */
 const KEL=()=>$('K');
 function kShow(fight){const k=KEL();k.classList.remove('hide');k.classList.toggle('fight',!!fight)}
-function kHide(){if(G.scr==='fight'||G.scr==='make'||G.scr==='exp')return;KEL().classList.add('hide')}
-{const s0=sheet,c0=closeSheet;sheet=function(t,h){kShow(G.scr==='fight'||G.scr==='make'||G.scr==='exp');s0(t,h)};closeSheet=function(){if(G.scr==='fight'&&G.st==='over'&&LLF&&LLF.res){llDone(LLF.res);return}c0();kHide();if(G.scr!=='fight'&&window.LLW&&window.__LLW&&window.__LLW.SV){try{LLW.syncGear();__LLW.refreshHud()}catch(e){}}}}
+function kHide(){if(G.scr==='fight'||G.scr==='make'||G.scr==='exp'||G.scr==='cave')return;KEL().classList.add('hide')}
+{const s0=sheet,c0=closeSheet;sheet=function(t,h){kShow(G.scr==='fight'||G.scr==='make'||G.scr==='exp'||G.scr==='cave');s0(t,h)};closeSheet=function(){if(G.scr==='fight'&&G.st==='over'&&LLF&&LLF.res){llDone(LLF.res);return}c0();kHide();if(G.scr!=='fight'&&window.LLW&&window.__LLW&&window.__LLW.SV){try{LLW.syncGear();__LLW.refreshHud()}catch(e){}}}}
 $('shX').onclick=()=>closeSheet();$('ksheet').onclick=e=>{if(e.target.id==='ksheet')closeSheet()};
 /* ---------- level pemain (maks 50) & Lumi ---------- */
-const LLMAX=50,needXP=lv=>Math.round(60+40*Math.pow(lv,1.6));
+const LLMAX=50,needXP=lv=>(typeof NXP!=='undefined'&&NXP[lv])||Math.round(60+40*Math.pow(lv,1.6));
 function llAddExp(n,log){const P=PROF;if(P.lv>=LLMAX){P.exp=0;return}P.exp+=n;while(P.lv<LLMAX&&P.exp>=needXP(P.lv)){P.exp-=needXP(P.lv);P.lv++;const c=30+P.lv*8;P.coin+=c;log.push(`⬆️ <b>Level ${P.lv}!</b> +${c} 🪙 · HP & serangan naik`)}if(P.lv>=LLMAX)P.exp=0}
 function lumis(){return PROF.lumis=PROF.lumis||{}}
 function lumiOf(id){const L=lumis();return L[id]||(L[id]={lv:1,exp:0})}
@@ -6147,7 +6151,7 @@ function llLumiExp(id,n,log){const L=lumiOf(id),P=PROF,gap=P.lv-L.lv;if(L.lv>=P.
   n=Math.round(n*(gap>=10?3:gap>=5?2:1));L.exp+=n;while(L.lv<P.lv&&L.exp>=needLX(L.lv)){L.exp-=needLX(L.lv);L.lv++;log&&log.push(`🐾 ${LG.M[id].n} naik ke <b>Lv ${L.lv}</b>!`)}if(L.lv>=P.lv)L.exp=Math.min(L.exp,needLX(L.lv)-1)}
 function llPetMul(){const id=PROF.pet;if(!id)return 1;const L=lumiOf(id),job=PROF.job==='lumi'?1.5/.7:1;const gb=gearCfg(eqItems()).gb||{};return job*lvAtk(L.lv)/lvAtk(PROF.lv)*(1+(gb.pet||0))}
 /* ---------- konfigurasi petarung pemain: job + perlengkapan ---------- */
-function llMyCfg(){const c=myCfg(),J=jobOf(),SB=setBonus();c.bon=Object.assign({},c.bon);for(const k in J.bon)c.bon[k]=(c.bon[k]||0)+J.bon[k];for(const k in SB)if(k!=='pet')c.bon[k]=(c.bon[k]||0)+SB[k];c.pet=PROF.pet||null;c.job=PROF.job;return c}
+function llMyCfg(){const c=myCfg(),J=jobOf(),SB=setBonus();c.bon=Object.assign({},c.bon);for(const k in J.bon)c.bon[k]=(c.bon[k]||0)+J.bon[k];for(const k in SB)if(k!=='pet')c.bon[k]=(c.bon[k]||0)+SB[k];c.pet=PROF.pet||null;c.job=PROF.job;if(c.bon.dr>.45)c.bon.dr=.45;return c}
 /* ---------- makhluk Geng Kabut ---------- */
 function mobPick(zn,R){R=R||Math.random;const Z=ZONE8[zIdx(LZ[zn].z)],e=R()<.12,m=e?Z.el[Math.floor(R()*Z.el.length)]:Z.mob[Math.floor(R()*Z.mob.length)],l=LZ[zn].lv;
   return{n:m[0],wt:m[1],cr:m[2],tk:m[3],k:e?'e':'n',lv:Math.min(l[1],l[0]+Math.floor(R()*(l[1]-l[0]+1))+(e?1:0)),z:LZ[zn].z,sd:Math.floor(R()*1e9)}}
@@ -6168,8 +6172,7 @@ function llFight(enc,cb){const P=PROF;let b,nb,L,ar;closeSheet();
   ar=ZARENA[(LZ[enc.zn]||{}).z]??0;LLF={enc,cb,L,t0:Date.now()};kShow(1);
   startMatch({a:llMyCfg(),b,diff:1,arena:ar,mode:'ll',na:P.name,nb});
   W.noCrowd=1;const [A,B]=G.F;G.time=99;A.maxHp=A.hp=Math.round(A.maxHp*jobOf().hp*1.6);A.atk*=jobOf().atk;llFxStart(A);
-  if(enc.kind==='mob'){B.maxHp=B.hp=Math.round(B.maxHp*(enc.m.k==='e'?2.2:1.5));B.atk*=enc.m.k==='e'?1.5:1.2}else{B.maxHp=B.hp=Math.round(B.maxHp*1.5)}
-  const gap=L-P.lv;if(gap>2){const k=1+.08*(gap-2);B.maxHp=B.hp=Math.round(B.maxHp*k);B.atk*=k}
+  llScale(B,L,enc.kind==='mob'?(enc.m.k==='e'?'e':'n'):'lumi');
   $('w1').innerHTML=`<span style="color:${enc.m&&enc.m.k==='e'?'#ff8aa0':'#e9ecf5'}">Lv ${L}${enc.m&&enc.m.k==='e'?' · Elite ★':''}</span>`;hud()}
 function llDone(res){G.st='over';G.scr='map';G.mid++;$('ksheet').classList.add('hide');KEL().classList.add('hide');KEL().classList.remove('fight');const f=LLF;LLF=null;saveP();if(f&&f.cb)f.cb(res)}
 function llFlee(){llDone({flee:1})}
@@ -6179,10 +6182,10 @@ function llEnd(w){if(!LLF)return;const[A,B]=G.F;G.ended=G.round;G.st='over';cons
   const bq=$('bQuit');if(bq)bq.style.visibility='hidden';setTimeout(()=>{if(bq)bq.style.visibility='';if(lose){sheet('😵 LOSE',`<div class="note">${f.enc.kind==='lumi'?'Lumi liar':'Musuh'} terlalu kuat. Kamu dibawa pulang ke Baniara untuk istirahat.</div><div class="note">💡 Naikkan level, ganti Equipment di 🎒 Bag, atau beli di toko.</div><button class="go px" id="llOk">🏠 Return to Town</button>`);$('llOk').onclick=()=>llDone({lose:1});return}
     const log=llReward(f,A);sheet('🏆 WIN!',`<div class="rew">${log.map(l=>`<div>${l}</div>`).join('')}</div><button class="go px" id="llOk">▶ Continue</button>`);$('llOk').onclick=()=>llDone({win:1})},dl)}
 function llReward(f,A){const AC=f.ac||{m:1,d:1,t:''},P=PROF,L=f.L,e=f.enc,K=e.kind==='mob'?(e.m.k==='e'?2.5:1.3):1,ob=1+ORBB[orbLv()-1],log=[],s=A.stats||{};
-  const FX=llFxAll(),gold=Math.round((5+2.5*L)*K*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*(.9+Math.random()*.2)*devM('gold')*AC.m),xp=Math.round((10+4*L)*K*ob*(1+(A.bonus.exp||0))*(SEL.manual?.25:1)*AC.m);
+  const FX=llFxAll(),gold=Math.round((5+2.5*L)*K*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*(.9+Math.random()*.2)*devM('gold')*AC.m),GX=llGearXp(),xp=Math.round((10+4*L)*K*ob*(1+(A.bonus.exp||0))*(SEL.manual?.25:1)*AC.m*GX.m);
   P.coin+=gold;log.push(`🪙 +${gold} gold`);llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':ob>1?` <small>(Orb +${Math.round((ob-1)*100)}%)</small>`:''));
   if(P.pet){llLumiExp(P.pet,Math.round(xp*.9),log)}
-  if(s.qok)log.push(`🧠 ${s.qok} soal benar`);if(AC.t)log.push(AC.t);
+  if(s.qok)log.push(`🧠 ${s.qok} soal benar`);if(AC.t)log.push(AC.t);if(GX.t)log.push(GX.t);
   if(e.kind==='lumi'){if(Math.random()<(e.shiny?1:.12*devM('drop'))&&LG.M[e.id]){const nw=!lumis()[e.id]||!(P.lumiOwn||[]).includes(e.id);P.lumiOwn=P.lumiOwn||[];if(nw){P.lumiOwn.push(e.id);lumis()[e.id]={lv:Math.max(1,L-3),exp:0};log.push(`🐾 <b>${LG.M[e.id].n}</b> ingin ikut denganmu! (Lv ${Math.max(1,L-3)})`)}else{P.coin+=40;log.push(`🐾 ${LG.M[e.id].n} sudah kamu punya → +40 🪙`)}}}
   else(f.items||[]).forEach(it=>llGive(it,log));
   saveP();return log}
@@ -6197,8 +6200,8 @@ function gearVis(){const E=eqItems(),eq={},acc={},tier={};for(const sl of ARS){c
 window.LLK={spend:n=>{if(PROF.coin<n)return false;PROF.coin-=n;saveP();return true},busy:()=>!KEL().classList.contains('hide'),prof:()=>PROF,hasProf:()=>!!(PROF.made&&PROF.v===LLV),expPct:()=>PROF.lv>=LLMAX?100:Math.min(100,PROF.exp/needXP(PROF.lv)*100),
   petId:()=>PROF.pet||null,reset(){try{for(const k of Object.keys(localStorage))if(k.startsWith('llg_'))localStorage.removeItem(k)}catch(e){}location.reload()},
   fight:llFight,zoneLv:zoneLvOf,zoneMobs:zn=>LZ[zn]?{n:LZ[zn].n}:null,mobPick,mobSheet:m=>mobSheet2(m),mapWpn:(g,x,y,d,f,l)=>{myMapWing(g,x,y,d,f,l);myMapWpn(g,x,y,d,f,l)},mobWpn:(g,m,x,y,d,f,l,md)=>mapWpn(g,m.wid||(m.wid=mobWid(m)),x,y,d,f,0,l,m.k==='e'?3:1,0),wToggle:()=>wToggle(),wDraw:()=>!!PROF.wdraw,hasW:()=>!!eqItems().w,gearVis,pick:llPick,q:()=>orbQ(orbLv()),
-  make:done=>llMake(done),dungeon:id=>openZone(id),cave:id=>openCave(id),caveInfo:id=>({n:CAVES[id].n,lv:CAVES[id].lv,drg:CAVES[id].drg}),quests:()=>llQuests(),smith:()=>llSmith(),mbox:()=>llMBox(),villageGift:(v,n)=>llVillageGift(v,n),dgName:id=>DGN[id],dgCol:id=>DGC[id],dgActive:()=>PR()&&PR().z,bag:()=>{openBag()},hero:()=>llHero(),lumi:()=>llLumi(),shop:k=>llShop(k),orb:()=>orbOpen(),settings:()=>llSettings()};
-window.__LLK={get DGT(){return{cvDuel,cvMaze,openCaveMap,dgArmor,dgWeapon,dgArt,giveItem,thumbCv,gi,DGS,SETS,WPN,ART,WLAD,setBonus,llSetLine}},get PROF(){return PROF},get G(){return G},get QZ(){return QZ},bagMax:()=>bagMax(),llDropFx:(B,i,g)=>llDropFx(B,i,g),llAddExp,giveItem:(it,l)=>giveItem(it,l),llGear,gi,eqItems,orbQ,genQ,ORBQ,WLAD,llWeapon,llArmor,llArtifact,setBonus,llFxAll,get ARTS(){return ARTS},saveP,syncW};
+  make:done=>llMake(done),dungeon:id=>openZone(id),power:()=>myPower(),recPow:L=>recPow(L),cave:id=>openCave(id),caveInfo:id=>({n:CAVES[id].n,lv:CAVES[id].lv,drg:CAVES[id].drg}),quests:()=>llQuests(),smith:()=>llSmith(),mbox:()=>llMBox(),villageGift:(v,n)=>llVillageGift(v,n),dgName:id=>DGN[id],dgCol:id=>DGC[id],dgActive:()=>PR()&&PR().z,bag:()=>{openBag()},hero:()=>llHero(),lumi:()=>llLumi(),shop:k=>llShop(k),orb:()=>orbOpen(),settings:()=>llSettings()};
+window.__LLK={get DGT(){return{refStats,myPower,recPow,llWeapon,llArmor,llArtifact,LZ,lumiOf,mobPick,cvDuel,cvMaze,openCaveMap,dgArmor,dgWeapon,dgArt,giveItem,thumbCv,gi,DGS,SETS,WPN,ART,WLAD,setBonus,llSetLine}},get PROF(){return PROF},get G(){return G},get QZ(){return QZ},bagMax:()=>bagMax(),llDropFx:(B,i,g)=>llDropFx(B,i,g),llAddExp,giveItem:(it,l)=>giveItem(it,l),llGear,gi,eqItems,orbQ,genQ,ORBQ,WLAD,llWeapon,llArmor,llArtifact,setBonus,llFxAll,get ARTS(){return ARTS},saveP,syncW};
 
 /* ================= LUMIMON LEGENDS · buat karakter: nama, tampilan, job, Lumi awal ================= */
 const STARTERS=[['fox','Api','🔥'],['frost','Es','❄️'],['moss','Racun','🟢']];
@@ -6268,7 +6271,7 @@ function llStock(k){const d=today(),P=PROF;P.st=P.st||{};if(P.st.d!==d||P.st.lv!
     if(k==='w'||true){const kinds=Object.keys(KIND);kinds.forEach(kd=>{const L=WLAD[kd].filter(e=>e.lv<=lv+2);L.slice(-2).forEach(e=>o.push(mkItem('w',e.id,Math.random()<.25?2:1,{lv:e.lv})))});P.st.w=o}
     const a=[];ALAD.filter(([l])=>l<=lv+2).slice(-2).forEach(([l,s])=>{const S=SETS.find(x=>x.id===s);ARS.forEach(sl=>a.push(mkItem(sl,S.eq[sl],Math.random()<.25?2:1,{lv:l,lset:s})))});[0,1,2].forEach(()=>a.push(llArtifact(Math.max(1,lv+Math.floor(Math.random()*3)-1),Math.random()<.25?2:1)));P.st.a=a;P.st.d=d;P.st.lv=P.lv;saveP()}
   return P.st[k]||[]}
-const llPrice=it=>Math.max(20,Math.round(gi(it).price*1.2/5)*5);
+const llPrice=it=>Math.max(20,Math.round(gi(it).price*3/5)*5);
 function llShop(k){if(k==='lumi'){sheet('🐾 Lumi Center',`<div class="note"><b>Dokter Lumi:</b> "Lumimu selalu pulih sendiri setelah battle. Kandang, telur & evolusi segera hadir di sini!"</div><button class="go px" onclick="closeSheet();LLK.lumi()">🐾 My Lumi</button>`);return}
   if(k==='smith')return llSmith();if(k==='mbox')return llMBox();
   if(0){sheet('🔨 Blacksmith',`<div class="note"><b>Mas Joko:</b> "Kumpulkan 🪨 Ore dari battle. Forge, Dismantle & Crystal segera bisa di sini!"</div><div class="note">🪨 Ore kamu: <b>${PROF.ore||0}</b></div><button class="go px" onclick="closeSheet()">OK</button>`);return}
@@ -6304,7 +6307,7 @@ function dgLine(it){return`${itIcon(it)} <b style="color:${RKC[it.r]}">${gi(it).
 /* --- layar masuk dungeon --- */
 function openZone(id){const zn=zOfId(id),l=LZ[zn].lv,S=zst(id),R=PR(),zi=zIdx(id),Z=ZONE8[zi];
   sheet(`🏰 ${DGN[id]}`,`<div class="note"><b>${zn}</b> · Musuh Lv ${l[0]}–${l[1]} · 9 pos, HP terbawa antar pos. Hanya pos di depanmu yang terlihat, sisanya tertutup kabut.</div>
-   ${PROF.lv<l[0]?`<div class="note" style="color:#ffb07a">⚠️ Levelmu (Lv ${PROF.lv}) di bawah musuh dungeon ini. Hati-hati!</div>`:''}
+   ${PROF.lv<l[0]?`<div class="note" style="color:#ffb07a">⚠️ Levelmu (Lv ${PROF.lv}) di bawah musuh dungeon ini. Hati-hati!</div>`:''}${powNote(l[1],'Normal disarankan')}
    ${R&&R.z===id?`<button class="go px" onclick="dgResume()">▶ Continue · pos ${R.row+1}/9 (${ZDIF[R.d].n})</button>`:''}
    <div class="sec">Boss: ${Z.boss[0]}</div>
    <div class="lst">${ZDIF.map((d,i)=>{const lk=i>S.d;return`<div class="it ${lk?'lk':''}" ${lk?'':`onclick="dgStart('${id}',${i})"`}><span class="ic">${lk?'🔒':['🟢','🟡','🔴'][i]}</span><span><b>${d.n}</b><small>Musuh Lv ${l[0]+d.lv}–${l[1]+d.lv+1} · drop sampai ${RK[dgCap(zi)]} (peluang ${['kecil','sedang','besar'][i]}) · gold ×${d.g}${lk?' · kalahkan Boss tingkat sebelumnya':''}</small></span>${lk?'':'<i>ENTER ▶</i>'}</div>`}).join('')}</div>
@@ -6331,7 +6334,7 @@ function npcCfg(kind){const R=PR(),Z=ZONE8[zIdx(R.z)],L=prLv()+({n:0,e:1,b:1}[ki
 function prDuel(kind){const R=PR(),b=npcCfg(kind);
   startMatch({a:llMyCfg(),b,diff:Math.min(2,1+R.d),arena:ZARENA[R.z],mode:'path',na:PROF.name,nb:b.npcN});W.noCrowd=1;
   const[A,B]=G.F,K={n:[1.5,1.2],e:[2.3,1.5],b:[3.4,1.5]}[kind];A.maxHp=Math.round(A.maxHp*jobOf().hp*1.6);A.atk*=jobOf().atk*(1+(R.buff||0));
-  B.maxHp=B.hp=Math.round(B.maxHp*K[0]*dgHp[R.d]);B.atk*=K[1]*dgAtk[R.d];{const gap=b.lv-PROF.lv;if(gap>2){const m=1+.08*(gap-2);B.maxHp=B.hp=Math.round(B.maxHp*m);B.atk*=m}}
+  llScale(B,b.lv,'d'+kind,dgHp[R.d],dgAtk[R.d]);
   G.time=99;if(kind==='b'){const Z=ZONE8[zIdx(R.z)],q=Z.sk;B.big=1.35;B.M=Object.assign({},B.M,{list:B.M.list.map(x=>Object.assign({},x,{reach:x.reach*1.25})),heavy:Object.assign({},B.M.heavy,{reach:B.M.heavy.reach*1.25})});B.sk=Object.assign({n:q[0],ic:'👑',cd:10,m:(q[1]||0)*.8},q[2]);B.skCD=5;B.bossCol=q[3]}
   A.hp=Math.max(1,Math.round(A.maxHp*R.hpf));llFxStart(A);B.kind=kind;B.lv=b.lv;G.ph2=0;
   $('w1').innerHTML=`<span style="color:${kind==='b'?'#ffd23c':kind==='e'?'#ff8aa0':'#e9ecf5'}">Lv ${b.lv} · ${kind==='b'?'BOSS':kind==='e'?'Elite ★':'Geng Kabut'}</span>`;hud()}
@@ -6340,8 +6343,8 @@ function pathEnd(w){const R=PR(),[A,B]=G.F;G.ended=G.round;G.st='over';const los
   if(lose)return prFail();
   R.hpf=Math.max(.05,A.hp/A.maxHp);const k=B.kind,L=B.lv||prLv(),Km={n:1.2,e:2.5,b:6}[k],ob=1+ORBB[orbLv()-1],log=[],zn=zOfId(R.z),zi=zIdx(R.z);
   const AC=llAcc(A.stats),FX=llFxAll(),g=Math.round((6+3*L)*Km*ZDIF[R.d].g*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*devM('gold')*AC.m);R.loot.coin+=g;log.push(`🪙 +${g} gold <small>(dibawa)</small>`);
-  const xp=Math.round((10+4*L)*Km*(1+.15*R.d)*ob*(SEL.manual?.25:1)*(1+(A.bonus.exp||0))*AC.m);llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':''));
-  if(PROF.pet)llLumiExp(PROF.pet,Math.round(xp*.9),log);if(AC.t)log.push(AC.t);
+  const GX=llGearXp(),xp=Math.round((10+4*L)*Km*(1+.15*R.d)*ob*(SEL.manual?.25:1)*(1+(A.bonus.exp||0))*AC.m*GX.m);llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':''));
+  if(PROF.pet)llLumiExp(PROF.pet,Math.round(xp*.9),log);if(AC.t)log.push(AC.t);if(GX.t)log.push(GX.t);
   const mul=lootMul()*AC.d,items=[];
   if(k==='b'){const LB=prLv()+1;items.push(llArmor(LB,Math.max(2,rarZ(R.d,zi,1)),pick(ARS)));const n=lootN([1,1,.6],mul);for(let i=0;i<n;i++)items.push(llGear(LB,rarZ(R.d,zi,1),zn))}
   else{const n=lootN(k==='e'?[1,1,.6]:[1,.45,.15],mul);for(let i=0;i<n;i++)items.push(llGear(L,rarZ(R.d,zi,k==='e'?1:0),zn))}
@@ -6720,7 +6723,7 @@ function myMapWing(g,x,y,dir,f,layer){const u=PROF.eqp&&PROF.eqp.back;if(MWK.u!=
   const up=dir===1;if(up!==(layer===1))return;const w=AV.N2WING(k,['down','up','left','right'][dir]||'down',f%2);if(w)g.drawImage(w,x-17,y-26)}
 
 /* ===== v15: GOA NAGA — labirin berkabut 7×9, 3 Dragon Seal, Sarang Naga di ujung ===== */
-const CAVES={ancient:{n:'Ancient Cave',z:'wildwood',drg:'sage',k:'Ancient',lv:10,dl:15},mist:{n:'Mist Cave',z:'marsh',drg:'shadow',k:'Mist',lv:20,dl:25},
+const CAVES={ancient:{n:'Ancient Cave',z:'wildwood',drg:'sage',k:'Ancient',lv:10,dl:15},mist:{n:'Mist Cave',z:'coral',drg:'shadow',k:'Mist',lv:20,dl:25},
   ice:{n:'Ice Cave',z:'frost',drg:'frost',k:'Ice',lv:30,dl:35},fire:{n:'Fire Cave',z:'ember',drg:'crimson',k:'Fire',lv:40,dl:45}};
 const CVC=7,CVR_=9,CVMAX=3,CVRM={sv:['🗡️','Dragon Servant'],ling:['🐲','Dragonling ×2'],gd:['💂','Dragon Guard'],chest:['📦','Chest'],spring:['💧','Mata Air'],trap:['⚠️','Jebakan'],lair:['🐉','Sarang Naga'],start:['🚪','Pintu Masuk']};
 const CVR=()=>PROF.cv;
@@ -6745,7 +6748,7 @@ const CVMZ={};function cvMaze(){const C=CVR();if(!C)return null;return CVMZ[C.se
 function openCave(id){const Cv=CAVES[id],C=CVR(),left=cvLeft(),lk=PROF.lv<Cv.lv;
   sheet(`🐉 ${Cv.n}`,`<div class="note"><b>${Cv.n}</b> · Musuh Lv ${Cv.lv}–${Cv.lv+4} · Naga <b>${DRG[Cv.drg].n}</b> Lv ${Cv.dl}.<br>Labirin berkabut 7×9. Kalahkan <b>3 Dragon Guard</b> untuk 3 Dragon Seal, lalu buka Sarang Naga. HP terbawa antarruangan.</div>
    <div class="rew"><div>🗝️ Masuk hari ini: <b>${left}/${CVMAX}</b> (gabungan 4 goa)</div><div>⚔️ Musuh lebih kuat dari dungeon biasa — enak dimainkan party.</div></div>
-   ${lk?`<div class="note" style="color:#ffb07a">🔒 Butuh Lv ${Cv.lv}. Levelmu Lv ${PROF.lv}.</div>`:''}
+   ${lk?`<div class="note" style="color:#ffb07a">🔒 Butuh Lv ${Cv.lv}. Levelmu Lv ${PROF.lv}.</div>`:''}${powNote(Cv.lv+3)}
    ${C&&C.c===id?`<button class="go px" onclick="cvResume()">▶ Continue · Seal ${C.seals}/3 · HP ${Math.round(C.hpf*100)}%</button>`:''}
    ${!lk?`<button class="go px ${left?'':'off'}" onclick="cvStart('${id}')">⚔️ ${C&&C.c===id?'Mulai baru':'Enter'} (pakai 1 jatah)</button>`:''}
    ${C&&C.c!==id?`<div class="note">⚠️ Masuk goa ini membatalkan ${CAVES[C.c].n} yang sedang berjalan (gold yang dibawa tetap diberikan).</div>`:''}
@@ -6771,7 +6774,7 @@ function openCaveMap(){const C=CVR();if(!C)return openWorld();const M=cvMaze(),C
     const ic=sn?(dn&&t!=='lair'&&t!=='start'?'·':(CVRM[t]||['',''])[0]):'?';
     h+=`<button class="cvr${sn?' sn':' nr'}${n===here?' me':''}${adj?' adj':''}${t==='lair'&&sn?' lair':''}" ${adj?`onclick="cvMove(${n})"`:''} aria-label="${sn?(CVRM[t]||['',''])[1]:'?'}">${ic}${cn}</button>`}
   $('cvMap').innerHTML=`<div class="cvg">${h}</div><div class="note cvk">🗡️ Servant · 🐲 Dragonling · 💂 Guard (Seal) · 📦 Chest · 💧 Mata Air · ⚠️ Jebakan · 🐉 Sarang (perlu 3 Seal)</div>`}
-function cvMove(n){const C=CVR(),M=cvMaze();if(!(M.nb[C.pos]||[]).includes(n))return;C.pos=n;if(!C.seen.includes(n))C.seen.push(n);saveP();SND.ok&&SND.ok();
+function cvMove(n){const C=CVR(),M=cvMaze();if(!(M.nb[C.pos]||[]).includes(n))return;C.prev=C.pos;C.pos=n;if(!C.seen.includes(n))C.seen.push(n);saveP();SND.ok&&SND.ok();
   const t=M.ty[n];if(C.done.includes(n)||!t)return openCaveMap();
   if(t==='lair'){if(C.seals<3){openCaveMap();return sheet('🐉 Sarang Naga',`<div class="note">Pintu sarang tersegel. Butuh <b>3 Dragon Seal</b> (punya ${C.seals}). Kalahkan Dragon Guard 💂 di labirin.</div><button class="go px" onclick="closeSheet()">OK</button>`)}
     return sheet('🐉 Sarang Naga',`<div class="note">3 Dragon Seal menyala… pintu terbuka. <b>${DRG[CAVES[C.c].drg].n}</b> menunggu! HP-mu ${Math.round(C.hpf*100)}%.</div><button class="go px" onclick="cvLair()">⚔️ Lawan Naga</button><button class="ghost" onclick="closeSheet()">Nanti dulu</button>`)}
@@ -6793,7 +6796,7 @@ function cvDuel(kind){const C=CVR(),Cv=CAVES[C.c],L=kind==='lair'?Cv.dl:Cv.lv+({
     b=mobCfg(m);{const L0=b.look||{};b.look={g:L0.g||'l',hs:L0.hs||'pendek',hc:L0.hc||'#2a1a10',sk:L0.sk!=null?L0.sk:1,ec:L0.ec}}b.eq={hat:'nh_'+pre+Cv.drg,shirt:'ns_'+pre+Cv.drg,pants:'np_'+pre+Cv.drg,shoes:'nf_'+pre+Cv.drg,back:'nw_'+pre+Cv.drg};b.lv=L;b.pet=kind==='gd'?(LG.M.kristo&&LG.M.kristo.hp?'kristo':zonePet(Cv.z,'e')):null;nb=m.n}
   startMatch({a:llMyCfg(),b,diff:2,arena:ZARENA[Cv.z],mode:'path',na:PROF.name,nb});W.noCrowd=1;G.cvF=kind;
   const[A,B]=G.F,K=CVK[kind];A.maxHp=Math.round(A.maxHp*jobOf().hp*1.6);A.atk*=jobOf().atk;
-  B.maxHp=B.hp=Math.round(B.maxHp*K[0]);B.atk*=K[1];{const gap=L-PROF.lv;if(gap>2){const m=1+.08*(gap-2);B.maxHp=B.hp=Math.round(B.maxHp*m);B.atk*=m}}
+  llScale(B,L,kind);
   G.time=kind==='lair'?150:99;A.hp=Math.max(1,Math.round(A.maxHp*C.hpf));llFxStart(A);B.kind=kind==='lair'||kind==='gd'?'b':kind==='ling'?'e':'n';B.lv=L;G.ph2=0;
   if(kind==='gd')B.big=1.15;
   $('w1').innerHTML=`<span style="color:${kind==='lair'?'#ffd23c':kind==='gd'?'#ff8aa0':'#e9ecf5'}">Lv ${L} · ${kind==='lair'?'DRAGON':kind==='gd'?'Guard ★':kind==='ling'?'Dragonling':'Servant'}</span>`;hud();
@@ -6805,8 +6808,8 @@ function cvEnd(w){const C=CVR(),[A,B]=G.F,kind=G.cvF;G.cvF=0;G.ended=G.round;G.s
   const Cv=CAVES[C.c],zn=zOfId(Cv.z),L=B.lv,log=[],ob=1+ORBB[orbLv()-1],Km={sv:1.5,ling:2.2,gd:3.4,lair:9}[kind],AC=llAcc(A.stats),FX=llFxAll();
   C.hpf=Math.max(.05,A.hp/A.maxHp);
   const g=Math.round((7+3*L)*Km*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*devM('gold')*AC.m);C.loot.coin+=g;log.push(`🪙 +${g} gold <small>(dibawa)</small>`);
-  const xp=Math.round((10+4*L)*Km*1.2*ob*(SEL.manual?.25:1)*(1+(A.bonus.exp||0))*AC.m);llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':''));
-  if(PROF.pet)llLumiExp(PROF.pet,Math.round(xp*.9),log);if(AC.t)log.push(AC.t);
+  const GX=llGearXp(),xp=Math.round((10+4*L)*Km*1.2*ob*(SEL.manual?.25:1)*(1+(A.bonus.exp||0))*AC.m*GX.m);llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':''));
+  if(PROF.pet)llLumiExp(PROF.pet,Math.round(xp*.9),log);if(AC.t)log.push(AC.t);if(GX.t)log.push(GX.t);
   const mul=lootMul()*AC.d,items=[],r=k=>rarLL(zn,k);
   if(kind==='sv'){const n=lootN([.6,.25],mul);for(let i=0;i<n;i++)items.push(llGear(L,r('n'),zn));if(Math.random()<.2*mul)items.push(dgArmor('sv_'+Cv.drg))}
   if(kind==='ling'){const n=lootN([1,.4],mul);for(let i=0;i<n;i++)items.push(Math.random()<.5?llWeapon(L,r('e')):llArtifact(L,r('e')))}
@@ -6825,7 +6828,38 @@ function cvLeave(){const C=CVR();if(!C)return;const log=[];cvPay(1,log);PROF.cv=
 
 function cvLair(){closeSheet();cvDuel('lair')}
 
-Object.assign(window,{bagExpand,bestEq,buyI,claimA,claimLogin,claimM,closeSheet,cvLair,cvMove,cvResume,cvStart,cvTrap,devCvReset,devDg,devDragon,devGive,devGold,devJob,devLumi,devLumiLv,devLv,devMBox,devSet,devToggle,devTp,dgResume,dgStart,gqSet,itemSheet,krJoin,lockI,lookSet,mbOpen,openBag,openChest,openDev,openExp,openKr,openShop,openTab,openWorld,openZone,prBuy,prCamp,prDone,prEnter,prStart,quickSell,sellAll,sellI,setAct,setBagF,setChW,sheet,unwear,upgI,uraiI,uraiWeak,wear,zGo,zPick,zStart});
+function cvFlee(){const C=CVR();G.cvF=0;G.st='over';if(C){if(C.prev!=null&&!C.done.includes(C.pos))C.pos=C.prev;saveP();openCaveMap();sheet('🏃 Kabur',`<div class="note">Kamu mundur ke ruangan sebelumnya. Musuh masih menunggu di sana.</div><button class="go px" onclick="closeSheet()">OK</button>`)}else openWorld()}
+
+/* ===== v16: KALIBRASI — Power (Gear Score), musuh mengikuti kurva & Power, bonus EXP perlengkapan, kurva EXP 120 jam ===== */
+const RSW=[0,.85,1,1.15,1.3,1.45],GSWT={w:2,hat:1,shirt:1,pants:1,shoes:1,back:1,acc:1.5};
+function itPow(it){if(!it)return 0;return 120*Math.pow(1.035,(it.lv||1)-1)*(RSW[it.r]||1)*(1+.04*(it.up||0))*(GSWT[it.s]||1)}
+function myPower(){const E=eqItems();let p=0;for(const sl in GSWT)p+=itPow(E[sl]);return Math.round(p)}
+const recPow=L=>Math.round(1020*Math.pow(1.035,Math.max(1,L)-1));
+const powTxt=n=>'⚔️ '+Number(n).toLocaleString('id');
+/* --- statistik pemain acuan (item Rare sesuai level, tanpa job) --- */
+const REFC={};
+function refStats(L){L=Math.max(1,Math.min(50,L|0));if(REFC[L])return REFC[L];const eq={},mk=(it,s)=>{it.sd=7777+s.length*131;it.u='ref'+L+s;return it};
+  eq.w=mk(llWeapon(L,2,'pedang'),'w');ARS.forEach(sl=>eq[sl]=mk(llArmor(L,2,sl),sl));eq.acc=mk(llArtifact(L,2),'acc');
+  const G2=gearCfg(eq),B=G2.gb,dr=Math.min(.45,(B.dr||0)+lvDr(L));
+  return REFC[L]={hp:200*TUNE.hp.pedang*(1+(B.hp||0))*lvHp(L)*1.6,atk:G2.gear.atkM*TUNE.atk.pedang*(1+(B.atk||0))*lvAtk(L),dr}}
+/* Power → pengali musuh (kurang Power = musuh lebih kuat) */
+const BT={h:1.9,a:2.1,pk:3.2};
+function powMul(L){const q=myPower()/recPow(L),T=window.__BT||BT,gr=Math.min(1,Math.max(0,(PROF.lv-1)/10));return q<1?Math.min(2.4,1+T.pk*gr*(1-q)):Math.max(.9,1-.2*(q-1))}
+const BKIND={n:[1,1],e:[1.5,1.2],lumi:[.9,.95],dn:[1.1,1.05],de:[1.6,1.25],db:[2.6,1.1],sv:[1,.95],ling:[1.3,.85],gd:[1.8,.9],lair:[4.5,.65]};
+/* setel musuh B (sudah dibuat startMatch) ke kurva acuan */
+function llScale(B,L,kind,xh,xa){const R=refStats(L),K=BKIND[kind]||[1,1],pm=powMul(L),gap=L-PROF.lv,gm=gap>2?1+.08*(gap-2):1,EH=.7,bdr=lvDr(L),EA=(1-bdr)/(1.3*(1-R.dr)*EH);
+  B.bonus=Object.assign({},B.bonus,{dr:bdr,crit:.05,ev:0,ls:0});const T=window.__BT||BT;B.maxHp=B.hp=Math.round(R.hp*EH*K[0]*(xh||1)*pm*gm*T.h);B.atk=R.atk*EA*K[1]*(xa||1)*pm*gm*T.a;B.llPm=pm;return B}
+/* --- bonus EXP dari perlengkapan --- */
+function llGearXp(){const q=myPower()/recPow(PROF.lv);if(PROF.lv<8&&q<.93)return{m:1,t:''};return q>=.93?{m:1.25,t:'⚔️ Perlengkapan pas → EXP ×1,25'}:q>=.78?{m:1,t:""}:{m:.6,t:'⚠️ Perlengkapanmu ketinggalan! EXP ×0,6 — cari item yang lebih baru'}}
+function powNote(L,label){const p=myPower(),r=recPow(L),q=p/r,c=q>=.95?'#7dff8a':q>=.75?'#ffe680':'#ff8a7a';
+  const early=PROF.lv<8;return`<div class="note">${label||'Disarankan'} <b>${powTxt(r)}</b> · Power-mu <b style="color:${early&&q<.95?'#ffe680':c}">${powTxt(p)}</b>${early&&q<.95?' — kumpulkan item untuk menaikkan Power':q<.8?' — musuh akan jauh lebih kuat!':q<.95?' — agak berat':' — siap!'}</div>`}
+/* --- kurva EXP: ±120 jam sampai Lv 50 (pemain rajin: Orb, soal ≥80%, perlengkapan pas) --- */
+const NXP=(()=>{const P=[[1,.25],[5,.55],[10,1.0],[15,1.15],[20,1.9],[25,2.35],[30,3.0],[35,3.4],[40,4.0],[45,4.3],[49,4.6]],BAND=[[1,4,1.5],[5,9,3.5],[10,19,13],[20,29,24],[30,39,35],[40,49,43]];
+  const h=L=>{for(let i=1;i<P.length;i++)if(L<=P[i][0]){const[a,ha]=P[i-1],[b,hb]=P[i];return ha+(hb-ha)*(L-a)/(b-a)}return P[P.length-1][1]};
+  const H=[];for(let L=1;L<50;L++)H[L]=h(L);BAND.forEach(([a,b,t])=>{let s=0;for(let L=a;L<=b;L++)s+=H[L];for(let L=a;L<=b;L++)H[L]*=t/s});
+  const T=[0];for(let L=1;L<50;L++)T[L]=Math.round(H[L]*60*(10+4*L)*1.3*2.25/10)*10;return T})();
+
+Object.assign(window,{bagExpand,bestEq,buyI,claimA,claimLogin,claimM,closeSheet,cvLair,cvLeave,cvMove,cvResume,cvStart,cvTrap,devCvReset,devDg,devDragon,devGive,devGold,devJob,devLumi,devLumiLv,devLv,devMBox,devSet,devToggle,devTp,dgResume,dgStart,gqSet,itemSheet,krJoin,lockI,lookSet,mbOpen,openBag,openChest,openDev,openExp,openKr,openShop,openTab,openWorld,openZone,prBuy,prCamp,prDone,prEnter,prLeave,prStart,quickSell,sellAll,sellI,setAct,setBagF,setChW,sheet,unwear,upgI,uraiI,uraiWeak,wear,zGo,zPick,zStart});
 })();
 </script>
 <script>
@@ -7410,7 +7444,7 @@ function mobTick(o,dt){if(o.gone>0){o.gone-=dt;if(o.gone<=0){o.x=o.hx;o.y=o.hy}r
 /* ---------- API dunia untuk modul Legends ---------- */
 const LLW={
   nav(k){({tas:()=>LLK.bag(),hero:()=>LLK.hero(),lumi:()=>LLK.lumi(),misi:()=>LLW.quest(),peta:openMap,set:()=>LLK.settings()})[k]()},
-  zoneSub(z){const l=LLK.zoneLv(z.n);return l?`Musuh Lv.${l[0]}–${l[1]} · Lumi ${z.el}`:`Lumi ${z.el}`},
+  zoneSub(z){const l=LLK.zoneLv(z.n);return l?`Musuh Lv.${l[0]}–${l[1]} · Disarankan ⚔️ ${LLK.recPow(l[0]+2).toLocaleString('id')}`:`Lumi ${z.el}`},
   shop(k){LLK.shop(k)},orb(){LLK.orb()},
   quest(){LLK.quests()},
   pick(p,nm){return LLK.pick(p.chest,p.zn,nm)},
@@ -7498,7 +7532,7 @@ LLW.setMus=function(v){if(SV){SV.musOff=!v;save()}};
 LLW.setZoom=function(i){if(SV){SV.zoom=i;save()}resize()};
 
 /* v15: 4 Goa Naga di pulau */
-LLW.CVP=null;const CVLM={ancient:['Wildwood Forest','ruins',-14,8],mist:['Misty Marsh','stilt',-14,10],ice:['Frostpeak','igloo',-14,9],fire:['Ember Crater','totem',-14,8]};const CVP={};LLW.CVP=CVP;
+LLW.CVP=null;const CVLM={ancient:['Wildwood Forest','ruins',-14,8],mist:['Coral Coast','wreck',-14,10],ice:['Frostpeak','igloo',-14,9],fire:['Ember Crater','totem',-14,8]};const CVP={};LLW.CVP=CVP;
 function initCaves(){const SP=(window.__W2&&__W2.LMSPOT)||[];
   for(const id in CVLM){const[zn,lk,ox,oy]=CVLM[id],z=D.zones[ZID[zn]];if(!z)continue;const lm=SP.find(s=>s.k===lk&&ZON[Math.floor(s.y/TS)*N+Math.floor(s.x/TS)]===ZID[zn]);
     const bx=lm?Math.floor(lm.x/TS)+ox:z.x+4,by=lm?Math.floor(lm.y/TS)+oy:z.y+12;let sp=null;for(let r0=2;r0<18&&!sp;r0+=2){const q=spotNear(bx,by,4,6,r0);if(q&&ZON[q[1]*N+q[0]]===ZID[zn]&&freeFoot(q[0],q[1]+3,4,2))sp=q}
@@ -8411,7 +8445,7 @@ function ttFrame(now) {
 
 
 
-function refreshHud(){const P=LLK.prof();if(!P||!P.name)return;$('hLv').textContent='Lv.'+P.lv;$('hXp').firstChild.style.width=LLK.expPct()+'%';$('hKoin').textContent='🪙 '+P.coin;$('hName').textContent=P.name}
+function refreshHud(){const P=LLK.prof();if(!P||!P.name)return;$('hLv').textContent='Lv.'+P.lv;try{$('hPow').textContent='⚔️'+LLK.power().toLocaleString('id')}catch(e){}$('hXp').firstChild.style.width=LLK.expPct()+'%';$('hKoin').textContent='🪙 '+P.coin;$('hName').textContent=P.name}
 /* ---------- layar awal (Legends) ---------- */
 $('sKr').src=hdURL(STARTER);
 function showStart(){const has=LLK.hasProf();$('sNew').classList.toggle('hide',has);$('sOld').classList.toggle('hide',!has);if(has)$('sWel').textContent=`Selamat datang lagi, ${LLK.prof().name}!`}
