@@ -1055,8 +1055,8 @@ body.dev #K #devW{display:block}
 <div id="start">
   <div style="display:flex;flex-direction:column;align-items:center"><div class="logo">LUMIMON LEGENDS</div></div>
   <img id="sKr" alt="">
-  <div class="sbox" id="sNew"><button class="big" id="sGo">✦ New Game</button></div>
-  <div class="sbox hide" id="sOld"><div class="wel" id="sWel"></div><button class="big" id="sCont">▶ Continue</button><button class="lnk" id="sReset">Bukan kamu? Mulai sebagai pemain baru</button></div>  
+  <div class="sbox" id="sNew"><button class="big" id="sGo">✦ New Game</button><button class="lnk" id="sLogin">🔑 Sudah punya account? Login</button></div>
+  <div class="sbox hide" id="sOld"><div class="wel" id="sWel"></div><button class="big" id="sCont">▶ Continue</button><button class="lnk" id="sReset">Bukan kamu? Mulai sebagai pemain baru</button><button class="lnk" id="sLogin2">🔑 Login account lain</button></div>  
 
 </div>
 <div id="meet" class="hide"></div>
@@ -6945,6 +6945,68 @@ function llLumi(){lmFix();const P=PROF,own=P.lumiOwn||[],T=llTeam(),n=lmSlots(),
     if(!LM)P.pet=id;else{let t=llTeam();if(id===P.pet)return;if(t.includes(id)){t=[id,...t.filter(x=>x!==id)]}else{if(t.length>=n)t[t.length-1]=id;else t.push(id)}P.pet=t[0];P.team=t.slice(1)}
     saveP();SND.ok&&SND.ok();llLumi()})}
 
+/* ================= v23 · TAHAP 3a: Account (nama + PIN) + simpan di server (Supabase, tabel ll_akun) ================= */
+const LLA={url:'https://kttfformjoyraqsrjrrv.supabase.co',key:'sb_publishable_noV7z0rqJIq2J24M6z1nXw_y4BwW5DE'},ACS={t:0,pend:0,busy:0,tm:0};
+function accGet(){try{return JSON.parse(localStorage.getItem('llg_acc')||'null')}catch(e){return null}}
+function accSet(a){try{a?localStorage.setItem('llg_acc',JSON.stringify(a)):localStorage.removeItem('llg_acc')}catch(e){}}
+async function llRpc(fn,args,keep){const body=JSON.stringify(args),c=new AbortController(),t=setTimeout(()=>c.abort(),12000);
+  try{const r=await fetch(LLA.url+'/rest/v1/rpc/'+fn,{method:'POST',signal:c.signal,keepalive:!!keep&&body.length<60000,headers:{apikey:LLA.key,'Content-Type':'application/json'},body});clearTimeout(t);
+    if(!r.ok)return{ok:false,why:'net'};return(await r.json())||{ok:false,why:'net'}}catch(e){clearTimeout(t);return{ok:false,why:'net'}}}
+/* --- isi simpanan: semua data Legends di HP ini (kecuali akun & Developer) --- */
+function accKeys(){const o=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if((k.startsWith('llg_')||k==='llgWorld1')&&k!=='llg_acc'&&k!=='llg_dev'&&!k.endsWith('_safe'))o.push(k)}}catch(e){}return o}
+function accSnap(){const d={};accKeys().forEach(k=>d[k]=localStorage.getItem(k));return{v:1,name:PROF.name||'',lv:PROF.lv||1,job:PROF.job||'',d}}
+function accRestore(s){if(!s||!s.d)return false;try{accKeys().forEach(k=>localStorage.removeItem(k));for(const k in s.d)if(typeof s.d[k]==='string')localStorage.setItem(k,s.d[k]);return true}catch(e){return false}}
+/* --- simpan otomatis: tiap profil berubah (paling cepat 30 dtk sekali) + saat aplikasi ditutup --- */
+function accDirty(){const a=accGet();if(!a){if(PROF.made&&PROF.lv>=3&&!PROF.accHint){PROF.accHint=1;setTimeout(()=>LLW_hint('💾 Daftarkan Account di ⚙️ Settings agar progresmu aman!'),1500)}return}
+  if(a.off)return;ACS.pend=1;if(!ACS.tm)ACS.tm=setTimeout(accFlush,Math.max(3000,30000-(Date.now()-ACS.t)))}
+async function accFlush(keep){clearTimeout(ACS.tm);ACS.tm=0;const a=accGet();if(!a||a.off||!ACS.pend||ACS.busy||!PROF.made)return;ACS.busy=1;ACS.pend=0;
+  const r=await llRpc('ll_akun_simpan',{p_user:a.u,p_tok:a.tok,p_save:accSnap()},keep);ACS.busy=0;const b=accGet();if(!b||b.u!==a.u)return;
+  if(r.ok&&!r.wait){ACS.t=Date.now();b.last=Date.now();accSet(b)}
+  else if(r.ok&&r.wait){ACS.pend=1;ACS.tm=setTimeout(accFlush,12000)}
+  else if(r.why==='lain'||r.why==='salah'){b.off=1;accSet(b);accKicked()}
+  else{ACS.pend=1;ACS.tm=setTimeout(accFlush,60000)}return r}
+{const s0=LS.set;LS.set=function(k,v){s0.call(LS,k,v);if(k==='prof')accDirty()}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&ACS.pend)accFlush(1)});
+window.addEventListener('pagehide',()=>{if(ACS.pend)accFlush(1)});
+function accKicked(){sheet('☁️ Account',`<div class="note">Account <b>${(accGet()||{}).u||''}</b> sedang dibuka di HP lain, jadi progres di HP ini <b>tidak lagi disimpan online</b>.</div><div class="note">Kalau mau lanjut main di HP ini, Login lagi (progres akan diambil dari server).</div><button class="go px" id="acLg">🔑 Login</button>`);$('acLg').onclick=()=>llLogin()}
+const ACWHY={nama:'Username 3–16 huruf kecil/angka (boleh _ dan .), tanpa spasi.',pin:'PIN harus 6 angka.',dipakai:'Username sudah dipakai, pilih yang lain.',salah:'Username atau PIN salah.',sibuk:'Server sedang sibuk, coba lagi sebentar.',besar:'Simpanan terlalu besar.',net:'Tidak tersambung ke internet / server. Coba lagi.'};
+const acWhy=r=>r.why==='kunci'?`Terlalu banyak PIN salah. Coba lagi ${r.menit} menit lagi.`:(ACWHY[r.why]||'Gagal, coba lagi.')+(r.why==='salah'&&r.sisa!=null?` (sisa ${r.sisa} kali)`:'');
+const acAgo=t=>{if(!t)return'belum pernah';const s=(Date.now()-t)/1000;return s<60?'baru saja':s<3600?Math.round(s/60)+' menit lalu':s<86400?Math.round(s/3600)+' jam lalu':Math.round(s/86400)+' hari lalu'};
+const acIn=(id,ph,pin)=>`<input id="${id}" ${pin?'type="password" inputmode="numeric" maxlength="6" pattern="[0-9]*"':'type="text" maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false"'} placeholder="${ph}" style="width:100%;box-sizing:border-box;padding:10px;margin:4px 0;border-radius:8px;border:1px solid #ffffff30;background:#0d1020;color:#fff;font-size:16px">`;
+/* --- menu Account (dari Settings) --- */
+function llAccount(){const a=accGet();
+  if(a&&!a.off){sheet('☁️ Account',`<div class="note">Login sebagai <b>${a.u}</b>. Progres otomatis tersimpan di server.<br>Terakhir tersimpan: <b>${acAgo(a.last)}</b></div>
+    <button class="go px" id="acSv">💾 Save Now</button><div id="acMsg" class="note" style="min-height:1em"></div>
+    <div class="note">Main di HP lain? Login dengan username & PIN yang sama. HP yang lama otomatis berhenti menyimpan.</div><button class="mini" id="acOut">🚪 Logout</button>`);
+    $('acSv').onclick=async()=>{$('acMsg').textContent='Menyimpan…';ACS.pend=1;ACS.t=0;const r=await accFlush();if($('acMsg'))$('acMsg').textContent=r&&r.ok?(r.wait?'Baru saja tersimpan ✔':'Tersimpan ✔'):r?acWhy(r):'Tersimpan ✔'};
+    $('acOut').onclick=()=>{if(!confirm('Logout dari account ini? Progres di HP ini tetap ada, tapi tidak lagi disimpan online.'))return;accFlush();accSet(null);llAccount()};return}
+  if(!PROF.made){llLogin();return}
+  sheet('☁️ Account',`<div class="note">Daftarkan Account supaya progres <b>${PROF.name} Lv ${PROF.lv}</b> aman tersimpan di server dan bisa dilanjutkan di HP lain. Nanti juga dipakai untuk fitur online (Town, Party, Duel).</div>
+    ${acIn('acU','Username (mis. budi_6a)')}${acIn('acP','PIN 6 angka',1)}${acIn('acP2','Ulangi PIN',1)}
+    <div class="note" style="font-size:11px">⚠️ Ingat username & PIN-mu. Jangan beri tahu PIN ke orang lain.</div>
+    <button class="go px" id="acGo">✅ Register</button><div id="acMsg" class="note" style="min-height:1em;color:#ffb0a0"></div>
+    <button class="mini" id="acLg">🔑 Sudah punya account? Login</button>`);
+  $('acLg').onclick=()=>llLogin();
+  $('acGo').onclick=async()=>{const u=$('acU').value.trim().toLowerCase(),p=$('acP').value.trim(),m=$('acMsg');
+    if(!/^[a-z0-9_.]{3,16}$/.test(u)){m.textContent=ACWHY.nama;return}if(!/^[0-9]{6}$/.test(p)){m.textContent=ACWHY.pin;return}if(p!==$('acP2').value.trim()){m.textContent='PIN tidak sama.';return}
+    m.style.color='#cfd6ff';m.textContent='Mendaftar…';$('acGo').disabled=true;saveP();const r=await llRpc('ll_akun_daftar',{p_user:u,p_pin:p,p_save:accSnap()});$('acGo').disabled=false;
+    if(!r.ok){m.style.color='#ffb0a0';m.textContent=acWhy(r);return}accSet({u,tok:r.tok,last:Date.now()});ACS.t=Date.now();SND.win&&SND.win();
+    sheet('☁️ Account',`<div class="note" style="font-size:15px">✅ Account <b>${u}</b> berhasil dibuat!</div><div class="note">Progres <b>${PROF.name} Lv ${PROF.lv}</b> sudah tersimpan di server dan akan tersimpan otomatis.</div><div class="note">Ingat: username <b>${u}</b> + PIN-mu.</div><button class="go px" id="acOk">👍 OK</button>`);$('acOk').onclick=()=>closeSheet()}}
+/* --- Login (dari layar judul atau menu Account) --- */
+function llLogin(){sheet('🔑 Login',`<div class="note">Masuk ke Account untuk mengambil progres dari server.</div>${acIn('alU','Username')}${acIn('alP','PIN 6 angka',1)}
+  <button class="go px" id="alGo">🔑 Login</button><div id="alMsg" class="note" style="min-height:1em;color:#ffb0a0"></div>${PROF.made?'':'<div class="note" style="font-size:11px">Belum punya account? Pilih ✦ New Game, buat hero, lalu Register di ⚙️ Settings.</div>'}`);
+  $('alGo').onclick=async()=>{const u=$('alU').value.trim().toLowerCase(),p=$('alP').value.trim(),m=$('alMsg');if(!u||!/^[0-9]{6}$/.test(p)){m.textContent='Isi username & PIN 6 angka.';return}
+    m.style.color='#cfd6ff';m.textContent='Masuk…';$('alGo').disabled=true;const r=await llRpc('ll_akun_masuk',{p_user:u,p_pin:p});$('alGo').disabled=false;
+    if(!r.ok){m.style.color='#ffb0a0';m.textContent=acWhy(r);return}
+    const s=r.save||{},a0=accGet(),same=a0&&a0.u===u;
+    const go=()=>{if(s.d&&Object.keys(s.d).length){accRestore(s)}accSet({u,tok:r.tok,last:Date.now()});location.reload()};
+    if(PROF.made&&!same&&s.d){sheet('🔑 Login',`<div class="note">Progres di HP ini (<b>${PROF.name} Lv ${PROF.lv}</b>) akan <b>diganti</b> dengan progres account <b>${u}</b> (<b>${s.name||'?'} Lv ${s.lv||1}</b>).</div><button class="go px" id="alY">✅ Ya, ganti</button><button class="mini" id="alN">Batal</button>`);$('alY').onclick=go;$('alN').onclick=()=>closeSheet();return}
+    if(!s.d){accSet({u,tok:r.tok,last:0});ACS.pend=1;accFlush();closeSheet();return}go()}}
+/* --- tombol di Settings --- */
+{const s0=llSettings;llSettings=function(){s0.apply(this,arguments);try{const L=$('ksheet').querySelector('.lst');if(!L)return;const a=accGet(),d=document.createElement('div');d.className='it';d.id='stAcc';
+  d.innerHTML=`<span class="ic">☁️</span><span><b>Account${a&&!a.off?': '+a.u:''}</b><small>${a?a.off?'Dibuka di HP lain — Login lagi':'Tersimpan online · '+acAgo(a.last):'Belum terdaftar — progres hanya di HP ini'}</small></span><i>${a&&!a.off?'✔':'Register'}</i>`;d.onclick=()=>a&&a.off?llLogin():llAccount();L.insertBefore(d,L.firstChild)}catch(e){}}}
+LLK.login=()=>llLogin();LLK.acc=()=>accGet();
+
 Object.assign(window,{bagExpand,bestEq,buyI,claimA,claimLogin,claimM,closeSheet,cvLair,cvLeave,cvMove,cvResume,cvStart,cvTrap,devCvReset,devDg,devDragon,devGive,devGold,devJob,devLumi,devLumiLv,devLv,devMBox,devSet,devToggle,devTp,dgResume,dgStart,gqSet,itemSheet,krJoin,lockI,lookSet,mbOpen,openBag,openChest,openDev,openExp,openKr,openShop,openTab,openWorld,openZone,prBuy,prCamp,prDone,prEnter,prLeave,prStart,quickSell,sellAll,sellI,setAct,setBagF,setChW,sheet,unwear,upgI,uraiI,uraiWeak,wear,zGo,zPick,zStart});
 })();
 </script>
@@ -8557,6 +8619,7 @@ function meet(){mode='meet';petSync();const id=PET.id,m=LG.M[id],el=$('meet');el
   $('mGo').onclick=()=>{el.classList.add('hide');PET.heart=1.4;play()}}
 $('sGo').onclick=()=>{SND.init();LLK.make(()=>enterGame(true))};
 $('sCont').onclick=()=>enterGame(false);
+$('sLogin').onclick=$('sLogin2').onclick=()=>{SND.init();LLK.login()};
 $('sReset').onclick=()=>{if(!confirm('Mulai sebagai pemain baru? Progres di HP ini akan dihapus.'))return;LLK.reset();try{localStorage.removeItem(SKEY)}catch(e){}SV=null;showStart()};
 window.__LLW={get SV(){return SV},PL,PET,flyTo,DESTS,WILD,MOBS,LLW,ACTS,get mode(){return mode},set mode(v){mode=v},play,refreshHud,showHint,TS,N,ZON,D};
 window.__WILDS=()=>WILD;window.PV_ID=()=>PV;window.__TN=n=>{const xs=[];for(let i=0;i<N*N;i++)if(tname(i)===n)xs.push(i);if(!xs.length)return null;const i=xs[(xs.length/2)|0];return[i%N,(i/N)|0]};window.__P=PL;window.__PET=PET;window.__W={GT,BLK,N,SOLID:[...SOLID],posts:D.posts,pad:D.pad,WILD:WILD.length};window.__G={flyTo,DESTS,get mode(){return mode},openMap};
