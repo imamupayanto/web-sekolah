@@ -6954,7 +6954,7 @@ async function llRpc(fn,args,keep){const body=JSON.stringify(args),c=new AbortCo
     if(!r.ok)return{ok:false,why:'net'};return(await r.json())||{ok:false,why:'net'}}catch(e){clearTimeout(t);return{ok:false,why:'net'}}}
 /* --- isi simpanan: semua data Legends di HP ini (kecuali akun & Developer) --- */
 function accKeys(){const o=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if((k.startsWith('llg_')||k==='llgWorld1')&&k!=='llg_acc'&&k!=='llg_dev'&&!k.endsWith('_safe'))o.push(k)}}catch(e){}return o}
-function accSnap(){const d={};accKeys().forEach(k=>d[k]=localStorage.getItem(k));return{v:1,name:PROF.name||'',lv:PROF.lv||1,job:PROF.job||'',d}}
+function accSnap(){const d={};accKeys().forEach(k=>d[k]=localStorage.getItem(k));return{v:1,name:PROF.name||'',lv:PROF.lv||1,job:PROF.job||'',pw:(typeof myPower==='function'?myPower():0),d}}
 function accRestore(s){if(!s||!s.d)return false;try{accKeys().forEach(k=>localStorage.removeItem(k));for(const k in s.d)if(typeof s.d[k]==='string')localStorage.setItem(k,s.d[k]);return true}catch(e){return false}}
 /* --- simpan otomatis: tiap profil berubah (paling cepat 30 dtk sekali) + saat aplikasi ditutup --- */
 function accDirty(){const a=accGet();if(!a){if(PROF.made&&PROF.lv>=3&&!PROF.accHint){PROF.accHint=1;setTimeout(()=>LLW_hint('💾 Daftarkan Account di ⚙️ Settings agar progresmu aman!'),1500)}return}
@@ -7006,6 +7006,126 @@ function llLogin(){sheet('🔑 Login',`<div class="note">Masuk ke Account untuk 
 {const s0=llSettings;llSettings=function(){s0.apply(this,arguments);try{const L=$('ksheet').querySelector('.lst');if(!L)return;const a=accGet(),d=document.createElement('div');d.className='it';d.id='stAcc';
   d.innerHTML=`<span class="ic">☁️</span><span><b>Account${a&&!a.off?': '+a.u:''}</b><small>${a?a.off?'Dibuka di HP lain — Login lagi':'Tersimpan online · '+acAgo(a.last):'Belum terdaftar — progres hanya di HP ini'}</small></span><i>${a&&!a.off?'✔':'Register'}</i>`;d.onclick=()=>a&&a.off?llLogin():llAccount();L.insertBefore(d,L.firstChild)}catch(e){}}}
 LLK.login=()=>llLogin();LLK.acc=()=>accGet();
+
+/* ================= v24 · TAHAP 3b: Town online (Baniara) + bot pemain + pengaturan bot ================= */
+const TWN={ch:null,chN:1,me:'',others:{},bots:[],info:null,infoT:0,lastTrack:0,mvT:0,joining:0,emoT:0,inT:0,hintNo:0},TNR=16*16,TNCAP=20;
+const EMO=['👋','😄','👍','❤️','😢','😮','🎉','⚔️'],PHR=['Halo!','Ayo party!','Terima kasih!','Semangat!','Hati-hati ya!','Mantap!','Ayo ke dungeon!','Sampai jumpa!','Selamat ya!','Tunggu sebentar!'];
+const TBOT=[['NagaHitam','rival','l','warrior'],['KangCilok','mid','l','mage'],['Stabes','mid','l','assassin'],['Flazz','mid','l','lumi'],['Kima','mid','p','mage'],
+  ['Lum@','rand','p','lumi'],['Chichi','rand','p','assassin'],['Sepppzz','rand','l','warrior'],['Kaijuuu','rand','l','warrior'],['DemonHunter','rand','l','assassin']];
+const BCFG0={n:10,rival:[1,3],mid:4,wild:1,busy:1,max:50,emo:1,off:[],ren:{}};
+const tnCfg=()=>Object.assign({},BCFG0,(TWN.info&&TWN.info.cfg)||{});
+/* ---------- angka acak tetap (sama di semua HP) ---------- */
+function hsh(a,b){let h=2166136261^a;h=Math.imul(h^b,16777619);h^=h>>>13;h=Math.imul(h,1274126177);h^=h>>>16;return(h>>>0)/4294967296}
+function vnz(s,t){const i=Math.floor(t),f=t-i,u=f*f*(3-2*f);return hsh(s,i)*(1-u)+hsh(s,i+1)*u}
+const tnDay=()=>(Date.now()+7*3600e3)/864e5;   /* hari WIB */
+/* ---------- statistik pemain asli dari server (Top 3, rata-rata) ---------- */
+function tnStats(){const s=(TWN.info&&TWN.info.st)||{};const t3=Math.max(1,s.t3lv||0),avg=s.avg||0,n=s.n||0;return{t3:n?t3:6,t3pw:n?(s.t3pw||recPow(t3)):recPow(6),avg:n?Math.max(1,avg):3,n}}
+async function tnInfo(force){if(!force&&TWN.info&&Date.now()-TWN.infoT<300000)return TWN.info;
+  if(!TWN.info){try{TWN.info=JSON.parse(localStorage.getItem('llt_info')||'null')}catch(e){}}
+  const r=await llRpc('ll_town_info',{});if(r&&r.ok){TWN.info=r;TWN.infoT=Date.now();try{localStorage.setItem('llt_info',JSON.stringify(r))}catch(e){}botsBuild()}return TWN.info}
+/* ---------- bot: level, perlengkapan, jadwal online ---------- */
+function botLv(b,day){const C=tnCfg(),S=tnStats(),cap=Math.max(1,Math.min(S.t3-1,C.max)),s=b.sd;let lv;
+  if(b.t==='rival'){const g=C.rival[0]+(C.rival[1]-C.rival[0])*vnz(s,day/4);lv=S.t3-g}
+  else if(b.t==='mid'){lv=S.avg+b.off*C.mid/4+(vnz(s,day/3)*2-1)}
+  else{const ep=Math.floor(day/6+hsh(s,9)),r=hsh(s,ep*7+1),w=C.wild;b.gone=r>1-.22*w;
+    lv=r<.45?S.avg+(vnz(s,day/2)*2-1)*4*w:S.avg*(.85-.35*w*vnz(s+3,day/3))}
+  return Math.max(1,Math.min(cap,Math.round(lv)))}
+function botOnline(b,now){const C=tnCfg();if(TWN.forceOn)return true;if(b.gone)return false;const d=new Date(now+7*3600e3),h=d.getUTCHours(),wk=[0,6].includes(d.getUTCDay());
+  let p=wk?(h>=8&&h<21?.5:h>=21&&h<22?.2:.02):(h<6?.02:h<7?.15:h<12?.03:h<15?.2:h<18?.55:h<19?.3:h<21?.6:h<22?.25:.02);
+  p*=({rival:.9,mid:1,rand:.8}[b.t])*C.busy;return hsh(b.sd,Math.floor(now/12e5))<p}
+function botsBuild(){TWN.built=1;const C=tnCfg(),day=tnDay(),old={};TWN.bots.forEach(b=>old[b.id]=b);TWN.bots=[];
+  TBOT.slice(0,Math.max(0,Math.min(10,C.n))).forEach(([n0,t,g,job],i)=>{if((C.off||[]).includes(n0))return;const sd=7001+i*977,R=rng1(sd),pk=a=>a[Math.floor(R()*a.length)];
+    const b=old['bot_'+i]||{id:'bot_'+i,x:0,y:0,tx:0,ty:0,wt:0,dir:0,f:0,ft:0};Object.assign(b,{n:(C.ren||{})[n0]||n0,t,job,sd,bot:1,off:[-3,-1,1,3][i%4]});
+    const lv=botLv(b,day);if(b.lv!==lv){b.lv=lv;b.sheet=null}
+    b.look={g,hs:pk(AV.HSTYLES[g].filter(h=>g==='p'||h[0]!=='hijab'))[0],hc:pk(AV.HAIRC),sk:Math.floor(R()*6),ec:pk(AV.EYES)};
+    const wt={warrior:'pedang',assassin:'ganda',mage:'buku',lumi:'tongkat'}[job],W=llNear(WLAD[wt]||WLAD.pedang,lv),AS=ALAD.filter(([l])=>l<=lv).slice(-1)[0]||ALAD[0],S=SETS.find(x=>x.id===AS[1]);
+    b.r=t==='rival'?4:t==='mid'?3:2;b.w={b:W.id,r:b.r};b.eq={};if(S)for(const sl in S.eq)b.eq[sl]=S.eq[sl];
+    const Ls=Object.keys(LG.M).filter(k=>PETD[k]);b.pets=job==='lumi'?[pk(Ls),pk(Ls),...(lv>=20?[pk(Ls)]:[])]:[pk(Ls)];b.ev=lv>=20;
+    b.pw=Math.round(Math.min(tnStats().t3pw*.97,recPow(lv)*(t==='rival'?1.02:t==='mid'?.97:.85+.1*R())));b.set=S?S.n:'';TWN.bots.push(b)})}
+/* ---------- gambar karakter (lembar 4 arah × 4 langkah) ---------- */
+function tnSheet(c){if(c.sheet)return c.sheet;const cv=document.createElement('canvas');cv.width=64;cv.height=128;const g=cv.getContext('2d'),o=Object.assign({},c.look||{});
+  for(const sl in c.eq||{}){const b=c.eq[sl];if(AV.SH[b])o[AV.SH[b].slot]=b}
+  try{['down','up','left','right'].forEach((d,di)=>{for(let f=0;f<4;f++)g.drawImage(AV.kidImg(o,d,f),f*16,di*32+4)})}catch(e){}return c.sheet=cv}
+function tnDrawC(g,c,x,y){const im=tnSheet(c);g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.ellipse(x,y+1,6,2,0,0,7);g.fill();
+  /* Lumi mengikuti */(c.pets||[]).forEach((id,i)=>{if(!LG.M[id])return;const P=c.pp||(c.pp=[]),p=P[i]||(P[i]={x:c.x,y:c.y});const lead=i?P[i-1]:{x:c.x,y:c.y},dx=lead.x-p.x,dy=lead.y-p.y,d=Math.hypot(dx,dy);if(d>140){p.x=lead.x;p.y=lead.y}else if(d>(i?20:14)){p.x+=dx*.06;p.y+=dy*.06}
+    const im2=LG.monImg(id,false,0,dx>0,!!c.ev);g.drawImage(im2,Math.round(p.x-c.ox)-(im2.width>>1),Math.round(p.y-c.oy)-im2.height+2)});
+  if(c.w&&c.w.b)mapWpn(g,c.w.b,x,y,c.dir,c.f,0,0,c.w.r||1,0);g.drawImage(im,c.f*16,c.dir*32,16,32,x-8,y-30,16,32);if(c.w&&c.w.b)mapWpn(g,c.w.b,x,y,c.dir,c.f,0,1,c.w.r||1,0);
+  g.font='bold 6px sans-serif';g.textAlign='center';g.strokeStyle='#1a1020';g.lineWidth=1.5;const lb=c.n+' · Lv'+c.lv;g.strokeText(lb,x,y-33);g.fillStyle='#8fe3ff';g.fillText(lb,x,y-33);
+  if(c.bub&&c.bubT>Date.now()){const t=c.bub,w=Math.max(14,g.measureText(t).width+8),big=t.length<=2;g.font=big?'12px sans-serif':'bold 6px sans-serif';const bw=big?18:w,by=y-50;
+    g.fillStyle='#fff';g.strokeStyle='#1a1020';g.lineWidth=1;g.beginPath();g.roundRect?g.roundRect(x-bw/2,by-8,bw,big?16:11,4):g.rect(x-bw/2,by-8,bw,big?16:11);g.fill();g.stroke();g.fillStyle='#1a1020';g.fillText(t,x,by+(big?5:1))}}
+/* ---------- gerak bot di Baniara ---------- */
+function botMove(b,dt){const W=window.LLW,[hx,hy]=W.home();if(!b.x){let t=0;do{b.x=hx+(Math.random()*2-1)*TNR*.6;b.y=hy+(Math.random()*2-1)*TNR*.6}while(!W.walk(b.x,b.y)&&++t<40);b.tx=b.x;b.ty=b.y}
+  b.wt-=dt;if(b.wt<=0){b.wt=3+Math.random()*6;b.idle=Math.random()<.35;if(!b.idle){for(let t=0;t<10;t++){const x=hx+(Math.random()*2-1)*TNR*.7,y=hy+(Math.random()*2-1)*TNR*.7;if(W.walk(x,y)){b.tx=x;b.ty=y;break}}}
+    if(tnCfg().emo&&Math.random()<.04){b.bub=pick(['👋','😄','👍','🎉']);b.bubT=Date.now()+2500}}
+  const dx=b.tx-b.x,dy=b.ty-b.y,d=Math.hypot(dx,dy);if(b.idle||d<2){b.f=0;return}const sp=24*dt,nx=b.x+dx/d*sp,ny=b.y+dy/d*sp;let m=0;if(W.walk(nx,b.y)){b.x=nx;m=1}if(W.walk(b.x,ny)){b.y=ny;m=1}if(!m)b.wt=0;
+  b.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?2:3):(dy<0?1:0);b.ft+=dt;if(b.ft>.16){b.ft=0;b.f=(b.f+1)%4}}
+/* pemain lain: berjalan mulus ke posisi terakhir yang dikirim */
+function othMove(o,dt){const dx=o.tx-o.x,dy=o.ty-o.y,d=Math.hypot(dx,dy);if(d>200){o.x=o.tx;o.y=o.ty;return}if(d<1.5){o.f=0;o.dir=o.tdir??o.dir;return}
+  const sp=Math.max(30,d*1.2)*dt;o.x+=dx/d*Math.min(d,sp);o.y+=dy/d*Math.min(d,sp);o.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?2:3):(dy<0?1:0);o.ft+=dt;if(o.ft>.16){o.ft=0;o.f=(o.f+1)%4}}
+/* ---------- jaringan (Supabase Realtime, presence + broadcast) ---------- */
+function sbLoad(){return new Promise(res=>{if(window.supabase)return res(true);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>res(!!window.supabase);s.onerror=()=>res(false);document.head.appendChild(s)})}
+function tnPay(){lmFix();const E=eqItems(),v=gearVis(),eq={};for(const k in v.eq)if(k!=='_g')eq[k]=v.eq[k];const T=llTeam();
+  return{n:PROF.name,lv:PROF.lv,job:PROF.job,pw:myPower(),look:PROF.look,eq,w:E.w?{b:E.w.b,r:E.w.r}:null,pets:T,ev:T.length&&lumiOf(T[0]).ev?1:0,set:'',x:Math.round(TWN.px),y:Math.round(TWN.py),d:TWN.pd}}
+async function tnJoin(n){const a=accGet();if(!a||a.off||TWN.ch||TWN.joining)return;TWN.joining=1;try{if(!await sbLoad())return;TWN.sb=TWN.sb||window.supabase.createClient(LLA.url,LLA.key,{auth:{persistSession:false}});
+  TWN.me=a.u;TWN.chN=n||TWN.chN||1;const ch=TWN.ch=TWN.sb.channel('ll-town-'+TWN.chN,{config:{broadcast:{self:false},presence:{key:TWN.me}}});TWN.chk=0;
+  ch.on('presence',{event:'sync'},()=>{if(ch!==TWN.ch)return;const st=ch.presenceState(),ks=Object.keys(st).filter(k=>k!==TWN.me);
+    if(!TWN.chk){TWN.chk=1;if(ks.length>=TNCAP&&TWN.chN<6){tnLeave();tnJoin(TWN.chN+1);return}}
+    const seen={};for(const k of ks){const m=st[k][st[k].length-1];if(!m)continue;seen[k]=1;let o=TWN.others[k];if(!o)o=TWN.others[k]={id:k,x:m.x,y:m.y,dir:0,f:0,ft:0};
+      if(o.lv!==m.lv||JSON.stringify(o.eq)!==JSON.stringify(m.eq))o.sheet=null;Object.assign(o,{n:m.n,lv:m.lv,job:m.job,pw:m.pw,look:m.look,eq:m.eq,w:m.w,pets:m.pets||[],ev:m.ev,tx:m.x,ty:m.y,tdir:m.d})}
+    for(const k in TWN.others)if(!seen[k])delete TWN.others[k]});
+  ch.on('broadcast',{event:'em'},({payload:p})=>{if(ch!==TWN.ch||!p)return;const o=TWN.others[p.k];if(!o)return;o.bub=p.e!=null?EMO[p.e]:PHR[p.p];o.bubT=Date.now()+3200});
+  ch.subscribe(st=>{if(ch!==TWN.ch)return;if(st==='SUBSCRIBED'){TWN.lastTrack=Date.now();ch.track(tnPay()).catch(()=>{})}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){tnLeave();TWN.retry=Date.now()+5000}})}finally{TWN.joining=0}}
+function tnLeave(){const ch=TWN.ch;TWN.ch=null;TWN.others={};if(ch){try{ch.untrack();TWN.sb.removeChannel(ch)}catch(e){}}}
+function tnTrack(){if(!TWN.ch||Date.now()-TWN.lastTrack<3000)return;TWN.lastTrack=Date.now();TWN.ch.track(tnPay()).catch(()=>{})}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)tnLeave()});
+/* ---------- dipanggil dunia tiap frame ---------- */
+function tnTick(g,ox,oy,dt,me){const W=window.LLW;if(!W||!W.home)return;const[hx,hy]=W.home(),inT=me.play&&!me.fly&&Math.hypot(me.x-hx,me.y-hy)<TNR;TWN.px=me.x;TWN.py=me.y;TWN.pd=me.dir;
+  if(inT!==TWN.in){TWN.in=inT;if(inT){tnInfo();if(!accGet()&&TWN.hintNo++<1)setTimeout(()=>LLW_hint('🌐 Register/Login Account (⚙️ Settings) untuk melihat & bertemu pemain lain di Baniara!'),1200)}else tnLeave()}
+  if(inT){if(!TWN.built){TWN.built=1;botsBuild()}if(!TWN.ch&&!TWN.joining&&accGet()&&!(TWN.retry>Date.now()))tnJoin();
+    const mv=Math.hypot(me.x-(TWN.lx||0),me.y-(TWN.ly||0))>3;if(mv){TWN.lx=me.x;TWN.ly=me.y;tnTrack()}
+    if((TWN.bd=(TWN.bd||0)+dt)>60){TWN.bd=0;botsBuild()}}
+  tnEmoBtn(inT&&me.play&&!LLK.busy());if(!inT)return;const now=Date.now();
+  const L=[...TWN.bots.filter(b=>botOnline(b,now)),...Object.values(TWN.others)];
+  for(const c of L){c.bot?botMove(c,dt):othMove(c,dt);c.ox=ox;c.oy=oy;const x=Math.round(c.x-ox),y=Math.round(c.y-oy);if(x<-30||y<-40||x>g.canvas.width+30||y>g.canvas.height+60)continue;tnDrawC(g,c,x,y)}
+  if(TWN.myBub&&TWN.myBubT>now){const c={n:'',lv:'',x:me.x,y:me.y};g.font='bold 6px sans-serif';const t=TWN.myBub,big=t.length<=2,x=Math.round(me.x-ox),y=Math.round(me.y-oy)-50,bw=big?18:Math.max(14,g.measureText(t).width+8);
+    g.fillStyle='#fff';g.strokeStyle='#1a1020';g.lineWidth=1;g.beginPath();g.rect(x-bw/2,y-8,bw,big?16:11);g.fill();g.stroke();g.fillStyle='#1a1020';g.textAlign='center';if(big)g.font='12px sans-serif';g.fillText(t,x,y+(big?5:1))}}
+function tnNear(x,y){if(!TWN.in)return null;const now=Date.now();let best=null,bd=18;for(const c of[...TWN.bots.filter(b=>botOnline(b,now)),...Object.values(TWN.others)]){const d=Math.hypot(c.x-x,c.y-y);if(d<bd){bd=d;best=c}}return best}
+/* ---------- profil pemain ---------- */
+function tnProfile(id){const c=TWN.bots.find(b=>b.id===id)||TWN.others[id];if(!c)return;const J=JOBS[c.job]||{n:c.job,ic:'⚔️'};
+  const fc=document.createElement('canvas');fc.width=16;fc.height=32;fc.getContext('2d').drawImage(tnSheet(c),0,0,16,32,0,0,16,32);
+  sheet('👤 '+c.n,`<div style="display:flex;gap:12px;align-items:center"><img src="${fc.toDataURL()}" style="width:48px;height:96px;image-rendering:pixelated"><div><b style="font-size:17px">${c.n}</b><div class="note" style="margin:4px 0">Lv <b>${c.lv}</b> · ${J.ic} ${J.n}<br>⚔️ Power <b>${Number(c.pw||0).toLocaleString('id')}</b></div></div></div>
+   <div class="sec">🐾 Lumi</div><div style="display:flex;gap:6px">${(c.pets||[]).filter(i=>LG.M[i]).map(i=>`<div style="text-align:center"><img src="${LG.monHD(i,!!c.ev).toDataURL()}" style="width:40px;height:40px;image-rendering:pixelated"><div style="font-size:10px">${LG.M[i].n}</div></div>`).join('')||'<small>—</small>'}</div>
+   <div style="display:flex;gap:8px;margin-top:12px"><button class="go px" style="flex:1;opacity:.5">👥 Party<br><small>segera hadir</small></button><button class="go px" style="flex:1;opacity:.5">⚔️ Duel<br><small>segera hadir</small></button></div>`)}
+/* ---------- tombol emote & kalimat ---------- */
+let EMB=null;function tnEmoBtn(on){if(!EMB){EMB=document.createElement('button');EMB.id='tnEmo';EMB.textContent='😊';EMB.style.cssText='position:fixed;right:calc(24px + env(safe-area-inset-right));bottom:calc(118px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;font-size:26px;background:#2a2050;border:3px solid #0a0f22;box-shadow:0 3px 0 #0a0f22;z-index:3;display:none';EMB.onclick=()=>tnEmoSheet();document.documentElement.lastChild.appendChild(EMB)}
+  const v=on?'block':'none';if(EMB.style.display!==v)EMB.style.display=v}
+function tnEmoSheet(){sheet('😊 Emote',`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">${EMO.map((e,i)=>`<button class="mini" style="font-size:26px;padding:8px" data-e="${i}">${e}</button>`).join('')}</div>
+  <div class="sec">💬 Kalimat</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${PHR.map((p,i)=>`<button class="mini" style="padding:9px 4px" data-p="${i}">${p}</button>`).join('')}</div>`);
+  const K=$('ksheet');K.querySelectorAll('[data-e],[data-p]').forEach(el=>el.onclick=()=>tnSay(el.dataset.e!=null?{e:+el.dataset.e}:{p:+el.dataset.p}))}
+function tnSay(o){if(Date.now()-TWN.emoT<1500)return;TWN.emoT=Date.now();TWN.myBub=o.e!=null?EMO[o.e]:PHR[o.p];TWN.myBubT=Date.now()+3200;closeSheet();SND.pop&&SND.pop();
+  if(TWN.ch)TWN.ch.send({type:'broadcast',event:'em',payload:Object.assign({k:TWN.me},o)}).catch(()=>{})}
+/* ---------- Developer: pengaturan bot (tersimpan di server) ---------- */
+async function devBots(){await tnInfo(1);const C=tnCfg(),S=tnStats(),day=tnDay();botsBuild();const now=Date.now();
+  sheet('🤖 Bot Settings',`<div class="note">Pengaturan ini tersimpan di server dan berlaku untuk semua pemain. Pemain asli: <b>${S.n}</b> aktif · Top 3 Lv <b>${S.t3}</b> (⚔️ ${S.t3pw.toLocaleString('id')}) · rata-rata Lv <b>${Math.round(S.avg)}</b>. Bot tidak pernah melewati Top 3.</div>
+  <div class="lst">${TWN.bots.map(b=>`<div class="it"><span class="ic">${{rival:'🥇',mid:'⚖️',rand:'🎲'}[b.t]}</span><span><b>${b.n}</b><small>${b.t} · Lv ${b.lv} · ${(JOBS[b.job]||{}).n||b.job} · ${botOnline(b,now)?'🟢 online':b.gone?'💤 hilang':'⚪ offline'}</small></span></div>`).join('')}</div>
+  <div class="sec">Atur</div>
+  <label class="note" style="display:block;margin:7px 0">Jumlah bot aktif (0–10) <input id="bcN" type="number" min="0" max="10" value="${C.n}" style="width:60px"></label>
+  <label class="note" style="display:block;margin:7px 0">Jarak Rival di bawah Top 3 (level) <input id="bcR0" type="number" min="1" max="10" value="${C.rival[0]}" style="width:46px"> – <input id="bcR1" type="number" min="1" max="15" value="${C.rival[1]}" style="width:46px"></label>
+  <label class="note" style="display:block;margin:7px 0">Rentang bot Sedang (± level) <input id="bcM" type="number" min="0" max="15" value="${C.mid}" style="width:60px"></label>
+  <label class="note" style="display:block;margin:7px 0">Keliaran bot Acak (0,5–1,5) <input id="bcW" type="number" step="0.1" min="0.5" max="1.5" value="${C.wild}" style="width:60px"></label>
+  <label class="note" style="display:block;margin:7px 0">Keramaian online <select id="bcB">${[[.5,'Sepi'],[1,'Normal'],[1.6,'Ramai']].map(([v,t])=>`<option value="${v}" ${C.busy==v?'selected':''}>${t}</option>`).join('')}</select></label>
+  <label class="note" style="display:block;margin:7px 0">Batas level bot <input id="bcX" type="number" min="1" max="50" value="${C.max}" style="width:60px"></label>
+  <label class="note" style="display:block;margin:7px 0"><input id="bcE" type="checkbox" ${C.emo?'checked':''}> Bot memakai emote</label>
+  <label class="note" style="display:block;margin:7px 0">Nonaktifkan (pisah koma) <input id="bcO" value="${(C.off||[]).join(',')}" style="width:100%"></label>
+  <label class="note" style="display:block;margin:7px 0">Password Developer <input id="bcP" type="password" style="width:100%"></label>
+  <button class="go px" id="bcS">💾 Simpan ke server</button><div id="bcMsg" class="note"></div>
+  <label class="note" style="display:block;margin:7px 0"><input id="bcF" type="checkbox" ${TWN.forceOn?'checked':''}> Uji: semua bot online (hanya di HP ini)</label>`);
+  $('bcF').onchange=e=>{TWN.forceOn=e.target.checked};
+  $('bcS').onclick=async()=>{const v=id=>$(id).value,nv={n:+v('bcN'),rival:[+v('bcR0'),Math.max(+v('bcR0'),+v('bcR1'))],mid:+v('bcM'),wild:+v('bcW'),busy:+v('bcB'),max:+v('bcX'),emo:$('bcE').checked?1:0,off:v('bcO').split(',').map(s=>s.trim()).filter(Boolean),ren:C.ren||{}};
+    $('bcMsg').textContent='Menyimpan…';const r=await llRpc('ll_cfg_set',{p_pw:v('bcP'),p_k:'bot',p_v:nv});$('bcMsg').textContent=r&&r.ok?'Tersimpan ✔':r&&r.why==='pw'?'Password salah.':'Gagal (jaringan).';if(r&&r.ok){TWN.info=Object.assign({},TWN.info||{},{cfg:nv});botsBuild()}}}
+LLK.town={tick:tnTick,near:tnNear,profile:tnProfile,dev:devBots};
+window.__TWN=TWN;
+{const d0=openDev;openDev=function(){d0.apply(this,arguments);try{const K=$('ksheet'),n=K.querySelector('.note');if(!n)return;const b=document.createElement('button');b.className='go px';b.textContent='🤖 Bot Settings (online)';b.onclick=()=>devBots();n.after(b)}catch(e){}}}
 
 Object.assign(window,{bagExpand,bestEq,buyI,claimA,claimLogin,claimM,closeSheet,cvLair,cvLeave,cvMove,cvResume,cvStart,cvTrap,devCvReset,devDg,devDragon,devGive,devGold,devJob,devLumi,devLumiLv,devLv,devMBox,devSet,devToggle,devTp,dgResume,dgStart,gqSet,itemSheet,krJoin,lockI,lookSet,mbOpen,openBag,openChest,openDev,openExp,openKr,openShop,openTab,openWorld,openZone,prBuy,prCamp,prDone,prEnter,prLeave,prStart,quickSell,sellAll,sellI,setAct,setBagF,setChW,sheet,unwear,upgI,uraiI,uraiWeak,wear,zGo,zPick,zStart});
 })();
@@ -7610,7 +7730,9 @@ const LLW={
       g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.ellipse(x,y+1,6,2,0,0,7);g.fill();
       const md=o.guard||o.chase?1:0;LLK.mobWpn(g,o.m,x,y,o.dir,o.f,0,md);g.drawImage(im,o.f*16,o.dir*32,16,32,x-8,y-30,16,32);LLK.mobWpn(g,o.m,x,y,o.dir,o.f,1,md);
       if(o.m.k!=='n'){g.fillStyle=o.m.k==='b'?'#ffd23c':'#ff8aa0';g.fillRect(x-1,y-35,3,3)}
-      g.font='bold 6px sans-serif';g.textAlign='center';g.strokeStyle='#1a1020';g.lineWidth=1.5;const lb='Lv.'+o.m.lv;g.strokeText(lb,x,y-33);g.fillStyle=o.m.k==='b'?'#ffd23c':o.m.k==='e'?'#ff8aa0':'#ffffff';g.fillText(lb,x,y-33)}},
+      g.font='bold 6px sans-serif';g.textAlign='center';g.strokeStyle='#1a1020';g.lineWidth=1.5;const lb='Lv.'+o.m.lv;g.strokeText(lb,x,y-33);g.fillStyle=o.m.k==='b'?'#ffd23c':o.m.k==='e'?'#ff8aa0':'#ffffff';g.fillText(lb,x,y-33)}
+    if(LLK.town)LLK.town.tick(g,ox,oy,dt,{x:PL.x,y:PL.y,dir:PL.dir,play:mode==='play',fly:!!(FLYING||FLY)})},
+  walk:(x,y)=>walk(x,y),home:()=>[KX*TS+8,KY*TS+8],
   clearNear(){if(mobDay!==dayNo)mobSpawn();for(const o of MOBS)if(Math.hypot(o.x-PL.x,o.y-PL.y)<48)o.gone=12},
   get mode(){return mode}};
 window.LLW=LLW;
@@ -7675,6 +7797,7 @@ actB.onclick=()=>{SND.init();if(mode==='play'&&ACT&&!LLK.busy())ACT.fn()};
 function setAct(k,html){if(k===actK)return;actK=k;actB.className=k?'':'hide';actB.innerHTML=html||''}
 function actTick(){if(mode!=='play'||FLYING||FLY||!sh.classList.contains('hide')||LLK.busy()){setAct('');return}
   let best=null,bd=1e9;for(const a of ACTS){const d=Math.hypot(PL.x-a.x,PL.y-a.y);if(d<a.r&&d<bd){bd=d;best=a}}
+  const tc=LLK.town&&LLK.town.near(PL.x,PL.y);if(tc&&(!best||Math.hypot(tc.x-PL.x,tc.y-PL.y)<bd)){ACT={fn:()=>LLK.town.profile(tc.id)};setAct('tn'+tc.id,'👤<span>'+String(tc.n).replace(/[<>&]/g,'')+'</span>');return}
   if(best){ACT=best;setAct('a'+ACTS.indexOf(best)+best.lb,`${best.ic}<span>${best.lb}</span>`)}
   else{ACT=null;setAct('')}}
 const WACT={fn:()=>{const d=LLK.wToggle();SND.pop();showHint(d?'⚔️ Senjata dibawa di tangan':'🎒 Senjata disimpan',1200)}};
