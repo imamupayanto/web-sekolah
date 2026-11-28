@@ -3976,7 +3976,7 @@ function qStart(){const Z=ZONES[G.zone];const p=$('qp');p.style.setProperty('--g
 function resetRound(){G.proj=[];G.F.forEach((f,i)=>{Object.assign(f,{x:i?ARW/2+30:ARW/2-30,y:0,vx:0,vy:0,face:i?-1:1,st:'idle',t:0,mv:null,hp:f.maxHp,flash:0,invul:0,chain:0,trail:[],tilt:0,bounced:0,flip:0,hover:0,holdT:0,wallB:0,thn:0,thn2:0,effS:0,healed:0,fv:i?-1:1,trail2:[]});f.inp={mv:0,atk:0,jump:0,block:0,jur:0,hold:0,dash:0}});
   G.fx=[];G.ghost=[];G.ban=[];G.dec=[];G.drops=[];if(G.mode!=='rank')G.pend=null;(G.F||[]).forEach(f=>{f.bf=null;f.burn=null;f.skCD=Math.min(f.skCD,4)});G.sp=null;G.cut=null;G.time=60;G.zoom=G.zt=1;G.punch=0;G.dimT=0;G.dim=0;G.slow=1;G.slowT=0;G.cam=ARW/2}
 function introRound(){if(G.mode==='zone')return;G.st='intro';G.it=1.6;G.F.forEach((f,i)=>{f.x=ARW/2+(i?78:-78);f.face=i?-1:1});G.cam=ARW/2;banner(G.mode==='ll'?'⚔️ BATTLE!':G.mode==='dun'?G.wvTxt:'ROUND '+G.round,G.mode==='ll'?(G.cfg.nb||''):G.mode==='dun'?G.wvSub:G.round===3?'FINAL':ZONES[G.zone].ic+' '+ZONES[G.zone].n,'#ffd23c',1.4,18)}
-function timeUp(){if(G.mode==='dun'||G.mode==='zone'||G.mode==='ll'){G.time=99;return}const [A,B]=G.F,a=A.hp/A.maxHp,b=B.hp/B.maxHp;banner('TIME UP!','','#ffd23c',1.4,13);G.st='ko';
+function timeUp(){if(G.mode==='dun'||G.mode==='zone'||G.mode==='ll'||G.mode==='path'){G.time=99;return}const [A,B]=G.F,a=A.hp/A.maxHp,b=B.hp/B.maxHp;banner('TIME UP!','','#ffd23c',1.4,13);G.st='ko';
   const w=a===b?-1:a>b?0:1;if(w>=0){hype(1,w);G.F[w].st='win';G.F[w].t=0;G.zt=1.3;G.zx=G.F[w].x}const mid=G.mid;setTimeout(()=>{if(G.mid===mid)endRound(w)},2200)}
 function endRound(w){if(G.scr!=='fight'||G.st==='over'||G.ended===G.round)return;if(G.mode==='zone')return zEnd();if(G.mode==='path')return pathEnd(w);if(G.mode==='ll')return llEnd(w);G.ended=G.round;if(w===undefined)w=G.F[0].st==='ko'?1:0;if(w>=0)G.wins[w]++;pips();
   if(G.wins[0]>=2||G.wins[1]>=2||G.round>=3)return result();
@@ -4639,14 +4639,16 @@ function parsePs(d){const e={};let q;if(/kerusakan diterima/.test(d)&&(q=d.match
   if(/kritis/.test(d)&&(q=d.match(/(\d+)%/)))e.crit=+q[1]/100;if(/perisai/.test(d)&&(q=d.match(/(\d+)%/)))e.sh0=+q[1]/100;return e}
 function petInfo(id){const m=LG.M[id]||{n:id,el:'Netral',r:'C',atk:12},d=PETD[id]||{role:'melee',sk:'Strike',ds:'100%',P:[]};return{id,m,d,sk:parseSk(d.ds),ps:d.P.map(p=>parsePs(p[1]))}}
 /* ---------- dalam pertarungan ---------- */
-function petsInit(cfg){G.pets=[];G.pproj=[];[cfg.a&&cfg.a.pet,cfg.b&&cfg.b.pet].forEach((id,side)=>{if(!id||!LG.M[id])return;const o=G.F[side],I=petInfo(id),pw=BASE*o.atk*PPOW[I.m.r||'C']*((I.m.atk||12)/12)*(side?.6:llPetMul());
-  const p={I,side,o,x:o.x-o.face*12,y:0,vy:0,t:0,cd:2+Math.random(),scd:6+Math.random()*2,st:'idle',pw,face:o.face,hop:0};
-  /* pasif ke pemilik */const P=I.ps.reduce((a,e)=>{for(const k in e)a[k]=(a[k]||0)+e[k];return a},{});p.P=P;
-  if(P.dr)o.bonus.dr=(o.bonus.dr||0)+P.dr;if(P.atk)o.atk*=1+P.atk;if(P.ev)o.bonus.ev=(o.bonus.ev||0)+P.ev;if(P.crit)o.bonus.crit=(o.bonus.crit||0)+P.crit;if(P.sh0)o.shield=Math.round(o.maxHp*P.sh0);
-  if(I.d.role==='tank')o.bonus.dr=(o.bonus.dr||0)+.1;G.pets.push(p)})}
+function petsInit(cfg){G.pets=[];G.pproj=[];const L0=cfg.a?(cfg.a.pets||(cfg.a.pet?[cfg.a.pet]:[])):[];[[L0,0],[cfg.b&&cfg.b.pet?[cfg.b.pet]:[],1]].forEach(([ids,side])=>ids.forEach((id,ix)=>{if(!id||!LG.M[id])return;const o=G.F[side],I=petInfo(id),lm=side?null:((G.mode==='ll'||G.mode==='path')?lumiOf(id):null),pw=BASE*(lm?llPetBase():o.atk)*PPOW[I.m.r||'C']*((I.m.atk||12)/12)*(side?.6:llPetMul(id));
+  const p={I,side,o,ix,x:o.x-o.face*(12+ix*7),y:0,vy:0,t:0,cd:2+Math.random()+ix*.7,scd:6+Math.random()*2+ix*2.5,st:'idle',pw,face:o.face,hop:ix,ev:lm&&lm.ev?1:0,sh:lm&&lm.sh?1:0};
+  if(!side&&lm){p.mhp=p.hp=Math.round(o.maxHp*.45*(p.ev?1.3:1))}
+  /* pasif ke pemilik: hanya Lumi pertama (pemimpin) */const P=I.ps.reduce((a,e)=>{for(const k in e)a[k]=(a[k]||0)+e[k];return a},{});
+  if(ix===0){if(P.dr)o.bonus.dr=(o.bonus.dr||0)+P.dr;if(P.atk)o.atk*=1+P.atk;if(P.ev)o.bonus.ev=(o.bonus.ev||0)+P.ev;if(P.crit)o.bonus.crit=(o.bonus.crit||0)+P.crit;if(P.sh0)o.shield=Math.round(o.maxHp*P.sh0);if(I.d.role==='tank')o.bonus.dr=(o.bonus.dr||0)+.1}
+  /* pasif elemen Lumi (Lumi Lv 10+) */if(lm&&lm.lv>=10){const el=I.m.el;if(el==='Api')P.burnC=(P.burnC||0)+.2;else if(el==='Racun')P.psnC=(P.psnC||0)+.2;else if(el==='Es')P.stunC=(P.stunC||0)+.3;else P.regen=(P.regen||0)+.06;p.elp=el}
+  p.P=P;G.pets.push(p)}))}
 function petTgt(p){return G.F[1-p.side]}
 function petHit(p,d,mult,fxc){if(!d||d.st==='ko'||d.hp<=0||G.st!=='fight')return 0;let dmg=Math.round(p.pw*mult*rnd(.9,1.1)*Math.max(.35,1-(d.bonus.dr||0)-(d.bf&&d.bf.dr||0)));
-  if(d.shield>0){const ab=Math.min(d.shield,dmg);d.shield-=ab;dmg-=ab}d.hp-=dmg;d.flash=.1;const hy=GY-d.y-14,c=fxc||ELC[p.I.m.el]||'#fff';burst(d.x,hy,c,7,.1);sparks(d.x,hy,p.o.x<d.x?1:-1,c,6,120);if(dmg>0)txt(d.x+rnd(-3,3),hy-12,dmg+'',c,5.5,.7);SND.hit(false);
+  if(d.shield>0){const ab=Math.min(d.shield,dmg);d.shield-=ab;dmg-=ab}d.hp-=dmg;if(p.side===0)G.dmgP=(G.dmgP||0)+dmg;d.flash=.1;const hy=GY-d.y-14,c=fxc||ELC[p.I.m.el]||'#fff';burst(d.x,hy,c,7,.1);sparks(d.x,hy,p.o.x<d.x?1:-1,c,6,120);if(dmg>0)txt(d.x+rnd(-3,3),hy-12,dmg+'',c,5.5,.7);SND.hit(false);
   const P=p.P;if(P.burnC&&Math.random()<P.burnC&&!d.immB)d.burn={p:.03,t:3,k:0,c:'#ff7a2a'};if(P.psnC&&Math.random()<P.psnC)d.burn={p:.025,t:4,k:0,c:'#9ad84a'};if(P.stunC&&Math.random()<P.stunC*.5)d.stun=Math.max(d.stun||0,.35);
   if(d.hp<=0){d.hp=1;if(G.st==='fight')KO(p.o,d)}hud();return dmg}
 function petSkill(p){const S=p.I.sk,d=petTgt(p),o=p.o,col=ELC[p.I.m.el]||'#ffd23c',hy=GY-p.y-8;txt(p.x,hy-14,p.I.d.sk,col,5.5,1.2);ring(p.x,hy,col,16,.4,2);SND.tone(700,1400,.15,.1,'triangle');
@@ -4656,7 +4658,7 @@ function petSkill(p){const S=p.I.sk,d=petTgt(p),o=p.o,col=ELC[p.I.m.el]||'#ffd23
   if(S.sh){o.shield=(o.shield||0)+Math.round(o.maxHp*S.sh*.6);ring(o.x,GY-o.y-14,'#9ed4ff',18,.5,2)}
   if(S.atk){o.bf={atk:S.atk*.6,t:5};ring(o.x,GY-o.y-14,'#ffd23c',18,.5,2)}if(S.inv)o.invul=Math.max(o.invul,S.inv*.6)}
 function updPets(dt){if(!G.pets||!G.pets.length)return;for(const p of G.pets){const o=p.o,d=petTgt(p),role=p.I.d.role;p.t+=dt;if(p.big>0){p.big-=dt;p.bs=(p.bs||1)+(1.75-(p.bs||1))*Math.min(1,dt*4);if(Math.random()<dt*14)fx({x:p.x+rnd(-8,8),y:GY-p.y-rnd(2,26),vy:rnd(-30,-10),l:.5,s:1.2,c:'#7dff8a',k:'ci',g:-10});if(p.big<=0)p.pw=p.pw0}else if(p.bs>1)p.bs=Math.max(1,p.bs-dt*2);p.face=Math.sign(d.x-o.x)||o.face;
-  const home=o.x+(role==='tank'?p.face*13:-p.face*(role==='support'?15:11));if(p.st==='dash'){const tx=d.x-p.face*9;p.x+=(tx-p.x)*Math.min(1,dt*10);if(Math.abs(tx-p.x)<2){p.st='back';petHit(p,d,role==='tank'?.6:1)}}
+  if(p.ko){p.x+=((o.x-p.face*(14+p.ix*7))-p.x)*Math.min(1,dt*2);p.y=0;continue}const home=o.x+(role==='tank'?p.face*(13+p.ix*6):-p.face*((role==='support'?15:11)+p.ix*7));if(p.st==='dash'){const tx=d.x-p.face*9;p.x+=(tx-p.x)*Math.min(1,dt*10);if(Math.abs(tx-p.x)<2){p.st='back';petHit(p,d,role==='tank'?.6:1)}}
   else{p.x+=(home-p.x)*Math.min(1,dt*(p.st==='back'?8:5));if(p.st==='back'&&Math.abs(home-p.x)<2)p.st='idle'}
   p.x=clamp(p.x,6,ARW-6);p.y=role==='support'||p.I.m.n.match(/Bat|Owl|Eagle|Fly|Hoot|Wyvern|Drake|Dragon/)?6+Math.sin(G.t*3+p.side)*2:Math.max(0,Math.abs(Math.sin(p.hop))*3);if(Math.abs(home-p.x)>1.5)p.hop+=dt*12;
   if(G.st!=='fight'||G.sp||o.st==='ko')continue;p.cd-=dt;p.scd-=dt;
@@ -4666,8 +4668,11 @@ function updPets(dt){if(!G.pets||!G.pets.length)return;for(const p of G.pets){co
     else if(role==='ranged'){p.cd=2.6+Math.random()*.6;G.pproj.push({p,x:p.x,y:GY-p.y-8,vx:p.face*150,c:ELC[p.I.m.el]})}
     else{p.cd=(role==='tank'?4:2.8)+Math.random()*.6;if(Math.abs(d.x-p.x)<70)p.st='dash'}}}
   for(const q of G.pproj){q.x+=q.vx*dt;const d=petTgt(q.p);if(Math.abs(q.x-d.x)<5){q.dead=1;petHit(q.p,d,.9)}if(q.x<0||q.x>ARW)q.dead=1;if(Math.random()<.5)fx({x:q.x,y:q.y,l:.15,s:.6,c:q.c,k:'sq'})}G.pproj=G.pproj.filter(q=>!q.dead)}
-function drawPets(g){if(!G.pets)return;for(const p of G.pets){const im=monImgC(p.I.id,(G.t*.8+p.side)%3<.1,((G.t*3)|0)%2,p.face<0),s=.62*(p.bs||1),y=GY-p.y;g.fillStyle='#00000035';g.beginPath();g.ellipse(p.x,GY+.5,6,1.3,0,0,7);g.fill();
-  g.save();g.translate(p.x,y);g.scale(s,s);g.drawImage(im,-im.width/2,-im.height+1);g.restore();
+function drawPets(g){if(!G.pets)return;for(const p of G.pets){const im=p.ev?(MIC['E'+p.I.id+p.face]||(MIC['E'+p.I.id+p.face]=LG.monImg(p.I.id,false,0,p.face<0,true))):monImgC(p.I.id,(G.t*.8+p.side+p.ix)%3<.1,((G.t*3+p.ix)|0)%2,p.face<0),s=.62*(p.bs||1)*(p.ev?1.08:1),y=GY-p.y;g.fillStyle='#00000035';g.beginPath();g.ellipse(p.x,GY+.5,6,1.3,0,0,7);g.fill();
+  g.save();g.translate(p.x,y);if(p.ko){g.globalAlpha=.35;g.rotate(p.face*1.4)}g.scale(s,s);g.drawImage(im,-im.width/2,-im.height+1);g.restore();
+  if(p.sh&&!p.ko&&Math.random()<.25)fx({x:p.x+rnd(-7,7),y:y-rnd(2,im.height*s),vy:-12,l:.5,s:.9,c:pick(['#fff6a8','#ffffff','#ffd23c']),k:'sq'});
+  if(p.ev&&!p.ko&&Math.random()<.12)fx({x:p.x+rnd(-6,6),y:y-rnd(0,6),vy:-20,l:.6,s:1,c:ELC[p.I.m.el]||'#fff',k:'ci',g:-8});
+  if(p.mhp&&!p.ko){const w=12,q=Math.max(0,p.hp/p.mhp),by=y-im.height*s-3;g.fillStyle='#000a';g.fillRect(p.x-w/2-.5,by-.5,w+1,2);g.fillStyle=q>.5?'#7dff8a':q>.25?'#ffd23c':'#ff5a6a';g.fillRect(p.x-w/2,by,w*q,1)}
   if(p.side===1&&p.t<3){g.font="700 4px 'Pixelify Sans',sans-serif";g.textAlign='center';g.fillStyle='#ff8aa0';g.fillText(p.I.m.n,p.x,y-im.height*s-2)}}
   for(const q of G.pproj){g.fillStyle=q.c;g.beginPath();g.arc(q.x,q.y,1.6,0,7);g.fill();g.fillStyle='#fff';g.fillRect(q.x-.5,q.y-.5,1,1)}}
 /* ---------- koleksi pet ---------- */
@@ -5265,9 +5270,9 @@ const zrng=(zn,R)=>{const l=zoneLvOf(zn)||[1,3];return l[0]+Math.floor((R||Math.
 /* ---------- job ---------- */
 const JOBS={
   warrior:{n:'Warrior',ic:'🛡️',c:'#ff8a5a',st:[4,3,4,2],w:['pedang','perisai','tombak'],hp:1.15,atk:1,bon:{dr:.05},ps:'Battle Spirit',pd:'HP rendah → serangan naik (maks +20%).',d:'Ksatria tangguh di garis depan. HP & pertahanan tinggi.'},
-  assassin:{n:'Assassin',ic:'🗡️',c:'#b46cff',st:[2,4,2,5],w:['ganda','busur'],hp:.9,atk:1.08,bon:{crit:.15,ev:.03},ps:'Weak Point',pd:'Kritis +15%, tiap serangan ke-4 pasti kritis.',d:'Cepat & mematikan. Serangan kritis sering muncul.'},
-  mage:{n:'Mage',ic:'📖',c:'#5ad0ff',st:[2,5,1,3],w:['buku'],hp:.85,atk:1.15,bon:{jf:.1},ps:'Sharp Mind',pd:'Benar beruntun → sihir +5% (maks +25%).',d:'Penyihir angka. Serangan sihir terkuat dari jauh.'},
-  lumi:{n:'Lumi Master',ic:'🐾',c:'#7dff8a',st:[3,2,3,3],w:['tongkat'],hp:1,atk:.7,bon:{dr:.03},ps:'Soul Bond',pd:'Lumi HP & serangan ×1,5. Seranganmu sendiri ×0,7.',d:'Bertarung bersama Lumi. Lumimu jauh lebih kuat.'}};
+  assassin:{n:'Assassin',ic:'🗡️',c:'#b46cff',st:[2,4,2,5],w:['ganda','busur'],hp:1.55,atk:1.1,bon:{crit:.15,ev:.03},ps:'Weak Point',pd:'Kritis +15%, tiap serangan ke-4 pasti kritis.',d:'Cepat & mematikan. Serangan kritis sering muncul.'},
+  mage:{n:'Mage',ic:'📖',c:'#5ad0ff',st:[2,5,1,3],w:['buku'],hp:1.05,atk:.62,bon:{jf:.1},ps:'Sharp Mind',pd:'Benar beruntun → sihir +5% (maks +25%).',d:'Penyihir angka. Serangan sihir terkuat dari jauh.'},
+  lumi:{n:'Lumi Master',ic:'🐾',c:'#7dff8a',st:[3,2,3,3],w:['tongkat'],hp:1,atk:.4,bon:{dr:.03},ps:'Soul Bond',pd:'Bawa 2 Lumi (3 Lumi mulai Lv 20), tiap Lumi ×1,85. Seranganmu sendiri ×0,4. Tangkap Lumi 24%, EXP Lumi ×1,5.',d:'Pawang Lumi: bertarung bersama tim Lumi. Kamu sendiri lemah.'}};
 const KIND={pedang:'Sword',perisai:'Sword & Shield',tombak:'Spear',ganda:'Twin Blades',busur:'Bow',buku:'Spellbook',tongkat:'Staff'};
 const KIC={pedang:'🗡️',perisai:'🛡️',tombak:'🔱',ganda:'⚔️',busur:'🏹',buku:'📖',tongkat:'🪄'};
 const isStaff=w=>!!(w&&w.def&&(w.def[3]==='staff'||w.def[3]==='n2staff'));
@@ -5304,9 +5309,9 @@ function llAtkMul(a){if(G.mode!=='ll'||a.side!==0)return 1;const j=PROF.job;
   return 1}
 function llCrit4(a){if(G.mode!=='ll'||a.side!==0||PROF.job!=='assassin')return false;a.llc=(a.llc||0)+1;return a.llc%4===0}
 /* jurus Tongkat Lumi Master: Panggilan Agung — Lumi membesar ±8 dtk, serangan Lumi ×2 */
-function llGrand(a){if(G.mode!=='ll'||a.side!==0||PROF.job!=='lumi'||!G.pets)return false;const p=G.pets.find(x=>x.side===0);if(!p)return false;
-  a.energy=0;a.stats.sp++;p.big=8;p.pw0=p.pw0||p.pw;p.pw=p.pw0*2;p.cd=0;p.scd=Math.min(p.scd,.6);
-  banner('GRAND SUMMON!',p.I.m.n+' membesar!','#7dff8a',1.3,16);ring(p.x,GY-p.y-12,'#7dff8a',30,.5,4);burst(p.x,GY-p.y-12,'#bfffc8',14,.2);G.shake=3;hype(.8,0);SND.charge&&SND.charge();return true}
+function llGrand(a){if((G.mode!=='ll'&&G.mode!=='path')||a.side!==0||PROF.job!=='lumi'||!G.pets)return false;const T=G.pets.filter(x=>x.side===0&&!x.ko);if(!T.length)return false;
+  a.energy=0;a.stats.sp++;T.forEach(p=>{p.big=8;p.pw0=p.pw0||p.pw;p.pw=p.pw0*2;p.cd=0;p.scd=Math.min(p.scd,.6+p.ix*.4);ring(p.x,GY-p.y-12,'#7dff8a',30,.5,4);burst(p.x,GY-p.y-12,'#bfffc8',14,.2)});
+  banner('GRAND SUMMON!',T.length>1?'Semua Lumi membesar!':T[0].I.m.n+' membesar!','#7dff8a',1.3,16);G.shake=3;hype(.8,0);SND.charge&&SND.charge();return true}
 function setBagF(k){BAGF=k;openBag()}
 function setChW(x){CHW=x;openChar()}
 function upCls(it){if(!it||!it.up)return'';const mx=UPMAX[it.r]||12,q=it.up/mx;return q>=1?'um':q>=.75?'uc':q>=.4?'ub':'ua'}
@@ -6155,10 +6160,10 @@ function lumis(){return PROF.lumis=PROF.lumis||{}}
 function lumiOf(id){const L=lumis();return L[id]||(L[id]={lv:1,exp:0})}
 const needLX=lv=>Math.round(needXP(lv)/3);
 function llLumiExp(id,n,log){const L=lumiOf(id),P=PROF,gap=P.lv-L.lv;if(L.lv>=P.lv){L.exp=Math.min(L.exp+n,needLX(L.lv)-1);return}
-  n=Math.round(n*(gap>=10?3:gap>=5?2:1));L.exp+=n;while(L.lv<P.lv&&L.exp>=needLX(L.lv)){L.exp-=needLX(L.lv);L.lv++;log&&log.push(`🐾 ${LG.M[id].n} naik ke <b>Lv ${L.lv}</b>!`)}if(L.lv>=P.lv)L.exp=Math.min(L.exp,needLX(L.lv)-1)}
-function llPetMul(){const id=PROF.pet;if(!id)return 1;const L=lumiOf(id),job=PROF.job==='lumi'?1.5/.7:1;const gb=gearCfg(eqItems()).gb||{};return job*lvAtk(L.lv)/lvAtk(PROF.lv)*(1+(gb.pet||0))}
+  n=Math.round(n*(gap>=10?3:gap>=5?2:1));L.exp+=n;while(L.lv<P.lv&&L.exp>=needLX(L.lv)){L.exp-=needLX(L.lv);L.lv++;log&&log.push(`🐾 ${LG.M[id].n} naik ke <b>Lv ${L.lv}</b>!`);if(L.lv===10)log&&log.push(`🔆 ${LG.M[id].n} membuka pasif elemen: <b>${LMEL[LG.M[id].el]||''}</b>`);if(L.lv>=LMEVO&&!L.ev){L.ev=1;log&&log.push(`🌟 <b>${LG.M[id].n} BEREVOLUSI!</b> Tampilan baru · Power & HP +30%`)}}if(L.lv>=P.lv)L.exp=Math.min(L.exp,needLX(L.lv)-1)}
+function llPetMul(id){id=id||PROF.pet;if(!id)return 1;const L=lumiOf(id),job=PROF.job==='lumi'?LMJ.pet:1;const gb=gearCfg(eqItems()).gb||{};return job*lvAtk(L.lv)/lvAtk(PROF.lv)*(1+(gb.pet||0))*(L.ev?1.3:1)*(L.sh?1.1:1)}
 /* ---------- konfigurasi petarung pemain: job + perlengkapan ---------- */
-function llMyCfg(){const c=myCfg(),J=jobOf(),SB=setBonus();c.bon=Object.assign({},c.bon);for(const k in J.bon)c.bon[k]=(c.bon[k]||0)+J.bon[k];for(const k in SB)if(k!=='pet')c.bon[k]=(c.bon[k]||0)+SB[k];c.pet=PROF.pet||null;c.job=PROF.job;if(c.bon.dr>.45)c.bon.dr=.45;return c}
+function llMyCfg(){const c=myCfg(),J=jobOf(),SB=setBonus();c.bon=Object.assign({},c.bon);for(const k in J.bon)c.bon[k]=(c.bon[k]||0)+J.bon[k];for(const k in SB)if(k!=='pet')c.bon[k]=(c.bon[k]||0)+SB[k];lmFix();c.pet=PROF.pet||null;c.pets=llTeam();c.bon.exp=(c.bon.exp||0)+colExp();c.job=PROF.job;if(c.bon.dr>.45)c.bon.dr=.45;if(c.bon.crit>.5)c.bon.crit=.5;return c}
 /* ---------- makhluk Geng Kabut ---------- */
 function mobPick(zn,R){R=R||Math.random;const Z=ZONE8[zIdx(LZ[zn].z)],e=R()<.12,m=e?Z.el[Math.floor(R()*Z.el.length)]:Z.mob[Math.floor(R()*Z.mob.length)],l=LZ[zn].lv;
   return{n:m[0],wt:m[1],cr:m[2],tk:m[3],k:e?'e':'n',lv:Math.min(l[1],l[0]+Math.floor(R()*(l[1]-l[0]+1))+(e?1:0)),z:LZ[zn].z,sd:Math.floor(R()*1e9)}}
@@ -6191,9 +6196,9 @@ function llEnd(w){if(!LLF)return;const[A,B]=G.F;G.ended=G.round;G.st='over';cons
 function llReward(f,A){const AC=f.ac||{m:1,d:1,t:''},GP=f.gp||llLvGap(f.L),P=PROF,L=f.L,e=f.enc,K=e.kind==='mob'?(e.m.k==='e'?2.5:1.3):1,ob=1+ORBB[orbLv()-1],log=[],s=A.stats||{};
   const FX=llFxAll(),gold=Math.round((5+2.5*L)*K*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*(.9+Math.random()*.2)*devM('gold')*AC.m*GP.g),GX=llGearXp(),xp=Math.max(1,Math.round((10+4*L)*K*ob*(1+(A.bonus.exp||0))*(SEL.manual?.25:1)*AC.m*GX.m*GP.x));
   P.coin+=gold;log.push(`🪙 +${gold} gold`);llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':ob>1?` <small>(Orb +${Math.round((ob-1)*100)}%)</small>`:''));
-  if(P.pet){llLumiExp(P.pet,Math.round(xp*.9),log)}
+  llTeamExp(xp,log);
   if(s.qok)log.push(`🧠 ${s.qok} soal benar`);if(AC.t)log.push(AC.t);if(GX.t)log.push(GX.t);if(GP.t)log.push(GP.t);
-  if(e.kind==='lumi'){if(Math.random()<(e.shiny?1:.12*devM('drop'))&&LG.M[e.id]){const nw=!lumis()[e.id]||!(P.lumiOwn||[]).includes(e.id);P.lumiOwn=P.lumiOwn||[];if(nw){P.lumiOwn.push(e.id);lumis()[e.id]={lv:Math.max(1,L-3),exp:0};log.push(`🐾 <b>${LG.M[e.id].n}</b> ingin ikut denganmu! (Lv ${Math.max(1,L-3)})`)}else{P.coin+=40;log.push(`🐾 ${LG.M[e.id].n} sudah kamu punya → +40 🪙`)}}}
+  if(e.kind==='lumi'){if(Math.random()<(e.shiny?1:(P.job==='lumi'?LMJ.catch:.12)*devM('drop'))&&LG.M[e.id]){const nw=!lumis()[e.id]||!(P.lumiOwn||[]).includes(e.id);P.lumiOwn=P.lumiOwn||[];if(nw){P.lumiOwn.push(e.id);lumis()[e.id]={lv:Math.max(1,L-3),exp:0,sh:e.shiny?1:0};log.push(`🐾 <b>${e.shiny?'✨ ':''}${LG.M[e.id].n}</b> ingin ikut denganmu! (Lv ${Math.max(1,L-3)})`);const c0=P.lumiOwn.length;if(c0%10===0)log.push(`📖 Koleksi ${c0} Lumi! EXP permanen +${colExp()*100|0}%`)}else if(e.shiny&&!lumis()[e.id].sh){lumis()[e.id].sh=1;log.push(`✨ ${LG.M[e.id].n}-mu kini <b>Shiny</b>! Power +10%`)}else{P.coin+=40;log.push(`🐾 ${LG.M[e.id].n} sudah kamu punya → +40 🪙`)}}}
   else(f.items||[]).forEach(it=>llGive(it,log));
   saveP();return log}
 /* ---------- barang di peta ---------- */
@@ -6268,18 +6273,13 @@ function llJob(k){const P=PROF,c=JOBFEE(P.lv),W=window.__LLW;if(W&&!/Baniara/.te
   P.coin-=c;P.job=k;const it=giveItem(llWeapon(Math.max(1,Math.min(P.lv,9)),1,JOBS[k].w[0]));P.eqp.w=it.u;it.nw=0;syncW();saveP();SND.win();
   sheet('✨ New Job!',`<div class="reveal"><div class="rv-ic">${JOBS[k].ic}</div><b>${JOBS[k].n}</b><small>Weapon baru: ${gi(it).n}. Weapon lama tetap di Bag.</small></div><button class="go px" onclick="closeSheet()">Mantap!</button>`)}
 function llZoneName(){const W=window.__LLW;if(!W)return'';const i=W.ZON[Math.floor(W.PL.y/W.TS)*W.N+Math.floor(W.PL.x/W.TS)];return i===255?'':W.D.zones[i].n}
-function llLumi(){const P=PROF,own=P.lumiOwn||[];
-  sheet('🐾 Lumi',`<div class="note">Lumi pendamping ikut battle. Levelnya naik sendiri (maks = levelmu). Tertinggal jauh → EXP ×2/×3.</div><div class="lst">${own.map(id=>{const m=LG.M[id],L=lumiOf(id),on=P.pet===id;
-    return`<div class="it ${on?'on':''}" data-p="${id}"><span class="ic"><img src="${LG.monHD(id,false).toDataURL()}" style="width:34px;height:34px;image-rendering:pixelated"></span><span><b>${m.n}</b><small>Lv ${L.lv} · ${m.el} · ${(PETD[id]||{role:'melee'}).role} · EXP ${L.exp}/${needLX(L.lv)}</small></span><i>${on?'🐾 Active':'Choose'}</i></div>`}).join('')}</div>
-   <div class="note">Dapat Lumi baru: kalahkan Lumi liar (peluang 8%, Lumi berkilau ✨ pasti ikut).</div>`);
-  $('ksheet').querySelectorAll('[data-p]').forEach(el=>el.onclick=()=>{P.pet=el.dataset.p;saveP();SND.ok&&SND.ok();llLumi()})}
 /* ---------- toko ---------- */
 function llStock(k){const d=today(),P=PROF;P.st=P.st||{};if(P.st.d!==d||P.st.lv!==P.lv||P.st.v!==2){P.st.v=2;const lv=P.lv,o=[];
     if(k==='w'||true){const kinds=Object.keys(KIND);kinds.forEach(kd=>{const L=WLAD[kd].filter(e=>e.lv<=lv+2);L.slice(-2).forEach(e=>o.push(mkItem('w',e.id,Math.random()<.25?2:1,{lv:e.lv})))});P.st.w=o}
     const a=[];ALAD.filter(([l])=>l<=lv+2).slice(-2).forEach(([l,s])=>{const S=SETS.find(x=>x.id===s);ARS.forEach(sl=>a.push(mkItem(sl,S.eq[sl],Math.random()<.25?2:1,{lv:l,lset:s})))});[0,1,2].forEach(()=>a.push(llArtifact(Math.max(1,lv+Math.floor(Math.random()*3)-1),Math.random()<.25?2:1)));P.st.a=a;P.st.d=d;P.st.lv=P.lv;saveP()}
   return P.st[k]||[]}
 const llPrice=it=>Math.max(20,Math.round(gi(it).price*3/5)*5);
-function llShop(k){if(k==='lumi'){sheet('🐾 Lumi Center',`<div class="note"><b>Dokter Lumi:</b> "Lumimu selalu pulih sendiri setelah battle. Kandang, telur & evolusi segera hadir di sini!"</div><button class="go px" onclick="closeSheet();LLK.lumi()">🐾 My Lumi</button>`);return}
+function llShop(k){if(k==='lumi'){sheet('🐾 Lumi Center',`<div class="note"><b>Dokter Lumi:</b> "Lumimu selalu pulih sendiri setelah battle. Lumi berevolusi sendiri di Lv 20. Lengkapi Koleksi Lumi untuk bonus EXP permanen!"</div><button class="go px" onclick="closeSheet();LLK.lumi()">🐾 My Lumi</button>`);return}
   if(k==='smith')return llSmith();if(k==='mbox')return llMBox();
   if(0){sheet('🔨 Blacksmith',`<div class="note"><b>Mas Joko:</b> "Kumpulkan 🪨 Ore dari battle. Forge, Dismantle & Crystal segera bisa di sini!"</div><div class="note">🪨 Ore kamu: <b>${PROF.ore||0}</b></div><button class="go px" onclick="closeSheet()">OK</button>`);return}
   const L=llStock(k),J=jobOf(),fit=it=>it.s!=='w'||J.w.includes(kindOf(WPN.find(x=>x.id===it.b)));
@@ -6351,7 +6351,7 @@ function pathEnd(w){const R=PR(),[A,B]=G.F;G.ended=G.round;G.st='over';const los
   R.hpf=Math.max(.05,A.hp/A.maxHp);const k=B.kind,L=B.lv||prLv(),Km={n:1.2,e:2.5,b:6}[k],ob=1+ORBB[orbLv()-1],log=[],zn=zOfId(R.z),zi=zIdx(R.z);
   const AC=llAcc(A.stats),GP=llLvGap(L),FX=llFxAll(),g=Math.round(GP.g*(6+3*L)*Km*ZDIF[R.d].g*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*devM('gold')*AC.m);R.loot.coin+=g;log.push(`🪙 +${g} gold <small>(dibawa)</small>`);
   const GX=llGearXp(),xp=Math.round((10+4*L)*Km*(1+.15*R.d)*ob*(SEL.manual?.25:1)*(1+(A.bonus.exp||0))*AC.m*GX.m*GP.x);llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':''));
-  if(PROF.pet)llLumiExp(PROF.pet,Math.round(xp*.9),log);if(AC.t)log.push(AC.t);if(GX.t)log.push(GX.t);if(GP.t)log.push(GP.t);
+  llTeamExp(xp,log);if(AC.t)log.push(AC.t);if(GX.t)log.push(GX.t);if(GP.t)log.push(GP.t);
   const mul=lootMul()*AC.d*GP.d,items=[];
   if(k==='b'){const LB=prLv()+1;items.push(llArmor(LB,Math.max(2,rarZ(R.d,zi,1)),pick(ARS)));const n=lootN([1,1,.6],mul);for(let i=0;i<n;i++)items.push(llGear(LB,rarZ(R.d,zi,1),zn))}
   else{const n=lootN(k==='e'?[1,1,.6]:[1,.45,.15],mul);for(let i=0;i<n;i++)items.push(llGear(L,rarZ(R.d,zi,k==='e'?1:0),zn))}
@@ -6631,7 +6631,7 @@ function llAcc(s){if(SEL.manual||!s)return{m:1,d:1,t:''};const q=s.q||0,ok=s.qok
 /* HUD: Lv pemain + chip Lumi */
 {const o=startMatch;startMatch=function(cfg){const r=o.apply(this,arguments);G.llT0=Date.now();
   if(G.mode==='ll'||G.mode==='path'){try{$('w0').innerHTML=`<span class="llv">Lv ${PROF.lv}</span>`;let c=$('llLm');if(!c){c=document.createElement('div');c.id='llLm';c.className='llLm';$('ee0').after(c)}
-    const id=PROF.pet,m=id&&LG.M[id];c.innerHTML=m?`🐾 ${m.n} <b>Lv ${(lumis()[id]||{}).lv||1}</b>`:'';c.style.display=m?'':'none';fit()}catch(e){}}
+    const T=llTeam(),m=T.length;c.innerHTML=m?`🐾 ${LG.M[T[0]].n} <b>Lv ${(lumis()[T[0]]||{}).lv||1}</b>${m>1?` <b>+${m-1}</b>`:''}`:'';c.style.display=m?'':'none';fit()}catch(e){}}
   return r}}
 /* soal panjang → huruf menyesuaikan */
 {const o=qNext;qNext=function(){const r=o.apply(this,arguments);try{const e=$('qQ'),n=(e.textContent||'').length;e.classList.toggle('lng',n>20&&n<=44);e.classList.toggle('xl',n>44)}catch(x){}return r}}
@@ -6816,7 +6816,7 @@ function cvEnd(w){const C=CVR(),[A,B]=G.F,kind=G.cvF;G.cvF=0;G.ended=G.round;G.s
   C.hpf=Math.max(.05,A.hp/A.maxHp);
   const g=Math.round(GP.g*(7+3*L)*Km*ob*(1+(A.bonus.coin||0)+.2*(FX.gold||0))*devM('gold')*AC.m);C.loot.coin+=g;log.push(`🪙 +${g} gold <small>(dibawa)</small>`);
   const GX=llGearXp(),xp=Math.round((10+4*L)*Km*1.2*ob*(SEL.manual?.25:1)*(1+(A.bonus.exp||0))*AC.m*GX.m*GP.x);llAddExp(xp,log);log.splice(1,0,`✨ +${xp} EXP`+(SEL.manual?' <small>(Manual: EXP ¼)</small>':''));
-  if(PROF.pet)llLumiExp(PROF.pet,Math.round(xp*.9),log);if(AC.t)log.push(AC.t);if(GX.t)log.push(GX.t);if(GP.t)log.push(GP.t);
+  llTeamExp(xp,log);if(AC.t)log.push(AC.t);if(GX.t)log.push(GX.t);if(GP.t)log.push(GP.t);
   const mul=lootMul()*AC.d*GP.d,items=[],r=k=>rarLL(zn,k);
   if(kind==='sv'){const n=lootN([.6,.25],mul);for(let i=0;i<n;i++)items.push(llGear(L,r('n'),zn));if(Math.random()<.2*mul)items.push(dgArmor('sv_'+Cv.drg))}
   if(kind==='ling'){const n=lootN([1,.4],mul);for(let i=0;i<n;i++)items.push(Math.random()<.5?llWeapon(L,r('e')):llArtifact(L,r('e')))}
@@ -6845,17 +6845,19 @@ const recPow=L=>Math.round(1020*Math.pow(1.035,Math.max(1,L)-1));
 const powTxt=n=>'⚔️ '+Number(n).toLocaleString('id');
 /* --- statistik pemain acuan (item Rare sesuai level, tanpa job) --- */
 const REFC={};
-function refStats(L){L=Math.max(1,Math.min(50,L|0));if(REFC[L])return REFC[L];const eq={},mk=(it,s)=>{it.sd=7777+s.length*131;it.u='ref'+L+s;return it};
+function refStats(L){L=Math.max(1,Math.min(50,L|0));if(REFC[L])return REFC[L];const j0=PROF.job;PROF.job='warrior';try{return refStats0(L)}finally{PROF.job=j0}}
+function refStats0(L){const eq={},mk=(it,s)=>{it.sd=7777+s.length*131;it.u='ref'+L+s;return it};
   eq.w=mk(llWeapon(L,2,'pedang'),'w');ARS.forEach(sl=>eq[sl]=mk(llArmor(L,2,sl),sl));eq.acc=mk(llArtifact(L,2),'acc');
   const G2=gearCfg(eq),B=G2.gb,dr=Math.min(.45,(B.dr||0)+lvDr(L));
   return REFC[L]={hp:200*TUNE.hp.pedang*(1+(B.hp||0))*lvHp(L)*1.6,atk:G2.gear.atkM*TUNE.atk.pedang*(1+(B.atk||0))*lvAtk(L),dr}}
 /* Power → pengali musuh (kurang Power = musuh lebih kuat) */
-const BT={h:2.1,a:1.8,pk:3.2};
+const BT={h:2.1,a:1.8,pk:3.2},BDUR=1.2,BDA=1.5;/* v21: battle ±30 dtk — HP musuh ×BDUR, ATK ÷BDUR */
+function llPetBase(){const L=PROF.lv;return refStats(L).atk*Math.min(1.3,Math.max(.6,myPower()/recPow(L)))}
 function powMul(L){const q=myPower()/recPow(L),T=window.__BT||BT,gr=Math.min(1,Math.max(0,(PROF.lv-1)/10));return q<1?Math.min(2.4,1+T.pk*gr*(1-q)):Math.max(.9,1-.2*(q-1))}
 const BKIND={n:[1,1],e:[1.5,1.2],lumi:[.9,.95],dn:[1.1,1.05],de:[1.6,1.25],db:[2.6,1.1],sv:[1,.95],ling:[1.3,.85],gd:[1.8,.9],lair:[4.5,.65]};
 /* setel musuh B (sudah dibuat startMatch) ke kurva acuan */
 function llScale(B,L,kind,xh,xa){const R=refStats(L),K=BKIND[kind]||[1,1],pm=powMul(L),gap=L-PROF.lv,gm=gap>2?1+.08*(gap-2):1,EH=.7,bdr=lvDr(L),EA=(1-bdr)/(1.3*(1-R.dr)*EH);
-  B.bonus=Object.assign({},B.bonus,{dr:bdr,crit:.05,ev:0,ls:0});const T=window.__BT||BT;B.maxHp=B.hp=Math.round(R.hp*EH*K[0]*(xh||1)*pm*gm*T.h);B.atk=R.atk*EA*K[1]*(xa||1)*pm*gm*T.a;B.llPm=pm;return B}
+  B.bonus=Object.assign({},B.bonus,{dr:bdr,crit:.05,ev:0,ls:0});const T=window.__BT||BT;const DU=T.du||BDUR;B.maxHp=B.hp=Math.round(R.hp*EH*K[0]*(xh||1)*pm*gm*T.h*DU);B.atk=R.atk*EA*K[1]*(xa||1)*pm*gm*T.a/(T.da||BDA);B.llPm=pm;return B}
 /* --- bonus EXP dari perlengkapan --- */
 function llGearXp(){const q=myPower()/recPow(PROF.lv);if(PROF.lv<8&&q<.93)return{m:1,t:''};return q>=.93?{m:1.25,t:'⚔️ Perlengkapan pas → EXP ×1,25'}:q>=.78?{m:1,t:""}:{m:.6,t:'⚠️ Perlengkapanmu ketinggalan! EXP ×0,6 — cari item yang lebih baru'}}
 function powNote(L,label){const p=myPower(),r=recPow(L),q=p/r,c=q>=.95?'#7dff8a':q>=.75?'#ffe680':'#ff8a7a';
@@ -6904,6 +6906,44 @@ let FKH=-1;function fkHud(){const A=G.F&&G.F[0];if(!A)return;let e=$('fkBar');if
 {const s0=startMatch;startMatch=function(){const r=s0.apply(this,arguments);try{QZ.fastN=0;QZ.badN=0;QZ.spamT=0;if(G.F&&G.F[0]){G.F[0].fokus=FK.start;G.F[0].weakT=0}FKH=-1;fkHud()}catch(e){}return r}}
 /* Lumi pemain juga mengikuti Fokus */
 {const h0=petHit;petHit=function(p,d,mult,fxc){if(fkOn()&&p&&p.side===0){const A=G.F[0];mult=(mult||1)*fkMul(A)*(A.weakT>0?.7:1)}return h0(p,d,mult,fxc)}}
+
+/* ================= v19 · LUMI RINGKAS: tim Lumi Master, evolusi Lv 20, pasif elemen, koleksi, shiny ================= */
+const LMJ={pet:1.85,catch:.24,exp:1.5},LMEVO=20,LMEL={Api:'Burn — serangan 20% membakar',Es:'Freeze — serangan 15% membekukan sesaat',Racun:'Poison — serangan 20% meracuni',Netral:'Heal — memulihkan HP-mu sedikit tiap 10 dtk'};
+const lmSlots=()=>PROF.job==='lumi'?(PROF.lv>=20?3:2):1;
+function lmFix(){const P=PROF;if(!P.made)return;P.lumiOwn=P.lumiOwn||[];
+  if(P.job==='lumi'&&P.lumiOwn.length<2){const s=STARTERS.map(x=>x[0]).find(id=>!P.lumiOwn.includes(id));if(s){P.lumiOwn.push(s);lumis()[s]={lv:Math.max(1,P.lv-1),exp:0}}}
+  for(const id of P.lumiOwn){const L=lumiOf(id);if(L.lv>=LMEVO&&!L.ev)L.ev=1}}
+function llTeam(){const P=PROF,own=P.lumiOwn||[];if(!P.pet)return[];if(P.job!=='lumi')return[P.pet];const n=lmSlots();
+  let T=[P.pet,...(P.team||[]).filter(id=>own.includes(id)&&id!==P.pet)];
+  if(T.length<n)own.filter(id=>!T.includes(id)).sort((a,b)=>lumiOf(b).lv-lumiOf(a).lv).forEach(id=>{if(T.length<n)T.push(id)});return T.slice(0,n)}
+function colN(){return(PROF.lumiOwn||[]).length}
+function colExp(){return Math.floor(colN()/10)*.02}
+function llTeamExp(xp,log){const T=llTeam(),m=PROF.job==='lumi'?LMJ.exp:1;T.forEach(id=>llLumiExp(id,Math.round(xp*.9*m),log))}
+/* serangan musuh kadang mengenai Lumi; Lumi pingsan berhenti menyerang */
+{const rh=resolveHit;resolveHit=function(a,d,mv,dir){if(!G.pets||(G.mode!=='ll'&&G.mode!=='path')||!d||d.side!==0||!a||a.side!==1)return rh.apply(this,arguments);
+  const live=G.pets.filter(p=>p.side===0&&p.mhp&&!p.ko),h0=d.hp,r=rh.apply(this,arguments);
+  if(live.length&&d.hp>0&&h0>d.hp&&Math.random()<Math.min(.36,.12*live.length)){const loss=h0-d.hp,p=pick(live);d.hp=h0;p.hp-=Math.round(loss*.8);p.flash=.1;txt(p.x,GY-p.y-16,'-'+Math.round(loss*.8),'#ff9aa8',5,.7);
+    if(p.hp<=0){p.hp=0;p.ko=1;p.big=0;txt(p.x,GY-p.y-22,p.I.m.n+' pingsan!','#ff5a6a',5.5,1.4);SND.tone&&SND.tone(500,200,.2,.1,'square')}hud()}return r}}
+window.LLK&&(LLK.evo=id=>!!((lumis()[id]||{}).ev),LLK.shiny=id=>!!((lumis()[id]||{}).sh),LLK.team=()=>{try{return PROF.made?llTeam():[]}catch(e){return[]}});
+/* ---------- menu Lumi: Tim + Koleksi ---------- */
+let LMT='tim';const SILC={};
+function silUrl(id){if(SILC[id])return SILC[id];const s=LG.monHD(id,false),c=document.createElement('canvas');c.width=s.width;c.height=s.height;const g=c.getContext('2d');g.filter='brightness(0)';g.globalAlpha=.45;g.drawImage(s,0,0);return SILC[id]=c.toDataURL()}
+function lmTab(t){LMT=t;llLumi()}
+function llLumi(){lmFix();const P=PROF,own=P.lumiOwn||[],T=llTeam(),n=lmSlots(),LM=P.job==='lumi';
+  const tabs=`<div class="chtab"><button class="${LMT==='tim'?'on':''}" data-t="tim">🐾 ${LM?'Team':'My Lumi'}</button><button class="${LMT==='col'?'on':''}" data-t="col">📖 Collection ${own.length}/${Object.keys(LG.M).length}</button></div>`;
+  let h='';
+  if(LMT==='col'){const all=Object.keys(LG.M),nx=(Math.floor(own.length/10)+1)*10;
+    h=`<div class="note">Bonus koleksi: <b>EXP +${Math.round(colExp()*100)}%</b> permanen (+2% tiap 10 Lumi). ${own.length<all.length?`Berikutnya di ${nx} Lumi.`:'Koleksi lengkap! 🏆'}</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">${all.map(id=>{const o=own.includes(id),m=LG.M[id],L=o?lumiOf(id):null;return`<div style="text-align:center;background:#ffffff0d;border-radius:6px;padding:3px 1px;border:1px solid ${o?RKC[PRK[m.r]||1]:'#ffffff14'}"><img src="${o?LG.monHD(id,!!L.ev).toDataURL():silUrl(id)}" style="width:40px;height:40px;image-rendering:pixelated"><div style="font-size:9px;line-height:1.1">${o?(L.sh?'✨':'')+m.n:'???'}</div></div>`}).join('')}</div>`}
+  else{h=`<div class="note">${LM?`<b>Lumi Master:</b> bawa <b>${n} Lumi</b> sekaligus${n<3?' (3 Lumi mulai Lv 20)':''}. Ketuk Lumi di luar tim untuk menukarnya masuk; ketuk anggota tim untuk jadi 👑 Leader (pasifnya untukmu).`:'Ketuk Lumi untuk dijadikan pendamping.'} Lumi Lv 10 membuka pasif elemen, Lv ${LMEVO} berevolusi.</div>
+    ${LM?`<div class="sec">Team (${T.length}/${n})</div>`:''}<div class="lst">${[...T,...own.filter(id=>!T.includes(id))].map(id=>{const m=LG.M[id],L=lumiOf(id),on=T.includes(id),ld=id===P.pet;
+    return`<div class="it ${on?'on':''}" data-p="${id}"><span class="ic"><img src="${LG.monHD(id,!!L.ev).toDataURL()}" style="width:34px;height:34px;image-rendering:pixelated"></span><span><b>${L.sh?'✨ ':''}${m.n}${L.ev?' 🌟':''}</b><small>Lv ${L.lv} · ${m.el} · ${(PETD[id]||{role:'melee'}).role} · EXP ${L.exp}/${needLX(L.lv)}</small><small>${L.lv>=10?'🔆 '+LMEL[m.el]:'🔒 Pasif elemen di Lv 10'}${L.ev?'':` · Evolusi Lv ${LMEVO}`}</small></span><i>${ld?'👑 Leader':on?'✔ Team':LM?'+ Team':'Choose'}</i></div>`}).join('')}</div>
+    <div class="note">Dapat Lumi baru: kalahkan Lumi liar (peluang ${LM?'24':'12'}%, Lumi Shiny ✨ pasti ikut & Power +10%).</div>`}
+  sheet('🐾 Lumi',tabs+h);const K=$('ksheet');
+  K.querySelectorAll('[data-t]').forEach(el=>el.onclick=()=>lmTab(el.dataset.t));
+  K.querySelectorAll('[data-p]').forEach(el=>el.onclick=()=>{const id=el.dataset.p;
+    if(!LM)P.pet=id;else{let t=llTeam();if(id===P.pet)return;if(t.includes(id)){t=[id,...t.filter(x=>x!==id)]}else{if(t.length>=n)t[t.length-1]=id;else t.push(id)}P.pet=t[0];P.team=t.slice(1)}
+    saveP();SND.ok&&SND.ok();llLumi()})}
 
 Object.assign(window,{bagExpand,bestEq,buyI,claimA,claimLogin,claimM,closeSheet,cvLair,cvLeave,cvMove,cvResume,cvStart,cvTrap,devCvReset,devDg,devDragon,devGive,devGold,devJob,devLumi,devLumiLv,devLv,devMBox,devSet,devToggle,devTp,dgResume,dgStart,gqSet,itemSheet,krJoin,lockI,lookSet,mbOpen,openBag,openChest,openDev,openExp,openKr,openShop,openTab,openWorld,openZone,prBuy,prCamp,prDone,prEnter,prLeave,prStart,quickSell,sellAll,sellI,setAct,setBagF,setChW,sheet,unwear,upgI,uraiI,uraiWeak,wear,zGo,zPick,zStart});
 })();
@@ -7052,7 +7092,7 @@ const mm=$('mini'),mg=mm.getContext('2d'),mBase=mk(N,N);
 const sheet=mk(64,128);sheet.complete=true;
 const PL={x:PX*TS+8,y:(PY-4)*TS,dir:0,f:0,ft:0};
 const walk=(px,py)=>{for(const dx of[-4,4]){const tx=Math.floor((px+dx)/TS),ty=Math.floor(py/TS);if(tx<0||ty<0||tx>=N||ty>=N)return false;const i=ty*N+tx;if(SOLID.has(GT[i])||BLK[i])return false}return true};
-const PET={id:STARTER,x:PL.x-14,y:PL.y+4,flip:false,hop:0,mv:0,blinkT:2,blink:false,heart:0};
+const PFS={t:0,L:[]};const PET={id:STARTER,x:PL.x-14,y:PL.y+4,flip:false,hop:0,mv:0,blinkT:2,blink:false,heart:0};
 let runMul=1,FLYING=false,flyH=0;
 /* ---------- NPC ---------- */
 const NPCS=[];let LNR=null;const SHT={};for(const k in NPCDAT){const i=new Image();i.src=NPCDAT[k];SHT[k]=i}
@@ -7301,7 +7341,7 @@ function flyTick(dt){if(!FLY)return;FLY.t+=dt;const t=FLY.t,W=fc.width,Hh=fc.hei
     for(let k=0;k<4;k++){fg.beginPath();fg.ellipse(x+k*9,y+(k%2?-3:0),10+k%2*3,6,0,0,7);fg.fill()}}
   fg.imageSmoothingEnabled=false;balloon(fg,W/2,Hh*.52+Math.sin(t*3)*3,3,'#e0504a');
   if(sheet.complete)fg.drawImage(sheet,0,4,16,10,W/2-8*1.5,Hh*.52-12*3+Math.sin(t*3)*3-9,16*1.5,10*1.5);
-  if(t>1.1&&!FLY.moved){FLY.moved=true;let tx=FLY.d.x,ty=FLY.d.y;for(let r=0;r<12&&!walk(tx*TS+8,ty*TS+8);r++)ty++;PL.x=tx*TS+8;PL.y=ty*TS+8;PET.x=PL.x-14;PET.y=PL.y+4;
+  if(t>1.1&&!FLY.moved){FLY.moved=true;let tx=FLY.d.x,ty=FLY.d.y;for(let r=0;r<12&&!walk(tx*TS+8,ty*TS+8);r++)ty++;PL.x=tx*TS+8;PL.y=ty*TS+8;PET.x=PL.x-14;PET.y=PL.y+4;PFS.L.forEach(f=>{f.x=PET.x;f.y=PET.y});
     const cx=Math.floor(PL.x/(CH*TS)),cy=Math.floor(PL.y/(CH*TS));for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if(cx+a>=0&&cy+b>=0&&cx+a<NC&&cy+b<NC)request(cx+a,cy+b)}
   if(t>2.3){fly.classList.remove('on');FLY=null;lastZ=undefined}}
 /* ---------- efek ---------- */
@@ -7339,6 +7379,10 @@ function frameInner(){
    const dx=tx-PET.x,dy=ty-PET.y,d=Math.hypot(dx,dy);if(d>140){PET.x=tx;PET.y=ty}else if(d>3){const sp=Math.min(d*4.2,150)*dt;PET.x+=dx/d*sp;PET.y+=dy/d*sp;PET.mv=1;PET.hop+=dt*10;if(Math.abs(dx)>1)PET.flip=dx>0}else{PET.mv=0;PET.hop=0}
    PET.blinkT-=dt;if(PET.blinkT<0){PET.blink=!PET.blink;PET.blinkT=PET.blink?.14:2+Math.random()*3}
    if(PET.heart>0)PET.heart-=dt;else if(mode==='play'&&!moving&&Math.random()<dt*.05)PET.heart=1.4}
+  /* v19: Lumi Master — semua Lumi tim ikut berbaris di belakang */
+  {PFS.t-=dt;if(PFS.t<0){PFS.t=.5;const T=(window.LLK&&LLK.team)?LLK.team().slice(1):[];PFS.L=T.map((id,i)=>{const o=PFS.L.find(f=>f.id===id);return o||{id,x:PET.x,y:PET.y,flip:PET.flip,hop:i*1.3,mv:0,blink:false,blinkT:1+i}})}
+   let pv=PET,fi=0;for(const f of PFS.L){fi++;const dx=pv.x-f.x,dy=pv.y+(fi%2?3:-3)-f.y,d=Math.hypot(dx,dy);if(d>140){f.x=pv.x;f.y=pv.y}else if(d>22){const sp=Math.min((d-21)*5,150)*dt;f.x+=dx/d*sp;f.y+=dy/d*sp;f.mv=1;f.hop+=dt*10;if(Math.abs(dx)>1)f.flip=dx>0}else{f.mv=0;f.hop=0}
+    f.blinkT-=dt;if(f.blinkT<0){f.blink=!f.blink;f.blinkT=f.blink?.14:2+Math.random()*3}pv=f}}
   const z=mode==='play'?zoneNow():null;
   if(mode==='play'&&(z&&z.n)!==(lastZ&&lastZ.n)){lastZ=z;showZone(z);$('zn').textContent=z?((ZINFO[z.n]||[''])[0]+' '+z.n):'🌊 Laut';
     if(z&&SV&&!SV.seen.includes(z.n)){SV.seen.push(z.n);save();if(SV.seen.length>1){SND.pop();setTimeout(()=>showHint(`🧭 Zona baru! ${SV.seen.length}/${D.zones.length} dijelajahi`,2600),900)}}}
@@ -7385,10 +7429,13 @@ function frameInner(){
       if(w.alert>0){g.fillStyle='#fff';g.fillRect(x-2,y-im.height-9,5,8);g.fillStyle='#e8303a';g.fillRect(x-1,y-im.height-8,3,4);g.fillRect(x-1,y-im.height-3,3,1)}}]);
     if(w.id==='fly'||w.id==='flick')LIGHTS.push([w.x-ox,w.y-10-oy,20,'255,200,90'])}
   if(mode==='play'||mode==='meet'){
-    if(PET.id)L.push([PET.y,2.5,()=>{const im=LG.monImg(PET.id,PET.blink,0,PET.flip,!!(SV&&SV.evo&&SV.evo[PET.id])),x=Math.round(PET.x-ox),y=Math.round(PET.y-oy)-Math.round(flyH*18),hp=PET.mv?Math.round(Math.abs(Math.sin(PET.hop))*3):Math.round(Math.sin(now/500));
-      g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse(x,y+1,7,2,0,0,7);g.fill();g.drawImage(im,x-(im.width>>1),y-im.height+2-hp);
+    if(PET.id)L.push([PET.y,2.5,()=>{const im=LG.monImg(PET.id,PET.blink,0,PET.flip,!!((window.LLK&&LLK.evo&&LLK.evo(PET.id))||(SV&&SV.evo&&SV.evo[PET.id]))),x=Math.round(PET.x-ox),y=Math.round(PET.y-oy)-Math.round(flyH*18),hp=PET.mv?Math.round(Math.abs(Math.sin(PET.hop))*3):Math.round(Math.sin(now/500));
+      g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse(x,y+1,7,2,0,0,7);g.fill();g.drawImage(im,x-(im.width>>1),y-im.height+2-hp);if(window.LLK&&LLK.shiny&&LLK.shiny(PET.id)&&((now/120)|0)%5===0){g.fillStyle='#fff6a8';const sx=x+((now/37)%14-7),sy=y-im.height*.6+((now/53)%8);g.fillRect(sx,sy,1,1);g.fillRect(sx-1,sy+1,3,1);g.fillRect(sx,sy+2,1,1)}
       if(PET.heart>0){const a=Math.min(1,PET.heart*2),yy=y-im.height-4-(1.4-PET.heart)*8;g.globalAlpha=a;g.fillStyle='#ff5a8a';g.fillRect(x-2,yy,2,2);g.fillRect(x+1,yy,2,2);g.fillRect(x-2,yy+1,5,2);g.fillRect(x-1,yy+3,3,1);g.fillRect(x,yy+4,1,1);g.globalAlpha=1}}]);
     LIGHTS.push([PET.x-ox,PET.y-10-oy,30,'200,170,255']);
+    for(const f of PFS.L){const F=f;L.push([F.y,2.4,()=>{const ev=!!(window.LLK&&LLK.evo&&LLK.evo(F.id)),im=LG.monImg(F.id,F.blink,0,F.flip,ev),x=Math.round(F.x-ox),y=Math.round(F.y-oy)-Math.round(flyH*18),hp=F.mv?Math.round(Math.abs(Math.sin(F.hop))*3):Math.round(Math.sin(now/500+F.hop));
+      g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse(x,y+1,7,2,0,0,7);g.fill();g.drawImage(im,x-(im.width>>1),y-im.height+2-hp);
+      if(window.LLK&&LLK.shiny&&LLK.shiny(F.id)&&((now/120+F.hop*7)|0)%5===0){g.fillStyle='#fff6a8';const sx=x+((now/37+F.hop*13)%14-7),sy=y-im.height*.6+((now/53)%8);g.fillRect(sx,sy,1,1);g.fillRect(sx-1,sy+1,3,1);g.fillRect(sx,sy+2,1,1)}}]);LIGHTS.push([F.x-ox,F.y-10-oy,24,'200,170,255'])}
     flyH+=((FLYING?1:0)-flyH)*Math.min(1,dt*3);
     L.push([PL.y+(flyH>.05?400:0),3,()=>{const x=Math.round(PL.x-ox),lift=Math.round(flyH*26+Math.sin(now/600)*flyH*2),y=Math.round(PL.y-oy)-lift,eq=(SV&&SV.eq)||{};g.fillStyle=`rgba(0,0,0,${.25-flyH*.1})`;g.beginPath();g.ellipse(x,y+lift+1,6-flyH*2,2,0,0,7);g.fill();
       if(flyH>.05){g.globalAlpha=Math.min(1,flyH*1.5);g.strokeStyle='#5a3420';g.lineWidth=1;g.beginPath();g.moveTo(x-6,y-6);g.lineTo(x-10,y-38);g.moveTo(x+6,y-6);g.lineTo(x+10,y-38);g.stroke();
@@ -8499,7 +8546,7 @@ showStart();
 function enterGame(isNew){SV=load()||{v:1,x:0,y:0,snd:true,seen:[],zoom:1};const P=LLK.prof();SV.name=P.name;SV.look=P.look;SV.seen=SV.seen||[];save();
   SND.on=SV.snd!==false;$('bSnd').textContent=SND.on?'🔊':'🔇';SND.init();
   $('start').classList.add('off');setTimeout(()=>$('start').classList.add('hide'),650);
-  if(SV.x>0&&SV.y>0&&walk(SV.x,SV.y)){PL.x=SV.x;PL.y=SV.y}else{PL.x=KX*TS+8;PL.y=(KY+6)*TS+8;for(let r=0;r<20&&!walk(PL.x,PL.y);r++)PL.y+=TS}PET.x=PL.x-14;PET.y=PL.y+4;CAM.x=PL.x;CAM.y=PL.y;
+  if(SV.x>0&&SV.y>0&&walk(SV.x,SV.y)){PL.x=SV.x;PL.y=SV.y}else{PL.x=KX*TS+8;PL.y=(KY+6)*TS+8;for(let r=0;r<20&&!walk(PL.x,PL.y);r++)PL.y+=TS}PET.x=PL.x-14;PET.y=PL.y+4;PFS.L.forEach(f=>{f.x=PET.x;f.y=PET.y});CAM.x=PL.x;CAM.y=PL.y;
   LLW.initDungeons();LLW.initVillages&&LLW.initVillages();LLW.initTown&&LLW.initTown();LLW.syncGear();refreshHud();encCool=4;LLW.clearNear();
   if(isNew)meet();else play()}
 function play(){mode='play';petSync();['hud','mini','side','nav'].forEach(id=>$(id).classList.remove('hide'));lastZ=undefined;showHint('Geser joystick di kiri bawah untuk berjalan 🕹️',4000)}
