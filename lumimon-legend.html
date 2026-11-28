@@ -7161,7 +7161,7 @@ async function devBots(){await tnInfo(1);const C=tnCfg(),S=tnStats(),day=tnDay()
   $('bcF').onchange=e=>{TWN.forceOn=e.target.checked};
   $('bcS').onclick=async()=>{const v=id=>$(id).value,nv={n:+v('bcN'),rival:[+v('bcR0'),Math.max(+v('bcR0'),+v('bcR1'))],mid:+v('bcM'),wild:+v('bcW'),busy:+v('bcB'),max:+v('bcX'),emo:$('bcE').checked?1:0,pacc:+v('bcPA'),acc:+v('bcAC'),off:v('bcO').split(',').map(s=>s.trim()).filter(Boolean),ren:C.ren||{}};
     $('bcMsg').textContent='Menyimpan…';const r=await llRpc('ll_cfg_set',{p_pw:v('bcP'),p_k:'bot',p_v:nv});$('bcMsg').textContent=r&&r.ok?'Tersimpan ✔':r&&r.why==='pw'?'Password salah.':'Gagal (jaringan).';if(r&&r.ok){TWN.info=Object.assign({},TWN.info||{},{cfg:nv});botsBuild()}}}
-LLK.town={tick:tnTick,near:tnNear,profile:tnProfile,dev:devBots};
+LLK.town={tick:(...a)=>tnTick(...a),near:(...a)=>tnNear(...a),profile:id=>tnProfile(id),dev:()=>devBots()};
 window.__TWN=TWN;window.__botOn=botOnline;window.__botWhere=botWhere;window.__botZone=botZone;
 {const d0=openDev;openDev=function(){d0.apply(this,arguments);try{const K=$('ksheet'),n=K.querySelector('.note');if(!n)return;const b=document.createElement('button');b.className='go px';b.textContent='🤖 Bot Settings (online)';b.onclick=()=>devBots();n.after(b)}catch(e){}}}
 
@@ -7376,6 +7376,145 @@ LLK.arena=()=>llArena();
 /* profil: tombol Duel + tier */
 {const p0=tnProfile;tnProfile=function(id){p0.apply(this,arguments);const c=TWN.bots.find(b=>b.id===id)||TWN.others[id];const bt=[...$('ksheet').querySelectorAll('button')].find(x=>/Duel/.test(x.textContent));
   if(bt&&c){bt.style.opacity=1;bt.innerHTML='⚔️ Duel<br><small>Arena</small>';bt.onclick=()=>llArena()}}}
+
+/* ================= v29 · TAHAP 3e: Inbox, Kirim Hadiah, Trade, Papan Juara mingguan, Kode Hadiah, Menu GM ================= */
+const hesc=s=>String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const llWk=()=>Math.floor((Date.now()/1000+7*3600-4*86400)/604800);
+const acA=()=>{const a=accGet();return a&&!a.off?a:null};
+/* EXP minggu ini (untuk papan juara) */
+{const a0=llAddExp;llAddExp=function(n,log){const w=llWk();if(!PROF.xpw||PROF.xpw.w!==w)PROF.xpw={w,n:0};const r=a0.apply(this,arguments);PROF.xpw.n+=Math.max(0,Math.round(n||0));return r}}
+{const s0=accSnap;accSnap=function(){const s=s0.apply(this,arguments);const w=llWk();s.xpw=PROF.xpw&&PROF.xpw.w===w?PROF.xpw:{w,n:0};return s}}
+/* ---------- barang & hadiah ---------- */
+const freeIt=()=>bag().filter(it=>!Object.values(PROF.eqp||{}).includes(it.u));
+function bagDel(us){PROF.bag=bag().filter(x=>!us.includes(x.u))}
+function isiTxt(x){const o=[];if(x.coin)o.push(`🪙 ${Number(x.coin).toLocaleString('id')}`);if(x.mbox)o.push(`🎁 Mystery Box ×${x.mbox}`);(x.items||[]).forEach(it=>{try{o.push(`<span style="color:${RKC[it.r]}">${hesc(gi(it).n)}</span>`)}catch(e){}});return o.join(' · ')||'—'}
+function llGrant(x,log){log=log||[];if(x.coin){PROF.coin+=Math.round(x.coin);log.push(`🪙 +${Number(x.coin).toLocaleString('id')} gold`)}if(x.mbox){PROF.mbox=(PROF.mbox||0)+x.mbox;log.push(`🎁 +${x.mbox} Mystery Box`)}
+  (x.items||[]).forEach(it=>{const c=Object.assign({},it,{u:uid()});delete c.nw;llGive(c,log)});saveP();return log}
+/* ---------- hub Online di Settings ---------- */
+{const s0=llSettings;llSettings=function(){s0.apply(this,arguments);try{const L=$('ksheet').querySelector('.lst');if(!L)return;const d=document.createElement('div');d.className='it';
+  d.innerHTML=`<span class="ic">🌐</span><span><b>Online</b><small>📬 Inbox · 🏆 Leaderboard · 🎁 Gift Code</small></span><i>${SOC.n?'📬 '+SOC.n:'›'}</i>`;d.onclick=()=>llOnline();const a=$('stAcc');a?a.after(d):L.insertBefore(d,L.firstChild)}catch(e){}}}
+const SOC={n:0,box:[]};
+async function socCheck(){const a=acA();if(!a)return;const r=await llRpc('ll_inbox_get',{p_user:a.u,p_tok:a.tok});if(r&&r.ok){const n0=SOC.n;SOC.box=r.list;SOC.n=r.list.length;if(SOC.n>n0&&!LLK.busy())LLW_hint('📬 Ada kiriman baru! Buka ⚙️ Settings → 🌐 Online → Inbox')}}
+setInterval(()=>{if(!document.hidden)socCheck()},180000);setTimeout(()=>{socCheck();lbClaim();trRestore()},8000);
+function llOnline(){const a=acA();if(!a){llAccount();return}
+  sheet('🌐 Online',`<div class="lst"><div class="it" id="onIn"><span class="ic">📬</span><span><b>Inbox</b><small>Hadiah dari teman, trade, GM & papan juara</small></span><i>${SOC.n||''}</i></div>
+   <div class="it" id="onLb"><span class="ic">🏆</span><span><b>Leaderboard</b><small>Juara mingguan · reset tiap Senin</small></span><i>›</i></div>
+   <div class="it" id="onCd"><span class="ic">🎁</span><span><b>Gift Code</b><small>Masukkan kode hadiah</small></span><i>›</i></div></div>`);
+  $('onIn').onclick=()=>llInbox();$('onLb').onclick=()=>llBoard('rank');$('onCd').onclick=()=>llCode()}
+async function llInbox(){const a=acA();if(!a)return;sheet('📬 Inbox','<div class="note">Memuat…</div>');await socCheck();const L=SOC.box;
+  sheet('📬 Inbox',L.length?`<div class="note">Bag: ${bag().length}/${bagMax()}</div><div class="lst">${L.map((m,i)=>`<div class="it"><span class="ic">${{gift:'🎁',trade:'🤝',gm:'👑',lb:'🏆'}[m.jenis]||'📩'}</span><span><b>${m.jenis==='lb'?'Leaderboard':hesc(m.dari)}</b><small>${m.isi.msg?hesc(m.isi.msg)+' · ':''}${isiTxt(m.isi)}</small></span><i data-i="${i}" style="color:#7dff8a">Ambil</i></div>`).join('')}</div><button class="go px" id="inAll">📥 Ambil Semua</button>`:'<div class="note">Inbox kosong.</div>');
+  const take=async m=>{const n=(m.isi.items||[]).length;if(n&&bagMax()-bag().length<n){LLW_hint('Bag penuh! Kosongkan dulu.');return false}const r=await llRpc('ll_inbox_take',{p_user:a.u,p_tok:a.tok,p_id:m.id});if(r&&r.ok){const lg=llGrant(r.isi);LLW_hint('✔ '+lg.join(', ').replace(/<[^>]+>/g,''));return true}return false};
+  $('ksheet').querySelectorAll('[data-i]').forEach(el=>el.onclick=async()=>{el.onclick=null;await take(L[+el.dataset.i]);llInbox()});
+  if($('inAll'))$('inAll').onclick=async()=>{for(const m of L)if(!await take(m))break;llInbox()}}
+/* ---------- Gift Code ---------- */
+function llCode(){sheet('🎁 Gift Code',`<div class="note">Masukkan kode hadiah dari guru / event.</div><input id="cdK" maxlength="24" autocapitalize="characters" style="width:100%;box-sizing:border-box;padding:10px;border-radius:8px;border:1px solid #ffffff30;background:#0d1020;color:#fff;font-size:17px;text-transform:uppercase"><button class="go px" id="cdGo">✅ Pakai</button><div class="note" id="cdM"></div>`);
+  $('cdGo').onclick=async()=>{const a=acA();if(!a)return;const k=$('cdK').value.trim();if(!k)return;$('cdM').textContent='Memeriksa…';const r=await llRpc('ll_code_use',{p_user:a.u,p_tok:a.tok,p_kode:k});
+    if(r&&r.ok){const lg=llGrant(r.isi);SND.win&&SND.win();$('cdM').innerHTML='🎉 Berhasil! '+lg.join(' · ')}else $('cdM').textContent={kode:'Kode tidak ditemukan.',habis:'Kode sudah habis / kedaluwarsa.',sudah:'Kamu sudah memakai kode ini.'}[r&&r.why]||'Gagal, coba lagi.'}}
+/* ---------- Kirim Hadiah (dari profil) ---------- */
+function llGiftTo(c){const a=acA();if(!a)return;if(c.bot){sheet('🎁 Gift',`<div class="note">Kotak masuk <b>${hesc(c.n)}</b> sedang penuh. Coba lagi nanti.</div><button class="go px" onclick="closeSheet()">OK</button>`);return}
+  const sel=new Set();const draw=()=>{const F=freeIt();sheet('🎁 Gift ke '+hesc(c.n),`<div class="note">Pilih barang (maks 5) dan/atau gold. Barang yang dipakai tidak bisa dikirim. Maks 5 kiriman per hari.</div>
+    <label class="note" style="display:block">🪙 Gold <input id="gfC" type="number" min="0" max="${PROF.coin}" value="0" style="width:110px"> (punya ${PROF.coin.toLocaleString('id')})</label>
+    <div class="lst" style="max-height:38vh;overflow:auto">${F.map(it=>`<div class="it ${sel.has(it.u)?'on':''}" data-u="${it.u}"><span class="ic">${sel.has(it.u)?'✅':'▫️'}</span><span><b style="color:${RKC[it.r]}">${hesc(gi(it).n)}</b><small>Lv ${it.lv||1}</small></span></div>`).join('')||'<div class="note">Tidak ada barang bebas.</div>'}</div>
+    <button class="go px" id="gfGo">🎁 Kirim</button><div class="note" id="gfM"></div>`);
+    $('ksheet').querySelectorAll('[data-u]').forEach(el=>el.onclick=()=>{const u=el.dataset.u;if(sel.has(u))sel.delete(u);else if(sel.size<5)sel.add(u);const g=$('gfC').value;draw();$('gfC').value=g});
+    $('gfGo').onclick=async()=>{const coin=Math.max(0,Math.min(PROF.coin,Math.floor(+$('gfC').value||0))),items=[...sel].map(u=>byU(u)).filter(Boolean);if(!coin&&!items.length){$('gfM').textContent='Pilih barang atau isi gold.';return}
+      $('gfGo').disabled=true;$('gfM').textContent='Mengirim…';const r=await llRpc('ll_gift',{p_user:a.u,p_tok:a.tok,p_to:c.id,p_isi:{coin,items}});
+      if(r&&r.ok){PROF.coin-=coin;bagDel(items.map(x=>x.u));saveP();sheet('🎁 Gift',`<div class="note">✔ Terkirim ke <b>${hesc(c.n)}</b>: ${isiTxt({coin,items})}<br>Sisa kiriman hari ini: ${r.sisa}</div><button class="go px" onclick="closeSheet()">OK</button>`)}
+      else{$('gfGo').disabled=false;$('gfM').textContent={batas:'Sudah 5 kiriman hari ini. Besok lagi!',tujuan:'Pemain tidak ditemukan.',isi:'Isi terlalu banyak.'}[r&&r.why]||'Gagal, coba lagi.'}}};draw()}
+/* ---------- Trade (dua pemain online, konfirmasi ganda) ---------- */
+const TR={on:0};
+function trSend(p){if(TWN.ch)TWN.ch.send({type:'broadcast',event:'tr',payload:Object.assign({from:TWN.me,to:TR.other||p.to},p)}).catch(()=>{})}
+function llTradeReq(c){if(c.bot){sheet('🤝 Trade',`<div class="note"><b>${hesc(c.n)}</b> sedang sibuk.</div><button class="go px" onclick="closeSheet()">OK</button>`);return}if(!TWN.ch||!TWN.others[c.id]){LLW_hint('Pemain harus online di dekatmu.');return}if(TR.on){LLW_hint('Sedang trade.');return}
+  TR.req={to:c.id,n:c.n,t:Date.now()};trSend({t:'req',to:c.id,n:PROF.name,tid:(TWN.me+'-'+c.id+'-'+Date.now().toString(36)).toLowerCase().replace(/[^a-z0-9_.-]/g,'')});LLW_hint(`📨 Ajakan trade dikirim ke ${c.n}`)}
+function trMsg(p){if(p.t==='req'){if(TR.on||G.scr==='fight'){TR.other=p.from;trSend({t:'no',to:p.from});TR.other=null;return}
+    sheet('🤝 Trade',`<div class="note"><b>${hesc(p.n)}</b> mengajakmu trade.</div><div style="display:flex;gap:8px"><button class="go px" id="trY" style="flex:1">✅ Terima</button><button class="mini" id="trN" style="flex:1">Tolak</button></div>`);
+    const no=()=>{TR.other=p.from;trSend({t:'no'});TR.other=null;closeSheet()};const tm=setTimeout(no,15000);$('trN').onclick=()=>{clearTimeout(tm);no()};$('trY').onclick=()=>{clearTimeout(tm);trOpen(p.tid,p.from,p.n);trSend({t:'acc',tid:p.tid,n:PROF.name})};return}
+  if(p.t==='no'){if(TR.req&&TR.req.to===p.from){TR.req=null;LLW_hint('Ajakan trade ditolak.')}return}
+  if(p.t==='acc'){if(TR.req&&TR.req.to===p.from){TR.req=null;trOpen(p.tid,p.from,p.n)}return}
+  if(!TR.on||p.from!==TR.other)return;
+  if(p.t==='off'){TR.theirs=p.o||{items:[],coin:0};TR.theirOk=0;if(TR.ok)trUnok();trDraw()}
+  else if(p.t==='ok'){TR.theirOk=1;trDraw();trPoll()}
+  else if(p.t==='unok'){TR.theirOk=0;trDraw()}
+  else if(p.t==='done')trFinish();
+  else if(p.t==='cancel')trEnd('Trade dibatalkan oleh '+TR.on.n)}
+function trOpen(tid,other,n){Object.assign(TR,{on:{n},id:tid,other,mine:{items:[],coin:0},theirs:{items:[],coin:0},ok:0,theirOk:0});trDraw()}
+function trOffer(){return{items:TR.mine.items.map(u=>byU(u)).filter(Boolean),coin:TR.mine.coin}}
+function trDraw(){if(!TR.on)return;const F=freeIt(),M=TR.mine;
+  sheet('🤝 Trade · '+hesc(TR.on.n),`<div class="sec">Kamu memberi ${TR.ok?'✅':''}</div><div class="note">${isiTxt(trOffer())}</div>
+   <label class="note" style="display:block">🪙 Gold <input id="trC" type="number" min="0" max="${PROF.coin}" value="${M.coin}" style="width:110px" ${TR.ok?'disabled':''}></label>
+   ${TR.ok?'':`<div class="lst" style="max-height:24vh;overflow:auto">${F.map(it=>`<div class="it ${M.items.includes(it.u)?'on':''}" data-u="${it.u}"><span class="ic">${M.items.includes(it.u)?'✅':'▫️'}</span><span><b style="color:${RKC[it.r]}">${hesc(gi(it).n)}</b><small>Lv ${it.lv||1}</small></span></div>`).join('')}</div>`}
+   <div class="sec">Kamu menerima ${TR.theirOk?'✅ (teman sudah setuju)':''}</div><div class="note" style="font-size:14px">${isiTxt(TR.theirs)}</div>
+   <div class="note" style="color:#ffe680">⚠️ Periksa lagi! Setelah keduanya ✅, barang langsung bertukar.</div>
+   <div style="display:flex;gap:8px">${TR.ok?'<button class="mini" id="trUn" style="flex:1">↩ Ubah</button>':'<button class="go px" id="trOk" style="flex:1">✅ Setuju</button>'}<button class="mini" id="trX" style="flex:1">✖ Batal</button></div><div class="note" id="trM"></div>`);
+  const K=$('ksheet');K.querySelectorAll('[data-u]').forEach(el=>el.onclick=()=>{const u=el.dataset.u,i=M.items.indexOf(u);if(i>=0)M.items.splice(i,1);else if(M.items.length<5)M.items.push(u);trSend({t:'off',o:trOffer()});trDraw()});
+  if($('trC'))$('trC').onchange=e=>{M.coin=Math.max(0,Math.min(PROF.coin,Math.floor(+e.target.value||0)));trSend({t:'off',o:trOffer()});trDraw()};
+  if($('trOk'))$('trOk').onclick=()=>trOk();if($('trUn'))$('trUn').onclick=()=>trUnok(1);$('trX').onclick=()=>trCancel()}
+async function trOk(){const a=acA();if(!a)return;const o=trOffer();if(o.coin>PROF.coin)return;
+  PROF.trEsc={id:TR.id,o};PROF.coin-=o.coin;bagDel(o.items.map(x=>x.u));saveP();TR.ok=1;trDraw();
+  const r=await llRpc('ll_trade_set',{p_user:a.u,p_tok:a.tok,p_id:TR.id,p_other:TR.other,p_offer:o,p_seen:TR.theirs,p_ok:true});
+  if(r&&r.ok&&r.st==='selesai'){trSend({t:'done'});trFinish();return}if(r&&r.ok&&r.st==='batal'){trUnesc();trEnd(r.why==='batas'?'Batas 5 trade/hari tercapai.':'Trade batal.');return}
+  if(!r||!r.ok){trUnesc();TR.ok=0;trDraw();if($('trM'))$('trM').textContent='Gagal tersambung, coba lagi.';return}trSend({t:'ok'})}
+async function trUnok(send){const a=acA();TR.ok=0;trUnesc();if(a)await llRpc('ll_trade_set',{p_user:a.u,p_tok:a.tok,p_id:TR.id,p_other:TR.other,p_offer:trOffer(),p_seen:TR.theirs,p_ok:false});if(send)trSend({t:'unok'});trDraw()}
+async function trPoll(){const a=acA();if(!a||!TR.ok)return;const r=await llRpc('ll_trade_get',{p_user:a.u,p_tok:a.tok,p_id:TR.id});if(r&&r.st==='selesai')trFinish()}
+function trUnesc(){const E=PROF.trEsc;if(!E)return;PROF.coin+=E.o.coin||0;(E.o.items||[]).forEach(it=>{if(!byU(it.u))bag().push(it)});PROF.trEsc=null;saveP()}
+async function trCancel(){const a=acA();if(a)await llRpc('ll_trade_cancel',{p_user:a.u,p_tok:a.tok,p_id:TR.id});trUnesc();trSend({t:'cancel'});trEnd('Trade dibatalkan.')}
+function trEnd(msg){TR.on=0;TR.other=null;closeSheet();if(msg)LLW_hint(msg)}
+async function trFinish(){if(!TR.on)return;PROF.trEsc=null;saveP();const n=TR.on.n;TR.on=0;TR.other=null;SND.win&&SND.win();const a=acA();
+  sheet('🤝 Trade',`<div class="note" style="font-size:15px">✔ Trade dengan <b>${hesc(n)}</b> berhasil!</div><div class="note">Barang dari temanmu masuk Inbox dan diambil otomatis.</div><button class="go px" onclick="closeSheet()">OK</button>`);
+  await socCheck();for(const m of SOC.box.filter(x=>x.jenis==='trade')){const r=await llRpc('ll_inbox_take',{p_user:a.u,p_tok:a.tok,p_id:m.id});if(r&&r.ok)llGrant(r.isi)}socCheck()}
+/* trade yang terputus (aplikasi tertutup): kembalikan barang bila tidak selesai */
+async function trRestore(){const E=PROF.trEsc,a=acA();if(!E||!a||TR.on)return;const r=await llRpc('ll_trade_get',{p_user:a.u,p_tok:a.tok,p_id:E.id});if(!r||!r.ok)return;
+  if(r.st==='selesai'){PROF.trEsc=null;saveP();socCheck()}else{await llRpc('ll_trade_cancel',{p_user:a.u,p_tok:a.tok,p_id:E.id});trUnesc();LLW_hint('↩ Trade yang terputus dibatalkan, barangmu dikembalikan.')}}
+/* pesan trade lewat saluran zona */
+{const j0=tnJoin;tnJoin=async function(){await j0.apply(this,arguments);const ch=TWN.ch;if(ch&&!ch._tr){ch._tr=1;ch.on('broadcast',{event:'tr'},({payload:p})=>{if(ch===TWN.ch&&p&&p.to===TWN.me)trMsg(p)})}}}
+{const l0=tnLeave;tnLeave=function(){if(TR.on)trCancel();return l0.apply(this,arguments)}}
+/* ---------- tombol Gift & Trade di profil ---------- */
+{const p0=tnProfile;tnProfile=function(id){p0.apply(this,arguments);const c=TWN.bots.find(b=>b.id===id)||TWN.others[id];if(!c)return;const K=$('ksheet'),row=document.createElement('div');row.style.cssText='display:flex;gap:8px;margin-top:8px';
+  row.innerHTML='<button class="go px" id="pfGf" style="flex:1">🎁 Gift</button><button class="go px" id="pfTr" style="flex:1">🤝 Trade</button>';K.querySelector('.go').parentNode.after(row);
+  $('pfGf').onclick=()=>{if(!acA()){LLW_hint('Login Account dulu.');return}llGiftTo(c)};$('pfTr').onclick=()=>{if(!acA()){LLW_hint('Login Account dulu.');return}closeSheet();llTradeReq(c)}}}
+/* ---------- Papan Juara ---------- */
+const LBR=[[1,5000,3],[2,3500,2],[3,2500,2],[10,1000,1]];
+function botXP(b,t3,av,frac){const day=tnDay();let v;if(b.t==='rival')v=t3*(.82+.12*vnz(b.sd,day/4));else if(b.t==='mid')v=av*(.8+.4*vnz(b.sd+1,day/3))+b.off*av*.05;else v=av*(.2+1.1*vnz(b.sd+7,day/5));return Math.max(0,Math.min(Math.round(v*frac),t3-1))}
+async function llBoard(kind){const a=acA();sheet('🏆 Leaderboard','<div class="note">Memuat…</div>');await tnInfo();if(!TWN.built)botsBuild();if(kind==='rank'&&!AR.info)await arInfo();
+  const r=await llRpc('ll_lb',{p_kind:kind,p_user:a?a.u:''});if(!r||!r.ok){sheet('🏆 Leaderboard','<div class="note">Tidak tersambung.</div>');return}
+  const H=r.list.map(x=>({n:x.n,lv:x.lv,job:x.job,v:x.v,me:a&&x.u===a.u})).sort((x,y)=>y.v-x.v),vs=H.map(x=>x.v),t3=vs.length?vs[Math.min(3,vs.length)-1]:(kind==='rank'?60:800),av=vs.length?vs.reduce((s,x)=>s+x,0)/vs.length:(kind==='rank'?40:500);
+  const frac=Math.min(1,((Date.now()/864e5+7/24-4)%7+.5)/7);
+  const cap=(v,b)=>H.length&&v>=t3?Math.round((t3-1)*(.5+.45*hsh(b.sd,llWk()))):v;const B=TWN.bots.map(b=>({n:b.n,lv:b.lv,job:b.job,v:cap(kind==='rank'?botRP(b):botXP(b,t3*1.4,av,frac),b)})).filter(x=>x.v>0);
+  const L=[...H,...B].sort((x,y)=>y.v-x.v).slice(0,20);const mi=L.findIndex(x=>x.me);
+  sheet('🏆 Leaderboard',`<div class="chtab"><button class="${kind==='rank'?'on':''}" id="lbR">⚔️ Rank Arena</button><button class="${kind==='exp'?'on':''}" id="lbX">📈 EXP minggu ini</button></div>
+   <div class="note">Reset setiap Senin. Hadiah minggu lalu otomatis masuk Inbox: #1 🪙5.000+🎁3 · #2 🪙3.500+🎁2 · #3 🪙2.500+🎁2 · #4–10 🪙1.000+🎁1.</div>
+   <div class="lst">${L.map((x,i)=>`<div class="it ${x.me?'on':''}"><span class="ic">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</span><span><b>${hesc(x.n)}${x.me?' (kamu)':''}</b><small>Lv ${x.lv} · ${(JOBS[x.job]||{}).n||''}</small></span><i>${kind==='rank'?rkTier(x.v)[1].split(' ')[0]+' ':''}${Number(x.v).toLocaleString('id')}</i></div>`).join('')||'<div class="note">Belum ada data minggu ini.</div>'}</div>${mi<0&&a?'<div class="note">Kamu belum masuk 20 besar minggu ini. Ayo semangat!</div>':''}`);
+  $('lbR').onclick=()=>llBoard('rank');$('lbX').onclick=()=>llBoard('exp')}
+async function lbClaim(){const a=acA();if(!a)return;let r=await llRpc('ll_lb_claim',{p_user:a.u,p_tok:a.tok,p_nbr:null,p_nbx:null});if(!r||!r.ok||r.done||!r.need)return;await tnInfo();if(!TWN.built)botsBuild();
+  const nbr=r.vr>0?TWN.bots.filter(b=>Math.min(botRP(b),Math.max(1,r.t3r)-1)>r.vr).length:0,nbx=r.vx>0?TWN.bots.filter(b=>botXP(b,Math.max(800,r.t3x),Math.max(300,r.t3x*.5),1)>r.vx).length:0;
+  r=await llRpc('ll_lb_claim',{p_user:a.u,p_tok:a.tok,p_nbr:nbr,p_nbx:nbx});if(r&&r.ok&&r.got&&r.got.length){socCheck();setTimeout(()=>LLW_hint(`🏆 Kamu juara #${Math.min(...r.got)} minggu lalu! Hadiah masuk Inbox.`),1500)}}
+/* ---------- Menu GM (di Developer, password Developer) ---------- */
+let GMPW='';
+function gmIn(id,ph,v,t){return`<input id="${id}" ${t?`type="${t}"`:''} placeholder="${ph}" value="${v??''}" style="width:100%;box-sizing:border-box;padding:8px;margin:3px 0;border-radius:7px;border:1px solid #ffffff30;background:#0d1020;color:#fff">`}
+async function gmRpc(fn,args){const r=await llRpc(fn,Object.assign({p_pw:GMPW},args));if(r&&r.why==='pw'){GMPW='';LLW_hint('Password GM salah.')}return r}
+function gmItem(){const t=$('gmT').value,r=+$('gmR').value,lv=Math.max(1,Math.min(50,+$('gmL').value||1));if(t==='none')return null;try{return t==='acc'?llArtifact(lv,r):t[0]==='w'?llWeapon(lv,r,t.slice(2)):llArmor(lv,r,t.slice(2))}catch(e){return null}}
+function llGM(tab){tab=tab||'send';if(!GMPW){sheet('👑 GM Menu',`<div class="note">Masukkan password Developer.</div>${gmIn('gmP','Password','', 'password')}<button class="go px" id="gmGo">Masuk</button>`);$('gmGo').onclick=()=>{GMPW=$('gmP').value;llGM()};return}
+  const tabs=`<div class="chtab">${[['send','📤 Kirim'],['code','🎁 Kode'],['pin','🔑 PIN'],['log','📜 Riwayat']].map(([k,n])=>`<button class="${k===tab?'on':''}" data-t="${k}">${n}</button>`).join('')}</div>`;let h='';
+  const WT=Object.keys(KIND||{}).length?Object.keys(KIND):['pedang','ganda','busur','buku','tombak','tongkat'];
+  if(tab==='send')h=`${gmIn('gmU','Username penerima (cari di bawah)')}<button class="mini" id="gmF">🔍 Cari pemain</button><div id="gmFl"></div>
+    ${gmIn('gmC','Gold',0,'number')}${gmIn('gmB','Mystery Box',0,'number')}
+    <div class="note">Barang: <select id="gmT"><option value="none">— tanpa barang —</option>${WT.map(w=>`<option value="w:${w}">Weapon ${w}</option>`).join('')}${['hat','shirt','pants','shoes','back'].map(s=>`<option value="a:${s}">Armor ${s}</option>`).join('')}<option value="acc">Artifact</option></select>
+    <select id="gmR">${[1,2,3,4,5].map(r=>`<option value="${r}">${RK[r]}</option>`).join('')}</select> Lv <input id="gmL" type="number" min="1" max="50" value="10" style="width:52px"></div>
+    ${gmIn('gmMs','Pesan (opsional)')}<button class="go px" id="gmS">📤 Kirim ke Inbox</button><div class="note" id="gmM"></div>`;
+  if(tab==='code')h=`${gmIn('gcK','KODE (huruf/angka/-)')}${gmIn('gcC','Gold',0,'number')}${gmIn('gcB','Mystery Box',0,'number')}${gmIn('gcM','Maks pemakaian (jumlah pemain)',30,'number')}${gmIn('gcH','Berlaku (hari, 0 = selamanya)',7,'number')}${gmIn('gcMs','Pesan (opsional)')}
+    <button class="go px" id="gcS">💾 Buat / Ubah Kode</button><div class="note" id="gmM"></div><div id="gcL"></div>`;
+  if(tab==='pin')h=`${gmIn('gpU','Username')}${gmIn('gpP','PIN baru (6 angka)','', 'tel')}<button class="go px" id="gpS">🔑 Reset PIN</button><div class="note" id="gmM"></div>`;
+  if(tab==='log')h='<div id="glL" class="note">Memuat…</div>';
+  sheet('👑 GM Menu',tabs+h);const K=$('ksheet');K.querySelectorAll('[data-t]').forEach(el=>el.onclick=()=>llGM(el.dataset.t));const msg=t=>{if($('gmM'))$('gmM').innerHTML=t};
+  if(tab==='send'){$('gmF').onclick=async()=>{const r=await gmRpc('ll_gm_find',{p_q:$('gmU').value.trim()});if(r&&r.ok)$('gmFl').innerHTML=`<div class="lst">${r.list.map(p=>`<div class="it" data-pu="${hesc(p.u)}"><span><b>${hesc(p.u)}</b><small>${hesc(p.n)} · Lv ${p.lv}</small></span></div>`).join('')||'<div class="note">Tidak ada.</div>'}</div>`;
+      K.querySelectorAll('[data-pu]').forEach(el=>el.onclick=()=>{$('gmU').value=el.dataset.pu;$('gmFl').innerHTML=''})};
+    $('gmS').onclick=async()=>{const it=gmItem(),isi={coin:+$('gmC').value||0,mbox:+$('gmB').value||0,items:it?[it]:[],msg:$('gmMs').value||''};const r=await gmRpc('ll_gm_send',{p_to:$('gmU').value.trim().toLowerCase(),p_isi:isi});msg(r&&r.ok?'✔ Terkirim: '+isiTxt(isi):r&&r.why==='tujuan'?'Username tidak ditemukan.':'Gagal.')}}
+  if(tab==='code'){$('gcS').onclick=async()=>{const isi={coin:+$('gcC').value||0,mbox:+$('gcB').value||0,msg:$('gcMs').value||''};const r=await gmRpc('ll_gm_code',{p_kode:$('gcK').value,p_isi:isi,p_maks:+$('gcM').value||1,p_hari:+$('gcH').value||0});msg(r&&r.ok?'✔ Kode <b>'+hesc(r.kode)+'</b> siap dipakai':'Gagal (kode 4–24 huruf/angka/-).')};
+    gmRpc('ll_gm_log',{}).then(r=>{if(r&&r.ok&&$('gcL'))$('gcL').innerHTML=`<div class="sec">Kode terakhir</div>${r.codes.map(c=>`<div class="note">${hesc(c.k)} · ${c.p}/${c.m} terpakai${c.s?' · s/d '+new Date(c.s).toLocaleDateString('id'):''}</div>`).join('')}`})}
+  if(tab==='pin')$('gpS').onclick=async()=>{const r=await gmRpc('ll_gm_pin',{p_user:$('gpU').value.trim().toLowerCase(),p_pin:$('gpP').value.trim()});msg(r&&r.ok?'✔ PIN diganti. Beri tahu pemainnya.':r&&r.why==='pin'?'PIN harus 6 angka.':r&&r.why==='tujuan'?'Username tidak ditemukan.':'Gagal.')};
+  if(tab==='log')gmRpc('ll_gm_log',{}).then(r=>{if(r&&r.ok)$('glL').innerHTML=r.list.map(x=>`<div>${new Date(x.t).toLocaleString('id')} · <b>${hesc(x.j)}</b> ${hesc(x.a)} → ${hesc(x.b)}<br><small>${x.j==='trade'?'A: '+isiTxt(x.isi.a||{})+' | B: '+isiTxt(x.isi.b||{}):isiTxt(x.isi||{})}</small></div>`).join('<hr style="border-color:#ffffff14">')||'Belum ada.'})}
+{const d0=openDev;openDev=function(){d0.apply(this,arguments);try{const n=$('ksheet').querySelector('.note');if(!n)return;const b=document.createElement('button');b.className='go px';b.textContent='👑 GM Menu (online)';b.onclick=()=>llGM();n.after(b)}catch(e){}}}
+LLK.online=()=>llOnline();LLK.gm=t=>llGM(t);
 
 Object.assign(window,{bagExpand,bestEq,buyI,claimA,claimLogin,claimM,closeSheet,cvLair,cvLeave,cvMove,cvResume,cvStart,cvTrap,devCvReset,devDg,devDragon,devGive,devGold,devJob,devLumi,devLumiLv,devLv,devMBox,devSet,devToggle,devTp,dgResume,dgStart,gqSet,itemSheet,krJoin,lockI,lookSet,mbOpen,openBag,openChest,openDev,openExp,openKr,openShop,openTab,openWorld,openZone,prBuy,prCamp,prDone,prEnter,prLeave,prStart,quickSell,sellAll,sellI,setAct,setBagF,setChW,sheet,unwear,upgI,uraiI,uraiWeak,wear,zGo,zPick,zStart});
 })();
